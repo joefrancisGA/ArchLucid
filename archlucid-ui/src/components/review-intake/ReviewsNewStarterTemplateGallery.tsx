@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { starterArchitectureTemplates } from "@/data/starter-templates";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  REVIEWS_NEW_DETAILED_HREF,
+  REVIEWS_NEW_QUICK_REVIEW_HREF,
+  REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_ACTION,
+  REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_LEAD,
+} from "@/lib/reviews-new-path-copy";
 import { cn } from "@/lib/utils";
 
 const featuredTemplateIds = new Set([
@@ -18,6 +24,7 @@ const featuredTemplateIds = new Set([
 export function ReviewsNewStarterTemplateGallery(): React.JSX.Element {
   const router = useRouter();
   const featured = starterArchitectureTemplates.filter((template) => featuredTemplateIds.has(template.id));
+  const hasMoreTemplates = starterArchitectureTemplates.some((template) => !featuredTemplateIds.has(template.id));
 
   return (
     <section
@@ -41,7 +48,7 @@ export function ReviewsNewStarterTemplateGallery(): React.JSX.Element {
             className="flex flex-col justify-between gap-3 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
           >
             <div className="space-y-1">
-              <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
+              <p className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {template.label}
               </p>
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -63,8 +70,19 @@ export function ReviewsNewStarterTemplateGallery(): React.JSX.Element {
           </li>
         ))}
       </ul>
+      {hasMoreTemplates ? (
+        <p
+          className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="reviews-new-starter-template-browse-more"
+        >
+          {REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_LEAD}{" "}
+          <Link href={REVIEWS_NEW_DETAILED_HREF} className={OPERATOR_LINK.inline}>
+            {REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_ACTION}
+          </Link>
+        </p>
+      ) : null}
       <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-        <Link href="/architecture/reviews/new?path=quick-review" className="text-al-link underline-offset-2 hover:underline">
+        <Link href={REVIEWS_NEW_QUICK_REVIEW_HREF} className={OPERATOR_LINK.inline}>
           Or start blank in the wizard
         </Link>
       </p>

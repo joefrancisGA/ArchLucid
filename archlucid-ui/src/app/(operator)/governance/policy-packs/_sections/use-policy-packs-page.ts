@@ -12,14 +12,14 @@ import {
   getEffectivePolicyContent,
   getEffectivePolicyPacks,
   getPolicyPackCatalogEntry,
-  getPolicyPackVersion,
   listPolicyPackCatalog,
-  listPolicyPackVersions,
   listPolicyPacks,
   listPolicyPackWorkspaceSelection,
   publishPolicyPackVersion,
   setPolicyPackAssignmentEnabled,
 } from "@/lib/api";
+import { usePolicyPackVersionDetailQuery } from "@/hooks/use-policy-pack-version-detail-query";
+import { usePolicyPackVersionsQuery } from "@/hooks/use-policy-pack-versions-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   mergePolicyPacksStateWithStaticDemo,
@@ -116,6 +116,40 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   const [showVersionDiff, setShowVersionDiff] = useState(false);
   const [verticalImportSlug, setVerticalImportSlug] = useState<string | null>(null);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
+
+  const packVersionsQuery = usePolicyPackVersionsQuery(selectedPackId, {
+    enabled: selectedPackId.length > 0,
+  });
+  const latestPackVersion = packVersionsQuery.data?.[0]?.version ?? "";
+  const latestVersionDetailQuery = usePolicyPackVersionDetailQuery(selectedPackId, latestPackVersion, {
+    enabled: selectedPackId.length > 0 && latestPackVersion.length > 0,
+  });
+  const compareLeftMeta = packVersions.find((version) => version.policyPackVersionId === compareLeftId);
+  const compareRightMeta = packVersions.find((version) => version.policyPackVersionId === compareRightId);
+  const compareLeftDetailQuery = usePolicyPackVersionDetailQuery(
+    selectedPackId,
+    compareLeftMeta?.version ?? "",
+    {
+      enabled:
+        showVersionDiff &&
+        selectedPackId.length > 0 &&
+        compareLeftMeta !== undefined &&
+        compareRightMeta !== undefined &&
+        compareLeftId !== compareRightId,
+    },
+  );
+  const compareRightDetailQuery = usePolicyPackVersionDetailQuery(
+    selectedPackId,
+    compareRightMeta?.version ?? "",
+    {
+      enabled:
+        showVersionDiff &&
+        selectedPackId.length > 0 &&
+        compareLeftMeta !== undefined &&
+        compareRightMeta !== undefined &&
+        compareLeftId !== compareRightId,
+    },
+  );
 
   const refreshWorkspaceSelection = useCallback(async () => {
     setWorkspaceSelectionLoading(true);
@@ -290,93 +324,72 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
       return;
     }
 
-    void (async () => {
-      try {
-        setPublishJson(DEFAULT_CONTENT);
-        const versions = await listPolicyPackVersions(selectedPackId);
-        setPackVersions(versions);
-        const latest = versions[0];
+    const versions = packVersionsQuery.data ?? [];
+    setPackVersions(versions);
+    setPublishJson(DEFAULT_CONTENT);
 
-        if (latest) {
-          setPublishVersion(latest.version);
-          setAssignVersion(latest.version);
+    const latest = versions[0];
 
-          try {
-            const detail = await getPolicyPackVersion(selectedPackId, latest.version);
-            setPublishJson(detail.contentJson || DEFAULT_CONTENT);
-          } catch {
-            setPublishJson(DEFAULT_CONTENT);
-          }
-        }
+    if (latest) {
+      setPublishVersion(latest.version);
+      setAssignVersion(latest.version);
+    }
 
-        if (versions.length >= 2) {
-          setCompareLeftId(versions[1]!.policyPackVersionId);
-          setCompareRightId(versions[0]!.policyPackVersionId);
-        } else if (versions.length === 1) {
-          setCompareLeftId(versions[0]!.policyPackVersionId);
-          setCompareRightId(versions[0]!.policyPackVersionId);
-        } else {
-          setCompareLeftId("");
-          setCompareRightId("");
-        }
+    if (versions.length >= 2) {
+      setCompareLeftId(versions[1]!.policyPackVersionId);
+      setCompareRightId(versions[0]!.policyPackVersionId);
+    } else if (versions.length === 1) {
+      setCompareLeftId(versions[0]!.policyPackVersionId);
+      setCompareRightId(versions[0]!.policyPackVersionId);
+    } else {
+      setCompareLeftId("");
+      setCompareRightId("");
+    }
 
-        setShowVersionDiff(false);
-        setCompareLeftDetail(null);
-        setCompareRightDetail(null);
-      } catch {
-        setPackVersions([]);
-        setCompareLeftId("");
-        setCompareRightId("");
-        setCompareLeftDetail(null);
-        setCompareRightDetail(null);
-        setShowVersionDiff(false);
-      }
-    })();
-  }, [selectedPackId]);
+    setShowVersionDiff(false);
+    setCompareLeftDetail(null);
+    setCompareRightDetail(null);
+  }, [packVersionsQuery.data, selectedPackId]);
 
   useEffect(() => {
-    if (!showVersionDiff || !selectedPackId) {
+    if (!selectedPackId || latestPackVersion.length === 0) {
+      return;
+    }
+
+    if (latestVersionDetailQuery.data) {
+      setPublishJson(latestVersionDetailQuery.data.contentJson || DEFAULT_CONTENT);
+    }
+  }, [latestPackVersion, latestVersionDetailQuery.data, selectedPackId]);
+
+  useEffect(() => {
+    if (!showVersionDiff || !selectedPackId || compareLeftId === compareRightId) {
       setCompareLeftDetail(null);
       setCompareRightDetail(null);
 
       return;
     }
 
-    const leftMeta = packVersions.find((v) => v.policyPackVersionId === compareLeftId);
-    const rightMeta = packVersions.find((v) => v.policyPackVersionId === compareRightId);
-
-    if (!leftMeta || !rightMeta || compareLeftId === compareRightId) {
-      setCompareLeftDetail(null);
-      setCompareRightDetail(null);
+    if (compareLeftDetailQuery.data && compareRightDetailQuery.data) {
+      setCompareLeftDetail(compareLeftDetailQuery.data);
+      setCompareRightDetail(compareRightDetailQuery.data);
 
       return;
     }
 
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const [left, right] = await Promise.all([
-          getPolicyPackVersion(selectedPackId, leftMeta.version),
-          getPolicyPackVersion(selectedPackId, rightMeta.version),
-        ]);
-
-        if (!canceled) {
-          setCompareLeftDetail(left);
-          setCompareRightDetail(right);
-        }
-      } catch {
-        if (!canceled) {
-          setCompareLeftDetail(null);
-          setCompareRightDetail(null);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [showVersionDiff, selectedPackId, compareLeftId, compareRightId, packVersions]);
+    if (compareLeftDetailQuery.isError || compareRightDetailQuery.isError) {
+      setCompareLeftDetail(null);
+      setCompareRightDetail(null);
+    }
+  }, [
+    compareLeftDetailQuery.data,
+    compareLeftDetailQuery.isError,
+    compareLeftId,
+    compareRightDetailQuery.data,
+    compareRightDetailQuery.isError,
+    compareRightId,
+    selectedPackId,
+    showVersionDiff,
+  ]);
 
   const importVerticalPolicyPack = useCallback(async (slug: string, label: string) => {
     setFailure(null);

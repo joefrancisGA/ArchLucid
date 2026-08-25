@@ -2,13 +2,14 @@ using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Clarifications;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Clarifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.ProblemDetails;
-using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -30,6 +31,9 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class ReviewClarificationQuestionsController(
     IReviewClarificationQuestionService clarificationQuestionService,
+    IKnowledgeModelClarificationAnswerApplicator clarificationAnswerApplicator,
+    IClarificationAnswerReReviewCoordinator clarificationAnswerReReviewCoordinator,
+    IClarificationResolvedFindingMuter clarificationResolvedFindingMuter,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
@@ -73,5 +77,58 @@ public sealed class ReviewClarificationQuestionsController(
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+    }
+
+    [HttpPost("review/{runId:guid}/knowledge-model/clarification-answers")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(ApplyKnowledgeModelClarificationAnswersResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ApplyKnowledgeModelClarificationAnswers(
+        [FromRoute] Guid runId,
+        [FromBody] ApplyKnowledgeModelClarificationAnswersRequest? request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        int applied = await clarificationAnswerApplicator.ApplyAnswersAsync(
+            scope,
+            runId,
+            request.Answers,
+            cancellationToken).ConfigureAwait(false);
+
+        int mutedResolvedFindings = await clarificationResolvedFindingMuter
+            .MuteResolvedAsync(scope, runId, request.Answers, cancellationToken)
+            .ConfigureAwait(false);
+
+        IncrementalReReviewResult? reReview = await clarificationAnswerReReviewCoordinator
+            .TryRunAfterApplyAsync(scope, runId, applied, request.Answers, cancellationToken)
+            .ConfigureAwait(false);
+
+        int mergedFindingCount = reReview?.MergedFindingIds.Count ?? 0;
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.KnowledgeModelClarificationAnswersApplied,
+                RunId = runId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        appliedCount = applied,
+                        mutedResolvedFindingCount = mutedResolvedFindings,
+                        answerCount = request.Answers.Count,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
+
+        return Ok(new ApplyKnowledgeModelClarificationAnswersResponse
+        {
+            AppliedCount = applied,
+            ReReviewTriggered = reReview is not null,
+            MergedFindingCount = mergedFindingCount,
+            PartialScopeDisclaimer = reReview?.PartialScopeDisclaimer,
+        });
     }
 }

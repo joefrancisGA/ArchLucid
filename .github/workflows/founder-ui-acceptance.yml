@@ -103,10 +103,10 @@ jobs:
           echo "run_lighthouse=${run_lh}" >> "$GITHUB_OUTPUT"
           echo "Founder acceptance target: ${target} (lighthouse=${run_lh})"
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: steps.gate.outputs.skipped != 'true'
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: steps.gate.outputs.skipped != 'true'
         with:
           node-version: "22"
@@ -165,7 +165,7 @@ jobs:
             echo "::warning::Remote Lighthouse acceptance reported failures (warn-only)."
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: steps.gate.outputs.skipped != 'true' && always()
         with:
           name: founder-ui-acceptance-${{ github.run_id }}

@@ -26,9 +26,75 @@ function provenanceForFinding(finding: QuickDecisionFinding) {
   });
 }
 
+function readArchitectureIntelligenceWireProperty(
+  finding: QuickDecisionFinding,
+  propertyKey: string,
+): string | null {
+  try {
+    const parsed: unknown = JSON.parse(finding.aiReasoning.wireJson);
+
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return null;
+    }
+
+    const record = parsed as {
+      properties?: Record<string, unknown>;
+      Properties?: Record<string, unknown>;
+    };
+    const properties = record.properties ?? record.Properties;
+
+    if (properties === undefined || typeof properties !== "object") {
+      return null;
+    }
+
+    const value = properties[propertyKey];
+
+    return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+export function isAdversarialHypothesisLaneFinding(finding: QuickDecisionFinding): boolean {
+  if (finding.isMuted) {
+    return false;
+  }
+
+  const adversarialLane = readArchitectureIntelligenceWireProperty(
+    finding,
+    "architectureIntelligence.adversarialLane",
+  );
+
+  if (adversarialLane === "AdversarialChallenge") {
+    return true;
+  }
+
+  const presentation = readArchitectureIntelligenceWireProperty(
+    finding,
+    "architectureIntelligence.provenancePresentation",
+  );
+
+  return presentation === "Hypothesis";
+}
+
+/** ADR 0063 merge conflicts surface as triage rows, not hidden engine failures. */
+export function isFindingMergeConflictReviewFinding(finding: QuickDecisionFinding): boolean {
+  if (finding.isMuted) {
+    return false;
+  }
+
+  if ((finding.policyRuleId ?? "").trim() === "finding-merge-conflict") {
+    return true;
+  }
+
+  const conflictFlag = readArchitectureIntelligenceWireProperty(finding, "findingMerge.conflict");
+
+  return conflictFlag === "True";
+}
+
 /** TB-2302: blocked checks and missing facts surface as questions, not confirmed Critical defects. */
 export function isCannotDetermineReviewFinding(finding: QuickDecisionFinding): boolean {
-  if (finding.isMuted) {
+  if (finding.isMuted || isAdversarialHypothesisLaneFinding(finding)) {
     return false;
   }
 
@@ -60,6 +126,10 @@ export function isCannotDetermineReviewFinding(finding: QuickDecisionFinding): b
 export function isVerifyHypothesisReviewFinding(finding: QuickDecisionFinding): boolean {
   if (finding.isMuted) {
     return false;
+  }
+
+  if (isAdversarialHypothesisLaneFinding(finding)) {
+    return true;
   }
 
   const provenance = provenanceForFinding(finding);

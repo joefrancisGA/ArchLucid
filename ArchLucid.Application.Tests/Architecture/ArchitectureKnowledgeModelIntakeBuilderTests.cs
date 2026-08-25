@@ -1,7 +1,10 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Application.Drafts;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -71,5 +74,46 @@ public sealed class ArchitectureKnowledgeModelIntakeBuilderTests
         ArchitectureKnowledgeModel second = sut.Build(_scope, request, "run-stable");
 
         first.Elements.Select(e => e.ElementId).Should().Equal(second.Elements.Select(e => e.ElementId));
+    }
+
+    [Fact]
+    public void Build_maps_transparency_trail_interview_answers_to_model_elements()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-trail",
+            SystemName = "Trail System",
+            Description = "Enough characters for description.",
+            IntakeTransparencyTrail = new TransparencyTrail
+            {
+                Asserted =
+                [
+                    new AssertedTrailEntry { Key = "businessOutcome", Value = "Reduce chargebacks" },
+                ],
+                Inferred =
+                [
+                    new InferredTrailEntry { Key = "scale.requestsPerSecond", Value = "1000", Confidence = 60 },
+                ],
+                Skipped =
+                [
+                    new SkippedQuestionTrailEntry
+                    {
+                        QuestionKey = DraftIntakeQuestionKeys.CloudTarget,
+                        Tier = ElicitationQuestionTier.Must,
+                    },
+                ],
+            },
+        };
+
+        ArchitectureKnowledgeModelIntakeBuilder sut = new(TimeProvider.System);
+        ArchitectureKnowledgeModel model = sut.Build(_scope, request, "run-trail");
+
+        model.FramingAnswers.Should().ContainKey("businessOutcome");
+        model.Elements.Should().Contain(e =>
+            e.Kind == ArchitectureElementKind.UnresolvedQuestion
+            && e.Name == DraftIntakeQuestionKeys.CloudTarget);
+        model.Elements.Should().Contain(e =>
+            e.Kind == ArchitectureElementKind.Assumption && e.Name == "scale.requestsPerSecond");
+        model.IsProvisionalSynthesis.Should().BeTrue();
     }
 }

@@ -109,6 +109,28 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
     }
 
     [Fact]
+    public void ComputeNextRunsUtc_from_exact_weekly_occurrence_returns_following_mondays()
+    {
+        DateTime from = new(2026, 3, 30, 8, 0, 0, DateTimeKind.Utc);
+
+        IReadOnlyList<DateTime> runs = _sut.ComputeNextRunsUtc("0 8 * * 1", from, 2);
+
+        runs.Should().Equal(
+            new DateTime(2026, 4, 6, 8, 0, 0, DateTimeKind.Utc),
+            new DateTime(2026, 4, 13, 8, 0, 0, DateTimeKind.Utc));
+    }
+
+    [Fact]
+    public void ComputeNextRunsUtc_returns_empty_when_count_is_zero()
+    {
+        DateTime from = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+
+        IReadOnlyList<DateTime> runs = _sut.ComputeNextRunsUtc("0 8 * * 1", from, 0);
+
+        runs.Should().BeEmpty();
+    }
+
+    [Fact]
     public void ComputeNextRunsUtc_stamps_utc_kind_when_underlying_returns_unspecified_kind()
     {
         DateTime reference = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);

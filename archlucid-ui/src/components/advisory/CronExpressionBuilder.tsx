@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 
 import {
   Select,
@@ -16,10 +16,9 @@ import {
   CRON_SCHEDULE_PRESETS,
   resolveCronSchedulePresetId,
 } from "@/lib/cron-schedule-presets";
-import { previewRecurrenceScheduleRuns } from "@/lib/api/governance-stickiness-api";
+import { useRecurrenceScheduleRunsPreviewQuery } from "@/hooks/use-recurrence-schedule-runs-preview-query";
 
 const PREVIEW_COUNT = 5;
-const PREVIEW_DEBOUNCE_MS = 250;
 
 export type CronExpressionBuilderProps = {
   value: string;
@@ -68,73 +67,35 @@ export function CronExpressionBuilder({
 }: CronExpressionBuilderProps) {
   const presetId = resolveCronSchedulePresetId(value);
   const activePreset = CRON_SCHEDULE_PRESETS.find((preset) => preset.id === presetId);
-  const [previewRuns, setPreviewRuns] = useState<readonly Date[]>([]);
-  const [validationError, setValidationError] = useState<string | null>(null);
-  const [previewLoading, setPreviewLoading] = useState(false);
-
   const trimmedValue = value.trim();
+  const previewQuery = useRecurrenceScheduleRunsPreviewQuery(trimmedValue, {
+    count: PREVIEW_COUNT,
+    enabled: !hidePreview,
+  });
 
-  useEffect(() => {
-    if (hidePreview) {
-      setPreviewRuns([]);
-      setValidationError(null);
-      setPreviewLoading(false);
-
-      return;
+  const previewLoading = !hidePreview && trimmedValue.length > 0 && previewQuery.isPending;
+  const validationError = useMemo(() => {
+    if (hidePreview || trimmedValue.length === 0 || previewQuery.data === undefined) {
+      return null;
     }
 
-    if (trimmedValue.length === 0) {
-      setPreviewRuns([]);
-      setValidationError(null);
-      setPreviewLoading(false);
-
-      return;
+    if (!previewQuery.data.isValid) {
+      return (
+        previewQuery.data.validationError ??
+        "That schedule pattern is not supported. Use a valid five-field UTC expression."
+      );
     }
 
-    let canceled = false;
-    const timer = window.setTimeout(() => {
-      setPreviewLoading(true);
+    return null;
+  }, [hidePreview, previewQuery.data, trimmedValue.length]);
 
-      void previewRecurrenceScheduleRuns({
-        cronExpression: trimmedValue,
-        count: PREVIEW_COUNT,
-      })
-        .then((response) => {
-          if (canceled) {
-            return;
-          }
+  const previewRuns = useMemo(() => {
+    if (hidePreview || previewQuery.data === undefined || !previewQuery.data.isValid) {
+      return [] as readonly Date[];
+    }
 
-          if (!response.isValid) {
-            setValidationError(
-              response.validationError ??
-                "That schedule pattern is not supported. Use a valid five-field UTC expression.",
-            );
-            setPreviewRuns([]);
-
-            return;
-          }
-
-          setValidationError(null);
-          setPreviewRuns(response.nextRunUtc.map((instant) => new Date(instant)));
-        })
-        .catch(() => {
-          if (!canceled) {
-            setValidationError("Could not load schedule preview from the server.");
-            setPreviewRuns([]);
-          }
-        })
-        .finally(() => {
-          if (!canceled) {
-            setPreviewLoading(false);
-          }
-        });
-    }, PREVIEW_DEBOUNCE_MS);
-
-    return () => {
-      canceled = true;
-      window.clearTimeout(timer);
-    };
-  }, [hidePreview, trimmedValue]);
+    return previewQuery.data.nextRunUtc.map((instant) => new Date(instant));
+  }, [hidePreview, previewQuery.data]);
 
   useEffect(() => {
     if (onPreviewValidityChange === undefined) {

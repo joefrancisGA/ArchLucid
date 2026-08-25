@@ -21,6 +21,10 @@ vi.mock("@/components/operator/OperatorDemoStaticBanner", () => ({
   OperatorDemoStaticBanner: () => <div data-testid="operator-demo-static-banner" />,
 }));
 
+vi.mock("./ProvenanceNextReviewFooterClient", () => ({
+  ProvenanceNextReviewFooterClient: () => <div data-testid="provenance-next-review-footer-stub" />,
+}));
+
 const graph: ArchitectureRunProvenanceGraph = {
   runId: "demo-run",
   traceabilityGaps: [],

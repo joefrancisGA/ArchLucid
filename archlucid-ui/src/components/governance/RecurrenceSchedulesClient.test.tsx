@@ -7,6 +7,10 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => canMutate,
 }));
 
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", displayTitle: "" }),
+}));
+
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   createArchitectureReviewRecurrenceSchedule: vi.fn(),
   listArchitectureReviewRecurrenceSchedules: vi.fn(),
@@ -132,7 +136,7 @@ describe("RecurrenceSchedulesClient", () => {
     render(<RecurrenceSchedulesClient />);
 
     await waitFor(() => {
-      expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
+      expect(screen.getAllByText("Weekly architecture review").length).toBeGreaterThan(0);
     });
 
     const helper = screen.getByTestId("recurrence-schedules-helper-card");
@@ -142,6 +146,8 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByTestId("recurrence-schedules-page")).toHaveAttribute("data-empty-composition", "false");
     // Single-column page root — helper is disclosure in the main stack, not a right-rail aside.
     expect(helper.closest("aside")).toBeNull();
+    expect(screen.getByTestId("recurrence-schedules-continue-last-viewed-row")).toBeInTheDocument();
+    expect(screen.getByTestId("recurrence-schedules-continue-last-viewed-open")).toBeInTheDocument();
   });
 
   it("uses a compact examples chooser under Create when empty (TB-1133)", async () => {
@@ -173,7 +179,7 @@ describe("RecurrenceSchedulesClient", () => {
     render(<RecurrenceSchedulesClient />);
 
     await waitFor(() => {
-      expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
+      expect(screen.getAllByText("Weekly architecture review").length).toBeGreaterThan(0);
     });
 
     expect(screen.getByRole("link", { name: "View architecture reviews" })).toHaveAttribute(
@@ -196,7 +202,7 @@ describe("RecurrenceSchedulesClient", () => {
     render(<RecurrenceSchedulesClient />);
 
     await waitFor(() => {
-      expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
+      expect(screen.getAllByText("Weekly architecture review").length).toBeGreaterThan(0);
     });
 
     expect(screen.getByText("0 8 * * 1")).toBeInTheDocument();
@@ -247,7 +253,7 @@ describe("RecurrenceSchedulesClient", () => {
     render(<RecurrenceSchedulesClient />);
 
     await waitFor(() => {
-      expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
+      expect(screen.getAllByText("Weekly architecture review").length).toBeGreaterThan(0);
     });
 
     expect(screen.queryByTestId("recurrence-schedules-empty-state")).not.toBeInTheDocument();
@@ -261,7 +267,7 @@ describe("RecurrenceSchedulesClient", () => {
     render(<RecurrenceSchedulesClient />);
 
     await waitFor(() => {
-      expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
+      expect(screen.getAllByText("Weekly architecture review").length).toBeGreaterThan(0);
     });
 
     fireEvent.click(screen.getByTestId(`recurrence-more-${sampleSchedule.scheduleId}`));

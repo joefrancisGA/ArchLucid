@@ -91,15 +91,14 @@ public sealed class RecurrenceCompletionEmailDispatcher(
         string subject =
             $"{productName}: your scheduled architecture review is ready — {newFindingCount} new finding(s)";
 
-        SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
-        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken).ConfigureAwait(false);
-
-        if (!reserved)
-            return false;
-
-        foreach (string mailbox in normalizedMailboxes)
-        {
-            EmailMessage message = new()
+        return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
+            tenantId,
+            idempotencyKey,
+            TemplateId,
+            normalizedMailboxes,
+            _sentEmailLedger,
+            _emailProvider,
+            mailbox => new EmailMessage
             {
                 To = mailbox,
                 Subject = subject,
@@ -111,27 +110,19 @@ public sealed class RecurrenceCompletionEmailDispatcher(
                     TenantId = tenantId,
                     EventType = TemplateId,
                 },
-            };
-
-            try
-            {
-                await _emailProvider.SendAsync(message, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+            },
+            (ex, mailbox) =>
             {
                 if (_logger.IsEnabled(LogLevel.Error))
                 {
                     _logger.LogError(
                         ex,
-                        "Recurrence completion email send failed for tenant {TenantId}, schedule {ScheduleId}.",
+                        "Recurrence completion email send failed for tenant {TenantId}, schedule {ScheduleId}, mailbox {Mailbox}.",
                         tenantId,
-                        scheduleId);
+                        scheduleId,
+                        mailbox);
                 }
-
-                throw;
-            }
-        }
-
-        return true;
+            },
+            cancellationToken).ConfigureAwait(false);
     }
 }

@@ -61,6 +61,7 @@ import type { GraphViewModel } from "@/types/graph";
 import { GraphArchitectureNoteBanner } from "@/app/(operator)/insights/evidence-graph/_sections/GraphArchitectureNoteBanner";
 import { GraphEvidenceTrailGuidanceDisclosure } from "@/app/(operator)/insights/evidence-graph/_sections/GraphEvidenceTrailGuidanceDisclosure";
 import { GraphFetchStatusAlerts } from "@/app/(operator)/insights/evidence-graph/_sections/GraphFetchStatusAlerts";
+import { GraphPickReviewBeforeCanvasStrip } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPickReviewBeforeCanvasStrip";
 import { GraphIdlePlaceholder } from "@/app/(operator)/insights/evidence-graph/_sections/GraphIdlePlaceholder";
 import { GraphPageBuyerChrome } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageBuyerChrome";
 import { GraphPageHeader } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageHeader";
@@ -533,6 +534,8 @@ export function GraphPageContent() {
   const buyerEmptyWorkspaceFocus =
     buyerPolishedShell && showIdleCard && reviewPickerState === "no-packages";
 
+  const showReviewPickerBeforeCanvas = runId.trim().length === 0;
+
   const showSavedViews =
     canMutateEnterpriseShell &&
     !buyerPolishedShell &&
@@ -774,7 +777,11 @@ export function GraphPageContent() {
         />
       ) : null}
 
-      {!buyerPolishedShell && showIdleCard ? (
+      {!buyerPolishedShell && showReviewPickerBeforeCanvas ? (
+        <GraphPickReviewBeforeCanvasStrip selectedReviewId={runId} onSelectReview={handleRunIdChange} />
+      ) : null}
+
+      {!buyerPolishedShell && showIdleCard && !showReviewPickerBeforeCanvas ? (
         <GraphIdlePlaceholder graphIdlePreset={graphIdlePreset} buyerPolishedShell={buyerPolishedShell} />
       ) : null}
 
@@ -782,7 +789,7 @@ export function GraphPageContent() {
         <GraphArchitectureNoteBanner graphMainColumnMaxClass={graphMainColumnMaxClass} architectureGraphNote={architectureGraphNote} />
       ) : null}
 
-      {!buyerPolishedShell && effectiveGraph ? (
+      {!buyerPolishedShell && effectiveGraph && runId.trim().length > 0 ? (
         <>
           {savedViewsBar}
           <GraphLoadedExperience

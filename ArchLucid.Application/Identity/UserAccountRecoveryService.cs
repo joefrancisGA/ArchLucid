@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
@@ -73,6 +71,22 @@ public sealed class UserAccountRecoveryService(
             ?? throw new ArgumentException("Verification challenge was not found.");
 
         DateTimeOffset now = _timeProvider.GetUtcNow();
+        string normalizedEmail = challenge.NormalizedEmail;
+        string emailCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(normalizedEmail);
+
+        if (await AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync(
+                    _challenges,
+                    _emailOtpOptions,
+                    normalizedEmail,
+                    now,
+                    emailCorrelation,
+                    _auditService,
+                    cancellationToken)
+                .ConfigureAwait(false))
+        {
+            throw new ArgumentException("Invalid or expired verification code.");
+        }
+
         string codeHash = EmailOtpCodeHasher.Hash(request.ChallengeId, request.Code, _emailOtpOptions.HashPepper);
 
         EmailOtpChallengeCompletionOutcome completion = await _challenges.TryCompleteAsync(
@@ -87,22 +101,17 @@ public sealed class UserAccountRecoveryService(
             throw new ArgumentException("Invalid or expired verification code.");
         }
 
-        string normalizedEmail = completion.Challenge.NormalizedEmail;
-
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.UserAccountPrimaryEmailChangeRequested,
-                ActorUserId = actorId,
-                ActorUserName = actorId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        userId,
-                        emailCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(normalizedEmail)
-                    })
-            },
-            cancellationToken).ConfigureAwait(false);
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
+                AuditEventTypes.UserAccountPrimaryEmailChangeRequested,
+                actorId,
+                new
+                {
+                    userId,
+                    emailCorrelation
+                },
+                cancellationToken)
+            .ConfigureAwait(false);
 
         if (string.Equals(user.NormalizedPrimaryEmail, normalizedEmail, StringComparison.Ordinal))
         {
@@ -117,19 +126,16 @@ public sealed class UserAccountRecoveryService(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.UserAccountPrimaryEmailChanged,
-                ActorUserId = actorId,
-                ActorUserName = actorId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        userId,
-                        emailCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(normalizedEmail)
-                    })
-            },
-            cancellationToken).ConfigureAwait(false);
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
+                AuditEventTypes.UserAccountPrimaryEmailChanged,
+                actorId,
+                new
+                {
+                    userId,
+                    emailCorrelation
+                },
+                cancellationToken)
+            .ConfigureAwait(false);
     }
 }

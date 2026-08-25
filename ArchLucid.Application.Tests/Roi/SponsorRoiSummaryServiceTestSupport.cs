@@ -134,22 +134,52 @@ internal static class SponsorRoiSummaryServiceTestSupport
             .Setup(repo => repo.TryGetAsync(resolvedScope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantCostSettingsRecord?)null);
 
-        SponsorRoiSummaryService service = new(
+        IFindingReviewTrailRepository resolvedReviewTrail = findingReviewTrailRepository ?? reviewTrail.Object;
+        ValueReportComputationOptions valueReportOptions = new();
+
+        SponsorRoiRunCollector runCollector = new(
             runDetailQueryService,
             tenantEstimatedUsdSavingsResolver,
-            tenantRepository ?? Mock.Of<ITenantRepository>(),
-            scimUserRepository ?? Mock.Of<IScimUserRepository>(),
+            scopeProvider.Object,
+            resolvedReviewTrail,
+            riskExceptions.Object,
+            findingsSnapshots.Object,
+            tenantCostSettings.Object,
+            Options.Create(valueReportOptions),
+            NullLogger<SponsorRoiRunCollector>.Instance);
+
+        SponsorRoiSummaryBuilder summaryBuilder = new(
+            runCollector,
             pricingLabelResolver,
             scopeProvider.Object,
-            findingReviewTrailRepository ?? reviewTrail.Object,
+            resolvedReviewTrail,
             riskExceptions.Object,
             architectureRiskRegister.Object,
             tenantSettings.Object,
-            findingsSnapshots.Object,
-            tenantCostSettings.Object,
+            runDetailQueryService,
             CreateDefaultPilotScorecardMetricsReader(),
-            Options.Create(new ValueReportComputationOptions()),
-            NullLogger<SponsorRoiSummaryService>.Instance);
+            NullLogger<SponsorRoiSummaryBuilder>.Instance);
+
+        SponsorRoiHistoryBuilder historyBuilder = new(
+            runCollector,
+            runDetailQueryService,
+            NullLogger<SponsorRoiHistoryBuilder>.Instance);
+
+        SponsorRoiExportBuilder exportBuilder = new(
+            runCollector,
+            pricingLabelResolver);
+
+        CrossTenantPortfolioSummaryBuilder portfolioBuilder = new(
+            runCollector,
+            tenantRepository ?? Mock.Of<ITenantRepository>(),
+            scimUserRepository ?? Mock.Of<IScimUserRepository>(),
+            NullLogger<CrossTenantPortfolioSummaryBuilder>.Instance);
+
+        SponsorRoiSummaryService service = new(
+            summaryBuilder,
+            historyBuilder,
+            exportBuilder,
+            portfolioBuilder);
 
         return (service, packageRepository);
     }

@@ -406,6 +406,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
         {
             services.AddScoped<IGoldenManifestRepository, SqlGoldenManifestRepository>();
             services.AddScoped<IRunRepository, SqlRunRepository>();
+            services.AddScoped<IArchitectureIdentityRepository, SqlArchitectureIdentityRepository>();
             services.AddScoped<IPolicyPackRepository, DapperPolicyPackRepository>();
             services.AddScoped<SqlCommittedArchitectureReviewFlagReader>();
             services.AddScoped<ICommittedArchitectureReviewFlagReader>(sp =>
@@ -422,6 +423,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
             sp.GetRequiredService<IHotPathReadCache>()));
 
         services.AddScoped<SqlRunRepository>();
+        services.AddScoped<IArchitectureIdentityRepository, SqlArchitectureIdentityRepository>();
         services.AddScoped<IRunRepository>(sp => new CachingRunRepository(
             sp.GetRequiredService<SqlRunRepository>(),
             sp.GetRequiredService<IHotPathReadCache>()));

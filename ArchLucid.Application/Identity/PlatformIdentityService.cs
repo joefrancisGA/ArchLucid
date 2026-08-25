@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Identity;
 
@@ -210,18 +208,19 @@ public sealed class PlatformIdentityService(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAuditEvent(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.PlatformUserCreated,
                 request.ActorId,
-                request.TenantIdForAudit,
                 new
                 {
                     userId = user.Id,
                     providerType = normalizedKey.ProviderType.ToString(),
                     subject = normalizedKey.Subject
-                }),
-            cancellationToken).ConfigureAwait(false);
+                },
+                cancellationToken,
+                request.TenantIdForAudit)
+            .ConfigureAwait(false);
 
         return user;
     }
@@ -297,19 +296,20 @@ public sealed class PlatformIdentityService(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAuditEvent(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.AuthenticationIdentityAttached,
                 request.ActorId,
-                request.TenantIdForAudit ?? normalizedKey.TenantId,
                 new
                 {
                     userId,
                     identityId = created.Id,
                     providerType = normalizedKey.ProviderType.ToString(),
                     subject = normalizedKey.Subject
-                }),
-            cancellationToken).ConfigureAwait(false);
+                },
+                cancellationToken,
+                request.TenantIdForAudit ?? normalizedKey.TenantId)
+            .ConfigureAwait(false);
 
         return created;
     }
@@ -348,13 +348,14 @@ public sealed class PlatformIdentityService(
         await _users.RotateAuthVersionAsync(target.UserId, nextAuthVersion, disabledUtc, cancellationToken)
             .ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAuditEvent(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.AuthenticationIdentityDisabled,
                 actorId,
-                target.TenantId,
-                new { userId = target.UserId, identityId }),
-            cancellationToken).ConfigureAwait(false);
+                new { userId = target.UserId, identityId },
+                cancellationToken,
+                target.TenantId)
+            .ConfigureAwait(false);
     }
 
     public Task<bool> HasValidSignInMethodAsync(Guid userId, CancellationToken cancellationToken)
@@ -385,19 +386,20 @@ public sealed class PlatformIdentityService(
             },
             cancellationToken).ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAuditEvent(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.AuthenticationIdentityCreated,
                 request.ActorId,
-                request.TenantIdForAudit ?? normalizedKey.TenantId,
                 new
                 {
                     userId,
                     identityId = created.Id,
                     providerType = normalizedKey.ProviderType.ToString(),
                     subject = normalizedKey.Subject
-                }),
-            cancellationToken).ConfigureAwait(false);
+                },
+                cancellationToken,
+                request.TenantIdForAudit ?? normalizedKey.TenantId)
+            .ConfigureAwait(false);
 
         return created;
     }
@@ -450,18 +452,4 @@ public sealed class PlatformIdentityService(
         }
     }
 
-    private static AuditEvent BuildAuditEvent(
-        string eventType,
-        string actorId,
-        Guid? tenantId,
-        object payload) =>
-        new()
-        {
-            EventType = eventType,
-            ActorUserId = actorId,
-            ActorUserName = actorId,
-            ExplicitActor = true,
-            TenantId = tenantId ?? Guid.Empty,
-            DataJson = JsonSerializer.Serialize(payload)
-        };
 }

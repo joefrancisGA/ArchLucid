@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF,
   CLAIMS_INTAKE_SAMPLE_DEFINITION,
   CLAIMS_INTAKE_SAMPLE_RUN_ID,
 } from "@/lib/samples/claims-intake/definition";
@@ -14,8 +15,12 @@ import {
   isActiveSampleHeroFindingId,
   isActiveSamplePolicyPackId,
   isActiveSampleRunId,
+  isSampleHeroFindingReferenceId,
+  isSamplePolicyPackId,
   isSampleHeroFindingIdForRun,
   listRegisteredSampleScenarios,
+  resolveSampleScenarioByHeroFindingId,
+  resolveSampleScenarioByPolicyPackId,
   resolveSampleScenarioByRunId,
   resolveSampleScenarioBySlug,
 } from "@/lib/samples/registry";
@@ -52,5 +57,19 @@ describe("samples/registry", () => {
     expect(isActiveSamplePolicyPackId("demo-enterprise-privacy-pack")).toBe(true);
     expect(isActiveSamplePolicyPackId("enterprise-privacy-v2")).toBe(true);
     expect(isActiveSamplePolicyPackId("healthcare-claims-v3")).toBe(false);
+  });
+
+  it("resolves policy pack and hero finding ids across registered scenarios", () => {
+    expect(resolveSampleScenarioByPolicyPackId("healthcare-claims-v3")).toBe(CLAIMS_INTAKE_SAMPLE_DEFINITION);
+    expect(resolveSampleScenarioByPolicyPackId("demo-healthcare-claims-pack")).toBe(CLAIMS_INTAKE_SAMPLE_DEFINITION);
+    expect(resolveSampleScenarioByPolicyPackId("enterprise-privacy-v2")).toBe(CUSTOMER_INTAKE_SAMPLE_DEFINITION);
+    expect(isSamplePolicyPackId("healthcare-claims-v3")).toBe(true);
+    expect(resolveSampleScenarioByHeroFindingId(CLAIMS_INTAKE_SAMPLE_DEFINITION.primaryFindingId)).toBe(
+      CLAIMS_INTAKE_SAMPLE_DEFINITION,
+    );
+    expect(isSampleHeroFindingReferenceId(CUSTOMER_INTAKE_SAMPLE_DEFINITION.primaryFindingId)).toBe(true);
+    expect(resolveSampleScenarioByPolicyPackId("healthcare-claims-v3")?.policyPackDetailHref).toBe(
+      CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF,
+    );
   });
 });

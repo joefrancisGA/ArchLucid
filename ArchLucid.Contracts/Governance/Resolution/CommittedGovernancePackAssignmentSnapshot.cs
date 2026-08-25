@@ -20,4 +20,21 @@ public sealed class CommittedGovernancePackAssignmentSnapshot
         get;
         set;
     } = GovernanceScopeLevel.Project;
+
+    /// <summary>
+    ///     Persisted outcome after findings are available:
+    ///     <see cref="PolicyPackEvaluationOutcomes" />.
+    /// </summary>
+    public string? EvaluationOutcome
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Compliance rule keys from the assigned pack version used for evaluation matching.</summary>
+    public List<string> ComplianceRuleKeys
+    {
+        get;
+        set;
+    } = [];
 }

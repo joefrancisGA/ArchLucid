@@ -169,6 +169,7 @@ beforeEach(() => {
     displayName: "Claims intake modernization",
   });
   vi.mocked(showError).mockReset();
+  vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([]);
   vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
     saveState: "idle",
     lastSavedUtc: null,
@@ -298,6 +299,47 @@ describe("ArchitectureDraftWorkspace", () => {
       screen.getByRole("heading", { level: 1, name: "Claims intake" }),
     ).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-creation-new-draft-section-title")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-start-review-setup-progress")).toBeInTheDocument();
+  });
+
+  it("shows the next draft footer when another workspace draft exists", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
+      {
+        architectureId: "arch-001",
+        displayName: "Claims intake",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-07-12T23:42:05.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-07-12T23:42:05.000Z",
+      },
+      {
+        architectureId: "arch-002",
+        displayName: "Payments core",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-06-01T00:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-06-01T00:00:00.000Z",
+      },
+    ]);
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-next-draft-footer")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-draft-next-draft-action")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/arch-002",
+    );
   });
 
   it("shows a skeleton without list wayfinding while loading an existing draft (TB-1453)", async () => {
@@ -948,5 +990,66 @@ describe("ArchitectureDraftWorkspace", () => {
     await waitFor(() => {
       expect(saveDraft).toHaveBeenCalled();
     });
+  });
+
+  it("blocks Start review with a gate dialog when actor suggestions are unresolved (TB-2006)", async () => {
+    const longOverview =
+      "Claims intake modernization with nightly batch API integration for partner channels, routing rules, exception queues, and operator handoffs.";
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: {
+        ...spawnedDraft.document,
+        freeTextIntent: longOverview,
+        businessOutcome: "Reduce manual routing",
+        workflowIntent: "create-architecture",
+        structuredBrief: readyStructuredBriefDocument,
+        actorSet: {
+          actors: [
+            {
+              label: "Primary operator",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
+      },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("draft-intake-actor-suggest"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("draft-intake-actor-suggestions-panel")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-start-review")).not.toBeDisabled();
+    });
+
+    expect(screen.getByTestId("architecture-draft-actor-suggestions-readiness")).toHaveTextContent(
+      /Resolve suggested people and systems before starting a review/i,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-start-review"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("draft-intake-actor-suggestions-gate-dialog")).toBeInTheDocument();
+    });
+
+    expect(saveDraft).not.toHaveBeenCalled();
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
   });
 });

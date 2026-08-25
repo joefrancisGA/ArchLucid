@@ -53,7 +53,11 @@ import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
-import { ApiKeysSettingsBreadcrumb } from "./ApiKeysSettingsBreadcrumb";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import {
+  resolveApiKeysIssueEmphasizedStepId,
+  resolveApiKeysIssueSteps,
+} from "@/lib/api-keys-issue-checklist";
 import { ApiKeysSettingsBuyerChrome } from "./ApiKeysSettingsBuyerChrome";
 import {
   API_KEYS_SETTINGS_PRIMARY_CONTENT_ID,
@@ -155,6 +159,7 @@ export function ApiKeysSettingsPageClient() {
   const [rotating, setRotating] = useState(false);
   const [auditEvents, setAuditEvents] = useState<readonly ApiKeyAuditEvent[]>([]);
   const [statusBanner, setStatusBanner] = useState<string | null>(null);
+  const [secretAcknowledged, setSecretAcknowledged] = useState(false);
   const eventsSectionRef = useRef<HTMLElement | null>(null);
 
   const load = useCallback(async () => {
@@ -263,6 +268,17 @@ export function ApiKeysSettingsPageClient() {
     return buildCredentialRows(state.settings);
   }, [state]);
 
+  const apiKeysIssueSteps = resolveApiKeysIssueSteps({
+    slotSelected: pendingAction !== null || rotating || rotateReveal !== null,
+    confirmAcknowledged: rotating || rotateReveal !== null,
+    secretStored: secretAcknowledged,
+  });
+  const apiKeysIssueEmphasizedStepId = resolveApiKeysIssueEmphasizedStepId({
+    slotSelected: pendingAction !== null || rotating || rotateReveal !== null,
+    confirmAcknowledged: rotating || rotateReveal !== null,
+    secretStored: secretAcknowledged,
+  });
+
   if (state.status === "blocked") {
     return <ApiKeysSettingsRestrictedState reason="forbidden" />;
   }
@@ -338,7 +354,10 @@ export function ApiKeysSettingsPageClient() {
                 type="button"
                 size="sm"
                 disabled={rotating}
-                onClick={() => setPendingAction({ kind: "issue_overlap" })}
+                onClick={() => {
+                  setSecretAcknowledged(false);
+                  setPendingAction({ kind: "issue_overlap" });
+                }}
               >
                 {API_KEYS_ACTION_ISSUE_OVERLAP}
               </Button>
@@ -347,7 +366,10 @@ export function ApiKeysSettingsPageClient() {
                 size="sm"
                 variant="outline"
                 disabled={rotating}
-                onClick={() => setPendingAction({ kind: "rotate_readonly" })}
+                onClick={() => {
+                  setSecretAcknowledged(false);
+                  setPendingAction({ kind: "rotate_readonly" });
+                }}
               >
                 {API_KEYS_ACTION_ROTATE_READONLY}
               </Button>
@@ -364,19 +386,37 @@ export function ApiKeysSettingsPageClient() {
                 size="sm"
                 variant="destructive"
                 disabled={rotating}
-                onClick={() => setPendingAction({ kind: "rotate_admin" })}
+                onClick={() => {
+                  setSecretAcknowledged(false);
+                  setPendingAction({ kind: "rotate_admin" });
+                }}
               >
                 {API_KEYS_ACTION_ROTATE_ADMIN}
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <IntegrationConnectChecklist
+              title="Issue checklist"
+              steps={apiKeysIssueSteps}
+              emphasizedStepId={apiKeysIssueEmphasizedStepId}
+              testIdPrefix="api-keys-issue"
+            />
             <ApiKeyCredentialTable
               rows={credentialRows}
               busy={rotating}
-              onIssueOverlap={() => setPendingAction({ kind: "issue_overlap" })}
-              onRotateAdmin={() => setPendingAction({ kind: "rotate_admin" })}
-              onRotateReadOnly={() => setPendingAction({ kind: "rotate_readonly" })}
+              onIssueOverlap={() => {
+                setSecretAcknowledged(false);
+                setPendingAction({ kind: "issue_overlap" });
+              }}
+              onRotateAdmin={() => {
+                setSecretAcknowledged(false);
+                setPendingAction({ kind: "rotate_admin" });
+              }}
+              onRotateReadOnly={() => {
+                setSecretAcknowledged(false);
+                setPendingAction({ kind: "rotate_readonly" });
+              }}
             />
           </CardContent>
         </Card>
@@ -387,7 +427,15 @@ export function ApiKeysSettingsPageClient() {
         <ApiKeyRecentEventsTable events={auditEvents} />
       </section>
 
-      {rotateReveal ? <ApiKeyRotateRevealPanel response={rotateReveal} onDismiss={() => setRotateReveal(null)} /> : null}
+      {rotateReveal ? (
+        <ApiKeyRotateRevealPanel
+          response={rotateReveal}
+          onDismiss={() => {
+            setSecretAcknowledged(true);
+            setRotateReveal(null);
+          }}
+        />
+      ) : null}
 
       {showTechnicalDetails && state.status === "ready" ? (
         <ApiKeysSettingsTechnicalDetails settings={state.settings} rotateResponse={rotateReveal} />

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { useTransition } from "react";
 
 import { cn } from "@/lib/utils";
@@ -16,9 +17,11 @@ import {
   PLANNING_PLAN_DETAIL_MISSING_PLAN_ID_TITLE,
   planningPlanDetailPageSubtitle,
 } from "@/lib/planning-plan-detail-evidence-copy";
+import { resolveNextPlanInTheme } from "@/lib/resolve-next-plan-in-theme";
 
 import { PlanningLoadFailurePanel } from "../../../_sections/PlanningLoadFailurePanel";
 import { PlanningPlanDetailBuyerChrome } from "./PlanningPlanDetailBuyerChrome";
+import { PlanningPlanDetailNextPlanFooter } from "./PlanningPlanDetailNextPlanFooter";
 import { PlanningPlanDetailPageHeader } from "./PlanningPlanDetailPageHeader";
 import { PlanningPlanDetailSections } from "./PlanningPlanDetailSections";
 import type { UsePlanningPlanDetailPageModel } from "./use-planning-plan-detail-page";
@@ -31,9 +34,16 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
   const router = useRouter();
   const [refreshing, startRefreshTransition] = useTransition();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const { failure, plan, planId } = model;
+  const { failure, plan, planId, plans } = model;
   const trimmedPlanId = planId.trim();
   const missingPlanId = trimmedPlanId.length === 0;
+  const nextPlanInTheme = useMemo(() => {
+    if (plan === null) {
+      return null;
+    }
+
+    return resolveNextPlanInTheme(plans, plan.planId, plan.themeId);
+  }, [plan, plans]);
 
   const refreshPlan = (): void => {
     startRefreshTransition(() => {
@@ -87,6 +97,8 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
       ) : null}
 
       {!missingPlanId && failure === null && plan !== null ? <PlanningPlanDetailSections plan={plan} /> : null}
+
+      {nextPlanInTheme !== null ? <PlanningPlanDetailNextPlanFooter plan={nextPlanInTheme} /> : null}
     </div>
   );
 }

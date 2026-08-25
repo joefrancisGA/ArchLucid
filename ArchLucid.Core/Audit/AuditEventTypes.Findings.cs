@@ -9,6 +9,12 @@ public static partial class AuditEventTypes
     /// <summary>Findings-derived clarification questions read (<c>GET /v1/architecture/review/{runId}/clarification-questions</c>).</summary>
     public const string ReviewClarificationQuestionsAccessed = "ReviewClarificationQuestionsAccessed";
 
+    /// <summary>Operator applied clarification answers onto knowledge model unresolved questions (<c>POST /v1/architecture/review/{runId}/knowledge-model/clarification-answers</c>).</summary>
+    public const string KnowledgeModelClarificationAnswersApplied = "KnowledgeModelClarificationAnswersApplied";
+
+    /// <summary>Operator resolved a finding merge conflict on a committed run (<c>POST /v1/governance/runs/{runId}/finding-merge-conflicts/{findingId}/resolve</c>).</summary>
+    public const string FindingMergeConflictResolved = "FindingMergeConflictResolved";
+
     /// <summary>Findings snapshot generation reached a sealed terminal generation status.</summary>
     public const string FindingsSnapshotSealed = "FindingsSnapshotSealed";
 

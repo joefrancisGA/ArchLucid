@@ -124,4 +124,58 @@ export const operatorQueryKeys = {
     filters: Record<string, string>,
     cursor: string | null,
   ) => ["operator", "audit", "events-search", scope, filters, { cursor }] as const,
+  quickScanStatus: ["marketing", "quick-scan", "status"] as const,
+  extractUploadBaselineArtifacts: ["operator", "extract-upload", "baseline-artifacts"] as const,
+  tenantIdentityProviderConfiguration: ["operator", "admin", "tenant-identity-provider-configuration"] as const,
+  architectureIntelligenceSourceContext: (runId: string) =>
+    ["operator", "architecture-intelligence", "source-context", runId] as const,
+  runRetrievalGrounding: (runId: string) => ["operator", "runs", "retrieval-grounding", runId] as const,
+  effectivePolicyPacks: ["operator", "governance", "effective-policy-packs"] as const,
+  effectivePolicyContent: ["operator", "governance", "effective-policy-content"] as const,
+  runSummary: (runId: string) => ["operator", "runs", "summary", runId] as const,
+  architectureDecisionRegister: (projectId: string, filtersKey: string) =>
+    ["operator", "governance", "decision-register", projectId, filtersKey] as const,
+  runDetailWorkspaceContextBundle: (runId: string) =>
+    ["operator", "runs", "workspace-context-bundle", runId] as const,
+  policyPackVersions: (packId: string) => ["operator", "governance", "policy-pack-versions", packId] as const,
+  policyPackVersionDetail: (packId: string, version: string) =>
+    ["operator", "governance", "policy-pack-version", packId, version] as const,
+  policyPackDetailPage: (packId: string) => ["operator", "governance", "policy-pack-detail-page", packId] as const,
+  compareRunsEndToEnd: (baselineRunId: string, targetRunId: string) =>
+    ["operator", "compare", "end-to-end", baselineRunId, targetRunId] as const,
+  compareGovernanceDiff: (baselineRunId: string, targetRunId: string) =>
+    ["operator", "compare", "governance-diff", baselineRunId, targetRunId] as const,
+  architectureRequest: (requestId: string) => ["operator", "architecture", "request", requestId] as const,
+  azureBoardsWorkItemTypes: (projectName: string) =>
+    ["operator", "integrations", "azure-boards", "work-item-types", projectName] as const,
+  policyPackRuleTemplates: ["operator", "governance", "policy-pack-rule-templates"] as const,
+  whyArchLucidPageBundle: (reloadNonce: number) =>
+    ["operator", "why-archlucid", "page-bundle", reloadNonce] as const,
+  whyArchLucidEvidence: (runId: string) => ["operator", "why-archlucid", "evidence", runId] as const,
+  recurrenceScheduleRunsPreview: (cron: string, count: number) =>
+    ["operator", "governance", "recurrence-runs-preview", cron, { count }] as const,
+  sponsorRoiAggregates: ["operator", "analytics", "sponsor-roi-aggregates"] as const,
+  digestDeliveryAttemptsBatch: (digestIdsKey: string) =>
+    ["operator", "digests", "delivery-attempts-batch", digestIdsKey] as const,
+  tenantIntegrationsOperations: ["operator", "tenant", "integrations-operations"] as const,
+  draftBranchQuota: (draftId: string) => ["operator", "draft-intake", "branch-quota", draftId] as const,
+  tenantBaselineRoi: ["operator", "tenant", "baseline-roi"] as const,
+  findingProvenance: (runId: string, findingId: string) =>
+    ["operator", "findings", "provenance", runId, findingId] as const,
+  findingLlmAudit: (runId: string, findingId: string) =>
+    ["operator", "findings", "llm-audit", runId, findingId] as const,
+  approvalRequestLineage: (approvalRequestId: string) =>
+    ["operator", "governance", "approval-lineage", approvalRequestId] as const,
+  runStageTimeline: (runId: string) => ["operator", "runs", "stage-timeline", runId] as const,
+  architectureTelemetryRoi: ["operator", "architecture", "telemetry-roi"] as const,
+  agentExecutionCostPreview: (previewUrl: string) =>
+    ["operator", "wizard", "agent-execution-cost-preview", previewUrl] as const,
+  modelEngineSelectionOptions: ["operator", "architecture", "model-engine-selection-options"] as const,
+  priorSameRequestCompareFallback: (runId: string) =>
+    ["operator", "compare", "prior-same-request-fallback", runId] as const,
+  policyPackVisualBuilderContext: (projectId: string) =>
+    ["operator", "governance", "policy-pack-visual-builder", projectId] as const,
+  draftArchitectureBrief: (architectureId: string) =>
+    ["operator", "architecture", "draft-brief", architectureId] as const,
+  newRunWizardCommittedProbe: ["operator", "wizard", "new-run-committed-probe"] as const,
 };

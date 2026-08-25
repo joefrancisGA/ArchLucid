@@ -6,6 +6,7 @@ import {
   GUIDED_INTAKE_ACTORS_SECTION_HEADING,
   GUIDED_INTAKE_ADD_ACTOR_BUTTON,
   GUIDED_INTAKE_ADD_SELECTED_ACTORS_BUTTON,
+  GUIDED_INTAKE_ACTOR_SUGGESTIONS_GATE_TITLE,
   GUIDED_INTAKE_INTERACTION_TIMING_HINT,
   GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT,
@@ -184,5 +185,71 @@ describe("DraftIntakeActorEditor", () => {
     expect(screen.getByTestId("draft-intake-actor-suggest-hint")).toHaveTextContent(
       /Enter an architecture overview to generate suggestions/i,
     );
+  });
+
+  it("opens the gate dialog when suggestionGateRequestId increments while the panel is open", () => {
+    const onChange = vi.fn();
+    const onUnresolvedSuggestionsChange = vi.fn();
+
+    const { rerender } = render(
+      <DraftIntakeActorEditor
+        actorSet={{ actors: [] }}
+        intentText={sampleIntent}
+        suggestionGateRequestId={0}
+        onUnresolvedSuggestionsChange={onUnresolvedSuggestionsChange}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("draft-intake-actor-suggest"));
+
+    expect(onUnresolvedSuggestionsChange).toHaveBeenCalledWith(true);
+
+    rerender(
+      <DraftIntakeActorEditor
+        actorSet={{ actors: [] }}
+        intentText={sampleIntent}
+        suggestionGateRequestId={1}
+        onUnresolvedSuggestionsChange={onUnresolvedSuggestionsChange}
+        onChange={onChange}
+      />,
+    );
+
+    expect(screen.getByTestId("draft-intake-actor-suggestions-gate-dialog")).toBeInTheDocument();
+    expect(screen.getByText(GUIDED_INTAKE_ACTOR_SUGGESTIONS_GATE_TITLE)).toBeInTheDocument();
+  });
+
+  it("dismisses suggestions from the gate dialog without adding actors", () => {
+    const onChange = vi.fn();
+    const onUnresolvedSuggestionsChange = vi.fn();
+
+    const { rerender } = render(
+      <DraftIntakeActorEditor
+        actorSet={{ actors: [] }}
+        intentText={sampleIntent}
+        suggestionGateRequestId={0}
+        onUnresolvedSuggestionsChange={onUnresolvedSuggestionsChange}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("draft-intake-actor-suggest"));
+
+    rerender(
+      <DraftIntakeActorEditor
+        actorSet={{ actors: [] }}
+        intentText={sampleIntent}
+        suggestionGateRequestId={1}
+        onUnresolvedSuggestionsChange={onUnresolvedSuggestionsChange}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("draft-intake-actor-gate-dismiss"));
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("draft-intake-actor-suggestions-panel")).toBeNull();
+    expect(screen.queryByTestId("draft-intake-actor-suggestions-gate-dialog")).toBeNull();
+    expect(onUnresolvedSuggestionsChange).toHaveBeenLastCalledWith(false);
   });
 });

@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Common;
@@ -20,7 +21,9 @@ public sealed class ArchitectureRunCommandService(
     IReplayRunService replayRunService,
     ICommitRunIdempotencyCoordinator commitRunIdempotencyCoordinator,
     ICommitSponsorEmailNotifier commitSponsorEmailNotifier,
-    IArchitectureSynthesisKernel architectureSynthesisKernel) : IArchitectureRunCommandService
+    IArchitectureSynthesisKernel architectureSynthesisKernel,
+    ISelectiveExecuteIncrementalReReviewCoordinator selectiveExecuteIncrementalReReviewCoordinator)
+    : IArchitectureRunCommandService
 {
     private readonly IArchitectureRunCreateOrchestrator _architectureRunCreateOrchestrator =
         architectureRunCreateOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCreateOrchestrator));
@@ -46,6 +49,10 @@ public sealed class ArchitectureRunCommandService(
 
     private readonly IArchitectureSynthesisKernel _architectureSynthesisKernel =
         architectureSynthesisKernel ?? throw new ArgumentNullException(nameof(architectureSynthesisKernel));
+
+    private readonly ISelectiveExecuteIncrementalReReviewCoordinator _selectiveExecuteIncrementalReReviewCoordinator =
+        selectiveExecuteIncrementalReReviewCoordinator
+        ?? throw new ArgumentNullException(nameof(selectiveExecuteIncrementalReReviewCoordinator));
 
     public async Task<CreateRunCommandResult> CreateRunAsync(
         ScopeContext scope,
@@ -98,14 +105,23 @@ public sealed class ArchitectureRunCommandService(
     public Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default) =>
         _architectureRunExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken);
 
-    public Task<ExecuteRunResult> ExecuteRunSelectiveAsync(
+    public async Task<ExecuteRunResult> ExecuteRunSelectiveAsync(
         string runId,
         SelectiveAgentExecuteRequest request,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return _architectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync(runId, request, cancellationToken);
+        ExecuteRunResult result =
+            await _architectureRunExecuteOrchestrator
+                .ExecuteSelectiveRunAsync(runId, request, cancellationToken)
+                .ConfigureAwait(false);
+
+        await _selectiveExecuteIncrementalReReviewCoordinator
+            .TryRunAfterSelectiveExecuteAsync(runId, request, cancellationToken)
+            .ConfigureAwait(false);
+
+        return result;
     }
 
     public async Task<CommitRunIdempotencyOutcome> CommitRunAsync(

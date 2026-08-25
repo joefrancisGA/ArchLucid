@@ -12,7 +12,8 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
     IScopeContextProvider scopeContextProvider,
     IEffectiveGovernanceResolver effectiveGovernanceResolver,
     IPolicyPackAssignmentRepository policyPackAssignmentRepository,
-    IPolicyPackRepository policyPackRepository) : ICommittedEffectiveGovernanceSnapshotCapturer
+    IPolicyPackRepository policyPackRepository,
+    IPolicyPackVersionRepository policyPackVersionRepository) : ICommittedEffectiveGovernanceSnapshotCapturer
 {
     private readonly IEffectiveGovernanceResolver _effectiveGovernanceResolver =
         effectiveGovernanceResolver ?? throw new ArgumentNullException(nameof(effectiveGovernanceResolver));
@@ -22,6 +23,9 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
 
     private readonly IPolicyPackRepository _policyPackRepository =
         policyPackRepository ?? throw new ArgumentNullException(nameof(policyPackRepository));
+
+    private readonly IPolicyPackVersionRepository _policyPackVersionRepository =
+        policyPackVersionRepository ?? throw new ArgumentNullException(nameof(policyPackVersionRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -97,7 +101,11 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
                 {
                     PolicyPackId = assignment.PolicyPackId,
                     PolicyPackVersion = assignment.PolicyPackVersion,
-                    ScopeLevel = GovernanceScopeLevel.TryNormalize(assignment.ScopeLevel) ?? GovernanceScopeLevel.Project
+                    ScopeLevel = GovernanceScopeLevel.TryNormalize(assignment.ScopeLevel) ?? GovernanceScopeLevel.Project,
+                    ComplianceRuleKeys = await PolicyPackAssignmentComplianceRuleKeysResolver.ResolveForAssignmentAsync(
+                        _policyPackVersionRepository,
+                        assignment,
+                        cancellationToken).ConfigureAwait(false),
                 });
         }
 

@@ -52,6 +52,7 @@ import { FindingJobViewLaneCallout } from "@/components/findings/FindingJobViewL
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
+import { FindingInspectNextFindingEvidenceFooterClient } from "./_sections/FindingInspectNextFindingEvidenceFooterClient";
 
 /** Compares authority run ids from URL vs API (hyphenated vs `N` GUID, case). */
 export function sameAuthorityRunId(a: string, b: string): boolean {
@@ -306,6 +307,8 @@ export function FindingInspectView({
           promptTemplateVersion: payload.promptTemplateVersion ?? null,
         }}
       />
+
+      <FindingInspectNextFindingEvidenceFooterClient runId={runId} findingId={decodedFindingId} />
     </OperatorPageContainer>
   );
 }

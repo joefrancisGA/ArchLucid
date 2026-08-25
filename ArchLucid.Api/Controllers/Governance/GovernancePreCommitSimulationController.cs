@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -27,8 +28,29 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class GovernancePreCommitSimulationController(
     IPreCommitGovernanceGate gate,
+    IPreFinalizeChecklistService preFinalizeChecklistService,
     IAuditService auditService) : ControllerBase
 {
+    // idempotency-posture: dry-run-no-persist
+    [HttpGet("checklist/{runId}")]
+    [ProducesResponseType(typeof(PreFinalizeChecklistResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetChecklistAsync(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("Run ID is required.", ProblemTypes.ValidationFailed);
+
+        if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
+            return this.BadRequestProblem($"Run ID '{runId}' is not valid.", ProblemTypes.BadRequest);
+
+        PreFinalizeChecklistResult checklist =
+            await preFinalizeChecklistService.BuildAsync(runIdNormalized, cancellationToken);
+
+        return Ok(checklist);
+    }
+
     // idempotency-posture: dry-run-no-persist
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(PreCommitGateResult), StatusCodes.Status200OK)]

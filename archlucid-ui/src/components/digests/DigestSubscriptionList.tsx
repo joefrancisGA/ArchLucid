@@ -133,7 +133,10 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
                 const status = resolveSubscriptionStatusBadge(item, attempts);
 
                 return (
-                  <EnterpriseTableRow key={item.subscriptionId}>
+                  <EnterpriseTableRow
+                    key={item.subscriptionId}
+                    data-digest-subscription-id={item.subscriptionId}
+                  >
                     <EnterpriseTableCell>
                       <span className={OPERATOR_TYPOGRAPHY.body}>{item.name}</span>
                     </EnterpriseTableCell>

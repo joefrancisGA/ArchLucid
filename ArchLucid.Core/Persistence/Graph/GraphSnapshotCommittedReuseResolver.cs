@@ -33,6 +33,10 @@ public static class GraphSnapshotCommittedReuseResolver
                 return new GraphSnapshotResolutionResult(fromHeader, "reused_from_run_header");
         }
 
+        // When the run header FK is cleared (e.g. sibling κ mutation), do not resurrect a stale orphan graph.
+        if (runGraphSnapshotId is null)
+            return null;
+
         GraphSnapshot? latestForContext = await graphSnapshotRepository
             .GetLatestByContextSnapshotIdAsync(scope, contextSnapshotId, ct);
 

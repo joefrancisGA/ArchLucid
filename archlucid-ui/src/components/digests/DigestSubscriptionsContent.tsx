@@ -19,6 +19,7 @@ import { operatorPageContainerClass } from "@/components/operator/OperatorPageCo
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { DigestSubscriptionCreateForm } from "@/components/digests/DigestSubscriptionCreateForm";
 import { DigestSubscriptionList } from "@/components/digests/DigestSubscriptionList";
+import { DigestSubscriptionsContinueLastViewedRow } from "@/components/digests/DigestSubscriptionsContinueLastViewedRow";
 import { DigestSubscriptionsReadinessPanel } from "@/components/digests/DigestSubscriptionsReadinessPanel";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -38,6 +39,10 @@ import {
 } from "@/lib/digest-subscriptions-workflow";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
+import {
+  resolveContinueLastDigestSubscription,
+  writeDigestSubscriptionLastViewedId,
+} from "@/lib/resolve-continue-last-digest-subscription";
 
 const EMPTY_SUBSCRIPTIONS: DigestSubscription[] = [];
 
@@ -56,6 +61,10 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
   const scope = useOperatorScopeQueryKey();
   const subscriptionsQuery = useDigestSubscriptionsQuery();
   const items = subscriptionsQuery.data ?? EMPTY_SUBSCRIPTIONS;
+  const continueLastSubscription = useMemo(
+    () => resolveContinueLastDigestSubscription(items),
+    [items],
+  );
   const subscriptionIds = useMemo(() => items.map((item) => item.subscriptionId), [items]);
   const { attemptsBySub } = useDigestSubscriptionDeliveryAttemptsQueries(subscriptionIds, refreshToken);
   const [historyOpenFor, setHistoryOpenFor] = useState<string | null>(null);
@@ -93,6 +102,21 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       }
     };
   }, []);
+
+  function rememberSubscription(subscriptionId: string): void {
+    writeDigestSubscriptionLastViewedId(subscriptionId);
+  }
+
+  function openSubscription(subscriptionId: string): void {
+    rememberSubscription(subscriptionId);
+    document
+      .querySelector(`[data-digest-subscription-id="${subscriptionId}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    if (historyOpenFor !== subscriptionId) {
+      void onViewHistory(subscriptionId);
+    }
+  }
 
   async function onCreate(input: {
     name: string;
@@ -143,6 +167,8 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
     isEnabled: boolean,
     subscriptionName: string,
   ): Promise<void> {
+    rememberSubscription(subscriptionId);
+
     if (!canMutateSubscriptions) {
       return;
     }
@@ -186,6 +212,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
   }
 
   async function onViewHistory(subscriptionId: string): Promise<void> {
+    rememberSubscription(subscriptionId);
     setMutationFailure(null);
 
     try {
@@ -210,6 +237,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
   }
 
   function onPrefillCreate(subscription: DigestSubscription): void {
+    rememberSubscription(subscription.subscriptionId);
     setPrefillFrom(subscription);
     formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -274,6 +302,13 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           focusRequestToken={focusCreateToken}
           onCreate={onCreate}
         />
+
+        {continueLastSubscription !== null ? (
+          <DigestSubscriptionsContinueLastViewedRow
+            target={continueLastSubscription}
+            onOpen={openSubscription}
+          />
+        ) : null}
 
         <DigestSubscriptionList
           items={items}

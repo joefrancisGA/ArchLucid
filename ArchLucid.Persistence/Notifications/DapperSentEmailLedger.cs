@@ -14,6 +14,38 @@ public sealed class DapperSentEmailLedger(ISqlConnectionFactory connectionFactor
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
     /// <inheritdoc />
+    public async Task<bool> IsRecordedAsync(Guid tenantId, string idempotencyKey, CancellationToken cancellationToken)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(idempotencyKey))
+            return false;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = """
+                           SELECT CASE
+                               WHEN EXISTS (
+                                   SELECT 1
+                                   FROM dbo.SentEmails e
+                                   WHERE e.IdempotencyKey = @IdempotencyKey
+                                     AND e.TenantId = @TenantId)
+                               THEN 1
+                               ELSE 0
+                           END;
+                           """;
+
+        int exists = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                sql,
+                new { IdempotencyKey = idempotencyKey.Trim(), TenantId = tenantId },
+                cancellationToken: cancellationToken));
+
+        return exists == 1;
+    }
+
+    /// <inheritdoc />
     public async Task<bool> TryRecordSentAsync(SentEmailLedgerEntry entry, CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

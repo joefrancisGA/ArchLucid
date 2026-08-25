@@ -3,8 +3,10 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
+using ArchLucid.Api.Mapping;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
@@ -48,9 +50,21 @@ public sealed class AdvisoryController(
     IRecommendationWorkflowService recommendationWorkflowService,
     IRecommendationRepository recommendationRepository,
     IAuditService auditService,
-    ILogger<AdvisoryController> logger)
+    ArchLucid.Persistence.Interfaces.IRunRepository runRepository,
+    ILogger<AdvisoryController> logger,
+    IRecommendationImproveLoopCoordinator? recommendationImproveLoopCoordinator = null,
+    IRecommendationImproveLoopEvidencePersister? recommendationImproveLoopEvidencePersister = null)
     : ControllerBase
 {
+    private readonly IRecommendationImproveLoopCoordinator? _recommendationImproveLoopCoordinator =
+        recommendationImproveLoopCoordinator;
+
+    private readonly IRecommendationImproveLoopEvidencePersister? _recommendationImproveLoopEvidencePersister =
+        recommendationImproveLoopEvidencePersister;
+
+    private readonly ArchLucid.Persistence.Interfaces.IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
     private readonly ILogger<AdvisoryController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -146,8 +160,8 @@ public sealed class AdvisoryController(
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Rows ordered per <see cref="IRecommendationRepository.ListByRunAsync" />.</returns>
     [HttpGet("runs/{runId:guid}/recommendations")]
-    [ProducesResponseType(typeof(IReadOnlyList<RecommendationRecordResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<RecommendationRecordResponse>>> ListRecommendations(
+    [ProducesResponseType(typeof(AdvisoryRunRecommendationsListResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AdvisoryRunRecommendationsListResponse>> ListRecommendations(
         Guid runId,
         CancellationToken ct = default)
     {
@@ -160,7 +174,15 @@ public sealed class AdvisoryController(
             runId,
             ct);
 
-        return Ok(items.Select(ToRecordResponse).ToList());
+        ArchLucid.Persistence.Models.RunRecord? run =
+            await _runRepository.GetByIdAsync(scope, runId, ct).ConfigureAwait(false);
+
+        return Ok(new AdvisoryRunRecommendationsListResponse
+        {
+            Recommendations = items.Select(ToRecordResponse).ToList(),
+            ImproveLoopEvidence = RecommendationImproveLoopResponseMapper.TryParsePersistedEvidence(
+                run?.ImproveLoopEvidenceJson),
+        });
     }
 
     /// <summary>
@@ -177,7 +199,7 @@ public sealed class AdvisoryController(
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("recommendations/{recommendationId:guid}/action")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [ProducesResponseType(typeof(RecommendationRecordResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RecommendationActionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ApplyRecommendationAction(
@@ -205,6 +227,22 @@ public sealed class AdvisoryController(
             return this.NotFoundProblem($"Recommendation '{recommendationId}' was not found.",
                 ProblemTypes.ResourceNotFound);
 
+        RecommendationImproveLoopResult? improveLoop = null;
+
+        if (_recommendationImproveLoopCoordinator is not null
+            && request.Action is RecommendationActionType.Accept or RecommendationActionType.MarkImplemented)
+        {
+            improveLoop = await _recommendationImproveLoopCoordinator.TryApplyAsync(updated, ct).ConfigureAwait(false);
+
+            if (_recommendationImproveLoopEvidencePersister is not null)
+            {
+                ScopeContext scope = scopeProvider.GetCurrentScope();
+                await _recommendationImproveLoopEvidencePersister
+                    .PersistAsync(scope, updated.RunId, improveLoop, improveLoop?.MergedFindingIds, ct)
+                    .ConfigureAwait(false);
+            }
+        }
+
         string eventType = request.Action switch
         {
             RecommendationActionType.Accept => AuditEventTypes.RecommendationAccepted,
@@ -223,7 +261,11 @@ public sealed class AdvisoryController(
             },
             ct);
 
-        return Ok(ToRecordResponse(updated));
+        return Ok(new RecommendationActionResponse
+        {
+            Recommendation = ToRecordResponse(updated),
+            ImproveLoop = RecommendationImproveLoopResponseMapper.ToEvidenceResponse(improveLoop),
+        });
     }
 
     private static bool IsKnownRecommendationAction(string? action)

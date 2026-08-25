@@ -10,6 +10,18 @@ public sealed class InMemorySentEmailLedger : ISentEmailLedger
     private readonly ConcurrentDictionary<string, byte> _keys = new(StringComparer.Ordinal);
 
     /// <inheritdoc />
+    public Task<bool> IsRecordedAsync(Guid tenantId, string idempotencyKey, CancellationToken cancellationToken)
+    {
+        _ = tenantId;
+        _ = cancellationToken;
+
+        if (string.IsNullOrWhiteSpace(idempotencyKey))
+            return Task.FromResult(false);
+
+        return Task.FromResult(_keys.ContainsKey(idempotencyKey.Trim()));
+    }
+
+    /// <inheritdoc />
     public Task<bool> TryRecordSentAsync(SentEmailLedgerEntry entry, CancellationToken cancellationToken)
     {
         _ = cancellationToken;

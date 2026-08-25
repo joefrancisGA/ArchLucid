@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 15
     environment: dev
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Eligibility
         id: eligibility
@@ -44,7 +44,7 @@ jobs:
           fi
           echo "enabled=true" >> "${GITHUB_OUTPUT}"
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         if: steps.eligibility.outputs.enabled == 'true'
         with:
           python-version: "3.12"
@@ -58,7 +58,7 @@ jobs:
 
       - name: Restore error-signature baseline
         if: steps.eligibility.outputs.enabled == 'true'
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: ${{ runner.temp }}/app-insights-error-baseline
           key: app-insights-error-baseline-${{ github.run_id }}
@@ -126,12 +126,12 @@ jobs:
 
       - name: Cache baseline for next run
         if: steps.eligibility.outputs.enabled == 'true'
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: ${{ runner.temp }}/app-insights-error-baseline
           key: app-insights-error-baseline-${{ github.run_id }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: steps.eligibility.outputs.enabled == 'true'
         with:
           name: app-insights-daily-errors-${{ github.run_id }}

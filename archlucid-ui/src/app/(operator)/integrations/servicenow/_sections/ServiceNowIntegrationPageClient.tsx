@@ -14,11 +14,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useItsmConnectorPage } from "@/hooks/use-itsm-connector-page";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
-  fetchItsmIntegrationHealth,
-  fetchTenantItsmConnectorConnection,
-  fetchTenantItsmOutboundSettings,
   probeItsmIntegrationHealth,
   upsertTenantItsmOutboundSettings,
   type ItsmIntegrationHealthResponse,
@@ -86,88 +84,60 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canConfigureAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const showOperatorNotes = isShowSystemAdministrationNavEnabled();
-  const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
-  const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
-  const [connection, setConnection] = useState<TenantItsmConnectorConnectionResponse | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [settingsLoadFailed, setSettingsLoadFailed] = useState(false);
-  const [healthLoadFailed, setHealthLoadFailed] = useState(false);
-  const [connectionLoadFailed, setConnectionLoadFailed] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [testError, setTestError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [snowAutoCmdb, setSnowAutoCmdb] = useState(false);
   const [lastTestAt, setLastTestAt] = useState<string | null>(null);
   const [lastTestSummary, setLastTestSummary] = useState<string | null>(null);
   const [lastTestSuccess, setLastTestSuccess] = useState<boolean | null>(null);
-  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
   const [zoneLoadSlices, setZoneLoadSlices] = useState<readonly IntegrationZoneLoadSlice[]>([]);
 
   const applySettings = useCallback((loaded: TenantItsmOutboundSettingsResponse | null) => {
-    setSettings(loaded);
     setSnowAutoCmdb(loaded?.serviceNowAutoCreateCmdbCi ?? false);
   }, []);
 
-  const refresh = useCallback(async () => {
-    setIsLoading(true);
-    setLoadError(null);
-
-    // Isolate slice failures so one 500 cannot wipe successful connection/settings (TB-1162).
-    const [healthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
-      fetchItsmIntegrationHealth(),
-      fetchTenantItsmOutboundSettings(),
-      fetchTenantItsmConnectorConnection("servicenow"),
-    ]);
-
-    const loaded = buildServiceNowPageLoadResult({
-      health: healthOutcome,
-      settings: settingsOutcome,
-      connection: connectionOutcome,
-    });
-
-    setHealthLoadFailed(loaded.health.failed);
-    setSettingsLoadFailed(loaded.settings.failed);
-    setConnectionLoadFailed(loaded.connection.failed);
-
-    if (!loaded.health.failed) {
-      setHealth(loaded.health.value);
-    }
-
-    if (!loaded.settings.failed) {
-      applySettings(loaded.settings.value);
-    }
-
-    if (!loaded.connection.failed) {
-      setConnection(loaded.connection.value);
-    }
-
-    setLoadError(loaded.loadError);
-    setZoneLoadSlices([
-      {
-        id: "health",
-        label: "ServiceNow health",
-        failed: loaded.health.failed,
-        errorMessage: loaded.health.errorMessage,
-      },
-      {
-        id: "settings",
-        label: "ServiceNow settings",
-        failed: loaded.settings.failed,
-        errorMessage: loaded.settings.errorMessage,
-      },
-      {
-        id: "connection",
-        label: "ServiceNow connection",
-        failed: loaded.connection.failed,
-        errorMessage: loaded.connection.errorMessage,
-      },
-    ]);
-    setLastCheckedAt(new Date());
-    setIsLoading(false);
-  }, [applySettings]);
+  const {
+    health,
+    settings,
+    connection,
+    loadError,
+    settingsLoadFailed,
+    healthLoadFailed,
+    connectionLoadFailed,
+    isLoading,
+    lastCheckedAt,
+    refresh,
+    setSettings,
+  } = useItsmConnectorPage({
+    providerId: "servicenow",
+    buildPageLoadResult: buildServiceNowPageLoadResult,
+    applySettings,
+    onPageLoaded: (loaded) => {
+      setZoneLoadSlices([
+        {
+          id: "health",
+          label: "ServiceNow health",
+          failed: loaded.health.failed,
+          errorMessage: loaded.health.errorMessage,
+        },
+        {
+          id: "settings",
+          label: "ServiceNow settings",
+          failed: loaded.settings.failed,
+          errorMessage: loaded.settings.errorMessage,
+        },
+        {
+          id: "connection",
+          label: "ServiceNow connection",
+          failed: loaded.connection.failed,
+          errorMessage: loaded.connection.errorMessage,
+        },
+      ]);
+    },
+  });
 
   useEffect(() => {
     void refresh();
@@ -570,8 +540,9 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
 
           <ServiceNowIntegrationAside
             status={connectionStatus}
-            setupSteps={setupSteps}
-            emphasizedSetupStepId={pageComposition.emphasizedSetupStepId}
+            credentialsReady={credentialsReady}
+            destinationConfigured={nativeEnabled}
+            connectionVerified={probe?.reachable === true}
             lastTestAt={lastTestAt}
             lastTestSummary={lastTestSummary}
             lastTestSuccess={lastTestSuccess}

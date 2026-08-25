@@ -9,7 +9,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
+import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { formatActionActorName } from "@/lib/action-actor-display";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -93,6 +95,7 @@ function renderMetadataField(field: ReviewMetadataField): React.JSX.Element {
 /** Customer-facing review header — title and review identity without repeating sponsor metrics. */
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
+  const reviewsListNavHref = useReviewsListReturnNavHref(REVIEWS_LIST_PATH);
   const metadataFields = buildReviewMetadataFields(props);
   const collapseMetadataFieldSet = buildCollapseMetadataFields(props);
   const unrecordedFieldCount = collapseMetadataFieldSet.filter((field) => field.value === null).length;
@@ -100,8 +103,9 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
 
   return (
     <div data-testid="run-detail-workspace-header">
+      <SampleReviewDemoBanner runId={props.runId} />
       <OperatorPageHeader
-        navHref={REVIEWS_LIST_PATH}
+        navHref={reviewsListNavHref}
         title={h1Title}
         headingLevel="h1"
         subtitle={props.eyebrowLabel}

@@ -54,7 +54,7 @@ Update this table when routes change. Tiers are **product contract**, not k6 tag
 | Health live/ready | `GET /health/live`, `GET /health/ready` | A | N/A | Keep sync |
 | List / get run | `GET /v1/architecture/reviews`, `GET /v1/architecture/review/{runId}` | A–B | Run DTO flags | Keep sync |
 | Create request (sync) | `POST /v1/architecture/request` | C | Run created | Sync OK for Simulator/CI only (**tierCSyncPathAllowlist**) |
-| Create request (async) | `POST /v1/architecture/request/async` | C | **202** + `Location: /v1/operations/run:{runId}` | **Done** (Tier C create sibling) |
+| Create request (async) | `POST /v1/architecture/request/async` | C | **202** + `Location: /v1/operations/run:{runId}` after **stub + enqueue only** | **Done** (Tier C create sibling). HTTP must not wait on pipeline, durable audit, or execute/replay ahead in the in-process queue. |
 | Execute (sync) | `POST /v1/architecture/review/{runId}/execute` | C in Real | Blocks until agents complete | Keep for Simulator/CI |
 | Execute (async) | `POST /v1/architecture/review/{runId}/execute/async` | C | **202** + `Location: /v1/operations/run:{runId}` | **Done** (**TB-2075** 2026-08-08) |
 | Finalize / commit | `POST .../finalize` (and commit aliases) | B–C | Run status | Prefer sync when short; watch edge ceilings |
@@ -182,6 +182,24 @@ A browser that stops waiting has **not** canceled the server. Treating a client-
 | Accepted work **disarms** the client watchdog | Callers invoke `succeed()` before navigating, so a slow client-side navigation cannot fire the watchdog after the server already accepted |
 
 **Never** leave a mutation CTA re-enabled with no visible outcome. Every terminal state renders a durable inline surface (`ReviewStartInlineError` or `ReviewStartUnresolvedNotice`) — see `.cursor/rules/UI-Form-Validation-Affordances.mdc` and `durable-action-outcome-inventory.ts`.
+
+### Fast admit (create) — land the draft, notify later
+
+`POST /v1/architecture/request/async` exists so Real-mode create can beat the **60s** UI BFF / Front Door ceiling. The HTTP thread may only:
+
+1. Validate the skinny JSON body (evidence bytes are uploaded **after** 202 via multipart).
+2. Persist the architecture-request row, a `Created` run stub, and the idempotency key.
+3. Enqueue coordination and return **202** + `Location`.
+
+It must **not**:
+
+- Hold a SQL unit of work across authority ingestion / graph / LLM stages (that serializes the *next* admit behind minutes of pipeline and looks like a timeout).
+- Await durable `RequestCreated` audit before 202 (audit runs on the worker).
+- Drain create work behind an in-flight execute/replay on the single-reader in-process channel.
+
+Progress after 202 is **notifications + operations poll / SSE**, not a longer proxy budget. A client that stops waiting at 60s reports **unresolved** and retries the same `Idempotency-Key`.
+
+Same-key retry is recovery, not a no-op: if admit committed but enqueue or worker completion did not (run still `Created`, or `Failed` with no context snapshot), accept **re-enqueues** unless that create is already in flight. Durable `RequestCreated` is emitted once by create completion (`FinalizeSuccessfulCreateRunAsync`), not on the HTTP thread and not a second time in the worker. Create completions are bounded and dispatched without waiting for an in-flight execute/replay on the channel reader; execute for the same run waits until create completion is signaled.
 
 ### Shell operation persistence
 

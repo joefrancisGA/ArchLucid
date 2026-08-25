@@ -24,8 +24,8 @@ public sealed class WorkloadIdentityHostedAzureExtractorCredentialFactory(
         HostedAzureExtractorOptions options = _optionsMonitor.CurrentValue;
 
         ManagedIdentityCredential managedIdentity = string.IsNullOrWhiteSpace(options.ArchLucidManagedIdentityClientId)
-            ? new ManagedIdentityCredential()
-            : new ManagedIdentityCredential(options.ArchLucidManagedIdentityClientId);
+            ? new ManagedIdentityCredential(ManagedIdentityId.SystemAssigned)
+            : new ManagedIdentityCredential(ManagedIdentityId.FromUserAssignedClientId(options.ArchLucidManagedIdentityClientId));
 
         string exchangeScope = string.IsNullOrWhiteSpace(options.FederatedTokenExchangeScope)
             ? "api://AzureADTokenExchange/.default"

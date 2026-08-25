@@ -1,5 +1,7 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
@@ -108,6 +110,30 @@ public sealed class MustNotFailEnforcerTests
         ArchitectureRecommendation recommendation = CreateCloudRecommendation();
 
         IReadOnlyList<MustNotFailViolation> violations = _enforcer.Evaluate([], [recommendation]);
+
+        violations.Should().Contain(violation =>
+            violation.Class == MustNotFailClass.UnlabeledCloudSpecificRecommendation && violation.Blocked);
+    }
+
+    [Fact]
+    public void Evaluate_blocks_off_ledger_cloud_technology_when_ledger_rows_exist()
+    {
+        ArchitectureRecommendation recommendation = CreateCloudRecommendation();
+
+        List<TechnologyLedgerEntry> ledgerEntries =
+        [
+            new()
+            {
+                RunId = "run-1",
+                Role = TechnologyLedgerRole.CloudPlatform,
+                TechnologyName = "Amazon Web Services",
+                ProviderFamily = CloudProvider.Aws,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+            },
+        ];
+
+        IReadOnlyList<MustNotFailViolation> violations = _enforcer.Evaluate([], [recommendation], ledgerEntries);
 
         violations.Should().Contain(violation =>
             violation.Class == MustNotFailClass.UnlabeledCloudSpecificRecommendation && violation.Blocked);

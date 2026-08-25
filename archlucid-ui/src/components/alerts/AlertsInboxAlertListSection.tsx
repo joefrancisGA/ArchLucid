@@ -1,10 +1,18 @@
 import { AlertsInboxAlertCard } from "@/components/alerts/AlertsInboxAlertCard";
+import { AlertsInboxContinueLastViewedRow } from "@/components/alerts/AlertsInboxContinueLastViewedRow";
+import { AlertsTriageFirstOpenAlertStrip } from "@/components/alerts/AlertsTriageFirstOpenAlertStrip";
 import { AlertsInboxListStates } from "@/components/alerts/AlertsInboxListStates";
+import { resolveAlertsInboxTriageFirstAlert } from "@/lib/resolve-alerts-inbox-triage-first-alert";
+import {
+  resolveContinueLastAlert,
+  writeAlertsInboxLastViewedId,
+} from "@/lib/resolve-continue-last-alert";
 import { AlertsInboxPagination } from "@/components/alerts/AlertsInboxPagination";
 import { AlertsInboxVirtualizedAlertList } from "@/components/alerts/AlertsInboxVirtualizedAlertList";
 import { shouldVirtualizeAlertsInboxList } from "@/components/alerts/alerts-inbox-virtualization";
 import type { AlertsInboxController } from "@/components/alerts/use-alerts-inbox-controller";
 import type { AlertRecord } from "@/types/alerts";
+import { useMemo } from "react";
 
 type EmptyFilteredProps = NonNullable<Parameters<typeof AlertsInboxListStates>[0]["emptyFilteredProps"]>;
 
@@ -39,6 +47,19 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
     !loading &&
     failure === null &&
     (visibleAlerts.length > 0 || canGoPrevious || hasMore);
+  const triageFirstAlert = resolveAlertsInboxTriageFirstAlert(visibleAlerts);
+  const continueLastAlert = useMemo(() => resolveContinueLastAlert(visibleAlerts), [visibleAlerts]);
+
+  function rememberAlert(alertId: string): void {
+    writeAlertsInboxLastViewedId(alertId);
+  }
+
+  function openAlert(alertId: string): void {
+    rememberAlert(alertId);
+    document
+      .querySelector(`[data-alert-id="${alertId}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   return (
     <div className="grid gap-3">
@@ -51,6 +72,21 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
         workspaceScopeEmptyTeaching={controller.workspaceScopeEmptyTeaching}
       />
 
+      {continueLastAlert !== null ? (
+        <AlertsInboxContinueLastViewedRow target={continueLastAlert} onOpen={openAlert} />
+      ) : null}
+
+      {triageFirstAlert !== null ? (
+        <AlertsTriageFirstOpenAlertStrip
+          target={triageFirstAlert}
+          canAcknowledge={canMutateAlertInbox}
+          onAcknowledge={(alertId, action) => {
+            rememberAlert(alertId);
+            queuePendingAction(alertId, action);
+          }}
+        />
+      ) : null}
+
       {visibleAlerts.length > 0
         ? shouldVirtualizeAlertsInboxList(visibleAlerts.length)
           ? (
@@ -61,11 +97,18 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
               selectedAlertIds={selectedAlertIds}
               archiveBusyAlertId={archiveBusyAlertId}
               onToggleSelected={toggleAlertSelected}
-              onPendingAction={queuePendingAction}
+              onPendingAction={(alertId, action) => {
+                rememberAlert(alertId);
+                queuePendingAction(alertId, action);
+              }}
               onArchiveAlert={(alertId) => {
+                rememberAlert(alertId);
                 void onArchiveAlert(alertId);
               }}
-              onOpenRoutingDelivery={openRoutingDelivery}
+              onOpenRoutingDelivery={(alertId, findingDetailHref) => {
+                rememberAlert(alertId);
+                openRoutingDelivery(alertId, findingDetailHref);
+              }}
             />
           )
           : visibleAlerts.map((alert: AlertRecord) => (
@@ -77,11 +120,18 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
               selected={selectedAlertIds.includes(alert.alertId)}
               archiveBusyAlertId={archiveBusyAlertId}
               onToggleSelected={toggleAlertSelected}
-              onPendingAction={queuePendingAction}
+              onPendingAction={(alertId, action) => {
+                rememberAlert(alertId);
+                queuePendingAction(alertId, action);
+              }}
               onArchiveAlert={(alertId) => {
+                rememberAlert(alertId);
                 void onArchiveAlert(alertId);
               }}
-              onOpenRoutingDelivery={openRoutingDelivery}
+              onOpenRoutingDelivery={(alertId, findingDetailHref) => {
+                rememberAlert(alertId);
+                openRoutingDelivery(alertId, findingDetailHref);
+              }}
             />
           ))
         : null}

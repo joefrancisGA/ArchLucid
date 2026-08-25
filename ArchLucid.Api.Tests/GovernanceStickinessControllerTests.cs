@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
+using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -123,17 +124,51 @@ public sealed class GovernanceStickinessControllerTests
             .Returns(Task.CompletedTask);
 
         return new GovernanceStickinessController(
-                scope.Object,
-                actor.Object,
-                dispositions.Object,
-                riskExceptions.Object,
-                riskRegisterService.Object,
-                decisionRegister.Object,
-                recurrenceRepository.Object,
-                nextRun.Object,
-                digestComposer.Object,
-                reviewsAwaiting.Object,
-                audit.Object)
+                new GovernanceStickinessFacade(
+                    scope.Object,
+                    actor.Object,
+                    dispositions.Object,
+                    riskExceptions.Object,
+                    riskRegisterService.Object,
+                    decisionRegister.Object,
+                    recurrenceRepository.Object,
+                    nextRun.Object,
+                    Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+                    Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
+                    digestComposer.Object,
+                    reviewsAwaiting.Object,
+                    Mock.Of<IRealizedValueAttestationService>(),
+                    audit.Object),
+                scope.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+    }
+
+    private static GovernanceStickinessController BuildController(
+        IScopeContextProvider scopeProvider,
+        IActorContext actorContext,
+        IArchitectureRiskRegisterService riskRegister,
+        IGovernanceDigestDecisionNeededComposer? digestComposer = null,
+        IReviewsAwaitingActionQueryService? reviewsAwaiting = null)
+    {
+        return new GovernanceStickinessController(
+                new GovernanceStickinessFacade(
+                    scopeProvider,
+                    actorContext,
+                    Mock.Of<IFindingDispositionService>(),
+                    Mock.Of<IRiskExceptionService>(),
+                    riskRegister,
+                    Mock.Of<IArchitectureDecisionRegisterService>(),
+                    Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
+                    Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
+                    Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+                    Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
+                    digestComposer ?? Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
+                    reviewsAwaiting ?? Mock.Of<IReviewsAwaitingActionQueryService>(),
+                    Mock.Of<IRealizedValueAttestationService>(),
+                    Mock.Of<IAuditService>()),
+                scopeProvider)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -189,21 +224,10 @@ public sealed class GovernanceStickinessControllerTests
         actor.Setup(context => context.GetActor()).Returns("assignee@example.com");
         actor.Setup(context => context.GetActorId()).Returns("assignee-guid");
 
-        GovernanceStickinessController sut = new(
+        GovernanceStickinessController sut = BuildController(
             scopeProvider.Object,
             actor.Object,
-            Mock.Of<IFindingDispositionService>(),
-            Mock.Of<IRiskExceptionService>(),
-            riskRegister.Object,
-            Mock.Of<IArchitectureDecisionRegisterService>(),
-            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
-            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
-            Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
-            Mock.Of<IReviewsAwaitingActionQueryService>(),
-            Mock.Of<IAuditService>())
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+            riskRegister.Object);
 
         IActionResult action = await sut.GetRiskRegister(
             projectId: null,
@@ -237,21 +261,10 @@ public sealed class GovernanceStickinessControllerTests
         actor.Setup(context => context.GetActor()).Returns("assignee@example.com");
         actor.Setup(context => context.GetActorId()).Returns("assignee-guid");
 
-        GovernanceStickinessController sut = new(
+        GovernanceStickinessController sut = BuildController(
             scopeProvider.Object,
             actor.Object,
-            Mock.Of<IFindingDispositionService>(),
-            Mock.Of<IRiskExceptionService>(),
-            riskRegister.Object,
-            Mock.Of<IArchitectureDecisionRegisterService>(),
-            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
-            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
-            Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
-            Mock.Of<IReviewsAwaitingActionQueryService>(),
-            Mock.Of<IAuditService>())
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+            riskRegister.Object);
 
         IActionResult action = await sut.GetAssignedToMeFindingsCount(
             projectId: null,
@@ -276,21 +289,10 @@ public sealed class GovernanceStickinessControllerTests
         actor.Setup(context => context.GetActor()).Returns(string.Empty);
         actor.Setup(context => context.GetActorId()).Returns(string.Empty);
 
-        GovernanceStickinessController sut = new(
+        GovernanceStickinessController sut = BuildController(
             scopeProvider.Object,
             actor.Object,
-            Mock.Of<IFindingDispositionService>(),
-            Mock.Of<IRiskExceptionService>(),
-            riskRegister.Object,
-            Mock.Of<IArchitectureDecisionRegisterService>(),
-            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
-            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
-            Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
-            Mock.Of<IReviewsAwaitingActionQueryService>(),
-            Mock.Of<IAuditService>())
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+            riskRegister.Object);
 
         IActionResult action = await sut.GetAssignedToMeFindingsCount(
             projectId: null,
@@ -322,21 +324,10 @@ public sealed class GovernanceStickinessControllerTests
         actor.Setup(context => context.GetActor()).Returns(string.Empty);
         actor.Setup(context => context.GetActorId()).Returns(string.Empty);
 
-        GovernanceStickinessController sut = new(
+        GovernanceStickinessController sut = BuildController(
             scopeProvider.Object,
             actor.Object,
-            Mock.Of<IFindingDispositionService>(),
-            Mock.Of<IRiskExceptionService>(),
-            riskRegister.Object,
-            Mock.Of<IArchitectureDecisionRegisterService>(),
-            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
-            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
-            Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
-            Mock.Of<IReviewsAwaitingActionQueryService>(),
-            Mock.Of<IAuditService>())
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+            riskRegister.Object);
 
         IActionResult action = await sut.GetRiskRegister(
             projectId: null,

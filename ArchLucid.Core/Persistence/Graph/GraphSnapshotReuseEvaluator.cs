@@ -1,4 +1,5 @@
-﻿using ArchLucid.Contracts.Persistence.Context;
+﻿using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Scoping;
@@ -22,14 +23,20 @@ public static class GraphSnapshotReuseEvaluator
         Guid runId,
         IKnowledgeGraphService knowledgeGraphService,
         IGraphSnapshotRepository graphSnapshotRepository,
-        CancellationToken ct)
+        CancellationToken ct,
+        ArchitectureKnowledgeModel? priorKnowledgeModel = null,
+        ArchitectureKnowledgeModel? currentKnowledgeModel = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(contextSnapshot);
         ArgumentNullException.ThrowIfNull(knowledgeGraphService);
         ArgumentNullException.ThrowIfNull(graphSnapshotRepository);
 
-        if (!GraphSnapshotCanonicalFingerprint.AreEquivalent(priorCommittedContext, contextSnapshot))
+        if (!GraphSnapshotCanonicalFingerprint.AreEquivalentForReuse(
+                priorCommittedContext,
+                contextSnapshot,
+                priorKnowledgeModel,
+                currentKnowledgeModel))
         {
             GraphSnapshot built = await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
 

@@ -203,6 +203,15 @@ export const GUIDED_INTAKE_OVERVIEW_REWRITE_RESUGGEST_HINT =
 
 export const GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING = "Suggested people and systems";
 
+/** Gate dialog when Start architecture review is blocked by an open suggestion panel (TB-2006). */
+export const GUIDED_INTAKE_ACTOR_SUGGESTIONS_GATE_TITLE = "Resolve suggested people and systems";
+
+export const GUIDED_INTAKE_ACTOR_SUGGESTIONS_GATE_DESCRIPTION =
+  "You opened suggested people and systems from the architecture overview. Add the ones you want to the draft, or dismiss the list, before starting an architecture review.";
+
+export const GUIDED_INTAKE_ACTOR_SUGGESTIONS_READINESS_HINT =
+  "Resolve suggested people and systems before starting a review.";
+
 export const GUIDED_INTAKE_ADD_SELECTED_ACTORS_BUTTON = "Add selected";
 
 export const GUIDED_INTAKE_ADD_ACTOR_BUTTON = "Add person or system";
@@ -238,9 +247,6 @@ export const GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT =
 
 export const GUIDED_INTAKE_CREATION_DRAFT_GUIDANCE_CALLOUT =
   "Architecture draft only. Nothing is submitted for review until you explicitly create a review.";
-
-export const GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT =
-  "Draft guidance only. Nothing is added to review evidence until you submit.";
 
 export const GUIDED_INTAKE_STEP2_CARD_DESCRIPTION =
   "Submit your answers to start the architecture review.";

@@ -99,6 +99,9 @@ public static partial class AuditEventTypes
 
         /// <summary>Operator or API requested selective re-execute of specific agents/tasks (TB-938).</summary>
         public const string SelectiveExecuteRequested = "Run.SelectiveExecuteRequested";
+
+        /// <summary>Incremental re-review completed after selective agent re-execute.</summary>
+        public const string IncrementalReReviewCompleted = "Run.IncrementalReReviewCompleted";
     }
 
     /// <summary>Unified long-running operation lifecycle events (TB-2074 / TB-2076).</summary>

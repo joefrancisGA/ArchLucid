@@ -1,6 +1,7 @@
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -34,7 +35,7 @@ public sealed class EndToEndReplayComparisonService(
     IExportRecordDiffService exportRecordDiffService,
     ICrossReviewFindingCorrelationService crossReviewFindingCorrelationService,
     ICrossReviewFindingLifecycleService crossReviewFindingLifecycleService,
-    IArchitectureIntelligencePersistence architectureIntelligencePersistence,
+    IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess,
     IScopeContextProvider scopeContextProvider) : IEndToEndReplayComparisonService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -59,8 +60,8 @@ public sealed class EndToEndReplayComparisonService(
     private readonly ICrossReviewFindingLifecycleService _crossReviewFindingLifecycleService =
         crossReviewFindingLifecycleService ?? throw new ArgumentNullException(nameof(crossReviewFindingLifecycleService));
 
-    private readonly IArchitectureIntelligencePersistence _architectureIntelligencePersistence =
-        architectureIntelligencePersistence ?? throw new ArgumentNullException(nameof(architectureIntelligencePersistence));
+    private readonly IArchitectureKnowledgeModelAccess _architectureKnowledgeModelAccess =
+        architectureKnowledgeModelAccess ?? throw new ArgumentNullException(nameof(architectureKnowledgeModelAccess));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -146,11 +147,8 @@ public sealed class EndToEndReplayComparisonService(
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string tenantId = scope.TenantId.ToString();
-        ArchitectureKnowledgeModel? leftModel =
-            await _architectureIntelligencePersistence.GetModelByRunIdAsync(tenantId, leftRunId, cancellationToken);
-        ArchitectureKnowledgeModel? rightModel =
-            await _architectureIntelligencePersistence.GetModelByRunIdAsync(tenantId, rightRunId, cancellationToken);
+        ArchitectureKnowledgeModel? leftModel = await TryLoadModelForRunAsync(scope, leftRunId, cancellationToken);
+        ArchitectureKnowledgeModel? rightModel = await TryLoadModelForRunAsync(scope, rightRunId, cancellationToken);
 
         CompareQualityDeltaCounts? delta = CompareQualityDeltaCalculator.Build(
             leftModel,
@@ -362,6 +360,19 @@ public sealed class EndToEndReplayComparisonService(
         RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
 
         return ReviewRunEngineProvenanceJson.TryDeserialize(header?.EngineProvenanceJson);
+    }
+
+    private async Task<ArchitectureKnowledgeModel?> TryLoadModelForRunAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return null;
+
+        return await _architectureKnowledgeModelAccess
+            .GetForRunAsync(scope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)

@@ -64,7 +64,9 @@ public sealed class PlatformAuthRecoveryServiceTests
 
         audit.Verify(
             service => service.LogAsync(
-                It.Is<AuditEvent>(evt => evt.EventType == AuditEventTypes.PlatformTenantAuthRecoveryGranted),
+                It.Is<AuditEvent>(evt =>
+                    evt.EventType == AuditEventTypes.PlatformTenantAuthRecoveryGranted
+                    && evt.ExplicitActor),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

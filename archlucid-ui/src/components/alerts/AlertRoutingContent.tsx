@@ -7,6 +7,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperateExecutePageHint } from "@/components/OperateCapabilityHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
@@ -49,6 +50,10 @@ import {
   validateAlertRoutingDestination,
   validateAlertRoutingName,
 } from "@/lib/alert-routing-form";
+import {
+  resolveAlertRoutingCreateEmphasizedStepId,
+  resolveAlertRoutingCreateSteps,
+} from "@/lib/alert-routing-create-checklist";
 import {
   ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER,
   formatAlertRoutingConfigProvenanceLine,
@@ -112,6 +117,16 @@ export function AlertRoutingContent() {
     () => isAlertRoutingDestinationFormValid(channelType, name, destination),
     [channelType, destination, name],
   );
+  const alertRoutingCreateSteps = resolveAlertRoutingCreateSteps({
+    channelConfigured: channelType.trim().length > 0,
+    destinationConfigured: formValid,
+    destinationSaved: items.length > 0,
+  });
+  const alertRoutingCreateEmphasizedStepId = resolveAlertRoutingCreateEmphasizedStepId({
+    channelConfigured: channelType.trim().length > 0,
+    destinationConfigured: formValid,
+    destinationSaved: items.length > 0,
+  });
 
   const thresholdPreview = useMemo(
     () => formatAlertRoutingThresholdPreview(minimumSeverity, routingCriteria.severities),
@@ -412,6 +427,13 @@ export function AlertRoutingContent() {
               thresholds are met.
             </p>
           ) : null}
+
+          <IntegrationConnectChecklist
+            title="Destination checklist"
+            steps={alertRoutingCreateSteps}
+            emphasizedStepId={alertRoutingCreateEmphasizedStepId}
+            testIdPrefix="alert-routing-create"
+          />
 
         <fieldset className="space-y-4 border-0 p-0" disabled={!canEditRouting}>
           <label className={cn("block text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>

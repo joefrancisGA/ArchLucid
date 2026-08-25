@@ -1,82 +1,88 @@
-/** Operate rhythm API DTOs (manual until UI codegen picks up OpenAPI). */
+import type { components } from "@/lib/openapi-schemas";
 
-export type PilotFunnelSnapshotDto = {
-  firstRunCreatedUtc?: string | null;
-  firstGoldenManifestUtc?: string | null;
-  firstComparisonUtc?: string | null;
-  firstArtifactOrBundleDownloadUtc?: string | null;
-  firstReplayUtc?: string | null;
-  totalRunsInScope: number;
-  committedRunsInScope: number;
-  productLearningSignalsLast90Days: number;
-};
+type PilotFunnelSnapshotResponseSchema = components["schemas"]["PilotFunnelSnapshotResponse"];
 
-export type OperatorStickinessSnapshotDto = {
+export type PilotFunnelSnapshotDto = PilotFunnelSnapshotResponseSchema &
+  Required<
+    Pick<
+      PilotFunnelSnapshotResponseSchema,
+      "totalRunsInScope" | "committedRunsInScope" | "productLearningSignalsLast90Days"
+    >
+  >;
+
+type OperatorStickinessSnapshotResponseSchema = components["schemas"]["OperatorStickinessSnapshotResponse"];
+
+export type OperatorStickinessSnapshotDto = OperatorStickinessSnapshotResponseSchema & {
   pilotFunnel: PilotFunnelSnapshotDto;
-  latestRunId?: string | null;
-  comparisonEventsLast30Days: number;
-  pendingGovernanceApprovals: number;
-};
+} & Required<
+  Pick<OperatorStickinessSnapshotResponseSchema, "comparisonEventsLast30Days" | "pendingGovernanceApprovals">
+>;
 
-export type ConnectorSurfaceStatusDto = {
-  connectorKey: string;
-  displayName: string;
-  isConfigured: boolean;
-  smokeReadiness: string;
-  summary: string;
-  configurationHref?: string | null;
-};
+type ConnectorSurfaceStatusResponseSchema = components["schemas"]["ConnectorSurfaceStatusResponse"];
 
-export type IntegrationEventBusStatusDto = {
-  publisherConfigured: boolean;
-  transactionalOutboxEnabled: boolean;
-  consumerConfigured: boolean;
-  queueOrTopicName?: string | null;
-  fullyQualifiedNamespace?: string | null;
-  usesLegacyConnectionString: boolean;
-  smokeReadiness: string;
-};
+export type ConnectorSurfaceStatusDto = ConnectorSurfaceStatusResponseSchema &
+  Required<
+    Pick<
+      ConnectorSurfaceStatusResponseSchema,
+      "connectorKey" | "displayName" | "isConfigured" | "smokeReadiness" | "summary"
+    >
+  >;
 
-export type TenantIntegrationsOperationsDto = {
+type IntegrationEventBusStatusResponseSchema = components["schemas"]["IntegrationEventBusStatusResponse"];
+
+export type IntegrationEventBusStatusDto = IntegrationEventBusStatusResponseSchema &
+  Required<
+    Pick<
+      IntegrationEventBusStatusResponseSchema,
+      | "publisherConfigured"
+      | "transactionalOutboxEnabled"
+      | "consumerConfigured"
+      | "usesLegacyConnectionString"
+      | "smokeReadiness"
+    >
+  >;
+
+type TenantIntegrationsOperationsResponseSchema = components["schemas"]["TenantIntegrationsOperationsResponse"];
+
+export type TenantIntegrationsOperationsDto = TenantIntegrationsOperationsResponseSchema & {
   connectors: ConnectorSurfaceStatusDto[];
   integrationEventBus: IntegrationEventBusStatusDto;
   /** Server snapshot instant for integration readiness counts (when provided). */
   asOfUtc?: string | null;
 };
 
-export type WeeklyDigestHealthDto = {
-  enabledAdvisoryScheduleCount: number;
-  earliestNextAdvisoryRunUtc?: string | null;
-  digestSubscriptionCount: number;
-  enabledDigestSubscriptionCount: number;
-  digestSubscriptionsByEmailChannel: number;
-  digestSubscriptionsBySlackChannel: number;
-  digestSubscriptionsByTeamsChannel: number;
-  latestDigestSubscriptionDeliveryUtc?: string | null;
-  latestArchitectureDigestId?: string | null;
-  latestArchitectureDigestGeneratedUtc?: string | null;
-  executiveEmailDigestIsConfigured: boolean;
-  executiveEmailDigestEnabled: boolean;
-  executiveDigestRecipientCount: number;
-  executiveDigestIanaTimeZoneId: string;
-  executiveDigestDayOfWeek: number;
-  executiveDigestHourOfDay: number;
-  setupGaps: string[];
-};
+type WeeklyDigestHealthResponseSchema = components["schemas"]["WeeklyDigestHealthResponse"];
 
-export type AlertDeliveryAttemptDto = {
-  channelType: string;
-  status: string;
-  attemptedUtc: string;
-  destinationRedacted: string;
-  errorMessage?: string | null;
-};
+export type WeeklyDigestHealthDto = WeeklyDigestHealthResponseSchema &
+  Required<
+    Pick<
+      WeeklyDigestHealthResponseSchema,
+      | "enabledAdvisoryScheduleCount"
+      | "digestSubscriptionCount"
+      | "enabledDigestSubscriptionCount"
+      | "digestSubscriptionsByEmailChannel"
+      | "digestSubscriptionsBySlackChannel"
+      | "digestSubscriptionsByTeamsChannel"
+      | "executiveEmailDigestIsConfigured"
+      | "executiveEmailDigestEnabled"
+      | "executiveDigestRecipientCount"
+      | "executiveDigestIanaTimeZoneId"
+      | "executiveDigestDayOfWeek"
+      | "executiveDigestHourOfDay"
+      | "setupGaps"
+    >
+  >;
 
-export type AlertActionLoopDto = {
-  alertId: string;
-  status: string;
-  runId?: string | null;
-  lastUpdatedUtc?: string | null;
-  resolutionComment?: string | null;
-  deliveryAttempts: AlertDeliveryAttemptDto[];
-};
+type AlertDeliveryAttemptResponseSchema = components["schemas"]["AlertDeliveryAttemptResponse"];
+
+export type AlertDeliveryAttemptDto = AlertDeliveryAttemptResponseSchema &
+  Required<
+    Pick<AlertDeliveryAttemptResponseSchema, "channelType" | "status" | "attemptedUtc" | "destinationRedacted">
+  >;
+
+type AlertActionLoopResponseSchema = components["schemas"]["AlertActionLoopResponse"];
+
+export type AlertActionLoopDto = AlertActionLoopResponseSchema &
+  Required<Pick<AlertActionLoopResponseSchema, "alertId" | "status" | "deliveryAttempts">> & {
+    deliveryAttempts: AlertDeliveryAttemptDto[];
+  };

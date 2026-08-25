@@ -41,7 +41,7 @@ jobs:
   manifest-delta-pr-comment:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # The pull_request trigger is copy-paste documentation for buyers; this repo
       # does not wire ARCHLUCID_* secrets/vars by default. Soft-skip instead of

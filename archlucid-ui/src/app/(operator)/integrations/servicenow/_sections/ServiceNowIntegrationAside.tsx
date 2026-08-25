@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { StatusTag } from "@/components/ui/status-tag";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { ITSM_CONNECTORS_ADMIN_PATH, ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
@@ -17,14 +17,19 @@ import {
   SERVICENOW_PERMISSIONS_ASIDE_TITLE,
   SERVICENOW_SETUP_PROGRESS_TITLE,
 } from "@/lib/servicenow-integration-page-copy";
-import type { ServiceNowConnectionStatusPresentation, ServiceNowSetupStep } from "@/lib/servicenow-integration-present";
+import {
+  resolveServiceNowIntegrationConnectSteps,
+  resolveServiceNowIntegrationEmphasizedStepId,
+} from "@/lib/servicenow-integration-connect-checklist";
+import type { ServiceNowConnectionStatusPresentation } from "@/lib/servicenow-integration-present";
 import { cn } from "@/lib/utils";
 
 type Props = {
   readonly className?: string;
   readonly status: ServiceNowConnectionStatusPresentation;
-  readonly setupSteps: readonly ServiceNowSetupStep[];
-  readonly emphasizedSetupStepId: string;
+  readonly credentialsReady: boolean;
+  readonly destinationConfigured: boolean;
+  readonly connectionVerified: boolean;
   readonly lastTestAt: string | null;
   readonly lastTestSummary: string | null;
   readonly lastTestSuccess: boolean | null;
@@ -33,43 +38,29 @@ type Props = {
 };
 
 export function ServiceNowIntegrationAside(props: Props): React.ReactElement {
+  const connectSteps = resolveServiceNowIntegrationConnectSteps({
+    credentialsReady: props.credentialsReady,
+    destinationConfigured: props.destinationConfigured,
+    connectionVerified: props.connectionVerified,
+  });
+  const emphasizedStepId = resolveServiceNowIntegrationEmphasizedStepId({
+    credentialsReady: props.credentialsReady,
+    destinationConfigured: props.destinationConfigured,
+    connectionVerified: props.connectionVerified,
+  });
+
   return (
     <aside
       className={cn("space-y-4", props.className)}
       data-testid="servicenow-integration-aside"
       data-operator-side-rail-kind="none"
     >
-      <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
-        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{SERVICENOW_SETUP_PROGRESS_TITLE}</h2>
-        <ol
-          className={cn("m-0 mt-3 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}
-          aria-label="ServiceNow setup progress"
-          data-testid="servicenow-setup-progress"
-        >
-          {props.setupSteps.map((step) => (
-            <li
-              key={step.id}
-              className="flex items-start justify-between gap-3"
-              aria-current={step.id === props.emphasizedSetupStepId ? "step" : undefined}
-              data-testid={`servicenow-setup-step-${step.id}`}
-              data-emphasized={step.id === props.emphasizedSetupStepId ? "true" : undefined}
-            >
-              <span
-                className={cn(
-                  step.complete ? "text-al-text-primary" : "text-al-text-secondary",
-                  step.id === props.emphasizedSetupStepId ? "font-medium text-al-text-primary" : undefined,
-                )}
-              >
-                {step.label}
-              </span>
-              <StatusTag
-                kind={step.complete ? "ready" : step.id === props.emphasizedSetupStepId ? "in-progress" : "neutral"}
-                label={step.complete ? "Done" : "Pending"}
-              />
-            </li>
-          ))}
-        </ol>
-      </div>
+      <IntegrationConnectChecklist
+        title={SERVICENOW_SETUP_PROGRESS_TITLE}
+        steps={connectSteps}
+        emphasizedStepId={emphasizedStepId}
+        testIdPrefix="servicenow"
+      />
 
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{SERVICENOW_PERMISSIONS_ASIDE_TITLE}</h2>
@@ -132,11 +123,6 @@ export function ServiceNowIntegrationAside(props: Props): React.ReactElement {
         <CollapsibleSection title="Platform administrator notes" sectionTestId="servicenow-operator-notes">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Outbound incident creation is {props.nativeEnabled ? "enabled" : "disabled"} for this deployment.
-          </p>
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link className={OPERATOR_LINK.inline} href={ITSM_CONNECTORS_ADMIN_PATH}>
-              Open ITSM connector administration
-            </Link>
           </p>
         </CollapsibleSection>
       ) : null}

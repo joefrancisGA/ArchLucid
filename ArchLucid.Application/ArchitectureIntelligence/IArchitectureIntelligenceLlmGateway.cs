@@ -4,6 +4,14 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public interface IArchitectureIntelligenceLlmGateway
 {
+    /// <summary>
+    ///     True when an <c>IAgentCompletionClient</c> is registered for this scope.
+    /// </summary>
+    bool IsClientAvailable
+    {
+        get;
+    }
+
     Task<IReadOnlyList<ArchitectureModelElement>?> ExtractElementsAsync(
         string sourceText,
         string artifactId,

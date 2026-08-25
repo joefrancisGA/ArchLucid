@@ -5,6 +5,11 @@ import {
   summarizePolicyPackFindingImpact,
   summarizeQuickDecisionFindingsByPolicyPack,
 } from "./group-findings-by-policy-pack";
+import {
+  CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF,
+  CLAIMS_INTAKE_RULE_SET_VERSION,
+  CLAIMS_INTAKE_SAMPLE_DEFINITION,
+} from "@/lib/samples/claims-intake/definition";
 import type { QuickDecisionFinding } from "./quick-decision-summary-derive";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -52,10 +57,16 @@ describe("group-findings-by-policy-pack", () => {
   it("falls back to manifest rule set label when rule keys are absent", () => {
     const findings = [finding({ findingId: "f1", title: "A" })];
 
-    const summary = summarizeQuickDecisionFindingsByPolicyPack(findings, "healthcare-claims-v3", "3.4.1");
+    const summary = summarizeQuickDecisionFindingsByPolicyPack(
+      findings,
+      CLAIMS_INTAKE_SAMPLE_DEFINITION.ruleSetId,
+      CLAIMS_INTAKE_RULE_SET_VERSION,
+    );
 
-    expect(summary[0]?.packDisplayName).toBe("Healthcare Claims Policy Pack v3.4.1");
-    expect(summary[0]?.packHref).toBe("/governance/policy-packs/demo-healthcare-claims-pack");
+    expect(summary[0]?.packDisplayName).toBe(
+      `${CLAIMS_INTAKE_SAMPLE_DEFINITION.policyPackDisplayLabel} v${CLAIMS_INTAKE_RULE_SET_VERSION}`,
+    );
+    expect(summary[0]?.packHref).toBe(CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF);
   });
 
   it("summarizePolicyPackFindingImpact counts mapped vs unmapped findings", () => {

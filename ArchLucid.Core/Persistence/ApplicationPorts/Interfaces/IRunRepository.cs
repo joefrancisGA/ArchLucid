@@ -89,6 +89,45 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Most recent committed run for <paramref name="architectureId" /> strictly before
+    ///     <paramref name="currentRunId" /> in created order.
+    /// </summary>
+    Task<Guid?> GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid currentRunId,
+        DateTime currentCreatedUtc,
+        CancellationToken ct);
+
+    /// <summary>
+    ///     Committed run for <paramref name="architectureId" /> whose <see cref="RunRecord.GoldenManifestId" />
+    ///     matches <paramref name="goldenManifestId" />, excluding <paramref name="excludeRunId" /> when set.
+    /// </summary>
+    Task<Guid?> GetCommittedRunIdByGoldenManifestIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid goldenManifestId,
+        Guid excludeRunId,
+        CancellationToken ct);
+
+    /// <summary>
+    ///     Clears <see cref="RunRecord.GraphSnapshotId" /> on all non-archived runs for
+    ///     <paramref name="architectureId" /> so authority pipeline reprojects Γ after κ mutations.
+    /// </summary>
+    Task ClearGraphSnapshotForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct);
+
+    /// <summary>
+    ///     Latest non-archived run id for <paramref name="architectureId" /> (created order, newest first).
+    /// </summary>
+    Task<Guid?> GetLatestRunIdForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Returns up to <paramref name="take" /> runs for <paramref name="projectId" /> within
     ///     <paramref name="scope" />, ordered by <c>CreatedUtc</c> descending (newest first).
     /// </summary>

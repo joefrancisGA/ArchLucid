@@ -86,7 +86,7 @@ vi.mock("@/lib/api", () => ({
 describe("AdvisoryScansContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(listRecommendations).mockResolvedValue([sampleRecommendation()]);
+    vi.mocked(listRecommendations).mockResolvedValue({ recommendations: [sampleRecommendation()] });
   });
 
   it("shows the generate form and list header on first load without a choose-review gate", () => {

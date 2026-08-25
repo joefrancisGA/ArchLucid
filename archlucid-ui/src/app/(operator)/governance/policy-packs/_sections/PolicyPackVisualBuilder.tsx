@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
-import { listRunsByProjectPaged, simulatePolicyPackAgainstRun } from "@/lib/api";
+import { usePolicyPackRuleTemplatesQuery } from "@/hooks/use-policy-pack-rule-templates-query";
+import { useRunsByProjectPagedQuery } from "@/hooks/use-runs-by-project-paged-query";
+import { simulatePolicyPackAgainstRun } from "@/lib/api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import type { components } from "@/lib/openapi-schemas";
 import {
   canAddNestedGroup,
@@ -77,13 +78,22 @@ function updateGroupChildren(
 
 export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
   const { canMutatePacks, policyContentJson, onPolicyContentJsonSync, selectedPackId } = props;
-  const [templates, setTemplates] = useState<PolicyPackRuleTemplate[]>([]);
-  const [templatesError, setTemplatesError] = useState<string | null>(null);
   const [builderState, setBuilderState] = useState<VisualBuilderState>(() => createEmptyVisualBuilderState());
   const [jsonPreview, setJsonPreview] = useState<string>(policyContentJson);
   const [roundTripWarning, setRoundTripWarning] = useState<string | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
   const [simulateRunId, setSimulateRunId] = useState<string>("");
+  const templatesQuery = usePolicyPackRuleTemplatesQuery();
+  const templates = templatesQuery.data ?? [];
+  const templatesError = templatesQuery.isError
+    ? templatesQuery.error instanceof Error
+      ? templatesQuery.error.message
+      : "Network error loading rule templates."
+    : null;
+  const defaultRunQuery = useRunsByProjectPagedQuery(
+    { projectId: "default", page: 1, pageSize: 1 },
+    { enabled: simulateRunId.trim().length === 0 },
+  );
   const [simulateBusy, setSimulateBusy] = useState<boolean>(false);
   const [simulateFailure, setSimulateFailure] = useState<ApiLoadFailureState | null>(null);
   const [simulateResult, setSimulateResult] = useState<
@@ -91,32 +101,19 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
   >(null);
 
   useEffect(() => {
-    void (async () => {
-      try {
-        const res = await fetch("/api/proxy/v1/policy-packs/rule-templates", {
-          headers: { Accept: "application/json" },
-        });
-
-        if (!res.ok) {
-          setTemplatesError(`Could not load templates (${res.status}).`);
-          return;
-        }
-
-        const body = (await res.json()) as PolicyPackRuleTemplate[];
-        setTemplates(body);
-        setTemplatesError(null);
-      } catch {
-        setTemplatesError("Network error loading rule templates.");
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
     const parsed = tryParseVisualBuilderFromContentJson(policyContentJson);
     setBuilderState(parsed.state);
     setJsonPreview(policyContentJson);
     setRoundTripWarning(parsed.warning);
   }, [selectedPackId, policyContentJson]);
+
+  useEffect(() => {
+    const firstRunId = defaultRunQuery.data?.items[0]?.runId;
+
+    if (firstRunId && simulateRunId.trim().length === 0) {
+      setSimulateRunId(firstRunId);
+    }
+  }, [defaultRunQuery.data?.items, simulateRunId]);
 
   const syncFromBuilder = useCallback(
     (nextState: VisualBuilderState) => {
@@ -220,26 +217,6 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
       setSimulateBusy(false);
     }
   }
-
-  useEffect(() => {
-    void (async () => {
-      try {
-        const coerced = coerceRunSummaryPaged(await listRunsByProjectPaged("default", 1, 1));
-
-        if (!coerced.ok) {
-          return;
-        }
-
-        const first = coerced.value.items[0];
-
-        if (first?.runId && simulateRunId.trim().length === 0) {
-          setSimulateRunId(first.runId);
-        }
-      } catch {
-        // Optional default run id — operator can paste manually.
-      }
-    })();
-  }, [simulateRunId]);
 
   return (
     <section aria-labelledby="visual-builder-heading" className="space-y-4 rounded-lg border border-border p-4">

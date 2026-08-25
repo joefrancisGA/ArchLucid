@@ -1,3 +1,4 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
@@ -47,28 +48,11 @@ public sealed class ArchitectureRunCreateOrchestratorContentSafetyTests
         Mock<IActorContext> actorContext = new();
         actorContext.Setup(a => a.GetActor()).Returns("safety-test-actor");
 
-        ArchitectureRunCreateOrchestrator sut = new(
+        ArchitectureRunCreateOrchestrator sut = ArchitectureRunCreateOrchestratorTestSupport.CreateOrchestrator(
             coordination.Object,
-            Mock.Of<IArchitectureRequestRepository>(),
-            Mock.Of<IRunRepository>(),
-            Mock.Of<IScopeContextProvider>(),
-            Mock.Of<IEvidenceBundleRepository>(),
-            Mock.Of<IAgentTaskRepository>(),
-            Mock.Of<IArchitectureRunIdempotencyRepository>(),
-            actorContext.Object,
-            baselineAudit.Object,
-            Mock.Of<IAuditService>(),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            Mock.Of<IUsageMeteringService>(),
-            new InProcessCreateRunIdempotencyLock(),
-            Options.Create(new ArchitectureRunCreateOptions()),
-            new DisabledAsyncAuthorityPipelineModeResolver(),
-            Mock.Of<IRunStateTransitionService>(),
-            TimeProvider.System,
-            new DefaultRequestContentSafetyPrecheck(),
-            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
-            Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
-            NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
+            baselineMutationAudit: baselineAudit.Object,
+            actorContext: actorContext.Object,
+            workspaceSystemNameCollisionGuard: Mock.Of<IWorkspaceSystemNameCollisionGuard>());
 
         ArchitectureRequest request = new()
         {

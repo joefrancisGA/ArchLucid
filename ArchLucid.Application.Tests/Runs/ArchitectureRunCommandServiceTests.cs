@@ -1,7 +1,9 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -151,18 +153,56 @@ public sealed class ArchitectureRunCommandServiceTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task ExecuteRunSelectiveAsync_invokes_incremental_re_review_coordinator_after_execute()
+    {
+        Mock<IArchitectureRunExecuteOrchestrator> execute = new();
+        execute
+            .Setup(e => e.ExecuteSelectiveRunAsync(
+                "run-selective",
+                It.IsAny<SelectiveAgentExecuteRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExecuteRunResult { RunId = "run-selective", Results = [] });
+
+        Mock<ISelectiveExecuteIncrementalReReviewCoordinator> coordinator = new();
+        coordinator
+            .Setup(c => c.TryRunAfterSelectiveExecuteAsync(
+                "run-selective",
+                It.IsAny<SelectiveAgentExecuteRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IncrementalReReviewResult());
+
+        ArchitectureRunCommandService sut = CreateSut(
+            executeOrchestrator: execute.Object,
+            incrementalReReviewCoordinator: coordinator.Object);
+
+        SelectiveAgentExecuteRequest request = new() { AgentTypes = ["Cost"] };
+
+        await sut.ExecuteRunSelectiveAsync("run-selective", request, CancellationToken.None);
+
+        execute.Verify(
+            e => e.ExecuteSelectiveRunAsync("run-selective", request, It.IsAny<CancellationToken>()),
+            Times.Once);
+        coordinator.Verify(
+            c => c.TryRunAfterSelectiveExecuteAsync("run-selective", request, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static ArchitectureRunCommandService CreateSut(
         IArchitectureRunCreateOrchestrator? createOrchestrator = null,
         IArchitectureSynthesisKernel? synthesisKernel = null,
         ICommitRunIdempotencyCoordinator? commitCoordinator = null,
-        ICommitSponsorEmailNotifier? sponsorNotifier = null) =>
+        ICommitSponsorEmailNotifier? sponsorNotifier = null,
+        IArchitectureRunExecuteOrchestrator? executeOrchestrator = null,
+        ISelectiveExecuteIncrementalReReviewCoordinator? incrementalReReviewCoordinator = null) =>
         new(
             createOrchestrator ?? Mock.Of<IArchitectureRunCreateOrchestrator>(),
             Mock.Of<IArchitectureRunBatchCreateOrchestrator>(),
-            Mock.Of<IArchitectureRunExecuteOrchestrator>(),
+            executeOrchestrator ?? Mock.Of<IArchitectureRunExecuteOrchestrator>(),
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             Mock.Of<IReplayRunService>(),
             commitCoordinator ?? Mock.Of<ICommitRunIdempotencyCoordinator>(),
             sponsorNotifier ?? Mock.Of<ICommitSponsorEmailNotifier>(),
-            synthesisKernel ?? Mock.Of<IArchitectureSynthesisKernel>());
+            synthesisKernel ?? Mock.Of<IArchitectureSynthesisKernel>(),
+            incrementalReReviewCoordinator ?? Mock.Of<ISelectiveExecuteIncrementalReReviewCoordinator>());
 }

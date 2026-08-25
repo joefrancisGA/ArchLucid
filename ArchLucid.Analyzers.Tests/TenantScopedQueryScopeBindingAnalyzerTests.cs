@@ -317,6 +317,38 @@ public sealed class StaticReadonlyRunsRepository
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
     }
 
+    [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_property_with_initializer()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class PropertyInitializedRunsRepository
+{
+    private string UnscopedRunsSql { get; } =
+        "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL";
+
+    public void Load(IDbConnection connection)
+    {
+        _ = SqlMapper.Query<int>(connection, UnscopedRunsSql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(71, 13, 71, 62)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
     private static async Task RunPersistenceAnalyzerTestAsync(
         string testCode,
         params DiagnosticResult[] expectedDiagnostics)

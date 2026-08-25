@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import {
   buildCompareFindingLifecycleStatusSentence,
@@ -9,7 +9,7 @@ import {
   comparePageHrefWithLifecycleAnchor,
   type CompareFindingLifecycleRecord,
 } from "@/lib/compare-finding-lifecycle";
-import { compareRunsEndToEnd } from "@/lib/api/architecture-runs";
+import { useCompareRunsEndToEndQuery } from "@/hooks/use-compare-runs-end-to-end-query";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -56,10 +56,8 @@ function findLifecycleRecord(
 /** Soft-loads pairwise lifecycle for this finding when compare query params are present (TB-2194). */
 export function FindingCrossReviewLifecycleHint(props: FindingCrossReviewLifecycleHintProps): React.ReactElement | null {
   const { runId, findingId, priorRunId, laterRunId } = props;
-  const [statusSentence, setStatusSentence] = useState<string | null>(null);
-  const [compareHref, setCompareHref] = useState<string | null>(null);
 
-  useEffect(() => {
+  const comparePair = useMemo(() => {
     const trimmedRunId = runId.trim();
     const trimmedFindingId = findingId.trim();
     const trimmedPrior = priorRunId?.trim() ?? "";
@@ -76,38 +74,41 @@ export function FindingCrossReviewLifecycleHint(props: FindingCrossReviewLifecyc
       targetRunId = trimmedLater;
     }
 
-    if (baselineRunId.length === 0 || targetRunId.length === 0 || trimmedFindingId.length === 0) {
-      setStatusSentence(null);
-      setCompareHref(null);
-      return;
-    }
-
-    let canceled = false;
-
-    async function load(): Promise<void> {
-      try {
-        const response = await compareRunsEndToEnd(baselineRunId, targetRunId);
-        const records = coerceCompareFindingLifecycleRecords(response.report?.findingLifecycleRecords ?? null);
-        const match = findLifecycleRecord(records, trimmedRunId, trimmedFindingId, baselineRunId, targetRunId);
-
-        if (!canceled) {
-          setStatusSentence(match === null ? null : buildCompareFindingLifecycleStatusSentence(match));
-          setCompareHref(comparePageHrefWithLifecycleAnchor(baselineRunId, targetRunId));
-        }
-      } catch {
-        if (!canceled) {
-          setStatusSentence(null);
-          setCompareHref(null);
-        }
-      }
-    }
-
-    void load();
-
-    return () => {
-      canceled = true;
+    return {
+      baselineRunId,
+      targetRunId,
+      trimmedRunId,
+      trimmedFindingId,
+      enabled:
+        baselineRunId.length > 0 && targetRunId.length > 0 && trimmedFindingId.length > 0,
     };
   }, [findingId, laterRunId, priorRunId, runId]);
+
+  const compareQuery = useCompareRunsEndToEndQuery(comparePair.baselineRunId, comparePair.targetRunId, {
+    enabled: comparePair.enabled,
+  });
+
+  const { statusSentence, compareHref } = useMemo(() => {
+    if (!comparePair.enabled || !compareQuery.isSuccess || compareQuery.data === undefined) {
+      return { statusSentence: null, compareHref: null };
+    }
+
+    const records = coerceCompareFindingLifecycleRecords(
+      compareQuery.data.report?.findingLifecycleRecords ?? null,
+    );
+    const match = findLifecycleRecord(
+      records,
+      comparePair.trimmedRunId,
+      comparePair.trimmedFindingId,
+      comparePair.baselineRunId,
+      comparePair.targetRunId,
+    );
+
+    return {
+      statusSentence: match === null ? null : buildCompareFindingLifecycleStatusSentence(match),
+      compareHref: comparePageHrefWithLifecycleAnchor(comparePair.baselineRunId, comparePair.targetRunId),
+    };
+  }, [comparePair, compareQuery.data, compareQuery.isSuccess]);
 
   if (statusSentence === null) {
     return null;
@@ -118,14 +119,13 @@ export function FindingCrossReviewLifecycleHint(props: FindingCrossReviewLifecyc
       className={cn("rounded-lg border p-4", DESIGN_TOKENS.callout.info)}
       data-testid="finding-cross-review-lifecycle-hint"
     >
-      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-        <strong className="text-al-text-primary">Across reviews:</strong> {statusSentence}
-      </p>
-
+      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{statusSentence}</p>
       {compareHref !== null ? (
-        <Link className={cn("mt-2 inline-block", OPERATOR_LINK.inline)} href={compareHref}>
-          View full finding lifecycle compare
-        </Link>
+        <p className={cn("mt-2 mb-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link href={compareHref} className={OPERATOR_LINK.inline}>
+            Open compare view
+          </Link>
+        </p>
       ) : null}
     </div>
   );

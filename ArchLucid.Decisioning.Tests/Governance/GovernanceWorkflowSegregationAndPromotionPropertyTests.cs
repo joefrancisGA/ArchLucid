@@ -12,6 +12,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.Governance;
 
 using FluentAssertions;
 
@@ -330,7 +331,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
         Mock<IIntegrationEventOutboxRepository> outbox = CreateIntegrationOutboxStub();
         Mock<IOptionsMonitor<IntegrationEventsOptions>> opts = CreateIntegrationEventsOptionsMonitor();
 
-        return new GovernanceWorkflowService(
+        return GovernanceWorkflowTestComposition.CreateService(
             approvalRepo.Object,
             promotionRepo.Object,
             activationRepo.Object,
@@ -342,8 +343,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             outbox.Object,
             opts.Object,
             Options.Create(new PreCommitGovernanceGateOptions()),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            logger.Object);
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
     }
 
     private static Mock<IIntegrationEventOutboxRepository> CreateIntegrationOutboxStub()

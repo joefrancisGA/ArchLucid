@@ -9,7 +9,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
-using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.Governance;
 
 using FluentAssertions;
 
@@ -177,7 +177,7 @@ public sealed class GovernanceWorkflowServiceSameTxAuditTests
 
         integrationEventOptions.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = false });
 
-        return new GovernanceWorkflowService(
+        return GovernanceWorkflowTestComposition.CreateService(
             approvalRepo.Object,
             promotionRepo.Object,
             activationRepo.Object,
@@ -189,7 +189,6 @@ public sealed class GovernanceWorkflowServiceSameTxAuditTests
             integrationOutbox.Object,
             integrationEventOptions.Object,
             Options.Create(new ArchLucid.Contracts.Governance.PreCommitGovernanceGateOptions()),
-            uowFactory.Object,
-            Mock.Of<ILogger<GovernanceWorkflowService>>());
+            uowFactory.Object);
     }
 }

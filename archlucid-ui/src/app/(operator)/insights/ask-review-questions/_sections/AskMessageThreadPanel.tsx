@@ -22,7 +22,11 @@ import {
   BUYER_ASK_RETRIEVAL_DEGRADED_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { ASK_BUYER_PROMPT_GROUPS } from "@/app/(operator)/insights/ask-review-questions/_sections/ask-page-constants";
+import {
+  ASK_BUYER_PROMPT_GROUPS,
+  ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS,
+} from "@/app/(operator)/insights/ask-review-questions/_sections/ask-page-constants";
+import { ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS } from "@/lib/ask-assistant-answer-follow-ups";
 import type { ConversationMessage } from "@/types/conversation";
 
 export type AskMessageThreadPanelProps = {
@@ -34,6 +38,8 @@ export type AskMessageThreadPanelProps = {
   showPostAssistantFollowUps: boolean;
   runAnchorUnset: boolean;
   onMergePromptLine: (line: string) => void;
+  onStarterPromptClick?: (line: string) => void;
+  runId: string;
   retrievalDegraded?: boolean;
   isFinalizedReview?: boolean;
 };
@@ -71,6 +77,8 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     askCitationActionFollowUps,
     showPostAssistantFollowUps,
     onMergePromptLine,
+    onStarterPromptClick,
+    runId,
     retrievalDegraded = false,
     isFinalizedReview = true,
   } = props;
@@ -106,13 +114,45 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
       </div>
       <div className="grid gap-3">
         {messages.length === 0 ? (
-          <EnterpriseCompactEmptyState
-            {...ASK_CONVERSATION_EMPTY}
-            title={buyerPolishedShell ? BUYER_ASK_CONVERSATION_EMPTY_TITLE : ASK_CONVERSATION_EMPTY.title}
-            description={
-              buyerPolishedShell ? BUYER_ASK_CONVERSATION_EMPTY_BODY : ASK_CONVERSATION_EMPTY.description
-            }
-          />
+          <div className="space-y-3" data-testid="ask-conversation-empty-region">
+            <EnterpriseCompactEmptyState
+              {...ASK_CONVERSATION_EMPTY}
+              title={buyerPolishedShell ? BUYER_ASK_CONVERSATION_EMPTY_TITLE : ASK_CONVERSATION_EMPTY.title}
+              description={
+                buyerPolishedShell ? BUYER_ASK_CONVERSATION_EMPTY_BODY : ASK_CONVERSATION_EMPTY.description
+              }
+            />
+            {runId.trim().length > 0 ? (
+              <div className="space-y-2" data-testid="ask-empty-thread-starters">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {buyerPolishedShell ? "Try a starter question" : "Starter questions for this review"}
+                </p>
+                <div className="flex flex-wrap gap-1.5" role="group" aria-label="Starter questions">
+                  {ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS.map((line) => (
+                    <Button
+                      key={line}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        "h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left font-normal dark:border-neutral-700",
+                        OPERATOR_TYPOGRAPHY.helper,
+                      )}
+                      onClick={() => {
+                        if (onStarterPromptClick !== undefined) {
+                          onStarterPromptClick(line);
+                        } else {
+                          onMergePromptLine(line);
+                        }
+                      }}
+                    >
+                      {line}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
         ) : null}
         {messages.map((message) => (
           <Card
@@ -188,6 +228,36 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               />
             </CardContent>
           </Card>
+        ) : null}
+        {citationHostMessageId !== null && streamingAssistantContent === null ? (
+          <div className="space-y-2" data-testid="ask-assistant-answer-follow-ups">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {buyerPolishedShell ? "Suggested follow-ups" : "Follow up on this answer"}
+            </p>
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label="Suggested follow-up questions">
+              {ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS.map((line) => (
+                <Button
+                  key={line}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left font-normal dark:border-neutral-700",
+                    OPERATOR_TYPOGRAPHY.helper,
+                  )}
+                  onClick={() => {
+                    if (onStarterPromptClick !== undefined) {
+                      onStarterPromptClick(line);
+                    } else {
+                      onMergePromptLine(line);
+                    }
+                  }}
+                >
+                  {line}
+                </Button>
+              ))}
+            </div>
+          </div>
         ) : null}
       </div>
       {showPostAssistantFollowUps ? (

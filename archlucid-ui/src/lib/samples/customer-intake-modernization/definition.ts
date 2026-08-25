@@ -45,6 +45,7 @@ export const CUSTOMER_INTAKE_SAMPLE_DEFINITION: SampleScenarioDefinition = {
   buyerReviewPackageTitle: CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
   policyPackDetailHref: CUSTOMER_INTAKE_POLICY_PACK_DETAIL_HREF,
   policyPackIdAliases: ["demo-enterprise-privacy-pack", "enterprise-privacy-v2", "enterprise_privacy"],
+  policyPackDisplayLabel: "Enterprise Privacy Policy Pack",
   ruleSetId: "enterprise-privacy-v2",
   ruleSetVersion: CUSTOMER_INTAKE_RULE_SET_VERSION,
   tenantName: CUSTOMER_INTAKE_DEMO_TENANT_NAME,

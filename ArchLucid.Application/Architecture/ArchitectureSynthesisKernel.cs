@@ -2,6 +2,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -28,6 +29,9 @@ public sealed class ArchitectureSynthesisKernel(
     IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
     IArchitectureKnowledgeModelIntakeBuilder knowledgeModelIntakeBuilder,
     IArchitectureIntelligencePersistence? architectureIntelligencePersistence,
+    TechnologyLedgerRequestSeeder technologyLedgerRequestSeeder,
+    TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
+    IArchitectureIdentityService? architectureIdentityService,
     ILogger<ArchitectureSynthesisKernel> logger,
     TimeProvider timeProvider) : IArchitectureSynthesisKernel
 {
@@ -54,6 +58,14 @@ public sealed class ArchitectureSynthesisKernel(
 
     private readonly IArchitectureIntelligencePersistence? _architectureIntelligencePersistence =
         architectureIntelligencePersistence;
+
+    private readonly TechnologyLedgerRequestSeeder _technologyLedgerRequestSeeder =
+        technologyLedgerRequestSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerRequestSeeder));
+
+    private readonly TechnologyLedgerEvidenceSeeder _technologyLedgerEvidenceSeeder =
+        technologyLedgerEvidenceSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerEvidenceSeeder));
+
+    private readonly IArchitectureIdentityService? _architectureIdentityService = architectureIdentityService;
 
     private readonly ILogger<ArchitectureSynthesisKernel> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -123,12 +135,54 @@ public sealed class ArchitectureSynthesisKernel(
         string runId = runGuid.ToString("N");
         string? knowledgeModelId = await TryPersistKnowledgeModelAsync(scope, request, runId, cancellationToken);
 
+        Guid? architectureId = await TryEnsureArchitectureIdentityAsync(scope, runGuid, knowledgeModelId, cancellationToken);
+
+        await TechnologyLedgerRunCreateSeeding.TrySeedIntakeAsync(
+            runId,
+            request,
+            _technologyLedgerRequestSeeder,
+            _technologyLedgerEvidenceSeeder,
+            _logger,
+            cancellationToken);
+
         return new ArchitectureSynthesisGenerateResult
         {
             RunId = runId,
             PackageOrigin = ArchitecturePackageOrigin.Created,
             KnowledgeModelId = knowledgeModelId,
+            ArchitectureId = architectureId,
         };
+    }
+
+    private async Task<Guid?> TryEnsureArchitectureIdentityAsync(
+        ScopeContext scope,
+        Guid runGuid,
+        string? knowledgeModelId,
+        CancellationToken cancellationToken)
+    {
+        if (_architectureIdentityService is null)
+            return null;
+
+        try
+        {
+            ArchitectureIdentityRecord? identity = await _architectureIdentityService
+                .EnsureCreatedRunIdentityAsync(scope, runGuid, knowledgeModelId, cancellationToken)
+                .ConfigureAwait(false);
+
+            return identity?.ArchitectureId;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Architecture identity persistence failed for RunId={RunId}; synthesis continues.",
+                    runGuid);
+            }
+
+            return null;
+        }
     }
 
     private async Task<string?> TryPersistKnowledgeModelAsync(

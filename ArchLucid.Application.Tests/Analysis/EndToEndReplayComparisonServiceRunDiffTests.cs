@@ -1,4 +1,5 @@
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Architecture;
@@ -48,9 +49,9 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
         It.IsAny<CancellationToken>()))
       .ReturnsAsync([]);
 
-    Mock<IArchitectureIntelligencePersistence> intelligence = new();
+    Mock<IArchitectureKnowledgeModelAccess> intelligence = new();
     intelligence
-      .Setup(p => p.GetModelByRunIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Setup(k => k.GetForRunAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync((ArchitectureKnowledgeModel?)null);
 
     Mock<IScopeContextProvider> scopeProvider = new();
@@ -197,9 +198,9 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
         It.IsAny<CancellationToken>()))
       .ReturnsAsync([]);
 
-    Mock<IArchitectureIntelligencePersistence> intelligence = new();
+    Mock<IArchitectureKnowledgeModelAccess> intelligence = new();
     intelligence
-      .Setup(p => p.GetModelByRunIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Setup(k => k.GetForRunAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync((ArchitectureKnowledgeModel?)null);
 
     Mock<IScopeContextProvider> scopeProvider = new();

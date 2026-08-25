@@ -852,6 +852,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Authority/AuthorityReadsController.cs",
+      "class_name": "AuthorityReadsController",
+      "route_template": "v{version:apiVersion}/runs",
+      "normalized_prefix": "/v1/runs",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/AuthorityReplayController.cs",
       "class_name": "AuthorityReplayController",
       "route_template": "v{version:apiVersion}/internal/authority/replay",

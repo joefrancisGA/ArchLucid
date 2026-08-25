@@ -27,6 +27,7 @@ public sealed partial class RunsController
     [HttpPost("request/async")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [AsyncRequired]
+    [MutatingAuditExcluded("RequestCreated is emitted by the async create worker after 202 so admit is not blocked by audit SQL.")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
@@ -69,27 +70,9 @@ public sealed partial class RunsController
                 HttpContext.TraceIdentifier,
                 cancellationToken);
 
-            await auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.RequestCreated,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    CorrelationId = HttpContext.TraceIdentifier,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            requestId = request.RequestId,
-                            operationId,
-                            asyncCreateAccepted = true
-                        },
-                        AuditJsonSerializationOptions.Instance)
-                },
-                cancellationToken);
-
+            // Return 202 before durable audit. Audit SQL waiting on a pipeline transaction is how
+            // a "fast" async create still burns the 60s UI BFF budget. The worker records the same
+            // RequestCreated row when it picks up the work item.
             Response.Headers.Location = $"/v1/operations/{operationId}";
             return StatusCode(StatusCodes.Status202Accepted);
         }

@@ -30,7 +30,9 @@ public sealed class PreCommitGovernanceGate(
     IOptions<AuthorityCommitSchemaValidationOptions> authorityCommitSchemaValidationOptions,
     ITechnologyLedgerRepository technologyLedgerRepository,
     ITechnologyConsistencyFindingEngine technologyConsistencyFindingEngine,
-    IOptions<TechnologyConsistencyFindingEngineOptions> technologyConsistencyFindingEngineOptions)
+    IOptions<TechnologyConsistencyFindingEngineOptions> technologyConsistencyFindingEngineOptions,
+    IFindingEvidenceLinkageFindingEngine findingEvidenceLinkageFindingEngine,
+    IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions)
     : IPreCommitGovernanceGate
 {
     private readonly IOptions<AuthorityCommitSchemaValidationOptions> _authorityCommitSchemaValidationOptions =
@@ -59,6 +61,12 @@ public sealed class PreCommitGovernanceGate(
 
     private readonly IOptions<TechnologyConsistencyFindingEngineOptions> _technologyConsistencyFindingEngineOptions =
         technologyConsistencyFindingEngineOptions ?? throw new ArgumentNullException(nameof(technologyConsistencyFindingEngineOptions));
+
+    private readonly IFindingEvidenceLinkageFindingEngine _findingEvidenceLinkageFindingEngine =
+        findingEvidenceLinkageFindingEngine ?? throw new ArgumentNullException(nameof(findingEvidenceLinkageFindingEngine));
+
+    private readonly IOptions<FindingEvidenceLinkageFindingEngineOptions> _findingEvidenceLinkageFindingEngineOptions =
+        findingEvidenceLinkageFindingEngineOptions ?? throw new ArgumentNullException(nameof(findingEvidenceLinkageFindingEngineOptions));
 
     /// <inheritdoc/>
     public Task<PreCommitGateResult> EvaluateAsync(string runId, CancellationToken cancellationToken = default)
@@ -158,6 +166,7 @@ public sealed class PreCommitGovernanceGate(
         }
 
         await AppendTechnologyConsistencyFindingsAsync(runId, scope, findings, cancellationToken);
+        AppendEvidenceLinkageFindings(runId, findings);
 
         if (enforcing is not null)
             return PreCommitGateEvaluator.EvaluateForAssignment(findings, enforcing, _options.Value);
@@ -197,6 +206,27 @@ public sealed class PreCommitGovernanceGate(
             return;
 
         findings.AddRange(consistencyFindings);
+    }
+
+    private void AppendEvidenceLinkageFindings(string runId, List<Finding> findings)
+    {
+        FindingEvidenceLinkageFindingEngineOptions linkageOptions = _findingEvidenceLinkageFindingEngineOptions.Value;
+
+        if (!linkageOptions.Enabled)
+            return;
+
+        IReadOnlyList<Finding> linkageFindings = _findingEvidenceLinkageFindingEngine.Evaluate(runId, findings);
+
+        if (linkageFindings.Count == 0)
+            return;
+
+        foreach (Finding linkageFinding in linkageFindings)
+        {
+            if (linkageOptions.WarnOnly)
+                linkageFinding.Severity = FindingSeverity.Warning;
+
+            findings.Add(linkageFinding);
+        }
     }
 
     private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity)

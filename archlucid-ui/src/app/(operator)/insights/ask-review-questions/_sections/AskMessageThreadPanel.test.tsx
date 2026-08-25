@@ -15,9 +15,37 @@ const baseProps = {
   showPostAssistantFollowUps: false,
   runAnchorUnset: false,
   onMergePromptLine: () => {},
+  runId: "run-001",
 };
 
 describe("AskMessageThreadPanel", () => {
+  it("shows review-scoped starter chips on an empty thread", () => {
+    render(
+      <AskMessageThreadPanel
+        {...baseProps}
+        messages={[]}
+        isFinalizedReview
+      />,
+    );
+
+    expect(screen.getByTestId("ask-empty-thread-starters")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "What is the top risk?" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "What is blocking finalize?" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Summarize for a sponsor." })).toBeInTheDocument();
+  });
+
+  it("hides starter chips when no review is selected", () => {
+    render(
+      <AskMessageThreadPanel
+        {...baseProps}
+        messages={[]}
+        runId=""
+        isFinalizedReview
+      />,
+    );
+
+    expect(screen.queryByTestId("ask-empty-thread-starters")).not.toBeInTheDocument();
+  });
   it("shows finalized review artifact status", () => {
     render(
       <AskMessageThreadPanel
@@ -118,5 +146,26 @@ describe("AskMessageThreadPanel", () => {
     expect(screen.getByTestId("ask-citation-action-follow-ups")).toHaveTextContent(
       /No linked finding, evidence, or decision/i,
     );
+  });
+
+  it("shows suggested follow-ups below the latest assistant answer", () => {
+    render(
+      <AskMessageThreadPanel
+        {...baseProps}
+        messages={[
+          {
+            messageId: "m1",
+            threadId: "t1",
+            role: "Assistant",
+            content: "The top risk is data residency.",
+            createdUtc: "2026-01-01T00:00:00.000Z",
+            metadataJson: "{}",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("ask-assistant-answer-follow-ups")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Why is this the top risk?" })).toBeInTheDocument();
   });
 });

@@ -3,7 +3,7 @@
 
 # Next refactorings
 
-**Last updated:** 2026-08-24.
+**Last updated:** 2026-08-25.
 
 **Where to start:** [START_HERE.md — What to open first](../START_HERE.md) (Mermaid + table).
 
@@ -16,36 +16,36 @@
 | Unify Data and Persistence (`ArchLucid.Persistence.*` merge) | Done — see `PERSISTENCE_CONSOLIDATION_PLAN.md` |
 | Connection factory alignment | Done (2026-05-08) — unused `SqlConnectionFactory` removed |
 | Dual pipeline coordinator closure | Done — ADR 0030 + `DualPipelineRegistrationDisciplineTests` |
+| Decompose authority commit orchestrator | Done (2026-08-25) — `AuthorityCommit*Stage` handlers under `ArchLucid.Application/Runs/Orchestration/Commit/`; orchestrator ~283 lines |
+| Extract authority pipeline stage handlers | Done (2026-08-25) — `AuthorityPipeline*Stage` handlers under `ArchLucid.Application/Runs/Orchestration/Pipeline/Stages/`; executor ~290 lines |
+| Consolidate identity/auth bounded module | Done (2026-08-25) — `AuthAuditEmitter`, `AuthRateLimitHelper`, `AuthValidationResultMapper` in `ArchLucid.Application/Identity/`; all identity services migrated; `EmailOtpRequestFlow` extracted from `EmailOtpAuthService` |
+| Tighten governance API boundaries | Done (2026-08-25) — `PolicyPackWorkflowFacade` in `ArchLucid.Application/Governance/PolicyPacks/`; `PolicyPacksController` thinned to HTTP concerns |
+| Split `GovernanceWorkflowService` into workflow facade + stages | Done (2026-08-25) — `GovernanceWorkflowFacade` + submit/review/promote/activate stage handlers under `ArchLucid.Application/Governance/Workflow/`; `GovernanceWorkflowService` thinned to delegate; `GovernanceWorkflowFacadeTests` |
+| Thin remaining fat controllers | Done (2026-08-25) — `GovernanceStickinessFacade`, `PilotsApplicationService`, `ComparisonsApplicationService`; legacy run-read routes thinned via `TraceabilityBundleExportApplicationService` + `AuthorityReadsController`; `GovernanceStickinessFacadeTests`, `ComparisonsApplicationServiceTests` |
+| Finish demo/sample scenario decoupling | Done (2026-08-25) — `resolveSampleScenarioByPolicyPackId` / hero-finding registry lookups; UI helpers (`finding-display-from-inspect.ts`, `graph-mapper.ts`, `policy-pack-detail-resolver.ts`, `showcase-page-copy.ts`, `graph-buyer-node-detail.ts`, `provenance-graph-presentation.ts`) read from `archlucid-ui/src/lib/samples/registry.ts`; TB-978, TB-979, TB-980 |
+| Unify Architecture Intelligence heuristic vs LLM stacks | Done (2026-08-25) — `IArchitectureIntelligenceReviewRouter` + `SpecialistReviewRouterService` / `AdversarialReviewRouterService`; `ArchitectureIntelligenceLlmJsonCompletionHelper` + response mapper/shapes; `UseLlmReview` option on `ArchitectureIntelligencePipelineOptions` |
+| Deduplicate persistence twins (SQL/in-memory/Cosmos) | Done (2026-08-25) — `RunRepositoryCore` + `AgentExecutionTraceUpsertPolicy`; `SqlRunRepository` / `InMemoryRunRepository` share mapping, validation, archive/purge, and in-memory query selection; `RunRepositoryCoreTests`, `AgentExecutionTraceUpsertPolicyTests` |
+| Decompose mega UI clients | Done (2026-08-25) — `BuyerCtoDemoTourOverlay` split into `CtoDemoTourPreflightPanel`, `CtoDemoTourPresenterNotesPanel`, `CtoDemoTourNavigationPanel`; `SsoWizardPageClient` → `useSsoWizardStepState` + `SsoWizardStepContent`; `AzureBoardsIntegrationPageClient` → `AzureBoardsConnectionStatusPanel`; Vitest coverage on extracted modules |
+| Alias hand-authored `types/*` to OpenAPI schemas | Done (2026-08-25) — `authority.ts`, `operate-rhythm.ts`, `technology-ledger.ts` alias `components` from `@/lib/openapi-schemas`; UI-only fields via intersection; `openapi-type-aliases.test.ts` |
+| Replace CLI `Program.cs` switch with command registry | Done (2026-08-25) — `CommandRegistry` + `CommandDescriptor` + `CliCommandHandlers`; `Program.cs` thinned to registry dispatch; `CommandRegistryTests` |
+| Split Host.Composition DI partials (Agents / pipeline / alerts) | Done (2026-08-25) — `AgentCompositionModule`, `PipelineCompositionModule`, `AlertsCompositionModule` under `Startup/Modules/`; `CompositionModulesRegistrationDisciplineTests` |
 
-## Active items (prioritized top 10)
+## Active items (remaining)
 
-Execute in order when possible; quick wins (#11–#12) may ship ahead of larger items.
+*(none)*
 
-1. **Decompose authority commit orchestrator** — Split `AuthorityDrivenArchitectureRunCommitOrchestrator.cs` (~910 lines) and `AuthorityPipelineStagesExecutor.cs` into focused stages (governance, decision materialization, manifest reuse, audit, persistence). **Impact:** High · **Effort:** High · **Paths:** `ArchLucid.Application/Runs/Orchestration/`
+## Completed (2026-08-24 pass)
 
-2. **Abstract multi-cloud extractor pipeline** — Shared ingest/orchestrator with cloud-specific credential adapters; eliminate copy-paste across Azure/AWS/GCP/CloudInventory extractors. **Impact:** High · **Effort:** Medium · **Paths:** `ArchLucid.Application/{Azure,Aws,Gcp,CloudInventory}Extractor/`
-
-3. **Consolidate identity/auth bounded module** — Shared rate-limit, audit, and validation primitives across OTP, SSO, identity linking, and trial bootstrap in `ArchLucid.Application/Identity/`. **Impact:** High · **Effort:** High
-
-4. **Finish demo/sample scenario decoupling** — Complete typed sample-definition layer so UI, seeds, and tests stop branching on healthcare/Claims literals. **Impact:** High (product) · **Effort:** Medium · **Backlog:** TB-978, TB-979, TB-980 · **Paths:** `archlucid-ui/src/lib/samples/`, `DemoSeedService.*.cs`
-
-5. **Complete TanStack Query migration backlog** — Migrate 40 modules in `effect-read-migration.test.ts` `MIGRATION_BACKLOG` from `useEffect` reads to `createOperatorQueryHook`. List may shrink, never grow. **Impact:** Medium · **Effort:** Medium · **Guard:** `archlucid-ui/src/lib/query/effect-read-migration.test.ts`
-
-6. **Tighten governance API boundaries** — Move orchestration out of `PolicyPacksController.cs` (~925 lines); clarify workflow facade over 58 governance services. **Impact:** High · **Effort:** High · **Paths:** `ArchLucid.Api/Controllers/Governance/`, `ArchLucid.Application/Governance/`
-
-7. ~~**Shared Terraform posture module**~~ — **Done** (2026-08-24): `infra/modules/posture/` centralizes tier/waiver validation; nine stacks consume via `module "posture"`.
-
-8. ~~**Split monolithic OpenAPI TypeScript output**~~ — **Done** (2026-08-24): `generate-api-types-split.mjs` emits `api-types/schemas.generated.ts` + `paths.generated.ts`; barrel at `api-types.generated.ts`.
-
-9. **Merge API query controllers / retire legacy routes** — Consolidate `RunQueryController` and `AuthorityQueryController` overlapping reads; sunset legacy aliases. **Impact:** Medium · **Effort:** Medium · **Note:** `docs/architecture/api/REST_API_REDESIGN_IMPLEMENTATION_NOTES.md`
-
-10. **Reduce configuration sprawl** — Pilot-minimal `appsettings` defaults; retire deprecated keys in `ConfigurationKeyCatalog.cs`; feature-grouped options. **Impact:** Medium · **Effort:** Medium · **Paths:** `ArchLucid.Api/appsettings*.json`, `ArchLucid.Core/Configuration/ConfigurationKeyCatalog.cs`
-
-## Quick wins (slot early)
-
-11. ~~**Remove duplicate sponsor summary services**~~ — **Done** (2026-08-24): removed unused `SponsorSummaryService` / `ISponsorSummaryService`; `ISponsorReportService` is canonical.
-
-12. ~~**Align DemoSeedService with UI sample registry**~~ — **Done** (2026-08-24): `DemoSeedScenarioRegistry` maps seed steps to UI sample slugs; `BuildSeedSteps` reads registry order.
+| # | Item | Notes |
+|---|------|-------|
+| 2 | Multi-cloud extractor pipeline | `HostedCloudExtractorRunResult` shared envelope |
+| 5 | TanStack Query migration | `MIGRATION_BACKLOG` cleared; guard tests pass |
+| 7 | Terraform posture module | `infra/modules/posture/` |
+| 8 | OpenAPI TS split | `api-types/schemas.generated.ts` + `paths.generated.ts` |
+| 9 | Merge API query controllers / retire legacy routes | `AuthorityReadsController` + `AuthorityRunReadHandlers`; `/v1/runs/*` canonical reads; legacy `[Obsolete]` |
+| 10 | Reduce configuration sprawl | Pilot overlay, slim base appsettings, deprecated key catalog tags |
+| 11 | Duplicate sponsor services | Removed unused `SponsorSummaryService` |
+| 12 | DemoSeed registry | `DemoSeedScenarioRegistry` |
 
 ## Related (not duplicated here)
 

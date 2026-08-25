@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useState, type RefObject } from "react";
 
@@ -24,9 +25,15 @@ import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import {
+  resolveInviteReviewerEmphasizedStepId,
+  resolveInviteReviewerSteps,
+} from "@/lib/invite-reviewer-checklist";
 
 import { resolveAdminUserInvitationAcceptLink } from "./settings-roles-pending-invitations";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 
 type InviteFormState = {
   email: string;
@@ -39,12 +46,19 @@ const EMPTY_FORM: InviteFormState = { email: "", role: "", message: "" };
 type Props = {
   readonly emailInputRef?: RefObject<HTMLInputElement | null>;
   readonly onInviteSent?: (invitation: AdminUserInvitationRow) => void;
+  readonly initialMessage?: string;
+  readonly reviewId?: string;
 };
 
-export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props) {
-  const [form, setForm] = useState<InviteFormState>(EMPTY_FORM);
+export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialMessage, reviewId }: Props) {
+  const [form, setForm] = useState<InviteFormState>(() => ({
+    ...EMPTY_FORM,
+    message: initialMessage?.trim() ?? "",
+  }));
   const [sending, setSending] = useState(false);
+  const [inviteSentForReviewId, setInviteSentForReviewId] = useState<string | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const reviewIdTrimmed = reviewId?.trim() ?? "";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -76,6 +90,9 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
         : `Invitation sent to ${form.email}.`,
     );
     setForm(EMPTY_FORM);
+    if (reviewIdTrimmed.length > 0) {
+      setInviteSentForReviewId(reviewIdTrimmed);
+    }
     onInviteSent?.(result.invitation);
   }
 
@@ -84,8 +101,35 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
   }
 
   const canSubmit = form.email.trim().length > 0 && form.role.length > 0;
+  const inviteReviewerSteps = resolveInviteReviewerSteps({
+    emailConfigured: form.email.trim().length > 0,
+    roleSelected: form.role.length > 0,
+    inviteSent: inviteSentForReviewId !== null,
+  });
+  const inviteReviewerEmphasizedStepId = resolveInviteReviewerEmphasizedStepId({
+    emailConfigured: form.email.trim().length > 0,
+    roleSelected: form.role.length > 0,
+    inviteSent: inviteSentForReviewId !== null,
+  });
 
   return (
+    <>
+      {inviteSentForReviewId !== null ? (
+        <div
+          className="mb-4 rounded-md border border-teal-200 bg-teal-50 px-3 py-3 dark:border-teal-900 dark:bg-teal-950/40"
+          data-testid="settings-roles-invite-review-handoff"
+          role="status"
+        >
+          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            Invitation sent. Return to the review package when you are ready to share context with the reviewer.
+          </p>
+          <Button type="button" variant="outline" size="sm" className="mt-3" asChild>
+            <Link href={reviewDetailPath(inviteSentForReviewId)} data-testid="settings-roles-invite-back-to-review-package">
+              Back to review package
+            </Link>
+          </Button>
+        </div>
+      ) : null}
     <form
       data-testid="settings-roles-invite-form"
       className="max-w-xl space-y-4"
@@ -94,6 +138,12 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
       {buyerPolishedShell ? null : (
         <ColdInviteUsersInviteVocabularyRail currentSurfaceId="users-invite" />
       )}
+      <IntegrationConnectChecklist
+        title="Invite checklist"
+        steps={inviteReviewerSteps}
+        emphasizedStepId={inviteReviewerEmphasizedStepId}
+        testIdPrefix="invite-reviewer"
+      />
       <div className="space-y-1">
         <Label htmlFor="invite-email">Email address</Label>
         <Input
@@ -178,6 +228,7 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
         ) : null}
       </div>
     </form>
+    </>
   );
 }
 

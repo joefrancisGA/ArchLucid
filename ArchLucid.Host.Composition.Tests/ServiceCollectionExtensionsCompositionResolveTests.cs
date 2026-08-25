@@ -65,6 +65,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         scope.ServiceProvider.GetRequiredService<IFindingIacStubGenerator>().Should().NotBeNull();
         scope.ServiceProvider.GetRequiredService<IArchitectureRequestDraftService>().Should().NotBeNull();
         scope.ServiceProvider.GetRequiredService<IArchitectureOverviewRewriteService>().Should().NotBeNull();
+        scope.ServiceProvider.GetRequiredService<IClarificationAnswerRephraseService>().Should().NotBeNull();
         scope.ServiceProvider.GetRequiredService<IArchitectureSynthesisKernel>().Should().NotBeNull();
         scope.ServiceProvider.GetRequiredService<IPreCommitGovernanceBlockExplainer>().Should().NotBeNull();
     }

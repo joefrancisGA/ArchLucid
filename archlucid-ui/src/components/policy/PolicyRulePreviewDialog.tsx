@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { StatusTag } from "@/components/ui/status-tag";
-import { getEffectivePolicyPacks } from "@/lib/api/policy-governance-api";
+import { useEffectivePolicyPacksQuery } from "@/hooks/use-effective-policy-packs-query";
 import {
   buildPolicyRulePreviewFallback,
   lookupPolicyRulePreviewInEffectivePacks,
@@ -67,65 +67,60 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
     initialPreview,
   } = props;
   const [preview, setPreview] = useState<PolicyRulePreview>(() => previewFromSource(props));
-  const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const shouldFetchEffective = open && initialPreview?.hasCuratedRuleText !== true;
+  const effectivePacksQuery = useEffectivePolicyPacksQuery({ enabled: shouldFetchEffective });
+  const loading = shouldFetchEffective && effectivePacksQuery.isPending;
+  const loadError = effectivePacksQuery.isError
+    ? effectivePacksQuery.error instanceof Error
+      ? effectivePacksQuery.error.message
+      : "Could not load policy pack content."
+    : null;
 
   useEffect(() => {
     if (!open) {
       return;
     }
 
-    setPreview(
-      previewFromSource({
-        ruleId,
-        ruleLabel,
-        packId,
-        packName,
-        packVersion,
-        initialPreview,
-      }),
-    );
-    setLoadError(null);
+    const fallbackPreview = previewFromSource({
+      ruleId,
+      ruleLabel,
+      packId,
+      packName,
+      packVersion,
+      initialPreview,
+    });
 
     if (initialPreview?.hasCuratedRuleText === true) {
+      setPreview(fallbackPreview);
       return;
     }
 
-    let canceled = false;
-
-    void (async () => {
-      setLoading(true);
-
-      try {
-        const effective = await getEffectivePolicyPacks();
-        const resolved =
-          lookupPolicyRulePreviewInEffectivePacks(ruleId, effective.packs) ??
+    if (effectivePacksQuery.data !== undefined) {
+      setPreview(
+        lookupPolicyRulePreviewInEffectivePacks(ruleId, effectivePacksQuery.data.packs) ??
           buildPolicyRulePreviewFallback({
             ruleId,
             ruleLabel,
             packId,
             packName,
             packVersion,
-          });
+          }),
+      );
 
-        if (!canceled) {
-          setPreview(resolved);
-        }
-      } catch (error) {
-        if (!canceled) {
-          setLoadError(error instanceof Error ? error.message : "Could not load policy pack content.");
-        }
-      } finally {
-        if (!canceled) {
-          setLoading(false);
-        }
-      }
-    })();
+      return;
+    }
 
-    return () => {
-      canceled = true;
-    };
-  }, [open, ruleId, ruleLabel, packId, packName, packVersion, initialPreview]);
+    setPreview(fallbackPreview);
+  }, [
+    effectivePacksQuery.data,
+    initialPreview,
+    open,
+    packId,
+    packName,
+    packVersion,
+    ruleId,
+    ruleLabel,
+  ]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

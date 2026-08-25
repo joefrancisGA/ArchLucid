@@ -57,6 +57,7 @@ import { FindingInspectItsmWorkflowPanel } from "../FindingInspectItsmWorkflowPa
 import { FindingInspectRecommendedActionSection } from "../FindingInspectRecommendedActionSection";
 import { FindingInspectWhyMattersSection } from "../FindingInspectWhyMattersSection";
 import { FindingDetailDecisionSummary } from "./FindingDetailDecisionSummary";
+import { FindingDetailNextFindingFooter } from "./FindingDetailNextFindingFooter";
 import { FindingDetailOperationalActions } from "./FindingDetailOperationalActions";
 import { FindingDetailWayfinding } from "./FindingDetailWayfinding";
 import { FindingDetailBreadcrumb } from "./FindingDetailBreadcrumb";
@@ -100,6 +101,7 @@ export function FindingDetailPageView(props: Props) {
     findingIsPhi,
     runExecutionFootnote,
     statedConstraintContext,
+    nextFindingInReview,
   } = model;
 
   const labels = inspectPayload !== null ? findingInspectPrimaryLabels(inspectPayload) : null;
@@ -630,6 +632,8 @@ export function FindingDetailPageView(props: Props) {
           />
         </CollapsibleSection>
       ) : null}
+
+      {nextFindingInReview !== null ? <FindingDetailNextFindingFooter target={nextFindingInReview} /> : null}
 
       <OperatorEvidenceLimitsFooter
         runId={runId}

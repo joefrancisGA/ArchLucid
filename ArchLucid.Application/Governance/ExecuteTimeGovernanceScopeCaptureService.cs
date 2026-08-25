@@ -25,6 +25,7 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
     IEffectiveGovernanceResolver effectiveGovernanceResolver,
     IPolicyPackAssignmentRepository policyPackAssignmentRepository,
     IPolicyPackRepository policyPackRepository,
+    IPolicyPackVersionRepository policyPackVersionRepository,
     ICoverageAssignmentRepository coverageAssignmentRepository,
     CoverageAssignmentValidator coverageAssignmentValidator,
     IActorContext actorContext,
@@ -45,6 +46,9 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
 
     private readonly IPolicyPackRepository _policyPackRepository =
         policyPackRepository ?? throw new ArgumentNullException(nameof(policyPackRepository));
+
+    private readonly IPolicyPackVersionRepository _policyPackVersionRepository =
+        policyPackVersionRepository ?? throw new ArgumentNullException(nameof(policyPackVersionRepository));
 
     private readonly ICoverageAssignmentRepository _coverageAssignmentRepository =
         coverageAssignmentRepository ?? throw new ArgumentNullException(nameof(coverageAssignmentRepository));
@@ -91,7 +95,8 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
             _policyPackAssignmentRepository,
             _policyPackRepository,
             preloadedScopePolicyPackAssignments: null,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken,
+            _policyPackVersionRepository).ConfigureAwait(false);
 
         ExecutedEffectiveGovernanceSnapshotDescriptor snapshot = new()
         {

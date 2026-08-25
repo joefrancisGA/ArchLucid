@@ -115,6 +115,8 @@ function buyerModel(overrides: Partial<FindingDetailPageModel> = {}): FindingDet
     pageTitle: "Over-permissive storage access",
     findingIsPhi: false,
     runExecutionFootnote: null,
+    statedConstraintContext: null,
+    nextFindingInReview: null,
     ...overrides,
   };
 }

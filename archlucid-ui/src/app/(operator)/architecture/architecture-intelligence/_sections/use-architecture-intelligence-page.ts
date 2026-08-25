@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/lib/architecture/architecture-intelligence-review-tier";
 import { architectureIntelligencePageSubtitle } from "@/lib/architecture/architecture-intelligence-page-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useArchitectureIntelligenceSourceContextQuery } from "@/hooks/use-architecture-intelligence-source-context-query";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
@@ -56,6 +57,7 @@ export type UseArchitectureIntelligencePageResult = {
   showIntakeForm: boolean;
   inboundContextLine: string | null;
   activeRunId: string | null;
+  onSelectReview: (reviewId: string) => void;
   architectureDescription: string;
   setArchitectureDescription: (value: string) => void;
   prioritiesRaw: string;
@@ -84,6 +86,8 @@ export type UseArchitectureIntelligencePageResult = {
 };
 
 export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePageResult {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const inboundRunId = searchParams.get("runId")?.trim() ?? "";
   const inboundFrom = searchParams.get("from")?.trim() ?? "";
@@ -93,6 +97,17 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
   const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
   const previousScopeKeyRef = useRef(scopeKey);
   const [productContextReloadNonce, setProductContextReloadNonce] = useState(0);
+  const sourceContextQuery = useArchitectureIntelligenceSourceContextQuery(inboundRunId, {
+    enabled: inboundRunId.length > 0,
+  });
+  const hydratedDescriptionFromQuery = useMemo(
+    () => primaryDescriptionFromSources(sourceContextQuery.data?.sourceTexts ?? []),
+    [sourceContextQuery.data?.sourceTexts],
+  );
+  const hydratedPrioritiesFromQuery = useMemo(
+    () => (sourceContextQuery.data?.declaredPriorities ?? []).join(", "),
+    [sourceContextQuery.data?.declaredPriorities],
+  );
 
   const [architectureDescription, setArchitectureDescription] = useState("");
   const [prioritiesRaw, setPrioritiesRaw] = useState("");
@@ -113,7 +128,8 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
 
   const retryProductContextLoad = useCallback(() => {
     setProductContextReloadNonce((previous) => previous + 1);
-  }, []);
+    void sourceContextQuery.refetch();
+  }, [sourceContextQuery]);
 
   const setReviewTierIfValid = useCallback((value: string) => {
     if (isArchitectureIntelligenceReviewTier(value)) {
@@ -161,58 +177,54 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
     setRunState(null);
     setInterviewAnswers({});
     setActiveRunId(inboundRunId);
-    setProductContextStatus("loading");
-    setLoadingAction("product-context");
     setError(null);
-
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const context = await getJson<{
-          runId?: string | null;
-          sourceTexts?: ClosedLoopReasoningSourceText[];
-          declaredPriorities?: string[];
-        }>(
-          `/api/proxy/v1/architecture-intelligence/product-runs/${encodeURIComponent(inboundRunId)}/source-context`,
-        );
-
-        if (canceled) {
-          return;
-        }
-
-        const sources = context.sourceTexts ?? [];
-        setHydratedSourceTexts(sources);
-        setArchitectureDescription(primaryDescriptionFromSources(sources));
-        setActiveRunId(context.runId?.trim() || inboundRunId);
-
-        if ((context.declaredPriorities?.length ?? 0) > 0) {
-          setPrioritiesRaw((context.declaredPriorities ?? []).join(", "));
-        }
-
-        setProductContextStatus(sources.length > 0 ? "loaded" : "empty");
-      } catch (cause) {
-        if (canceled) {
-          return;
-        }
-
-        setProductContextStatus("error");
-        setError(
-          cause instanceof Error
-            ? cause.message
-            : "Could not load product run source context. Paste a description or load the golden fixture.",
-        );
-      } finally {
-        if (!canceled) {
-          setLoadingAction(null);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
   }, [inboundRunId, productContextReloadNonce]);
+
+  useEffect(() => {
+    if (inboundRunId.length === 0 || sourceContextQuery.data === undefined) {
+      return;
+    }
+
+    const sources = sourceContextQuery.data.sourceTexts;
+    setHydratedSourceTexts([...sources]);
+    setArchitectureDescription(hydratedDescriptionFromQuery);
+    setActiveRunId(sourceContextQuery.data.runId?.trim() || inboundRunId);
+
+    if ((sourceContextQuery.data.declaredPriorities?.length ?? 0) > 0) {
+      setPrioritiesRaw(hydratedPrioritiesFromQuery);
+    }
+
+    setProductContextStatus(sources.length > 0 ? "loaded" : "empty");
+    setLoadingAction(null);
+  }, [
+    hydratedDescriptionFromQuery,
+    hydratedPrioritiesFromQuery,
+    inboundRunId,
+    productContextReloadNonce,
+    sourceContextQuery.data,
+  ]);
+
+  useEffect(() => {
+    if (inboundRunId.length === 0) {
+      return;
+    }
+
+    if (sourceContextQuery.isPending) {
+      setProductContextStatus("loading");
+      setLoadingAction("product-context");
+      return;
+    }
+
+    if (sourceContextQuery.isError) {
+      setProductContextStatus("error");
+      setLoadingAction(null);
+      setError(
+        sourceContextQuery.error instanceof Error
+          ? sourceContextQuery.error.message
+          : "Could not load product run source context. Paste a description or load the golden fixture.",
+      );
+    }
+  }, [inboundRunId, sourceContextQuery.error, sourceContextQuery.isError, sourceContextQuery.isPending]);
 
   const loadingInboundContext = inboundRunId.length > 0 && productContextStatus === "loading";
   const productContextLoadFailed = inboundRunId.length > 0 && productContextStatus === "error";
@@ -499,6 +511,21 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
 
   const isBusy = loadingAction !== null;
 
+  const onSelectReview = useCallback(
+    (runId: string) => {
+      const normalized = runId.trim();
+
+      if (normalized.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", normalized);
+      router.replace(`${pathname}?${params.toString()}`);
+    },
+    [pathname, router, searchParams],
+  );
+
   return {
     buyerPolishedShell,
     pageSubtitle: architectureIntelligencePageSubtitle(buyerPolishedShell),
@@ -512,6 +539,7 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
     showIntakeForm,
     inboundContextLine,
     activeRunId,
+    onSelectReview,
     architectureDescription,
     setArchitectureDescription,
     prioritiesRaw,

@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import {
-  GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD,
   GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD,
 } from "@/lib/guided-intake-copy";
@@ -57,8 +56,6 @@ describe("guided-intake band regression (TB-1880)", () => {
 
   it("forbids admission-gate buyer jargon in guided-intake chrome (TB-1878)", () => {
     expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).not.toMatch(/admission gates?/i);
-    expect(GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT).not.toMatch(/admission/i);
-    expect(GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT).not.toMatch(/socratic/i);
   });
 
   it("demotes context banners to neutral helper copy (TB-1879)", () => {

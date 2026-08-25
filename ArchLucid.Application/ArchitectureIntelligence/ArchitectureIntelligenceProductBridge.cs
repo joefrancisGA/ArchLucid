@@ -10,6 +10,7 @@ public static class ArchitectureIntelligenceProductBridge
 {
     private const string EngineType = "ArchitectureIntelligence";
     private const string FindingType = "ArchitectureIntelligence.SpecialistReview";
+    private const string HypothesisFindingType = "ArchitectureIntelligence.AdversarialChallenge";
     private const string Category = "ArchitectureIntelligence";
 
     public static List<Finding> ToFindings(IReadOnlyList<SpecialistReviewFinding> findings)
@@ -28,6 +29,27 @@ public static class ArchitectureIntelligenceProductBridge
         foreach (SpecialistReviewFinding finding in findings)
         {
             mapped.Add(MapFinding(finding, validationByFindingId));
+        }
+
+        return mapped;
+    }
+
+    public static List<Finding> ToHypothesisLaneFindings(IReadOnlyList<AdversarialChallenge> challenges)
+    {
+        ArgumentNullException.ThrowIfNull(challenges);
+
+        List<Finding> mapped = [];
+
+        foreach (AdversarialChallenge challenge in challenges)
+        {
+            if (challenge.Suppressed
+                || !AdversarialChallengeLaneGuard.IsHypothesisLane(challenge)
+                || AdversarialChallengeLaneGuard.ShouldDropChallenge(challenge))
+            {
+                continue;
+            }
+
+            mapped.Add(MapHypothesisChallenge(challenge));
         }
 
         return mapped;
@@ -168,6 +190,7 @@ public static class ArchitectureIntelligenceProductBridge
             FindingId = finding.FindingId,
             FindingType = FindingType,
             Category = Category,
+            PolicyRuleId = BuildPolicyRuleId(finding),
             QualityDimension = ArchitecturePillarRollup.ToStorageKey(
                 ArchitecturePillarRollup.FromSpecialistDimension(finding.Dimension)),
             EngineType = EngineType,
@@ -178,6 +201,44 @@ public static class ArchitectureIntelligenceProductBridge
             HumanReviewStatus = MapHumanReviewStatus(finding.GovernanceDisposition),
             Properties = properties,
         };
+    }
+
+    private static Finding MapHypothesisChallenge(AdversarialChallenge challenge)
+    {
+        Dictionary<string, string> properties = new()
+        {
+            ["architectureIntelligence.adversarialLane"] = AdversarialLane.AdversarialChallenge.ToString(),
+            ["architectureIntelligence.provenancePresentation"] = ProvenancePresentationBucket.Hypothesis.ToString(),
+            ["architectureIntelligence.sourceFindingId"] = challenge.SourceFindingId ?? string.Empty,
+            ["architectureIntelligence.falsificationEvidenceNeeded"] = challenge.FalsificationEvidenceNeeded ?? string.Empty,
+        };
+
+        string falsification = challenge.FalsificationEvidenceNeeded ?? string.Empty;
+
+        return new Finding
+        {
+            FindingId = challenge.ChallengeId,
+            FindingType = HypothesisFindingType,
+            Category = Category,
+            PolicyRuleId = "architecture-intelligence.adversarial.hypothesis",
+            QualityDimension = ArchitecturePillarRollup.ToStorageKey(
+                ArchitecturePillarRollup.FromSpecialistDimension(QualityDimension.Security)),
+            EngineType = EngineType,
+            Severity = FindingSeverity.Info,
+            Title = challenge.Hypothesis ?? string.Empty,
+            Rationale = $"Falsify/confirm with: {falsification}",
+            ConfidenceScore = challenge.Confidence,
+            HumanReviewStatus = FindingHumanReviewStatus.Pending,
+            Properties = properties,
+        };
+    }
+
+    private static string BuildPolicyRuleId(SpecialistReviewFinding finding)
+    {
+        string dimension = finding.Dimension.ToString().ToLowerInvariant();
+        string checkKey = ArchitectureIntelligenceStableCheckKey.FromFinding(finding);
+
+        return $"architecture-intelligence.{dimension}.{checkKey}";
     }
 
     private static FindingHumanReviewStatus MapHumanReviewStatus(GovernanceDisposition disposition)

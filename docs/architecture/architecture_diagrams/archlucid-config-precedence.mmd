@@ -1,6 +1,7 @@
 flowchart TB
   subgraph sources["Configuration sources lowest → highest"]
     APP["appsettings.json"]
+    PILOT["appsettings.Pilot overlay"]
     ADV["appsettings.Advanced / SaaS overlays"]
     ENV["Environment variables ARCHLUCID_*"]
     MEM["In-memory host bridges"]
@@ -25,7 +26,7 @@ flowchart TB
     CAT["SingleCatalog disallowed"]
   end
 
-  APP --> ADV --> ENV --> MEM
+  APP --> PILOT --> ADV --> ENV --> MEM
   MEM --> AL
   MEM --> AUTH
   MEM --> CS

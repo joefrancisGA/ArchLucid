@@ -76,8 +76,10 @@ export function ArchitectureCreatedClarificationsPanel(
     props.model.evidenceGaps.length > 0 ||
     props.model.assessmentItems.length > 0;
   const hasOpenQuestions = hasOpenQuestionEntities(openQuestions);
+  const preferModelInterviewQuestions = clarificationQuestions.length > 0;
+  const showIntakeOpenQuestions = hasOpenQuestions && !preferModelInterviewQuestions;
   const isZeroGapSuccess =
-    !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !hasOpenQuestions;
+    !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !showIntakeOpenQuestions;
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
   const clarificationQuestions = props.clarificationQuestions ?? [];
@@ -228,7 +230,7 @@ export function ArchitectureCreatedClarificationsPanel(
         </p>
       )}
 
-      {hasOpenQuestions && openQuestions !== undefined ? (
+      {showIntakeOpenQuestions && openQuestions !== undefined ? (
         <ArchitectureStructuredSectionView
           section={openQuestions}
           defaultOpen

@@ -167,7 +167,10 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                                       configuration,
                                       enforceServerCertificateTrust)
                                   ?? throw new InvalidOperationException(
-                                      "Missing connection string 'ArchLucid'."),
+                                      "ConnectionStrings:ArchLucid is missing or blank. "
+                                      + "Set ConnectionStrings:ArchLucid in appsettings or the ConnectionStrings__ArchLucid "
+                                      + "environment variable to a valid SQL Server connection string before starting the host "
+                                      + "(not required when ArchLucid:StorageProvider is InMemory)."),
             poolSnapshot);
 
         services.Configure<SqlServerOptions>(configuration.GetSection(SqlServerOptions.SectionName));
@@ -440,26 +443,13 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPilotReportCardMetricsReader, DapperPilotReportCardMetricsReader>();
         services.AddScoped<IPilotBaselineRepository, DapperPilotBaselineRepository>();
         services.AddScoped<IPilotCloseoutRepository, DapperPilotCloseoutRepository>();
-        services.AddScoped<IMarketingPricingQuoteRequestRepository, SqlMarketingPricingQuoteRequestRepository>();
-        services.AddScoped<IMarketingPricingQuoteRequestAgingReader, SqlMarketingPricingQuoteRequestAgingReader>();
-        services.AddScoped<IMarketingPricingQuoteRequestFollowUpRepository, SqlMarketingPricingQuoteRequestFollowUpRepository>();
-        services.AddScoped<IMarketingEarlyAccessRequestRepository, SqlMarketingEarlyAccessRequestRepository>();
-        services.AddScoped<ITenantMarketingAttributionRepository, SqlTenantMarketingAttributionRepository>();
-        services.AddScoped<IFirstTenantFunnelEventStore, SqlFirstTenantFunnelEventStore>();
-        services.AddScoped<IFirstTenantFunnelArchivalBatchStore, SqlFirstTenantFunnelArchivalBatchStore>();
-        services.AddScoped<IItsmFindingCorrelationRepository, SqlItsmFindingCorrelationRepository>();
-        services.AddScoped<ITenantItsmOutboundSettingsRepository, SqlTenantItsmOutboundSettingsRepository>();
-        services.AddScoped<ITenantAzureBoardsOutboundSettingsRepository, SqlTenantAzureBoardsOutboundSettingsRepository>();
-        services.AddScoped<ITenantItsmConnectorConnectionRepository, SqlTenantItsmConnectorConnectionRepository>();
-        services.AddScoped<IFineTuningManifestConsentReader, TenantSettingsFineTuningManifestConsentReader>();
-        services.AddScoped<IFineTuningTrainingExportAuditRepository, SqlFineTuningTrainingExportAuditRepository>();
+        SqlMarketingRepositoryRegistrar.Register(services);
+        SqlItsmRepositoryRegistrar.Register(services);
         services.AddScoped<ITenantHostedExtractorConfigurationRepository, SqlTenantHostedExtractorConfigurationRepository>();
         services.AddScoped<ITenantAwsConnectionRepository, SqlTenantAwsConnectionRepository>();
         services.AddScoped<ITenantGcpConnectionRepository, SqlTenantGcpConnectionRepository>();
         services.AddScoped<IGlobalSearchRepository, SqlGlobalSearchRepository>();
         services.AddScoped<ITenantFirstValueReportBrandingRepository, SqlTenantFirstValueReportBrandingRepository>();
-        services.AddScoped<ItsmInboundDispositionSync>();
-        services.AddScoped<ItsmInboundWebhookSyncService>();
         services.AddScoped<IValueReportMetricsReader, DapperValueReportMetricsReader>();
         services.AddScoped<IRunPipelineAuditTimelineService, RunPipelineAuditTimelineService>();
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();

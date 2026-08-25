@@ -369,7 +369,7 @@ public sealed class RunQueryControllerTests
             Mock.Of<IFindingTrustLabelMapper>(),
             Mock.Of<IReasoningSummaryBuilder>(),
             scopeProvider.Object,
-            Mock.Of<ITraceabilityBundleBuilder>(),
+            Mock.Of<ITraceabilityBundleExportApplicationService>(),
             Mock.Of<IRunTrustEvidenceCardBuilder>(),
             Mock.Of<ILlmCostEstimator>(),
             Mock.Of<IAuthorityQueryService>(),

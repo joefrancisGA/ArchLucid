@@ -8,10 +8,11 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
         "Only the affected subgraph was re-reviewed. Unreviewed remainder of the model is not guaranteed safe; "
         + "global invariant checks still apply.";
 
-    public IncrementalReReviewResult ReReview(
+    public async Task<IncrementalReReviewResult> ReReviewAsync(
         ArchitectureKnowledgeModel model,
         ReReviewScope scope,
-        ISpecialistReviewService specialistService)
+        IAsyncSpecialistReviewService specialistService,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(scope);
@@ -24,12 +25,14 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
 
         if (fullReReviewTriggered)
         {
-            specialistResults.Add(specialistService.Review(model));
+            specialistResults.Add(await specialistService.ReviewAsync(model, cancellationToken: cancellationToken)
+                .ConfigureAwait(false));
         }
         else if (scope.AffectedElementIds.Count > 0)
         {
             ArchitectureKnowledgeModel scopedModel = BuildScopedModel(model, scope.AffectedElementIds);
-            specialistResults.Add(specialistService.Review(scopedModel));
+            specialistResults.Add(await specialistService.ReviewAsync(scopedModel, cancellationToken: cancellationToken)
+                .ConfigureAwait(false));
             partialScopeDisclaimer = PartialScopeDisclaimer;
         }
 
@@ -109,6 +112,7 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
                 .ToList(),
             DeclaredPriorities = [.. model.DeclaredPriorities],
             FramingAnswers = new Dictionary<string, string>(model.FramingAnswers),
+            IsProvisionalSynthesis = model.IsProvisionalSynthesis,
         };
     }
 

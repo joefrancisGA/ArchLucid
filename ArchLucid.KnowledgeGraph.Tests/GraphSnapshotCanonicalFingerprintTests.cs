@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.KnowledgeGraph.Services;
 
 using FluentAssertions;
@@ -120,6 +121,63 @@ public sealed class GraphSnapshotCanonicalFingerprintTests
         string fb = GraphSnapshotCanonicalFingerprint.Compute(BuildSnapshot("p", setB));
 
         fa.Should().Be(fb);
+    }
+
+    [Fact]
+    public void AreEquivalentForReuse_WhenContextMatchesButKnowledgeModelChanged_ReturnsFalse()
+    {
+        List<CanonicalObject> objects =
+        [
+            new()
+            {
+                ObjectId = "a",
+                ObjectType = "type",
+                Name = "A",
+                SourceType = "src",
+                SourceId = "1"
+            }
+        ];
+
+        ContextSnapshot previous = BuildSnapshot("proj", objects, Guid.NewGuid());
+        ContextSnapshot current = BuildSnapshot("proj", objects, Guid.NewGuid());
+
+        ArchitectureKnowledgeModel priorModel = new()
+        {
+            ModelId = "model-1",
+            UpdatedUtc = DateTime.UtcNow,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "svc-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Orders",
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel currentModel = new()
+        {
+            ModelId = "model-1",
+            UpdatedUtc = priorModel.UpdatedUtc,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "svc-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Orders v2",
+                },
+            ],
+        };
+
+        bool equivalent = GraphSnapshotCanonicalFingerprint.AreEquivalentForReuse(
+            previous,
+            current,
+            priorModel,
+            currentModel);
+
+        equivalent.Should().BeFalse();
     }
 
     private static ContextSnapshot BuildSnapshot(string projectId, List<CanonicalObject> objects,

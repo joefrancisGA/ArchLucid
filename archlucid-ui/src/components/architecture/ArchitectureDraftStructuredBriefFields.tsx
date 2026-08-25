@@ -1,7 +1,8 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useCallback, useEffect, useState } from "react";
 
 import { StructuredBriefSuggestionExplainPanel } from "@/components/architecture/StructuredBriefSuggestionExplainPanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -464,7 +465,7 @@ export function ArchitectureDraftStructuredBriefFields(
     setEvidenceContradictedAssumptions({});
   }, [props.freeTextIntent]);
 
-  async function onSuggestFromOverview(): Promise<void> {
+  const runSuggestFromOverview = useCallback(async (): Promise<void> => {
     const freeTextDescription = buildSuggestionSourceText(props, brief, true);
 
     if (
@@ -530,6 +531,14 @@ export function ArchitectureDraftStructuredBriefFields(
     } finally {
       setSuggestBusy(false);
     }
+  }, [brief, canSuggestFromOverview, props]);
+
+  const suggestFromOverviewMutation = useMutation({
+    mutationFn: runSuggestFromOverview,
+  });
+
+  async function onSuggestFromOverview(): Promise<void> {
+    await suggestFromOverviewMutation.mutateAsync();
   }
 
   useEffect(() => {
@@ -537,8 +546,8 @@ export function ArchitectureDraftStructuredBriefFields(
       return;
     }
 
-    void onSuggestFromOverview();
-  }, [props.suggestFromOverviewNonce]);
+    suggestFromOverviewMutation.mutate();
+  }, [props.suggestFromOverviewNonce, suggestFromOverviewMutation]);
 
   async function onSuggestFailureMode(): Promise<void> {
     if (!canSuggestFailureMode) {

@@ -1,6 +1,6 @@
 import type { PolicyPack } from "@/types/policy-packs";
 
-import { isActiveSamplePolicyPackId } from "@/lib/samples/registry";
+import { resolveSampleScenarioByPolicyPackId } from "@/lib/samples/registry";
 import { RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL } from "@/lib/responsible-ai-policy-pack-detail-content";
 import { POLICY_PACK_TYPE_PLATFORM_DEFAULT } from "@/lib/policy/policy-pack-type-label";
 
@@ -20,8 +20,8 @@ function normalizePolicyPackToken(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function isHealthcareClaimsPolicyPackId(policyPackId: string): boolean {
-  return isActiveSamplePolicyPackId(policyPackId);
+function isSamplePrivacyPolicyPackId(policyPackId: string): boolean {
+  return resolveSampleScenarioByPolicyPackId(policyPackId) !== null;
 }
 
 export function isResponsibleAiPolicyPackId(policyPackId: string): boolean {
@@ -39,7 +39,7 @@ function isPlatformDefaultResponsibleAiPack(pack: PolicyPack): boolean {
 }
 
 export function resolvePolicyPackDetailKind(policyPackId: string, pack: PolicyPack | null): PolicyPackDetailKind {
-  if (isHealthcareClaimsPolicyPackId(policyPackId)) {
+  if (isSamplePrivacyPolicyPackId(policyPackId)) {
     return "healthcare-claims";
   }
 

@@ -1,3 +1,4 @@
+import type { FindingDetailNextFindingTarget } from "@/lib/findings/resolve-next-finding-in-review";
 import type { OperatorEvidenceLimitsExecutionProps } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { StatedConstraintContext } from "@/lib/review-quality/assumption-and-severity";
@@ -17,4 +18,5 @@ export type FindingDetailPageModel = {
   readonly findingIsPhi: boolean;
   readonly runExecutionFootnote: OperatorEvidenceLimitsExecutionProps | null;
   readonly statedConstraintContext: StatedConstraintContext | null;
+  readonly nextFindingInReview: FindingDetailNextFindingTarget | null;
 };

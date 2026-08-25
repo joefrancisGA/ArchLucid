@@ -266,7 +266,7 @@ describe("AdvisorySchedulesContent", () => {
     expect(apiMocks.createAdvisorySchedule.mock.calls[0][0].runProjectSlug).toBe("default");
     expect(apiMocks.createAdvisorySchedule.mock.calls[0][0].cronExpression).toMatch(/^\d+ \d+ \* \* \*$/);
 
-    expect(await screen.findByText("Daily claims-intake advisory scan")).toBeInTheDocument();
+    expect((await screen.findAllByText("Daily claims-intake advisory scan")).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Schedule created/i).length).toBeGreaterThanOrEqual(1);
   });
 
@@ -350,6 +350,8 @@ describe("AdvisorySchedulesContent", () => {
 
     const table = await screen.findByRole("table", { name: "Advisory scan schedules" });
     expect(within(table).getByText("Weekly architecture follow-up scan")).toBeInTheDocument();
+    expect(screen.getByTestId("advisory-schedules-continue-last-viewed-row")).toBeInTheDocument();
+    expect(screen.getByTestId("advisory-schedules-continue-last-viewed-open")).toBeInTheDocument();
     expect(screen.getByText("Ready")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: ADVISORY_SCANS_SCHEDULES_SCAN_NOW_LABEL })).toHaveAttribute(
       "aria-describedby",
@@ -453,7 +455,7 @@ describe("AdvisorySchedulesContent", () => {
 
     render(<AdvisorySchedulesContent />);
 
-    expect(await screen.findByText("Weekly scan")).toBeInTheDocument();
+    expect((await screen.findAllByText("Weekly scan")).length).toBeGreaterThan(0);
     const header = screen.getByTestId("advisory-schedules-list-header");
     expect(within(header).getByTestId("advisory-schedules-refresh")).toBeInTheDocument();
     expect(screen.getByRole("table", { name: "Advisory scan schedules" })).toBeInTheDocument();

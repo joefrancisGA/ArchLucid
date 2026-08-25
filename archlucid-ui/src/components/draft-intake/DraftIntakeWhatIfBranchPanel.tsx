@@ -15,7 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { branchDraftRequest, getDraftBranchQuota } from "@/lib/api/draft-intake-api";
+import { useDraftBranchQuotaQuery } from "@/hooks/use-draft-branch-quota-query";
+import { branchDraftRequest } from "@/lib/api/draft-intake-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { formatDraftBranchQuotaSummary } from "@/lib/draft-branch-quota-display";
 import {
@@ -112,8 +113,12 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
     resolveInitialOverrideKind(suppressQuestionAnswerOverride) === "BusinessOutcome" ? props.outcome : "",
   );
   const [busy, setBusy] = useState(false);
-  const [quota, setQuota] = useState<DraftBranchQuotaResponse | null>(null);
-  const [quotaError, setQuotaError] = useState<string | null>(null);
+  const quotaQuery = useDraftBranchQuotaQuery(props.draftId, { enabled: branchAllowed });
+  const quota = quotaQuery.data ?? null;
+  const quotaError =
+    quotaQuery.isError
+      ? (quotaQuery.error instanceof Error ? quotaQuery.error.message : "Failed to load branch quota.")
+      : null;
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -122,39 +127,6 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
 
   const panelDisabled = props.disabled === true || busy;
   const quotaAllowsBranch = quota?.canBranch !== false;
-
-  useEffect(() => {
-    if (!branchAllowed) {
-      return;
-    }
-
-    let canceled = false;
-
-    async function loadQuota(): Promise<void> {
-      setQuotaError(null);
-
-      try {
-        const loaded = await getDraftBranchQuota(props.draftId);
-
-        if (!canceled) {
-          setQuota(loaded);
-        }
-      } catch (loadError: unknown) {
-        if (!canceled) {
-          setQuota(null);
-          setQuotaError(
-            loadError instanceof Error ? loadError.message : "Failed to load branch quota.",
-          );
-        }
-      }
-    }
-
-    void loadQuota();
-
-    return () => {
-      canceled = true;
-    };
-  }, [branchAllowed, props.draftId]);
 
   useEffect(() => {
     if (suppressQuestionAnswerOverride && overrideKind === "QuestionAnswer") {

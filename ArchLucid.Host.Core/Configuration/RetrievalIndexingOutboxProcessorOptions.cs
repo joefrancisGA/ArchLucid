@@ -3,7 +3,7 @@ namespace ArchLucid.Host.Core.Configuration;
 /// <summary>
 ///     Background worker knobs for retrieval indexing SQL outbox rows (lease time, backoff, dead-letter).
 /// </summary>
-public sealed class RetrievalIndexingOutboxProcessorOptions
+public sealed class RetrievalIndexingOutboxProcessorOptions : IOutboxLeaseRetryProcessorOptions
 {
     public const string SectionName = "RetrievalIndexingOutbox";
 

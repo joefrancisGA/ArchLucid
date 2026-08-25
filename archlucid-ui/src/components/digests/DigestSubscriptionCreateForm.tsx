@@ -7,11 +7,13 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 
 import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { MutatingInTenantChip } from "@/components/MutatingInTenantChip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { useTenantIntegrationsOperationsQuery } from "@/hooks/use-tenant-integrations-operations-query";
 import {
   channelDestinationFieldLabel,
   channelDestinationHelper,
@@ -33,10 +35,13 @@ import {
   suggestedSubscriptionName,
 } from "@/lib/digest-subscriptions-workflow";
 import {
+  resolveDigestSubscriptionCreateEmphasizedStepId,
+  resolveDigestSubscriptionCreateSteps,
+} from "@/lib/digest-subscription-create-checklist";
+import {
   digestSubscriptionsCreateSubscriptionButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { whyDisabledEnterpriseMutationControl, whyDisabledIncompleteInput, firstWhyDisabledCtaReason } from "@/lib/why-disabled-cta";
-import { fetchTenantIntegrationsOperations } from "@/lib/api/tenant-customer-success";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
 import type { TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
@@ -70,27 +75,8 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
   const [createEnabled, setCreateEnabled] = useState<boolean>(true);
   const [destinationTouched, setDestinationTouched] = useState<boolean>(false);
   const [nameTouched, setNameTouched] = useState<boolean>(false);
-  const [integrationOps, setIntegrationOps] = useState<TenantIntegrationsOperationsDto | null>(null);
-
-  useEffect(() => {
-    let canceled = false;
-
-    void fetchTenantIntegrationsOperations()
-      .then((data) => {
-        if (!canceled) {
-          setIntegrationOps(data);
-        }
-      })
-      .catch(() => {
-        if (!canceled) {
-          setIntegrationOps(null);
-        }
-      });
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+  const integrationsQuery = useTenantIntegrationsOperationsQuery();
+  const integrationOps = integrationsQuery.data ?? null;
 
   useEffect(() => {
     if (props.collapsedByDefault) {
@@ -181,6 +167,21 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
   ]);
   const createButtonDescribedBy =
     createDisabledReason === null ? undefined : createDisabledHintId;
+  const destinationConfigured =
+    channelType.trim().length > 0 &&
+    destination.trim().length > 0 &&
+    destinationError === null &&
+    !integrationBlocksCreate;
+  const digestCreateSteps = resolveDigestSubscriptionCreateSteps({
+    nameConfigured: name.trim().length > 0,
+    destinationConfigured,
+    subscriptionSaved: props.createSuccess,
+  });
+  const digestCreateEmphasizedStepId = resolveDigestSubscriptionCreateEmphasizedStepId({
+    nameConfigured: name.trim().length > 0,
+    destinationConfigured,
+    subscriptionSaved: props.createSuccess,
+  });
   const destinationFieldLabel: string = channelDestinationFieldLabel(channelType);
   const destinationLabelText: string = isEmailChannel(channelType)
     ? `${destinationFieldLabel} (required)`
@@ -240,6 +241,13 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
           to configure delivery for your organization.
         </p>
       ) : null}
+
+      <IntegrationConnectChecklist
+        title="Subscription checklist"
+        steps={digestCreateSteps}
+        emphasizedStepId={digestCreateEmphasizedStepId}
+        testIdPrefix="digest-subscription-create"
+      />
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="grid gap-1.5">

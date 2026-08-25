@@ -250,7 +250,7 @@ describe("ServiceNowIntegrationPageClient", () => {
 
     expect(primaryCta).toBeInTheDocument();
     expect(within(mainColumn).queryAllByRole("button", { name: /save settings|test connection/i })).toHaveLength(0);
-    expect(screen.getByTestId("servicenow-setup-step-credentials")).toHaveAttribute("data-emphasized", "true");
+    expect(screen.getByTestId("servicenow-setup-step-connect")).toHaveAttribute("data-emphasized", "true");
   });
 
   it("shows connected state when probe is reachable", async () => {

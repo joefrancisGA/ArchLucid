@@ -259,27 +259,13 @@ public sealed class ArchitectureRunCreateOrchestratorMissingArchitectureRequestT
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("test-actor");
 
-        return new ArchitectureRunCreateOrchestrator(
+        return ArchitectureRunCreateOrchestratorTestSupport.CreateOrchestrator(
             coordination,
             requestRepository,
             runRepository,
             scope.Object,
             evidenceBundleRepository,
             taskRepository,
-            Mock.Of<IArchitectureRunIdempotencyRepository>(),
-            actor.Object,
-            Mock.Of<IBaselineMutationAuditService>(),
-            Mock.Of<IAuditService>(),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            Mock.Of<IUsageMeteringService>(),
-            new InProcessCreateRunIdempotencyLock(),
-            Options.Create(new ArchitectureRunCreateOptions()),
-            new DisabledAsyncAuthorityPipelineModeResolver(),
-            Mock.Of<IRunStateTransitionService>(),
-            TimeProvider.System,
-            new DefaultRequestContentSafetyPrecheck(),
-            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
-            WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
-            NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
+            actorContext: actor.Object);
     }
 }

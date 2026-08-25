@@ -8,6 +8,7 @@ import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +39,10 @@ import {
   validateCompositeAlertRuleForm,
   type CompositeAlertRuleFormInput,
 } from "@/lib/composite-alert-rules-form";
+import {
+  resolveCompositeAlertRulesCreateEmphasizedStepId,
+  resolveCompositeAlertRulesCreateSteps,
+} from "@/lib/composite-alert-rules-create-checklist";
 import {
   alertToolingChangeConfigurationHeadingOperator,
   alertToolingChangeConfigurationHeadingReader,
@@ -119,6 +124,7 @@ export function CompositeAlertRulesContent() {
   const [showCreateConfirmation, setShowCreateConfirmation] = useState(false);
   const [createBusy, setCreateBusy] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [ruleSaved, setRuleSaved] = useState(false);
 
   const [name, setName] = useState("");
   const [severity, setSeverity] = useState("High");
@@ -208,6 +214,7 @@ export function CompositeAlertRulesContent() {
       await compositeRulesQuery.refresh();
       setShowCreateConfirmation(false);
       setSubmitAttempted(false);
+      setRuleSaved(true);
     } catch (e) {
       setMutationFailure(toApiLoadFailure(e));
     } finally {
@@ -232,6 +239,23 @@ export function CompositeAlertRulesContent() {
   const conditionsTabHref = governanceAlertRulesTabHref("rules");
   const mutationDisabledReason = canMutateComposite ? null : whyDisabledEnterpriseMutationControl();
   const mutationDisabledHintId = "composite-rules-mutate-disabled-hint";
+  const nameAndSeverityConfigured = name.trim().length > 0 && severity.trim().length > 0;
+  const conditionsConfigured =
+    fieldErrors.threshold1 === undefined &&
+    fieldErrors.threshold2 === undefined &&
+    fieldErrors.metrics === undefined &&
+    m1.trim().length > 0 &&
+    m2.trim().length > 0;
+  const compositeCreateSteps = resolveCompositeAlertRulesCreateSteps({
+    nameAndSeverityConfigured,
+    conditionsConfigured,
+    ruleSaved,
+  });
+  const compositeCreateEmphasizedStepId = resolveCompositeAlertRulesCreateEmphasizedStepId({
+    nameAndSeverityConfigured,
+    conditionsConfigured,
+    ruleSaved,
+  });
 
   return (
     <div>
@@ -384,6 +408,16 @@ export function CompositeAlertRulesContent() {
             reason={mutationDisabledReason}
             testId="composite-rules-mutate-disabled-hint"
           />
+      {canMutateComposite ? (
+        <div className="mb-4 max-w-2xl">
+          <IntegrationConnectChecklist
+            title="Create checklist"
+            steps={compositeCreateSteps}
+            emphasizedStepId={compositeCreateEmphasizedStepId}
+            testIdPrefix="composite-alert-rules-create"
+          />
+        </div>
+      ) : null}
       <fieldset
         disabled={!canMutateComposite}
         aria-label="New composite rule form"

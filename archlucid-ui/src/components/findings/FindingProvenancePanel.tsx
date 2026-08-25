@@ -2,9 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
-import { getFindingProvenance, type FindingProvenanceStep, type FindingProvenanceStepKind } from "@/lib/api/finding-provenance";
+import { useFindingProvenanceQuery } from "@/hooks/use-finding-provenance-query";
+import type { FindingProvenanceStep, FindingProvenanceStepKind } from "@/lib/api/finding-provenance";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingProvenancePanelProps = {
@@ -60,35 +61,20 @@ function ProvenanceStepRow(props: { readonly step: FindingProvenanceStep }): Rea
 export function FindingProvenancePanel(props: FindingProvenancePanelProps): React.JSX.Element {
   const { runId, findingId } = props;
   const [expanded, setExpanded] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [steps, setSteps] = useState<readonly FindingProvenanceStep[] | null>(null);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    if (!expanded || steps !== null) {
-      return;
+  const provenanceQuery = useFindingProvenanceQuery(runId, findingId, { enabled: expanded });
+  const loading = expanded && provenanceQuery.isPending;
+  const steps = useMemo(() => {
+    if (!expanded || provenanceQuery.data === undefined || provenanceQuery.data === null) {
+      return null;
     }
 
-    setLoading(true);
-    setError(false);
+    if (provenanceQuery.data.steps.length === 0) {
+      return null;
+    }
 
-    void getFindingProvenance(runId, findingId)
-      .then((payload) => {
-        if (payload === null || payload.steps.length === 0) {
-          setError(true);
-
-          return;
-        }
-
-        setSteps(payload.steps);
-      })
-      .catch(() => {
-        setError(true);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [expanded, findingId, runId, steps]);
+    return provenanceQuery.data.steps;
+  }, [expanded, provenanceQuery.data]);
+  const error = expanded && !loading && (provenanceQuery.isError || steps === null);
 
   return (
     <section className="rounded-md border border-neutral-200 dark:border-neutral-700" data-testid="finding-provenance-panel">
@@ -100,27 +86,33 @@ export function FindingProvenancePanel(props: FindingProvenancePanelProps): Reac
           setExpanded((previous) => !previous);
         }}
       >
-        <span className={cn(OPERATOR_TYPOGRAPHY.badge, "font-semibold text-neutral-800 dark:text-neutral-100")}>
-          Why this finding?
+        <span className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+          How this finding was produced
         </span>
-        <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform", expanded ? "rotate-180" : "")} aria-hidden />
+        <ChevronDown
+          className={cn("h-4 w-4 shrink-0 text-neutral-500 transition-transform", expanded ? "rotate-180" : "")}
+          aria-hidden
+        />
       </button>
+
       {expanded ? (
         <div className="border-t border-neutral-200 px-4 py-3 dark:border-neutral-700">
           {loading ? (
-            <ul className="m-0 list-none space-y-2 p-0">
-              <li className="h-4 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
-              <li className="h-4 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
-              <li className="h-4 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
-            </ul>
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
+              Loading provenance…
+            </p>
           ) : null}
-          {!loading && error ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Provenance not available for this finding.</p>
+
+          {error ? (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
+              Provenance is not available for this finding.
+            </p>
           ) : null}
-          {!loading && steps !== null ? (
+
+          {!loading && !error && steps !== null ? (
             <ol className="m-0 list-none space-y-3 p-0">
-              {steps.map((step) => (
-                <ProvenanceStepRow key={`${step.kind}-${step.label}`} step={step} />
+              {steps.map((step, index) => (
+                <ProvenanceStepRow key={`${step.kind}-${index}`} step={step} />
               ))}
             </ol>
           ) : null}

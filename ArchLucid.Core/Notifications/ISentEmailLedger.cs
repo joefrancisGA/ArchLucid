@@ -6,5 +6,7 @@ namespace ArchLucid.Core.Notifications;
 /// </summary>
 public interface ISentEmailLedger
 {
+    Task<bool> IsRecordedAsync(Guid tenantId, string idempotencyKey, CancellationToken cancellationToken);
+
     Task<bool> TryRecordSentAsync(SentEmailLedgerEntry entry, CancellationToken cancellationToken);
 }

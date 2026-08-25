@@ -1,49 +1,48 @@
-/** Technology Ledger DTOs — manual until OpenAPI snapshot includes Prompt 9 routes. */
+import type { components } from "@/lib/openapi-schemas";
 
-export type TechnologyLedgerRole =
-  | "CloudPlatform"
-  | "IdentityProvider"
-  | "PrimaryDatastore"
-  | "Messaging"
-  | "ComputeRuntime"
-  | "Region"
-  | "IacTarget"
-  | "Other";
+export type TechnologyLedgerRole = components["schemas"]["TechnologyLedgerRole"];
 
-export type TechnologyLedgerStatus = "Chosen" | "Assumed" | "Alternative" | "Future";
+export type TechnologyLedgerStatus = components["schemas"]["TechnologyLedgerStatus"];
 
-export type TechnologyLedgerSource = "User" | "Evidence" | "AgentProposed";
+export type TechnologyLedgerSource = components["schemas"]["TechnologyLedgerSource"];
 
-export type CloudProviderFamily = "None" | "Azure" | "Aws" | "Gcp";
+/** OpenAPI `CloudProvider` — retained export name for UI call sites. */
+export type CloudProviderFamily = components["schemas"]["CloudProvider"];
 
-export type TechnologyLedgerEntry = {
-  readonly entryId: string;
-  readonly runId: string;
-  readonly role: TechnologyLedgerRole;
-  readonly technologyName: string;
-  readonly providerFamily: CloudProviderFamily;
-  readonly status: TechnologyLedgerStatus;
-  readonly source: TechnologyLedgerSource;
-  readonly evidenceRef: string | null;
-  readonly rationale: string | null;
-  readonly isLocked: boolean;
-  readonly createdUtc: string;
-  readonly updatedUtc: string;
-};
+type TechnologyLedgerEntryResponseSchema = components["schemas"]["TechnologyLedgerEntryResponse"];
 
-export type TechnologyLedgerListResponse = {
-  readonly runId: string;
-  readonly entries: TechnologyLedgerEntry[];
-};
+export type TechnologyLedgerEntry = TechnologyLedgerEntryResponseSchema &
+  Required<
+    Pick<
+      TechnologyLedgerEntryResponseSchema,
+      | "entryId"
+      | "runId"
+      | "role"
+      | "technologyName"
+      | "providerFamily"
+      | "status"
+      | "source"
+      | "evidenceRef"
+      | "rationale"
+      | "isLocked"
+      | "createdUtc"
+      | "updatedUtc"
+    >
+  > & {
+    providerFamily: CloudProviderFamily;
+  };
 
-export type PatchTechnologyLedgerEntryRequest = {
-  readonly status?: TechnologyLedgerStatus;
-  readonly isLocked?: boolean;
-  readonly rationale?: string;
-  readonly technologyName?: string;
-  readonly providerFamily?: CloudProviderFamily;
-};
+type TechnologyLedgerListResponseSchema = components["schemas"]["TechnologyLedgerListResponse"];
 
-export type PatchTechnologyLedgerEntryResponse = {
-  readonly entry: TechnologyLedgerEntry;
+export type TechnologyLedgerListResponse = TechnologyLedgerListResponseSchema &
+  Required<Pick<TechnologyLedgerListResponseSchema, "runId" | "entries">> & {
+    entries: TechnologyLedgerEntry[];
+  };
+
+export type PatchTechnologyLedgerEntryRequest = components["schemas"]["PatchTechnologyLedgerEntryRequest"];
+
+type PatchTechnologyLedgerEntryResponseSchema = components["schemas"]["PatchTechnologyLedgerEntryResponse"];
+
+export type PatchTechnologyLedgerEntryResponse = PatchTechnologyLedgerEntryResponseSchema & {
+  entry: TechnologyLedgerEntry;
 };

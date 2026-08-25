@@ -4,8 +4,9 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public interface IIncrementalReReviewService
 {
-    IncrementalReReviewResult ReReview(
+    Task<IncrementalReReviewResult> ReReviewAsync(
         ArchitectureKnowledgeModel model,
         ReReviewScope scope,
-        ISpecialistReviewService specialistService);
+        IAsyncSpecialistReviewService specialistService,
+        CancellationToken cancellationToken = default);
 }

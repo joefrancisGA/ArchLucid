@@ -7,9 +7,9 @@ import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { useArchitectureTelemetryRoiQuery } from "@/hooks/use-roi-dashboard-queries";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { DEFAULT_LOADED_HOURLY_USD, formatHours, formatUsd, readStoredHourlyUsd } from "@/lib/roi-assumptions";
 
 interface RoiTelemetry {
@@ -19,36 +19,15 @@ interface RoiTelemetry {
 }
 
 export function ValueRealizationDashboard() {
-  const [telemetry, setTelemetry] = useState<RoiTelemetry | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const { data: telemetry, isPending, isError, error } = useArchitectureTelemetryRoiQuery();
+  const failure: ApiLoadFailureState | null = isError ? toApiLoadFailure(error) : null;
   const [hourlyUsd, setHourlyUsd] = useState<number>(DEFAULT_LOADED_HOURLY_USD);
 
   useEffect(() => {
     setHourlyUsd(readStoredHourlyUsd());
   }, []);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const response = await fetch("/api/proxy/v1/architecture/telemetry/roi", {
-          headers: { Accept: "application/json", ...getEffectiveBrowserProxyScopeHeaders() },
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to load telemetry: ${response.statusText}`);
-        }
-        const data = await response.json();
-        setTelemetry(data);
-      } catch (e) {
-        setFailure(toApiLoadFailure(e));
-      } finally {
-        setLoading(false);
-      }
-    }
-    void load();
-  }, []);
-
-  if (loading) {
+  if (isPending) {
     return <div className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Loading Value Realization metrics...</div>;
   }
 

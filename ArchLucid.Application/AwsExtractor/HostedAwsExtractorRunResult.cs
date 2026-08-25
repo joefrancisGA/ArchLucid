@@ -1,65 +1,48 @@
 namespace ArchLucid.Application.AwsExtractor;
 
+/// <summary>AWS-hosted extractor poll result — delegates to shared cloud extractor envelope.</summary>
 public sealed class HostedAwsExtractorRunResult
 {
-    public bool Succeeded { get; init; }
+    private readonly CloudExtractor.HostedCloudExtractorRunResult _inner;
 
-    public Guid? PackageId { get; init; }
+    private HostedAwsExtractorRunResult(CloudExtractor.HostedCloudExtractorRunResult inner)
+    {
+        _inner = inner;
+    }
 
-    public int ResourceCount { get; init; }
+    public bool Succeeded => _inner.Succeeded;
 
-    public string? FailureDetail { get; init; }
+    public Guid? PackageId => _inner.PackageId;
 
-    public HostedAwsExtractorRunFailureKind FailureKind { get; init; }
+    public int ResourceCount => _inner.ResourceCount;
+
+    public string? FailureDetail => _inner.FailureDetail;
+
+    public HostedAwsExtractorRunFailureKind FailureKind =>
+        (HostedAwsExtractorRunFailureKind)_inner.FailureKind;
 
     public static HostedAwsExtractorRunResult CreateSuccess(Guid packageId, int resourceCount) =>
-        new()
-        {
-            Succeeded = true,
-            PackageId = packageId,
-            ResourceCount = resourceCount,
-            FailureKind = HostedAwsExtractorRunFailureKind.None
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateSuccess(packageId, resourceCount));
 
     public static HostedAwsExtractorRunResult CreateFeatureDisabled() =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = "Hosted AWS extractor is disabled (HostedAwsExtractor:Enabled=false).",
-            FailureKind = HostedAwsExtractorRunFailureKind.FeatureDisabled
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateFeatureDisabled("AWS", "HostedAwsExtractor"));
 
     public static HostedAwsExtractorRunResult CreateNotConfigured() =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = "No hosted AWS extractor connection exists for this tenant.",
-            FailureKind = HostedAwsExtractorRunFailureKind.NotConfigured
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateNotConfigured(
+            "AWS",
+            "No hosted AWS extractor connection exists for this tenant."));
 
     public static HostedAwsExtractorRunResult CreateIngestFailed(string detail) =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = detail,
-            FailureKind = HostedAwsExtractorRunFailureKind.IngestFailed
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateIngestFailed(detail));
 
     public static HostedAwsExtractorRunResult CreateThrottled(string detail) =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = detail,
-            FailureKind = HostedAwsExtractorRunFailureKind.Throttled
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateThrottled(detail));
 
     public static HostedAwsExtractorRunResult CreateCollectionFailed(string detail) =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = detail,
-            FailureKind = HostedAwsExtractorRunFailureKind.CollectionFailed
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateCollectionFailed(detail));
+
+    private static HostedAwsExtractorRunResult Wrap(CloudExtractor.HostedCloudExtractorRunResult inner) =>
+        new(inner);
 }
 
 public enum HostedAwsExtractorRunFailureKind

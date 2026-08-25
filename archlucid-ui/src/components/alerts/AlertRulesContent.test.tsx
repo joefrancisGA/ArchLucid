@@ -415,6 +415,7 @@ describe("AlertRulesContent", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("alert-rule-row-rule-1")).toBeInTheDocument();
+      expect(screen.getByTestId("alert-rules-continue-last-viewed-row")).toBeInTheDocument();
     });
 
     expect(screen.getByText(/raises a High alert when critical and high-severity finding count reaches at least 2/i)).toBeInTheDocument();

@@ -6,7 +6,6 @@ import Link from "next/link";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
 import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
-import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import { DraftIntakeRequiredClarificationField, REQUIRED_CLARIFICATION_BASELINE_LABEL } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
@@ -240,10 +239,6 @@ export function SocraticIntakeWizard() {
         currentStep={step}
         completedSteps={completedWizardSteps}
       />
-      <DraftIntakeClaimLabel
-        surface={isCreateArchitectureFlow ? "architecture-creation-draft" : "structural-admission"}
-      />
-
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
       {sourceArchitectureId.length > 0 ? (

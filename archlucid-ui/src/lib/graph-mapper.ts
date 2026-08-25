@@ -1,7 +1,11 @@
 import type { Edge, Node } from "reactflow";
 import type { GraphNodeVm, GraphViewModel } from "@/types/graph";
 import { isProvenanceTrailCoordinatorType } from "@/lib/provenance-graph-presentation";
-import { getActiveSampleScenario, isActiveSampleHeroFindingId } from "@/lib/samples/registry";
+import {
+  isActiveSampleHeroFindingId,
+  isSampleHeroFindingReferenceId,
+  listRegisteredSampleScenarios,
+} from "@/lib/samples/registry";
 
 /** Maps a graph node type to a background color for visual differentiation in React Flow. */
 function pickColor(type: string): string {
@@ -124,7 +128,7 @@ export function buyerTrailEdgeDisplayPhrase(edgeType: string): string {
   return humanizeEdgeLabel(edgeType);
 }
 
-/** True when this reviewer-trail finding is the active sample hero (layout + panel emphasis). */
+/** True when this reviewer-trail finding is a registered sample hero (layout + panel emphasis). */
 export function isBuyerTrailPhiHeroNode(node: GraphNodeVm): boolean {
   if (node.type !== "Finding") {
     return false;
@@ -132,19 +136,21 @@ export function isBuyerTrailPhiHeroNode(node: GraphNodeVm): boolean {
 
   const ref = node.metadata?.referenceId?.trim() ?? "";
 
-  if (isActiveSampleHeroFindingId(ref)) {
+  if (isSampleHeroFindingReferenceId(ref) || isActiveSampleHeroFindingId(ref)) {
     return true;
   }
 
-  const scenario = getActiveSampleScenario();
-  const heroTitle = scenario.primaryFindingTitle.toLowerCase();
   const label = node.label.toLowerCase();
 
-  if (label === heroTitle || label.includes(heroTitle)) {
-    return true;
+  for (const scenario of listRegisteredSampleScenarios()) {
+    const heroTitle = scenario.primaryFindingTitle.toLowerCase();
+
+    if (label === heroTitle || label.includes(heroTitle)) {
+      return true;
+    }
   }
 
-  return isActiveSampleHeroFindingId(node.id);
+  return isSampleHeroFindingReferenceId(node.id) || isActiveSampleHeroFindingId(node.id);
 }
 
 function orderBuyerTrailNodesPhiCentral(nodes: GraphNodeVm[]): GraphNodeVm[] {

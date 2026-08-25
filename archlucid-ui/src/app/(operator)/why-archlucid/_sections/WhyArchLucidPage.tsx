@@ -1,25 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
-import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { WHY_ARCHLUCID_PAGE_LOAD_RETRY_LABEL } from "@/lib/why-archlucid-page-copy";
+import { cn } from "@/lib/utils";
+import { useWhyArchLucidPageQuery } from "@/hooks/use-why-archlucid-page-query";
 
-import {
-  getFirstValueReportMarkdown,
-  getRunExplanationSummary,
-  getSponsorEvidencePack,
-  getTenantMeasuredRoi,
-  type WhyArchLucidSnapshot,
-} from "@/lib/api";
 import { resolveWhyArchLucidDemoUniverse } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-demo-universe";
-import { toSectionError } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-helpers";
 import {
   initialWhyArchLucidPageState,
-  type SectionError,
   type WhyArchLucidPageState,
 } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
 import { WhyArchLucidBuyerChrome } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidBuyerChrome";
@@ -37,92 +29,13 @@ import { WhyArchLucidSponsorEvidencePackSection } from "@/app/(operator)/why-arc
  * Read-only "Why ArchLucid" proof page (Core Pilot tier, no `requiredAuthority`).
  * Wires the seeded Retail baseline demo run to live read endpoints; chrome follows payload universe (TB-1306).
  */
-export function WhyArchLucidPage() {
-  const [state, setState] = useState<WhyArchLucidPageState>(initialWhyArchLucidPageState);
+export function WhyArchLucidPage(): React.JSX.Element {
   const [reloadNonce, setReloadNonce] = useState(0);
-
-  useEffect(() => {
-    let canceled = false;
-
-    async function loadAll(): Promise<void> {
-      let snapshot: WhyArchLucidSnapshot | null = null;
-      let snapshotError: SectionError | null = null;
-      let monthlyCostEstimate: WhyArchLucidPageState["monthlyCostEstimate"] = null;
-      let measuredDisclaimer: string | null = null;
-      let sponsorPack: WhyArchLucidPageState["sponsorPack"] = null;
-      let sponsorPackError: SectionError | null = null;
-
-      const [bundleOutcome, sponsorOutcome] = await Promise.allSettled([getTenantMeasuredRoi(), getSponsorEvidencePack()]);
-
-      if (bundleOutcome.status === "fulfilled") {
-        snapshot = bundleOutcome.value.snapshot;
-        monthlyCostEstimate = bundleOutcome.value.monthlyCostEstimate;
-        measuredDisclaimer = bundleOutcome.value.disclaimer;
-      }
-
-      if (bundleOutcome.status === "rejected") {
-        snapshotError = toSectionError(bundleOutcome.reason, "Could not load measured ROI / telemetry bundle.");
-      }
-
-      if (sponsorOutcome.status === "fulfilled") sponsorPack = sponsorOutcome.value;
-
-      if (sponsorOutcome.status === "rejected") {
-        sponsorPackError = toSectionError(sponsorOutcome.reason, "Could not load the sponsor evidence pack bundle.");
-      }
-
-      const runId = snapshot?.demoRunId?.trim() ?? "";
-
-      let reportMarkdown: string | null = null;
-      let reportMissing = false;
-      let reportError: SectionError | null = null;
-      let explanation: WhyArchLucidPageState["explanation"] = null;
-      let explanationError: SectionError | null = null;
-
-      if (runId.length > 0) {
-        const [reportResult, explanationResult] = await Promise.allSettled([
-          getFirstValueReportMarkdown(runId),
-          getRunExplanationSummary(runId),
-        ]);
-
-        if (reportResult.status === "fulfilled") {
-          if (reportResult.value === null) reportMissing = true;
-          else reportMarkdown = reportResult.value;
-        } else {
-          reportError = toSectionError(reportResult.reason, "Could not load the first-value report.");
-        }
-
-        if (explanationResult.status === "fulfilled") {
-          explanation = explanationResult.value;
-        } else {
-          explanationError = toSectionError(explanationResult.reason, "Could not load the architecture review explanation.");
-        }
-      }
-
-      if (canceled) return;
-
-      setState({
-        snapshot,
-        snapshotError,
-        monthlyCostEstimate,
-        measuredDisclaimer,
-        reportMarkdown,
-        reportMissing,
-        reportError,
-        explanation,
-        explanationError,
-        sponsorPack,
-        sponsorPackError,
-        loading: false,
-      });
-    }
-
-    setState((previous) => ({ ...previous, loading: true }));
-    void loadAll();
-
-    return () => {
-      canceled = true;
-    };
-  }, [reloadNonce]);
+  const pageQuery = useWhyArchLucidPageQuery({ reloadNonce });
+  const state: WhyArchLucidPageState = pageQuery.data ?? {
+    ...initialWhyArchLucidPageState,
+    loading: pageQuery.isPending,
+  };
 
   const payloadUniverse = useMemo(() => {
     const demoRunId = state.snapshot?.demoRunId ?? state.sponsorPack?.demoRunId ?? null;

@@ -52,6 +52,13 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
     exportName: "TechnologyBaselineSection",
   },
   {
+    id: "run-detail-pre-finalize-checklist",
+    label: "Loading pre-finalize checklist",
+    variant: "section",
+    modulePath: "@/components/reviews/PreFinalizeChecklistSection",
+    exportName: "PreFinalizeChecklistSection",
+  },
+  {
     id: "run-detail-changes-since-last-review",
     label: "Loading review changes banner",
     variant: "panel",

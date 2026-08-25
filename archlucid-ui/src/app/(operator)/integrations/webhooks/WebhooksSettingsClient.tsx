@@ -1,9 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Controller, FormProvider } from "react-hook-form";
+import { Controller, FormProvider, useWatch } from "react-hook-form";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
@@ -77,6 +78,10 @@ import {
   webhooksConfigurationStatusTagKind,
 } from "@/lib/webhooks-page-copy";
 import { whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
+import {
+  resolveWebhooksCreateEmphasizedStepId,
+  resolveWebhooksCreateSteps,
+} from "@/lib/webhooks-create-checklist";
 import { INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
 import {
   labelForWebhookEventId,
@@ -128,6 +133,22 @@ export function WebhooksSettingsClient() {
     setPendingEnable,
     setEnableErrorMessage,
   } = useWebhooksSettings();
+
+  const watchedFormValues = useWatch({ control });
+  const webhooksCreateSteps = resolveWebhooksCreateSteps({
+    destinationConfigured:
+      (watchedFormValues?.webhookUrl?.trim().length ?? 0) > 0 &&
+      (watchedFormValues?.secret?.trim().length ?? 0) >= 16,
+    eventsConfigured: (watchedFormValues?.eventTypes?.length ?? 0) > 0,
+    subscriptionEnabled: activeSubscriptionCount > 0,
+  });
+  const webhooksCreateEmphasizedStepId = resolveWebhooksCreateEmphasizedStepId({
+    destinationConfigured:
+      (watchedFormValues?.webhookUrl?.trim().length ?? 0) > 0 &&
+      (watchedFormValues?.secret?.trim().length ?? 0) >= 16,
+    eventsConfigured: (watchedFormValues?.eventTypes?.length ?? 0) > 0,
+    subscriptionEnabled: activeSubscriptionCount > 0,
+  });
 
   return (
     <OperatorPageContainer
@@ -359,7 +380,14 @@ export function WebhooksSettingsClient() {
               >
                 {WEBHOOKS_MUTATION_PREREQUISITE_NOTICE}
               </p>
-            ) : null}
+            ) : (
+              <IntegrationConnectChecklist
+                title="Create checklist"
+                steps={webhooksCreateSteps}
+                emphasizedStepId={webhooksCreateEmphasizedStepId}
+                testIdPrefix="webhooks-create"
+              />
+            )}
 
             <div className={OPERATOR_LAYOUT.sectionStack}>
               <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{WEBHOOKS_FORM_DESTINATION_HEADING}</h3>

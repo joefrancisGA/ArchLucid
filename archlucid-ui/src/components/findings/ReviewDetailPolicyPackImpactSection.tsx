@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import type { CompareEffectiveGovernanceAtCommitSnapshot } from "@/lib/compare-effective-governance-diff";
-import { getArchitectureRequest } from "@/lib/api";
+import { useArchitectureRequestQuery } from "@/hooks/use-architecture-request-query";
 import { evaluatePolicyPackCloudMismatchForReview } from "@/lib/review-quality/policy-pack-cloud-mismatch-for-review";
 
 import {
@@ -26,48 +26,30 @@ export type ReviewDetailPolicyPackImpactSectionProps = Omit<
 export function ReviewDetailPolicyPackImpactSection(
   props: ReviewDetailPolicyPackImpactSectionProps,
 ): React.JSX.Element | null {
-  const [cloudMismatchDetail, setCloudMismatchDetail] = useState<string | null>(null);
+  const requestId = props.architectureRequestId?.trim() ?? "";
+  const architectureRequestQuery = useArchitectureRequestQuery(requestId, {
+    enabled: requestId.length > 0,
+  });
 
-  useEffect(() => {
-    const requestId = props.architectureRequestId?.trim() ?? "";
-
-    if (requestId.length === 0) {
-      setCloudMismatchDetail(null);
-      return;
+  const cloudMismatchDetail = useMemo(() => {
+    if (requestId.length === 0 || architectureRequestQuery.data === undefined) {
+      return null;
     }
 
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const request = await getArchitectureRequest(requestId);
-        const mismatch = evaluatePolicyPackCloudMismatchForReview(
-          request.cloudProvider,
-          props.ruleSetId,
-          props.ruleSetVersion,
-          request.policyReferences,
-          props.effectiveGovernanceAtCommit?.packAssignments ?? props.packAssignments,
-        );
-
-        if (!cancelled) {
-          setCloudMismatchDetail(mismatch);
-        }
-      } catch {
-        if (!cancelled) {
-          setCloudMismatchDetail(null);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+    return evaluatePolicyPackCloudMismatchForReview(
+      architectureRequestQuery.data.cloudProvider,
+      props.ruleSetId,
+      props.ruleSetVersion,
+      architectureRequestQuery.data.policyReferences,
+      props.effectiveGovernanceAtCommit?.packAssignments ?? props.packAssignments,
+    );
   }, [
-    props.architectureRequestId,
+    architectureRequestQuery.data,
+    props.effectiveGovernanceAtCommit?.packAssignments,
+    props.packAssignments,
     props.ruleSetId,
     props.ruleSetVersion,
-    props.effectiveGovernanceAtCommit,
-    props.packAssignments,
+    requestId.length,
   ]);
 
   return (

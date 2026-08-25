@@ -80,15 +80,14 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
         string subject = $"{productName} weekly Sponsor report — {weekLabel}";
 
-        SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
-        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
-
-        if (!reserved)
-            return false;
-
-        foreach (string mailbox in normalizedMailboxes)
-        {
-            EmailMessage message = new()
+        return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
+            tenantId,
+            idempotencyKey,
+            TemplateId,
+            normalizedMailboxes,
+            _sentEmailLedger,
+            _emailProvider,
+            mailbox => new EmailMessage
             {
                 To = mailbox,
                 Subject = subject,
@@ -96,21 +95,12 @@ public sealed class WeeklySponsorReportEmailDispatcher(
                 TextBody = text,
                 IdempotencyKey = idempotencyKey + ":" + mailbox,
                 Tags = new EmailMessageTags { TenantId = tenantId, EventType = "weekly-sponsor-report" }
-            };
-
-            try
-            {
-                await _emailProvider.SendAsync(message, cancellationToken);
-            }
-            catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+            },
+            (ex, mailbox) =>
             {
                 if (_logger.IsEnabled(LogLevel.Error))
-                    _logger.LogError(ex, "Weekly Sponsor report email send failed for tenant {TenantId}.", tenantId);
-
-                throw;
-            }
-        }
-
-        return true;
+                    _logger.LogError(ex, "Weekly Sponsor report email send failed for tenant {TenantId}, mailbox {Mailbox}.", tenantId, mailbox);
+            },
+            cancellationToken);
     }
 }

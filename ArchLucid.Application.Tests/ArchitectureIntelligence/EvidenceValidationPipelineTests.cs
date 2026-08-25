@@ -103,6 +103,8 @@ public sealed class EvidenceValidationPipelineTests
             _assessment = assessment;
         }
 
+        public bool IsClientAvailable => true;
+
         public Task<IReadOnlyList<ArchitectureModelElement>?> ExtractElementsAsync(
             string sourceText,
             string artifactId,

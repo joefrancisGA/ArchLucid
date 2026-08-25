@@ -41,7 +41,7 @@ public sealed class AdversarialReviewService : IAdversarialReviewService
             challengeCandidates++;
             AdversarialChallenge challenge = CreateChallenge(finding);
 
-            if (challenge.Suppressed)
+            if (AdversarialChallengeLaneGuard.ShouldDropChallenge(challenge))
             {
                 suppressedChallenges++;
                 continue;

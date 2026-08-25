@@ -163,46 +163,41 @@ public static class TopologyProposalRelationshipEndpointIndex
         return sanitized;
     }
 
-    public static bool TryClaimService(ManifestService service, HashSet<string> claimedEndpointKeys)
+    public static bool TryClaimService(ManifestService service, HashSet<string> claimedEndpointKeys) =>
+        TryClaimEndpoint(service, claimedEndpointKeys, static s => s.ServiceName, static s => s.ServiceId, BuildSyntheticServiceNodeId);
+
+    public static bool TryClaimDatastore(ManifestDatastore datastore, HashSet<string> claimedEndpointKeys) =>
+        TryClaimEndpoint(datastore, claimedEndpointKeys, static d => d.DatastoreName, static d => d.DatastoreId, BuildSyntheticDatastoreNodeId);
+
+    public static bool TryClaim(object endpoint, HashSet<string> claimedEndpointKeys, ITopologyEndpointSource source) =>
+        source.TryClaim(endpoint, claimedEndpointKeys);
+
+    private static bool TryClaimEndpoint<T>(
+        T endpoint,
+        HashSet<string> claimedEndpointKeys,
+        Func<T, string?> nameSelector,
+        Func<T, string?> idSelector,
+        Func<string?, string?> syntheticBuilder)
     {
-        if (string.IsNullOrWhiteSpace(service.ServiceName) && string.IsNullOrWhiteSpace(service.ServiceId))
+        string? name = nameSelector(endpoint);
+        string? id = idSelector(endpoint);
+
+        if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(id))
             return false;
 
-        string? syntheticNodeId = BuildSyntheticServiceNodeId(service.ServiceName);
+        string? syntheticNodeId = syntheticBuilder(name);
 
-        if (EndpointKeyIsClaimed(service.ServiceName, claimedEndpointKeys)
-            || EndpointKeyIsClaimed(service.ServiceId, claimedEndpointKeys)
+        if (EndpointKeyIsClaimed(name, claimedEndpointKeys)
+            || EndpointKeyIsClaimed(id, claimedEndpointKeys)
             || EndpointKeyIsClaimed(syntheticNodeId, claimedEndpointKeys))
         {
             return false;
         }
 
-        AddEndpointKey(claimedEndpointKeys, service.ServiceName);
-        AddEndpointKey(claimedEndpointKeys, service.ServiceId);
+        AddEndpointKey(claimedEndpointKeys, name);
+        AddEndpointKey(claimedEndpointKeys, id);
         AddEndpointKey(claimedEndpointKeys, syntheticNodeId);
-        AddArmResourceIdEndpointKeys(claimedEndpointKeys, service.ServiceId);
-
-        return true;
-    }
-
-    public static bool TryClaimDatastore(ManifestDatastore datastore, HashSet<string> claimedEndpointKeys)
-    {
-        if (string.IsNullOrWhiteSpace(datastore.DatastoreName) && string.IsNullOrWhiteSpace(datastore.DatastoreId))
-            return false;
-
-        string? syntheticNodeId = BuildSyntheticDatastoreNodeId(datastore.DatastoreName);
-
-        if (EndpointKeyIsClaimed(datastore.DatastoreName, claimedEndpointKeys)
-            || EndpointKeyIsClaimed(datastore.DatastoreId, claimedEndpointKeys)
-            || EndpointKeyIsClaimed(syntheticNodeId, claimedEndpointKeys))
-        {
-            return false;
-        }
-
-        AddEndpointKey(claimedEndpointKeys, datastore.DatastoreName);
-        AddEndpointKey(claimedEndpointKeys, datastore.DatastoreId);
-        AddEndpointKey(claimedEndpointKeys, syntheticNodeId);
-        AddArmResourceIdEndpointKeys(claimedEndpointKeys, datastore.DatastoreId);
+        AddArmResourceIdEndpointKeys(claimedEndpointKeys, id);
 
         return true;
     }

@@ -80,6 +80,23 @@ public sealed class HostCorePackageCoverageBatch14Tests
         options.StorageProvider.Should().Be("Sql");
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void ArchLucidConfigurationBridge_treats_blank_sql_connection_strings_as_missing(string blankConnectionString)
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ArchLucid"] = blankConnectionString,
+                ["ConnectionStrings:ArchLucidSystem"] = blankConnectionString,
+            })
+            .Build();
+
+        ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration).Should().BeNull();
+        ArchLucidConfigurationBridge.ResolveSqlSystemConnectionString(configuration).Should().BeNull();
+    }
+
     [Fact]
     public void ContentSafetyConfigurationWarnings_logs_when_fail_open_in_production()
     {

@@ -26,10 +26,10 @@ public sealed class AuthorityClosedLoopStrengtheningPass(
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(manifest);
 
-        if (!options.CurrentValue.StrengthenDefaultPackage)
+        if (!options.CurrentValue.StrengthenDefaultPackage && !options.CurrentValue.StrengthenAllReviewPackages)
             return;
 
-        if (!IsGoldenCohortSystem(request.ProjectId))
+        if (!options.CurrentValue.StrengthenAllReviewPackages && !IsGoldenCohortSystem(request.ProjectId))
             return;
 
         try

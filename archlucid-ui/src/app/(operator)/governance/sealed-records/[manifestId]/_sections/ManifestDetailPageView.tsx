@@ -57,6 +57,7 @@ import {
 import { MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import type { ManifestDetailSectionTabId } from "@/lib/manifest-detail-section-tabs";
 import { ManifestDetailBuyerChrome } from "./ManifestDetailBuyerChrome";
+import { ManifestDetailNextRecordFooterClient } from "./ManifestDetailNextRecordFooterClient";
 import { ManifestDetailSectionTabs } from "./ManifestDetailSectionTabs";
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
 
@@ -490,6 +491,8 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           {deliverablesCard}
         </>
       )}
+
+      <ManifestDetailNextRecordFooterClient manifestId={manifestId} />
 
       <OperatorEvidenceLimitsFooter
         runId={summary.runId}

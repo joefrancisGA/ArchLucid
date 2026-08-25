@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 
 import { PackagePrintBreadcrumb } from "./PackagePrintBreadcrumb";
 import { PackagePrintBuyerChrome } from "./PackagePrintBuyerChrome";
+import { PackagePrintNextReviewFooterClient } from "./PackagePrintNextReviewFooterClient";
 
 export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
@@ -126,6 +127,8 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
           </section>
         ) : null}
       </DocumentLayout>
+
+      <PackagePrintNextReviewFooterClient runId={presentation.runId} />
     </div>
   );
 }

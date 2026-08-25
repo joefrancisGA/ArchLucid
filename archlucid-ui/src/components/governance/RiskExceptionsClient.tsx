@@ -51,6 +51,13 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
+import { RiskExceptionsTriageFirstExpiringStrip } from "@/components/governance/RiskExceptionsTriageFirstExpiringStrip";
+import { RiskExceptionsContinueLastViewedRow } from "@/components/governance/RiskExceptionsContinueLastViewedRow";
+import { resolveRiskExceptionsTriageFirstExpiring } from "@/lib/governance/resolve-risk-exceptions-triage-first-expiring";
+import {
+  resolveContinueLastRiskException,
+  writeRiskExceptionLastViewedId,
+} from "@/lib/resolve-continue-last-risk-exception";
 import {
   RISK_EXCEPTIONS_EMPTY_BODY,
   RISK_EXCEPTIONS_EMPTY_TITLE,
@@ -157,6 +164,14 @@ export default function RiskExceptionsClient() {
     () => records.filter((row) => resolveRiskExceptionDisplayStatus(row) === "expiring-soon").length,
     [records],
   );
+  const triageFirstExpiringTarget = useMemo(
+    () => resolveRiskExceptionsTriageFirstExpiring(records),
+    [records],
+  );
+  const continueLastException = useMemo(
+    () => resolveContinueLastRiskException(records),
+    [records],
+  );
 
   const pageTitle = buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_PAGE_TITLE : RISK_EXCEPTIONS_PAGE_TITLE;
   const pageSubtitle = riskExceptionsPageSubtitle(buyerPolishedShell);
@@ -168,6 +183,7 @@ export default function RiskExceptionsClient() {
 
     setBusyId(record.riskExceptionId);
     setLoadError(null);
+    writeRiskExceptionLastViewedId(record.riskExceptionId);
 
     try {
       await renewRiskException(record.riskExceptionId, {
@@ -193,6 +209,7 @@ export default function RiskExceptionsClient() {
 
     setBusyId(record.riskExceptionId);
     setLoadError(null);
+    writeRiskExceptionLastViewedId(record.riskExceptionId);
 
     try {
       await revokeRiskException(record.riskExceptionId);
@@ -283,6 +300,30 @@ export default function RiskExceptionsClient() {
           />
         ) : !loading && !loadError ? (
           <>
+            {continueLastException !== null ? (
+              <RiskExceptionsContinueLastViewedRow
+                target={continueLastException}
+                onOpen={(riskExceptionId) => {
+                  writeRiskExceptionLastViewedId(riskExceptionId);
+                  document
+                    .querySelector(`[data-risk-exception-id="${riskExceptionId}"]`)
+                    ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }}
+              />
+            ) : null}
+            {triageFirstExpiringTarget !== null ? (
+              <RiskExceptionsTriageFirstExpiringStrip
+                target={triageFirstExpiringTarget}
+                onExtend={(riskExceptionId) => {
+                  setRenewingId(riskExceptionId);
+                  setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
+                  setRenewRationale("");
+                  document
+                    .querySelector(`[data-risk-exception-id="${riskExceptionId}"]`)
+                    ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }}
+              />
+            ) : null}
             <WhyDisabledCtaHint
               id={mutationDisabledHintId}
               reason={mutationDisabledReason}
@@ -306,7 +347,7 @@ export default function RiskExceptionsClient() {
                   const isRenewing = renewingId === record.riskExceptionId;
 
                   return (
-                    <EnterpriseTableRow key={record.riskExceptionId}>
+                    <EnterpriseTableRow key={record.riskExceptionId} data-risk-exception-id={record.riskExceptionId}>
                       <EnterpriseTableCell>
                         <div className="flex flex-wrap items-center gap-2">
                           <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>

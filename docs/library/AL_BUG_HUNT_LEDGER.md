@@ -116,6 +116,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) Duplicate node-id collision when overlay and inventoried node share SourceId but different labels — `TryClaimService` blocks materialization when terraform id already indexed
 - [x] (valid-no-repro) Gate vs merge disagreement after structural post-processor strips a relationship — post-processor defers undeclared endpoints to gate; strip branch unreachable when both declared
 - [x] (valid-no-repro) Relationship-only follow-up when rename overlay is in a different agent result filtered out by inventory — cross-result follow-up passes when rename `ServiceId` matches inventoried node; correctly rejects undeclared rename labels
+- [ ] (hunt-ready) `AgentTopologyProposalMergeGate.FilterValidatedProposals` with a Cost/Compliance agent whose `SanitizeProposal` strips every service/datastore/relationship but leaves `RequiredControls` — agent row vanishes from `validatedResults` when `ProposalIsEmpty` is false for controls-only yet the result id was never stored because an earlier empty-sanitize `continue` dropped the whole `AgentResult` (findings/claims lost at commit).
+- [ ] (hunt-ready) `AgentTopologyProposalGraphMerge.MergeEndpointAliasesInto` (`TryAdd` first-wins) with two agents mapping the same relationship endpoint key to different node ids in one batch — second agent's `MapRelationships` resolves to the first alias while `DropDanglingEdges` drops edges whose resolved ids are absent from `graph.Nodes` union `added`.
+- [ ] (hunt-ready) `AgentTopologyProposalGraphMerge` topology pass with `materializeNodes == true` and claimed services skip `AddDeclaredManifestServiceEndpointAliases` — a relationship referencing only a pre-registered merge-gate key not mirrored in node `Label`/`NodeId`/`svc-{name}` produces zero edges after `TopologyProposalRelationshipEdgeMapper.MapRelationships`.
 
 ---
 
@@ -183,6 +186,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_healthcare_workspace` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `healthcare_workspace` was only in the datastore list; `azurerm_healthcare_workspace.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_backup_vault` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `backup_vault` was only in the datastore list; `azurerm_backup_vault.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_storage_share` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `storage_share` was only in the datastore list; `azurerm_storage_share.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
+- [ ] (hunt-ready) `TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases` (overlay path) with `ManifestService.ServiceId` = full ARM resource id and relationship `SourceId` = normalized ARM form only — overlay omits `AddArmResourceIdResolutionAliases` unlike `AddDeclaredManifestServiceEndpointAliases`, so edge creation fails when the inventoried node stores the id only in a differently indexed property field.
+- [ ] (hunt-ready) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` with relationship endpoint = mixed-case ARM id — gate `EndpointKeyIsKnown` accepts via normalization, but `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` uses raw `declaredBatchEndpointKeys.Contains(relationship.SourceId)` without ARM normalize, dropping batch-local relationships the merge gate would keep.
+- [ ] (hunt-ready) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeSyntheticLabelEndpointKeys` on inventoried node `Category = Data/Storage` and `SourceId` not matching `LooksLikeTerraformServiceSourceId` — only `ds-{label}` is indexed; relationship `SourceId = svc-{label}` passes merge-gate inventory keys only when category is blank (both synthetics), and is filtered out for explicit datastore category nodes.
 
 ---
 
@@ -210,6 +216,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] Cache wrapper returns stale miss after upsert when setting-key casing differs (`TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`)
 - [x] DefaultTenant FK insert/update disagrees with the cached read path (retired Î“Ã‡Ã¶ PD-003 disposition merged on master: `ArchLucidPersistenceStartup` ApiKey DefaultTenant bootstrap + scoped `ISqlConnectionFactory`; repository uses same `tenantId` on read/write/cache keys)
 - [x] (proven) Upsert during an in-flight cached read pins a stale miss after the write completes — **hit 2026-08-24:** `CachingTenantSettingsRepository` only removed the hybrid-cache key on upsert; a slow `TryGetAsync` loader could still publish a miss after the upsert; fixed by generation-stamped cache keys bumped on write/delete; regression in `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`
+- [ ] (hunt-ready) `CachingTenantSettingsRepository.TryGetAsync` with hybrid-cache loader started before `UpsertAsync` completes — without generation-stamped keys, a slow loader can publish a miss after upsert (regression guard exists; verify delete/upsert bumps generation on all code paths including `DeleteAsync` and bulk invalidation).
+- [ ] (hunt-ready) `SqlTenantSettingsRepository.UpsertAsync` with concurrent readers on the same tenant id — read path uses snapshot isolation while upsert uses row lock; verify no path returns pre-upsert defaults when upsert commits between read start and materialization.
 
 ---
 
@@ -264,6 +272,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Integrity failure is logged but commit still proceeds Î“Ã‡Ã¶ retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
 - [x] Latest-per-task selector breaks on equal `CreatedUtc` and picks a superseded rejected schema-remediation attempt over a later accepted attempt Î“Ã‡Ã¶ fixed: tie-break on `AttemptIndex` then `TraceId` in `AgentExecutionTraceLatestPerTaskSelector`
 - [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` sorts `CreatedUtc` before `AttemptIndex`, so a superseded rejected attempt with a newer timestamp blocks commit after a higher `AttemptIndex` accepted retry — **hit 2026-08-23 hunt #37:** order by `AttemptIndex` then `CreatedUtc` then `TraceId`
+- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode.Real`, `PilotStrict`, and empty `traces` — returns no blocking reasons, so `CommitOutputIntegrityService.EnsurePassOrThrowAsync` allows commit with zero execution traces recorded.
+- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode` not equal to `Real` — ignores `QualityRejected` and `RecordedQualityGateOutcome.Rejected` on all traces, permitting commit despite recorded rejections in simulator/non-real runs.
+- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator` with latest-per-task trace showing `RecordedQualityGateOutcome != Rejected` but `QualityRejected == true` — still emits a blocking reason, so a patch that clears only `RecordedQualityGateOutcome` cannot un-block commit while `QualityRejected` remains set.
 
 ---
 
@@ -318,6 +329,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Post-processor rewrites a datastore to `storage` while the consistency gate still keys it as `data`
 - [x] Consistency gate drops a relationship the post-processor just added
 - [x] Category rewrite does not update synthetic `ds-` aliases
+- [ ] (hunt-ready) `AgentProposalStructuralPostProcessor.ShouldRetainDeclaredProposalRelationship` with proposal declaring a datastore plus relationship using `svc-{datastoreName}` — `CollectKnownEndpointKeys` indexes `ds-{name}` but not `svc-{name}` for manifest datastores; both endpoints appear declared under raw `Contains`, yet `RelationshipEndpointsAreKnown` drops the edge when both source/target match declared keys.
+- [ ] (hunt-ready) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` with relationship endpoints present only as normalized ARM ids — `declaredBatchEndpointKeys` may hold raw plus normalized keys from `AddArmResourceIdEndpointKeys`, but `Contains(relationship.SourceId)` on an unnormalized relationship id marks `sourceDeclaredInBatch` false and retains the row for later gates while `validationEndpointKeys` still fail `RelationshipEndpointsAreKnown`, silently stripping edges before merge.
+- [ ] (hunt-ready) `CrossAgentProposalConsistencyGate.TryAcceptRenameAliasService` accepting a rename — adds manifest endpoint keys to `claimedServiceEndpointKeys` after an earlier agent already claimed the stable id, but `declaredBatchEndpointKeys` was collected pre-claim without the renamed label, so downstream relationship-only proposals referencing only the new name miss batch declaration checks.
 
 ---
 
@@ -361,11 +375,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 2
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — same EvidenceRef duplicated when provider family differed
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — duplicate agent rows when EvidenceRef differed only by casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -376,6 +390,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Topology re-seed with same `EvidenceRef` duplicated agent rows — **hit 2026-08-24:** merge ignored stable `agentTopologyProposal:*` refs; regression in `Resolve_skips_when_evidence_ref_already_present`
 - [x] (proven) Same `EvidenceRef` duplicated when provider family differed — **hit 2026-08-24:** dedupe required matching `ProviderFamily` before evidence-ref check; regression in `Resolve_skips_when_evidence_ref_matches_across_provider_families`
 - [x] (invalid) Ledger merge keeps an agent-proposed technology that the inventory already replaced — inventory/evidence rows are `Chosen`; same `ProviderFamily` proposals are already skipped via chosen-family gate; name-level dedupe now also matches authoritative `Chosen` rows
+- [x] (proven) Same provider family and technology name dropped a second agent proposal with a distinct non-empty `EvidenceRef` — **hit 2026-08-24:** `HasMatchingProposal` treated matching names as duplicates before comparing evidence refs; fixed by skipping name dedupe when both refs are non-empty and differ; regression in `Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`
+- [x] (invalid) Inventory `Chosen` row with `CloudProvider.None` suppresses every proposal family — **2026-08-24:** `chosen.ProviderFamily == candidate.ProviderFamily` uses enum equality; `None` only blocks other `None` proposals, not Aws/Azure/Gcp candidates (`Resolve_inserts_assumed_on_provider_conflict`).
+- [x] (proven) Duplicate agent rows when `EvidenceRef` differed only by casing — **hit 2026-08-25:** `EvidenceRefsMatch` used ordinal case-sensitive compare; topology re-seed with case-variant proposal ids duplicated rows; fixed with `OrdinalIgnoreCase`; regression in `Resolve_skips_when_evidence_ref_matches_case_insensitively`
 
 ---
 
@@ -401,6 +418,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Commit retry exhausts attempts but still returns success to the caller Î“Ã‡Ã¶ retired: `IsExhausted` and orchestrator loop throw `ConflictException` on budget/attempt exhaustion; idempotent reconcile success is intentional
 - [x] Transient retry does not include the same isolation / tenant scope on the replay Î“Ã‡Ã¶ retired: `OrchestratorTransientDbRetry` re-invokes caller lambda; scope is captured by caller closure
 - [x] (proven) `AggregateException` with a non-transient `SqlException` listed before a deadlock (`1205`) skips orchestrator retry — fixed: `IsRetriableOrchestratorDbFailure` flattens aggregate inners before `SqlTransientDetector` (`ExecuteAsync_retries_deadlock_when_aggregate_exception_lists_it_after_non_transient_sql`)
+- [ ] (hunt-ready) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` with `AggregateException` containing one transient and one permanent inner — returns true and retries the whole action, so permanent failures wrapped with transient SQL errors cause repeated full orchestration persists instead of immediate fail-fast.
+- [ ] (hunt-ready) `CommitRunTransientRetryPolicy.IsExhausted` with `elapsed >= RetryBudget` (20s) before `attempt >= MaxAttempts` (12) — commit retry loop stops while `OrchestratorTransientDbRetry` may still perform up to three 2s/4s/8s backoff retries per inner operation, producing asymmetric give-up between outer commit reconciliation and inner DB retry layers.
+- [ ] (hunt-ready) `CommitRunTransientRetryPolicy.RetryDelay` linear `150ms * attempt` with `ManifestReconcilePollDelay` using the same multiplier — under manifest contention, eight reconcile polls plus twelve commit attempts can exceed the 20s `RetryBudget` mid-poll, returning exhausted while a concurrent commit is still within reconcile window.
 
 ---
 
@@ -427,6 +447,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Concurrent verify requests both succeed on the same one-time challenge Î“Ã‡Ã¶ retired: `EmailOtpChallengeRepositoryConcurrencyTests.TryCompleteAsync_allows_only_one_successful_completion`
 - [x] (proven) Mixed-case invitation email on the row blocks acceptance after OTP verify — **hit 2026-08-24:** `TryAcceptInvitationAsync` compared `invitation.Email` to normalized sign-in email with ordinal equality and `FindInvitationByIdAsync` filtered via `ListPendingByNormalizedEmailAsync`; legacy/display-case rows never accepted; fixed with `InvitationEmailMatchesVerifiedEmail` + `GetPendingByIdAsync`
 - [x] (proven) Post-verify next step returns wrong workspace after invitation accept — **hit 2026-08-24:** `ResolveNextStepAsync` merged `acceptedInvitationId ?? challenge.InvitationId` and picked `activeMemberships[^1]`; re-invites to an older workspace returned the newest membership, and multi-workspace users with an expired linked invitation got `Complete` instead of `SelectWorkspace`; fixed by returning `AcceptedEmailOtpInvitation` tenant/workspace only when accept succeeds and separating challenge-linked pending invitation routing
+- [ ] (hunt-ready) `EmailOtpAuthController.VerifyAsync` when `result.TenantId`/`WorkspaceId` are null but JWT issuance falls back to `TrialLocalJwtScopeDefaults.Resolve()` — access token carries default tenant/workspace while `EmailOtpVerifyResponse.TenantId`/`WorkspaceId` echo the null `result.*` fields, desyncing client routing from token claims.
+- [ ] (hunt-ready) `EmailOtpAuthController.VerifyAsync` audit on every verify attempt — logs `AuditEventTypes.EmailOtpCodeRequested` with channel `email_otp_verify_http` instead of a verification-failure/success event, conflating challenge and verify telemetry.
+- [ ] (hunt-ready) `EmailOtpAuthService.VerifyCodeAsync` on `RequireEnterpriseSso` domain decision — calls `FailWithAuditAsync("sso_required", emailCorrelation: null)`, which returns `Failed()` without audit because `emailCorrelation` is null, so SSO-blocked verifies leave no `EmailOtpVerificationFailed` trail.
 
 ---
 
@@ -456,6 +479,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Residual double-encoded slashes survive the eight-pass decode cap — **hit 2026-08-21:** `%252F%252F` residue evaded single-level `%2f` detection after the decode loop; regression in `TryNormalize_rejects_residual_double_encoded_slashes_after_decode_cap`
 - [x] (proven) Unicode slash homoglyphs bypass ASCII-only protocol-relative checks — **hit 2026-08-22:** fullwidth solidus (`／`, `%EF%BC%8F`) and fullwidth reverse solidus (`＼`) evaded `ContainsProtocolRelativeTraversal`; regression in `TryNormalize_rejects_unicode_slash_homoglyph_protocol_relative_paths`
 - [x] (proven) Additional Unicode slash homoglyphs bypass `IsSlashHomoglyph` — **hit 2026-08-23:** light diagonal (`╱`, `%E2%95%B1`), big solidus (`⧸`, `%E2%A7%B8`), and solidus overlay (`⧶`) evaded slash-homoglyph checks; regression in `TryNormalize_rejects_additional_unicode_slash_homoglyph_protocol_relative_paths` and `TryNormalize_rejects_deeply_encoded_additional_unicode_slash_homoglyph_segment`
+- [ ] (hunt-ready) `AuthSignInReturnPathGuard.TryNormalize` with return path `/app/foo/../bar` or `/signin/../../other` — passes `TryNormalizeRelativePath` (no `..` segment rejection/canonicalization) but browsers normalize to `/bar` or `/other`, yielding an unintended post-login destination outside the intended subtree.
+- [ ] (hunt-ready) `AuthSignInReturnPathGuard.TryNormalizeAfterPercentDecoding` with path that decodes across multiple passes to introduce `//` or `\` only after the eighth `%` decode — loop capped at `MaxPercentDecodePasses = 8` may return a normalized relative path while a ninth decode would expose protocol-relative traversal blocked in `ContainsResidualEncodedTraversal`.
+- [ ] (hunt-ready) `AuthSignInReturnPathGuard.TryNormalize` with path containing percent-encoded slash homoglyphs (e.g. fullwidth solidus) not present before decoding — initial `ContainsSlashHomoglyph` misses the literal; partially decoded `working` strings that still encode the homoglyph may return null inconsistently depending on pass count.
 
 ---
 
@@ -482,6 +508,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Restore quarantine leaves stale `TenantErasureApprovedUtc` on in-memory tenants — **hit 2026-08-23:** `InMemoryTenantRepository` `CopyTenant(clearErasureQuarantine: true)` kept prior approval, so a restored tenant could be hard-purged after re-offboard without a fresh admin approval; aligned with Dapper restore SQL that nulls approval columns
 - [x] (invalid) Erasure command deletes another tenant's rows when ids collide in cache — `TenantGetByIdRequestCache` keys by `Guid` tenant id; no cross-tenant alias path in this zone
 - [x] (proven) Quarantine middleware blocked tenant erasure lifecycle APIs — **hit 2026-08-24:** offboarded tenants received 403 on `POST /v1/tenant/erasure/approve` and `/legal-hold`, so `TenantErasureApprovedUtc` could never be set and hard purge stalled; fixed by allowlisting `/v1/tenant/erasure` in `TenantErasureQuarantineMiddleware.Skip`
+- [ ] (hunt-ready) `TenantErasureQuarantineMiddleware.InvokeAsync` with authenticated tenant scope but `ITenantGetByIdRequestCache.GetByIdAsync` returning null — `tenant is null` bypasses quarantine and calls `next`, allowing API access for a tenant id that should be blocked when the record is missing or evicted.
+- [ ] (hunt-ready) `TenantErasureQuarantineMiddleware.InvokeAsync` with `context.User.Identity?.IsAuthenticated != true` — unauthenticated requests always pass through, so tenant-scoped anonymous routes that resolve `scope.TenantId` without auth are not quarantine-gated.
+- [ ] (hunt-ready) `TenantErasureCommandService.TryRestoreQuarantineAsync` after `TryOffboardTenantAsync` (which calls `SuspendTenantAsync`) — restore clears offboard/eligible timestamps via repository only and never reverses suspend, leaving a restored tenant still suspended while middleware stops blocking login/API quarantine.
 
 ---
 
@@ -493,11 +522,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — non-const local and static readonly SQL variables bypassed ARCH006 static resolution
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — property SQL initializers bypassed ARCH006 static resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -511,6 +540,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Bracketed `[dbo].[Runs]` references in dynamic SQL skipped ARCH006a — **hit 2026-08-24:** guess-table regex lacked bracket form; regression in `ARCH006a_reports_unanalyzable_sql_for_bracketed_table_reference`
 - [x] (proven) `QueryMultiple`/`QueryMultipleAsync` with string SQL bypassed ARCH006 — **hit 2026-08-24:** methods missing from `DapperQueryMethodNames`; regression in `ARCH006_reports_unscoped_static_sql_for_query_multiple_async`
 - [x] (proven) Non-const local / static readonly SQL variable references bypassed ARCH006 — **hit 2026-08-24:** resolver only folded `const` symbols, not declarator initializers; regressions in `ARCH006_reports_unscoped_sql_for_non_const_local_variable` and `ARCH006_reports_unscoped_sql_for_static_readonly_field`
+- [x] (proven) Property SQL initializers bypassed ARCH006 static resolution — **hit 2026-08-25:** `TenantScopedSqlExpressionResolver` resolved locals/fields from declarators but ignored `PropertyDeclarationSyntax` initializers, so `private string Sql { get; } = "SELECT … dbo.Runs …"` passed through unanalyzed; fixed by folding property initializers; regression in `ARCH006_reports_unscoped_sql_for_property_with_initializer`
 
 ---
 
@@ -567,6 +597,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Inspect query joins without tenant on the child table and leaks sibling-tenant rows — fixed: FollowUpBatch now scopes FindingRelatedNodes / rules / actions / AuditEvents / FindingReviewEvents / RiskExceptions to TenantId+WorkspaceId+ProjectId
 - [x] (proven) `ResolveRuleFields` pairs `DecisionRuleId` from `AppliedRuleIdsJson` with unrelated `FindingTraceRulesApplied` SortOrder=0 text — fixed: keep `DecisionRuleName` aligned with the first applied rule id when JSON ids exist
 - [x] (proven) FollowUpBatch merged related nodes / rule text / recommended actions across reruns sharing the same scoped `FindingId` — **hit 2026-08-24:** `@RunId` from the primary inspect row was unused on child-table sub-queries; main inspect `TOP 1` was non-deterministic; fixed with `r.RunId = @RunId`, `ORDER BY r.CreatedUtc DESC, r.RunId DESC`, and `aet.RunId = r.RunId`; regressions in `FollowUpBatch_scopes_related_nodes_to_main_inspect_run` and related shape tests
+- [ ] (hunt-ready) `DapperFindingInspectReadRepository.ResolveRuleFields` with non-empty `AppliedRuleIdsJson` — always sets `DecisionRuleName` to the first rule id and deliberately ignores `firstRuleText` from the SQL join, so inspect UI shows id strings instead of trace rule labels.
+- [ ] (hunt-ready) `FindingInspectReadModelMapper.ParseFindingSeverity` with unknown or typo `Severity` column value — `Enum.TryParse` failure returns `FindingSeverity.Info`, downgrading Critical/High findings in inspect responses without surfacing parse failure.
+- [ ] (hunt-ready) `DapperFindingInspectReadRepository.GetInspectAsync` with `IncludeTypedPayload = false` — `BuildMetadataTypedPayload` duplicates `rationale` into both `rationale` and `whyThisMatters` keys, so clients expecting distinct fields from full `PayloadJson` see identical strings on first paint.
 
 ---
 
@@ -578,11 +611,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 2
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — overage reconciliation credit dropped when optimistic retries exhausted (no re-queue)
+- **hunts:** 4
+- **bugs-found:** 6
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-24 — overage reconciliation delta consume dropped when remaining balance insufficient (no re-queue)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -595,6 +628,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Malformed wallet `RowVersionBase64` bypassed optimistic concurrency — **hit 2026-08-24:** `WalletController.DecodeRowVersion` returned empty bytes on `FormatException`; regression in `PutAsync_returns_400_when_row_version_base64_is_malformed`
 - [x] (proven) Settlement consume silently dropped after optimistic retries exhausted — **hit 2026-08-24:** `ConsumeInternalAsync` abandoned debit without re-queue; regression in `ConsumeInternalAsync_requeues_settlement_when_optimistic_retries_exhausted`
 - [x] (proven) Overage reconciliation credit dropped when optimistic retries exhausted — **hit 2026-08-24:** `ReconcileOverageInternalAsync` called `CreditAdjustmentInternalAsync` without re-queue on failure; regression in `ReconcileOverageInternalAsync_requeues_settlement_when_credit_retries_exhausted`
+- [x] (valid-no-repro) `LlmTenantWalletService.ConsumeInternalAsync` when optimistic retries exhaust — re-queue on exhaustion already shipped; regression in `ConsumeInternalAsync_requeues_settlement_when_optimistic_retries_exhausted`
+- [x] (invalid) `WalletController` balance read after concurrent consume — `GetAsync` calls `GetWalletAsync` → repository directly; no app-level cache; controller exposes GET/PUT only (no POST consume endpoint)
+- [x] (proven) Overage reconciliation delta consume dropped when remaining balance insufficient — **hit 2026-08-24:** `ReconcileOverageInternalAsync` called `ConsumeInternalAsync` for positive delta; `InsufficientFunds` returned silently without re-queue; fixed via `TryConsumeWithRetryAsync` + full reconcile re-queue; regression in `ReconcileOverageInternalAsync_requeues_settlement_when_delta_consume_insufficient_funds`
+- [x] (invalid) `ConsumeInternalAsync` plain settlement re-queue on insufficient funds — **dry 2026-08-25:** `TryConsumeWithRetryAsync` returns false on `InsufficientFunds`; `ConsumeInternalAsync` re-queues via shared `!consumed` path (same as concurrency exhaustion); regression in `ConsumeInternalAsync_requeues_settlement_when_consume_hits_insufficient_funds`
 
 ---
 
@@ -632,10 +669,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
+- **last-hunt:** 2026-08-25
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -647,6 +684,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Next-run lands in the past so the scheduler fires immediately in a loop — **hit 2026-08-24:** wrapper returned `next <= fromUtc` without recomputing; `NormalizeNextRunUtc` advances once and stamps UTC; regression in `ComputeNextRunUtc_recomputes_when_first_occurrence_is_not_strictly_after_reference`
 - [x] (invalid) Preview path already delegates to normalized `ComputeNextRunsUtc` after reference normalization fix — **disproven 2026-08-24:** only the reference instant was normalized; batch preview bypassed `NormalizeNextRunUtc`
 - [x] (proven) Preview path skipped single-run normalization so the first preview instant could equal the reference or omit UTC kind — **hit 2026-08-24:** `ComputeNextRunsUtc` delegated to underlying batch expansion; route preview through the `ComputeNextRunUtc` loop; regressions in `ComputeNextRunsUtc_advances_first_preview_when_underlying_returns_reference_instant` / `ComputeNextRunsUtc_stamps_utc_kind_when_underlying_returns_unspecified_kind`
+- [x] (valid-no-repro) Batch preview from an exact weekly cron occurrence repeats the reference Monday — `NormalizeNextRunUtc` advances when `candidate <= fromUtc`; regression in `ComputeNextRunsUtc_from_exact_weekly_occurrence_returns_following_mondays`
+- [x] (valid-no-repro) `ComputeNextRunsUtc` with `count <= 0` still invoked the underlying calculator — early return `Array.Empty<DateTime>()`; regression in `ComputeNextRunsUtc_returns_empty_when_count_is_zero`
+- [x] (invalid) `SpecifyUtc` mishandles `DateTimeKind.Local` from the underlying calculator on production paths — `SimpleScanScheduleCalculator` always receives UTC-normalized references; Local-kind results are not produced in this wrapper's live path
 
 ---
 
@@ -723,6 +763,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Dry-run payload includes secrets from another tenant's webhook config — retired: controller uses request `SharedSecret` only; no tenant webhook lookup in zone paths
 - [x] (invalid) Controller returns success when the dry-run service throws — retired: `ProbeWithBodyAsync` catches transport errors and returns `TransportSucceeded=false`; controller intentionally returns 200 with probe outcome in body
 - [x] (proven) Operator webhook dry-run POSTs to loopback/private targets without SSRF guard — **hit 2026-08-24:** `AllowedOutboundWebhookProbeUrlPolicy` blocks unsafe `TargetUrl` before probe in dry-run and simulate controllers
+- [ ] (hunt-ready) `OutboundWebhookDryRunController.DryRunAsync` when `OutboundWebhookDryRunService` returns `TransportSucceeded = false` — still responds `200 OK` with `StatusCode = 0`, so API clients treating HTTP success as delivery success mark dead URLs as healthy unless they inspect `TransportSucceeded`.
+- [ ] (hunt-ready) `OutboundWebhookDryRunService.ProbeWithBodyAsync` with `sharedSecret` of whitespace — `trimmedSecret` becomes empty, skips `WebhookSignature` header, but controller audit records `hasSharedSecret` from raw `body.SharedSecret is { Length: > 0 }`, logging that a secret was provided when the probe was unsigned.
+- [ ] (hunt-ready) `OutboundWebhookDryRunService.ProbeWithBodyAsync` on large subscriber responses — reads the full body via `ReadAsStringAsync` before applying `PreviewMaxChars` truncation, so a probe to a URL returning a multi-megabyte body allocates the entire payload server-side even though only 8192 chars are returned.
 
 ---
 
@@ -812,11 +855,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 2
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — admit response draft scope was not validated before MUST-question resolution
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — `--json draft new` still wrote human progress lines (`DraftId:`, admit banner) to stdout
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -827,10 +870,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) MUST-question and late-step API failures omitted operator hints — **hit 2026-08-24:** `ResolveMustQuestionsAsync` and execute/admit failure paths did not call `CliOperatorHints`; regression in `RunCoreAsync_questions_load_failure_writes_operator_hint`
 - [x] (proven) `AdmitDraftAsync` can return `admitted: true` with a draft under another tenant and the CLI continues — **hit 2026-08-24:** `DraftNewCommand` now validates `admission.Value.Draft` before MUST-question resolution (`RunCoreAsync_draft_scope_mismatch_after_admit_returns_operation_failed`).
 - [x] (invalid) Existing draft id is overwritten without confirmation — command always POSTs a new draft; no overwrite path
-- [ ] (hunt-ready) `RunCoreAsync` line 85 uses `!created.Success || created.Value is null`; Stryker's surviving `&&` mutant means tests do not prove that a failed response carrying a non-null value is rejected, so a concrete `Success=false`/non-null handler may continue with an invalid draft.
-- [ ] (hunt-ready) `RunCoreAsync` line 145 uses `!patched.Success || patched.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed patch with a body stops before admission.
-- [ ] (hunt-ready) `RunCoreAsync` line 164 uses `!admission.Success || admission.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed admit with a body stops before `Admitted` handling.
-- [ ] (hunt-ready) `RunCoreAsync` line 206 uses `!submit.Success || submit.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed submit with a populated response stops before run-id success output.
+- [x] (invalid) `RunCoreAsync` line 85 uses `!created.Success || created.Value is null`; Stryker's surviving `&&` mutant — **2026-08-24:** `DraftApiResult.Fail` always sets `Value` to `default(T?)`; `Success=false` with non-null body is unreachable via `ArchLucidApiClient` factories.
+- [x] (invalid) `RunCoreAsync` line 145 uses `!patched.Success || patched.Value is null`; Stryker's surviving `&&` mutant — **2026-08-24:** same `DraftApiResult.Fail` shape; no production path returns failed patch with a body.
+- [x] (invalid) `RunCoreAsync` line 164 uses `!admission.Success || admission.Value is null`; Stryker's surviving `&&` mutant — **2026-08-24:** same `DraftApiResult.Fail` shape; no production path returns failed admit with a body.
+- [x] (invalid) `RunCoreAsync` line 206 uses `!submit.Success || submit.Value is null`; Stryker's surviving `&&` mutant — **2026-08-24:** same `DraftApiResult.Fail` shape; hollow submit is already covered by `RunCoreAsync_submit_without_run_id_returns_operation_failed`.
+- [x] (proven) `RunCoreAsync` writes JSON `ok: true` before `ExecuteRunAsync` when `--json` and auto-execute are enabled — **hit 2026-08-24:** submit success emitted success JSON then execute failure still returned `OperationFailed`, leaving `"ok":true` on stdout; fixed by deferring success JSON until execute succeeds and emitting `WriteFailureLine` on execute failure; regressions in `RunCoreAsync_json_output_does_not_emit_ok_true_when_execute_fails` / `RunCoreAsync_json_output_emits_ok_true_after_execute_succeeds`.
+- [x] (proven) `--json draft new` still writes human progress lines to stdout — **hit 2026-08-25:** after create/admit the command printed `DraftId:` and `Draft admitted. Resolving MUST questions…` alongside JSON; guarded with `!CliExecutionContext.JsonOutput`; regression in `RunCoreAsync_json_output_suppresses_human_progress_lines`.
 
 ---
 
@@ -1021,11 +1066,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 2
-- **bugs-found:** 5
+- **hunts:** 3
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — DELETE decremented enterprise seat then leaked it when repository deactivate failed
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — repeat DELETE returned 204 for directory-removed user
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1039,6 +1084,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Active create reserved enterprise seat then leaked it when insert failed — **hit 2026-08-24:** compensating decrement on failure; regression in `CreateAsync_releases_reserved_seat_when_insert_fails`
 - [x] (proven) PUT re-activation reserved seat then leaked it when replace failed — **hit 2026-08-24:** `CompensateSeatTransitionAsync` on persistence failure; regression in `ReplaceAsync_compensates_seat_when_persistence_fails_after_activation`
 - [x] (proven) DELETE decremented enterprise seat then leaked it when repository deactivate failed — **hit 2026-08-24:** `DeactivateAsync` had no compensating increment; regression in `DeactivateAsync_restores_seat_when_persistence_fails`
+- [x] (proven) Repeat DELETE on directory-removed user returned success instead of notFound — **hit 2026-08-25:** `DeactivateAsync` omitted `DirectoryRemovedUtc` guard used by GET/PUT/PATCH; second DELETE returned HTTP 204 while GET returned 404; regression in `DeactivateAsync_throws_not_found_when_user_already_directory_removed`
 
 ---
 
@@ -1050,10 +1096,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
+- **last-hunt:** 2026-08-25
 - **last-bug:** 2026-08-24 — activation accepted non-HTTP(S) issuer URIs that discovery rejects
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1069,6 +1115,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Empty SAML metadata HTTP body threw `ArgumentException` to callers — **hit 2026-08-24:** parser throw was uncaught; regression in `DiscoverAsync_saml_empty_body_returns_failed_response_instead_of_throwing`
 - [x] (proven) Protocol switch preserved prior protocol `MetadataXml` / `KeyVaultSecretName` when omitted — **hit 2026-08-24:** `ResolveOptionalPersistedField` inherited existing values across SAML↔OIDC; now only preserves within same protocol; regression in `ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted` and `ActivateAsync_protocol_switch_clears_oidc_key_vault_secret_when_omitted`
 - [x] (proven) Activation accepted non-HTTP(S) issuer URIs that discovery rejects — **hit 2026-08-24:** `ActivateAsync` validated only non-whitespace and persisted `file:` / `javascript:` issuers; shared absolute HTTP(S) validation now covers discovery and activation; regression in `ActivateAsync_rejects_non_http_scheme_issuer_uri`
+- [x] (invalid) Null `ClaimMapping.Mappings` crashes activation with HTTP 500 — **seed 2026-08-25:** LINQ `.Where` throws `ArgumentNullException` (derives from `ArgumentException`); controller maps to 400; regression in `ActivateAsync_null_claim_mapping_entries_throw_argument_null_exception`
+- [x] (valid-no-repro) Activation accepts issuer URI without host (`https://`) — **seed 2026-08-25:** `IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps` rejects; regression in `ActivateAsync_rejects_issuer_without_host`
+- [x] (valid-no-repro) Empty `RoleClaimName` persists broken mapping — **seed 2026-08-25:** `IdentityClaimRoleMappingValidator.ValidateOrThrow` fails before upsert; regression in `ActivateAsync_rejects_empty_role_claim_name`
 
 ---
 
@@ -1080,7 +1129,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
@@ -1096,6 +1145,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Missing `Hosting:Role=Worker` let production validation use Combined — **hit 2026-08-24:** `ContainerJobsOffloadRules` skipped when role unset; `WorkerProcessHostingRoleConfiguration` defaults/rejects
 - [x] (proven) Invalid configuration built full DI before fail-fast — **hit 2026-08-24:** `ValidateOrThrow` runs before `Build()` in Worker `Program.cs`
 - [x] (proven) Real mode with `AzureOpenAI:AuthenticationMode=ManagedIdentity` fails worker startup — **hit 2026-08-24:** `AgentExecutionRules` required ApiKey despite MI; `AzureOpenAiOptionsValidator` rejected partial credentials without ApiKey; fixed via `AzureOpenAiConfigurationProbe.IsCompletionStackConfigured` and MI-aware options validation; regression in `Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`
+- [x] (valid-no-repro) Real mode startup with `AZURE_OPENAI_*` shell env aliases — `AzureOpenAiEnvironmentConfigurationBridge.Apply` runs before `ValidateOrThrow`; regression in `Worker_host_starts_when_real_mode_uses_azure_openai_environment_aliases`
+- [x] (valid-no-repro) Production InMemory storage and Prometheus without scrape credentials — `ValidateOrThrow` rejects via `CollectEphemeralStorageDisallowedInProductionLike` and `ObservabilityRules.CollectPrometheus`; regressions in `Worker_host_fails_fast_when_production_uses_in_memory_storage` and `Worker_host_fails_fast_when_prometheus_enabled_without_scrape_credentials`
+- [ ] (hunt-ready) `WorkerProcessHostingRoleConfiguration.ValidateOrThrow` before `Build()` vs `AzureOpenAiOptions` `ValidateOnStart` at `Build()` — when `AgentExecution:Mode=Simulator` and `AzureOpenAI:MaxCompletionTokens=-1` with partial Azure keys, `CollectErrors` passes but options validation fails at service build; input: invalid token cap with endpoint/deployment/key set.
+- [ ] (hunt-ready) `ConfigurationValidationHostedService` at `StartAsync` — uses `CriticalConfigurationValidator` after `ValidateOrThrow` succeeded; hunt config that passes `ArchLucidConfigurationRules.CollectErrors` but fails the narrower hosted validator when the host starts.
 
 ---
 
@@ -1135,11 +1188,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 2
-- **bugs-found:** 5
+- **hunts:** 3
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — duplicate X-Api-Key headers joined by comma broke authentication
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — duplicate X-ArchLucid-Test-Actor-Name headers joined by comma broke governance actor override
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1153,6 +1206,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Shared material in admin and reader slots blocked when admin expiry lapsed but reader expiry valid — **hit 2026-08-24:** admin branch failed before reader branch; regression in `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`
 - [x] (proven) Expired keys still authenticated at exact `ExpiresAt` timestamp — **hit 2026-08-24:** `IsKeyExpired` used `>` instead of `>=`; regression in `When_admin_key_expiry_is_exactly_now_returns_failure`
 - [x] (proven) Duplicate `X-Api-Key` headers broke authentication — **hit 2026-08-24:** `StringValues.ToString()` comma-joined multiple header values; now uses first non-empty value; regression in `When_enabled_true_and_duplicate_api_key_headers_use_first_value`
+- [x] (proven) Duplicate `X-ArchLucid-Test-Actor-Name` headers broke governance actor override — **hit 2026-08-25:** `ApplyTestActorHeaderOverrides` used `StringValues.ToString()` comma-join; now reuses `ExtractProvidedApiKey` for first non-empty segment; regression in `When_allow_test_actor_headers_and_duplicate_actor_name_headers_use_first_value`
 
 ---
 
@@ -1164,10 +1218,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
+- **last-hunt:** 2026-08-25
 - **last-bug:** 2026-08-24 — duplicate x-*-id headers bypassed header-only scope escalation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1181,6 +1235,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `x-workspace-id` header steered scope without a bound claim — **hit 2026-08-24:** middleware only blocked tenant header escalation; regression in `ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_bearer`
 - [x] (proven) `x-project-id` header steered scope without a bound claim — **hit 2026-08-24:** SCIM bearer omitted from header-only escalation guard; regression in `ValidateHeaderOnlyScopeEscalation_rejects_project_header_without_claim_for_scim_bearer`
 - [x] (proven) Duplicate `x-*-id` headers bypassed header-only scope escalation guard — **hit 2026-08-24:** `StringValues.ToString()` comma-joined duplicate headers so `Guid.TryParse` failed and steering was ignored; now first non-empty segment is parsed; regressions in `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_bearer` and `InvokeAsync_bearer_without_tenant_claim_rejects_duplicate_x_tenant_id_headers`
+- [x] (valid-no-repro) Saml2 bearer omitted from workspace header-only escalation guard — `RequiresBoundScopeClaimsForHeaders` includes `Saml2`; regression in `ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_saml2`
+- [x] (valid-no-repro) Duplicate `x-workspace-id` headers bypass workspace header-only escalation — `TryParseHeaderGuid` iterates header segments for all dimensions; regression in `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_workspace_headers_without_claim_for_saml2`
+- [x] (valid-no-repro) Production-like guard accepts workspace/project scope resolved from `x-*-id` headers — `ScopeResolutionGuard.IsUntrusted` rejects any `ScopeSource.Header` dimension; regressions in `RequiresTrustedScopeRejection_true_when_workspace_from_header` and `RequiresTrustedScopeRejection_true_when_project_from_header`
+- [x] (valid-no-repro) ApiKey-authenticated principal with bound `tenant_id` claim still accepts hostile `x-workspace-id` — generic `ValidateHeaderOnlyDimensionEscalation` branch rejects any unbound dimension; regression in `InvokeAsync_api_key_with_tenant_claim_rejects_x_workspace_id_header`
 
 ---
 
@@ -1340,11 +1398,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — AL0001 false-positive when `[Authorize]` is on implemented interface methods or interface type
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — AL0003 ignored inherited `[MutatingAuditExcluded]` on base controller classes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1357,6 +1415,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) AL0001 reported public `[NonAction]` controller helpers — `RequireAuthorizationAnalyzer` did not skip `NonActionAttribute`; regression in `Does_not_report_public_NonAction_helper`
 - [x] (proven) AL0001 reported controller when every public action had `[AllowAnonymous]` — type-level fallback fired after all actions were skipped; regression in `Does_not_report_controller_when_all_public_actions_have_AllowAnonymous`
 - [x] (proven) AL0001 ignores `[Authorize]` on implemented interface methods — **hit 2026-08-24:** controller actions implementing interface methods with interface-level or method-level `[Authorize]` were flagged (or controller type reported when all actions were interface-authorized); fixed by walking `AllInterfaces` / `FindImplementationForInterfaceMember`; regressions in `Does_not_report_when_interface_method_has_Authorize` / `Does_not_report_when_implemented_interface_has_Authorize`
+- [x] (proven) AL0003 ignores inherited `[MutatingAuditExcluded]` on base controller — **hit 2026-08-25:** `MutatingAuditExcludeApplies` walked only `ContainingType` nesting, not `BaseType` inheritance; derived controller actions false-positive AL0003; fixed by walking base types per nested declaring type; regression in `Mutating_audit_excluded_on_base_controller_suppresses_AL0003_on_derived_action`
 
 ---
 
@@ -1759,11 +1818,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 5
-- **bugs-found:** 11
+- **hunts:** 6
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — multi-recipient digest dispatch reserved tenant-level ledger before send loop, blocking retry for remaining recipients after partial failure
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1783,6 +1842,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Exec digest email reserved ledger before template render — **hit 2026-08-24:** `ExecDigestEmailDispatcher` reserved the weekly ledger before render and accepted all-whitespace recipient lists; fixed by render-before-ledger and recipient normalization.
 - [x] (proven) Trial lifecycle email reserved ledger before template render — **hit 2026-08-24:** `TrialLifecycleEmailDispatcher` reserved the idempotency key before Razor render; template failures permanently blocked trial onboarding mail; fixed by rendering before ledger reservation.
 - [x] (proven) Digest webhook subscriptions bypass the alert-routing SSRF destination policy — **hit 2026-08-24:** `DigestSubscriptionsController.Create` persisted `SlackWebhook` and `TeamsWebhook` destinations without calling `AlertRoutingWebhookDestinationPolicy`, accepting HTTP and loopback URLs; fixed by applying the shared policy before persistence.
+- [x] (proven) Multi-recipient digest dispatch reserved tenant-level ledger before the send loop — **hit 2026-08-25:** `ExecDigestEmailDispatcher` (and sibling weekly/recurrence dispatchers) called `TryRecordSentAsync` on the tenant/week key before iterating mailboxes; when the first recipient succeeded and a later send failed, retry returned `false` and skipped remaining recipients; fixed with per-mailbox send-then-ledger via `MultiRecipientEmailDispatch` and `ISentEmailLedger.IsRecordedAsync`; regression in `ExecDigestEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry`.
+- [ ] (candidate) Digest subscription create accepts blank channel/destination — `DigestSubscriptionsController.Create` lacks required-field validation present on alert-routing subscriptions
+- [ ] (candidate) Commit sponsor email has no sent-email ledger — `CommitSponsorEmailNotifier` relies on provider idempotency only
+- [ ] (candidate) User invitation email idempotency key includes fresh GUID — `UserInvitationEmailNotifier` generates a new suffix on every send attempt
 
 ---
 

@@ -89,6 +89,43 @@ public sealed class ScopeIdentityBindingValidatorTests
     }
 
     [SkippableFact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_duplicate_workspace_headers_without_claim_for_saml2()
+    {
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+                "Saml2"))
+        };
+        http.Request.Headers.Append("x-workspace-id", Guid.NewGuid().ToString("D"));
+        http.Request.Headers.Append("x-workspace-id", Guid.NewGuid().ToString("D"));
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "Saml2");
+
+        result.IsValid.Should().BeFalse();
+        result.FailureMessage.Should().Contain("x-workspace-id");
+    }
+
+    [SkippableFact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_saml2()
+    {
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+                "Saml2"))
+        };
+        http.Request.Headers["x-workspace-id"] = Guid.NewGuid().ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "Saml2");
+
+        result.IsValid.Should().BeFalse();
+        result.FailureMessage.Should().Contain("x-workspace-id");
+    }
+
+    [SkippableFact]
     public void ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_bearer()
     {
         Guid tenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");

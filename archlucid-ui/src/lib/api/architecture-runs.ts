@@ -222,6 +222,13 @@ export async function createArchitectureRunAsync(
         continue;
       }
 
+      if (
+        isApiRequestError(error) &&
+        isArchitectureRequestCreateGatewayTimeout(error.httpStatus, error.problem)
+      ) {
+        rethrowCreateRunGatewayTimeout(error);
+      }
+
       throw error;
     }
   }

@@ -254,7 +254,7 @@ describe("JiraIntegrationPageClient", () => {
     render(<JiraIntegrationPageClient />);
 
     expect(await screen.findByTestId("jira-setup-progress")).toBeInTheDocument();
-    expect(screen.getByTestId("jira-setup-step-consent")).toHaveAttribute("data-emphasized", "true");
+    expect(screen.getByTestId("jira-setup-step-connect")).toHaveAttribute("data-emphasized", "true");
     expect(screen.getByTestId("jira-workspace-routing-collapsed")).toBeInTheDocument();
     expect(screen.getByText(JIRA_WORKSPACE_ROUTING_COLLAPSED_SUMMARY)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Jira project key override/i)).not.toBeInTheDocument();

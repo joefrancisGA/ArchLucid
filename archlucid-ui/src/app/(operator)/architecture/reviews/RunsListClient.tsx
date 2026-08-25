@@ -1,6 +1,7 @@
 "use client";
 
 import type { KeyboardEvent, MouseEvent } from "react";
+import { useMemo } from "react";
 
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { cn } from "@/lib/utils";
@@ -44,6 +45,8 @@ import type { RunSummary } from "@/types/authority";
 
 import type { BuyerPackageScopeFilter, RunsListClientProps, SortOrder } from "./runs-list-types";
 import { useRunsList } from "./use-runs-list";
+import { RunsListContinueLastViewedRow } from "./RunsListContinueLastViewedRow";
+import { resolveContinueLastRunsListRow } from "@/lib/resolve-continue-last-runs-list-row";
 
 export type { RunsListClientProps } from "./runs-list-types";
 
@@ -296,6 +299,11 @@ export function RunsListClient(props: RunsListClientProps) {
     filterStatusLine,
   } = useRunsList(props);
 
+  const continueLastViewedRun = useMemo(
+    () => resolveContinueLastRunsListRow(props.runs),
+    [props.runs],
+  );
+
   const inspectorBody =
     selectedRun === null ? (
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="run-inspector-empty">
@@ -460,6 +468,7 @@ export function RunsListClient(props: RunsListClientProps) {
       <div className={cn("pt-4", !viewportNarrow && "lg:flex lg:items-stretch lg:gap-4")}>
         <div className={cn("min-w-0 flex-1 space-y-4", !viewportNarrow && "lg:min-w-0")}>
           <div className="space-y-4">
+            {continueLastViewedRun !== null ? <RunsListContinueLastViewedRow run={continueLastViewedRun} /> : null}
             {showCompareSelection ? (
               <RunsListCompareSelectionBar
                 selectedRunIds={compareSelection}

@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 
 import { RunRetrievalGroundingPanel } from "@/components/runs/RunRetrievalGroundingPanel";
-import { getRunRetrievalGrounding } from "@/lib/api";
+import { useRunRetrievalGroundingQuery } from "@/hooks/use-run-retrieval-grounding-query";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import type { RunRetrievalGroundingPayload } from "@/types/agent-forensics";
 
 type RunDetailRetrievalGroundingSectionProps = {
   readonly runId: string;
@@ -15,39 +14,10 @@ type RunDetailRetrievalGroundingSectionProps = {
 
 /** Collapsed retrieval-hit panel on run detail (TB-109). */
 export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGroundingSectionProps) {
-  const [payload, setPayload] = useState<RunRetrievalGroundingPayload | null>(null);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: payload, isPending, isError, error } = useRunRetrievalGroundingQuery(props.runId);
+  const failure: ApiLoadFailureState | null = isError ? toApiLoadFailure(error) : null;
 
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const response = await getRunRetrievalGrounding(props.runId);
-
-        if (!canceled) {
-          setPayload(response.data);
-          setFailure(null);
-        }
-      } catch (error: unknown) {
-        if (!canceled) {
-          setPayload(null);
-          setFailure(toApiLoadFailure(error));
-        }
-      } finally {
-        if (!canceled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [props.runId]);
-
-  if (loading) {
+  if (isPending) {
     return null;
   }
 

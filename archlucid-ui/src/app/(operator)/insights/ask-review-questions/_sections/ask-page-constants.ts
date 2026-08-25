@@ -55,3 +55,10 @@ export const ASK_DEEP_LINK_RUN_PROMPTS: readonly string[] = [
 export function buyerAskStarterPromptLines(): readonly string[] {
   return ASK_BUYER_PROMPT_GROUPS.flatMap((group) => group.prompts);
 }
+
+/** Clickable starters on an empty Ask thread when a review is selected. */
+export const ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS: readonly string[] = [
+  "What is the top risk?",
+  "What is blocking finalize?",
+  "Summarize for a sponsor.",
+];

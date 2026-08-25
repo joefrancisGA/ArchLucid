@@ -50,3 +50,22 @@ export type RecommendationSourceEvidenceLink = {
   kind: "finding" | "manifestSection";
   id: string;
 };
+
+export type RecommendationImproveLoopEvidence = {
+  diffEntries?: readonly Record<string, unknown>[];
+  impact?: Record<string, unknown> | null;
+  partialScopeDisclaimer?: string | null;
+  mergedFindingIds?: readonly string[];
+  fullReReviewTriggered?: boolean;
+};
+
+export type RecommendationActionResult = {
+  recommendation: RecommendationRecord;
+  improveLoop?: RecommendationImproveLoopEvidence | null;
+};
+
+/** Persisted recommendations list plus optional improve-loop evidence from the run row. */
+export type AdvisoryRunRecommendationsList = {
+  recommendations: RecommendationRecord[];
+  improveLoopEvidence?: RecommendationImproveLoopEvidence | null;
+};

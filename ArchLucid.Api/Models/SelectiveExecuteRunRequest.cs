@@ -24,4 +24,11 @@ public sealed class SelectiveExecuteRunRequest
         get;
         set;
     } = true;
+
+    /// <summary>Optional knowledge-model element ids for incremental re-review scope.</summary>
+    public List<string>? AffectedElementIds
+    {
+        get;
+        set;
+    }
 }

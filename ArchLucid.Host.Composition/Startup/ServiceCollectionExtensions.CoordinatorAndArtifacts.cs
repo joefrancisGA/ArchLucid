@@ -105,12 +105,18 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AskRetrievalOptions>(
             configuration.GetSection(AskRetrievalOptions.SectionPath));
         services.AddScoped<IConversationContextCompressor, ConversationContextCompressor>();
+        services.AddScoped<AskConversationHistoryBuilder>();
+        services.AddScoped<AskContextPreparer>();
+        services.AddScoped<AskComparisonNarrativeBuilder>();
+        services.AddScoped<AskResponseComposer>();
         services.AddScoped<IAskService, AskService>();
         services.AddScoped<IDraftIntakeReasoningService, DraftIntakeReasoningService>();
         services.AddScoped<IDraftSemanticAdmissionEvaluator, HostDraftSemanticAdmissionEvaluator>();
         services.AddScoped<IPreCommitGovernanceBlockExplainer, PreCommitGovernanceBlockExplainer>();
         services.AddScoped<IAgentEvaluationService, FindingsBackedAgentEvaluationService>();
-        services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
+        services.AddScoped<DefaultEvidenceBuilder>();
+        services.AddScoped<EffectiveGovernanceSnapshotBuilder>();
+        services.AddScoped<IEvidenceBuilder, WorkspacePolicyPackEvidenceBuilder>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
         services.AddScoped<ICommitRunIdempotencyCoordinator, CommitRunIdempotencyCoordinator>();
 

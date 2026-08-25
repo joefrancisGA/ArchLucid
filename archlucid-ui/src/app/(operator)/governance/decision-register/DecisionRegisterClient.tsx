@@ -11,10 +11,10 @@ import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-r
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import {
-  getArchitectureDecisionRegister,
-  type ArchitectureDecisionRegisterEntry,
-  type ArchitectureDecisionRegisterFilters,
+import { useArchitectureDecisionRegisterQuery } from "@/hooks/use-architecture-decision-register-query";
+import type {
+  ArchitectureDecisionRegisterEntry,
+  ArchitectureDecisionRegisterFilters,
 } from "@/lib/api/governance-stickiness-api";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
@@ -27,10 +27,12 @@ import { DecisionRegisterLoadFailure } from "./_sections/DecisionRegisterLoadFai
 import { DecisionRegisterLoadingSkeleton } from "./_sections/DecisionRegisterLoadingSkeleton";
 
 import { DecisionRegisterDecisionCard } from "./DecisionRegisterDecisionCard";
+import { DecisionRegisterContinueLastViewedRow } from "./DecisionRegisterContinueLastViewedRow";
 import { DecisionRegisterViewEmptyShell } from "./DecisionRegisterViewEmptyShell";
 import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
 import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
 import { DecisionRegisterViewSwitcher, type DecisionRegisterViewMode } from "./DecisionRegisterViewSwitcher";
+import { DecisionRegisterWorkspaceActiveApprovalStrip } from "./DecisionRegisterWorkspaceActiveApprovalStrip";
 import {
   DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE,
   DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES,
@@ -49,16 +51,16 @@ import {
   type DecisionRegisterDatePreset,
 } from "./decision-register-date-range";
 import { deriveDecisionRegisterSummary } from "./decision-register-summary";
+import { resolveContinueLastDecisionRegisterEntry } from "@/lib/resolve-continue-last-decision-register-entry";
 
 const defaultDateRange = resolveDecisionRegisterDateRange(DEFAULT_DECISION_REGISTER_DATE_PRESET);
 
 export default function DecisionRegisterClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const [workspaceDecisions, setWorkspaceDecisions] = useState<ArchitectureDecisionRegisterEntry[]>([]);
-  const [filteredDecisions, setFilteredDecisions] = useState<ArchitectureDecisionRegisterEntry[]>([]);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [loadingWorkspace, setLoadingWorkspace] = useState(true);
-  const [loadingFiltered, setLoadingFiltered] = useState(true);
+  const projectId = useMemo(
+    () => projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders()),
+    [],
+  );
   const [category, setCategory] = useState("");
   const [recordedAfter, setRecordedAfter] = useState(defaultDateRange.recordedAfter);
   const [recordedBefore, setRecordedBefore] = useState(defaultDateRange.recordedBefore);
@@ -70,7 +72,6 @@ export default function DecisionRegisterClient() {
   const [reloadToken, setReloadToken] = useState(0);
 
   const retryLoad = useCallback(() => {
-    setLoadError(null);
     setReloadToken((value) => value + 1);
   }, []);
 
@@ -104,7 +105,39 @@ export default function DecisionRegisterClient() {
     return parsed;
   }, [category, confidenceBasis, maxConfidence, minConfidence, recordedAfter, recordedBefore]);
 
+  const workspaceQuery = useArchitectureDecisionRegisterQuery(projectId);
+  const filteredQuery = useArchitectureDecisionRegisterQuery(projectId, filters);
+
+  useEffect(() => {
+    if (reloadToken === 0) {
+      return;
+    }
+
+    void workspaceQuery.refetch();
+    void filteredQuery.refetch();
+  }, [filteredQuery, reloadToken, workspaceQuery]);
+
+  const workspaceDecisions = useMemo(
+    () => [...(workspaceQuery.data?.decisions ?? [])] as ArchitectureDecisionRegisterEntry[],
+    [workspaceQuery.data?.decisions],
+  );
+  const filteredDecisions = useMemo(
+    () => [...(filteredQuery.data?.decisions ?? [])] as ArchitectureDecisionRegisterEntry[],
+    [filteredQuery.data?.decisions],
+  );
+  const loadError = workspaceQuery.isError
+    ? (workspaceQuery.error instanceof Error ? workspaceQuery.error.message : "Failed to load decision register.")
+    : filteredQuery.isError
+      ? (filteredQuery.error instanceof Error ? filteredQuery.error.message : "Failed to load decision register.")
+      : null;
+  const loadingWorkspace = workspaceQuery.isPending;
+  const loadingFiltered = filteredQuery.isPending;
+
   const summary = useMemo(() => deriveDecisionRegisterSummary(workspaceDecisions), [workspaceDecisions]);
+  const continueLastDecision = useMemo(
+    () => resolveContinueLastDecisionRegisterEntry(workspaceDecisions),
+    [workspaceDecisions],
+  );
   const collapseAdvancedFilters = workspaceDecisions.length === 0;
   const loading = loadingWorkspace || loadingFiltered;
   const hasWorkspaceDecisions = workspaceDecisions.length > 0;
@@ -128,65 +161,6 @@ export default function DecisionRegisterClient() {
     setRecordedAfter(range.recordedAfter);
     setRecordedBefore(range.recordedBefore);
   }, []);
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      setLoadingWorkspace(true);
-
-      try {
-        const projectId = projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders());
-        const response = await getArchitectureDecisionRegister(projectId);
-        if (!canceled) {
-          setWorkspaceDecisions(response.decisions ?? []);
-        }
-      } catch (error: unknown) {
-        if (!canceled) {
-          setWorkspaceDecisions([]);
-          setLoadError(error instanceof Error ? error.message : "Failed to load decision register.");
-        }
-      } finally {
-        if (!canceled) {
-          setLoadingWorkspace(false);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [reloadToken]);
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      setLoadingFiltered(true);
-      setLoadError(null);
-
-      try {
-        const projectId = projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders());
-        const response = await getArchitectureDecisionRegister(projectId, filters);
-        if (!canceled) {
-          setFilteredDecisions(response.decisions ?? []);
-        }
-      } catch (error: unknown) {
-        if (!canceled) {
-          setFilteredDecisions([]);
-          setLoadError(error instanceof Error ? error.message : "Failed to load decision register.");
-        }
-      } finally {
-        if (!canceled) {
-          setLoadingFiltered(false);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [filters, reloadToken]);
 
   return (
     <div className="space-y-4 p-4" data-testid="decision-register-page">
@@ -234,6 +208,10 @@ export default function DecisionRegisterClient() {
         onClearFilters={resetFilters}
       />
 
+      {!loading && !loadError && continueLastDecision !== null ? (
+        <DecisionRegisterContinueLastViewedRow decision={continueLastDecision} />
+      ) : null}
+
       {loading ? <DecisionRegisterLoadingSkeleton /> : null}
 
       {loadError && buyerPolishedShell ? (
@@ -252,6 +230,7 @@ export default function DecisionRegisterClient() {
       {!loading && !loadError && !hasWorkspaceDecisions ? (
         <DecisionRegisterViewEmptyShell viewMode={viewMode}>
           <div className="space-y-3">
+            <DecisionRegisterWorkspaceActiveApprovalStrip />
             {buyerPolishedShell ? null : <DecisionRegisterEmptyTeaching />}
             <EnterpriseCompactEmptyState
               testId="decision-register-empty-state"

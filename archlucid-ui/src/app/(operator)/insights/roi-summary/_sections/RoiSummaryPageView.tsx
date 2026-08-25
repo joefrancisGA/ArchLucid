@@ -1,7 +1,9 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+
+import { cn } from "@/lib/utils";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { RoiSummaryBreadcrumb } from "@/components/insights/RoiSummaryBreadcrumb";
@@ -47,10 +49,15 @@ import {
   ROI_SUMMARY_PRIMARY_CONTENT_ID,
   ROI_SUMMARY_SKIP_LINK_LABEL,
 } from "@/lib/roi-summary-page-copy";
+import {
+  readRoiSummaryPickedReviewId,
+  writeRoiSummaryPickedReviewId,
+} from "@/lib/roi-summary/roi-summary-picked-review-storage";
 
 import { RoiSummaryBuyerChrome } from "./RoiSummaryBuyerChrome";
 import { RoiSummaryHeroStrip } from "./RoiSummaryHeroStrip";
 import { RoiSummaryLoadedHourlyCostField } from "./RoiSummaryLoadedHourlyCostField";
+import { RoiSummaryPickReviewBeforeSummarizingStrip } from "./RoiSummaryPickReviewBeforeSummarizingStrip";
 import type { RoiSummaryPageViewModel } from "./roi-summary-page-view-model";
 
 type Props = {
@@ -62,6 +69,17 @@ export function RoiSummaryPageView(props: Props) {
   const hourly = useRoiLoadedHourlyUsd();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const layerHeader = buyerPolishedShell ? null : <LayerHeader pageKey="value-report-roi" />;
+  const [selectedReviewId, setSelectedReviewId] = useState("");
+
+  useEffect(() => {
+    setSelectedReviewId(readRoiSummaryPickedReviewId());
+  }, []);
+
+  const onSelectReview = useCallback((reviewId: string) => {
+    const trimmed = reviewId.trim();
+    setSelectedReviewId(trimmed);
+    writeRoiSummaryPickedReviewId(trimmed);
+  }, []);
 
   if (m.demo) {
     return (
@@ -171,6 +189,13 @@ export function RoiSummaryPageView(props: Props) {
               )
             }
           />
+
+          {selectedReviewId.trim().length === 0 ? (
+            <RoiSummaryPickReviewBeforeSummarizingStrip
+              selectedReviewId={selectedReviewId}
+              onSelectReview={onSelectReview}
+            />
+          ) : null}
 
           <RoiSummaryHeroStrip
           period={heroPeriod}

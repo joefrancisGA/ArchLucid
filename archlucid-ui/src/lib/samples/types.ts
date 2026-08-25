@@ -21,6 +21,8 @@ export type SampleScenarioDefinition = {
   readonly buyerReviewPackageTitle: string;
   readonly policyPackDetailHref: string;
   readonly policyPackIdAliases: readonly string[];
+  /** Buyer-facing policy pack label prefix (version appended at display time). */
+  readonly policyPackDisplayLabel: string;
   readonly ruleSetId: string;
   /** Semver pinned for static demo payloads — should align with the rule-set id major line. */
   readonly ruleSetVersion: string;

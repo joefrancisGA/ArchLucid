@@ -1,3 +1,4 @@
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
@@ -33,7 +34,7 @@ public sealed class EndToEndReplayComparisonServiceTests
     private readonly Mock<IRunRepository> _runRepository = new();
     private readonly Mock<IFindingReviewTrailRepository> _reviewTrailRepository = new();
     private readonly Mock<IScopeContextProvider> _scopeContextProvider = new();
-    private readonly Mock<IArchitectureIntelligencePersistence> _architectureIntelligencePersistence = new();
+    private readonly Mock<IArchitectureKnowledgeModelAccess> _architectureKnowledgeModelAccess = new();
     private readonly EndToEndReplayComparisonService _sut;
 
     public EndToEndReplayComparisonServiceTests()
@@ -46,10 +47,10 @@ public sealed class EndToEndReplayComparisonServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         _scopeContextProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext());
-        _architectureIntelligencePersistence
-            .Setup(persistence => persistence.GetModelByRunIdAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
+        _architectureKnowledgeModelAccess
+            .Setup(access => access.GetForRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureKnowledgeModel?)null);
         _sut = new EndToEndReplayComparisonService(
@@ -61,7 +62,7 @@ public sealed class EndToEndReplayComparisonServiceTests
             _exportDiff.Object,
             new ArchLucid.Application.Findings.CrossReviewFindingCorrelationService(),
             new ArchLucid.Application.Findings.CrossReviewFindingLifecycleService(_reviewTrailRepository.Object),
-            _architectureIntelligencePersistence.Object,
+            _architectureKnowledgeModelAccess.Object,
             _scopeContextProvider.Object);
     }
 

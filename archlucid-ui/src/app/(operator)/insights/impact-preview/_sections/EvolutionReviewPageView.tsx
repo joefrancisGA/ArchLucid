@@ -28,7 +28,9 @@ import { resolveImpactPreviewPageState } from "@/lib/resolve-impact-preview-page
 import { resolveImpactPreviewRecommendation } from "@/lib/resolve-impact-preview-recommendation";
 import { resolveImpactPreviewSummaryMetrics } from "@/lib/resolve-impact-preview-summary-metrics";
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
+import { ImpactPreviewBaselinePickerStrip } from "./ImpactPreviewBaselinePickerStrip";
 import { ImpactPreviewBuyerChrome } from "./ImpactPreviewBuyerChrome";
+import { ImpactPreviewContinueLastBaselinePairRow } from "./ImpactPreviewContinueLastBaselinePairRow";
 import { ImpactPreviewEmptyState } from "./ImpactPreviewEmptyState";
 import { ImpactPreviewEvidenceBasisSection } from "./ImpactPreviewEvidenceBasisSection";
 import { ImpactPreviewHowItWorksSection } from "./ImpactPreviewHowItWorksSection";
@@ -123,6 +125,15 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
     pageReady &&
     m.detailLoading &&
     (hasSimulationResults || (m.detail?.simulationRuns.length ?? 0) > 0);
+  const showBaselinePickerStrip =
+    (pageState === "no_candidates" || pageReady) &&
+    m.baselineOptions.length > 0 &&
+    (m.selectedBaselineId === null || pageState === "no_candidates");
+  const showImpactPreviewWorkspace = pageReady && m.selectedBaselineId !== null;
+  const showContinueLastPair =
+    m.continueLastPair !== null &&
+    (m.selectedBaselineId !== m.continueLastPair.baselineRunId ||
+      m.selectedId !== m.continueLastPair.candidateRunId);
 
   return (
     <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="impact-preview-page">
@@ -137,6 +148,13 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
       />
 
       <ImpactPreviewBuyerChrome />
+
+      {showContinueLastPair && m.continueLastPair !== null ? (
+        <ImpactPreviewContinueLastBaselinePairRow
+          pair={m.continueLastPair}
+          onResume={m.resumeContinueLastPair}
+        />
+      ) : null}
 
       {pageReady ? (
         <>
@@ -185,13 +203,26 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
 
       <ImpactPreviewEmptyState pageState={pageState} planningReachable={planningReachable} />
 
-      {shouldShowBlockedOutputPreview(pageState) ? <ImpactPreviewOutputPreviewPanel /> : null}
+      {showBaselinePickerStrip ? (
+        <ImpactPreviewBaselinePickerStrip
+          baselineOptions={m.baselineOptions}
+          selectedBaselineId={m.selectedBaselineId}
+          onSelectBaseline={(baselineId) => {
+            m.setSelectedBaselineId(baselineId);
+            m.rememberBaselinePair(baselineId, m.selectedId);
+          }}
+        />
+      ) : null}
+
+      {shouldShowBlockedOutputPreview(pageState) && m.selectedBaselineId !== null ? (
+        <ImpactPreviewOutputPreviewPanel />
+      ) : null}
 
       {!pageReady && !buyerPolishedShell ? (
         <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" />
       ) : null}
 
-      {pageReady ? (
+      {showImpactPreviewWorkspace ? (
         <>
           {showSetupSkeleton ? (
             <ImpactPreviewSetupSkeleton />
@@ -201,11 +232,13 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
               selectedCandidateId={m.selectedId}
               onSelectCandidate={(candidateId) => {
                 m.setSelectedId(candidateId);
+                m.rememberBaselinePair(m.selectedBaselineId, candidateId);
               }}
               baselineOptions={m.baselineOptions}
               selectedBaselineId={m.selectedBaselineId}
               onSelectBaseline={(baselineId) => {
                 m.setSelectedBaselineId(baselineId);
+                m.rememberBaselinePair(baselineId, m.selectedId);
               }}
               comparisonScope={m.comparisonScope}
               onToggleScope={m.toggleComparisonScope}

@@ -5,6 +5,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Orchestration.Commit;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -67,16 +68,15 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
     public async Task CommitRunAsync_malformed_run_id_throws_RunNotFoundException_and_records_baseline_audit()
     {
         AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
-            out Mock<IBaselineMutationAuditService> baselineAudit,
+            out Mock<IAuthorityCommitFailureRecorder> failureRecorder,
             out _,
             out _);
 
         Func<Task> act = async () => await sut.CommitRunAsync("not-a-guid", CancellationToken.None);
 
         await act.Should().ThrowAsync<RunNotFoundException>();
-        baselineAudit.Verify(
-            b => b.RecordAsync(
-                AuditEventTypes.Baseline.Architecture.RunFailed,
+        failureRecorder.Verify(
+            b => b.RecordFailureAsync(
                 It.IsAny<string>(),
                 "not-a-guid",
                 "Run not found.",
@@ -90,7 +90,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
         Guid runGuid = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         string runId = runGuid.ToString("N");
         AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
-            out Mock<IBaselineMutationAuditService> baselineAudit,
+            out Mock<IAuthorityCommitFailureRecorder> failureRecorder,
             out Mock<IRunRepository> runRepository,
             out Mock<IScopeContextProvider> scopeProvider);
 
@@ -107,9 +107,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
         Func<Task> act = async () => await sut.CommitRunAsync(runId, CancellationToken.None);
 
         await act.Should().ThrowAsync<RunNotFoundException>();
-        baselineAudit.Verify(
-            b => b.RecordAsync(
-                AuditEventTypes.Baseline.Architecture.RunFailed,
+        failureRecorder.Verify(
+            b => b.RecordFailureAsync(
                 It.IsAny<string>(),
                 runId,
                 "Run not found.",
@@ -118,17 +117,16 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
     }
 
     private static AuthorityDrivenArchitectureRunCommitOrchestrator CreateSut(
-        out Mock<IBaselineMutationAuditService> baselineAudit,
+        out Mock<IAuthorityCommitFailureRecorder> failureRecorder,
         out Mock<IRunRepository> runRepository,
         out Mock<IScopeContextProvider> scopeProvider)
     {
-        baselineAudit = new Mock<IBaselineMutationAuditService>();
-        baselineAudit
-            .Setup(b => b.RecordAsync(
+        failureRecorder = new Mock<IAuthorityCommitFailureRecorder>();
+        failureRecorder
+            .Setup(b => b.RecordFailureAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
-                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -143,33 +141,14 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             scopeProvider.Object,
             Mock.Of<IAgentTaskRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
-            Mock.Of<IAgentEvidencePackageRepository>(),
             Mock.Of<IAgentResultRepository>(),
-            Mock.Of<IGraphSnapshotRepository>(),
-            Mock.Of<IFindingsSnapshotRepository>(),
-            Mock.Of<IDecisionEngine>(),
-            Mock.Of<ICommitPipelineManifestReuseService>(),
-            Mock.Of<IDecisionTraceRepository>(),
-            Mock.Of<IGoldenManifestRepository>(),
-            Mock.Of<IAuthorityCommitProjectionBuilder>(),
-            Mock.Of<IManifestFinalizationService>(),
-            Mock.Of<IPreCommitGovernanceGate>(),
-            Mock.Of<IPreCommitGovernanceBlockExplainer>(),
-            Mock.Of<ICommitOutputIntegrityService>(),
-            Mock.Of<IPolicyPackAssignmentRepository>(),
             actor.Object,
-            baselineAudit.Object,
-            Mock.Of<IAuditService>(),
-            Mock.Of<ITrialFunnelCommitHook>(),
-            Mock.Of<IFirstSessionLifecycleHook>(),
-            new PostCommitProjectionEnqueuer(Mock.Of<ArchLucid.Persistence.Coordination.Projection.IPostCommitProjectionOutboxRepository>()),
-            Mock.Of<IRunTelemetryRepository>(),
             new RunStateTransitionService(),
-            Options.Create(new ArchLucid.Core.Configuration.GenerateIacStubsOptions()),
-            Options.Create(new ArchLucid.Core.Configuration.RerankFindingsOptions()),
-            Options.Create(new ArchLucid.Core.Configuration.ExplainGovernanceBlocksOptions()),
-            Mock.Of<ArchLucid.Contracts.Abstractions.Integrations.IAzureDevOpsCommitStatusPublisher>(),
-            Mock.Of<IGraphMergeRuntimeInvariantReporter>(),
+            Mock.Of<IAuthorityCommitIdempotencyHandler>(),
+            Mock.Of<IAuthorityCommitDecisionMaterializationStage>(),
+            Mock.Of<IAuthorityCommitGovernanceStage>(),
+            Mock.Of<IAuthorityCommitPersistenceStage>(),
+            failureRecorder.Object,
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 }

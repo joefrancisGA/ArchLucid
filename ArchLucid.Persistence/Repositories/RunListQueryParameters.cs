@@ -154,6 +154,72 @@ internal static class RunListQueryParameters
         };
     }
 
+    public static object ForPriorCommittedRunForArchitectureBeforeCurrent(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid currentRunId,
+        DateTime currentCreatedUtc)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ArchitectureId = architectureId,
+            CurrentRunId = currentRunId,
+            CurrentCreatedUtc = DateTime.SpecifyKind(currentCreatedUtc, DateTimeKind.Utc),
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed)
+        };
+    }
+
+    public static object ForCommittedRunByGoldenManifestId(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid goldenManifestId,
+        Guid excludeRunId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ArchitectureId = architectureId,
+            GoldenManifestId = goldenManifestId,
+            ExcludeRunId = excludeRunId,
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed)
+        };
+    }
+
+    public static object ForClearGraphSnapshotForArchitecture(ScopeContext scope, Guid architectureId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ArchitectureId = architectureId,
+        };
+    }
+
+    public static object ForLatestRunIdForArchitecture(ScopeContext scope, Guid architectureId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ArchitectureId = architectureId,
+        };
+    }
+
     /// <summary>
     ///     "Active" is defined by exclusion: any run not committed, failed, or quality-rejected still occupies the request's
     ///     concurrency allowance.

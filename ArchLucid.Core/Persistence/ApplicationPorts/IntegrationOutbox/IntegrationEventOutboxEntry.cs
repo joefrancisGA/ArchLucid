@@ -1,7 +1,9 @@
+using ArchLucid.Core.Persistence.ApplicationPorts.Coordination;
+
 namespace ArchLucid.Persistence.IntegrationOutbox;
 
 /// <summary>One row in <c>dbo.IntegrationEventOutbox</c> awaiting Service Bus publish.</summary>
-public sealed class IntegrationEventOutboxEntry
+public sealed class IntegrationEventOutboxEntry : IRecoverableOutboxEntry
 {
     public Guid OutboxId
     {
@@ -58,6 +60,9 @@ public sealed class IntegrationEventOutboxEntry
     {
         get; init;
     }
+
+    /// <inheritdoc />
+    public int AttemptCount => RetryCount;
 
     public DateTime? NextRetryUtc
     {

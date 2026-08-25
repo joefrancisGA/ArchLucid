@@ -26,6 +26,10 @@ vi.mock("./FindingInspectFindingBody", () => ({
   FindingInspectFindingBody: () => <div data-testid="finding-body-mock" />,
 }));
 
+vi.mock("./_sections/FindingInspectNextFindingEvidenceFooterClient", () => ({
+  FindingInspectNextFindingEvidenceFooterClient: () => null,
+}));
+
 import { EVIDENCE_TRACE_CLAIM_DISCIPLINE } from "@/lib/evidence-trace-evidence-copy";
 
 import { FindingInspectView } from "./FindingInspectView";

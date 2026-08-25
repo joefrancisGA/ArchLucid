@@ -26,6 +26,7 @@ import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scop
 import { areSpineStaticDemoPayloadsAvailable, tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
+import { resolveContinueLastSignedRecordsListRow } from "@/lib/resolve-continue-last-signed-record";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { cn } from "@/lib/utils";
 
@@ -51,6 +52,7 @@ import {
   SIGNED_RECORDS_LIST_RETRY_FAILED_STATUS,
   SIGNED_RECORDS_LIST_RETRY_SUCCEEDED_STATUS,
 } from "./signed-records-list-copy";
+import { SignedRecordsContinueLastViewedRow } from "./SignedRecordsContinueLastViewedRow";
 import { SignedRecordsListPagination } from "./SignedRecordsListPagination";
 import { SignedRecordsListTableSkeleton } from "./SignedRecordsListTableSkeleton";
 import {
@@ -211,6 +213,7 @@ export default function SignedRecordsListClient() {
     () => filterSignedRecordsListRows(rows, searchQuery, integrityFilter),
     [integrityFilter, rows, searchQuery],
   );
+  const continueLastViewedRow = useMemo(() => resolveContinueLastSignedRecordsListRow(rows), [rows]);
   const filtersActive = searchQuery.trim().length > 0 || integrityFilter !== "all";
   const showFilterNoMatch = !loading && hasRows && filtersActive && filteredRows.length === 0;
   const showEmptyState = !loading && !hasRows && loadFailure === null;
@@ -259,6 +262,10 @@ export default function SignedRecordsListClient() {
       ) : null}
 
       {hasRows ? <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="signed-records" /> : null}
+
+      {continueLastViewedRow !== null && hasRows ? (
+        <SignedRecordsContinueLastViewedRow row={continueLastViewedRow} />
+      ) : null}
 
       {loadFailure !== null ? (
         <div className="mb-4 space-y-3" data-testid="signed-records-list-load-failure">

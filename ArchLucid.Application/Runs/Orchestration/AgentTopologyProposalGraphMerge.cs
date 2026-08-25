@@ -78,7 +78,7 @@ public static class AgentTopologyProposalGraphMerge
             {
                 foreach (ManifestService svc in proposal.AddedServices)
                 {
-                    if (TopologyProposalRelationshipEndpointIndex.TryClaimService(svc, seenTopologyKeys))
+                    if (TopologyEndpointSources.Service.TryClaim(svc, seenTopologyKeys))
                     {
                         if (materializeNodes)
                         {
@@ -105,7 +105,7 @@ public static class AgentTopologyProposalGraphMerge
             {
                 foreach (ManifestDatastore ds in proposal.AddedDatastores)
                 {
-                    if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(ds, seenTopologyKeys))
+                    if (TopologyEndpointSources.Datastore.TryClaim(ds, seenTopologyKeys))
                     {
                         if (materializeNodes)
                         {

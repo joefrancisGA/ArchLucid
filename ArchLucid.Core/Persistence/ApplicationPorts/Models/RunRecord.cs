@@ -83,6 +83,20 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>Stable cross-run architecture identity (tenant-scoped); not a sealed record.</summary>
+    public Guid? ArchitectureId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Pinned κ <see cref="ArchitectureKnowledgeModel.ModelId" /> for as-of-this-run reads.</summary>
+    public string? KnowledgeModelId
+    {
+        get;
+        set;
+    }
+
     /// <summary>FK logical key to <c>ArchitectureRequests.RequestId</c>.</summary>
     public string? ArchitectureRequestId
     {
@@ -192,6 +206,13 @@ public sealed class RunRecord
     ///     null until first execute captures review scope.
     /// </summary>
     public string? GovernanceScopeJson
+    {
+        get;
+        set;
+    }
+
+    /// <summary>JSON-serialized last recommendation improve-loop evidence for operator replay.</summary>
+    public string? ImproveLoopEvidenceJson
     {
         get;
         set;

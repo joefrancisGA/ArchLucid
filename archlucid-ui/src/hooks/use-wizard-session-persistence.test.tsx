@@ -1,7 +1,8 @@
 import { act, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
+import { requestReviewsNewWizardAutoRestore } from "@/lib/reviews-new-wizard-session-resume";
 import { WIZARD_SESSION_IDS, writeWizardSessionSnapshot } from "@/lib/wizard-session-persistence";
 
 type TestState = {
@@ -35,6 +36,10 @@ function TestHarness(props: {
 }
 
 describe("useWizardSessionPersistence (TB-2157)", () => {
+  afterEach(() => {
+    sessionStorage.clear();
+  });
+
   it("offers resume when a saved wizard snapshot exists", async () => {
     writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
       stepIndex: 0,
@@ -51,6 +56,25 @@ describe("useWizardSessionPersistence (TB-2157)", () => {
       screen.getByRole("button", { name: "Resume saved wizard" }).click();
     });
 
+    expect(onRestore).toHaveBeenCalledWith("Saved title");
+  });
+
+  it("auto-accepts restore when the hub resume strip requested it", async () => {
+    writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
+      stepIndex: 0,
+      state: { title: "Saved title" },
+    });
+    requestReviewsNewWizardAutoRestore(WIZARD_SESSION_IDS.reviewsNewQuickStart);
+
+    const onRestore = vi.fn();
+
+    render(<TestHarness state={{ title: "" }} onRestore={onRestore} />);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByRole("button", { name: "Resume saved wizard" })).not.toBeInTheDocument();
     expect(onRestore).toHaveBeenCalledWith("Saved title");
   });
 });

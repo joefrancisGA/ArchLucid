@@ -14,6 +14,7 @@ using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Core.Admin;
 using ArchLucid.Application.AwsExtractor;
 using ArchLucid.Application.GcpExtractor;
+using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Mcp.Tools;
 using ArchLucid.Application.Documents;
 using ArchLucid.Application.Import;
@@ -99,6 +100,9 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IDocumentTextExtractionService, DocumentTextExtractionService>();
         services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
+        services.AddScoped<Support.AuthorityRunReadHandlers>();
+        services.AddScoped<Services.Authority.IRunGraphQueryService, Services.Authority.RunGraphQueryService>();
+        services.AddScoped<Services.Authority.IRunProvenanceQueryService, Services.Authority.RunProvenanceQueryService>();
         services.AddHostedAzureExtractorIntegrationServices(configuration);
         services.AddHostedAwsExtractorIntegrationServices(configuration);
         services.AddHostedGcpExtractorIntegrationServices(configuration);
@@ -108,7 +112,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IGcpTier2ConnectionService, GcpTier2ConnectionService>();
         services.AddScoped<IPatternInsightsService, PatternInsightsService>();
         services.AddScoped<RetrievalTools>();
-        services.AddScoped<PolicyPackMarkdownExplainService>();
+        services.AddScoped<IPolicyPackMarkdownExplainService, PolicyPackMarkdownExplainService>();
 
         services.AddScoped<IWebhookSubscriptionTestService, WebhookSubscriptionTestService>();
 

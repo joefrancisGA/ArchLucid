@@ -71,6 +71,48 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
             ct);
 
     /// <inheritdoc />
+    public Task<Guid?> GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid currentRunId,
+        DateTime currentCreatedUtc,
+        CancellationToken ct)
+        => _inner.GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync(
+            scope,
+            architectureId,
+            currentRunId,
+            currentCreatedUtc,
+            ct);
+
+    /// <inheritdoc />
+    public Task<Guid?> GetCommittedRunIdByGoldenManifestIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid goldenManifestId,
+        Guid excludeRunId,
+        CancellationToken ct)
+        => _inner.GetCommittedRunIdByGoldenManifestIdAsync(
+            scope,
+            architectureId,
+            goldenManifestId,
+            excludeRunId,
+            ct);
+
+    /// <inheritdoc />
+    public Task ClearGraphSnapshotForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct)
+        => _inner.ClearGraphSnapshotForArchitectureAsync(scope, architectureId, ct);
+
+    /// <inheritdoc />
+    public Task<Guid?> GetLatestRunIdForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct)
+        => _inner.GetLatestRunIdForArchitectureAsync(scope, architectureId, ct);
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,

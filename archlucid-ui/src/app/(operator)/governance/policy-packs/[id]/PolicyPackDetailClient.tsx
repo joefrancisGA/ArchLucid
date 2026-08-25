@@ -1,15 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { useCallback, useMemo, type ReactElement } from "react";
 
-import { getPolicyPackVersion, listPolicyPacks, listPolicyPackWorkspaceSelection } from "@/lib/api";
-import { parsePolicyPackContentDocument } from "@/lib/policy/policy-pack-impact-preview";
+import { usePolicyPackDetailPageQuery } from "@/hooks/use-policy-pack-detail-page-query";
 import { resolvePolicyPackDetailKind } from "@/lib/policy/policy-pack-detail-resolver";
 import type { PolicyPack, PolicyPackContentDocument, PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
 
 import { HealthcareClaimsPolicyPackDetail } from "./HealthcareClaimsPolicyPackDetail";
 import { PolicyPackDetailEvidenceChrome } from "./PolicyPackDetailEvidenceChrome";
 import { PolicyPackDetailLoadError } from "./PolicyPackDetailLoadError";
+import { PolicyPackDetailNextPackFooterClient } from "./PolicyPackDetailNextPackFooterClient";
 import { PolicyPackGenericDetail } from "./PolicyPackGenericDetail";
 import { PolicyPackDetailNotFound } from "./PolicyPackDetailNotFound";
 import { ResponsibleAiPolicyPackDetail } from "./ResponsibleAiPolicyPackDetail";
@@ -18,8 +18,15 @@ type PolicyPackDetailClientProps = {
   readonly policyPackId: string;
 };
 
-function withEvidenceChrome(node: ReactElement): ReactElement {
-  return <PolicyPackDetailEvidenceChrome>{node}</PolicyPackDetailEvidenceChrome>;
+function withEvidenceChrome(node: ReactElement, policyPackId: string): ReactElement {
+  return (
+    <PolicyPackDetailEvidenceChrome>
+      {node}
+      <div className="px-4 pb-4">
+        <PolicyPackDetailNextPackFooterClient policyPackId={policyPackId} />
+      </div>
+    </PolicyPackDetailEvidenceChrome>
+  );
 }
 
 function resolveWorkspaceEnablement(
@@ -41,83 +48,22 @@ function resolveWorkspaceEnablement(
  */
 export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): React.JSX.Element {
   const { policyPackId } = props;
-  const [packRecord, setPackRecord] = useState<PolicyPack | null>(null);
-  const [packContent, setPackContent] = useState<PolicyPackContentDocument | null>(null);
-  const [workspaceSelection, setWorkspaceSelection] = useState<PolicyPackWorkspaceSelectionItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadFailed, setLoadFailed] = useState(false);
-  const [reloadToken, setReloadToken] = useState(0);
+  const detailQuery = usePolicyPackDetailPageQuery(policyPackId);
 
   const handleRetry = useCallback(() => {
-    setReloadToken((token) => token + 1);
-  }, []);
+    void detailQuery.refetch();
+  }, [detailQuery]);
 
-  useEffect(() => {
-    let canceled = false;
-
-    setPackRecord(null);
-    setPackContent(null);
-    setWorkspaceSelection([]);
-    setLoading(true);
-    setLoadFailed(false);
-
-    void (async () => {
-      try {
-        const [packs, selection] = await Promise.all([
-          listPolicyPacks(),
-          listPolicyPackWorkspaceSelection().catch(() => [] as PolicyPackWorkspaceSelectionItem[]),
-        ]);
-        const match = packs.find((pack) => pack.policyPackId.trim() === policyPackId.trim()) ?? null;
-
-        if (!canceled) {
-          setPackRecord(match);
-          setWorkspaceSelection(selection);
-        }
-
-        if (match !== null) {
-          const version = match.currentVersion?.trim() ?? "";
-
-          if (version.length > 0) {
-            try {
-              const versionDetail = await getPolicyPackVersion(policyPackId, version);
-
-              if (!canceled) {
-                setPackContent(parsePolicyPackContentDocument(versionDetail.contentJson));
-              }
-            } catch {
-              if (!canceled) {
-                setPackContent(null);
-              }
-            }
-          } else if (!canceled) {
-            setPackContent(null);
-          }
-        } else if (!canceled) {
-          setPackContent(null);
-        }
-      } catch {
-        if (!canceled) {
-          setPackRecord(null);
-          setPackContent(null);
-          setWorkspaceSelection([]);
-          setLoadFailed(true);
-        }
-      } finally {
-        if (!canceled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [policyPackId, reloadToken]);
-
+  const packRecord: PolicyPack | null = detailQuery.data?.packRecord ?? null;
+  const packContent: PolicyPackContentDocument | null = detailQuery.data?.packContent ?? null;
+  const workspaceSelection = useMemo(
+    () => [...(detailQuery.data?.workspaceSelection ?? [])],
+    [detailQuery.data?.workspaceSelection],
+  );
   const kind = resolvePolicyPackDetailKind(policyPackId, packRecord);
   const { isEnabled, isGloballyActive } = resolveWorkspaceEnablement(policyPackId, workspaceSelection);
 
-  if (loading) {
+  if (detailQuery.isPending) {
     return (
       <div className="p-4" data-testid="policy-pack-detail-loading">
         <p className="m-0 text-al-text-secondary">Loading policy pack…</p>
@@ -126,7 +72,7 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
   }
 
   if (kind === "healthcare-claims") {
-    return withEvidenceChrome(<HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} />);
+    return withEvidenceChrome(<HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} />, policyPackId);
   }
 
   if (kind === "responsible-ai") {
@@ -138,11 +84,12 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         isEnabled={isEnabled}
         isGloballyActive={isGloballyActive}
       />,
+      policyPackId,
     );
   }
 
-  if (loadFailed) {
-    return withEvidenceChrome(<PolicyPackDetailLoadError onRetry={handleRetry} />);
+  if (detailQuery.isError) {
+    return withEvidenceChrome(<PolicyPackDetailLoadError onRetry={handleRetry} />, policyPackId);
   }
 
   if (packRecord !== null) {
@@ -154,8 +101,9 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         isEnabled={isEnabled}
         isGloballyActive={isGloballyActive}
       />,
+      policyPackId,
     );
   }
 
-  return withEvidenceChrome(<PolicyPackDetailNotFound policyPackId={policyPackId} />);
+  return withEvidenceChrome(<PolicyPackDetailNotFound policyPackId={policyPackId} />, policyPackId);
 }

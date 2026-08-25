@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +8,8 @@ import {
   GovernanceQuickApproveDialog,
 } from "@/components/governance/GovernanceQuickApproveDialog";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
-import { batchReviewGovernanceApprovalRequests, getApprovalRequestLineage } from "@/lib/api";
+import { useApprovalRequestLineageQuery } from "@/hooks/use-approval-request-lineage-query";
+import { batchReviewGovernanceApprovalRequests } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { approvalLineageBlocksQuickApprove } from "@/lib/governance/governance-quick-approve-lineage";
 import {
@@ -57,50 +58,28 @@ export function GovernanceQuickApproveButton({
   reviewedBy,
   onApproved,
 }: GovernanceQuickApproveButtonProps) {
-  const [phase, setPhase] = useState<LineagePhase>("loading");
-  const [blockedBySeverity, setBlockedBySeverity] = useState<boolean>(true);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const lineageQuery = useApprovalRequestLineageQuery(approvalRequestId, {
+    enabled: canExecute && status === "Submitted",
+  });
+  const phase: LineagePhase = !canExecute || status !== "Submitted"
+    ? "ready"
+    : lineageQuery.isPending
+      ? "loading"
+      : lineageQuery.isError
+        ? "error"
+        : "ready";
+  const blockedBySeverity = useMemo(() => {
+    if (!canExecute || status !== "Submitted" || lineageQuery.data === undefined) {
+      return true;
+    }
+
+    return approvalLineageBlocksQuickApprove(lineageQuery.data.topFindings ?? []);
+  }, [canExecute, lineageQuery.data, status]);
+
   const [busy, setBusy] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogErrorMessage, setDialogErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!canExecute || status !== "Submitted") {
-      return;
-    }
-
-    let canceled = false;
-
-    setPhase("loading");
-    setBlockedBySeverity(true);
-
-    void (async () => {
-      try {
-        const lineage = await getApprovalRequestLineage(approvalRequestId);
-
-        if (canceled) {
-          return;
-        }
-
-        const findings = lineage.topFindings ?? [];
-        const blocks = approvalLineageBlocksQuickApprove(findings);
-
-        setBlockedBySeverity(blocks);
-        setPhase("ready");
-      } catch {
-        if (canceled) {
-          return;
-        }
-
-        setPhase("error");
-        setBlockedBySeverity(true);
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [approvalRequestId, canExecute, status]);
 
   const submitApproval = useCallback(
     async (approverNote: string) => {

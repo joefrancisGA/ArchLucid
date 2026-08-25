@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Core.Configuration;
 
 /// <summary>Configuration for the secondary/fallback LLM deployment.</summary>
@@ -18,18 +20,21 @@ public sealed class FallbackLlmOptions
         set;
     }
 
+    [Obsolete("Use ArchLucid:FallbackLlm:Endpoints[n]:Endpoint instead of the flat property.")]
     public string? Endpoint
     {
         get;
         set;
     }
 
+    [Obsolete("Use ArchLucid:FallbackLlm:Endpoints[n]:DeploymentName instead of the flat property.")]
     public string? DeploymentName
     {
         get;
         set;
     }
 
+    [Obsolete("Use ArchLucid:FallbackLlm:Endpoints[n]:ApiKey instead of the flat property.")]
     public string? ApiKey
     {
         get;

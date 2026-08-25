@@ -64,6 +64,7 @@ import { PilotOutcomesLoadFailure } from "./PilotOutcomesLoadFailure";
 import { PilotOutcomesLoadingSkeleton } from "./PilotOutcomesLoadingSkeleton";
 import { PilotValueReportBuyerChrome } from "./PilotValueReportBuyerChrome";
 import { PilotValueReportSeverityBars } from "./PilotValueReportSeverityBars";
+import { SponsorReportFinalizedReviewPickerStrip } from "./SponsorReportFinalizedReviewPickerStrip";
 import { ValueReportIncludesSection } from "./ValueReportIncludesSection";
 import { PilotRoiValidationHandoffClient } from "@/components/pilots/PilotRoiValidationHandoffCard";
 import { formatPilotValueReportAvgCompletion } from "./pilot-value-report-page-helpers";
@@ -171,6 +172,8 @@ export function PilotValueReportPageView(props: Props) {
           />
 
           <PilotValueReportBuyerChrome />
+
+        <SponsorReportFinalizedReviewPickerStrip hasFinalizedReviews={hasFinalizedReviews} />
 
         <CollapsibleSection
           title={BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE}

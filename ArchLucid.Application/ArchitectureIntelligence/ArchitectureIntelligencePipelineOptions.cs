@@ -15,4 +15,22 @@ public sealed class ArchitectureIntelligencePipelineOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     When enabled, all review packages receive closed-loop strengthening (not only golden cohort).
+    /// </summary>
+    public bool StrengthenAllReviewPackages
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When false, specialist and adversarial review async paths use heuristic implementations only.
+    /// </summary>
+    public bool UseLlmReview
+    {
+        get;
+        set;
+    } = true;
 }

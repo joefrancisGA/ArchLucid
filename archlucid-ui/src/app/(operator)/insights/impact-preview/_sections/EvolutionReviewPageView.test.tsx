@@ -53,6 +53,9 @@ function buildModel(overrides: Partial<EvolutionReviewPageViewModel> = {}): Evol
     onSimulate: vi.fn(),
     planSnapshot: null,
     lastRefreshedAt: null,
+    continueLastPair: null,
+    resumeContinueLastPair: vi.fn(),
+    rememberBaselinePair: vi.fn(),
     ...overrides,
   };
 }
@@ -142,5 +145,26 @@ describe("EvolutionReviewPageView", () => {
 
     expect(loadList).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("button", { name: IMPACT_PREVIEW_LIST_LOAD_RETRY_LABEL })).toBeInTheDocument();
+  });
+
+  it("shows continue last baseline pair when stored pair differs from the current selection", () => {
+    baselineAvailabilityMock.mockReturnValue({ loading: false, finalizedCount: 2 });
+    const resumeContinueLastPair = vi.fn();
+
+    render(
+      <EvolutionReviewPageView
+        model={buildModel({
+          continueLastPair: { baselineRunId: "run-prior", candidateRunId: "candidate-prior" },
+          resumeContinueLastPair,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("impact-preview-continue-last-baseline-pair-row")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("impact-preview-continue-last-baseline-pair-open"));
+    expect(resumeContinueLastPair).toHaveBeenCalledWith({
+      baselineRunId: "run-prior",
+      candidateRunId: "candidate-prior",
+    });
   });
 });

@@ -35,4 +35,17 @@ export const SEARCH_EXAMPLE_QUERIES = [
   "audit export",
 ] as const;
 
+export type SearchExampleQueryChip = {
+  readonly id: string;
+  readonly label: string;
+  readonly query: string;
+};
+
+/** High-yield example queries as actionable chips on the search form (SXX). */
+export const SEARCH_EXAMPLE_QUERY_CHIPS: readonly SearchExampleQueryChip[] = [
+  { id: "finding-title", label: "Finding title", query: "cross-account access finding" },
+  { id: "service-name", label: "Service name", query: "payments API service" },
+  { id: "policy-rule", label: "Policy rule", query: "encryption at rest policy" },
+];
+
 export const SEARCH_EXAMPLE_QUERIES_LINE = `Try: ${SEARCH_EXAMPLE_QUERIES.map((q) => `"${q}"`).join(", ")}`;

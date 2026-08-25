@@ -69,6 +69,7 @@ import {
   RunDetailSampleReviewPackageSummaryDeferred,
   RunDetailStalledReviewGuidanceCalloutDeferred,
   RunDetailTechnologyBaselineSection,
+  RunDetailPreFinalizeChecklistSection,
   RunDetailTrustEvidenceCardSectionDeferred,
   RunDetailWhatIfBranchCompareBannerDeferred,
   ReviewDetailWorkspaceDeferred,
@@ -76,6 +77,8 @@ import {
   HelpPageSituationRegistrarDeferred,
   ReviewGenerationCreatedNoticeDeferred,
 } from "./run-detail-page-view-deferred-chunks";
+import { ReviewPackageAfterFinalizeNextStepsStrip } from "./ReviewPackageAfterFinalizeNextStepsStrip";
+import { RunDetailNextReviewFooterClient } from "./RunDetailNextReviewFooterClient";
 import { RunDetailBelowFoldSectionsDeferred } from "./RunDetailBelowFoldSectionsDeferred";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
@@ -276,6 +279,9 @@ export async function RunDetailPageView(props: {
                     requestAssumptionTexts={requestAssumptionTexts}
                     {...reviewPackageDoThisNextEvidenceProps}
                   />
+                  {m.manifestId ? (
+                    <ReviewPackageAfterFinalizeNextStepsStrip runId={m.resolvedDetail.run.runId} />
+                  ) : null}
                   <RunDetailWorkspaceDisclosureControls />
                   <Suspense fallback={<RunDetailExplanationSkeleton />}>
                   <RunDetailArchitectureCreatedWorkspaceDeferred
@@ -447,6 +453,10 @@ export async function RunDetailPageView(props: {
                     {...reviewPackageDoThisNextEvidenceProps}
                   />
 
+                  {m.manifestId ? (
+                    <ReviewPackageAfterFinalizeNextStepsStrip runId={m.resolvedDetail.run.runId} />
+                  ) : null}
+
                   {tabbedWorkspaceEl}
                 </>
               )}
@@ -526,6 +536,13 @@ export async function RunDetailPageView(props: {
             usedStaticDemoRun={m.usedStaticDemoRun}
             warningCountDisplay={m.warningCountDisplay ?? 0}
           />
+
+          {!m.manifestId ? (
+            <RunDetailPreFinalizeChecklistSection
+              runId={m.resolvedDetail.run.runId}
+              manifestFinalized={Boolean(m.manifestId)}
+            />
+          ) : null}
 
           {!m.manifestId ? (
             <RunDetailCaptureEvidenceSectionDeferred
@@ -664,6 +681,8 @@ export async function RunDetailPageView(props: {
       ) : null}
 
       <RunDetailBuyerPilotConversionSectionDeferred buyerPolishedArtifactTable={m.buyerPolishedArtifactTable} />
+
+      <RunDetailNextReviewFooterClient runId={m.routeRunId} />
     </div>
   );
 

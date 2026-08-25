@@ -1,5 +1,6 @@
 "use client";
 
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -10,15 +11,18 @@ import {
   slackIntegrationConfigurationStatusLabel,
   slackIntegrationConfigurationStatusTagKind,
 } from "@/lib/slack-integration-page-copy";
-import type { SlackSetupStep } from "@/lib/slack-integration-present";
+import {
+  resolveSlackIntegrationConnectSteps,
+  resolveSlackIntegrationEmphasizedStepId,
+} from "@/lib/slack-integration-connect-checklist";
 import { cn } from "@/lib/utils";
 
 type SlackIntegrationAsideProps = {
   readonly className?: string;
   readonly loading: boolean;
+  readonly totalDestinationCount: number;
   readonly activeDestinationCount: number;
-  readonly setupSteps: readonly SlackSetupStep[];
-  readonly emphasizedSetupStepId: string;
+  readonly formTestSucceeded: boolean;
 };
 
 export function SlackIntegrationAside(props: SlackIntegrationAsideProps): React.ReactElement {
@@ -26,6 +30,13 @@ export function SlackIntegrationAside(props: SlackIntegrationAsideProps): React.
     ? "Loading"
     : slackIntegrationConfigurationStatusLabel(props.activeDestinationCount);
   const statusKind = props.loading ? "neutral" : slackIntegrationConfigurationStatusTagKind(props.activeDestinationCount);
+  const checklistInput = {
+    totalDestinationCount: props.totalDestinationCount,
+    activeDestinationCount: props.activeDestinationCount,
+    formTestSucceeded: props.formTestSucceeded,
+  };
+  const connectSteps = resolveSlackIntegrationConnectSteps(checklistInput);
+  const emphasizedStepId = resolveSlackIntegrationEmphasizedStepId(checklistInput);
 
   return (
     <aside
@@ -40,37 +51,12 @@ export function SlackIntegrationAside(props: SlackIntegrationAsideProps): React.
         </div>
       </div>
 
-      <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
-        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{SLACK_SETUP_PROGRESS_TITLE}</h2>
-        <ol
-          className={cn("m-0 mt-3 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}
-          aria-label="Slack setup progress"
-          data-testid="slack-setup-progress"
-        >
-          {props.setupSteps.map((step) => (
-            <li
-              key={step.id}
-              className="flex items-start justify-between gap-3"
-              aria-current={step.id === props.emphasizedSetupStepId ? "step" : undefined}
-              data-testid={`slack-setup-step-${step.id}`}
-              data-emphasized={step.id === props.emphasizedSetupStepId ? "true" : undefined}
-            >
-              <span
-                className={cn(
-                  step.complete ? "text-al-text-primary" : "text-al-text-secondary",
-                  step.id === props.emphasizedSetupStepId ? "font-medium text-al-text-primary" : undefined,
-                )}
-              >
-                {step.label}
-              </span>
-              <StatusTag
-                kind={step.complete ? "ready" : step.id === props.emphasizedSetupStepId ? "in-progress" : "neutral"}
-                label={step.complete ? "Done" : "Pending"}
-              />
-            </li>
-          ))}
-        </ol>
-      </div>
+      <IntegrationConnectChecklist
+        title={SLACK_SETUP_PROGRESS_TITLE}
+        steps={connectSteps}
+        emphasizedStepId={emphasizedStepId}
+        testIdPrefix="slack"
+      />
 
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{SLACK_SECURITY_ASIDE_TITLE}</h2>

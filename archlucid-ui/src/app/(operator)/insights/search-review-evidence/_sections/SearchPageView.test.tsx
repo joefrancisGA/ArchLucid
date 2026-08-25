@@ -31,6 +31,8 @@ function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageVie
     loading: false,
     onSearch: vi.fn(),
     query: "PHI boundary",
+    recentQueries: [],
+    onClearRecentQueries: vi.fn(),
     results: [],
     runId: "",
     setQuery: vi.fn(),
@@ -40,6 +42,47 @@ function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageVie
 }
 
 describe("SearchPageView", () => {
+  it("runs search when an example query chip is clicked", () => {
+    const onSearch = vi.fn().mockResolvedValue(undefined);
+    const setQuery = vi.fn();
+
+    render(
+      <SearchPageView
+        model={buildModel({
+          query: "",
+          onSearch,
+          setQuery,
+        })}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("search-example-query-chip-finding-title"));
+
+    expect(setQuery).toHaveBeenCalledWith("cross-account access finding");
+    expect(onSearch).toHaveBeenCalledWith("cross-account access finding");
+  });
+
+  it("runs search when a recent query chip is clicked", () => {
+    const onSearch = vi.fn().mockResolvedValue(undefined);
+    const setQuery = vi.fn();
+
+    render(
+      <SearchPageView
+        model={buildModel({
+          query: "",
+          recentQueries: ["phi risk"],
+          onSearch,
+          setQuery,
+        })}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("search-recent-query-chip-phi risk"));
+
+    expect(setQuery).toHaveBeenCalledWith("phi risk");
+    expect(onSearch).toHaveBeenCalledWith("phi risk");
+  });
+
   it("shows load failure panel with retry that re-invokes search", () => {
     const onSearch = vi.fn();
 

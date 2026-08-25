@@ -30,6 +30,7 @@ describe("operator-primary-cta-inventory (TB-1543)", () => {
     expect(ids).toContain("advisory-scans-empty");
     expect(ids).toContain("alert-rules-rules-tab");
     expect(ids).toContain("alert-routing");
+    expect(ids).toContain("operator-home-eval-with-drafts");
 
     for (const entry of verified) {
       expect(entry.primaryTestId.trim().length).toBeGreaterThan(0);

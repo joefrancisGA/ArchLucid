@@ -11,6 +11,8 @@ import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdvisoryRecommendationCard } from "@/components/advisory/AdvisoryRecommendationCard";
+import { RecommendationImproveLoopEvidencePanel } from "@/components/advisory/RecommendationImproveLoopEvidencePanel";
+import { AdvisoryScansTriageFirstPendingStrip } from "@/components/advisory/AdvisoryScansTriageFirstPendingStrip";
 import { AdvisoryRecommendationDispositionDialog } from "@/components/advisory/AdvisoryRecommendationDispositionDialog";
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
 import { AdvisoryScanSummaryPanel } from "@/components/advisory/AdvisoryScanSummaryPanel";
@@ -24,6 +26,7 @@ import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { applyRecommendationAction, listRecommendations } from "@/lib/advisory-api";
+import { resolveAdvisoryScansTriageFirstPending } from "@/lib/advisory/resolve-advisory-scans-triage-first-pending";
 import { resolveCurrentProjectLabel } from "@/lib/advisory-schedule-page-model";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
@@ -63,6 +66,7 @@ import { buildAdvisoryScanSummary } from "@/lib/advisory-scan-summary";
 import { getImprovementPlan } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { showSuccess } from "@/lib/toast";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isExperimentalAdvisoryPanelsEnabled } from "@/lib/feature-flags";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -71,7 +75,7 @@ import {
   readOperatorScopeFromStorage,
 } from "@/lib/operator/operator-scope-storage";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
-import type { ImprovementPlan, RecommendationRecord } from "@/types/advisory";
+import type { ImprovementPlan, RecommendationImproveLoopEvidence, RecommendationRecord } from "@/types/advisory";
 
 export type AdvisoryScansContentProps = {
   /** Optional product-run scope from `?runId=` deep links. */
@@ -137,6 +141,8 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   } | null>(null);
   const [dispositionBusy, setDispositionBusy] = useState(false);
   const [dispositionError, setDispositionError] = useState<string | null>(null);
+  const [lastImproveLoopEvidence, setLastImproveLoopEvidence] =
+    useState<RecommendationImproveLoopEvidence | null>(null);
   const [projectLabel, setProjectLabel] = useState("Current project");
   const [lastLoadedUtc, setLastLoadedUtc] = useState<string | null>(null);
   const bootstrapRecommendationsQuery = useAdvisoryRecommendationsQuery(bootstrappedRunId, {
@@ -207,7 +213,8 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
       return;
     }
 
-    setRecommendations(bootstrapRecommendationsQuery.data);
+    setRecommendations(bootstrapRecommendationsQuery.data.recommendations);
+    setLastImproveLoopEvidence(bootstrapRecommendationsQuery.data.improveLoopEvidence ?? null);
     setLoading(false);
     setLastLoadedUtc(new Date().toISOString());
   }, [bootstrapRecommendationsQuery.data]);
@@ -242,11 +249,15 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
 
       await queryClient.invalidateQueries({ queryKey });
 
-      return queryClient.fetchQuery({
+      const data = await queryClient.fetchQuery({
         queryKey,
         queryFn: () => listRecommendations(rid),
         staleTime: 0,
       });
+
+      setLastImproveLoopEvidence(data.improveLoopEvidence ?? null);
+
+      return data.recommendations;
     },
     [queryClient, scope],
   );
@@ -254,6 +265,10 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   const scanSummary = useMemo(
     () => buildAdvisoryScanSummary(recommendations, planSummary, compareToRunId),
     [compareToRunId, planSummary, recommendations],
+  );
+  const triageFirstPending = useMemo(
+    () => resolveAdvisoryScansTriageFirstPending(recommendations),
+    [recommendations],
   );
 
   const submitDisposition = useCallback(
@@ -267,12 +282,25 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
       setFailure(null);
 
       try {
-        await applyRecommendationAction(
+        const actionResult = await applyRecommendationAction(
           pendingDisposition.recommendationId,
           pendingDisposition.action,
           comment,
           rationale,
         );
+
+        if (actionResult.improveLoop) {
+          setLastImproveLoopEvidence(actionResult.improveLoop);
+        }
+
+        if (actionResult.improveLoop?.mergedFindingIds?.length) {
+          showSuccess(
+            `Improve loop merged ${actionResult.improveLoop.mergedFindingIds.length} finding(s) into the review snapshot.`,
+          );
+        } else if (actionResult.improveLoop?.fullReReviewTriggered) {
+          showSuccess("Improve loop triggered a full architecture re-review.");
+        }
+
         const rid = runId.trim();
 
         if (rid.length > 0) {
@@ -598,8 +626,21 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
         </section>
       ) : null}
 
+      {lastImproveLoopEvidence !== null ? (
+        <RecommendationImproveLoopEvidencePanel evidence={lastImproveLoopEvidence} />
+      ) : null}
+
       {recommendations.length > 0 ? (
         <section className="space-y-4" data-testid="advisory-recommendations-list">
+          {triageFirstPending !== null ? (
+            <AdvisoryScansTriageFirstPendingStrip
+              target={triageFirstPending}
+              onReviewRecommendation={(recommendationId) => {
+                setDispositionError(null);
+                setPendingDisposition({ recommendationId, action: "Accept" });
+              }}
+            />
+          ) : null}
           <div className="space-y-1">
             <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE}

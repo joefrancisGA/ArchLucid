@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
 import type { FieldPath } from "react-hook-form";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
@@ -22,9 +21,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { useModelEngineSelectionOptionsQuery } from "@/hooks/use-wizard-advanced-queries";
 import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
 import type { ModelEngineSelectionOptionsResponse } from "@/lib/model-governance-types";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
 import type { WizardFormValues } from "@/lib/wizard-schema";
@@ -33,39 +32,7 @@ type StringListName = "policyReferences" | "topologyHints" | "securityBaselineHi
 
 function WizardEngineAliasPicker() {
   const { control } = useFormContext<WizardFormValues>();
-  const [options, setOptions] = useState<ModelEngineSelectionOptionsResponse | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const res = await fetch(
-          "/api/proxy/v1/architecture/model-engine-selection-options",
-          mergeRegistrationScopeForProxy({
-            headers: { Accept: "application/json" },
-            cache: "no-store",
-          }),
-        );
-
-        if (!res.ok || cancelled) {
-          return;
-        }
-
-        const body = (await res.json()) as ModelEngineSelectionOptionsResponse;
-
-        if (!cancelled && Array.isArray(body.options)) {
-          setOptions(body);
-        }
-      } catch {
-        // Optional advanced control — omit picker when options cannot load.
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { data: options } = useModelEngineSelectionOptionsQuery();
 
   if (options == null || options.options.length === 0) {
     return null;

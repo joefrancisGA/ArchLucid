@@ -7,8 +7,6 @@ import { findEffectReadSites } from "@/lib/query/effect-read-scanner";
  * is the wrong owner: a one-shot write, a cache seed, or a call the scanner cannot prove is a read.
  */
 const NON_QUERY_SITES: readonly string[] = [
-  // Calls a synchronous formatter exported from an api module — no request is issued.
-  "src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx",
   // Creates the draft and seeds form fields once per intake; both effects are guarded by a ref.
   "src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-workflow.ts",
   // Exchanges the OAuth authorization code exactly once; replaying it on a refetch would fail.
@@ -21,55 +19,13 @@ const NON_QUERY_SITES: readonly string[] = [
   "src/components/operator/OperatorFirstRunWorkflowPanel.tsx",
   // Installs query-cache persistence; the matched call touches storage, not the network.
   "src/components/operator/OperatorQueryProvider.tsx",
-  // Seeds the query cache from server-rendered shell status.
-  "src/components/shell/OperatorShellStatusQueryGate.tsx",
 ];
 
 /**
  * Reads still fetched by hand that belong in TanStack Query. This list may shrink, never grow:
  * migrating a module means deleting its entry here.
  */
-const MIGRATION_BACKLOG: readonly string[] = [
-  "src/app/(marketing)/quick-scan/QuickScanClient.tsx",
-  "src/app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
-  "src/app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardPageClient.tsx",
-  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAiRefinePanel.tsx",
-  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailBuyerPilotConversionSection.tsx",
-  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRetrievalGroundingSection.tsx",
-  "src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectPolicyRuleCallout.tsx",
-  "src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageClient.tsx",
-  "src/app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx",
-  "src/app/(operator)/architecture/reviews/new/use-new-run-wizard-mode.ts",
-  "src/app/(operator)/governance/decision-register/DecisionRegisterClient.tsx",
-  "src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx",
-  "src/app/(operator)/governance/policy-packs/_sections/PolicyPackVisualBuilder.tsx",
-  "src/app/(operator)/governance/policy-packs/_sections/use-policy-packs-page.ts",
-  "src/app/(operator)/governance/policy-packs/[id]/PolicyPackDetailClient.tsx",
-  "src/app/(operator)/insights/compare-two-reviews/_sections/useCompareFindingCorrelation.ts",
-  "src/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff.ts",
-  "src/app/(operator)/insights/compare-two-reviews/_sections/useComparePolicyPackCloudMismatch.ts",
-  "src/app/(operator)/integrations/azure-boards/_sections/AzureBoardsIntegrationPageClient.tsx",
-  "src/app/(operator)/why-archlucid/_sections/WhyArchLucidPage.tsx",
-  "src/components/advisory/CronExpressionBuilder.tsx",
-  "src/components/architecture/ArchitectureDraftWorkspace.tsx",
-  "src/components/dashboard/ExecutiveRoiDashboard.tsx",
-  "src/components/digests/DigestsBrowseContent.tsx",
-  "src/components/digests/DigestSubscriptionCreateForm.tsx",
-  "src/components/draft-intake/DraftIntakeWhatIfBranchPanel.tsx",
-  "src/components/EmailRunToSponsorBanner.tsx",
-  "src/components/findings/FindingCrossReviewLifecycleHint.tsx",
-  "src/components/findings/FindingInspectContextDebugPanel.tsx",
-  "src/components/findings/FindingProvenancePanel.tsx",
-  "src/components/findings/ReviewDetailPolicyPackImpactSection.tsx",
-  "src/components/governance/GovernanceQuickApproveButton.tsx",
-  "src/components/operator/OperatorWelcomeOnboarding.tsx",
-  "src/components/policy/PolicyRulePreviewDialog.tsx",
-  "src/components/runs/RunProgressTracker.tsx",
-  "src/components/ValueRealizationDashboard.tsx",
-  "src/components/wizard/RunWizardCostPreviewCard.tsx",
-  "src/components/wizard/steps/WizardStepAdvanced.tsx",
-  "src/hooks/use-prior-same-request-compare-href.ts",
-];
+const MIGRATION_BACKLOG: readonly string[] = [];
 
 const RECORDED_SITES: readonly string[] = [...NON_QUERY_SITES, ...MIGRATION_BACKLOG];
 

@@ -6,17 +6,18 @@ import {
   isResponsibleAiPolicyPackId,
   resolvePolicyPackDetailKind,
 } from "@/lib/policy/policy-pack-detail-resolver";
+import { resolveSampleScenarioByPolicyPackId } from "@/lib/samples/registry";
 import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
-import { SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF } from "@/lib/showcase-static-demo";
 import { RESPONSIBLE_AI_POLICY_PACK_DEFAULT_VERSION } from "@/lib/responsible-ai-policy-pack-detail-content";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 /** Routes specialty template pack citations to a resolvable governance surface when one exists. */
 export function resolveSpecialtyReviewPolicyPackHref(packId: string): string {
   const trimmed = packId.trim();
+  const sampleScenario = resolveSampleScenarioByPolicyPackId(trimmed);
 
-  if (trimmed === "demo-healthcare-claims-pack") {
-    return SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF;
+  if (sampleScenario !== null) {
+    return sampleScenario.policyPackDetailHref;
   }
 
   const buyerHref = policyPackBuyerGovernanceDetailHref(trimmed);

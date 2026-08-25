@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application.Governance.PolicyPacks;
 
 using Microsoft.Extensions.Logging;
 
@@ -9,7 +10,7 @@ namespace ArchLucid.Host.Core.Services.Governance;
 /// </summary>
 public sealed class PolicyPackMarkdownExplainService(
     IAgentCompletionClient completionClient,
-    ILogger<PolicyPackMarkdownExplainService> logger)
+    ILogger<PolicyPackMarkdownExplainService> logger) : IPolicyPackMarkdownExplainService
 {
     private readonly IAgentCompletionClient _completionClient =
         completionClient ?? throw new ArgumentNullException(nameof(completionClient));

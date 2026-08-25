@@ -11,6 +11,7 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.Governance;
 
 using FluentAssertions;
 using FluentAssertions.Specialized;
@@ -108,7 +109,7 @@ public sealed class GovernanceWorkflowServiceTests
 
         Mock<ILogger<GovernanceWorkflowService>> logger = new();
 
-        _sut = new GovernanceWorkflowService(
+        _sut = GovernanceWorkflowTestComposition.CreateService(
             _approvalRepo.Object,
             _promotionRepo.Object,
             _activationRepo.Object,
@@ -120,8 +121,7 @@ public sealed class GovernanceWorkflowServiceTests
             _integrationOutbox.Object,
             _integrationEventOptions.Object,
             Options.Create(new PreCommitGovernanceGateOptions()),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            logger.Object);
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
     }
 
     private static ArchitectureRun ValidRun(string runId = "run-1")

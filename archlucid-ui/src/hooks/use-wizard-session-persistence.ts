@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { consumeReviewsNewWizardAutoRestore } from "@/lib/reviews-new-wizard-session-resume";
 import {
   clearWizardSessionSnapshot,
   readWizardSessionSnapshot,
@@ -80,6 +81,18 @@ export function useWizardSessionPersistence<TState>(
     setLastSavedUtc(pendingRestore.savedAtUtc);
     setSaveState("saved");
   }, [args, pendingRestore]);
+
+  useEffect(() => {
+    if (pendingRestore === null) {
+      return;
+    }
+
+    if (!consumeReviewsNewWizardAutoRestore(args.wizardId)) {
+      return;
+    }
+
+    acceptRestore();
+  }, [acceptRestore, args.wizardId, pendingRestore]);
 
   const dismissRestore = useCallback(() => {
     restoreDecisionPendingRef.current = false;

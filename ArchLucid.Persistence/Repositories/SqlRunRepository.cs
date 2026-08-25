@@ -50,7 +50,7 @@ public sealed class SqlRunRepository(
 
         if (connection is not null)
         {
-            if (ShouldConsumeTrialRunAllowance(run))
+            if (RunRepositoryCore.ShouldConsumeTrialRunAllowanceOnCreate(run))
                 await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction).ConfigureAwait(false);
 
             byte[] stamp = await connection.QuerySingleAsync<byte[]>(
@@ -65,7 +65,7 @@ public sealed class SqlRunRepository(
 
         try
         {
-            if (ShouldConsumeTrialRunAllowance(run))
+            if (RunRepositoryCore.ShouldConsumeTrialRunAllowanceOnCreate(run))
                 await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, owned, tran).ConfigureAwait(false);
 
             byte[] ownedStamp =
@@ -227,6 +227,98 @@ public sealed class SqlRunRepository(
                 cancellationToken: ct)).ConfigureAwait(false);
     }
 
+    public async Task<Guid?> GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid currentRunId,
+        DateTime currentCreatedUtc,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (architectureId == Guid.Empty)
+            return null;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await connection.QuerySingleOrDefaultAsync<Guid?>(
+            new CommandDefinition(
+                RunRepositorySql.SelectPriorCommittedRunIdForArchitectureBeforeCurrent,
+                RunListQueryParameters.ForPriorCommittedRunForArchitectureBeforeCurrent(
+                    scope,
+                    architectureId,
+                    currentRunId,
+                    currentCreatedUtc),
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
+    public async Task<Guid?> GetCommittedRunIdByGoldenManifestIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid goldenManifestId,
+        Guid excludeRunId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (architectureId == Guid.Empty || goldenManifestId == Guid.Empty)
+            return null;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await connection.QuerySingleOrDefaultAsync<Guid?>(
+            new CommandDefinition(
+                RunRepositorySql.SelectCommittedRunIdByGoldenManifestId,
+                RunListQueryParameters.ForCommittedRunByGoldenManifestId(
+                    scope,
+                    architectureId,
+                    goldenManifestId,
+                    excludeRunId),
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
+    public async Task ClearGraphSnapshotForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (architectureId == Guid.Empty)
+            return;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                RunRepositorySql.ClearGraphSnapshotForArchitecture,
+                RunListQueryParameters.ForClearGraphSnapshotForArchitecture(scope, architectureId),
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
+    public async Task<Guid?> GetLatestRunIdForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (architectureId == Guid.Empty)
+            return null;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await connection.QuerySingleOrDefaultAsync<Guid?>(
+            new CommandDefinition(
+                RunRepositorySql.SelectLatestRunIdForArchitecture,
+                RunListQueryParameters.ForLatestRunIdForArchitecture(scope, architectureId),
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,
@@ -268,7 +360,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
+        RunRepositoryCore.ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
         // NOLOCK: same dashboard-grade tolerance as unpaged lists.
@@ -333,7 +425,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
+        RunRepositoryCore.ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
         // NOLOCK: keyset continuation for picker/dashboard lists (same tolerance as ListRecentInScopeAsync).
@@ -517,8 +609,7 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(scope);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
-        if (string.IsNullOrWhiteSpace(architectureRequestId))
-            throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
+        RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -538,8 +629,7 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(scope);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
-        if (string.IsNullOrWhiteSpace(architectureRequestId))
-            throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
+        RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -561,8 +651,7 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(scope);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
-        if (string.IsNullOrWhiteSpace(systemName))
-            throw new ArgumentException("System name is required.", nameof(systemName));
+        RunRepositoryCore.RequireSystemName(systemName);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -581,10 +670,7 @@ public sealed class SqlRunRepository(
         int batchSize,
         CancellationToken ct)
     {
-        if (batchSize < 1)
-            throw new ArgumentOutOfRangeException(nameof(batchSize), batchSize, "Batch size must be at least 1.");
-
-        int safeBatch = Math.Clamp(batchSize, 1, 10_000);
+        int safeBatch = RunRepositoryCore.ClampPurgeBatchSize(batchSize);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -611,10 +697,7 @@ public sealed class SqlRunRepository(
         int batchSize,
         CancellationToken ct)
     {
-        if (batchSize < 1)
-            throw new ArgumentOutOfRangeException(nameof(batchSize), batchSize, "Batch size must be at least 1.");
-
-        int safeBatch = Math.Clamp(batchSize, 1, 10_000);
+        int safeBatch = RunRepositoryCore.ClampPurgeBatchSize(batchSize);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -633,13 +716,6 @@ public sealed class SqlRunRepository(
         List<ArchivedRunScopeRow> list = rows.AsList();
 
         return new RunSamplePurgeBatchResult { Deleted = list };
-    }
-
-    private static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)
-    {
-        if (cursorCreatedUtc.HasValue != cursorRunId.HasValue)
-            throw new ArgumentException(
-                "Run keyset cursor requires both CreatedUtc and RunId together, or both omitted for the first page.");
     }
 
     private static async Task EnsureCommittedRunHeaderAnchorsUnchangedAsync(
@@ -715,14 +791,7 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(scope);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
-        if (runId == Guid.Empty)
-            throw new ArgumentException("Run id is required.", nameof(runId));
-
-        if (string.IsNullOrWhiteSpace(decision))
-            throw new ArgumentException("Decision is required.", nameof(decision));
-
-        if (string.IsNullOrWhiteSpace(actorUserId))
-            throw new ArgumentException("Actor user id is required.", nameof(actorUserId));
+        RunRepositoryCore.ValidateOperatorGovernanceDispositionArgs(runId, decision, actorUserId);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -739,13 +808,5 @@ public sealed class SqlRunRepository(
                 cancellationToken: ct)).ConfigureAwait(false);
 
         return rows > 0;
-    }
-
-    private static bool ShouldConsumeTrialRunAllowance(RunRecord run)
-    {
-        return TrialRunQuota.ShouldConsumeAllowanceOnCreate(
-            run.IsSample,
-            run.IsDemoWelcomeRun,
-            run.ArchitectureRequestId);
     }
 }

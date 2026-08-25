@@ -1,4 +1,4 @@
-import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
+import { CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF, CLAIMS_INTAKE_RULE_SET_VERSION, CLAIMS_INTAKE_SAMPLE_DEFINITION } from "@/lib/samples/claims-intake/definition";
 import { CUSTOMER_INTAKE_RULE_SET_VERSION } from "@/lib/samples/customer-intake-modernization/definition";
 
 import { describe, expect, it } from "vitest";
@@ -7,9 +7,9 @@ import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib
 
 describe("policyPackBuyerLabel", () => {
   it("formats healthcare claims demo pack with version", () => {
-    expect(policyPackBuyerLabel("healthcare-claims-v3", CLAIMS_INTAKE_RULE_SET_VERSION)).toBe(
-      "Healthcare Claims Policy Pack v3.4.1",
-    );
+    expect(
+      policyPackBuyerLabel(CLAIMS_INTAKE_SAMPLE_DEFINITION.ruleSetId, CLAIMS_INTAKE_RULE_SET_VERSION),
+    ).toBe(`Healthcare Claims Policy Pack v${CLAIMS_INTAKE_RULE_SET_VERSION}`);
   });
 
   it("formats enterprise privacy demo pack with version", () => {
@@ -29,14 +29,14 @@ describe("policyPackBuyerLabel", () => {
 
 describe("policyPackBuyerGovernanceDetailHref", () => {
   it("resolves healthcare claims pack to governance narrative route", () => {
-    expect(policyPackBuyerGovernanceDetailHref("healthcare-claims-v3")).toBe(
-      "/governance/policy-packs/demo-healthcare-claims-pack",
+    expect(policyPackBuyerGovernanceDetailHref(CLAIMS_INTAKE_SAMPLE_DEFINITION.ruleSetId)).toBe(
+      CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF,
     );
   });
 
   it("trims rule set id", () => {
-    expect(policyPackBuyerGovernanceDetailHref("  healthcare-claims-v3  ")).toBe(
-      "/governance/policy-packs/demo-healthcare-claims-pack",
+    expect(policyPackBuyerGovernanceDetailHref(`  ${CLAIMS_INTAKE_SAMPLE_DEFINITION.ruleSetId}  `)).toBe(
+      CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF,
     );
   });
 

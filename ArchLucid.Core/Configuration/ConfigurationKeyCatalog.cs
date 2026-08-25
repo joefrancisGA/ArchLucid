@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(170)
+        return new List<ConfigurationKeyEntry>(178)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -116,7 +116,40 @@ public static class ConfigurationKeyCatalog
                 ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:AgentOutput:LlmSemanticJudge", M("appsettings", "env"), "(legacy)", "—",
                 "Deprecated binding path for the same options type; prefer ArchLucid:Agents:LlmJudge. Agents section overrides overlapping keys.",
+                ConfigKeyRequirementKind.None,
+                ConfigurationKeyProductionProfileGuardKind.None,
+                ConfigurationKeyDeprecationKind.DeprecatedBindingPath,
+                AgentOutputLlmSemanticJudgeOptions.SectionPath),
+            E("ArchLucid", "ArchLucid:AgentExecution:QualityGate:Judge", M("appsettings", "env"), "(legacy)", "—",
+                "Deprecated judge budget binding path; prefer ArchLucid:Agents:LlmJudge:Budget. Canonical Agents section overrides overlapping keys.",
+                ConfigKeyRequirementKind.None,
+                ConfigurationKeyProductionProfileGuardKind.None,
+                ConfigurationKeyDeprecationKind.DeprecatedBindingPath,
+                "ArchLucid:Agents:LlmJudge:Budget"),
+            E("ArchLucid", "ArchLucid:FallbackLlm:Enabled", M("appsettings", "env", "KeyVault"), "false", "When DR fallback on",
+                "Enables secondary Azure OpenAI deployments on primary 429/5xx (see FallbackAgentCompletionClient). Pilot profile keeps disabled.",
                 ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:FallbackLlm:Endpoints", M("appsettings", "env", "KeyVault"), "[]", "When DR fallback on",
+                "Ordered list of fallback Endpoint/ApiKey/DeploymentName rows tried after the primary fails.",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:FallbackLlm:Endpoint", M("appsettings", "env", "KeyVault"), "empty", "Legacy only",
+                "Deprecated flat fallback endpoint; prefer ArchLucid:FallbackLlm:Endpoints[n]:Endpoint.",
+                ConfigKeyRequirementKind.None,
+                ConfigurationKeyProductionProfileGuardKind.None,
+                ConfigurationKeyDeprecationKind.DeprecatedBindingPath,
+                "ArchLucid:FallbackLlm:Endpoints"),
+            E("ArchLucid", "ArchLucid:FallbackLlm:ApiKey", M("env", "KeyVault"), "empty", "Legacy only",
+                "Deprecated flat fallback API key; prefer ArchLucid:FallbackLlm:Endpoints[n]:ApiKey.",
+                ConfigKeyRequirementKind.None,
+                ConfigurationKeyProductionProfileGuardKind.None,
+                ConfigurationKeyDeprecationKind.DeprecatedBindingPath,
+                "ArchLucid:FallbackLlm:Endpoints"),
+            E("ArchLucid", "ArchLucid:FallbackLlm:DeploymentName", M("appsettings", "env"), "empty", "Legacy only",
+                "Deprecated flat fallback deployment name; prefer ArchLucid:FallbackLlm:Endpoints[n]:DeploymentName.",
+                ConfigKeyRequirementKind.None,
+                ConfigurationKeyProductionProfileGuardKind.None,
+                ConfigurationKeyDeprecationKind.DeprecatedBindingPath,
+                "ArchLucid:FallbackLlm:Endpoints"),
             E("ArchLucid", "ArchLucid:Agents:Faithfulness:EmbeddingEnabled", M("appsettings", "env"), "false", "—",
                 "When true, compute embedding-based AgentResult→evidence cosine alignment for API telemetry and OTEL (staging-first).",
                 ConfigKeyRequirementKind.None),
@@ -523,6 +556,8 @@ public static class ConfigurationKeyCatalog
         string req,
         string desc,
         ConfigKeyRequirementKind r,
-        ConfigurationKeyProductionProfileGuardKind productionProfileGuardKind = ConfigurationKeyProductionProfileGuardKind.None) =>
-        new(section, path, src, def, req, desc, r, productionProfileGuardKind);
+        ConfigurationKeyProductionProfileGuardKind productionProfileGuardKind = ConfigurationKeyProductionProfileGuardKind.None,
+        ConfigurationKeyDeprecationKind deprecationKind = ConfigurationKeyDeprecationKind.None,
+        string? deprecatedReplacementPath = null) =>
+        new(section, path, src, def, req, desc, r, productionProfileGuardKind, deprecationKind, deprecatedReplacementPath);
 }

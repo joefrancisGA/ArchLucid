@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
 import { OperatorSavedViewsBar } from "@/components/operator/OperatorSavedViewsBar";
+import { recordAuditRecentSavedView } from "@/lib/audit-recent-saved-views";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { OperatorSavedViewPayload } from "@/lib/operator/operator-saved-view-types";
 
@@ -34,6 +35,7 @@ import {
   OPERATOR_DATE_RANGE_START_LABEL,
 } from "@/lib/operator-date-range-copy";
 import { auditRunIdInputDisplayValue, auditRunIdParseInputValue } from "./audit-page-helpers";
+import { AuditRecentSavedViewsChips } from "./AuditRecentSavedViewsChips";
 
 function AuditLocalDateRangeLabel(props: { readonly kind: "start" | "end" }): ReactElement {
   const label = props.kind === "start" ? OPERATOR_DATE_RANGE_START_LABEL : OPERATOR_DATE_RANGE_END_LABEL;
@@ -128,12 +130,23 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
       )}
     >
       {showSavedViews && getAuditSavedViewPayload !== undefined && loadAuditSavedView !== undefined ? (
-        <OperatorSavedViewsBar
-          surface="audit"
-          disabled={searching || loadingTypes}
-          getCurrentPayload={getAuditSavedViewPayload}
-          onLoadView={loadAuditSavedView}
-        />
+        <>
+          <AuditRecentSavedViewsChips
+            onLoadView={(view) => {
+              recordAuditRecentSavedView({ viewId: view.viewId, name: view.name });
+              void loadAuditSavedView(view);
+            }}
+          />
+          <OperatorSavedViewsBar
+            surface="audit"
+            disabled={searching || loadingTypes}
+            getCurrentPayload={getAuditSavedViewPayload}
+            onLoadView={(view) => {
+              recordAuditRecentSavedView({ viewId: view.viewId, name: view.name });
+              void loadAuditSavedView(view);
+            }}
+          />
+        </>
       ) : null}
       <h3 id="audit-search-heading" className={cn("mt-0", buyerCompactFilters ? "mb-2" : "mb-3", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {buyerPolishedShell

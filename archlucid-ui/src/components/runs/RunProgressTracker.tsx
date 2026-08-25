@@ -21,9 +21,9 @@ import {
   canPromptForDesktopNotifications,
   useReviewCompletionNotification,
 } from "@/hooks/use-review-completion-notification";
+import { useRunStageTimelineQuery } from "@/hooks/use-run-stage-timeline-query";
 import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
-import { getRunStageTimeline } from "@/lib/api/architecture-runs";
 import {
   getDesktopNotificationPermission,
   requestDesktopNotificationPermission,
@@ -32,7 +32,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatStageDurationMs } from "@/lib/format-stage-duration";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
-import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
+import { resolvePipelineJobLabel } from "@/lib/architecture/architecture-package-origin";
 import {
   REVIEW_PIPELINE_ASSESSMENT_WATCHDOG_MESSAGE,
   REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE,
@@ -122,7 +122,14 @@ export function RunProgressTracker({
   const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
     preFinalizeTerminal || allStagesReady(initialSummary) ? "complete" : "polling",
   );
-  const [stageTimeline, setStageTimeline] = useState<StageTimelineSummary[]>([]);
+  const timelineEnabled = buyerAssessmentCopy || pollEnabled || preFinalizeTerminal;
+  const stageTimelineQuery = useRunStageTimelineQuery(runId, {
+    enabled: timelineEnabled,
+    pollSession,
+    refetchInterval:
+      pollEnabled && clientPhase === "polling" ? 5_000 : false,
+  });
+  const stageTimeline = stageTimelineQuery.data ?? [];
   const [notificationPermission, setNotificationPermission] = useState(() => getDesktopNotificationPermission());
   const [pollCount, setPollCount] = useState(0);
   const [lastPollAtIso, setLastPollAtIso] = useState<string | null>(null);
@@ -208,37 +215,36 @@ export function RunProgressTracker({
   }, [buyerAssessmentCopy, summary, streamPhase]);
 
   useEffect(() => {
-    if (!buyerAssessmentCopy && !pollEnabled && !preFinalizeTerminal) {
+    if (!timelineEnabled) {
       return;
     }
 
-    let canceled = false;
+    if (stageTimelineQuery.isFetched) {
+      setPollCount((count) => count + 1);
+      setLastPollAtIso(new Date().toISOString());
+      setLastPollError(
+        stageTimelineQuery.isError
+          ? stageTimelineQuery.error instanceof Error
+            ? stageTimelineQuery.error.message
+            : "Stage timeline fetch failed"
+          : null,
+      );
+    }
+  }, [
+    stageTimelineQuery.dataUpdatedAt,
+    stageTimelineQuery.error,
+    stageTimelineQuery.isError,
+    stageTimelineQuery.isFetched,
+    timelineEnabled,
+  ]);
 
-    const fetchTimeline = async (): Promise<void> => {
-      try {
-        const timeline = await getRunStageTimeline(runId);
+  useEffect(() => {
+    if (!timelineEnabled || summary === null) {
+      return;
+    }
 
-        if (!canceled) {
-          setStageTimeline(timeline);
-          setPollCount((count) => count + 1);
-          setLastPollAtIso(new Date().toISOString());
-          setLastPollError(null);
-        }
-      } catch (error: unknown) {
-        if (!canceled) {
-          setPollCount((count) => count + 1);
-          setLastPollAtIso(new Date().toISOString());
-          setLastPollError(error instanceof Error ? error.message : "Stage timeline fetch failed");
-        }
-      }
-    };
-
-    void fetchTimeline();
-
-    return () => {
-      canceled = true;
-    };
-  }, [buyerAssessmentCopy, clientPhase, pollEnabled, pollSession, preFinalizeTerminal, runId, summary]);
+    void stageTimelineQuery.refetch();
+  }, [summary, stageTimelineQuery, timelineEnabled]);
 
   const handleEnableNotifications = useCallback(async () => {
     const next = await requestDesktopNotificationPermission();
@@ -294,9 +300,10 @@ export function RunProgressTracker({
 
     const transport = sseConnected ? "live stream" : "polling";
 
-    return `${completedPipelineStages} of 4 review pipeline stages complete (${transport}).`;
+    return `${completedPipelineStages} of 4 ${pipelineJobLabel.stageSummaryNoun} stages complete (${transport}).`;
   }, [
     buyerAssessmentCopy,
+    pipelineJobLabel.stageSummaryNoun,
     clientPhase,
     completedAssessmentStages,
     completedPipelineStages,
@@ -314,7 +321,12 @@ export function RunProgressTracker({
   const showNotificationOptIn =
     pollEnabled && canPromptForDesktopNotifications() && notificationPermission === "default";
   const showNotificationEnabled = pollEnabled && notificationPermission === "granted";
-  const progressHeading = buyerAssessmentCopy ? "Assessment progress" : "Pipeline progress";
+  const pipelineJobLabel = useMemo(
+    () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy),
+    [activeSummary, buyerAssessmentCopy],
+  );
+
+  const progressHeading = pipelineJobLabel.heading;
 
   return (
     <section
@@ -411,11 +423,7 @@ export function RunProgressTracker({
         <Progress
           value={progressValue}
           className="h-2"
-          aria-label={
-            buyerAssessmentCopy
-              ? "Architecture assessment stages completed"
-              : "Architecture review pipeline stages completed"
-          }
+          aria-label={pipelineJobLabel.progressAriaLabel}
         />
       </div>
 

@@ -1,4 +1,6 @@
 using ArchLucid.Application;
+using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Clarifications;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Manifest;
@@ -10,7 +12,8 @@ namespace ArchLucid.Application.Clarifications;
 public sealed class ReviewClarificationQuestionService(
     IAuthorityQueryService authorityQueryService,
     ReviewClarificationQuestionDeriver questionDeriver,
-    ReviewClarificationDeltaComputer deltaComputer) : IReviewClarificationQuestionService
+    ReviewClarificationDeltaComputer deltaComputer,
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null) : IReviewClarificationQuestionService
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
@@ -20,6 +23,8 @@ public sealed class ReviewClarificationQuestionService(
 
     private readonly ReviewClarificationDeltaComputer _deltaComputer =
         deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
+
+    private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
     public async Task<ReviewClarificationQuestionsResponse> GetQuestionsAsync(
         ScopeContext scope,
@@ -37,6 +42,11 @@ public sealed class ReviewClarificationQuestionService(
         FindingsSnapshot? findingsSnapshot = detail.FindingsSnapshot;
         IReadOnlyList<Finding> findings = findingsSnapshot?.Findings ?? [];
         ReviewClarificationDeriverResult derived = _questionDeriver.Derive(findings);
+        IReadOnlyList<ReviewClarificationQuestion> modelQuestions = await DeriveKnowledgeModelQuestionsAsync(
+            scope,
+            runId,
+            cancellationToken);
+        List<ReviewClarificationQuestion> mergedQuestions = MergeInterviewQuestions(modelQuestions, derived.Questions);
 
         ReviewClarificationDelta? delta = null;
 
@@ -54,7 +64,7 @@ public sealed class ReviewClarificationQuestionService(
                 delta = _deltaComputer.Compute(
                     priorRunId.Value.ToString("N"),
                     priorDerived.Questions,
-                    derived.Questions,
+                    mergedQuestions,
                     assertedQuestionIds);
             }
         }
@@ -62,11 +72,56 @@ public sealed class ReviewClarificationQuestionService(
         return new ReviewClarificationQuestionsResponse
         {
             RunId = runId.ToString("N"),
-            Questions = derived.Questions.ToList(),
-            TotalDerivedCount = derived.TotalDerivedCount,
-            ClarificationRoundAvailable = derived.Questions.Count > 0,
+            Questions = mergedQuestions,
+            TotalDerivedCount = modelQuestions.Count + derived.TotalDerivedCount,
+            ClarificationRoundAvailable = mergedQuestions.Count > 0,
             DeltaFromPriorRun = delta,
         };
+    }
+
+    private async Task<IReadOnlyList<ReviewClarificationQuestion>> DeriveKnowledgeModelQuestionsAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        if (_knowledgeModelAccess is null)
+            return [];
+
+        ArchitectureKnowledgeModel? model = await _knowledgeModelAccess
+            .GetForRunAsync(scope, runId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return KnowledgeModelInterviewQuestionDeriver.Derive(model);
+    }
+
+    private static List<ReviewClarificationQuestion> MergeInterviewQuestions(
+        IReadOnlyList<ReviewClarificationQuestion> modelQuestions,
+        IReadOnlyList<ReviewClarificationQuestion> findingsQuestions)
+    {
+        Dictionary<string, ReviewClarificationQuestion> merged = new(StringComparer.Ordinal);
+
+        foreach (ReviewClarificationQuestion question in modelQuestions)
+        {
+            if (string.IsNullOrWhiteSpace(question.QuestionId))
+                continue;
+
+            merged[question.QuestionId] = question;
+        }
+
+        foreach (ReviewClarificationQuestion question in findingsQuestions)
+        {
+            if (string.IsNullOrWhiteSpace(question.QuestionId))
+                continue;
+
+            if (!merged.ContainsKey(question.QuestionId))
+                merged[question.QuestionId] = question;
+        }
+
+        return merged.Values
+            .OrderByDescending(static question => question.Severity)
+            .ThenBy(static question => question.QuestionId, StringComparer.Ordinal)
+            .Take(ReviewClarificationQuestionDeriver.MaxSurfacedQuestions)
+            .ToList();
     }
 
     private static IReadOnlyList<string> ExtractAssertedQuestionIds(RunDetailDto detail)

@@ -110,6 +110,16 @@ export const OPERATOR_PRIMARY_CTA_INVENTORY: readonly OperatorPrimaryCtaInventor
     notes:
       "Sole header Create confirmed (**TB-1446**). ADR 0067 keeps this row verified in lockstep with `reviews-hub` so neither co-equal path is audited while the other is not.",
   },
+  {
+    id: "operator-home-eval-with-drafts",
+    pathOrSurface: "/",
+    pattern: "header-start",
+    primaryTestId: "operator-home-resume-draft-primary",
+    componentOrModule: "components/usability/PilotCommandCenterCard.tsx",
+    status: "verified",
+    notes:
+      "Resume latest draft is the sole filled primary when drafts exist; lifecycle cards demote via pagePrimaryOwnedElsewhere. Persistent Core Pilot strip is omitted on `/` because PilotCommandCenterCard owns next action (**TB-1539**).",
+  },
 ] as const;
 
 export function listOperatorPrimaryCtaVerifiedEntries(): readonly OperatorPrimaryCtaInventoryEntry[] {

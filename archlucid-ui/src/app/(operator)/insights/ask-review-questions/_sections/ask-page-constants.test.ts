@@ -4,6 +4,7 @@ import {
   ASK_BUYER_PROMPT_GROUPS,
   ASK_DEEP_LINK_RUN_PROMPTS,
   ASK_EXAMPLE_PROMPTS,
+  ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS,
   buyerAskStarterPromptLines,
 } from "./ask-page-constants";
 
@@ -13,6 +14,7 @@ describe("ask page starter prompts", () => {
       ...ASK_EXAMPLE_PROMPTS,
       ...ASK_DEEP_LINK_RUN_PROMPTS,
       ...buyerAskStarterPromptLines(),
+      ...ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS,
     ];
 
     expect(allPrompts).toContain("What should I tell my CTO in the first 90 seconds?");

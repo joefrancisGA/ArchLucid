@@ -21,7 +21,7 @@ public sealed class DraftAdmissionService(
     IDraftSemanticAdmissionEvaluator semanticAdmissionEvaluator,
     IQuestionSelectionEngine questionSelectionEngine,
     IDraftRequestProjector projector,
-    IArchitectureRunCreateOrchestrator runCreateOrchestrator,
+    IArchitectureRunCommandService architectureRunCommandService,
     IRequestContentSafetyPrecheck contentSafetyPrecheck,
     FeasibilityVerdictBuilder feasibilityVerdictBuilder,
     IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard) : IDraftAdmissionService
@@ -47,8 +47,8 @@ public sealed class DraftAdmissionService(
     private readonly IDraftRequestProjector _projector =
         projector ?? throw new ArgumentNullException(nameof(projector));
 
-    private readonly IArchitectureRunCreateOrchestrator _runCreateOrchestrator =
-        runCreateOrchestrator ?? throw new ArgumentNullException(nameof(runCreateOrchestrator));
+    private readonly IArchitectureRunCommandService _architectureRunCommandService =
+        architectureRunCommandService ?? throw new ArgumentNullException(nameof(architectureRunCommandService));
 
     private readonly FeasibilityVerdictBuilder _feasibilityVerdictBuilder =
         feasibilityVerdictBuilder ?? throw new ArgumentNullException(nameof(feasibilityVerdictBuilder));
@@ -242,10 +242,14 @@ public sealed class DraftAdmissionService(
         }
 
         ArchitectureRequest architectureRequest = _projector.Project(existing.Document, draftId);
-        CreateRunIdempotencyState idempotency = DraftSubmitIdempotency.Build(scope, draftId, architectureRequest);
 
-        CreateRunResult createResult =
-            await _runCreateOrchestrator.CreateRunAsync(architectureRequest, idempotency, cancellationToken);
+        CreateRunCommandResult createResult = await _architectureRunCommandService.CreateRunAsync(
+            scope,
+            architectureRequest,
+            $"draft-submit:{draftId:N}",
+            cancellationToken);
+
+        string spawnedRunId = DraftSubmitRunCreateResolver.ResolveRunId(createResult);
 
         DraftRequestResponse? spawned = await _draftRepository.UpdateAsync(
             scope.TenantId,
@@ -255,7 +259,7 @@ public sealed class DraftAdmissionService(
             DraftRequestStatus.RunSpawned,
             existing.Document,
             existing.RedirectReason,
-            createResult.Run.RunId,
+            spawnedRunId,
             cancellationToken);
 
         string? parentSpawnedRunId = await ResolveParentSpawnedRunIdAsync(
@@ -266,7 +270,7 @@ public sealed class DraftAdmissionService(
         return DraftSubmitResponseFactory.Create(
             draftId,
             spawned!.Status,
-            createResult.Run.RunId,
+            spawnedRunId,
             architectureRequest.RequestId,
             parentSpawnedRunId);
     }

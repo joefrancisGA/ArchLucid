@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { listRunsByProjectPaged } from "@/lib/api";
+import { useNewRunWizardCommittedProbeQuery } from "@/hooks/use-new-run-wizard-committed-probe-query";
 import { resolveFirstRunWizardMode } from "@/lib/core-pilot-step-presentation";
 
 import { WIZARD_MODE_STORAGE_KEY } from "./new-run-wizard-steps";
@@ -44,6 +44,10 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
   // A deep link (accelerator, preset) or a click has already decided the mode, so the first-run probe
   // below must not overwrite it when its request resolves.
   const modeChosenRef = useRef(false);
+  const storedMode = readStoredWizardMode();
+  const committedProbeQuery = useNewRunWizardCommittedProbeQuery({
+    enabled: !baselineFirst && storedMode === null,
+  });
 
   const persistWizardMode = useCallback((mode: NewRunWizardMode) => {
     modeChosenRef.current = true;
@@ -60,42 +64,31 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
   }, [baselineFirst, persistWizardMode]);
 
   useEffect(() => {
-    if (baselineFirst) {
+    if (baselineFirst || storedMode !== null || modeChosenRef.current) {
       return;
     }
 
-    let canceled = false;
+    if (committedProbeQuery.isSuccess && committedProbeQuery.data !== undefined) {
+      setWizardMode(
+        resolveFirstRunWizardMode({
+          hasCommittedManifest: committedProbeQuery.data.hasCommittedManifest,
+          storedMode: null,
+        }),
+      );
 
-    void (async () => {
-      try {
-        const stored = readStoredWizardMode();
+      return;
+    }
 
-        if (stored !== null) {
-          return;
-        }
-
-        const page = await listRunsByProjectPaged("default", 1, 50);
-        const anyCommitted = page.items.some((r) => r.hasGoldenManifest === true);
-
-        if (!canceled && !modeChosenRef.current) {
-          setWizardMode(
-            resolveFirstRunWizardMode({
-              hasCommittedManifest: anyCommitted,
-              storedMode: stored,
-            }),
-          );
-        }
-      } catch {
-        if (!canceled && !modeChosenRef.current) {
-          setWizardMode("quick");
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [baselineFirst]);
+    if (committedProbeQuery.isError && !modeChosenRef.current) {
+      setWizardMode("quick");
+    }
+  }, [
+    baselineFirst,
+    committedProbeQuery.data,
+    committedProbeQuery.isError,
+    committedProbeQuery.isSuccess,
+    storedMode,
+  ]);
 
   return { wizardMode, persistWizardMode };
 }

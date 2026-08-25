@@ -36,6 +36,46 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     },
   },
   {
+    prefix: "/insights/compare-two-reviews",
+    hint: {
+      id: "compare-reviews",
+      message: "Pick two finalized reviews from the lists — no need to paste IDs. Structured manifest diff loads first.",
+      learnMoreHref: "/help/comparison-replay",
+    },
+  },
+  {
+    prefix: "/insights/evidence-graph",
+    hint: {
+      id: "evidence-graph",
+      message: "Choose a review, then load the graph. Use neighborhood view to focus on one decision.",
+      learnMoreHref: "/help/evidence-graph",
+    },
+  },
+  {
+    prefix: "/governance/policy-packs",
+    hint: {
+      id: "policy-packs",
+      message: "Start from a catalog pack or author rules, then assign packs before your next review.",
+      learnMoreHref: "/help/policy-packs",
+    },
+  },
+  {
+    prefix: "/governance/findings",
+    hint: {
+      id: "governance-findings",
+      message: "Triage with keyboard: Alt+J/K to move, Alt+1–3 to accept, remediate, or reject when Execute+ is enabled.",
+      learnMoreHref: "/help/governance-findings",
+    },
+  },
+  {
+    prefix: "/architecture/reviews/new",
+    hint: {
+      id: "reviews-new",
+      message: "Pick a template to pre-fill the wizard, or start blank — you can edit every field before running.",
+      learnMoreHref: "/help/first-architecture-review",
+    },
+  },
+  {
     prefix: "/insights/ask-review-questions",
     hint: {
       id: "ask-review",

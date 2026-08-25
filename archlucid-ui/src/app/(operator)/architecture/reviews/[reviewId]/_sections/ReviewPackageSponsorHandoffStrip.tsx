@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+
 import { CopyExecutiveSponsorLinkButton } from "@/components/reviews/CopyExecutiveSponsorLinkButton";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
@@ -18,6 +20,11 @@ import { Label } from "@/components/ui/label";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { getRunPackageExportUrl } from "@/lib/api";
 import { OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import {
+  buildInviteReviewerHref,
+  INVITE_REVIEWER_PAGE_TITLE,
+} from "@/lib/invite-reviewer-flow";
 import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
@@ -54,6 +61,8 @@ export function ReviewPackageSponsorHandoffStrip(
     lowConfidenceCriticalFieldCount: lowExtractionConfidenceCount,
     extractionCaveatAcknowledged,
   });
+  const { callerAuthorityRank } = useOperatorNavAuthority();
+  const canInviteReviewer = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   return (
     <section
@@ -98,6 +107,11 @@ export function ReviewPackageSponsorHandoffStrip(
       ) : null}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <CopyExecutiveSponsorLinkButton runId={props.runId} />
+        {canInviteReviewer ? (
+          <Button variant="outline" size="sm" asChild data-testid="review-package-sponsor-handoff-invite-reviewer">
+            <Link href={buildInviteReviewerHref(props.runId)}>{INVITE_REVIEWER_PAGE_TITLE}</Link>
+          </Button>
+        ) : null}
         {props.usedStaticDemoRun ? (
           <div className={cn("flex flex-col gap-1.5", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
             <Button

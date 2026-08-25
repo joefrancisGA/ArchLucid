@@ -29,7 +29,7 @@ namespace ArchLucid.Api.Controllers.ArchitectureIntelligence;
 public sealed class ArchitectureIntelligenceController(
     IClosedLoopArchitectureReasoningOrchestrator reasoningOrchestrator,
     IGoldenArchitectureTestRunner goldenArchitectureTestRunner,
-    IArchitectureIntelligencePersistence? architectureIntelligencePersistence,
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
     IArchitectureIntelligenceProductPublishService productPublishService,
     IArchitectureIntelligenceProductRunSourceContextLoader productRunSourceContextLoader,
     IScopeContextProvider scopeContextProvider,
@@ -41,8 +41,7 @@ public sealed class ArchitectureIntelligenceController(
     private readonly IGoldenArchitectureTestRunner _goldenArchitectureTestRunner =
         goldenArchitectureTestRunner ?? throw new ArgumentNullException(nameof(goldenArchitectureTestRunner));
 
-    private readonly IArchitectureIntelligencePersistence? _architectureIntelligencePersistence =
-        architectureIntelligencePersistence;
+    private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
     private readonly IArchitectureIntelligenceProductPublishService _productPublishService =
         productPublishService ?? throw new ArgumentNullException(nameof(productPublishService));
@@ -205,15 +204,19 @@ public sealed class ArchitectureIntelligenceController(
         if (string.IsNullOrWhiteSpace(runId))
             return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
 
-        if (_architectureIntelligencePersistence is null)
+        if (_knowledgeModelAccess is null)
             return this.NotFoundProblem(
                 "Architecture intelligence persistence is not configured.",
                 ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        ArchitectureKnowledgeModel? model = await _architectureIntelligencePersistence.GetModelByRunIdAsync(
-            scope.TenantId.ToString("D"),
-            runId,
+
+        if (!Guid.TryParse(runId, out Guid parsedRunId))
+            return this.BadRequestProblem("RunId must be a GUID.", ProblemTypes.ValidationFailed);
+
+        ArchitectureKnowledgeModel? model = await _knowledgeModelAccess.GetForRunAsync(
+            scope,
+            parsedRunId,
             cancellationToken);
 
         if (model is null)

@@ -1,24 +1,16 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Llm;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
+using static ArchitectureIntelligenceLlmJsonCompletionHelper;
+using static ArchitectureIntelligenceLlmResponseMapper;
+using static ArchitectureIntelligenceLlmResponseShapes;
+
 public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligenceLlmGateway
 {
-    private const string JsonOnlyInstruction =
-        "Return ONLY valid JSON. No markdown fences or commentary. " +
-        "Label each claim as evidence-backed (directly supported by supplied text) or inferred. " +
-        "Never invent regulations or compliance obligations. " +
-        "Label cloud-specific assumptions explicitly when present.";
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     private readonly IAgentCompletionClient? _completionClient;
 
     public ArchitectureIntelligenceLlmGateway(IServiceProvider serviceProvider)
@@ -27,12 +19,14 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
         _completionClient = serviceProvider.GetService<IAgentCompletionClient>();
     }
 
+    public bool IsClientAvailable => _completionClient is not null;
+
     public async Task<IReadOnlyList<ArchitectureModelElement>?> ExtractElementsAsync(
         string sourceText,
         string artifactId,
         CancellationToken cancellationToken = default)
     {
-        if (_completionClient is null || string.IsNullOrWhiteSpace(sourceText) || string.IsNullOrWhiteSpace(artifactId))
+        if (!IsClientAvailable || string.IsNullOrWhiteSpace(sourceText) || string.IsNullOrWhiteSpace(artifactId))
         {
             return null;
         }
@@ -46,7 +40,11 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
 
         string userPrompt = $"ArtifactId: {artifactId}\n\nSource:\n{sourceText}";
 
-        string? responseJson = await TryCompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+        string? responseJson = await TryCompleteJsonAsync(
+            _completionClient,
+            systemPrompt,
+            userPrompt,
+            cancellationToken);
 
         if (string.IsNullOrWhiteSpace(responseJson))
         {
@@ -80,7 +78,7 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
         QualityDimension dimension,
         CancellationToken cancellationToken = default)
     {
-        if (_completionClient is null || model is null)
+        if (!IsClientAvailable || model is null)
         {
             return null;
         }
@@ -96,7 +94,11 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
 
         string userPrompt = BuildModelSummaryPrompt(model, dimension);
 
-        string? responseJson = await TryCompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+        string? responseJson = await TryCompleteJsonAsync(
+            _completionClient,
+            systemPrompt,
+            userPrompt,
+            cancellationToken);
 
         if (string.IsNullOrWhiteSpace(responseJson))
         {
@@ -135,7 +137,7 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
         IReadOnlyList<SpecialistReviewFinding> findings,
         CancellationToken cancellationToken = default)
     {
-        if (_completionClient is null || findings is null || findings.Count == 0)
+        if (!IsClientAvailable || findings is null || findings.Count == 0)
         {
             return null;
         }
@@ -156,7 +158,11 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
             }),
             JsonOptions);
 
-        string? responseJson = await TryCompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+        string? responseJson = await TryCompleteJsonAsync(
+            _completionClient,
+            systemPrompt,
+            userPrompt,
+            cancellationToken);
 
         if (string.IsNullOrWhiteSpace(responseJson))
         {
@@ -192,7 +198,7 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
         IReadOnlyList<string> citedQuotes,
         CancellationToken cancellationToken = default)
     {
-        if (_completionClient is null || string.IsNullOrWhiteSpace(claimedConclusion))
+        if (!IsClientAvailable || string.IsNullOrWhiteSpace(claimedConclusion))
         {
             return null;
         }
@@ -206,7 +212,11 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
             $"Claimed conclusion:\n{claimedConclusion}\n\nCited quotes:\n" +
             JsonSerializer.Serialize(citedQuotes ?? [], JsonOptions);
 
-        string? responseJson = await TryCompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+        string? responseJson = await TryCompleteJsonAsync(
+            _completionClient,
+            systemPrompt,
+            userPrompt,
+            cancellationToken);
 
         if (string.IsNullOrWhiteSpace(responseJson))
         {
@@ -234,7 +244,7 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
         IReadOnlyList<string> declaredPriorities,
         CancellationToken cancellationToken = default)
     {
-        if (_completionClient is null || model is null || findings is null || findings.Count == 0)
+        if (!IsClientAvailable || model is null || findings is null || findings.Count == 0)
         {
             return null;
         }
@@ -262,7 +272,11 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
                 finding.Severity,
             }), JsonOptions);
 
-        string? responseJson = await TryCompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+        string? responseJson = await TryCompleteJsonAsync(
+            _completionClient,
+            systemPrompt,
+            userPrompt,
+            cancellationToken);
 
         if (string.IsNullOrWhiteSpace(responseJson))
         {
@@ -282,526 +296,5 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
             .ToList();
 
         return recommendations.Count > 0 ? recommendations : null;
-    }
-
-    private async Task<string?> TryCompleteJsonAsync(
-        string systemPrompt,
-        string userPrompt,
-        CancellationToken cancellationToken)
-    {
-        if (_completionClient is null)
-        {
-            return null;
-        }
-
-        try
-        {
-            string response = await _completionClient.CompleteJsonAsync(
-                systemPrompt,
-                userPrompt,
-                maxTokens: null,
-                temperature: null,
-                cancellationToken: cancellationToken);
-
-            return string.IsNullOrWhiteSpace(response) ? null : response;
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
-        catch (InvalidOperationException)
-        {
-            return null;
-        }
-    }
-
-    private static T? TryDeserialize<T>(string responseJson)
-    {
-        try
-        {
-            return JsonSerializer.Deserialize<T>(responseJson, JsonOptions);
-        }
-        catch (JsonException)
-        {
-            return default;
-        }
-    }
-
-    private static string BuildModelSummaryPrompt(ArchitectureKnowledgeModel model, QualityDimension? dimension)
-    {
-        IEnumerable<ArchitectureModelElement> elements = model.Elements;
-
-        if (dimension is not null)
-        {
-            elements = elements.Take(50);
-        }
-
-        string elementSummary = string.Join(
-            "\n",
-            elements.Select(element => $"- [{element.Kind}] {element.Name}: {element.Description ?? element.Provenance.Notes}"));
-
-        string dimensionLine = dimension is null ? string.Empty : $"Focus dimension: {dimension}\n";
-
-        return dimensionLine +
-               $"ModelId: {model.ModelId}\n" +
-               $"TenantId: {model.TenantId}\n" +
-               $"Elements ({model.Elements.Count}):\n{elementSummary}";
-    }
-
-    private static ArchitectureModelElement? MapExtractionElement(ExtractionElementShape item, string artifactId)
-    {
-        if (string.IsNullOrWhiteSpace(item.Name))
-        {
-            return null;
-        }
-
-        if (!Enum.TryParse(item.Kind, ignoreCase: true, out ArchitectureElementKind kind))
-        {
-            kind = ArchitectureElementKind.Assumption;
-        }
-
-        SupportStatus supportStatus = ParseSupportStatus(item.SupportStatus);
-        ClaimOrigin origin = ParseClaimOrigin(item.Origin);
-
-        return new ArchitectureModelElement
-        {
-            ElementId = Guid.NewGuid().ToString("N"),
-            Kind = kind,
-            Name = item.Name.Trim(),
-            Description = item.Description?.Trim(),
-            ExtractionConfidence = ClampConfidence(item.Confidence),
-            SourcePassageIds = [artifactId],
-            Provenance = new ClaimProvenance
-            {
-                Origin = origin,
-                SupportStatus = supportStatus,
-                Confidence = ClampConfidence(item.Confidence),
-                SourceArtifactId = artifactId,
-                Notes = item.Notes?.Trim(),
-            },
-        };
-    }
-
-    private static SpecialistReviewFinding MapReviewFinding(ReviewFindingShape item, QualityDimension dimension)
-    {
-        ReviewConclusion conclusion = ParseReviewConclusion(item.Conclusion);
-        EvidenceCondition evidenceCondition = ParseEvidenceCondition(item.EvidenceCondition);
-
-        return new SpecialistReviewFinding
-        {
-            FindingId = Guid.NewGuid().ToString("N"),
-            Dimension = dimension,
-            Title = item.Title?.Trim() ?? string.Empty,
-            Rationale = item.Rationale?.Trim() ?? string.Empty,
-            Conclusion = conclusion,
-            EvidenceCondition = evidenceCondition,
-            GovernanceDisposition = conclusion == ReviewConclusion.Pass
-                ? GovernanceDisposition.Accepted
-                : GovernanceDisposition.Open,
-            Confidence = ClampConfidence(item.Confidence),
-            Severity = string.IsNullOrWhiteSpace(item.Severity) ? "Medium" : item.Severity.Trim(),
-            Provenance = new ClaimProvenance
-            {
-                Origin = ClaimOrigin.SystemProposed,
-                SupportStatus = ParseSupportStatus(item.SupportStatus),
-                Confidence = ClampConfidence(item.Confidence),
-                Notes = item.Notes?.Trim(),
-            },
-        };
-    }
-
-    private static ArchitectureRecommendation MapRecommendation(RecommendationShape item)
-    {
-        return new ArchitectureRecommendation
-        {
-            RecommendationId = Guid.NewGuid().ToString("N"),
-            Problem = item.Problem!.Trim(),
-            Evidence = item.Evidence?.Trim() ?? string.Empty,
-            AffectedRequirementOrQualityAttribute = item.AffectedRequirementOrQualityAttribute?.Trim() ?? string.Empty,
-            ConsequenceOfInaction = item.ConsequenceOfInaction?.Trim() ?? string.Empty,
-            ProposedChange = item.ProposedChange?.Trim() ?? string.Empty,
-            Alternatives = item.Alternatives?
-                .Where(alternative => !string.IsNullOrWhiteSpace(alternative))
-                .Select(alternative => alternative.Trim())
-                .ToList() ?? [],
-            ValidationMethod = item.ValidationMethod?.Trim() ?? "Re-run specialist review after design update.",
-            Confidence = ClampConfidence(item.Confidence),
-            RequiresHumanApproval = item.RequiresHumanApproval ?? false,
-            Effort = new EffortEstimate
-            {
-                Band = string.IsNullOrWhiteSpace(item.EffortBand) ? "Medium" : item.EffortBand.Trim(),
-                BasisNotes = item.Notes?.Trim() ?? string.Empty,
-                ImplementationEstimateAvailable = true,
-            },
-            RiskReduction = new RiskReductionEstimate
-            {
-                Level = string.IsNullOrWhiteSpace(item.RiskReductionLevel) ? "Moderate" : item.RiskReductionLevel.Trim(),
-                ScenarioNotes = item.Notes?.Trim(),
-            },
-            Provenance = new ClaimProvenance
-            {
-                Origin = ClaimOrigin.SystemProposed,
-                SupportStatus = SupportStatus.IndirectlySupported,
-                Confidence = ClampConfidence(item.Confidence),
-                Notes = item.Notes?.Trim(),
-            },
-        };
-    }
-
-    private static double ClampConfidence(double? confidence)
-    {
-        double value = confidence ?? 0.5;
-
-        if (value < 0)
-        {
-            return 0;
-        }
-
-        if (value > 1)
-        {
-            return 1;
-        }
-
-        return value;
-    }
-
-    private static SupportStatus ParseSupportStatus(string? value)
-    {
-        if (Enum.TryParse(value, ignoreCase: true, out SupportStatus parsed))
-        {
-            return parsed;
-        }
-
-        return SupportStatus.NotYetEvaluated;
-    }
-
-    private static ClaimOrigin ParseClaimOrigin(string? value)
-    {
-        if (Enum.TryParse(value, ignoreCase: true, out ClaimOrigin parsed))
-        {
-            return parsed;
-        }
-
-        return ClaimOrigin.ModelInferred;
-    }
-
-    private static ReviewConclusion ParseReviewConclusion(string? value)
-    {
-        if (Enum.TryParse(value, ignoreCase: true, out ReviewConclusion parsed))
-        {
-            return parsed;
-        }
-
-        return ReviewConclusion.Indeterminate;
-    }
-
-    private static EvidenceCondition ParseEvidenceCondition(string? value)
-    {
-        if (Enum.TryParse(value, ignoreCase: true, out EvidenceCondition parsed))
-        {
-            return parsed;
-        }
-
-        return EvidenceCondition.Insufficient;
-    }
-
-    private sealed class ExtractionResponseShape
-    {
-        [JsonPropertyName("elements")]
-        public List<ExtractionElementShape>? Elements
-        {
-            get;
-            init;
-        }
-    }
-
-    private sealed class ExtractionElementShape
-    {
-        [JsonPropertyName("kind")]
-        public string? Kind
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("name")]
-        public string? Name
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("description")]
-        public string? Description
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("supportStatus")]
-        public string? SupportStatus
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("origin")]
-        public string? Origin
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("confidence")]
-        public double? Confidence
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("notes")]
-        public string? Notes
-        {
-            get;
-            init;
-        }
-    }
-
-    private sealed class ReviewResponseShape
-    {
-        [JsonPropertyName("findings")]
-        public List<ReviewFindingShape>? Findings
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("openQuestions")]
-        public List<string>? OpenQuestions
-        {
-            get;
-            init;
-        }
-    }
-
-    private sealed class ReviewFindingShape
-    {
-        [JsonPropertyName("title")]
-        public string? Title
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("rationale")]
-        public string? Rationale
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("conclusion")]
-        public string? Conclusion
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("evidenceCondition")]
-        public string? EvidenceCondition
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("severity")]
-        public string? Severity
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("confidence")]
-        public double? Confidence
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("supportStatus")]
-        public string? SupportStatus
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("notes")]
-        public string? Notes
-        {
-            get;
-            init;
-        }
-    }
-
-    private sealed class AdversarialResponseShape
-    {
-        [JsonPropertyName("challenges")]
-        public List<AdversarialChallengeShape>? Challenges
-        {
-            get;
-            init;
-        }
-    }
-
-    private sealed class AdversarialChallengeShape
-    {
-        [JsonPropertyName("hypothesis")]
-        public string? Hypothesis
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("falsificationEvidenceNeeded")]
-        public string? FalsificationEvidenceNeeded
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("confidence")]
-        public double? Confidence
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("suppressed")]
-        public bool? Suppressed
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("suppressionReason")]
-        public string? SuppressionReason
-        {
-            get;
-            init;
-        }
-    }
-
-    private sealed class RecommendationResponseShape
-    {
-        [JsonPropertyName("recommendations")]
-        public List<RecommendationShape>? Recommendations
-        {
-            get;
-            init;
-        }
-    }
-
-    private sealed class RecommendationShape
-    {
-        [JsonPropertyName("problem")]
-        public string? Problem
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("evidence")]
-        public string? Evidence
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("affectedRequirementOrQualityAttribute")]
-        public string? AffectedRequirementOrQualityAttribute
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("consequenceOfInaction")]
-        public string? ConsequenceOfInaction
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("proposedChange")]
-        public string? ProposedChange
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("alternatives")]
-        public List<string>? Alternatives
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("validationMethod")]
-        public string? ValidationMethod
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("confidence")]
-        public double? Confidence
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("requiresHumanApproval")]
-        public bool? RequiresHumanApproval
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("effortBand")]
-        public string? EffortBand
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("riskReductionLevel")]
-        public string? RiskReductionLevel
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("notes")]
-        public string? Notes
-        {
-            get;
-            init;
-        }
-    }
-
-    private sealed class SemanticAssessmentResponseShape
-    {
-        [JsonPropertyName("assessment")]
-        public string? Assessment
-        {
-            get;
-            init;
-        }
-
-        [JsonPropertyName("notes")]
-        public string? Notes
-        {
-            get;
-            init;
-        }
     }
 }

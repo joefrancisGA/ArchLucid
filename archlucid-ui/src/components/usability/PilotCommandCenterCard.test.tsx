@@ -227,6 +227,10 @@ describe("PilotCommandCenterCard", () => {
       OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
     );
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toHaveClass("border-neutral-300");
+    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toHaveClass(
+      "border-neutral-300",
+    );
     expect(screen.queryByTestId("operator-home-lifecycle-recommended-review-architecture")).toBeNull();
     expect(screen.queryByTestId("first-pilot-operate-unlock-vocabulary")).toBeNull();
     expect(screen.queryByTestId("operator-home-do-this-next")).toBeNull();

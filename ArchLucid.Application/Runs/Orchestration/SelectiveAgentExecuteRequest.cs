@@ -27,4 +27,14 @@ public sealed class SelectiveAgentExecuteRequest
         get;
         init;
     } = true;
+
+    /// <summary>
+    ///     Optional knowledge-model element ids to scope incremental re-review after selective execute.
+    ///     When omitted, element ids are inferred from re-executed agent types.
+    /// </summary>
+    public IReadOnlyList<string>? AffectedElementIds
+    {
+        get;
+        init;
+    }
 }

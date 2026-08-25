@@ -43,7 +43,10 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
 
     private static void RegisterCoreServices(IServiceCollection services)
     {
+        services.AddOptions<ArchitectureIntelligencePipelineOptions>();
+
         services.AddScoped<IArchitectureIntelligenceLlmGateway, ArchitectureIntelligenceLlmGateway>();
+        services.AddScoped<IArchitectureIntelligenceReviewRouter, ArchitectureIntelligenceReviewRouter>();
 
         services.AddScoped<DifficultyBasedExtractionRouter>();
         services.AddScoped<IDifficultyBasedExtractionRouter>(static sp =>
@@ -51,8 +54,9 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IAsyncArchitectureExtractionService, LlmBackedArchitectureExtractionService>();
 
         services.AddScoped<SpecialistReviewService>();
-        services.AddScoped<ISpecialistReviewService>(static sp => sp.GetRequiredService<SpecialistReviewService>());
-        services.AddScoped<IAsyncSpecialistReviewService, LlmBackedSpecialistReviewService>();
+        services.AddScoped<SpecialistReviewRouterService>();
+        services.AddScoped<ISpecialistReviewService>(static sp => sp.GetRequiredService<SpecialistReviewRouterService>());
+        services.AddScoped<IAsyncSpecialistReviewService>(static sp => sp.GetRequiredService<SpecialistReviewRouterService>());
 
         services.AddScoped<ArchitectureRecommendationEngine>();
         services.AddScoped<IArchitectureRecommendationEngine>(static sp =>
@@ -60,20 +64,36 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IAsyncArchitectureRecommendationEngine, LlmBackedArchitectureRecommendationEngine>();
 
         services.AddScoped<IArchitectureOntologyService, ArchitectureOntologyService>();
+        services.AddScoped<IArchitectureKnowledgeModelAccess, ArchitectureKnowledgeModelAccess>();
+        services.AddScoped<IKnowledgeModelGraphReprojector, KnowledgeModelGraphReprojector>();
         services.AddScoped<IExtractionFidelityBenchmark, ExtractionFidelityBenchmark>();
         services.AddScoped<IArchitectureIntelligenceBenchmark, ArchitectureIntelligenceBenchmark>();
         services.AddScoped<IProgressiveInterviewService, ProgressiveInterviewService>();
         services.AddScoped<IEvidenceValidationPipeline>(static sp =>
             new EvidenceValidationPipeline(sp.GetService<IArchitectureIntelligenceLlmGateway>()));
         services.AddScoped<AdversarialReviewService>();
-        services.AddScoped<IAdversarialReviewService>(static sp => sp.GetRequiredService<AdversarialReviewService>());
-        services.AddScoped<IAsyncAdversarialReviewService, LlmBackedAdversarialReviewService>();
+        services.AddScoped<AdversarialReviewRouterService>();
+        services.AddScoped<IAdversarialReviewService>(static sp => sp.GetRequiredService<AdversarialReviewRouterService>());
+        services.AddScoped<IAsyncAdversarialReviewService>(static sp => sp.GetRequiredService<AdversarialReviewRouterService>());
         services.AddScoped<IChangeImpactAnalyzer, ChangeImpactAnalyzer>();
         services.AddScoped<IArchitectureModelDiffApplier, ArchitectureModelDiffApplier>();
         services.AddScoped<IIncrementalReReviewService, IncrementalReReviewService>();
+        services.AddScoped<ISelectiveExecuteIncrementalReReviewCoordinator, SelectiveExecuteIncrementalReReviewCoordinator>();
         services.AddScoped<IMustNotFailEnforcer, MustNotFailEnforcer>();
         services.AddScoped<ITrustPublishGate, TrustPublishGate>();
         services.AddScoped<IArchitectureIntelligenceProductPublishService, ArchitectureIntelligenceProductPublishService>();
+        services.AddScoped<ISpecialistFindingsSubstantiationService, SpecialistFindingsSubstantiationService>();
+        services.AddScoped<IAuthorityFindingsSnapshotUpdater, AuthorityFindingsSnapshotUpdater>();
+        services.AddScoped<IArchitectureIntelligenceAuthorityFindingsContributor,
+            ArchitectureIntelligenceAuthorityFindingsContributor>();
+        services.AddScoped<IArchitectureIntelligenceFinalizeTrustEvaluator,
+            ArchitectureIntelligenceFinalizeTrustEvaluator>();
+        services.AddScoped<IBlockedReviewCheckProjector, BlockedReviewCheckProjector>();
+        services.AddScoped<IKnowledgeModelClarificationAnswerApplicator, KnowledgeModelClarificationAnswerApplicator>();
+        services.AddScoped<IClarificationAnswerReReviewCoordinator, ClarificationAnswerReReviewCoordinator>();
+        services.AddScoped<IClarificationResolvedFindingMuter, ClarificationResolvedFindingMuter>();
+        services.AddScoped<IRecommendationImproveLoopEvidencePersister, RecommendationImproveLoopEvidencePersister>();
+        services.AddScoped<IRecommendationImproveLoopCoordinator, RecommendationImproveLoopCoordinator>();
         services.AddSingleton<IReviewResultCache, ReviewResultCache>();
         services.AddScoped<IArchitectureIntelligenceReviewTierBudgetGuard, ArchitectureIntelligenceReviewTierBudgetGuard>();
         services.AddScoped<IArchitectureIntelligenceProductRunSourceContextLoader,

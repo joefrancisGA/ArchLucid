@@ -26,7 +26,7 @@ import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 import type { SearchPageViewModel } from "./search-page-view-model";
 import {
-  SEARCH_EXAMPLE_QUERIES_LINE,
+  SEARCH_EXAMPLE_QUERY_CHIPS,
   SEARCH_LOAD_RETRY_LABEL,
   SEARCH_PAGE_TITLE,
   SEARCH_QUERY_FIELD_LABEL,
@@ -40,6 +40,7 @@ import { SearchReviewEvidenceBuyerChrome } from "./SearchReviewEvidenceBuyerChro
 import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
 import { SearchReviewEvidenceLoadFailurePanel } from "./SearchReviewEvidenceLoadFailurePanel";
 import { SearchReviewEvidencePageHeader } from "./SearchReviewEvidencePageHeader";
+import { SearchPickReviewBeforeSearchStrip } from "./SearchPickReviewBeforeSearchStrip";
 
 type SearchPageViewProps = {
   model: SearchPageViewModel;
@@ -69,6 +70,8 @@ export function SearchPageView({ model }: SearchPageViewProps) {
     query,
     results,
     runId,
+    recentQueries,
+    onClearRecentQueries,
     setQuery,
     setRunId,
   } = model;
@@ -127,6 +130,10 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
       )}
       {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
+
+      {scopedRunId.length === 0 ? (
+        <SearchPickReviewBeforeSearchStrip selectedReviewId={runId} onSelectReview={setRunId} />
+      ) : null}
 
       <Card className="max-w-xl border-neutral-200 dark:border-neutral-700" data-testid="search-review-evidence-form">
         <CardContent className="grid gap-4 p-4">
@@ -190,7 +197,65 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             {loading ? "Searching…" : "Search"}
           </Button>
 
-          <p className={cn("m-0 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{SEARCH_EXAMPLE_QUERIES_LINE}</p>
+          <div className="space-y-2" data-testid="search-example-query-chips">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Example queries</p>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Example search queries">
+              {SEARCH_EXAMPLE_QUERY_CHIPS.map((chip) => (
+                <Button
+                  key={chip.id}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-auto max-w-full whitespace-normal py-1 font-normal"
+                  data-testid={`search-example-query-chip-${chip.id}`}
+                  disabled={loading}
+                  onClick={() => {
+                    setQuery(chip.query);
+                    void onSearch(chip.query);
+                  }}
+                >
+                  {chip.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {recentQueries.length > 0 ? (
+            <div className="space-y-2" data-testid="search-recent-query-chips">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Recent searches</p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto px-2 py-1"
+                  data-testid="search-recent-queries-clear"
+                  onClick={onClearRecentQueries}
+                >
+                  Clear
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Recent search queries">
+                {recentQueries.map((recentQuery) => (
+                  <Button
+                    key={recentQuery}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-auto max-w-full whitespace-normal py-1 font-normal"
+                    data-testid={`search-recent-query-chip-${recentQuery}`}
+                    disabled={loading}
+                    onClick={() => {
+                      setQuery(recentQuery);
+                      void onSearch(recentQuery);
+                    }}
+                  >
+                    {recentQuery}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 

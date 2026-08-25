@@ -18,6 +18,8 @@ import { ArchitectureDraftIntakeModeBanner } from "@/components/architecture/Arc
 import { ArchitectureDraftQualityAttributesEncouragementDialog } from "@/components/architecture/ArchitectureDraftQualityAttributesEncouragementDialog";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
+import { ArchitectureDraftNextDraftFooter } from "@/components/architecture/ArchitectureDraftNextDraftFooter";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
@@ -30,7 +32,9 @@ import { ReviewStartNavigationStallNotice } from "@/components/review-intake/Rev
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Card, CardContent } from "@/components/ui/card";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
-import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { useArchitectureDraftWorkspace } from "@/hooks/use-architecture-draft-workspace";
+import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { useReviewStartNavigationProgress } from "@/hooks/use-review-start-navigation-progress";
 import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
@@ -66,7 +70,6 @@ import {
   startReviewFromArchitectureHref,
 } from "@/lib/architecture/architecture-routes";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { getRunSummary } from "@/lib/api/architecture-runs";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { getDraftRequest, patchDraftRequest, reopenDraftRequest } from "@/lib/api/draft-intake-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -84,7 +87,12 @@ import {
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import { GuidedIntakeAlreadySubmittedCallout } from "@/app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout";
-import { GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS } from "@/lib/guided-intake-copy";
+import { GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS, GUIDED_INTAKE_ACTOR_SUGGESTIONS_READINESS_HINT } from "@/lib/guided-intake-copy";
+import {
+  resolveArchitectureDraftStartReviewEmphasizedStepId,
+  resolveArchitectureDraftStartReviewSteps,
+} from "@/lib/architecture-draft-start-review-checklist";
+import { resolveNextArchitectureDraftInList } from "@/lib/resolve-next-architecture-draft-in-list";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -100,33 +108,51 @@ type ArchitectureDraftWorkspaceProps = {
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const isNewDraft = isArchitectureNewDraftSegment(props.architectureId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const isDetailDraft = !isNewDraft;
-  const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
-  const [loading, setLoading] = useState(!isNewDraft);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [draft, setDraft] = useState<DraftRequestResponse | null>(null);
-  const [fields, setFields] = useState({
-    freeTextIntent: "",
-    businessOutcome: "",
-    systemName: "",
-    structuredBrief: emptyArchitectureDraftStructuredBrief(),
+  const draftRegistryEntries = useArchitectureDraftRegistryEntries();
+  const acceptServerBaselineRef = useRef<
+    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string) => void
+  >(() => undefined);
+  const onDraftHydratedRef = useRef<(loaded: DraftRequestResponse, formState: ArchitectureDraftFieldState) => void>(
+    (loaded, formState) => {
+      acceptServerBaselineRef.current(formState, loaded.updatedUtc);
+    },
+  );
+  const {
+    isNewDraft,
+    loading,
+    loadError,
+    draft,
+    setDraft,
+    fields,
+    setFields,
+    actorSet,
+    setActorSet,
+    handoffAcknowledged,
+    setHandoffAcknowledged,
+    resolvedDraftId,
+    setResolvedDraftId,
+    linkedReviewId,
+    handoffEditorLocked,
+    blocksLlmExecution,
+    loadDraft,
+    applyLoadedDraftToForm,
+  } = useArchitectureDraftWorkspace({
+    architectureId: props.architectureId,
+    onDraftHydratedRef,
   });
-  const [actorSet, setActorSet] = useState<ActorSet>(() => architectureCreationDefaultActorSet());
   const [exitPending, setExitPending] = useState(false);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
+  const [actorSuggestionsUnresolved, setActorSuggestionsUnresolved] = useState(false);
+  const [actorSuggestionGateRequestId, setActorSuggestionGateRequestId] = useState(0);
   const [startReviewError, setStartReviewError] = useState<string | null>(null);
   const [saveActionError, setSaveActionError] = useState<string | null>(null);
-  const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
-  const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
   const [unlockBusy, setUnlockBusy] = useState(false);
-  const [resolvedDraftId, setResolvedDraftId] = useState<string | null>(null);
+  const isDetailDraft = !isNewDraft;
   const [qualityAttributesEncouragementOpen, setQualityAttributesEncouragementOpen] = useState(false);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
-  const loadDraftInFlightRef = useRef<Promise<void> | null>(null);
   const syncDraftInFlightRef = useRef<Promise<void> | null>(null);
   const draftLifecycleRef = useRef<{
     status: DraftRequestResponse["status"] | null;
@@ -135,16 +161,39 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     status: null,
     spawnedRunId: null,
   });
-  const loadDraftRef = useRef<() => Promise<void>>(async () => undefined);
+  const loadDraftRef = useRef(loadDraft);
   const reviewStartProgress = useReviewStartNavigationProgress();
 
-  const linkedReviewId = architectureDraftSpawnedRunId(draft);
-  const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
+  const linkedReviewSummaryQuery = useRunSummaryQuery(linkedReviewId ?? "", {
+    enabled: linkedReviewId !== null,
+  });
+  const linkedReviewTitle = useMemo(() => {
+    if (linkedReviewId === null) {
+      return "Untitled review";
+    }
+
+    if (linkedReviewSummaryQuery.data !== undefined) {
+      return buyerFacingReviewTitleFromSummary(linkedReviewSummaryQuery.data);
+    }
+
+    if (linkedReviewSummaryQuery.isError) {
+      return linkedReviewId;
+    }
+
+    return "Untitled review";
+  }, [linkedReviewId, linkedReviewSummaryQuery.data, linkedReviewSummaryQuery.isError]);
   const intakeModeActive = isArchitectureDraftInReviewIntake(draft?.status);
   const briefFrozen = isArchitectureDraftBriefFrozen(draft?.status);
   const canUnlockBrief = architectureDraftAllowsBriefUnlock(draft?.status);
   const editorLocked = handoffEditorLocked || briefFrozen || exitPending;
   const effectiveArchitectureId = resolvedDraftId ?? props.architectureId;
+  const nextDraft = useMemo(() => {
+    if (isNewDraft) {
+      return null;
+    }
+
+    return resolveNextArchitectureDraftInList(draftRegistryEntries, effectiveArchitectureId);
+  }, [draftRegistryEntries, effectiveArchitectureId, isNewDraft]);
 
   // Reasoning needs a real draft id — unavailable on /new until the first deferred create succeeds.
   const refinementDraftId =
@@ -156,25 +205,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       setResolvedDraftId(draftId);
       replaceArchitectureCreationUrlWithoutNavigation(draftId);
     },
-    [],
+    [setResolvedDraftId],
   );
-
-  const applyLoadedDraftToForm = useCallback((loaded: DraftRequestResponse) => {
-    const formState = applyArchitectureCreationDraftToFormState(loaded);
-    setDraft(loaded);
-    setFields(formState);
-    setActorSet(
-      loaded.document.actorSet.actors.length > 0
-        ? loaded.document.actorSet
-        : architectureCreationDefaultActorSet(),
-    );
-
-    return formState;
-  }, []);
-
-  const acceptServerBaselineRef = useRef<
-    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string) => void
-  >(() => undefined);
 
   const handleDraftLoaded = useCallback(
     (loaded: DraftRequestResponse) => {
@@ -217,6 +249,21 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     () => validateArchitectureReviewReadiness(fields, actorSet.actors),
     [actorSet.actors, fields],
   );
+  const nameAndScopeConfigured =
+    fields.systemName.trim().length > 0 &&
+    fields.freeTextIntent.trim().length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS;
+  const qualityReadinessConfigured =
+    qualityAttributeMeetsMinimum(fields.structuredBrief.qualityAttribute) && reviewReadiness.isValid;
+  const draftStartReviewSteps = resolveArchitectureDraftStartReviewSteps({
+    nameAndScopeConfigured,
+    qualityReadinessConfigured,
+    reviewStarted: linkedReviewId !== null,
+  });
+  const draftStartReviewEmphasizedStepId = resolveArchitectureDraftStartReviewEmphasizedStepId({
+    nameAndScopeConfigured,
+    qualityReadinessConfigured,
+    reviewStarted: linkedReviewId !== null,
+  });
   const needsPersistedDraftBeforeStart = isNewDraft && !hasPersistedDraft;
   const canStartReview =
     reviewReadiness.isValid &&
@@ -245,68 +292,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     setStartReviewError(null);
   }, [fields, scopeGateOpen]);
 
-  const loadDraft = useCallback(async () => {
-    if (isNewDraft) {
-      return;
-    }
-
-    if (loadDraftInFlightRef.current !== null) {
-      return loadDraftInFlightRef.current;
-    }
-
-    const loadPromise = (async () => {
-      setLoading(true);
-      setLoadError(null);
-
-      try {
-        const loaded = await queryClient.fetchQuery({
-          queryKey: operatorQueryKeys.architectureDraft(props.architectureId),
-          queryFn: () => getDraftRequest(props.architectureId),
-          staleTime: OPERATOR_QUERY_STALE_MS,
-        });
-
-        if (loaded.document.workflowIntent !== undefined && loaded.document.workflowIntent !== CREATE_ARCHITECTURE_INTENT) {
-          // Draft exists but is not a create-architecture draft — still allow editing with create intent on save.
-        }
-
-        const formState = applyLoadedDraftToForm(loaded);
-        // Match autosave baseline to the hydrated form so reload does not look "unsaved"
-        // and accidentally PATCH empty system name / business outcome over the server copy.
-        acceptServerBaselineRef.current(formState, loaded.updatedUtc);
-        setHandoffAcknowledged(isArchitectureDraftHandoffAcknowledged(props.architectureId));
-        upsertArchitectureDraftRegistryEntry(
-          buildArchitectureDraftRegistryEntry(loaded, {
-            linkedReviewId: architectureDraftSpawnedRunId(loaded),
-          }),
-        );
-      } catch (err) {
-        if (isApiRequestError(err) && err.httpStatus === 429) {
-          const waitSec = err.retryAfterSeconds;
-          const waitHint =
-            waitSec !== null && waitSec > 0
-              ? ` Wait about ${waitSec} second${waitSec === 1 ? "" : "s"}, then retry.`
-              : " Wait a short time, then retry.";
-
-          setLoadError(`Too many requests while loading this draft.${waitHint}`);
-        } else {
-          setLoadError("Could not load this architecture draft.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    })();
-
-    loadDraftInFlightRef.current = loadPromise;
-
-    try {
-      await loadPromise;
-    } finally {
-      if (loadDraftInFlightRef.current === loadPromise) {
-        loadDraftInFlightRef.current = null;
-      }
-    }
-  }, [applyLoadedDraftToForm, isNewDraft, props.architectureId, queryClient]);
-
   loadDraftRef.current = loadDraft;
 
   useEffect(() => {
@@ -318,10 +303,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   const syncDraftFromServer = useCallback(async () => {
     if (isNewDraft || loading) {
-      return;
-    }
-
-    if (loadDraftInFlightRef.current !== null) {
       return;
     }
 
@@ -365,15 +346,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         syncDraftInFlightRef.current = null;
       }
     }
-  }, [applyLoadedDraftToForm, isNewDraft, loading, props.architectureId]);
-
-  useEffect(() => {
-    if (isNewDraft) {
-      return;
-    }
-
-    void loadDraftRef.current();
-  }, [isNewDraft, props.architectureId]);
+  }, [applyLoadedDraftToForm, isNewDraft, loading, props.architectureId, queryClient]);
 
   useEffect(() => {
     if (isNewDraft) {
@@ -396,30 +369,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       window.removeEventListener("focus", handleResume);
     };
   }, [isNewDraft, syncDraftFromServer]);
-
-  useEffect(() => {
-    if (linkedReviewId === null) {
-      return;
-    }
-
-    let canceled = false;
-
-    void getRunSummary(linkedReviewId)
-      .then((summary) => {
-        if (!canceled) {
-          setLinkedReviewTitle(buyerFacingReviewTitleFromSummary(summary));
-        }
-      })
-      .catch(() => {
-        if (!canceled) {
-          setLinkedReviewTitle(linkedReviewId);
-        }
-      });
-
-    return () => {
-      canceled = true;
-    };
-  }, [linkedReviewId]);
 
   useEffect(() => {
     if (
@@ -557,6 +506,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       return;
     }
 
+    if (actorSuggestionsUnresolved) {
+      setActorSuggestionGateRequestId((current) => current + 1);
+
+      return;
+    }
+
     // Client-known blockers stay on the form; CTA is disabled until canStartReview.
     if (!canStartReview) {
       return;
@@ -569,7 +524,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     }
 
     await executeStartReview();
-  }, [canStartReview, executeStartReview, fields.structuredBrief.qualityAttribute, reviewStartProgress.isPending]);
+  }, [
+    actorSuggestionsUnresolved,
+    canStartReview,
+    executeStartReview,
+    fields.structuredBrief.qualityAttribute,
+    reviewStartProgress.isPending,
+  ]);
 
   const handleEncourageAddQualityAttributes = useCallback(() => {
     setQualityAttributesEncouragementOpen(false);
@@ -744,6 +705,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         </div>
       ) : null}
 
+      <IntegrationConnectChecklist
+        title="Start-review checklist"
+        steps={draftStartReviewSteps}
+        emphasizedStepId={draftStartReviewEmphasizedStepId}
+        testIdPrefix="architecture-draft-start-review"
+      />
+
       <Card>
         <CardContent className="space-y-6 pt-6">
           <ArchitectureDraftFormFields
@@ -752,6 +720,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             disabled={editorLocked}
             blocksLlmExecution={blocksLlmExecution}
             markReviewReadinessInvalid={linkedReviewId === null && !reviewReadiness.isValid}
+            actorSuggestionGateRequestId={actorSuggestionGateRequestId}
+            onActorSuggestionsUnresolvedChange={setActorSuggestionsUnresolved}
             onFieldsChange={setFields}
             onActorSetChange={setActorSet}
           />
@@ -801,6 +771,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             data-testid="architecture-draft-review-readiness"
           >
             {formatArchitectureReviewReadinessMessage(reviewReadiness.blockers)}
+          </p>
+        ) : null}
+        {linkedReviewId === null && !briefFrozen && reviewReadiness.isValid && !needsPersistedDraftBeforeStart && scopeGateOpen && actorSuggestionsUnresolved ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+            role="status"
+            data-testid="architecture-draft-actor-suggestions-readiness"
+          >
+            {GUIDED_INTAKE_ACTOR_SUGGESTIONS_READINESS_HINT}
           </p>
         ) : null}
         {linkedReviewId === null && !briefFrozen && reviewReadiness.isValid && !needsPersistedDraftBeforeStart && !scopeGateOpen ? (
@@ -902,6 +881,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         onAddQualityAttributes={handleEncourageAddQualityAttributes}
         onContinueWithout={handleContinueWithoutQualityAttributes}
       />
+      {nextDraft !== null ? <ArchitectureDraftNextDraftFooter target={nextDraft} /> : null}
     </div>
   );
 }

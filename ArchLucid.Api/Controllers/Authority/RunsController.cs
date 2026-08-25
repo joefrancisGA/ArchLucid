@@ -1,16 +1,15 @@
-using System.Text.Json;
-
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Common;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Query;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
@@ -18,16 +17,16 @@ using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Feedback;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
 
@@ -43,12 +42,6 @@ namespace ArchLucid.Api.Controllers.Authority;
 /// <summary>
 ///     HTTP API for mutating architecture runs: create, execute, commit, replay, submit agent results.
 /// </summary>
-/// <remarks>
-///     Base route <c>v1/architecture</c>. Read-only endpoints live on <see cref="RunQueryController" /> and
-///     <see cref="RunAgentEvaluationController" />.
-///     Mutating endpoints require <see cref="ArchLucidPolicies.ExecuteAuthority" />; reads use
-///     <see cref="ArchLucidPolicies.ReadAuthority" />.
-/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -57,10 +50,11 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed partial class RunsController(
-    IArchitectureRunCommandService architectureRunCommandService,
+    IRunLifecycleCommandService runLifecycleCommandService,
     IArchitectureApplicationService architectureApplicationService,
     IArchitectureRequestDraftService architectureRequestDraftService,
     IArchitectureOverviewRewriteService architectureOverviewRewriteService,
+    IClarificationAnswerRephraseService clarificationAnswerRephraseService,
     IStructuredBriefSuggestionExplainService structuredBriefSuggestionExplainService,
     IChatIntakeParserService chatIntakeParserService,
     IConnectorIntakeParserService connectorIntakeParserService,
@@ -68,9 +62,9 @@ public sealed partial class RunsController(
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
     IAuditService auditService,
-    IRunRepository runRepository,
     IAuthorityQueryService authorityQuery,
     IFindingFeedbackRepository findingFeedbackRepository,
+    IRunRepository runRepository,
     ILogger<RunsController> logger)
     : ControllerBase
 {
@@ -83,21 +77,6 @@ public sealed partial class RunsController(
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
-    // Required by LoggerMessage source generator (SYSLIB1019): concrete ILogger field named _logger.
-
-    /// <summary>
-    ///     Creates a run, evidence bundle, and starter tasks from <paramref name="request" />; supports <c>Idempotency-Key</c>
-    ///     replay semantics.
-    /// </summary>
-    /// <returns>
-    ///     201 with <see cref="CreateArchitectureRunResponse" /> for new runs, or 200 with <c>X-Idempotency-Replayed</c>
-    ///     header when the key matches a prior success.
-    /// </returns>
-    /// <remarks>
-    ///     Canonical route: <c>POST v1/architecture/request</c>. The deprecated <c>POST /v1/requests</c> alias (TB-305 /
-    ///     ADR 0042) was retired once the coordinator strangler migration closed pre-release (ADR 0042 closure note) — there
-    ///     is no customer traffic to protect and the canonical route is the only family the UI/CLI ever used.
-    /// </remarks>
     [HttpPost("request")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
@@ -123,7 +102,7 @@ public sealed partial class RunsController(
 
         try
         {
-            CreateRunCommandResult commandResult = await architectureRunCommandService.CreateRunAsync(
+            CreateRunCommandResult commandResult = await runLifecycleCommandService.CreateRunAsync(
                 scope,
                 request,
                 idempotencyKey,
@@ -185,11 +164,6 @@ public sealed partial class RunsController(
         }
     }
 
-    /// <summary>
-    ///     Creates up to 50 architecture runs in a single call for CI/CD pipelines. Each item in the array is treated as
-    ///     an independent <see cref="CreateRun" /> call. Partial failures are captured per item; the overall response is
-    ///     always <c>202 Accepted</c>. Supports <c>Idempotency-Key</c> header to prevent duplicate batch processing.
-    /// </summary>
     [HttpPost("request/batch")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [RequiresCommercialTenantTier(TenantTier.Standard)]
@@ -218,7 +192,7 @@ public sealed partial class RunsController(
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        BatchCreateRunOrchestrationResult result = await architectureRunCommandService.CreateRunBatchAsync(
+        BatchCreateRunOrchestrationResult result = await runLifecycleCommandService.CreateRunBatchAsync(
             scope,
             requests,
             idempotencyKey,
@@ -235,7 +209,6 @@ public sealed partial class RunsController(
             Response.Headers.Append("X-Idempotency-Replayed", "true");
             LogIdempotencyReplay("batch", user, correlationId);
 
-            // The batch response body is not persisted, so a replay confirms acceptance without re-listing items.
             return Ok(new BatchCreateRunResponse { Items = [] });
         }
 
@@ -248,7 +221,6 @@ public sealed partial class RunsController(
 
     private const int BatchCreateRunMaxItems = 50;
 
-    /// <summary>Reads and length-validates the optional <c>Idempotency-Key</c> header.</summary>
     private bool TryReadIdempotencyKeyHeader(out string? idempotencyKey, out IActionResult? badRequest)
     {
         idempotencyKey = null;
@@ -257,29 +229,19 @@ public sealed partial class RunsController(
         if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues rawKeyHeader))
             return true;
 
-        string trimmedKey = rawKeyHeader.ToString().Trim();
+        IdempotencyKeyValidationResult validation =
+            runLifecycleCommandService.ValidateIdempotencyKey(rawKeyHeader.ToString());
 
-        if (trimmedKey.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+        if (!validation.IsValid)
         {
-            badRequest = this.BadRequestProblem(
-                $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
-                ProblemTypes.ValidationFailed);
-
+            badRequest = this.BadRequestProblem(validation.ErrorMessage!, ProblemTypes.ValidationFailed);
             return false;
         }
 
-        idempotencyKey = trimmedKey.Length == 0 ? null : trimmedKey;
-
+        idempotencyKey = validation.Key;
         return true;
     }
 
-    /// <summary>
-    ///     Dispatches all pending tasks for <paramref name="runId" /> through the agent executor and persists results.
-    /// </summary>
-    /// <returns><see cref="ExecuteRunResponse" /> with agent results.</returns>
-    /// <remarks>
-    ///     Canonical route: <c>POST v1/architecture/review/{runId}/execute</c> (ADR 0064).
-    /// </remarks>
     [HttpPost("review/{runId}/execute")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
@@ -310,7 +272,7 @@ public sealed partial class RunsController(
             }
 
             ExecuteRunResult result =
-                await architectureRunCommandService.ExecuteRunAsync(runId, cancellationToken);
+                await runLifecycleCommandService.ExecuteRunAsync(runId, cancellationToken);
 
             ExecuteRunResponse response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
 
@@ -346,11 +308,6 @@ public sealed partial class RunsController(
         }
     }
 
-    /// <summary>
-    ///     TB-938: re-execute selected agents/tasks for <paramref name="runId" />, keeping successful results and
-    ///     invalidating Critic when upstream inputs change.
-    /// </summary>
-    // idempotency-posture: explicit-idempotency-key
     [HttpPost("review/{runId}/execute/selective")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
@@ -371,13 +328,14 @@ public sealed partial class RunsController(
 
         try
         {
-            ExecuteRunResult result = await architectureRunCommandService.ExecuteRunSelectiveAsync(
+            ExecuteRunResult result = await runLifecycleCommandService.ExecuteRunSelectiveAsync(
                 runId,
                 new SelectiveAgentExecuteRequest
                 {
                     TaskIds = request.TaskIds,
                     AgentTypes = request.AgentTypes,
                     IncludeDependents = request.IncludeDependents,
+                    AffectedElementIds = request.AffectedElementIds,
                 },
                 cancellationToken);
 
@@ -399,14 +357,14 @@ public sealed partial class RunsController(
                     ProjectId = selectiveScope.ProjectId,
                     RunId = selectiveRunGuid,
                     CorrelationId = correlationId,
-                    DataJson = JsonSerializer.Serialize(
+                    DataJson = System.Text.Json.JsonSerializer.Serialize(
                         new
                         {
                             taskIds = request.TaskIds,
                             agentTypes = request.AgentTypes,
                             includeDependents = request.IncludeDependents
                         },
-                        AuditJsonSerializationOptions.Instance)
+                        Persistence.Serialization.AuditJsonSerializationOptions.Instance)
                 },
                 cancellationToken);
 
@@ -428,14 +386,6 @@ public sealed partial class RunsController(
         }
     }
 
-    /// <summary>
-    ///     Merges agent results through the decision engine and persists the golden manifest and decision traces for
-    ///     <paramref name="runId" />.
-    /// </summary>
-    /// <remarks>
-    ///     Canonical route: <c>POST v1/architecture/review/{runId}/finalize</c> (ADR 0064; former path ended in <c>/commit</c>).
-    /// </remarks>
-    // idempotency-posture: explicit-idempotency-key
     [HttpPost("review/{runId}/finalize")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanCommitRuns)]
@@ -461,7 +411,7 @@ public sealed partial class RunsController(
 
         try
         {
-            CommitRunIdempotencyOutcome outcome = await architectureRunCommandService.CommitRunAsync(
+            CommitRunIdempotencyOutcome outcome = await runLifecycleCommandService.CommitRunAsync(
                 scope,
                 runId,
                 request,
@@ -519,14 +469,6 @@ public sealed partial class RunsController(
         }
     }
 
-    /// <summary>
-    ///     Re-executes agents for <paramref name="runId" /> from cloned tasks/evidence, optionally committing a replay manifest.
-    /// </summary>
-    // Replay never mutates the original run: it clones tasks/evidence into a new replay run, so a retry
-    // costs another execution but cannot corrupt the source. Matches the internal twin of this operation
-    // (InternalArchitectureDiagnosticsController) and the rest of the replay family. Declared explicitly
-    // because the posture classifier otherwise infers it from a neighboring action's window.
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/{runId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]
@@ -547,7 +489,7 @@ public sealed partial class RunsController(
 
         try
         {
-            ReplayRunResult result = await architectureRunCommandService.ReplayRunAsync(
+            ReplayRunResult result = await runLifecycleCommandService.ReplayRunAsync(
                 runId,
                 request.ExecutionMode,
                 request.CommitReplay,
@@ -564,21 +506,20 @@ public sealed partial class RunsController(
                 result.Warnings);
 
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
-            string auditActor = actorContext.GetActor();
             Guid? auditRunId = Guid.TryParse(result.OriginalRunId, out Guid originalParsed) ? originalParsed : null;
 
             await auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.ReplayExecuted,
-                    ActorUserId = auditActor,
-                    ActorUserName = auditActor,
+                    ActorUserId = user,
+                    ActorUserName = user,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
                     RunId = auditRunId,
                     CorrelationId = correlationId,
-                    DataJson = JsonSerializer.Serialize(new
+                    DataJson = System.Text.Json.JsonSerializer.Serialize(new
                     {
                         result.OriginalRunId,
                         result.ReplayRunId,
@@ -587,7 +528,7 @@ public sealed partial class RunsController(
                         request.CommitReplay,
                         request.ManifestVersionOverride
                     },
-                        AuditJsonSerializationOptions.Instance)
+                        Persistence.Serialization.AuditJsonSerializationOptions.Instance)
                 },
                 cancellationToken);
 
@@ -611,10 +552,6 @@ public sealed partial class RunsController(
         }
     }
 
-    /// <summary>
-    ///     Pins or unpins <paramref name="runId" /> for workspace curation. When the body omits
-    ///     <see cref="PinRunRequest.IsPinned" />, toggles the current stored value.
-    /// </summary>
     [HttpPatch("review/{runId}/pin")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PinRunResponse), StatusCodes.Status200OK)]
@@ -659,25 +596,15 @@ public sealed partial class RunsController(
                 ProjectId = scope.ProjectId,
                 RunId = runGuid,
                 CorrelationId = HttpContext.TraceIdentifier,
-                DataJson = JsonSerializer.Serialize(
+                DataJson = System.Text.Json.JsonSerializer.Serialize(
                     new { isPinned = run.IsPinned },
-                    AuditJsonSerializationOptions.Instance)
+                    Persistence.Serialization.AuditJsonSerializationOptions.Instance)
             },
             cancellationToken);
 
         return Ok(new PinRunResponse { RunId = run.RunId.ToString("N"), IsPinned = run.IsPinned });
     }
 
-    /// <summary>
-    ///     Accepts one <see cref="ArchLucid.Contracts.Agents.AgentResult" /> for an in-progress run (custom agent
-    ///     integrations).
-    /// </summary>
-    /// <remarks>
-    ///     TB-305 / ADR 0042: append-only extension point. The application service only accepts results while the run is in
-    ///     <c>TasksGenerated</c> or <c>WaitingForResults</c> (see
-    ///     <c>RunStateTransitionService.ValidateResultSubmissionAllowed</c>); it cannot finalize/commit a run or mutate a
-    ///     committed one, so it can never bypass the commit orchestrator.
-    /// </remarks>
     [IdempotencyFilter]
     [HttpPost("review/{runId}/result")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -757,10 +684,8 @@ public sealed partial class RunsController(
         return Guid.TryParse(runId, out runGuid);
     }
 
-    private static Guid? TryParseRunGuidForAudit(string runId)
-    {
-        return TryParseRunGuidForAudit(runId, out Guid g) ? g : null;
-    }
+    private static Guid? TryParseRunGuidForAudit(string runId) =>
+        TryParseRunGuidForAudit(runId, out Guid g) ? g : null;
 
     private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind,
         string defaultBadRequestDetail)

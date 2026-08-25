@@ -58,9 +58,11 @@ public static class FallbackLlmConfigurationResolver
 
     private static bool IsComplete(FallbackLlmOptions row, out string endpoint, out string apiKey, out string deployment)
     {
+#pragma warning disable CS0618 // Intentional legacy flat-property fallback for older configs.
         endpoint = row.Endpoint?.Trim() ?? string.Empty;
         apiKey = row.ApiKey?.Trim() ?? string.Empty;
         deployment = row.DeploymentName?.Trim() ?? string.Empty;
+#pragma warning restore CS0618
 
         return endpoint.Length > 0 && apiKey.Length > 0 && deployment.Length > 0;
     }

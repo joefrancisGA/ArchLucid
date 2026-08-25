@@ -25,10 +25,6 @@ import {
   type SlackIntegrationFormValues,
 } from "@/lib/slack-integration-form-schema";
 import {
-  resolveSlackEmphasizedSetupStepId,
-  resolveSlackSetupSteps,
-} from "@/lib/slack-integration-present";
-import {
   SLACK_INTEGRATION_DISABLE_SUCCESS_MESSAGE,
   SLACK_INTEGRATION_ENABLE_SUCCESS_MESSAGE,
   SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE,
@@ -90,26 +86,6 @@ export function SlackIntegrationPageClient(): React.ReactElement {
   );
 
   const formTestSucceeded = formTestFeedback?.kind === "success";
-
-  const setupSteps = useMemo(
-    () =>
-      resolveSlackSetupSteps({
-        totalDestinationCount: slackRows.length,
-        activeDestinationCount,
-        formTestSucceeded,
-      }),
-    [activeDestinationCount, formTestSucceeded, slackRows.length],
-  );
-
-  const emphasizedSetupStepId = useMemo(
-    () =>
-      resolveSlackEmphasizedSetupStepId({
-        totalDestinationCount: slackRows.length,
-        activeDestinationCount,
-        formTestSucceeded,
-      }),
-    [activeDestinationCount, formTestSucceeded, slackRows.length],
-  );
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -336,9 +312,9 @@ export function SlackIntegrationPageClient(): React.ReactElement {
 
           <SlackIntegrationAside
             loading={loading}
+            totalDestinationCount={slackRows.length}
             activeDestinationCount={activeDestinationCount}
-            setupSteps={setupSteps}
-            emphasizedSetupStepId={emphasizedSetupStepId}
+            formTestSucceeded={formTestSucceeded}
           />
         </div>
       </FormProvider>

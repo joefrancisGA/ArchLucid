@@ -55,6 +55,7 @@ export const AI_KNOWLEDGE_ASSISTANT_SAMPLE_DEFINITION: SampleScenarioDefinition 
   buyerReviewPackageTitle: AI_KNOWLEDGE_ASSISTANT_BUYER_REVIEW_PACKAGE_TITLE,
   policyPackDetailHref: AI_KNOWLEDGE_ASSISTANT_POLICY_PACK_DETAIL_HREF,
   policyPackIdAliases: ["ai-llm-workload-v1", "demo-ai-llm-workload-pack", "ai_llm_workload"],
+  policyPackDisplayLabel: "AI LLM Workload Policy Pack",
   ruleSetId: "ai-llm-workload-v1",
   ruleSetVersion: AI_KNOWLEDGE_ASSISTANT_RULE_SET_VERSION,
   tenantName: AI_KNOWLEDGE_ASSISTANT_DEMO_TENANT_NAME,

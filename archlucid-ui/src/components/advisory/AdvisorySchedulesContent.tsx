@@ -9,6 +9,7 @@ import { useAdvisoryScheduleReviewAvailability } from "@/hooks/use-advisory-sche
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdvisoryScheduleCreateForm } from "@/components/advisory/AdvisoryScheduleCreateForm";
+import { AdvisorySchedulesContinueLastViewedRow } from "@/components/advisory/AdvisorySchedulesContinueLastViewedRow";
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -75,6 +76,10 @@ import {
   readOperatorScopeFromStorage,
 } from "@/lib/operator/operator-scope-storage";
 import type { AdvisoryScanExecution, AdvisoryScanSchedule } from "@/types/advisory-scheduling";
+import {
+  resolveContinueLastAdvisorySchedule,
+  writeAdvisoryScheduleLastViewedId,
+} from "@/lib/resolve-continue-last-advisory-schedule";
 
 function formatAdvisorySchedulesLastLoaded(lastLoadedUtc: string | null): string {
   if (lastLoadedUtc === null) {
@@ -197,8 +202,30 @@ export function AdvisorySchedulesContent(): ReactElement {
       ),
     [displayTimeZoneId, executionsBySchedule, projectLabel, schedules],
   );
+  const continueLastSchedule = useMemo(
+    () => resolveContinueLastAdvisorySchedule(schedules),
+    [schedules],
+  );
+
+  function rememberSchedule(scheduleId: string): void {
+    writeAdvisoryScheduleLastViewedId(scheduleId);
+  }
+
+  function openSchedule(scheduleId: string): void {
+    rememberSchedule(scheduleId);
+    document
+      .querySelector(`[data-schedule-id="${scheduleId}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setHistoryOpenFor(scheduleId);
+
+    if (executionsBySchedule[scheduleId] === undefined) {
+      void loadExecutions(scheduleId);
+    }
+  }
 
   async function onViewHistory(scheduleId: string): Promise<void> {
+    rememberSchedule(scheduleId);
+
     if (historyOpenFor === scheduleId) {
       setHistoryOpenFor(null);
 
@@ -257,6 +284,7 @@ export function AdvisorySchedulesContent(): ReactElement {
         ) as HTMLElement | null;
         node?.focus();
         newestScheduleRef.current = node as HTMLTableRowElement | null;
+        rememberSchedule(created.scheduleId);
       }, 0);
 
       if (successTimerRef.current !== null) {
@@ -280,6 +308,7 @@ export function AdvisorySchedulesContent(): ReactElement {
       return;
     }
 
+    rememberSchedule(scheduleId);
     setFailure(null);
     setRunningScheduleId(scheduleId);
 
@@ -463,6 +492,13 @@ export function AdvisorySchedulesContent(): ReactElement {
               <span id={mutationDisabledHintId} className="sr-only">
                 {enterpriseMutationControlDisabledTitle}
               </span>
+
+              {continueLastSchedule !== null ? (
+                <AdvisorySchedulesContinueLastViewedRow
+                  target={continueLastSchedule}
+                  onOpen={openSchedule}
+                />
+              ) : null}
 
               <EnterpriseTable ariaLabel="Advisory scan schedules">
                 <EnterpriseTableHead>

@@ -1,65 +1,48 @@
 namespace ArchLucid.Application.GcpExtractor;
 
+/// <summary>GCP-hosted extractor poll result — delegates to shared cloud extractor envelope.</summary>
 public sealed class HostedGcpExtractorRunResult
 {
-    public bool Succeeded { get; init; }
+    private readonly CloudExtractor.HostedCloudExtractorRunResult _inner;
 
-    public Guid? PackageId { get; init; }
+    private HostedGcpExtractorRunResult(CloudExtractor.HostedCloudExtractorRunResult inner)
+    {
+        _inner = inner;
+    }
 
-    public int ResourceCount { get; init; }
+    public bool Succeeded => _inner.Succeeded;
 
-    public string? FailureDetail { get; init; }
+    public Guid? PackageId => _inner.PackageId;
 
-    public HostedGcpExtractorRunFailureKind FailureKind { get; init; }
+    public int ResourceCount => _inner.ResourceCount;
+
+    public string? FailureDetail => _inner.FailureDetail;
+
+    public HostedGcpExtractorRunFailureKind FailureKind =>
+        (HostedGcpExtractorRunFailureKind)_inner.FailureKind;
 
     public static HostedGcpExtractorRunResult CreateSuccess(Guid packageId, int resourceCount) =>
-        new()
-        {
-            Succeeded = true,
-            PackageId = packageId,
-            ResourceCount = resourceCount,
-            FailureKind = HostedGcpExtractorRunFailureKind.None
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateSuccess(packageId, resourceCount));
 
     public static HostedGcpExtractorRunResult CreateFeatureDisabled() =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = "Hosted GCP extractor is disabled (HostedGcpExtractor:Enabled=false).",
-            FailureKind = HostedGcpExtractorRunFailureKind.FeatureDisabled
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateFeatureDisabled("GCP", "HostedGcpExtractor"));
 
     public static HostedGcpExtractorRunResult CreateNotConfigured() =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = "No hosted GCP extractor connection exists for this tenant.",
-            FailureKind = HostedGcpExtractorRunFailureKind.NotConfigured
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateNotConfigured(
+            "GCP",
+            "No hosted GCP extractor connection exists for this tenant."));
 
     public static HostedGcpExtractorRunResult CreateIngestFailed(string detail) =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = detail,
-            FailureKind = HostedGcpExtractorRunFailureKind.IngestFailed
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateIngestFailed(detail));
 
     public static HostedGcpExtractorRunResult CreateThrottled(string detail) =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = detail,
-            FailureKind = HostedGcpExtractorRunFailureKind.Throttled
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateThrottled(detail));
 
     public static HostedGcpExtractorRunResult CreateCollectionFailed(string detail) =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = detail,
-            FailureKind = HostedGcpExtractorRunFailureKind.CollectionFailed
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateCollectionFailed(detail));
+
+    private static HostedGcpExtractorRunResult Wrap(CloudExtractor.HostedCloudExtractorRunResult inner) =>
+        new(inner);
 }
 
 public enum HostedGcpExtractorRunFailureKind

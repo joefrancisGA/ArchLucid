@@ -25,5 +25,6 @@ public interface IArchitectureRunCreateOrchestrator
         Guid runId,
         ArchitectureRequest request,
         CreateRunIdempotencyState? idempotency,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        string? actorOverride = null);
 }

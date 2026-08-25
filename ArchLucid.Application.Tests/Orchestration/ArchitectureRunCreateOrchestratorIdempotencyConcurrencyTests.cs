@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
@@ -180,28 +181,16 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             .Setup(m => m.ShouldQueueContextAndGraphStagesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        ArchitectureRunCreateOrchestrator sut = new(
+        ArchitectureRunCreateOrchestrator sut = ArchitectureRunCreateOrchestratorTestSupport.CreateOrchestrator(
             coordinationMock.Object,
-            Mock.Of<IArchitectureRequestRepository>(),
-            runRepo.Object,
-            scopeProvider.Object,
-            evidenceBundleRepository.Object,
-            taskRepository.Object,
-            idempotencyRepository.Object,
-            actor.Object,
-            Mock.Of<IBaselineMutationAuditService>(),
-            Mock.Of<IAuditService>(),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            Mock.Of<IUsageMeteringService>(),
-            new InProcessCreateRunIdempotencyLock(),
-            Microsoft.Extensions.Options.            Options.Create(new ArchitectureRunCreateOptions()),
-            asyncModeResolver.Object,
-            Mock.Of<IRunStateTransitionService>(),
-            TimeProvider.System,
-            new DefaultRequestContentSafetyPrecheck(),
-            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
-            Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
-            NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
+            runRepository: runRepo.Object,
+            scopeContextProvider: scopeProvider.Object,
+            evidenceBundleRepository: evidenceBundleRepository.Object,
+            taskRepository: taskRepository.Object,
+            architectureRunIdempotencyRepository: idempotencyRepository.Object,
+            actorContext: actor.Object,
+            asyncAuthorityPipelineModeResolver: asyncModeResolver.Object,
+            workspaceSystemNameCollisionGuard: Mock.Of<IWorkspaceSystemNameCollisionGuard>());
 
         const int parallel = 64;
         Task<CreateRunResult>[] tasks = Enumerable
@@ -300,7 +289,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             .Setup(m => m.ShouldQueueContextAndGraphStagesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        ArchitectureRunCreateOrchestrator sut = new(
+        ArchitectureRunCreateOrchestrator sut = ArchitectureRunCreateOrchestratorTestSupport.CreateOrchestrator(
             coordination.Object,
             requestRepository.Object,
             runRepo.Object,
@@ -309,19 +298,8 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             taskRepository.Object,
             idempotencyRepository.Object,
             actor.Object,
-            Mock.Of<IBaselineMutationAuditService>(),
-            Mock.Of<IAuditService>(),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            Mock.Of<IUsageMeteringService>(),
-            new InProcessCreateRunIdempotencyLock(),
-            Microsoft.Extensions.Options.            Options.Create(new ArchitectureRunCreateOptions()),
-            asyncModeResolver.Object,
-            Mock.Of<IRunStateTransitionService>(),
-            TimeProvider.System,
-            new DefaultRequestContentSafetyPrecheck(),
-            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
-            Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
-            NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
+            asyncAuthorityPipelineModeResolver: asyncModeResolver.Object,
+            workspaceSystemNameCollisionGuard: Mock.Of<IWorkspaceSystemNameCollisionGuard>());
 
         const int parallel = 64;
         ConcurrentBag<string> runIds = [];

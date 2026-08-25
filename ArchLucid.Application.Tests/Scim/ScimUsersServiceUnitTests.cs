@@ -281,6 +281,31 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task DeactivateAsync_throws_not_found_when_user_already_directory_removed()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        await sut.DeactivateAsync(tenantId, created.Id, CancellationToken.None);
+
+        Func<Task> secondDelete = () => sut.DeactivateAsync(tenantId, created.Id, CancellationToken.None);
+
+        await secondDelete.Should().ThrowAsync<ScimNotFoundException>();
+    }
+
+    [Fact]
     public async Task ListAsync_normalizes_start_index_below_one()
     {
         Guid tenantId = Guid.NewGuid();

@@ -32,6 +32,8 @@ internal static class RunRecordParameters
             run.GoldenManifestId,
             run.DecisionTraceId,
             run.ArtifactBundleId,
+            run.ArchitectureId,
+            run.KnowledgeModelId,
             run.ArchivedUtc,
             run.ArchitectureRequestId,
             run.LegacyRunStatus,
@@ -49,6 +51,7 @@ internal static class RunRecordParameters
             run.LastFailureReason,
             run.EngineProvenanceJson,
             run.GovernanceScopeJson,
+            run.ImproveLoopEvidenceJson,
             run.PackageOrigin
         };
     }
@@ -75,6 +78,8 @@ internal static class RunRecordParameters
             run.GoldenManifestId,
             run.DecisionTraceId,
             run.ArtifactBundleId,
+            run.ArchitectureId,
+            run.KnowledgeModelId,
             run.ArchivedUtc,
             run.ArchitectureRequestId,
             run.LegacyRunStatus,
@@ -91,6 +96,7 @@ internal static class RunRecordParameters
             run.LastFailureReason,
             run.EngineProvenanceJson,
             run.GovernanceScopeJson,
+            run.ImproveLoopEvidenceJson,
             run.PackageOrigin,
             run.RowVersion
         };

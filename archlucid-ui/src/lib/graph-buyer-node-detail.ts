@@ -1,6 +1,8 @@
 import { isBuyerTrailPhiHeroNode } from "@/lib/graph-mapper";
-import { getActiveSampleScenario } from "@/lib/samples/registry";
-import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE } from "@/lib/showcase-static-demo";
+import {
+  listRegisteredSampleScenarios,
+  resolveSampleScenarioByHeroFindingId,
+} from "@/lib/samples/registry";
 import type { GraphNodeVm } from "@/types/graph";
 
 export type BuyerTrailMetadataLine = {
@@ -18,12 +20,39 @@ function titleCaseSlug(slug: string): string {
   return parts.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
 }
 
-const KNOWN_REFERENCE_SLUGS: Record<string, string> = {
-  [SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID]: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
-};
+const KNOWN_REFERENCE_SLUGS: Record<string, string> = Object.fromEntries(
+  listRegisteredSampleScenarios().flatMap((scenario) => [
+    [scenario.primaryFindingId, scenario.primaryFindingTitle],
+  ]),
+);
+
+function resolveHeroFindingReferenceScenario(
+  referenceId: string,
+  referencedSlug: string,
+): ReturnType<typeof resolveSampleScenarioByHeroFindingId> {
+  return resolveSampleScenarioByHeroFindingId(referenceId) ?? resolveSampleScenarioByHeroFindingId(referencedSlug);
+}
+
+function sampleHeroRiskAreaSummary(scenario: NonNullable<ReturnType<typeof resolveSampleScenarioByHeroFindingId>>): string {
+  if (scenario.slug === "claims-intake") {
+    return "PHI minimization at intake — classification, lineage, and retention posture.";
+  }
+
+  return "Sensitive data minimization at intake — classification, lineage, and retention posture.";
+}
+
+function sampleHeroWhyItMattersSummary(
+  scenario: NonNullable<ReturnType<typeof resolveSampleScenarioByHeroFindingId>>,
+): string {
+  if (scenario.slug === "claims-intake") {
+    return "Mis-handled PHI creates compliance exposure and sponsor distrust; this finding ties evidence to the finalized review record.";
+  }
+
+  return "Mis-handled sensitive data creates compliance exposure and sponsor distrust; this finding ties evidence to the finalized review record.";
+}
 
 /**
- * Buyer-trail panel: one-line disposition when inferable from metadata (showcase PHI finding or explicit disposition keys).
+ * Buyer-trail panel: one-line disposition when inferable from metadata (showcase hero finding or explicit disposition keys).
  */
 export function graphBuyerTrailDispositionLine(
   nodeType: string,
@@ -51,11 +80,9 @@ export function graphBuyerTrailDispositionLine(
 
   const referenceId = (metadata.referenceId ?? metadata.ReferenceId ?? "").trim();
   const referencedSlug = (metadata.referenced ?? "").trim();
+  const scenario = resolveHeroFindingReferenceScenario(referenceId, referencedSlug);
 
-  if (
-    referenceId === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID ||
-    referencedSlug === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID
-  ) {
+  if (scenario !== null) {
     return "Accepted with monitoring — non-blocking for go-live; approval cadence covers unstructured attachment exceptions.";
   }
 
@@ -92,18 +119,23 @@ export function graphBuyerTrailRecordTypeLine(node: GraphNodeVm): {
   readonly secondary: BuyerTrailMetadataLine | null;
 } {
   if (isBuyerTrailPhiHeroNode(node)) {
-    const scenario = getActiveSampleScenario();
+    const referenceId = (node.metadata?.referenceId ?? node.metadata?.ReferenceId ?? node.id).trim();
+    const scenario =
+      resolveSampleScenarioByHeroFindingId(referenceId) ??
+      resolveSampleScenarioByHeroFindingId(node.metadata?.referenced ?? "") ??
+      listRegisteredSampleScenarios().find((entry) => entry.slug === "customer-intake") ??
+      listRegisteredSampleScenarios()[0]!;
 
-    if (scenario.slug === "customer-intake") {
+    if (scenario.slug === "claims-intake") {
       return {
-        primary: "Finding: Sensitive data minimization",
-        secondary: { label: "Risk area", value: "Privacy and data handling" },
+        primary: "Finding: PHI minimization",
+        secondary: { label: "Risk area", value: "PHI handling" },
       };
     }
 
     return {
-      primary: "Finding: PHI minimization",
-      secondary: { label: "Risk area", value: "PHI handling" },
+      primary: "Finding: Sensitive data minimization",
+      secondary: { label: "Risk area", value: "Privacy and data handling" },
     };
   }
 
@@ -139,15 +171,16 @@ export function graphBuyerTrailMetadataLines(
     const lower = key.toLowerCase();
 
     if (lower === "referenceid") {
-      if (value === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID) {
+      const scenario = resolveSampleScenarioByHeroFindingId(value);
+
+      if (scenario !== null) {
         summaryLines.push({
           label: "Risk area",
-          value: "PHI minimization at intake — classification, lineage, and retention posture.",
+          value: sampleHeroRiskAreaSummary(scenario),
         });
         summaryLines.push({
           label: "Why it matters",
-          value:
-            "Mis-handled PHI creates compliance exposure and sponsor distrust; this finding ties evidence to the finalized review record.",
+          value: sampleHeroWhyItMattersSummary(scenario),
         });
       }
 
@@ -244,11 +277,11 @@ export function graphBuyerTrailMetadataLines(
     technicalLines.push({ label: key, value: value.length > 0 ? value : " — " });
   }
 
-  const inferredPhiFinding =
-    (metadata.referenceId ?? metadata.ReferenceId ?? "").trim() === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID ||
-    (metadata.referenced ?? "").trim() === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID;
+  const referenceId = (metadata.referenceId ?? metadata.ReferenceId ?? "").trim();
+  const referencedSlug = (metadata.referenced ?? "").trim();
+  const inferredSampleHeroFinding = resolveHeroFindingReferenceScenario(referenceId, referencedSlug);
 
-  if (inferredPhiFinding) {
+  if (inferredSampleHeroFinding !== null) {
     const summaryLabelsPresent = new Set(summaryLines.map((row) => row.label));
 
     const attachStructuredField = (label: string, value: string): void => {

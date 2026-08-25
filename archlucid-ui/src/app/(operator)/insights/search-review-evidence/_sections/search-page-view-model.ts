@@ -8,8 +8,10 @@ export type SearchPageViewModel = {
   readonly hasSearched: boolean;
   readonly isDemo: boolean;
   readonly loading: boolean;
-  readonly onSearch: () => Promise<void>;
+  readonly onSearch: (overrideQuery?: string) => Promise<void>;
   readonly query: string;
+  readonly recentQueries: readonly string[];
+  readonly onClearRecentQueries: () => void;
   readonly results: RetrievalHit[];
   readonly runId: string;
   readonly setQuery: (next: string) => void;

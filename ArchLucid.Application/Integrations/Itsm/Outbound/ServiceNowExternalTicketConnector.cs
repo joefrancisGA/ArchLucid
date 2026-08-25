@@ -24,7 +24,7 @@ public sealed class ServiceNowExternalTicketConnector(
     IRunRepository runRepository,
     IArchitectureRequestRepository architectureRequests,
     ServiceNowOutboundIncidentClient serviceNowClient,
-    IItsmOutboundHttpAuthenticator httpAuthenticator) : IExternalTicketConnector
+    IItsmOutboundHttpAuthenticator httpAuthenticator) : ExternalTicketCreatePipeline, IExternalTicketConnector
 {
     private readonly IItsmFindingCorrelationRepository _correlations =
         correlations ?? throw new ArgumentNullException(nameof(correlations));
@@ -48,13 +48,19 @@ public sealed class ServiceNowExternalTicketConnector(
 
     public ItsmOutboundIssueProvider ProviderId => ItsmOutboundIssueProvider.ServiceNow;
 
-    public string ProviderLabel => "ServiceNow";
+    public string ProviderLabel => PipelineProviderLabel;
 
-    public string CreateFailedAuditEventType => AuditEventTypes.IntegrationServiceNowIncidentCreateFailed;
+    protected override string PipelineProviderLabel => "ServiceNow";
+
+    public string CreateFailedAuditEventType => PipelineCreateFailedAuditEventType;
+
+    protected override string PipelineCreateFailedAuditEventType => AuditEventTypes.IntegrationServiceNowIncidentCreateFailed;
 
     public string CreateSkippedAuditEventType => AuditEventTypes.IntegrationServiceNowIncidentCreateSkipped;
 
-    public string CreateSucceededAuditEventType => AuditEventTypes.IntegrationServiceNowIncidentCreateSucceeded;
+    public string CreateSucceededAuditEventType => PipelineCreateSucceededAuditEventType;
+
+    protected override string PipelineCreateSucceededAuditEventType => AuditEventTypes.IntegrationServiceNowIncidentCreateSucceeded;
 
     public async Task<ItsmOutboundIssueCreationResult> TryCreateForFindingAsync(
         ExternalTicketCreateContext context,
@@ -201,74 +207,13 @@ public sealed class ServiceNowExternalTicketConnector(
             };
         }
 
-        try
-        {
-            Guid? findingRecordId =
-                await ExternalTicketConnectorSupport
-                    .ResolveFindingRecordIdForInspectAsync(_correlations, scope, inspect, cancellationToken)
-                    .ConfigureAwait(false);
-
-            await _correlations.RegisterAsync(
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    inspect.FindingId,
-                    ProviderLabel,
-                    http.SysId,
-                    http.Number,
-                    findingRecordId,
-                    cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            AuditEvent ev = new()
-            {
-                EventType = CreateFailedAuditEventType,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = inspect.RunId,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    findingId = inspect.FindingId,
-                    sysId = http.SysId,
-                    reason = "correlation_persist_failed",
-                    error = ex.Message
-                })
-            };
-
-            return new ItsmOutboundIssueCreationResult
-            {
-                Kind = ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed,
-                ExternalKey = http.SysId,
-                UserMessage = "ServiceNow incident was created but ArchLucid could not persist ITSM correlation.",
-                AuditEvents = [ev]
-            };
-        }
-
-        AuditEvent ok = new()
-        {
-            EventType = CreateSucceededAuditEventType,
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            RunId = inspect.RunId,
-            DataJson = JsonSerializer.Serialize(new
-            {
-                findingId = inspect.FindingId,
-                sysId = http.SysId,
-                number = http.Number
-            })
-        };
-
-        return new ItsmOutboundIssueCreationResult
-        {
-            Kind = ItsmOutboundCreateTerminalKind.Succeeded,
-            ExternalKey = http.SysId,
-            UserMessage = "ServiceNow incident created.",
-            AuditEvents = [ok]
-        };
+        return await RegisterCorrelationOrReturnPersistenceFailureAsync(
+            _correlations,
+            scope,
+            inspect,
+            http.SysId,
+            http.Number,
+            cancellationToken);
     }
 
     public async Task<string?> TryBuildBrowseUrlAsync(

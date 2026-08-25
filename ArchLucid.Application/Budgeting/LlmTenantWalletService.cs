@@ -219,41 +219,17 @@ public sealed class LlmTenantWalletService(
         Guid correlationId,
         CancellationToken cancellationToken)
     {
-        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
+        bool consumed = await TryConsumeWithRetryAsync(tenantId, amountUsd, correlationId, cancellationToken).ConfigureAwait(false);
+
+        if (!consumed)
         {
-            LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
+            _logger.LogWarning(
+                "LLM wallet consume exhausted optimistic retries for tenant {TenantId}; re-queuing settlement for {AmountUsd} USD.",
+                tenantId,
+                amountUsd);
 
-            LlmTenantWalletConsumeResult result = await _repository
-                .TryConsumeAsync(tenantId, amountUsd, correlationId, state.RowVersion, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (result.InsufficientFunds)
-                return;
-
-            if (result.ConcurrencyConflict)
-            {
-                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
-
-                continue;
-            }
-
-            if (result.Succeeded)
-            {
-                RecordBalanceGauge(tenantId, result.BalanceAfterUsd);
-
-                if (result.BalanceAfterUsd < state.RefillTriggerThresholdUsd)
-                    _settlementQueue.EnqueueAutoRefill(tenantId, correlationId);
-            }
-
-            return;
+            _settlementQueue.EnqueueConsume(tenantId, amountUsd, correlationId);
         }
-
-        _logger.LogWarning(
-            "LLM wallet consume exhausted optimistic retries for tenant {TenantId}; re-queuing settlement for {AmountUsd} USD.",
-            tenantId,
-            amountUsd);
-
-        _settlementQueue.EnqueueConsume(tenantId, amountUsd, correlationId);
     }
 
     internal async Task ReconcileOverageInternalAsync(
@@ -267,7 +243,18 @@ public sealed class LlmTenantWalletService(
 
         if (delta > 0m)
         {
-            await ConsumeInternalAsync(tenantId, delta, correlationId, cancellationToken).ConfigureAwait(false);
+            bool consumed = await TryConsumeWithRetryAsync(tenantId, delta, correlationId, cancellationToken).ConfigureAwait(false);
+
+            if (!consumed)
+            {
+                _logger.LogWarning(
+                    "LLM wallet overage reconciliation delta consume failed for tenant {TenantId}; re-queuing settlement for actual {ActualUsd} USD (authorized {AuthorizedUsd} USD).",
+                    tenantId,
+                    actualUsd,
+                    authorizedUsd);
+
+                _settlementQueue.EnqueueConsume(tenantId, actualUsd, correlationId, authorizedUsd);
+            }
 
             return;
         }
@@ -287,6 +274,44 @@ public sealed class LlmTenantWalletService(
                 _settlementQueue.EnqueueConsume(tenantId, actualUsd, correlationId, authorizedUsd);
             }
         }
+    }
+
+    private async Task<bool> TryConsumeWithRetryAsync(
+        Guid tenantId,
+        decimal amountUsd,
+        Guid correlationId,
+        CancellationToken cancellationToken)
+    {
+        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
+        {
+            LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+            LlmTenantWalletConsumeResult result = await _repository
+                .TryConsumeAsync(tenantId, amountUsd, correlationId, state.RowVersion, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (result.InsufficientFunds)
+                return false;
+
+            if (result.ConcurrencyConflict)
+            {
+                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
+
+                continue;
+            }
+
+            if (result.Succeeded)
+            {
+                RecordBalanceGauge(tenantId, result.BalanceAfterUsd);
+
+                if (result.BalanceAfterUsd < state.RefillTriggerThresholdUsd)
+                    _settlementQueue.EnqueueAutoRefill(tenantId, correlationId);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     internal async Task<bool> CreditAdjustmentInternalAsync(

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
@@ -52,6 +52,7 @@ import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation
 
 import { ArchitectureScorecardBuyerChrome } from "./ArchitectureScorecardBuyerChrome";
 import { ReviewScorecardEmptyState } from "./ReviewScorecardEmptyState";
+import { ScorecardReviewPickerStrip } from "./ScorecardReviewPickerStrip";
 import {
   ScorecardMetricCard,
   ScorecardSavingsClaimDiscipline,
@@ -85,6 +86,7 @@ function resolveSampleSavingsLabels(data: NonNullable<ReturnType<typeof resolveR
 export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   const searchParams = useSearchParams();
   const sampleMode = isReviewScorecardSampleMode(searchParams);
+  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
 
   const {
     assumptionsComplete,
@@ -162,6 +164,9 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
         ? "Enter all three values greater than zero to enable save."
         : null;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const showScorecardReviewPicker =
+    displayData !== null && !scorecardEmpty && !sampleMode && selectedReviewId === null;
+  const showScorecardMetrics = displayData !== null && !scorecardEmpty && (sampleMode || selectedReviewId !== null);
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4" data-testid="review-scorecard-page">
@@ -300,7 +305,16 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
 
       {scorecardEmpty ? <ReviewScorecardEmptyState /> : null}
 
-      {displayData !== null && !scorecardEmpty && summaryRow !== null ? (
+      {showScorecardReviewPicker ? (
+        <ScorecardReviewPickerStrip
+          selectedReviewId={selectedReviewId}
+          onSelectReview={(reviewId) => {
+            setSelectedReviewId(reviewId);
+          }}
+        />
+      ) : null}
+
+      {showScorecardMetrics && summaryRow !== null ? (
         <>
           <section aria-label="Primary outcomes" className="space-y-3" data-testid="review-scorecard-summary-row">
             {!savingsReady ? (

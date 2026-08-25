@@ -1,6 +1,7 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Drafts.QuestionSelection;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Tests.Architecture;
 using ArchLucid.Contracts.Architecture;
@@ -24,7 +25,7 @@ internal static class DraftRequestServiceTestFactory
         IDraftAdmissionGate admissionGate,
         IQuestionSelectionEngine questionSelectionEngine,
         IDraftRequestProjector projector,
-        IArchitectureRunCreateOrchestrator runCreateOrchestrator,
+        IArchitectureRunCommandService architectureRunCommandService,
         IRequestContentSafetyPrecheck contentSafetyPrecheck,
         FeasibilityVerdictBuilder feasibilityVerdictBuilder,
         IPriorPackageSemanticMergeService priorPackageSemanticMergeService,
@@ -45,7 +46,7 @@ internal static class DraftRequestServiceTestFactory
             semanticAdmissionEvaluator,
             questionSelectionEngine,
             projector,
-            runCreateOrchestrator,
+            architectureRunCommandService,
             contentSafetyPrecheck,
             feasibilityVerdictBuilder,
             workspaceSystemNameCollisionGuard);
@@ -64,7 +65,7 @@ internal static class DraftRequestServiceTestFactory
     public static DraftRequestService CreateWithDefaults(
         IDraftRequestRepository repository,
         Mock<IEffectiveGovernanceLoader> governanceLoader,
-        Mock<IArchitectureRunCreateOrchestrator> runCreateOrchestrator,
+        Mock<IArchitectureRunCommandService> architectureRunCommandService,
         Mock<IRequestContentSafetyPrecheck> contentSafety,
         DraftIntakeBranchOptions branchOptions)
     {
@@ -87,7 +88,7 @@ internal static class DraftRequestServiceTestFactory
             new DraftAdmissionGate(),
             new QuestionSelectionEngine(governanceLoader.Object),
             new DraftRequestProjector(),
-            runCreateOrchestrator.Object,
+            architectureRunCommandService.Object,
             contentSafety.Object,
             verdictBuilder,
             Mock.Of<IPriorPackageSemanticMergeService>(),

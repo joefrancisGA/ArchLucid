@@ -34,4 +34,10 @@ public class IncrementalReReviewResult
         get;
         set;
     }
+
+    public IReadOnlyList<string> MergedFindingIds
+    {
+        get;
+        set;
+    } = [];
 }

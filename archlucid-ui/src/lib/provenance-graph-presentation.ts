@@ -4,6 +4,7 @@ import {
   provenanceNodeNameBuyerLabel,
   provenanceNodeTypeBuyerLabel,
 } from "@/lib/provenance-node-type-labels";
+import { isSampleHeroFindingLabel } from "@/lib/samples/registry";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { GraphViewModel } from "@/types/graph";
 
@@ -37,10 +38,8 @@ export function isProvenanceTrailCoordinatorType(nodeType: string): boolean {
   return PROVENANCE_TRAIL_NODE_TYPES.has(nodeType);
 }
 
-function isPhiMinimizationFindingLabel(label: string): boolean {
-  const lower = label.toLowerCase();
-
-  return lower.includes("phi") && (lower.includes("minimization") || lower.includes("minimisation"));
+function isSampleHeroFindingLabelForProvenance(label: string): boolean {
+  return isSampleHeroFindingLabel(label);
 }
 
 function resolveMappedBusinessLabel(nodeType: string): string | null {
@@ -70,7 +69,7 @@ const GENERIC_LIFECYCLE_TYPE_KEYS: ReadonlySet<string> = new Set(["request", "ru
 
 /** Map a single node's label for buyer-facing provenance graphs. */
 export function buyerLabelForProvenanceNode(nodeType: string, fallbackName: string): string {
-  if (nodeType === "Finding" && isPhiMinimizationFindingLabel(fallbackName)) {
+  if (nodeType === "Finding" && isSampleHeroFindingLabelForProvenance(fallbackName)) {
     return BUYER_SURFACE_VOCABULARY.phiMinimizationRisk;
   }
 

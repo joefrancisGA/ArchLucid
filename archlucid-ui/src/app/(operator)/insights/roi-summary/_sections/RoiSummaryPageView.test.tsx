@@ -45,6 +45,14 @@ vi.mock("@/hooks/use-roi-loaded-hourly-usd", () => ({
   }),
 }));
 
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", displayTitle: "" }),
+}));
+
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: (props: { value: string }) => <div data-testid="ask-run-id-picker">{props.value}</div>,
+}));
+
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: { href: string; children: ReactNode; [key: string]: unknown }) => (
     <a href={href} {...rest}>
@@ -118,6 +126,12 @@ describe("RoiSummaryPageView", () => {
       "/architecture/reviews/new",
     );
     expect(screen.queryByRole("link", { name: "Start review" })).not.toBeInTheDocument();
+  });
+
+  it("asks the operator to pick a review before summarizing", () => {
+    render(<RoiSummaryPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("roi-summary-pick-review-before-summarizing-strip")).toBeInTheDocument();
   });
 });
 

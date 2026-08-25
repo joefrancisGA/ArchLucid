@@ -11,10 +11,27 @@ Layered `IConfiguration` for the API host (`ArchLucid.Api/Program.cs`). Later so
 | Order | Layer |
 | --- | --- |
 | 1 | `WebApplication.CreateBuilder` defaults (base `appsettings.json` → environment-specific JSON → user secrets → environment variables → command-line args) |
-| 2 | Optional `appsettings.Advanced.json` / `appsettings.SaaS.json` overlays |
-| 3 | Explicit `AddEnvironmentVariables()` — **environment variables beat Advanced/SaaS overlays** |
-| 4 | In-memory bridges (`AzureOpenAiEnvironmentConfigurationBridge`, `ArchitectureRunCreationConfigurationBridge`) when nested keys are unset |
-| 5 | Platform Container Apps Key Vault references — appear as env/settings before the process starts |
+| 2 | Optional `appsettings.Pilot.json` — pilot connection strings and scale-honest defaults (`HotPathCache:Provider=Memory`, Cosmos/Service Bus off, no read-replica strings) |
+| 3 | Optional `appsettings.Advanced.json` / `appsettings.SaaS.json` overlays — feature-grouped tuning (QuickScan, FallbackLlm DR, retrieval, workers, DOCX profiles) |
+| 4 | Explicit `AddEnvironmentVariables()` — **environment variables beat Pilot/Advanced/SaaS overlays** |
+| 5 | In-memory bridges (`AzureOpenAiEnvironmentConfigurationBridge`, `ArchitectureRunCreationConfigurationBridge`) when nested keys are unset |
+| 6 | Platform Container Apps Key Vault references — appear as env/settings before the process starts |
+
+## Pilot profile overlay (`appsettings.Pilot.json`)
+
+Use the optional **`appsettings.Pilot.json`** overlay (loaded in `ArchLucid.Api/Program.cs` after base JSON, before Advanced/SaaS) when standing up a single-replica pilot. It keeps the operator view minimal:
+
+| Key / area | Pilot value |
+| --- | --- |
+| `ConnectionStrings:ArchLucid` | Injected at deploy (empty in repo template) |
+| `ArchLucid:StorageProvider` | `Sql` |
+| `HotPathCache:Provider` | `Memory` |
+| `HotPathCache:ExpectedApiReplicaCount` | `1` |
+| `CosmosDb:*` enabled flags | `false` / empty connection |
+| `IntegrationEvents:ServiceBusConnectionString` | empty |
+| `SqlServer:ReadReplica:*` | null / unset |
+
+Scale switches (Redis cache, read replicas, Cosmos polyglot, Service Bus) belong in **`appsettings.Advanced.json`** or environment variables — not the pilot overlay. Full key encyclopedia remains in the table below; deprecated binding paths are tagged **Deprecated** with a canonical replacement.
 
 Per-key **When required** / host-role hints in the table below do **not** replace this ladder. Terraform injects Container Apps env and secret references — it does **not** apply appsettings as deployment SoT. Drift detection is fragmented (static TF preflight, SQL MigrateVerify) — **no** live cross-env config parity SoT (**TB-1561**).
 
@@ -191,6 +208,13 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | ArchLucid | `ArchLucid:AgentOutput:QualityGate:HeuristicEvaluatorTightenedThresholds` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | Use stricter heuristic semantic thresholds (production-like). |
 | ArchLucid | `ArchLucid:AgentOutput:QualityGate:PerAgentTypeFloors` | appsettings, env | (empty) | Optional (not mode-gated) | All (Api, Worker, Combined) | Optional per-`AgentType` structural/semantic warn and reject floors (`AgentTypeQualityFloors`). |
 | ArchLucid | `ArchLucid:Agents:LlmJudge:Enabled` | appsettings, env | false | Optional | All (Api, Worker, Combined) | Opt-in LLM rubric judge (**Topology, Critic, Cost, Compliance** when enabled). Legacy section **`ArchLucid:AgentOutput:LlmSemanticJudge`** still binds for older configs. |
+| ArchLucid | `ArchLucid:AgentOutput:LlmSemanticJudge` | appsettings, env | (legacy) | Deprecated | All | **Deprecated** binding path for judge options; use **`ArchLucid:Agents:LlmJudge`**. Canonical Agents keys override when both are present. |
+| ArchLucid | `ArchLucid:AgentExecution:QualityGate:Judge` | appsettings, env | (legacy) | Deprecated | All | **Deprecated** judge budget path; use **`ArchLucid:Agents:LlmJudge:Budget`**. |
+| ArchLucid | `ArchLucid:FallbackLlm:Enabled` | appsettings, env, KeyVault | false | Optional (When DR fallback on) | All | Enables secondary Azure OpenAI deployments on primary 429/5xx. Pilot profile keeps **disabled**. |
+| ArchLucid | `ArchLucid:FallbackLlm:Endpoints` | appsettings, env, KeyVault | [] | Optional (When DR fallback on) | All | Ordered fallback Endpoint/ApiKey/DeploymentName rows (canonical). |
+| ArchLucid | `ArchLucid:FallbackLlm:Endpoint` | appsettings, env, KeyVault | empty | Deprecated | All | **Deprecated** flat fallback endpoint; use **`ArchLucid:FallbackLlm:Endpoints[n]:Endpoint`**. |
+| ArchLucid | `ArchLucid:FallbackLlm:ApiKey` | env, KeyVault | empty | Deprecated | All | **Deprecated** flat fallback API key; use **`ArchLucid:FallbackLlm:Endpoints[n]:ApiKey`**. |
+| ArchLucid | `ArchLucid:FallbackLlm:DeploymentName` | appsettings, env | empty | Deprecated | All | **Deprecated** flat fallback deployment; use **`ArchLucid:FallbackLlm:Endpoints[n]:DeploymentName`**. |
 | ArchLucid | `ArchLucid:Agents:LlmJudge:Budget:Enabled` | appsettings, env | true | Optional | All | Isolated UTC-day judge token sub-cap (**not** `LlmDailyTenantBudget`). Legacy alias **`ArchLucid:AgentExecution:QualityGate:Judge:*`** binds first; canonical **`Agents:LlmJudge:Budget`** wins. |
 | ArchLucid | `ArchLucid:Agents:LlmJudge:Budget:HardCutoffTokensPerUtcDay` | appsettings, env | 200000 | Optional tuning | All | Hard stop for judge + faithfulness completions per tenant per UTC day (`dbo.LlmJudgeDailyTenantTokenWindowState`). |
 | ArchLucid | `ArchLucid:Agents:LlmJudge:Budget:AssumedMaxTotalTokensPerRequest` | appsettings, env | 8192 | Optional tuning | All | Pre-call reserve assumption for judge completions. |
