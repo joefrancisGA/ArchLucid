@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -13,6 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  resolveImpactPreviewSimulateEmphasizedStepId,
+  resolveImpactPreviewSimulateSteps,
+} from "@/lib/impact-preview-simulate-checklist";
 import {
   IMPACT_PREVIEW_ACTION_SIMULATE,
   IMPACT_PREVIEW_BASELINE_LABEL,
@@ -41,6 +46,7 @@ export type ImpactPreviewSetupCardProps = {
   readonly simulateBusy: boolean;
   readonly listLoading: boolean;
   readonly onSimulate: () => void;
+  readonly simulateComplete: boolean;
 };
 
 const SCOPE_ITEMS: ReadonlyArray<{ readonly key: keyof ImpactPreviewComparisonScope; readonly label: string }> = [
@@ -53,6 +59,16 @@ const SCOPE_ITEMS: ReadonlyArray<{ readonly key: keyof ImpactPreviewComparisonSc
 
 export function ImpactPreviewSetupCard(props: ImpactPreviewSetupCardProps): React.JSX.Element {
   const selectedCandidate = props.selectedCandidateId ?? "";
+  const simulateSteps = resolveImpactPreviewSimulateSteps({
+    baselinePicked: (props.selectedBaselineId ?? "").trim().length > 0,
+    candidatePicked: selectedCandidate.trim().length > 0,
+    simulateComplete: props.simulateComplete,
+  });
+  const simulateEmphasizedStepId = resolveImpactPreviewSimulateEmphasizedStepId({
+    baselinePicked: (props.selectedBaselineId ?? "").trim().length > 0,
+    candidatePicked: selectedCandidate.trim().length > 0,
+    simulateComplete: props.simulateComplete,
+  });
 
   return (
     <Card data-testid="impact-preview-setup-card">
@@ -60,6 +76,12 @@ export function ImpactPreviewSetupCard(props: ImpactPreviewSetupCardProps): Reac
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{IMPACT_PREVIEW_SETUP_CARD_TITLE}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        <IntegrationConnectChecklist
+          title="Simulate checklist"
+          steps={simulateSteps}
+          emphasizedStepId={simulateEmphasizedStepId}
+          testIdPrefix="impact-preview-simulate"
+        />
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="impact-preview-proposed-change">{IMPACT_PREVIEW_PROPOSED_CHANGE_LABEL}</Label>

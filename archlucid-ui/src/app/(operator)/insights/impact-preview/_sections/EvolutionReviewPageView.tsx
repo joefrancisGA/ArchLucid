@@ -245,6 +245,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
               canSimulate={canSimulate}
               simulateBusy={m.simulateBusy}
               listLoading={m.listLoading}
+              simulateComplete={hasSimulationResults}
               onSimulate={() => {
                 void m.onSimulate();
               }}
