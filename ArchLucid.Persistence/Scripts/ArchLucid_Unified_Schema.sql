@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 325_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 327_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -3876,6 +3876,22 @@ BEGIN
             StructuralExecutionMode,
             RetryCount,
             LastFailureReason)
+        WHERE ArchivedUtc IS NULL;
+END;
+
+GO
+
+/* DbUp 327 parity: architecture-request idempotency seeks (see Migrations/327_Runs_Scope_ArchitectureRequestId_Index.sql). */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'ArchitectureRequestId') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_Runs_Scope_ArchitectureRequestId'
+         AND object_id = OBJECT_ID(N'dbo.Runs', N'U'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_Runs_Scope_ArchitectureRequestId
+        ON dbo.Runs (TenantId, WorkspaceId, ScopeProjectId, ArchitectureRequestId)
         WHERE ArchivedUtc IS NULL;
 END;
 

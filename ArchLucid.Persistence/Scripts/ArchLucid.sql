@@ -3729,6 +3729,21 @@ BEGIN
 END;
 GO
 
+/* DbUp 327 parity: architecture-request idempotency seeks (see Migrations/327_Runs_Scope_ArchitectureRequestId_Index.sql). */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'ArchitectureRequestId') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_Runs_Scope_ArchitectureRequestId'
+         AND object_id = OBJECT_ID(N'dbo.Runs', N'U'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_Runs_Scope_ArchitectureRequestId
+        ON dbo.Runs (TenantId, WorkspaceId, ScopeProjectId, ArchitectureRequestId)
+        WHERE ArchivedUtc IS NULL;
+END;
+GO
+
 /* DbUp 202 parity: filtered indexes for run-list EXISTS predicates (HasWarnings / open alerts). */
 IF NOT EXISTS (
     SELECT 1
