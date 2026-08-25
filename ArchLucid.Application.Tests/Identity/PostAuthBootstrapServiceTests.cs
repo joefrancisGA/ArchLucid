@@ -380,7 +380,7 @@ public sealed class PostAuthBootstrapServiceTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        PostAuthBootstrapService sut = new(
+        PostAuthInvitationBootstrapService invitationBootstrap = new(
             memberships,
             invitations,
             new UserInvitationFlowService(
@@ -394,6 +394,12 @@ public sealed class PostAuthBootstrapServiceTests
                     TimeProvider.System),
                 TimeProvider.System),
             tenants,
+            audit.Object,
+            TimeProvider.System);
+
+        PostAuthWorkspaceBootstrapService workspaceBootstrap = new(
+            memberships,
+            tenants,
             provisioning.Object,
             trialBootstrap.Object,
             domainPolicy.Object,
@@ -401,6 +407,8 @@ public sealed class PostAuthBootstrapServiceTests
             new WorkspacePackagingLimitEvaluator(Mock.Of<ITenantUsageStatusService>()),
             audit.Object,
             TimeProvider.System);
+
+        PostAuthBootstrapService sut = new(memberships, invitationBootstrap, workspaceBootstrap);
 
         return (sut, userId, memberships, invitations);
     }
