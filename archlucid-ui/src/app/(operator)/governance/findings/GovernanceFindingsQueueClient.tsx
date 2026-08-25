@@ -24,6 +24,7 @@ import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskException
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyboardTriageCoach";
+import { AssignedToMeContinueOldestFindingStrip } from "@/components/usability/AssignedToMeContinueOldestFindingStrip";
 import { FindingsTriageFirstFindingStrip } from "@/components/usability/FindingsTriageFirstFindingStrip";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
@@ -108,6 +109,7 @@ import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/Canoni
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
+import { resolveGovernanceAssignedToMeOldestFinding } from "@/lib/governance/resolve-governance-assigned-to-me-oldest-finding";
 import {
   patchGovernanceFindingsQueueFacets,
   readGovernanceFindingsQueueFacets,
@@ -286,6 +288,10 @@ export default function GovernanceFindingsQueueClient({
   const secondaryViewPresentation =
     displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
   const firstFindingTriageTarget = useMemo(() => {
+    if (isAssignedToMe) {
+      return null;
+    }
+
     const row = displayedRows.find((candidate) => candidate.recordKind === "finding");
 
     if (row === undefined) {
@@ -297,7 +303,23 @@ export default function GovernanceFindingsQueueClient({
       findingTitle: row.title,
       href: governanceFindingInspectHref(row.runId, row.findingId),
     };
-  }, [displayedRows]);
+  }, [displayedRows, isAssignedToMe]);
+  const assignedToMeOldestFindingTarget = useMemo(() => {
+    if (!isAssignedToMe) {
+      return null;
+    }
+
+    const target = resolveGovernanceAssignedToMeOldestFinding(rows);
+
+    if (target === null) {
+      return null;
+    }
+
+    return {
+      target,
+      href: governanceFindingInspectHref(target.runId, target.findingId),
+    };
+  }, [isAssignedToMe, rows]);
   const sponsorSynopsisPackageTitle =
     displayedRows.find((row) => row.recordKind === "finding")?.runLabel ??
     (scopedRunId !== null && scopedRunId.length > 0 ? scopedRunId : "this workspace");
@@ -609,6 +631,12 @@ export default function GovernanceFindingsQueueClient({
               <PolicyPackAssignFromReviewStrip
                 reviewId={scopedRunId}
                 reviewTitle={scopedRunContextQuery.data?.displayTitle ?? null}
+              />
+            ) : null}
+            {assignedToMeOldestFindingTarget !== null ? (
+              <AssignedToMeContinueOldestFindingStrip
+                target={assignedToMeOldestFindingTarget.target}
+                href={assignedToMeOldestFindingTarget.href}
               />
             ) : null}
             {firstFindingTriageTarget !== null ? (
