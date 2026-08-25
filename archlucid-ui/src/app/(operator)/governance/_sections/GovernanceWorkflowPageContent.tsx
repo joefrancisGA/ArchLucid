@@ -5,8 +5,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
-import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
@@ -19,9 +17,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { LayerHeader } from "@/components/LayerHeader";
 import { useGovernanceReviewContextQuery } from "@/hooks/use-governance-review-context-query";
+import { useGovernanceWorkflowMutations } from "@/hooks/use-governance-workflow-mutations";
 import { useGovernanceWorkflowRunListsQuery } from "@/hooks/use-governance-workflow-run-lists-query";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
@@ -47,21 +45,8 @@ import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
   BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
 } from "@/lib/buyer/buyer-polish-copy";
-import {
-  GOVERNANCE_WORKFLOW_ACTIVATE_AUDIT_NAME_REQUIRED,
-  GOVERNANCE_WORKFLOW_APPROVAL_SUBMITTED_SUCCESS,
-  GOVERNANCE_WORKFLOW_LOAD_REVIEW_REQUIRED,
-  GOVERNANCE_WORKFLOW_REQUEST_APPROVED_SUCCESS,
-  GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS,
-  GOVERNANCE_WORKFLOW_REVIEWED_BY_REQUIRED,
-  governanceWorkflowActivateSuccessMessage,
-} from "@/lib/governance/governance-mutation-outcome-copy";
-import {
-  GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE,
-  GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL,
-  GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST,
-} from "@/lib/governance/governance-workflow-release-copy";
-import type { GovernanceApprovalRequest, GovernancePromotionRecord } from "@/types/governance-workflow";
+import { GOVERNANCE_WORKFLOW_LOAD_REVIEW_REQUIRED } from "@/lib/governance/governance-mutation-outcome-copy";
+import { GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL } from "@/lib/governance/governance-workflow-release-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
 import {
@@ -73,12 +58,11 @@ import {
   GovernanceOverviewPanelDeferred,
   GovernanceReviewContextBarDeferred,
   GovernanceWorkflowApprovalsListDeferred,
-  GovernanceWorkflowDialogsDeferred,
   GovernanceWorkflowPromotionsActivationsSectionDeferred,
   GovernanceWorkflowSubmitSectionDeferred,
 } from "./governance-workflow-deferred-chunks";
 import type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
-import type { GovernanceWorkflowPendingReview } from "./governance-workflow-helpers";
+import { GovernanceWorkflowMutationHost } from "./GovernanceWorkflowMutationHost";
 import {
   GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE,
   GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD,
@@ -94,8 +78,6 @@ export function GovernanceWorkflowPageContent() {
   const searchParams = useSearchParams();
   const workspaceRun = useWorkspaceActiveRun();
   const canMutateWorkflow = useOperateCapability();
-  const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
-  const [mutationErrorMessage, setMutationErrorMessage] = useState<string | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const submitSectionRef = useRef<HTMLDivElement | null>(null);
   const approvalsSectionRef = useRef<HTMLElement | null>(null);
@@ -107,8 +89,6 @@ export function GovernanceWorkflowPageContent() {
   const [submitSource, setSubmitSource] = useState<string>("");
   const [submitTarget, setSubmitTarget] = useState<string>("");
   const [submitComment, setSubmitComment] = useState("");
-  const [submitBusy, setSubmitBusy] = useState(false);
-  const [submitApprovalComplete, setSubmitApprovalComplete] = useState(false);
 
   const [queryRunId, setQueryRunId] = useState("");
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
@@ -132,6 +112,43 @@ export function GovernanceWorkflowPageContent() {
   const listsLoading = runListsPending || (runListsFetching && !runListsFetched);
   const activeReviewDisplayTitle = reviewContextQuery.data?.displayTitle ?? null;
 
+  const mutations = useGovernanceWorkflowMutations({
+    canMutateWorkflow,
+    activeRunId,
+    refetchRunLists,
+    submitRunId,
+    submitManifestVersion,
+    submitSource,
+    submitTarget,
+    submitComment,
+    setSubmitComment,
+    workflowActor,
+  });
+
+  const {
+    setMutationSuccessMessage,
+    setMutationErrorMessage,
+    submitBusy,
+    submitApprovalComplete,
+    reviewBusy,
+    activateBusyId,
+    pendingReview,
+    setPendingReview,
+    reviewedBy,
+    setReviewedBy,
+    reviewComment,
+    setReviewComment,
+    pendingPromote,
+    setPendingPromote,
+    pendingPromoteRequestRef,
+    pendingActivate,
+    setPendingActivate,
+    pendingActivatePromotionRef,
+    onSubmitApproval,
+    onConfirmReview,
+    refreshIfActive,
+  } = mutations;
+
   const isReviewContext = activeRunId !== null;
   const isShowcaseSampleContext =
     isReviewContext &&
@@ -149,27 +166,6 @@ export function GovernanceWorkflowPageContent() {
 
   const listsLoadingShowsBusyChrome = listsLoading && !(buyerPolishedShell && approvals.length > 0);
 
-  const [pendingReview, setPendingReview] = useState<GovernanceWorkflowPendingReview | null>(null);
-  const [reviewedBy, setReviewedBy] = useState("");
-  const [reviewComment, setReviewComment] = useState("");
-  const [reviewBusy, setReviewBusy] = useState(false);
-
-  const [promoteBusy, setPromoteBusy] = useState(false);
-
-  const [pendingPromote, setPendingPromote] = useState<{
-    manifestId: string;
-    targetEnv: string;
-  } | null>(null);
-  const pendingPromoteRequestRef = useRef<GovernanceApprovalRequest | null>(null);
-
-  const [pendingActivate, setPendingActivate] = useState<{
-    activationId: string;
-    env: string;
-  } | null>(null);
-  const pendingActivatePromotionRef = useRef<GovernancePromotionRecord | null>(null);
-
-  const [activateBusyId, setActivateBusyId] = useState<string | null>(null);
-
   const replaceApprovalQueueUrl = useCallback(
     (runId: string | null): void => {
       router.replace(governanceApprovalQueueHref(runId), { scroll: false });
@@ -181,29 +177,11 @@ export function GovernanceWorkflowPageContent() {
     setActiveRunId(null);
     setPendingReview(null);
     replaceApprovalQueueUrl(null);
-  }, [replaceApprovalQueueUrl]);
+  }, [replaceApprovalQueueUrl, setPendingReview]);
 
   useEffect(() => {
     warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce();
   }, []);
-
-  useEffect(() => {
-    if (canMutateWorkflow) {
-      return;
-    }
-
-    setPendingReview(null);
-    setPendingPromote(null);
-    pendingPromoteRequestRef.current = null;
-    setPendingActivate(null);
-    pendingActivatePromotionRef.current = null;
-  }, [canMutateWorkflow]);
-
-  const refreshIfActive = useCallback(async () => {
-    if (activeRunId !== null) {
-      await refetchRunLists();
-    }
-  }, [activeRunId, refetchRunLists]);
 
   const onLoadRun = useCallback(() => {
     const id = queryRunId.trim();
@@ -219,7 +197,7 @@ export function GovernanceWorkflowPageContent() {
     setSubmitRunId(id);
     setMutationErrorMessage(null);
     replaceApprovalQueueUrl(id);
-  }, [queryRunId, replaceApprovalQueueUrl]);
+  }, [queryRunId, replaceApprovalQueueUrl, setMutationErrorMessage, setMutationSuccessMessage]);
 
   useEffect(() => {
     const fromQuery = searchParams.get("runId")?.trim() ?? "";
@@ -228,14 +206,14 @@ export function GovernanceWorkflowPageContent() {
       return;
     }
 
-    const workspaceRunId = workspaceRun.runId.trim();
+    const workspaceRunId = workspaceRun?.activeRunId?.trim() ?? "";
 
     if (workspaceRunId.length === 0 || queryRunId.trim().length > 0) {
       return;
     }
 
     setQueryRunId(workspaceRunId);
-  }, [queryRunId, searchParams, workspaceRun.runId]);
+  }, [queryRunId, searchParams, workspaceRun?.activeRunId]);
 
   useEffect(() => {
     const fromQuery = searchParams.get("runId")?.trim() ?? "";
@@ -347,187 +325,6 @@ export function GovernanceWorkflowPageContent() {
     return { kind: "scrolled-to-submit" };
   }, [isReviewContext, queryRunId, replaceApprovalQueueUrl]);
 
-  async function onSubmitApproval() {
-    if (!canMutateWorkflow) {
-      return;
-    }
-
-    const runId = submitRunId.trim();
-
-    // The submit button is already disabled while these fields are incomplete — this guard is
-    // a safety net only, so it returns quietly instead of duplicating a validation toast.
-    if (!runId || !submitManifestVersion.trim()) {
-      return;
-    }
-
-    setSubmitBusy(true);
-
-    try {
-      const { submitApprovalRequest } = await import("@/lib/api");
-      await submitApprovalRequest({
-        runId,
-        manifestVersion: submitManifestVersion.trim(),
-        sourceEnvironment: submitSource,
-        targetEnvironment: submitTarget,
-        requestComment: submitComment.trim() || undefined,
-      });
-      setMutationSuccessMessage(GOVERNANCE_WORKFLOW_APPROVAL_SUBMITTED_SUCCESS);
-      setMutationErrorMessage(null);
-      setSubmitComment("");
-      setSubmitApprovalComplete(true);
-
-      if (activeRunId === runId) {
-        await refetchRunLists();
-      }
-    } catch (e) {
-      const f = toApiLoadFailure(e);
-      setMutationErrorMessage(f.message);
-      setMutationSuccessMessage(null);
-    } finally {
-      setSubmitBusy(false);
-    }
-  }
-
-  async function onConfirmReview() {
-    if (pendingReview === null) {
-      return;
-    }
-
-    if (!canMutateWorkflow) {
-      return;
-    }
-
-    if (!reviewedBy.trim()) {
-      setMutationErrorMessage(GOVERNANCE_WORKFLOW_REVIEWED_BY_REQUIRED);
-      setMutationSuccessMessage(null);
-
-      return;
-    }
-
-    setReviewBusy(true);
-
-    try {
-      const { approveRequest, rejectRequest } = await import("@/lib/api");
-
-      if (pendingReview.mode === "approve") {
-        await approveRequest(pendingReview.approvalRequestId, {
-          reviewedBy: reviewedBy.trim(),
-          reviewComment: reviewComment.trim() || undefined,
-        });
-        setMutationSuccessMessage(GOVERNANCE_WORKFLOW_REQUEST_APPROVED_SUCCESS);
-        setMutationErrorMessage(null);
-      } else {
-        await rejectRequest(pendingReview.approvalRequestId, {
-          reviewedBy: reviewedBy.trim(),
-          reviewComment: reviewComment.trim() || undefined,
-        });
-        setMutationSuccessMessage(GOVERNANCE_WORKFLOW_REQUEST_REJECTED_SUCCESS);
-        setMutationErrorMessage(null);
-      }
-
-      setPendingReview(null);
-      setReviewedBy("");
-      setReviewComment("");
-      await refreshIfActive();
-    } catch (e) {
-      const f = toApiLoadFailure(e);
-      setMutationErrorMessage(f.message);
-      setMutationSuccessMessage(null);
-    } finally {
-      setReviewBusy(false);
-    }
-  }
-
-  async function onConfirmPromote() {
-    const promoteFor = pendingPromoteRequestRef.current;
-
-    if (promoteFor === null) {
-      return;
-    }
-
-    if (!canMutateWorkflow) {
-      return;
-    }
-
-    const by = workflowActor.trim();
-
-    if (!by) {
-      setMutationErrorMessage(GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE);
-      setMutationSuccessMessage(null);
-
-      return;
-    }
-
-    setPromoteBusy(true);
-
-    try {
-      const { promoteManifest } = await import("@/lib/api");
-      await promoteManifest({
-        runId: promoteFor.runId,
-        manifestVersion: promoteFor.manifestVersion,
-        sourceEnvironment: promoteFor.sourceEnvironment,
-        targetEnvironment: promoteFor.targetEnvironment,
-        promotedBy: by,
-        approvalRequestId: promoteFor.approvalRequestId ?? undefined,
-      });
-      setMutationSuccessMessage(GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST);
-      setMutationErrorMessage(null);
-      setPendingPromote(null);
-      pendingPromoteRequestRef.current = null;
-      await refreshIfActive();
-    } catch (e) {
-      const f = toApiLoadFailure(e);
-      setMutationErrorMessage(f.message);
-      setMutationSuccessMessage(null);
-    } finally {
-      setPromoteBusy(false);
-    }
-  }
-
-  async function onConfirmActivateFromPromotion() {
-    const row = pendingActivatePromotionRef.current;
-
-    if (row === null) {
-      return;
-    }
-
-    if (!canMutateWorkflow) {
-      return;
-    }
-
-    const by = workflowActor.trim();
-
-    if (!by) {
-      setMutationErrorMessage(GOVERNANCE_WORKFLOW_ACTIVATE_AUDIT_NAME_REQUIRED);
-      setMutationSuccessMessage(null);
-
-      return;
-    }
-
-    setActivateBusyId(row.promotionRecordId);
-
-    try {
-      const { activateEnvironment } = await import("@/lib/api");
-      await activateEnvironment({
-        runId: row.runId,
-        manifestVersion: row.manifestVersion,
-        environment: row.targetEnvironment,
-        activatedBy: by,
-      });
-      setMutationSuccessMessage(governanceWorkflowActivateSuccessMessage(row.manifestVersion, row.targetEnvironment));
-      setMutationErrorMessage(null);
-      setPendingActivate(null);
-      pendingActivatePromotionRef.current = null;
-      await refreshIfActive();
-    } catch (e) {
-      const f = toApiLoadFailure(e);
-      setMutationErrorMessage(f.message);
-      setMutationSuccessMessage(null);
-    } finally {
-      setActivateBusyId(null);
-    }
-  }
-
   const showBuyerApprovalStory =
     buyerPolishedShell &&
     isReviewContext &&
@@ -606,22 +403,7 @@ export function GovernanceWorkflowPageContent() {
 
       {isReviewContext ? <GovernanceJobRouterStrip currentJobId="approve-governance" /> : null}
 
-      {mutationSuccessMessage !== null ? (
-        <OperatorSuccessCallout
-          message={mutationSuccessMessage}
-          testId="governance-workflow-mutation-success"
-          className="mb-4"
-          onDismiss={() => setMutationSuccessMessage(null)}
-        />
-      ) : null}
-
-      {mutationErrorMessage !== null ? (
-        <OperatorMutationInlineError
-          message={mutationErrorMessage}
-          testId="governance-workflow-mutation-error"
-          className="mb-4"
-        />
-      ) : null}
+      <GovernanceWorkflowMutationHost mutations={mutations} />
 
       {!isReviewContext ? (
         <GovernanceOverviewPanelDeferred
@@ -807,19 +589,6 @@ export function GovernanceWorkflowPageContent() {
           </div>
         </>
       ) : null}
-
-      <GovernanceWorkflowDialogsDeferred
-        pendingPromote={pendingPromote}
-        setPendingPromote={setPendingPromote}
-        pendingPromoteRequestRef={pendingPromoteRequestRef}
-        promoteBusy={promoteBusy}
-        onConfirmPromote={onConfirmPromote}
-        pendingActivate={pendingActivate}
-        setPendingActivate={setPendingActivate}
-        pendingActivatePromotionRef={pendingActivatePromotionRef}
-        activateBusyId={activateBusyId}
-        onConfirmActivateFromPromotion={onConfirmActivateFromPromotion}
-      />
     </OperatorPageContainer>
     </TooltipProvider>
     </MutationErrorBoundary>
