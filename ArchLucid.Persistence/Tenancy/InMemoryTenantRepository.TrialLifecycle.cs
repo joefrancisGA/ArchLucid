@@ -10,8 +10,6 @@ namespace ArchLucid.Persistence.Tenancy;
 
 public sealed partial class InMemoryTenantRepository
 {
-
-    /// <inheritdoc />
     public Task CommitSelfServiceTrialAsync(
         Guid tenantId,
         DateTimeOffset trialStartUtc,
@@ -228,86 +226,6 @@ public sealed partial class InMemoryTenantRepository
 
 
     /// <inheritdoc />
-    public Task TryIncrementActiveTrialRunAsync(
-        Guid tenantId,
-        CancellationToken ct,
-        IDbConnection? connection = null,
-        IDbTransaction? transaction = null)
-    {
-        _ = connection;
-        _ = transaction;
-        _ = ct;
-
-        lock (_trialGate)
-        {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? t) ||
-                !string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
-                t.TrialRunsLimit is not { } runCap ||
-                runCap < 1)
-                return Task.CompletedTask;
-
-            DateTimeOffset now = TimeProvider.System.GetUtcNow();
-
-            if (t.TrialExpiresUtc is { } exp && exp <= now)
-
-                throw new TrialLimitExceededException(
-                    TrialLimitReason.Expired,
-                    ComputeDaysRemaining(t.TrialExpiresUtc));
-
-            if (t.TrialRunsUsed >= runCap)
-
-                throw new TrialLimitExceededException(
-                    TrialLimitReason.RunsExceeded,
-                    ComputeDaysRemaining(t.TrialExpiresUtc));
-
-            _byId[tenantId] = CopyTenant(t, trialRunsUsed: t.TrialRunsUsed + 1);
-        }
-
-        return Task.CompletedTask;
-    }
-
-
-    /// <inheritdoc />
-    public Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(principalKey);
-        _ = ct;
-
-        string key = principalKey.Trim();
-
-        lock (_trialGate)
-        {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? t) ||
-                !string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
-                t.TrialSeatsLimit is not { } seatCap ||
-                seatCap < 1)
-                return Task.CompletedTask;
-
-            if (t.TrialExpiresUtc is { } exp && exp <= TimeProvider.System.GetUtcNow())
-
-                throw new TrialLimitExceededException(
-                    TrialLimitReason.Expired,
-                    ComputeDaysRemaining(t.TrialExpiresUtc));
-
-            if (_trialSeatOccupants.ContainsKey((tenantId, key)))
-                return Task.CompletedTask;
-
-            if (t.TrialSeatsUsed >= seatCap)
-
-                throw new TrialLimitExceededException(
-                    TrialLimitReason.SeatsExceeded,
-                    ComputeDaysRemaining(t.TrialExpiresUtc));
-
-            _trialSeatOccupants[(tenantId, key)] = 1;
-
-            _byId[tenantId] = CopyTenant(t, trialSeatsUsed: t.TrialSeatsUsed + 1);
-        }
-
-        return Task.CompletedTask;
-    }
-
-
-    /// <inheritdoc />
     public Task<IReadOnlyList<Guid>> ListTrialLifecycleAutomationTenantIdsAsync(CancellationToken ct)
     {
         _ = ct;
@@ -400,83 +318,4 @@ public sealed partial class InMemoryTenantRepository
 
 
     /// <inheritdoc />
-    public Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct)
-    {
-        _ = ct;
-
-        lock (_trialGate)
-        {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.TrialWelcomeRunId is not null || existing.TrialArchitecturePreseedEnqueuedUtc is not null)
-                return Task.CompletedTask;
-
-            _byId[tenantId] = CopyTenant(existing, trialArchitecturePreseedEnqueuedUtc: TimeProvider.System.GetUtcNow());
-        }
-
-        return Task.CompletedTask;
-    }
-
-
-    /// <inheritdoc />
-    public Task<IReadOnlyList<Guid>> ListTenantIdsPendingTrialArchitecturePreseedAsync(int take, CancellationToken ct)
-    {
-        _ = ct;
-
-        lock (_trialGate)
-        {
-            List<Guid> ids = _byId.Values
-                .Where(static t =>
-                    t.TrialArchitecturePreseedEnqueuedUtc is not null
-                    && t.TrialWelcomeRunId is null
-                    && t.TrialArchitecturePreseedFailedUtc is null
-                    && t.TrialArchitecturePreseedAttemptCount < 5
-                    && string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
-                .OrderBy(static t => t.TrialArchitecturePreseedEnqueuedUtc)
-                .Take(Math.Clamp(take, 1, 50))
-                .Select(static t => t.Id)
-                .ToList();
-
-            return Task.FromResult<IReadOnlyList<Guid>>(ids);
-        }
-    }
-
-
-    /// <inheritdoc />
-    public Task MarkTrialArchitecturePreseedCompletedAsync(Guid tenantId, Guid welcomeRunId, CancellationToken ct)
-    {
-        _ = ct;
-
-        lock (_trialGate)
-        {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.TrialWelcomeRunId is not null)
-                return Task.CompletedTask;
-
-            _byId[tenantId] = CopyTenant(existing, trialWelcomeRunId: welcomeRunId);
-        }
-
-        return Task.CompletedTask;
-    }
-
-
-    /// <inheritdoc />
-    public Task<int> IncrementTrialArchitecturePreseedAttemptAsync(Guid tenantId, string lastError, CancellationToken ct)
-    {
-        _ = ct;
-
-        lock (_trialGate)
-        {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-                return Task.FromResult(0);
-
-            int nextAttempt = existing.TrialArchitecturePreseedAttemptCount + 1;
-            DateTimeOffset? failedUtc = nextAttempt >= 5 ? TimeProvider.System.GetUtcNow() : existing.TrialArchitecturePreseedFailedUtc;
-
-            _byId[tenantId] = CopyTenant(
-                existing,
-                trialArchitecturePreseedAttemptCount: nextAttempt,
-                trialArchitecturePreseedFailedUtc: failedUtc,
-                trialArchitecturePreseedLastError: lastError);
-
-            return Task.FromResult(nextAttempt);
-        }
-    }
 }
