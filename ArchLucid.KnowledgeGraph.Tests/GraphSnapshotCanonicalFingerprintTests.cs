@@ -258,6 +258,21 @@ public sealed class GraphSnapshotCanonicalFingerprintTests
         baselineFingerprint.Should().Contain("goal=scale");
     }
 
+    [Fact]
+    public void ComputeKnowledgeModelFingerprint_includes_declared_priorities()
+    {
+        DateTime updatedUtc = new(2026, 8, 25, 12, 0, 0, DateTimeKind.Utc);
+
+        ArchitectureKnowledgeModel securityFirst = CreateFingerprintModel(updatedUtc, "Orders API", false, "scale");
+        securityFirst.DeclaredPriorities = ["Security", "Cost"];
+
+        ArchitectureKnowledgeModel costFirst = CreateFingerprintModel(updatedUtc, "Orders API", false, "scale");
+        costFirst.DeclaredPriorities = ["Cost", "Security"];
+
+        GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(securityFirst)
+            .Should().NotBe(GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(costFirst));
+    }
+
     private static ArchitectureKnowledgeModel CreateFingerprintModel(
         DateTime updatedUtc,
         string description,

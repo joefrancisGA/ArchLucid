@@ -96,8 +96,21 @@ public static class GraphSnapshotCanonicalFingerprint
                 knowledgeModel.UpdatedUtc.ToString("O"),
                 knowledgeModel.IsProvisionalSynthesis ? "provisional" : "complete",
                 FormatFramingAnswers(knowledgeModel),
+                FormatDeclaredPriorities(knowledgeModel),
                 .. elementParts,
             ]);
+    }
+
+    private static string FormatDeclaredPriorities(ArchitectureKnowledgeModel knowledgeModel)
+    {
+        if (knowledgeModel.DeclaredPriorities is null || knowledgeModel.DeclaredPriorities.Count == 0)
+            return string.Empty;
+
+        IEnumerable<string> parts = knowledgeModel.DeclaredPriorities
+            .Where(static priority => !string.IsNullOrWhiteSpace(priority))
+            .Select(static priority => priority.Trim());
+
+        return string.Join(",", parts);
     }
 
     private static string FormatFramingAnswers(ArchitectureKnowledgeModel knowledgeModel)
