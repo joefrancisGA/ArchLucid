@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { AlertSimulationPickReviewBeforeSimulatingStrip } from "@/components/alerts/AlertSimulationPickReviewBeforeSimulatingStrip";
+import { AlertSimulationNextReviewFooterClient } from "@/components/alerts/AlertSimulationNextReviewFooterClient";
 import { AlertSimulationSummaryBlock } from "@/components/alerts/AlertSimulationSummaryBlock";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
@@ -793,6 +794,7 @@ export function AlertSimulationContent() {
           }
         />
       ) : null}
+      {sRunId.trim().length > 0 ? <AlertSimulationNextReviewFooterClient runId={sRunId.trim()} /> : null}
     </div>
   );
 }
