@@ -139,6 +139,51 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void TryGet_isolates_model_diff_after_model_and_entries_from_stored_entry()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-model-diff" };
+        ClosedLoopReasoningResult stored = new()
+        {
+            ModelDiffs =
+            [
+                new ArchitectureModelDiff
+                {
+                    RecommendationId = "rec-1",
+                    Entries =
+                    [
+                        new ArchitectureModelDiffEntry
+                        {
+                            ElementId = "el-1",
+                            ChangeKind = "Added",
+                            ElementKind = ArchitectureElementKind.Component,
+                            Description = "Added API",
+                        },
+                    ],
+                    BeforeModel = new ArchitectureKnowledgeModel
+                    {
+                        Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+                    },
+                    AfterModel = new ArchitectureKnowledgeModel
+                    {
+                        Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+                    },
+                },
+            ],
+        };
+
+        cache.Set(manifest, stored);
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+
+        cached!.ModelDiffs[0].Entries[0].Description = "mutated";
+        cached.ModelDiffs[0].AfterModel.Elements[0].Name = "mutated";
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? again).Should().BeTrue();
+        again!.ModelDiffs[0].Entries[0].Description.Should().Be("Added API");
+        again.ModelDiffs[0].AfterModel.Elements[0].Name.Should().Be("API");
+    }
+
+    [Fact]
     public void Set_stores_result_without_publish_side_effects()
     {
         ReviewResultCache cache = new();

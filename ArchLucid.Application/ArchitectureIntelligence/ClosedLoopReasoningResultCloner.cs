@@ -226,11 +226,24 @@ internal static class ClosedLoopReasoningResultCloner
         return new ArchitectureModelDiff
         {
             RecommendationId = diff.RecommendationId,
-            Entries = diff.Entries?.ToList() ?? [],
+            Entries = diff.Entries?.Select(CloneModelDiffEntry).ToList() ?? [],
             BeforeModel = diff.BeforeModel is null || diff.BeforeModel.Elements.Count == 0
                 ? new ArchitectureKnowledgeModel()
                 : ArchitectureKnowledgeModelCloner.Clone(diff.BeforeModel),
-            AfterModel = new ArchitectureKnowledgeModel(),
+            AfterModel = diff.AfterModel is null || diff.AfterModel.Elements.Count == 0
+                ? new ArchitectureKnowledgeModel()
+                : ArchitectureKnowledgeModelCloner.Clone(diff.AfterModel),
+        };
+    }
+
+    private static ArchitectureModelDiffEntry CloneModelDiffEntry(ArchitectureModelDiffEntry entry)
+    {
+        return new ArchitectureModelDiffEntry
+        {
+            ElementId = entry.ElementId,
+            ChangeKind = entry.ChangeKind,
+            ElementKind = entry.ElementKind,
+            Description = entry.Description,
         };
     }
 
