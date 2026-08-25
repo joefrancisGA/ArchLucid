@@ -51,6 +51,8 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
+import { RiskExceptionsTriageFirstExpiringStrip } from "@/components/governance/RiskExceptionsTriageFirstExpiringStrip";
+import { resolveRiskExceptionsTriageFirstExpiring } from "@/lib/governance/resolve-risk-exceptions-triage-first-expiring";
 import {
   RISK_EXCEPTIONS_EMPTY_BODY,
   RISK_EXCEPTIONS_EMPTY_TITLE,
@@ -155,6 +157,10 @@ export default function RiskExceptionsClient() {
 
   const expiringSoonCount = useMemo(
     () => records.filter((row) => resolveRiskExceptionDisplayStatus(row) === "expiring-soon").length,
+    [records],
+  );
+  const triageFirstExpiringTarget = useMemo(
+    () => resolveRiskExceptionsTriageFirstExpiring(records),
     [records],
   );
 
@@ -283,6 +289,19 @@ export default function RiskExceptionsClient() {
           />
         ) : !loading && !loadError ? (
           <>
+            {triageFirstExpiringTarget !== null ? (
+              <RiskExceptionsTriageFirstExpiringStrip
+                target={triageFirstExpiringTarget}
+                onExtend={(riskExceptionId) => {
+                  setRenewingId(riskExceptionId);
+                  setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
+                  setRenewRationale("");
+                  document
+                    .querySelector(`[data-risk-exception-id="${riskExceptionId}"]`)
+                    ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }}
+              />
+            ) : null}
             <WhyDisabledCtaHint
               id={mutationDisabledHintId}
               reason={mutationDisabledReason}
@@ -306,7 +325,7 @@ export default function RiskExceptionsClient() {
                   const isRenewing = renewingId === record.riskExceptionId;
 
                   return (
-                    <EnterpriseTableRow key={record.riskExceptionId}>
+                    <EnterpriseTableRow key={record.riskExceptionId} data-risk-exception-id={record.riskExceptionId}>
                       <EnterpriseTableCell>
                         <div className="flex flex-wrap items-center gap-2">
                           <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
