@@ -299,6 +299,7 @@ public sealed class DapperArchitectureIntelligencePersistence : IArchitectureInt
                 ElementsJson,
                 DeclaredPrioritiesJson,
                 FramingAnswersJson,
+                IsProvisionalSynthesis,
                 CreatedUtc,
                 UpdatedUtc
             FROM dbo.ArchitectureKnowledgeModels

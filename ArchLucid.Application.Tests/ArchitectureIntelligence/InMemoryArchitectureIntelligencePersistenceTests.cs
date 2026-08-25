@@ -66,4 +66,23 @@ public sealed class InMemoryArchitectureIntelligencePersistenceTests
         stored.DeclaredPriorities.Should().Contain("Security");
         stored.FramingAnswers["goal"].Should().Be("stability");
     }
+
+    [Fact]
+    public async Task SaveModel_round_trips_IsProvisionalSynthesis()
+    {
+        InMemoryArchitectureIntelligencePersistence persistence = new();
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-provisional",
+            TenantId = "tenant-1",
+            IsProvisionalSynthesis = true,
+        };
+
+        await persistence.SaveModelAsync(model);
+
+        ArchitectureKnowledgeModel? stored = await persistence.GetModelAsync("tenant-1", "model-provisional");
+
+        stored.Should().NotBeNull();
+        stored!.IsProvisionalSynthesis.Should().BeTrue();
+    }
 }
