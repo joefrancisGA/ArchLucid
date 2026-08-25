@@ -169,6 +169,7 @@ beforeEach(() => {
     displayName: "Claims intake modernization",
   });
   vi.mocked(showError).mockReset();
+  vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([]);
   vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
     saveState: "idle",
     lastSavedUtc: null,
@@ -299,6 +300,46 @@ describe("ArchitectureDraftWorkspace", () => {
     ).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-creation-new-draft-section-title")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-start-review-setup-progress")).toBeInTheDocument();
+  });
+
+  it("shows the next draft footer when another workspace draft exists", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
+      {
+        architectureId: "arch-001",
+        displayName: "Claims intake",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-07-12T23:42:05.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-07-12T23:42:05.000Z",
+      },
+      {
+        architectureId: "arch-002",
+        displayName: "Payments core",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-06-01T00:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-06-01T00:00:00.000Z",
+      },
+    ]);
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-next-draft-footer")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-draft-next-draft-action")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/arch-002",
+    );
   });
 
   it("shows a skeleton without list wayfinding while loading an existing draft (TB-1453)", async () => {

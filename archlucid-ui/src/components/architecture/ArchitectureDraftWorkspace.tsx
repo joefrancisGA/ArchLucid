@@ -18,6 +18,7 @@ import { ArchitectureDraftIntakeModeBanner } from "@/components/architecture/Arc
 import { ArchitectureDraftQualityAttributesEncouragementDialog } from "@/components/architecture/ArchitectureDraftQualityAttributesEncouragementDialog";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
+import { ArchitectureDraftNextDraftFooter } from "@/components/architecture/ArchitectureDraftNextDraftFooter";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
@@ -31,6 +32,7 @@ import { ReviewStartNavigationStallNotice } from "@/components/review-intake/Rev
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Card, CardContent } from "@/components/ui/card";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useReviewStartNavigationProgress } from "@/hooks/use-review-start-navigation-progress";
@@ -90,6 +92,7 @@ import {
   resolveArchitectureDraftStartReviewEmphasizedStepId,
   resolveArchitectureDraftStartReviewSteps,
 } from "@/lib/architecture-draft-start-review-checklist";
+import { resolveNextArchitectureDraftInList } from "@/lib/resolve-next-architecture-draft-in-list";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -108,6 +111,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const isNewDraft = isArchitectureNewDraftSegment(props.architectureId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const isDetailDraft = !isNewDraft;
+  const draftRegistryEntries = useArchitectureDraftRegistryEntries();
   const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const [loading, setLoading] = useState(!isNewDraft);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -169,6 +173,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const canUnlockBrief = architectureDraftAllowsBriefUnlock(draft?.status);
   const editorLocked = handoffEditorLocked || briefFrozen || exitPending;
   const effectiveArchitectureId = resolvedDraftId ?? props.architectureId;
+  const nextDraft = useMemo(() => {
+    if (isNewDraft) {
+      return null;
+    }
+
+    return resolveNextArchitectureDraftInList(draftRegistryEntries, effectiveArchitectureId);
+  }, [draftRegistryEntries, effectiveArchitectureId, isNewDraft]);
 
   // Reasoning needs a real draft id — unavailable on /new until the first deferred create succeeds.
   const refinementDraftId =
@@ -947,6 +958,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         onAddQualityAttributes={handleEncourageAddQualityAttributes}
         onContinueWithout={handleContinueWithoutQualityAttributes}
       />
+      {nextDraft !== null ? <ArchitectureDraftNextDraftFooter target={nextDraft} /> : null}
     </div>
   );
 }
