@@ -71,15 +71,15 @@ public sealed class EmailOtpVerifyFlow(
             await _domainPolicy.EvaluateAsync(challenge.NormalizedEmail, request.InvitationToken, cancellationToken)
                 .ConfigureAwait(false);
 
+        string emailCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(challenge.NormalizedEmail);
+
         if (verifyDomainEvaluation.Decision == EmailOtpSignInDomainDecision.RequireEnterpriseSso)
         {
             ArchLucidInstrumentation.RecordEmailOtpChallengeVerified("sso_required");
 
-            return await FailWithAuditAsync("sso_required", emailCorrelation: null, cancellationToken)
+            return await FailWithAuditAsync("sso_required", emailCorrelation, cancellationToken)
                 .ConfigureAwait(false);
         }
-
-        string emailCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(challenge.NormalizedEmail);
         DateTimeOffset now = _timeProvider.GetUtcNow();
 
         if (await AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync(

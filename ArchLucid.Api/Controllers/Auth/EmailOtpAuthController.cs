@@ -100,6 +100,7 @@ public sealed class EmailOtpAuthController(
     /// <summary>Verifies a sign-in code and issues an access token.</summary>
     [HttpPost("verify")]
     [EnableRateLimiting("email-otp")]
+    [MutatingAuditExcluded("Audit: IEmailOtpAuthService.VerifyCodeAsync logs EmailOtpVerificationSucceeded and EmailOtpVerificationFailed.")]
     [ProducesResponseType(typeof(EmailOtpVerifyResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> VerifyAsync(
@@ -115,20 +116,6 @@ public sealed class EmailOtpAuthController(
         {
             return this.BadRequestProblem("ChallengeId and code are required.", ProblemTypes.ValidationFailed);
         }
-
-        string actorId = $"challenge:{body.ChallengeId:D}";
-
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.EmailOtpCodeRequested,
-                ActorUserId = actorId,
-                ActorUserName = actorId,
-                ExplicitActor = true,
-                TenantId = Guid.Empty,
-                DataJson = JsonSerializer.Serialize(new { channel = "email_otp_verify_http" })
-            },
-            cancellationToken).ConfigureAwait(false);
 
         EmailOtpVerifyResult result = await _emailOtpAuth.VerifyCodeAsync(
             new Application.Identity.EmailOtpVerifyRequest
@@ -177,8 +164,8 @@ public sealed class EmailOtpAuthController(
                 ExpiresInSeconds = lifetimeSeconds,
                 PlatformUserId = result.PlatformUserId.Value,
                 NextStep = result.NextStep.ToString(),
-                TenantId = result.TenantId,
-                WorkspaceId = result.WorkspaceId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
                 InvitationId = result.InvitationId
             });
     }

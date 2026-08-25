@@ -231,6 +231,104 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task VerifyCodeAsync_audits_sso_required_failure_for_stale_challenge_when_domain_now_requires_sso()
+    {
+        Guid tenantId = Guid.NewGuid();
+        const string email = "user@enterprise.example";
+        const string code = "123456";
+
+        InMemoryEmailOtpChallengeRepository challenges = new();
+        InMemoryTenantSignInEmailDomainRepository signInDomains = new();
+        Mock<IAuditService> audit = new();
+
+        audit
+            .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        signInDomains.Seed(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = tenantId,
+                DisplayDomain = "enterprise.example",
+                NormalizedDomain = "enterprise.example",
+                VerificationStatus = AuthDomainVerificationStatus.Verified,
+                EnforcementMode = AuthDomainEnforcementMode.SsoRequiredForVerifiedDomain,
+                RequireEnterpriseSso = true,
+                AllowEmailOtpRecovery = false,
+                CreatedUtc = DateTimeOffset.UtcNow,
+                VerifiedUtc = DateTimeOffset.UtcNow,
+                RoutingTestPassedUtc = DateTimeOffset.UtcNow,
+                EnforcementEnabledUtc = DateTimeOffset.UtcNow,
+                DnsVerificationToken = "verification-token"
+            });
+
+        InMemoryTenantIdentityProviderConfigurationRepository idp = new();
+        idp.Seed(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = "https://login.enterprise.example",
+                ClaimMappingJson = "{}",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin",
+                IsActive = true
+            });
+
+        Guid challengeId = Guid.NewGuid();
+        string codeHash = EmailOtpCodeHasher.Hash(challengeId, code, string.Empty);
+
+        await challenges.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                Id = challengeId,
+                NormalizedEmail = email,
+                CodeHash = codeHash,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10)
+            },
+            CancellationToken.None);
+
+        EmailOtpAuthService sut = new(
+            Options.Create(new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 }),
+            challenges,
+            new EmailOtpSignInDomainPolicyService(
+                new AuthSignInRoutingService(
+                    signInDomains,
+                    new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
+                    idp,
+                    new InMemoryUserInvitationRepository(),
+                    new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
+                    TimeProvider.System)),
+            Mock.Of<IEmailOtpEmailNotifier>(),
+            new PlatformIdentityService(
+                new InMemoryPlatformUserRepository(),
+                new InMemoryAuthenticationIdentityRepository(),
+                new InMemoryWorkspaceMembershipRepository(),
+                audit.Object,
+                TimeProvider.System),
+            new InMemoryAuthenticationIdentityRepository(),
+            new InMemoryWorkspaceMembershipRepository(),
+            new InMemoryUserInvitationRepository(),
+            new PermissiveEmailOtpBotChallengeVerifier(Options.Create(new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 })),
+            audit.Object,
+            TimeProvider.System);
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challengeId, Code = code },
+            CancellationToken.None);
+
+        Assert.False(verified.Succeeded);
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(evt =>
+                    evt.EventType == AuditEventTypes.EmailOtpVerificationFailed
+                    && evt.DataJson.Contains("sso_required", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task RequestCodeAsync_enforces_sso_for_registered_domain()
     {
         Guid tenantId = Guid.NewGuid();

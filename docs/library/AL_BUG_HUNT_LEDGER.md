@@ -432,11 +432,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `ResolveNextStepAsync` treated challenge-linked invitation ids as accepted and returned newest membership instead of the accepted invitation workspace
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — verify response echoed null tenant/workspace while JWT used `TrialLocalJwtScopeDefaults`; verify HTTP logged `EmailOtpCodeRequested`; SSO-blocked verify skipped `EmailOtpVerificationFailed` audit
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -447,9 +447,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Concurrent verify requests both succeed on the same one-time challenge Î“Ã‡Ã¶ retired: `EmailOtpChallengeRepositoryConcurrencyTests.TryCompleteAsync_allows_only_one_successful_completion`
 - [x] (proven) Mixed-case invitation email on the row blocks acceptance after OTP verify — **hit 2026-08-24:** `TryAcceptInvitationAsync` compared `invitation.Email` to normalized sign-in email with ordinal equality and `FindInvitationByIdAsync` filtered via `ListPendingByNormalizedEmailAsync`; legacy/display-case rows never accepted; fixed with `InvitationEmailMatchesVerifiedEmail` + `GetPendingByIdAsync`
 - [x] (proven) Post-verify next step returns wrong workspace after invitation accept — **hit 2026-08-24:** `ResolveNextStepAsync` merged `acceptedInvitationId ?? challenge.InvitationId` and picked `activeMemberships[^1]`; re-invites to an older workspace returned the newest membership, and multi-workspace users with an expired linked invitation got `Complete` instead of `SelectWorkspace`; fixed by returning `AcceptedEmailOtpInvitation` tenant/workspace only when accept succeeds and separating challenge-linked pending invitation routing
-- [ ] (hunt-ready) `EmailOtpAuthController.VerifyAsync` when `result.TenantId`/`WorkspaceId` are null but JWT issuance falls back to `TrialLocalJwtScopeDefaults.Resolve()` — access token carries default tenant/workspace while `EmailOtpVerifyResponse.TenantId`/`WorkspaceId` echo the null `result.*` fields, desyncing client routing from token claims.
-- [ ] (hunt-ready) `EmailOtpAuthController.VerifyAsync` audit on every verify attempt — logs `AuditEventTypes.EmailOtpCodeRequested` with channel `email_otp_verify_http` instead of a verification-failure/success event, conflating challenge and verify telemetry.
-- [ ] (hunt-ready) `EmailOtpAuthService.VerifyCodeAsync` on `RequireEnterpriseSso` domain decision — calls `FailWithAuditAsync("sso_required", emailCorrelation: null)`, which returns `Failed()` without audit because `emailCorrelation` is null, so SSO-blocked verifies leave no `EmailOtpVerificationFailed` trail.
+- [x] (proven) `EmailOtpAuthController.VerifyAsync` JWT/response tenant-workspace desync — **hit 2026-08-25:** response echoed null `result.TenantId`/`WorkspaceId` while JWT fell back to `TrialLocalJwtScopeDefaults`; fixed by returning resolved scope in `EmailOtpVerifyResponse`; regression `VerifyAsync_response_scope_matches_jwt_when_service_returns_null_tenant_workspace`
+- [x] (proven) `EmailOtpAuthController.VerifyAsync` wrong verify audit event — **hit 2026-08-25:** HTTP verify logged `EmailOtpCodeRequested` with `email_otp_verify_http`, conflating challenge and verify telemetry; removed controller audit (service emits `EmailOtpVerificationSucceeded`/`Failed`); `[MutatingAuditExcluded]` + regression `VerifyAsync_does_not_log_email_otp_code_requested_audit`
+- [x] (proven) `EmailOtpAuthService.VerifyCodeAsync` SSO-blocked verify missing audit — **hit 2026-08-25:** `RequireEnterpriseSso` path passed `emailCorrelation: null` to `FailWithAuditAsync`, skipping `EmailOtpVerificationFailed`; fixed by correlating from challenge email before SSO gate; regression `VerifyCodeAsync_audits_sso_required_failure_for_stale_challenge_when_domain_now_requires_sso`
 
 ---
 
@@ -2288,10 +2288,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/Orchestration/RunExecuteOwnershipLeaseService.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-25
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
