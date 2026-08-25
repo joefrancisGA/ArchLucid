@@ -1,3 +1,4 @@
+using System.Text.Json;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Contracts.Findings;
@@ -286,6 +287,63 @@ internal static class ClosedLoopReasoningResultCloner
             RelatedNodeIds = finding.RelatedNodeIds.ToList(),
             RecommendedActions = finding.RecommendedActions.ToList(),
             Properties = new Dictionary<string, string>(finding.Properties),
+            Payload = ClonePayload(finding.Payload),
+            PayloadType = finding.PayloadType,
+            Trace = CloneExplainabilityTrace(finding.Trace),
+            RequestInputRef = finding.RequestInputRef,
+            RunIdRef = finding.RunIdRef,
+            AgentExecutionTraceId = finding.AgentExecutionTraceId,
+            ModelDeploymentName = finding.ModelDeploymentName,
+            ModelAlias = finding.ModelAlias,
+            ModelVersion = finding.ModelVersion,
+            PromptTemplateId = finding.PromptTemplateId,
+            PromptTemplateVersion = finding.PromptTemplateVersion,
+            ConfidenceScore = finding.ConfidenceScore,
+            EvaluationConfidenceScore = finding.EvaluationConfidenceScore,
+            ConfidenceLevel = finding.ConfidenceLevel,
+            PolicyRuleId = finding.PolicyRuleId,
+            HumanReviewStatus = finding.HumanReviewStatus,
+            ReviewedByUserId = finding.ReviewedByUserId,
+            ReviewedAtUtc = finding.ReviewedAtUtc,
+            ReviewNotes = finding.ReviewNotes,
+            ProjectedImpactUsd = finding.ProjectedImpactUsd,
+            IsMuted = finding.IsMuted,
+            MuteReason = finding.MuteReason,
+            EnforcementTier = finding.EnforcementTier,
+            InsightDensityScore = finding.InsightDensityScore,
+            Treatment = finding.Treatment,
+            Classification = finding.Classification,
+            WhyThisIsNotGeneric = finding.WhyThisIsNotGeneric,
+            PrincipalArchitectValue = finding.PrincipalArchitectValue,
+            DecisionConsequence = finding.DecisionConsequence,
+            AssignedToUserId = finding.AssignedToUserId,
+            RemediationDueUtc = finding.RemediationDueUtc,
+        };
+    }
+
+    private static object? ClonePayload(object? payload)
+    {
+        if (payload is JsonElement jsonElement)
+            return jsonElement.Clone();
+
+        return payload;
+    }
+
+    private static ExplainabilityTrace CloneExplainabilityTrace(ExplainabilityTrace trace)
+    {
+        ArgumentNullException.ThrowIfNull(trace);
+
+        return new ExplainabilityTrace
+        {
+            SourceAgentExecutionTraceId = trace.SourceAgentExecutionTraceId,
+            GraphNodeIdsExamined = trace.GraphNodeIdsExamined.ToList(),
+            RulesApplied = trace.RulesApplied.ToList(),
+            DecisionsTaken = trace.DecisionsTaken.ToList(),
+            AlternativePathsConsidered = trace.AlternativePathsConsidered.ToList(),
+            Notes = trace.Notes.ToList(),
+            Citations = trace.Citations.ToList(),
+            ReasoningTrace = trace.ReasoningTrace,
+            ReasoningTraceDigestSha256 = trace.ReasoningTraceDigestSha256,
         };
     }
 
