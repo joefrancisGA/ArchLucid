@@ -45,7 +45,12 @@ import {
 } from "./governance-workflow-helpers";
 import type { GovernanceWorkflowPendingReview } from "./governance-workflow-helpers";
 import { ApprovalQueueTriageFirstPendingStrip } from "./ApprovalQueueTriageFirstPendingStrip";
+import { ApprovalQueueContinueLastViewedRow } from "./ApprovalQueueContinueLastViewedRow";
 import { resolveApprovalQueueTriageFirstPending } from "@/lib/governance/resolve-approval-queue-triage-first-pending";
+import {
+  resolveContinueLastApprovalRequest,
+  writeApprovalQueueLastViewedRequestId,
+} from "@/lib/resolve-continue-last-approval-request";
 
 type GovernanceWorkflowApprovalsListProps = {
   buyerPolishedShell: boolean;
@@ -101,6 +106,17 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
     () => resolveApprovalQueueTriageFirstPending(approvals),
     [approvals],
   );
+  const continueLastRequest = useMemo(
+    () => resolveContinueLastApprovalRequest(approvals),
+    [approvals],
+  );
+
+  function openApprovalRequest(approvalRequestId: string): void {
+    writeApprovalQueueLastViewedRequestId(approvalRequestId);
+    document
+      .querySelector(`[data-approval-request-id="${approvalRequestId}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   return (
     <div className="mt-6 grid gap-4">
@@ -136,6 +152,18 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
           id={mutationDisabledHintId}
           reason={mutationDisabledReason}
           testId={mutationDisabledHintId}
+        />
+      ) : null}
+
+      {continueLastRequest !== null ? (
+        <ApprovalQueueContinueLastViewedRow
+          target={continueLastRequest}
+          onOpen={(approvalRequestId) => {
+            openApprovalRequest(approvalRequestId);
+            setPendingReview({ approvalRequestId, mode: "approve" });
+            setPendingPromote(null);
+            pendingPromoteRequestRef.current = null;
+          }}
         />
       ) : null}
 
@@ -291,6 +319,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                         mutationDisabledReason === null ? undefined : mutationDisabledHintId
                       }
                       onClick={() => {
+                        writeApprovalQueueLastViewedRequestId(row.approvalRequestId);
                         setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "approve" });
                         setPendingPromote(null);
                         pendingPromoteRequestRef.current = null;
@@ -307,6 +336,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                         mutationDisabledReason === null ? undefined : mutationDisabledHintId
                       }
                       onClick={() => {
+                        writeApprovalQueueLastViewedRequestId(row.approvalRequestId);
                         setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "reject" });
                         setPendingPromote(null);
                         pendingPromoteRequestRef.current = null;
