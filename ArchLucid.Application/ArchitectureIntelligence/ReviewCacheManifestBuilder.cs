@@ -6,13 +6,15 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public static class ReviewCacheManifestBuilder
 {
-    public static ReviewCacheDependencyManifest Build(ClosedLoopReasoningRequest request)
+    public static ReviewCacheDependencyManifest Build(
+        ClosedLoopReasoningRequest request,
+        ArchitectureKnowledgeModel? baselineKnowledgeModel = null)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         return new ReviewCacheDependencyManifest
         {
-            ContentHash = HashContent(request),
+            ContentHash = HashContent(request, baselineKnowledgeModel),
             PromptVersion = ArchitectureIntelligenceCacheVersions.PromptVersion,
             ModelVersion = ArchitectureIntelligenceCacheVersions.ModelVersion,
             PolicyPackVersion = ArchitectureIntelligenceCacheVersions.PolicyPackVersion,
@@ -24,12 +26,21 @@ public static class ReviewCacheManifestBuilder
         };
     }
 
-    private static string HashContent(ClosedLoopReasoningRequest request)
+    private static string HashContent(
+        ClosedLoopReasoningRequest request,
+        ArchitectureKnowledgeModel? baselineKnowledgeModel)
     {
         StringBuilder builder = new();
         builder.Append("continue=").Append(request.ContinueFromExistingRun ? '1' : '0').Append('|');
         builder.Append("publish=").Append(request.PublishToProduct ? '1' : '0').Append('|');
         builder.Append("tier=").Append(request.ReviewTier.ToString()).Append('|');
+
+        if (!string.IsNullOrWhiteSpace(request.RunId) && baselineKnowledgeModel is not null)
+        {
+            builder.Append("modelfp=")
+                .Append(ReviewCacheModelFingerprint.Compute(baselineKnowledgeModel))
+                .Append('|');
+        }
 
         foreach (ClosedLoopReasoningSourceText source in request.SourceTexts
                      .OrderBy(item => item.FileName, StringComparer.Ordinal)

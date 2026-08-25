@@ -21,6 +21,35 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_changes_content_hash_when_baseline_model_fingerprint_changes_for_supplied_run_id()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-with-model";
+
+        ArchitectureKnowledgeModel baseline = new()
+        {
+            ModelId = "model-1",
+            RunId = "run-with-model",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel changed = new()
+        {
+            ModelId = "model-1",
+            RunId = "run-with-model",
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API" },
+                new ArchitectureModelElement { ElementId = "el-2", Name = "Worker" },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, baseline).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(request, changed).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_hash_when_declared_priorities_change()
     {
         ClosedLoopReasoningRequest security = CreateRequest("Architecture note.");
