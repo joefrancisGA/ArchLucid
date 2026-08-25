@@ -244,3 +244,5 @@
 {"at":"2026-08-24T23:57:42.1668113Z","zoneId":"llm-wallet","outcome":"hit"}
 {"at":"2026-08-25T00:06:42.0541994Z","zoneId":"worker-host","outcome":"seed-only"}
 {"at":"2026-08-25T00:31:42.0108572Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
+{"at":"2026-08-25T00:36:08.6708267Z","zoneId":"review-recurrence","outcome":"seed-only"}
+{"at":"2026-08-25T00:39:39.4146976Z","zoneId":"scim-users","outcome":"hit"}
