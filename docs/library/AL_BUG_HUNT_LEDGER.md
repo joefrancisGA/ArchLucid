@@ -1690,11 +1690,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 7
-- **bugs-found:** 10
+- **hunts:** 8
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — IPv6 ULA SSRF bypass; PascalCase alert routing metadata; FindingJsonConverter severity downgrade; Marketplace PlanId casing
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — FindingJsonConverter numeric enforcementTier/humanReviewStatus ignored or threw
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1712,6 +1712,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) PascalCase `routingCriteria` / `severities` metadata silently disables alert routing filters — **hit 2026-08-24:** `AlertRoutingCriteriaMetadata.Parse` used case-sensitive `TryGetProperty`; empty criteria fail-open in `AlertRoutingMatcher`; regression in `AlertRoutingCriteriaMetadata_Parse_PascalCase_property_names_preserves_severity_filter`
 - [x] (proven) `FindingJsonConverter` downgrades unknown severity strings to `Info` — **hit 2026-08-24:** unlike `ArchitectureFindingJsonConverter`, labels like `blocker` hydrated as `Info`; fixed to throw on unknown labels (`FindingJsonConverterTests.Deserialize_unknown_severity_throws`)
 - [x] (proven) Azure Marketplace webhook `PlanId` PascalCase missed → tier defaults to Standard — **hit 2026-08-24:** `TryGetPlanId` only read camelCase `planId`; regression in `TryGetPlanId_reads_PascalCase_planId`
+- [x] (proven) `FindingJsonConverter.Read` required string `enforcementTier` and called `GetString()` on `humanReviewStatus`, so numeric `1` became `PolicyViolation` / threw, unlike `ReadSeverity` and the dedicated enum converters — **hit 2026-08-25:** `Deserialize_numeric_enforcement_tier_maps_advisory_ordinal`, `Deserialize_numeric_human_review_status_maps_pending_ordinal`.
+- [ ] (hunt-ready) `FindingJsonConverter.Read` uses case-sensitive `JsonDocument.TryGetProperty("humanReviewStatus")` / `"enforcementTier"` — PascalCase persisted JSON (`"HumanReviewStatus":"Pending"`) stays `NotRequired` while `FindingsSerialization` options are otherwise case-insensitive.
+- [ ] (hunt-ready) `FindingJsonConverter.ReadOptionalString` calls `GetString()` without a string `ValueKind` check, so numeric `runIdRef` / `policyRuleId` throws `InvalidOperationException` wrapped as `JsonException` instead of leaving the field null.
+- [ ] (hunt-ready) `FindingJsonConverter.ReadTrace` swallows `JsonException` and stores an empty `ExplainabilityTrace` plus `_traceDeserializationWarning` — callers that persist then rehydrate lose the original corrupt-trace payload with no API-visible failure.
 
 ---
 
