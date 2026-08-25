@@ -1,56 +1,37 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Services;
-
 using FluentAssertions;
 
 namespace ArchLucid.Decisioning.Tests;
 
-public sealed class FindingSnapshotConfluentMergerPolicyRuleTests
+public sealed class FindingMergeConflictPresenterTests
 {
     [Fact]
-    public void Merge_joins_on_policy_rule_id_and_fingerprint_not_first_wins_title()
+    public void PresentAsFindings_maps_merge_conflict_engine_failures_to_warning_rows()
     {
-        Finding engineA = new()
+        FindingEngineFailure conflict = new()
         {
-            FindingId = "a",
-            FindingType = "Test",
+            EngineType = FindingSnapshotConfluentMerger.ConflictEngineType,
             Category = "Security",
-            EngineType = "engine-b",
-            PolicyRuleId = "rule-1",
-            Title = "Shared title",
-            Rationale = "same payload",
-            Severity = FindingSeverity.Warning,
+            ErrorMessage = "Finding merge conflict on ADR 0063 key.",
+            ExceptionType = FindingSnapshotConfluentMerger.ConflictExceptionType,
+            OccurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
 
-        Finding engineB = new()
-        {
-            FindingId = "b",
-            FindingType = "Test",
-            Category = "Security",
-            EngineType = "engine-a",
-            PolicyRuleId = "rule-1",
-            Title = "Shared title",
-            Rationale = "same payload",
-            Severity = FindingSeverity.Warning,
-        };
+        IReadOnlyList<Finding> rows = FindingMergeConflictPresenter.PresentAsFindings(
+            [conflict],
+            TimeProvider.System);
 
-        FindingsSnapshot snapshot = new()
-        {
-            FindingsSnapshotId = Guid.NewGuid(),
-            RunId = Guid.NewGuid(),
-            Findings = [],
-        };
-
-        FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(snapshot, [engineA, engineB], TimeProvider.System);
-
-        snapshot.Findings.Should().ContainSingle();
-        snapshot.Findings[0].EngineType.Should().Be("engine-a");
-        snapshot.EngineFailures.Should().BeEmpty();
+        rows.Should().ContainSingle();
+        rows[0].FindingType.Should().Be(FindingMergeConflictPresenter.FindingType);
+        rows[0].Severity.Should().Be(FindingSeverity.Warning);
+        rows[0].PolicyRuleId.Should().Be(FindingMergeConflictPresenter.PolicyRuleId);
+        rows[0].Properties["findingMerge.conflict"].Should().Be(bool.TrueString);
     }
 
     [Fact]
-    public void Merge_emits_conflict_when_same_key_payloads_differ()
+    public void GenerateFindingsSnapshotAsync_includes_merge_conflict_rows_when_payloads_differ()
     {
         Finding first = new()
         {
@@ -84,6 +65,6 @@ public sealed class FindingSnapshotConfluentMergerPolicyRuleTests
         snapshot.Findings.Should().Contain(finding =>
             finding.FindingType == FindingMergeConflictPresenter.FindingType);
         snapshot.EngineFailures.Should().ContainSingle(failure =>
-            failure.EngineType == "finding-merge-conflict");
+            failure.EngineType == FindingSnapshotConfluentMerger.ConflictEngineType);
     }
 }

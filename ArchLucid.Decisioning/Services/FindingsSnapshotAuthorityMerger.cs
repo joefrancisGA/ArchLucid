@@ -25,5 +25,6 @@ public static class FindingsSnapshotAuthorityMerger
 
         snapshot.Findings = mergeResult.Findings.ToList();
         snapshot.EngineFailures.AddRange(mergeResult.Conflicts);
+        snapshot.Findings.AddRange(FindingMergeConflictPresenter.PresentAsFindings(mergeResult.Conflicts, clock));
     }
 }

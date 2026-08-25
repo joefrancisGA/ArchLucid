@@ -8,6 +8,7 @@ import {
   isCannotDetermineReviewFinding,
   isContradictionReviewFinding,
   isCoverageGapReviewFinding,
+  isFindingMergeConflictReviewFinding,
   isVerifyHypothesisReviewFinding,
 } from "@/lib/review-quality/finding-quality-signals";
 import {
@@ -154,6 +155,10 @@ export function classifyReviewFindingJobView(finding: QuickDecisionFinding): Fin
     return "resolve-contradictions";
   }
 
+  if (isFindingMergeConflictReviewFinding(finding)) {
+    return "resolve-contradictions";
+  }
+
   if (isCannotDetermineReviewFinding(finding)) {
     return "answer-these-questions";
   }
@@ -228,6 +233,10 @@ export function classifyGovernanceFindingJobView(row: GovernanceFindingQueueRow)
   const mappedRow = mapGovernanceRowForJobViewClassification(row);
 
   if (isContradictionReviewFinding(mappedRow)) {
+    return "resolve-contradictions";
+  }
+
+  if (isFindingMergeConflictReviewFinding(mappedRow)) {
     return "resolve-contradictions";
   }
 

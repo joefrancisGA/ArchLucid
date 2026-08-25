@@ -182,6 +182,22 @@ describe("finding-job-view", () => {
     expect(classifyReviewFindingJobView(finding)).toBe("verify-hypotheses");
   });
 
+  it("detects finding merge conflict rows for resolve-contradictions lane", () => {
+    const finding = reviewFinding({
+      findingId: "f-merge-conflict",
+      policyRuleId: "finding-merge-conflict",
+      title: "Finding merge conflict requires operator resolution",
+      recommendation: "Finding merge conflict on ADR 0063 key.",
+      severityValue: 2,
+      aiReasoning: {
+        wireJson: JSON.stringify({ properties: { "findingMerge.conflict": "True" } }),
+        reasoningTrace: "",
+      },
+    });
+
+    expect(classifyReviewFindingJobView(finding)).toBe("resolve-contradictions");
+  });
+
   it("resolveEffectiveFindingJobView skips persisted job view when the filter bar is hidden", () => {
     expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", true)).toBe("ready-for-sponsor-packet");
     expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", false)).toBeNull();

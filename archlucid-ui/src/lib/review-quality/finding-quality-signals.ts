@@ -77,6 +77,21 @@ export function isAdversarialHypothesisLaneFinding(finding: QuickDecisionFinding
   return presentation === "Hypothesis";
 }
 
+/** ADR 0063 merge conflicts surface as triage rows, not hidden engine failures. */
+export function isFindingMergeConflictReviewFinding(finding: QuickDecisionFinding): boolean {
+  if (finding.isMuted) {
+    return false;
+  }
+
+  if ((finding.policyRuleId ?? "").trim() === "finding-merge-conflict") {
+    return true;
+  }
+
+  const conflictFlag = readArchitectureIntelligenceWireProperty(finding, "findingMerge.conflict");
+
+  return conflictFlag === "True";
+}
+
 /** TB-2302: blocked checks and missing facts surface as questions, not confirmed Critical defects. */
 export function isCannotDetermineReviewFinding(finding: QuickDecisionFinding): boolean {
   if (finding.isMuted || isAdversarialHypothesisLaneFinding(finding)) {

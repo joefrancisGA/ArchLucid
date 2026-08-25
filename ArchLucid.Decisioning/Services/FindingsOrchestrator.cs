@@ -127,6 +127,7 @@ public partial class FindingsOrchestrator(
         }
 
         List<Finding> dedupedFindings = [.. mergeResult.Findings];
+        dedupedFindings.AddRange(FindingMergeConflictPresenter.PresentAsFindings(mergeResult.Conflicts, _clock));
 
         FindingsSnapshot snapshot = new()
         {
