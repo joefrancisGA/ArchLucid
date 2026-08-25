@@ -56,6 +56,37 @@ public sealed class RecentPilotRunDeltasServiceTests
     }
 
     [SkippableFact]
+    public async Task GetRecentDeltasAsync_ReadyForCommitRunWithManifest_IsExcludedFromCommittedPanel()
+    {
+        Mock<IRunDetailQueryService> queryService = new();
+        Mock<IPilotRunDeltaComputer> deltaComputer = new();
+
+        DateTime baseTime = new(2026, 4, 23, 10, 0, 0, DateTimeKind.Utc);
+        RunSummary readyForCommit = new()
+        {
+            RunId = "readyforcommit00000000000000aaaa",
+            RequestId = "req-ready",
+            Status = nameof(ArchitectureRunStatus.ReadyForCommit),
+            CreatedUtc = baseTime.AddMinutes(-20),
+            CompletedUtc = baseTime.AddMinutes(-10),
+            CurrentManifestVersion = "v-ready",
+            SystemName = "Demo",
+        };
+        RunSummary committed = BuildSummary("committed000000000000000000bbbb", "req-done", baseTime, committed: true);
+
+        queryService.Setup(q => q.ListRunSummariesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([readyForCommit, committed]);
+        StubDetailAndDelta(queryService, deltaComputer, readyForCommit, findingsCount: 9, secondsToCommit: 30);
+        StubDetailAndDelta(queryService, deltaComputer, committed, findingsCount: 3, secondsToCommit: 45);
+
+        RecentPilotRunDeltasService sut = BuildSut(queryService, deltaComputer);
+
+        RecentPilotRunDeltasResponse response = await sut.GetRecentDeltasAsync(5);
+
+        response.Items.Should().ContainSingle(i => i.RunId == committed.RunId);
+        response.Items.Should().NotContain(i => i.RunId == readyForCommit.RunId);
+    }
+
+    [SkippableFact]
     public async Task GetRecentDeltasAsync_ClampsCountAboveMaxToHardCeiling()
     {
         Mock<IRunDetailQueryService> queryService = new();
@@ -248,7 +279,9 @@ public sealed class RecentPilotRunDeltasServiceTests
         {
             RunId = summary.RunId,
             RequestId = summary.RequestId,
-            Status = ArchitectureRunStatus.Committed,
+            Status = Enum.TryParse<ArchitectureRunStatus>(summary.Status, ignoreCase: true, out ArchitectureRunStatus parsed)
+                ? parsed
+                : ArchitectureRunStatus.Committed,
             CreatedUtc = created,
             CompletedUtc = summary.CompletedUtc,
             CurrentManifestVersion = summary.CurrentManifestVersion,
