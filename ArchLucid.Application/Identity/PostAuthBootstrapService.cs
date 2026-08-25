@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.Audit;
@@ -252,7 +250,8 @@ public sealed class PostAuthBootstrapService(
 
         if (!WorkspaceNameValidator.TryValidate(request.WorkspaceName, out string workspaceName, out string workspaceMessage))
         {
-            return DenyCreate(workspaceMessage);
+            return AuthValidationResultMapper.ToPostAuthCreateWorkspaceDeny(
+                AuthValidationResult.Invalid(workspaceMessage));
         }
 
         string organizationName = request.OrganizationName.Trim();
@@ -264,7 +263,8 @@ public sealed class PostAuthBootstrapService(
 
         if (organizationName.Length > 200)
         {
-            return DenyCreate("Organization name must be at most 200 characters.");
+            return AuthValidationResultMapper.ToPostAuthCreateWorkspaceDeny(
+                AuthValidationResult.Invalid("Organization name must be at most 200 characters."));
         }
 
         IReadOnlyList<WorkspaceMembershipRecord> activeMemberships =
@@ -282,15 +282,18 @@ public sealed class PostAuthBootstrapService(
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            return DenyCreate(
-                packagingLimit.CustomerMessage ?? WorkspacePackagingLimitEvaluator.SelfServeLimitCustomerMessage);
+            return AuthValidationResultMapper.ToPostAuthCreateWorkspaceDeny(
+                AuthValidationResult.Invalid(
+                    packagingLimit.CustomerMessage ?? WorkspacePackagingLimitEvaluator.SelfServeLimitCustomerMessage,
+                    packagingLimit.DenyReasonCode ?? "workspace_packaging_limit"));
         }
 
         if (await HasActiveOwnedTrialAsync(platformUserId, cancellationToken).ConfigureAwait(false))
         {
             await AuditDeniedAsync(platformUserId, displayEmail, "active_trial", cancellationToken).ConfigureAwait(false);
 
-            return DenyCreate(ActiveTrialDenialMessage);
+            return AuthValidationResultMapper.ToPostAuthCreateWorkspaceDeny(
+                AuthValidationResult.Invalid(ActiveTrialDenialMessage, "active_trial"));
         }
 
         SelfServiceTrialAbuseEvaluation abuseEvaluation = await _trialAbusePolicy.EvaluateAsync(
@@ -307,7 +310,8 @@ public sealed class PostAuthBootstrapService(
             await AuditDeniedAsync(platformUserId, displayEmail, abuseEvaluation.DenyReasonCode, cancellationToken)
                 .ConfigureAwait(false);
 
-            return DenyCreate(abuseEvaluation.CustomerMessage);
+            return AuthValidationResultMapper.ToPostAuthCreateWorkspaceDeny(
+                AuthValidationResult.Invalid(abuseEvaluation.CustomerMessage, abuseEvaluation.DenyReasonCode));
         }
 
         PostAuthBootstrapDuplicateOrganizationHint duplicateHint =
@@ -316,13 +320,13 @@ public sealed class PostAuthBootstrapService(
 
         if (duplicateHint.AccessRequestRecommended)
         {
-            await _auditService.LogAsync(
-                BuildAudit(
+            await AuthAuditEmitter.LogAsync(
+                    _auditService,
                     AuditEventTypes.PostAuthExistingOrganizationDetected,
                     displayEmail,
-                    platformUserId,
-                    new { emailDomain = ExtractDomain(normalizedEmail) }),
-                cancellationToken).ConfigureAwait(false);
+                    new { emailDomain = ExtractDomain(normalizedEmail) },
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             return new PostAuthCreateWorkspaceResult
             {
@@ -341,7 +345,8 @@ public sealed class PostAuthBootstrapService(
             await AuditDeniedAsync(platformUserId, displayEmail, "enterprise_sso_required", cancellationToken)
                 .ConfigureAwait(false);
 
-            return DenyCreate(domainEvaluation.CustomerMessage);
+            return AuthValidationResultMapper.ToPostAuthCreateWorkspaceDeny(
+                AuthValidationResult.Invalid(domainEvaluation.CustomerMessage, "enterprise_sso_required"));
         }
 
         TenantProvisioningResult provisioned = await _tenantProvisioning.ProvisionAsync(
@@ -358,13 +363,13 @@ public sealed class PostAuthBootstrapService(
 
         if (provisioned.WasAlreadyProvisioned)
         {
-            await _auditService.LogAsync(
-                BuildAudit(
+            await AuthAuditEmitter.LogAsync(
+                    _auditService,
                     AuditEventTypes.PostAuthExistingOrganizationDetected,
                     displayEmail,
-                    platformUserId,
-                    new { organizationName = TenantOrganizationDuplicateDetector.NormalizeOrganizationName(organizationName) }),
-                cancellationToken).ConfigureAwait(false);
+                    new { organizationName = TenantOrganizationDuplicateDetector.NormalizeOrganizationName(organizationName) },
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             return new PostAuthCreateWorkspaceResult
             {
@@ -393,31 +398,31 @@ public sealed class PostAuthBootstrapService(
             now,
             cancellationToken).ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogAsync(
+                _auditService,
                 AuditEventTypes.PostAuthWorkspaceCreated,
                 displayEmail,
-                platformUserId,
                 new
                 {
                     tenantId = provisioned.TenantId,
                     workspaceId = provisioned.DefaultWorkspaceId
                 },
-                provisioned.TenantId),
-            cancellationToken).ConfigureAwait(false);
+                cancellationToken,
+                provisioned.TenantId)
+            .ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogAsync(
+                _auditService,
                 AuditEventTypes.PostAuthInitialOwnerAssigned,
                 displayEmail,
-                platformUserId,
                 new
                 {
                     role = ArchLucidRoles.WorkspaceAdmin,
                     workspaceId = provisioned.DefaultWorkspaceId
                 },
-                provisioned.TenantId),
-            cancellationToken).ConfigureAwait(false);
+                cancellationToken,
+                provisioned.TenantId)
+            .ConfigureAwait(false);
 
         TrialSignupCompanyProfileCapture? companyProfile = BuildCompanyProfile(request);
 
@@ -515,23 +520,20 @@ public sealed class PostAuthBootstrapService(
             now,
             cancellationToken).ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.AdminUserInvitationAccepted,
-                ActorUserId = normalizedEmail,
-                ActorUserName = normalizedEmail,
-                TenantId = invitation.TenantId,
-                WorkspaceId = invitation.WorkspaceId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        invitationId = invitation.Id,
-                        userId = platformUserId,
-                        emailMismatch = !string.Equals(invitation.Email, normalizedEmail, StringComparison.Ordinal)
-                    })
-            },
-            cancellationToken).ConfigureAwait(false);
+        await AuthAuditEmitter.LogAsync(
+                _auditService,
+                AuditEventTypes.AdminUserInvitationAccepted,
+                normalizedEmail,
+                new
+                {
+                    invitationId = invitation.Id,
+                    userId = platformUserId,
+                    emailMismatch = !string.Equals(invitation.Email, normalizedEmail, StringComparison.Ordinal)
+                },
+                cancellationToken,
+                invitation.TenantId,
+                invitation.WorkspaceId)
+            .ConfigureAwait(false);
 
         TenantWorkspaceLink? link =
             await _tenantRepository.GetFirstWorkspaceAsync(invitation.TenantId, cancellationToken).ConfigureAwait(false);
@@ -774,30 +776,12 @@ public sealed class PostAuthBootstrapService(
         string reason,
         CancellationToken cancellationToken)
     {
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogAsync(
+                _auditService,
                 AuditEventTypes.PostAuthWorkspaceCreationDenied,
                 displayEmail,
-                platformUserId,
-                new { reason }),
-            cancellationToken).ConfigureAwait(false);
+                new { reason },
+                cancellationToken)
+            .ConfigureAwait(false);
     }
-
-    private static PostAuthCreateWorkspaceResult DenyCreate(string message) =>
-        new() { Succeeded = false, CustomerMessage = message };
-
-    private static AuditEvent BuildAudit(
-        string eventType,
-        string actorEmail,
-        Guid platformUserId,
-        object payload,
-        Guid tenantId = default) =>
-        new()
-        {
-            EventType = eventType,
-            ActorUserId = actorEmail,
-            ActorUserName = actorEmail,
-            TenantId = tenantId,
-            DataJson = JsonSerializer.Serialize(payload)
-        };
 }

@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -271,12 +269,13 @@ public sealed class EmailOtpAuthService(
 
         string emailCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(normalizedEmail);
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.EmailOtpCodeRequested,
                 emailCorrelation,
-                new { emailCorrelation }),
-            cancellationToken).ConfigureAwait(false);
+                new { emailCorrelation },
+                cancellationToken)
+            .ConfigureAwait(false);
 
         EmailOtpSignInDomainEvaluation domainEvaluation =
             await _domainPolicy.EvaluateAsync(normalizedEmail, request.InvitationToken, cancellationToken)
@@ -284,12 +283,13 @@ public sealed class EmailOtpAuthService(
 
         if (domainEvaluation.Decision == EmailOtpSignInDomainDecision.RequireEnterpriseSso)
         {
-            await _auditService.LogAsync(
-                BuildAudit(
+            await AuthAuditEmitter.LogIdentityEventAsync(
+                    _auditService,
                     AuditEventTypes.EmailOtpSsoRedirectRequired,
                     emailCorrelation,
-                    new { emailCorrelation }),
-                cancellationToken).ConfigureAwait(false);
+                    new { emailCorrelation },
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             ArchLucidInstrumentation.RecordEmailOtpChallengeRequested("sso_required");
 
@@ -304,21 +304,30 @@ public sealed class EmailOtpAuthService(
         if (domainEvaluation.BypassKind == AuthSignInRoutingBypassKind.RecoveryAdmin
             || domainEvaluation.BypassKind == AuthSignInRoutingBypassKind.PlatformGrant)
         {
-            await _auditService.LogAsync(
-                BuildAudit(
+            await AuthAuditEmitter.LogIdentityEventAsync(
+                    _auditService,
                     AuditEventTypes.AuthDomainRecoveryBypassUsed,
                     emailCorrelation,
                     new
                     {
                         emailCorrelation,
                         bypassKind = domainEvaluation.BypassKind.ToString()
-                    }),
-                cancellationToken).ConfigureAwait(false);
+                    },
+                    cancellationToken)
+                .ConfigureAwait(false);
         }
 
         DateTimeOffset now = _timeProvider.GetUtcNow();
 
-        if (await IsRateLimitedForRequestAsync(normalizedEmail, request.ClientIp, now, emailCorrelation, cancellationToken)
+        if (await AuthRateLimitHelper.IsEmailOtpRequestRateLimitedAsync(
+                    _challenges,
+                    _options,
+                    normalizedEmail,
+                    request.ClientIp,
+                    now,
+                    emailCorrelation,
+                    _auditService,
+                    cancellationToken)
                 .ConfigureAwait(false))
         {
             ArchLucidInstrumentation.RecordEmailOtpChallengeRequested("rate_limited");
@@ -384,24 +393,26 @@ public sealed class EmailOtpAuthService(
 
             ArchLucidInstrumentation.RecordEmailOtpDeliveryFailed();
 
-            await _auditService.LogAsync(
-                BuildAudit(
+            await AuthAuditEmitter.LogIdentityEventAsync(
+                    _auditService,
                     AuditEventTypes.EmailOtpSuspiciousBehaviorDetected,
                     emailCorrelation,
-                    new { emailCorrelation, reason = "email_delivery_failed" }),
-                cancellationToken).ConfigureAwait(false);
+                    new { emailCorrelation, reason = "email_delivery_failed" },
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             ArchLucidInstrumentation.RecordEmailOtpChallengeRequested("delivery_failed");
 
             return NeutralResult();
         }
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.EmailOtpCodeSent,
                 emailCorrelation,
-                new { emailCorrelation, challengeId }),
-            cancellationToken).ConfigureAwait(false);
+                new { emailCorrelation, challengeId },
+                cancellationToken)
+            .ConfigureAwait(false);
 
         ArchLucidInstrumentation.RecordEmailOtpChallengeRequested("accepted");
 
@@ -421,7 +432,7 @@ public sealed class EmailOtpAuthService(
 
         if (!_options.Enabled || request.ChallengeId == Guid.Empty || string.IsNullOrWhiteSpace(request.Code))
         {
-            return Failed();
+            return AuthValidationResultMapper.ToEmailOtpVerifyFailure();
         }
 
         EmailOtpChallengeRecord? challenge =
@@ -446,25 +457,20 @@ public sealed class EmailOtpAuthService(
 
         string emailCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(challenge.NormalizedEmail);
         DateTimeOffset now = _timeProvider.GetUtcNow();
-        DateTimeOffset since = now.AddHours(-1);
 
-        int recentFailures =
-            await _challenges.CountRecentFailedVerificationsByEmailAsync(challenge.NormalizedEmail, since, cancellationToken)
-                .ConfigureAwait(false);
-
-        if (recentFailures >= _options.MaxVerificationAttemptsPerEmailPerHour)
-        {
-            await _auditService.LogAsync(
-                BuildAudit(
-                    AuditEventTypes.EmailOtpRateLimitTriggered,
+        if (await AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync(
+                    _challenges,
+                    _options,
+                    challenge.NormalizedEmail,
+                    now,
                     emailCorrelation,
-                    new { emailCorrelation, scope = "email_verification_hourly" }),
-                cancellationToken).ConfigureAwait(false);
-
-            ArchLucidInstrumentation.RecordEmailOtpRateLimitTriggered("email_verification_hourly");
+                    _auditService,
+                    cancellationToken)
+                .ConfigureAwait(false))
+        {
             ArchLucidInstrumentation.RecordEmailOtpChallengeVerified("rate_limited");
 
-            return Failed();
+            return AuthValidationResultMapper.ToEmailOtpVerifyFailure();
         }
 
         string codeHash = EmailOtpCodeHasher.Hash(request.ChallengeId, request.Code, _options.HashPepper);
@@ -479,14 +485,7 @@ public sealed class EmailOtpAuthService(
 
         if (completion.Result != EmailOtpChallengeCompletionResult.Completed || completion.Challenge is null)
         {
-            string reason = completion.Result switch
-            {
-                EmailOtpChallengeCompletionResult.Expired => "expired",
-                EmailOtpChallengeCompletionResult.TooManyAttempts => "too_many_attempts",
-                EmailOtpChallengeCompletionResult.AlreadyCompleted => "reused",
-                EmailOtpChallengeCompletionResult.InvalidCode => "invalid_code",
-                _ => "invalid"
-            };
+            string reason = AuthValidationResultMapper.MapEmailOtpCompletionFailureReason(completion.Result);
 
             return await FailWithAuditAsync(reason, emailCorrelation, cancellationToken).ConfigureAwait(false);
         }
@@ -577,8 +576,8 @@ public sealed class EmailOtpAuthService(
                     cancellationToken)
                 .ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.EmailOtpVerificationSucceeded,
                 emailCorrelation,
                 new
@@ -587,8 +586,9 @@ public sealed class EmailOtpAuthService(
                     userId = user.Id,
                     createdUser,
                     nextStep = nextStep.ToString()
-                }),
-            cancellationToken).ConfigureAwait(false);
+                },
+                cancellationToken)
+            .ConfigureAwait(false);
 
         ArchLucidInstrumentation.RecordEmailOtpChallengeVerified("success");
 
@@ -606,52 +606,36 @@ public sealed class EmailOtpAuthService(
         };
     }
 
-    private async Task<bool> IsRateLimitedForRequestAsync(
-        string normalizedEmail,
-        string? clientIp,
-        DateTimeOffset now,
+    private Task<EmailOtpVerifyResult> FailWithAuditAsync(
+        string reason,
+        string? emailCorrelation,
+        CancellationToken cancellationToken)
+    {
+        ArchLucidInstrumentation.RecordEmailOtpChallengeVerified(
+            AuthValidationResultMapper.MapEmailOtpVerifyMetricResult(reason));
+
+        if (!string.IsNullOrWhiteSpace(emailCorrelation))
+        {
+            return FailWithAuditCoreAsync(reason, emailCorrelation, cancellationToken);
+        }
+
+        return Task.FromResult(AuthValidationResultMapper.ToEmailOtpVerifyFailure());
+    }
+
+    private async Task<EmailOtpVerifyResult> FailWithAuditCoreAsync(
+        string reason,
         string emailCorrelation,
         CancellationToken cancellationToken)
     {
-        DateTimeOffset since = now.AddHours(-1);
-        string? clientIpHash = EmailOtpRequestMetadataHasher.HashOptional(clientIp);
-
-        EmailOtpRecentRequestCounts counts = await _challenges
-            .CountRecentRequestsForRateLimitAsync(normalizedEmail, clientIpHash, since, cancellationToken)
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
+                AuditEventTypes.EmailOtpVerificationFailed,
+                emailCorrelation,
+                new { emailCorrelation, reason },
+                cancellationToken)
             .ConfigureAwait(false);
 
-        if (counts.EmailRequestCount >= _options.MaxCodeRequestsPerEmailPerHour)
-        {
-            await LogRateLimitAsync(emailCorrelation, "email_request_hourly", cancellationToken).ConfigureAwait(false);
-
-            return true;
-        }
-
-        if (clientIpHash is null)
-        {
-            return false;
-        }
-
-        if (counts.ClientIpRequestCount >= _options.MaxCodeRequestsPerIpPerHour)
-        {
-            await LogRateLimitAsync(emailCorrelation, "ip_request_hourly", cancellationToken).ConfigureAwait(false);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private async Task LogRateLimitAsync(string emailCorrelation, string scope, CancellationToken cancellationToken)
-    {
-        ArchLucidInstrumentation.RecordEmailOtpRateLimitTriggered(scope);
-
-        await _auditService.LogAsync(
-            BuildAudit(
-                AuditEventTypes.EmailOtpRateLimitTriggered,
-                emailCorrelation,
-                new { emailCorrelation, scope }),
-            cancellationToken).ConfigureAwait(false);
+        return AuthValidationResultMapper.ToEmailOtpVerifyFailure();
     }
 
     private async Task<Guid?> ResolveInvitationIdAsync(
@@ -733,8 +717,8 @@ public sealed class EmailOtpAuthService(
             now,
             cancellationToken).ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.AdminUserInvitationAccepted,
                 $"invitation:{invitation.Id:D}",
                 new
@@ -744,8 +728,9 @@ public sealed class EmailOtpAuthService(
                     workspaceId = invitation.WorkspaceId,
                     userId = platformUserId
                 },
-                invitation.TenantId),
-            cancellationToken).ConfigureAwait(false);
+                cancellationToken,
+                invitation.TenantId)
+            .ConfigureAwait(false);
 
         return new AcceptedEmailOtpInvitation
         {
@@ -834,43 +819,6 @@ public sealed class EmailOtpAuthService(
         return (EmailOtpAuthNextStep.CreateWorkspace, null, null, null);
     }
 
-    private Task<EmailOtpVerifyResult> FailWithAuditAsync(
-        string reason,
-        string? emailCorrelation,
-        CancellationToken cancellationToken)
-    {
-        string metricResult = reason switch
-        {
-            "expired" => "expired",
-            "too_many_attempts" => "rate_limited",
-            "sso_required" => "sso_required",
-            _ => "invalid"
-        };
-
-        ArchLucidInstrumentation.RecordEmailOtpChallengeVerified(metricResult);
-
-        if (!string.IsNullOrWhiteSpace(emailCorrelation))
-        {
-            return FailWithAuditCoreAsync(reason, emailCorrelation, cancellationToken);
-        }
-
-        return Task.FromResult(Failed());
-    }
-
-    private async Task<EmailOtpVerifyResult> FailWithAuditCoreAsync(
-        string reason,
-        string emailCorrelation,
-        CancellationToken cancellationToken)
-    {
-        await _auditService.LogAsync(
-            BuildAudit(
-                AuditEventTypes.EmailOtpVerificationFailed,
-                emailCorrelation,
-                new { emailCorrelation, reason }),
-            cancellationToken).ConfigureAwait(false);
-
-        return Failed();
-    }
 
     private static ExternalIdentityKey BuildEmailOtpIdentityKey(string normalizedEmail) =>
         new()
@@ -882,18 +830,4 @@ public sealed class EmailOtpAuthService(
 
     private static EmailOtpChallengeRequestResult NeutralResult() =>
         new() { Message = NeutralSentMessage };
-
-    private static EmailOtpVerifyResult Failed() =>
-        new() { Succeeded = false };
-
-    private static AuditEvent BuildAudit(string eventType, string actorId, object payload, Guid? tenantId = null) =>
-        new()
-        {
-            EventType = eventType,
-            ActorUserId = actorId,
-            ActorUserName = actorId,
-            ExplicitActor = true,
-            TenantId = tenantId ?? Guid.Empty,
-            DataJson = JsonSerializer.Serialize(payload)
-        };
 }

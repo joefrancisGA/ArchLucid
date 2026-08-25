@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
@@ -272,13 +270,13 @@ public sealed class AuthenticationIdentityLinkingService(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.AuthenticationIdentityLinkChallengeRequested,
                 actorId,
-                userId,
-                new { channel = "email_otp_link", emailCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(normalizedEmail) }),
-            cancellationToken).ConfigureAwait(false);
+                new { channel = "email_otp_link", emailCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(normalizedEmail) },
+                cancellationToken)
+            .ConfigureAwait(false);
 
         return challengeId;
     }
@@ -312,13 +310,13 @@ public sealed class AuthenticationIdentityLinkingService(
 
         if (completion.Result != EmailOtpChallengeCompletionResult.Completed || completion.Challenge is null)
         {
-            await _auditService.LogAsync(
-                BuildAudit(
+            await AuthAuditEmitter.LogIdentityEventAsync(
+                    _auditService,
                     AuditEventTypes.AuthenticationIdentityLinkFailed,
                     actorId,
-                    userId,
-                    new { reason = completion.Result.ToString() }),
-                cancellationToken).ConfigureAwait(false);
+                    new { reason = completion.Result.ToString() },
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             throw new ArgumentException("The verification code is invalid or expired.");
         }
@@ -403,18 +401,18 @@ public sealed class AuthenticationIdentityLinkingService(
             .UpdateStatusAsync(proposalId, AuthenticationIdentityLinkProposalStatus.Confirmed, now, cancellationToken)
             .ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.AuthenticationIdentityLinkConfirmed,
                 actorId,
-                userId,
                 new
                 {
                     proposalId,
                     identityId = attached.Id,
                     providerType = attached.ProviderType.ToString()
-                }),
-            cancellationToken).ConfigureAwait(false);
+                },
+                cancellationToken)
+            .ConfigureAwait(false);
 
         return attached;
     }
@@ -436,13 +434,13 @@ public sealed class AuthenticationIdentityLinkingService(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.AuthenticationIdentityLinkCancelled,
                 actorId,
-                userId,
-                new { proposalId }),
-            cancellationToken).ConfigureAwait(false);
+                new { proposalId },
+                cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task RemoveSignInMethodAsync(
@@ -470,13 +468,13 @@ public sealed class AuthenticationIdentityLinkingService(
 
         await _platformIdentity.DisableIdentityAsync(identityId, actorId, cancellationToken).ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.AuthenticationIdentityRemovalRequested,
                 actorId,
-                userId,
-                new { identityId, providerType = identity.ProviderType.ToString() }),
-            cancellationToken).ConfigureAwait(false);
+                new { identityId, providerType = identity.ProviderType.ToString() },
+                cancellationToken)
+            .ConfigureAwait(false);
     }
 
     private async Task<AuthenticationIdentityLinkProposalView> CreateProposalFromVerifiedExternalAsync(
@@ -552,18 +550,18 @@ public sealed class AuthenticationIdentityLinkingService(
 
         await _proposals.InsertAsync(proposal, cancellationToken).ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.AuthenticationIdentityLinkProposed,
                 actorId,
-                userId,
                 new
                 {
                     proposalId = proposal.Id,
                     providerType = externalKey.ProviderType.ToString(),
                     requiresExplicitConfirmation
-                }),
-            cancellationToken).ConfigureAwait(false);
+                },
+                cancellationToken)
+            .ConfigureAwait(false);
 
         return ToProposalView(proposal);
     }
@@ -616,17 +614,17 @@ public sealed class AuthenticationIdentityLinkingService(
             _timeProvider.GetUtcNow(),
             cancellationToken).ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            BuildAudit(
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
                 AuditEventTypes.AuthenticationIdentityLinkFailed,
                 actorId,
-                userId,
                 new
                 {
                     reason = "external_identity_attached_elsewhere",
                     providerType = externalKey.ProviderType.ToString()
-                }),
-            cancellationToken).ConfigureAwait(false);
+                },
+                cancellationToken)
+            .ConfigureAwait(false);
 
         throw new IdentityAlreadyAttachedToAnotherUserException(externalKey);
     }
@@ -762,15 +760,4 @@ public sealed class AuthenticationIdentityLinkingService(
 
         return $"{email[0]}***{email[at..]}";
     }
-
-    private static AuditEvent BuildAudit(string eventType, string actorId, Guid userId, object payload) =>
-        new()
-        {
-            EventType = eventType,
-            ActorUserId = actorId,
-            ActorUserName = actorId,
-            ExplicitActor = true,
-            TenantId = Guid.Empty,
-            DataJson = JsonSerializer.Serialize(payload)
-        };
 }
