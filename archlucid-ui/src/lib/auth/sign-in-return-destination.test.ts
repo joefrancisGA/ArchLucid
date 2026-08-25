@@ -12,6 +12,7 @@ describe("sign-in-return-destination", () => {
     expect(signInHasReturnDestination("/")).toBe(false);
     expect(signInHasReturnDestination("//evil.example")).toBe(false);
     expect(signInHasReturnDestination("/x%2F%2Fevil.example")).toBe(false);
+    expect(signInHasReturnDestination("/welcome\\..\\..\\operator")).toBe(false);
   });
 
   it("resolves a human label for a safe return path", () => {

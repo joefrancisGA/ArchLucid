@@ -99,6 +99,16 @@ describe("isSafeReturnPath", () => {
 
     expect(isSafeReturnPath(`/welcome${payload}`)).toBe(false);
   });
+
+  it("rejects backslash path separators that normalize to traversal after sign-in", () => {
+    expect(isSafeReturnPath("/welcome\\..\\..\\operator")).toBe(false);
+    expect(isSafeReturnPath("/foo\\..\\..\\evil")).toBe(false);
+    expect(isSafeReturnPath("/architecture\\reviews")).toBe(false);
+  });
+
+  it("rejects percent-encoded backslash segments after decoding", () => {
+    expect(isSafeReturnPath("/welcome%5c..%5c..%5coperator")).toBe(false);
+  });
 });
 
 describe("resolveSafeReturnPath", () => {

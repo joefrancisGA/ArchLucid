@@ -22,6 +22,10 @@ function containsPercentEncodedSlash(value: string): boolean {
   return lower.includes("%2f") || lower.includes("%5c");
 }
 
+function containsBackslash(path: string): boolean {
+  return path.includes("\\");
+}
+
 /**
  * True when `candidate` is a safe, same-origin relative path suitable for a post-sign-in redirect.
  * Rejects absolute URLs, protocol-relative URLs (`//evil.example`), backslash tricks (`/\evil.example`
@@ -40,6 +44,10 @@ export function isSafeReturnPath(candidate: string | null | undefined): candidat
   }
 
   if (containsProtocolRelativeTraversal(normalized)) {
+    return false;
+  }
+
+  if (containsBackslash(normalized)) {
     return false;
   }
 
@@ -86,6 +94,10 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
   }
 
   if (containsPercentEncodedSlash(working)) {
+    return false;
+  }
+
+  if (containsBackslash(working)) {
     return false;
   }
 
