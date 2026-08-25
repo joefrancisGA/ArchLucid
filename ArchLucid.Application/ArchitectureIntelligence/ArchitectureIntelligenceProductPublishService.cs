@@ -1,7 +1,9 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.Persistence.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
@@ -13,12 +15,14 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
 {
     private readonly IFindingsSnapshotRepository? _findingsSnapshotRepository;
     private readonly IRecommendationRepository? _recommendationRepository;
+    private readonly IRunRepository? _runRepository;
 
     public ArchitectureIntelligenceProductPublishService(IServiceProvider serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
         _findingsSnapshotRepository = serviceProvider.GetService<IFindingsSnapshotRepository>();
         _recommendationRepository = serviceProvider.GetService<IRecommendationRepository>();
+        _runRepository = serviceProvider.GetService<IRunRepository>();
     }
 
     public async Task<ArchitectureIntelligencePublishResult> PublishAsync(
@@ -62,26 +66,17 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
         }
 
         Guid runGuid = ArchitectureIntelligenceTenantIdMapper.ToStorageGuid(runId);
+        ScopeContext scope = BuildScope(tenantId, workspaceId, projectId);
         Guid? findingsSnapshotId = null;
         int recommendationCount = 0;
 
         if (_findingsSnapshotRepository is not null && result.ProductFindings.Count > 0)
         {
-            FindingsSnapshot snapshot = new()
-            {
-                FindingsSnapshotId = Guid.NewGuid(),
-                RunId = runGuid,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-                Findings = [],
-            };
-
-            FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(
-                snapshot,
+            findingsSnapshotId = await MergeOrCreateFindingsSnapshotAsync(
+                scope,
+                runGuid,
                 result.ProductFindings,
-                TimeProvider.System);
-
-            await _findingsSnapshotRepository.SaveAsync(snapshot, cancellationToken);
-            findingsSnapshotId = snapshot.FindingsSnapshotId;
+                cancellationToken).ConfigureAwait(false);
         }
 
         if (_recommendationRepository is not null)
@@ -101,6 +96,82 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
             SkipReason = findingsSnapshotId is null && recommendationCount == 0
                 ? "No publishable findings or recommendations."
                 : null,
+        };
+    }
+
+    private async Task<Guid?> MergeOrCreateFindingsSnapshotAsync(
+        ScopeContext scope,
+        Guid runGuid,
+        IReadOnlyList<Finding> productFindings,
+        CancellationToken cancellationToken)
+    {
+        FindingsSnapshot? snapshot = null;
+
+        if (_runRepository is not null)
+        {
+            ArchLucid.Persistence.Models.RunRecord? run = await _runRepository
+                .GetByIdAsync(scope, runGuid, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (run?.FindingsSnapshotId is Guid existingSnapshotId)
+            {
+                snapshot = await _findingsSnapshotRepository!
+                    .GetByIdAsync(scope, existingSnapshotId, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            if (snapshot is null)
+            {
+                snapshot = new FindingsSnapshot
+                {
+                    FindingsSnapshotId = Guid.NewGuid(),
+                    RunId = runGuid,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    Findings = [],
+                };
+            }
+
+            FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(
+                snapshot,
+                productFindings,
+                TimeProvider.System);
+
+            await _findingsSnapshotRepository!.SaveAsync(snapshot, cancellationToken).ConfigureAwait(false);
+
+            if (run is not null && run.FindingsSnapshotId != snapshot.FindingsSnapshotId)
+            {
+                run.FindingsSnapshotId = snapshot.FindingsSnapshotId;
+                await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+            }
+
+            return snapshot.FindingsSnapshotId;
+        }
+
+        snapshot = new FindingsSnapshot
+        {
+            FindingsSnapshotId = Guid.NewGuid(),
+            RunId = runGuid,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            Findings = [],
+        };
+
+        FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(
+            snapshot,
+            productFindings,
+            TimeProvider.System);
+
+        await _findingsSnapshotRepository!.SaveAsync(snapshot, cancellationToken).ConfigureAwait(false);
+
+        return snapshot.FindingsSnapshotId;
+    }
+
+    private static ScopeContext BuildScope(string tenantId, string workspaceId, string projectId)
+    {
+        return new ScopeContext
+        {
+            TenantId = ArchitectureIntelligenceTenantIdMapper.ToStorageGuid(tenantId),
+            WorkspaceId = ArchitectureIntelligenceTenantIdMapper.ToStorageGuid(workspaceId),
+            ProjectId = ArchitectureIntelligenceTenantIdMapper.ToStorageGuid(projectId),
         };
     }
 }
