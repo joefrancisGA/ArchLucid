@@ -34,6 +34,7 @@ import {
   tryStaticDemoRunComparison,
 } from "@/lib/operator/operator-static-demo";
 import { CompareContinueLastComparisonRow } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareContinueLastComparisonRow";
+import { CompareNextReviewFooterClient } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareNextReviewFooterClient";
 import {
   readCompareLastComparisonPair,
   writeCompareLastComparisonPair,
@@ -687,6 +688,10 @@ export function CompareForm() {
           <CompareAdvancedDiagnosticsSection />
         </>
       )}
+
+      {leftTrim.length > 0 || rightTrim.length > 0 ? (
+        <CompareNextReviewFooterClient priorRunId={leftTrim} laterRunId={rightTrim} />
+      ) : null}
     </OperatorPageContainer>
   );
 }
