@@ -6,6 +6,7 @@ import type {
   ImpactPreviewBaselineOption,
   ImpactPreviewComparisonScope,
 } from "@/lib/impact-preview-page-types";
+import type { ImpactPreviewLastBaselinePair } from "@/lib/impact-preview/impact-preview-last-baseline-pair-storage";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
 
 export type EvolutionReviewPageViewModel = {
@@ -30,4 +31,7 @@ export type EvolutionReviewPageViewModel = {
   readonly onSimulate: () => Promise<void>;
   readonly planSnapshot: EvolutionPlanSnapshot | null;
   readonly lastRefreshedAt: Date | null;
+  readonly continueLastPair: ImpactPreviewLastBaselinePair | null;
+  readonly resumeContinueLastPair: (pair: ImpactPreviewLastBaselinePair) => void;
+  readonly rememberBaselinePair: (baselineRunId: string | null, candidateRunId: string | null) => void;
 };

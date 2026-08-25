@@ -64,6 +64,9 @@ function buildModel(overrides: Partial<EvolutionReviewPageViewModel> = {}): Evol
     onSimulate: vi.fn(),
     planSnapshot: null,
     lastRefreshedAt: null,
+    continueLastPair: null,
+    resumeContinueLastPair: vi.fn(),
+    rememberBaselinePair: vi.fn(),
     ...overrides,
   };
 }

@@ -21,6 +21,11 @@ import {
   recordFindingApplyChangePreviewCompleted,
 } from "@/lib/findings/finding-apply-change-preview-gate";
 import { runSummaryDisplayLabel } from "@/lib/runs/run-summary-display-label";
+import {
+  readImpactPreviewLastBaselinePair,
+  writeImpactPreviewLastBaselinePair,
+  type ImpactPreviewLastBaselinePair,
+} from "@/lib/impact-preview/impact-preview-last-baseline-pair-storage";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
 
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
@@ -74,6 +79,38 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(
     serverLoad.mode === "live" && serverLoad.listFailure === null ? new Date() : null,
   );
+  const [continueLastPair, setContinueLastPair] = useState<ImpactPreviewLastBaselinePair | null>(null);
+
+  useEffect(() => {
+    setContinueLastPair(readImpactPreviewLastBaselinePair());
+  }, []);
+
+  const rememberBaselinePair = useCallback((baselineRunId: string | null, candidateRunId: string | null) => {
+    if (baselineRunId === null || candidateRunId === null) {
+      return;
+    }
+
+    const trimmedBaseline = baselineRunId.trim();
+    const trimmedCandidate = candidateRunId.trim();
+
+    if (trimmedBaseline.length === 0 || trimmedCandidate.length === 0) {
+      return;
+    }
+
+    const pair: ImpactPreviewLastBaselinePair = {
+      baselineRunId: trimmedBaseline,
+      candidateRunId: trimmedCandidate,
+    };
+    writeImpactPreviewLastBaselinePair(pair);
+    setContinueLastPair(pair);
+  }, []);
+
+  const resumeContinueLastPair = useCallback((pair: ImpactPreviewLastBaselinePair) => {
+    setSelectedBaselineId(pair.baselineRunId);
+    setSelectedId(pair.candidateRunId);
+    writeImpactPreviewLastBaselinePair(pair);
+    setContinueLastPair(pair);
+  }, []);
 
   const skipInitialClientListFetchRef = useRef(serverLoad.mode === "live");
   const skipInitialDetailFetchRef = useRef(
@@ -254,6 +291,7 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
         recordFindingApplyChangePreviewCompleted(baselineRunId, previewQuery.findingId);
       }
 
+      rememberBaselinePair(selectedBaselineId, selectedId);
       await loadDetail(selectedId);
       await loadList();
     } catch (e) {
@@ -261,7 +299,7 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
     } finally {
       setSimulateBusy(false);
     }
-  }, [selectedId, selectedBaselineId, loadDetail, loadList]);
+  }, [selectedId, selectedBaselineId, loadDetail, loadList, rememberBaselinePair]);
 
   return {
     isDemo,
@@ -285,5 +323,8 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
     onSimulate,
     planSnapshot,
     lastRefreshedAt,
+    continueLastPair,
+    resumeContinueLastPair,
+    rememberBaselinePair,
   };
 }
