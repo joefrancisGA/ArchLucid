@@ -353,6 +353,7 @@ internal static class RunRepositorySql
                                                                              AND WorkspaceId = @WorkspaceId
                                                                              AND ArchivedUtc IS NULL
                                                                              AND UPPER(LTRIM(RTRIM(ProjectId))) = @NormalizedSystemName
+                                                                             AND (@ExcludeRunId IS NULL OR RunId <> @ExcludeRunId)
                                                                        ) THEN 1
                                                                        ELSE 0
                                                                    END;

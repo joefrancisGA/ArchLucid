@@ -304,7 +304,8 @@ public sealed partial class SqlRunRepository
     public async Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
         ScopeContext scope,
         string systemName,
-        CancellationToken ct)
+        Guid? excludeRunId = null,
+        CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
         PersistenceTenantScope.RequireScopedTenant(scope);
@@ -316,7 +317,7 @@ public sealed partial class SqlRunRepository
         int exists = await connection.QuerySingleAsync<int>(
             new CommandDefinition(
                 RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace,
-                RunListQueryParameters.ForActiveRunWithSystemNameInWorkspace(scope, systemName),
+                RunListQueryParameters.ForActiveRunWithSystemNameInWorkspace(scope, systemName, excludeRunId),
                 cancellationToken: ct)).ConfigureAwait(false);
 
         return exists == 1;

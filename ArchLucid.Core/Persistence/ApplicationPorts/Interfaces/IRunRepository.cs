@@ -238,10 +238,12 @@ public interface IRunRepository
     ///     Returns <see langword="true" /> when the workspace has at least one non-archived run whose
     ///     <see cref="RunRecord.ProjectId" /> matches <paramref name="systemName" /> case-insensitively.
     /// </summary>
+    /// <param name="excludeRunId">Optional run to ignore (async create completing its own admitted stub).</param>
     Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
         ScopeContext scope,
         string systemName,
-        CancellationToken ct);
+        Guid? excludeRunId = null,
+        CancellationToken ct = default);
 
     /// <summary>
     ///     Hard-deletes up to <paramref name="batchSize" /> authority runs that are not committed (see

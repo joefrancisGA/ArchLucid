@@ -16,6 +16,18 @@ public interface IArchitectureRunIdempotencyRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Returns the most recent mapping with the same request fingerprint created on or after
+    ///     <paramref name="createdAfterUtc" />.
+    /// </summary>
+    Task<ArchitectureRunIdempotencyLookup?> TryGetRecentByFingerprintAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        byte[] requestFingerprint,
+        DateTime createdAfterUtc,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Inserts a new mapping. Returns <see langword="false" /> when another request committed the same key first (unique
     ///     violation).
     /// </summary>

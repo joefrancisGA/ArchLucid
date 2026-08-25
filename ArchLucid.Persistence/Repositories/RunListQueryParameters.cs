@@ -253,7 +253,10 @@ internal static class RunListQueryParameters
         };
     }
 
-    public static object ForActiveRunWithSystemNameInWorkspace(ScopeContext scope, string systemName)
+    public static object ForActiveRunWithSystemNameInWorkspace(
+        ScopeContext scope,
+        string systemName,
+        Guid? excludeRunId = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(systemName);
@@ -263,6 +266,7 @@ internal static class RunListQueryParameters
             scope.TenantId,
             scope.WorkspaceId,
             NormalizedSystemName = systemName.Trim().ToUpperInvariant(),
+            ExcludeRunId = excludeRunId,
         };
     }
 

@@ -1,4 +1,5 @@
 using System.Data;
+using System.Security.Cryptography;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -8,7 +9,11 @@ namespace ArchLucid.Persistence.Data.Repositories;
 public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitectureRunIdempotencyRepository
 {
     private readonly Lock _gate = new();
-    private readonly Dictionary<string, ArchitectureRunIdempotencyLookup> _rows = new();
+    private readonly Dictionary<string, InMemoryArchitectureRunIdempotencyRow> _rows = new();
+
+    private sealed record InMemoryArchitectureRunIdempotencyRow(
+        ArchitectureRunIdempotencyLookup Lookup,
+        DateTime CreatedUtc);
 
     /// <inheritdoc />
     public Task<ArchitectureRunIdempotencyLookup?> TryGetAsync(
@@ -23,7 +28,32 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
         string k = Key(tenantId, workspaceId, projectId, idempotencyKeyHash);
         lock (_gate)
 
-            return Task.FromResult(_rows.GetValueOrDefault(k));
+            return Task.FromResult(_rows.GetValueOrDefault(k)?.Lookup);
+    }
+
+    /// <inheritdoc />
+    public Task<ArchitectureRunIdempotencyLookup?> TryGetRecentByFingerprintAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        byte[] requestFingerprint,
+        DateTime createdAfterUtc,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(requestFingerprint);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            InMemoryArchitectureRunIdempotencyRow? match = _rows.Values
+                .Where(row =>
+                    row.CreatedUtc >= createdAfterUtc &&
+                    CryptographicOperations.FixedTimeEquals(row.Lookup.RequestFingerprint, requestFingerprint))
+                .OrderByDescending(row => row.CreatedUtc)
+                .FirstOrDefault();
+
+            return Task.FromResult(match?.Lookup);
+        }
     }
 
     /// <inheritdoc />
@@ -48,7 +78,13 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
             if (_rows.ContainsKey(k))
                 return Task.FromResult(false);
 
-            _rows[k] = new ArchitectureRunIdempotencyLookup { RunId = runId, RequestFingerprint = (byte[])requestFingerprint.Clone() };
+            _rows[k] = new InMemoryArchitectureRunIdempotencyRow(
+                new ArchitectureRunIdempotencyLookup
+                {
+                    RunId = runId,
+                    RequestFingerprint = (byte[])requestFingerprint.Clone(),
+                },
+                TimeProvider.System.GetUtcNow().UtcDateTime);
 
             return Task.FromResult(true);
         }

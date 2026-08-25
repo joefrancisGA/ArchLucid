@@ -76,12 +76,17 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
         defaultPolicyPackCloudBaselineApplicator ??= CreatePolicyPackCloudBaselineApplicator();
         architectureIdentityService ??= Mock.Of<IArchitectureIdentityService>();
 
+        TimeProvider resolvedTimeProvider = timeProvider;
+        IOptions<ArchitectureRunCreateOptions> resolvedCreateRunOptions = createRunOptions;
+
         ArchitectureRunCreateIdempotencyHelper idempotencyHelper = new(
             architectureRunIdempotencyRepository,
             runRepository,
             scopeContextProvider,
             taskRepository,
             evidenceBundleRepository,
+            resolvedCreateRunOptions,
+            resolvedTimeProvider,
             NullLogger<ArchitectureRunCreateIdempotencyHelper>.Instance);
 
         ArchitectureRunCreatePersistenceHelper persistenceHelper = new(
@@ -98,7 +103,7 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             auditService,
             scopeContextProvider,
             usageMetering,
-            timeProvider,
+            resolvedTimeProvider,
             defaultPolicyPackCloudBaselineApplicator,
             architectureIdentityService,
             NullLogger<ArchitectureRunCreatePostCreateHooks>.Instance);
@@ -115,7 +120,7 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             baselineMutationAudit,
             unitOfWorkFactory,
             distributedCreateRunIdempotencyLock,
-            createRunOptions,
+            resolvedCreateRunOptions,
             asyncAuthorityPipelineModeResolver,
             runStateTransitionService,
             requestContentSafetyPrecheck,
@@ -123,7 +128,7 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             idempotencyHelper,
             persistenceHelper,
             postCreateHooks,
-            timeProvider,
+            resolvedTimeProvider,
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

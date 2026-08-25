@@ -27,7 +27,11 @@ public sealed class WorkspaceSystemNameCollisionGuardTests
     {
         Mock<IRunRepository> runs = new();
         runs
-            .Setup(r => r.ExistsActiveRunWithSystemNameInWorkspaceAsync(Scope, "Claims API", It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+                Scope,
+                "Claims API",
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         WorkspaceSystemNameCollisionGuard sut = new(runs.Object, Mock.Of<IDraftRequestRepository>());
@@ -44,7 +48,11 @@ public sealed class WorkspaceSystemNameCollisionGuardTests
     {
         Mock<IRunRepository> runs = new();
         runs
-            .Setup(r => r.ExistsActiveRunWithSystemNameInWorkspaceAsync(Scope, "Payments Hub", It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+                Scope,
+                "Payments Hub",
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         Mock<IDraftRequestRepository> drafts = new();
@@ -70,7 +78,11 @@ public sealed class WorkspaceSystemNameCollisionGuardTests
     {
         Mock<IRunRepository> runs = new();
         runs
-            .Setup(r => r.ExistsActiveRunWithSystemNameInWorkspaceAsync(Scope, "New System", It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+                Scope,
+                "New System",
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         Mock<IDraftRequestRepository> drafts = new();
@@ -94,7 +106,11 @@ public sealed class WorkspaceSystemNameCollisionGuardTests
         Guid excludeDraftId = Guid.NewGuid();
         Mock<IRunRepository> runs = new();
         runs
-            .Setup(r => r.ExistsActiveRunWithSystemNameInWorkspaceAsync(Scope, "Rename Me", It.IsAny<CancellationToken>()))
+            .Setup(r => r.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+                Scope,
+                "Rename Me",
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         Mock<IDraftRequestRepository> drafts = new();
@@ -109,7 +125,7 @@ public sealed class WorkspaceSystemNameCollisionGuardTests
 
         WorkspaceSystemNameCollisionGuard sut = new(runs.Object, drafts.Object);
 
-        await sut.EnsureAvailableAsync(Scope, "Rename Me", excludeDraftId, CancellationToken.None);
+        await sut.EnsureAvailableAsync(Scope, "Rename Me", excludeDraftId: excludeDraftId, cancellationToken: CancellationToken.None);
 
         drafts.Verify(
             d => d.ExistsMutableDraftWithSystemNameInWorkspaceAsync(
@@ -117,6 +133,42 @@ public sealed class WorkspaceSystemNameCollisionGuardTests
                 Scope.WorkspaceId,
                 "Rename Me",
                 excludeDraftId,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task EnsureAvailableAsync_passes_exclude_run_id_to_repository()
+    {
+        Guid excludeRunId = Guid.NewGuid();
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+                Scope,
+                "Payments Hub",
+                excludeRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        Mock<IDraftRequestRepository> drafts = new();
+        drafts
+            .Setup(d => d.ExistsMutableDraftWithSystemNameInWorkspaceAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                "Payments Hub",
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        WorkspaceSystemNameCollisionGuard sut = new(runs.Object, drafts.Object);
+
+        await sut.EnsureAvailableAsync(Scope, "Payments Hub", excludeRunId: excludeRunId, cancellationToken: CancellationToken.None);
+
+        runs.Verify(
+            r => r.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+                Scope,
+                "Payments Hub",
+                excludeRunId,
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

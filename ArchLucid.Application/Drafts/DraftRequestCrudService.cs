@@ -106,7 +106,7 @@ public sealed class DraftRequestCrudService(
                 && !string.Equals(existingNormalized, proposedNormalized, StringComparison.Ordinal))
             {
                 await _workspaceSystemNameCollisionGuard
-                    .EnsureAvailableAsync(scope, trimmedName, draftId, cancellationToken)
+                    .EnsureAvailableAsync(scope, trimmedName, excludeDraftId: draftId, cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
             }
         }

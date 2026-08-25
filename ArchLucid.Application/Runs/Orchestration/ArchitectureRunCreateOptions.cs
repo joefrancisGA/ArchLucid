@@ -21,4 +21,14 @@ public sealed class ArchitectureRunCreateOptions
         get;
         set;
     } = 120_000;
+
+    /// <summary>
+    ///     When no <c>Idempotency-Key</c> is supplied, identical request fingerprints within this window resolve to the
+    ///     existing run instead of creating a duplicate.
+    /// </summary>
+    public int ContentFingerprintDedupeWindowMinutes
+    {
+        get;
+        set;
+    } = 10;
 }

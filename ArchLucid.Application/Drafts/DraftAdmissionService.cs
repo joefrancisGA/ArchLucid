@@ -237,7 +237,7 @@ public sealed class DraftAdmissionService(
         if (!string.IsNullOrWhiteSpace(existing.Document.SystemName))
         {
             await _workspaceSystemNameCollisionGuard
-                .EnsureAvailableAsync(scope, existing.Document.SystemName, draftId, cancellationToken)
+                .EnsureAvailableAsync(scope, existing.Document.SystemName, excludeDraftId: draftId, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
 

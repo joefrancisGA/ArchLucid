@@ -15,6 +15,7 @@ internal static class WorkspaceSystemNameCollisionGuardTestDoubles
                 It.IsAny<ScopeContext>(),
                 It.IsAny<string>(),
                 It.IsAny<Guid?>(),
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 

@@ -4,12 +4,14 @@ using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -22,6 +24,8 @@ public sealed class ArchitectureRunCreateIdempotencyHelper(
     IScopeContextProvider scopeContextProvider,
     IAgentTaskRepository taskRepository,
     IEvidenceBundleRepository evidenceBundleRepository,
+    IOptions<ArchitectureRunCreateOptions> createRunOptions,
+    TimeProvider timeProvider,
     ILogger<ArchitectureRunCreateIdempotencyHelper> logger)
 {
     private readonly IArchitectureRunIdempotencyRepository _architectureRunIdempotencyRepository =
@@ -38,6 +42,12 @@ public sealed class ArchitectureRunCreateIdempotencyHelper(
 
     private readonly IEvidenceBundleRepository _evidenceBundleRepository =
         evidenceBundleRepository ?? throw new ArgumentNullException(nameof(evidenceBundleRepository));
+
+    private readonly ArchitectureRunCreateOptions _createRunOptions =
+        createRunOptions?.Value ?? throw new ArgumentNullException(nameof(createRunOptions));
+
+    private readonly TimeProvider _timeProvider =
+        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     private readonly ILogger<ArchitectureRunCreateIdempotencyHelper> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -76,6 +86,41 @@ public sealed class ArchitectureRunCreateIdempotencyHelper(
 
         if (!CryptographicOperations.FixedTimeEquals(existing.RequestFingerprint, idempotency.RequestFingerprint))
             throw new ConflictException("The Idempotency-Key was already used with a different request body.");
+
+        return await RehydrateCreateRunResultAsync(existing.RunId, cancellationToken);
+    }
+
+    /// <summary>
+    ///     Resolves a recent identical request body to an existing run when no idempotency key was supplied.
+    /// </summary>
+    public async Task<CreateRunResult?> TryReplayFromRecentFingerprintAsync(
+        ScopeContext scope,
+        ArchitectureRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(request);
+
+        int windowMinutes = _createRunOptions.ContentFingerprintDedupeWindowMinutes;
+
+        if (windowMinutes <= 0)
+            return null;
+
+        byte[] fingerprint = ArchitectureRunIdempotencyHashing.FingerprintRequest(request);
+        DateTime createdAfterUtc = _timeProvider.GetUtcNow().UtcDateTime.AddMinutes(-windowMinutes);
+
+        ArchitectureRunIdempotencyLookup? existing = await _architectureRunIdempotencyRepository
+            .TryGetRecentByFingerprintAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                fingerprint,
+                createdAfterUtc,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (existing is null)
+            return null;
 
         return await RehydrateCreateRunResultAsync(existing.RunId, cancellationToken);
     }

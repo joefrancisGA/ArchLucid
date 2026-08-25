@@ -21,6 +21,7 @@ public sealed class WorkspaceSystemNameCollisionGuard(
         ScopeContext scope,
         string systemName,
         Guid? excludeDraftId = null,
+        Guid? excludeRunId = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -33,7 +34,7 @@ public sealed class WorkspaceSystemNameCollisionGuard(
             return;
 
         bool runExists = await _runRepository
-            .ExistsActiveRunWithSystemNameInWorkspaceAsync(scope, trimmedName, cancellationToken)
+            .ExistsActiveRunWithSystemNameInWorkspaceAsync(scope, trimmedName, excludeRunId, cancellationToken)
             .ConfigureAwait(false);
 
         if (runExists)

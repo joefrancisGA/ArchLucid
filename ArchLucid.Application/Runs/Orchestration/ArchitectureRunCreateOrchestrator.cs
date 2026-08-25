@@ -138,24 +138,40 @@ public sealed class ArchitectureRunCreateOrchestrator(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        await _workspaceSystemNameCollisionGuard
-            .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
 
         // ReSharper disable once InvertIf
         if (idempotency is not null)
         {
             CreateRunResult? replay = await _idempotencyHelper.TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
+
             if (replay is not null)
                 return replay;
+
             string gateKey = ArchitectureRunCreateIdempotencyHelper.BuildIdempotencyGateKey(idempotency);
             await using IAsyncDisposable _ = await _distributedCreateRunIdempotencyLock
                 .AcquireExclusiveSessionLockAsync(gateKey, _distributedIdempotencyLockTimeoutMs, cancellationToken).ConfigureAwait(false);
             CreateRunResult? replayUnderDistributed = await _idempotencyHelper.TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
+
             if (replayUnderDistributed is not null)
                 return replayUnderDistributed;
+
+            await _workspaceSystemNameCollisionGuard
+                .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
             return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
         }
+
+        CreateRunResult? fingerprintReplay = await _idempotencyHelper
+            .TryReplayFromRecentFingerprintAsync(scope, request, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (fingerprintReplay is not null)
+            return fingerprintReplay;
+
+        await _workspaceSystemNameCollisionGuard
+            .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
         return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
     }
@@ -199,7 +215,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         await _workspaceSystemNameCollisionGuard
-            .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+            .EnsureAvailableAsync(scope, request.SystemName, excludeRunId: runId, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         // Do not open the completion UoW until coordination returns. Dapper begins a SQL

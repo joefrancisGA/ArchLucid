@@ -261,11 +261,12 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     public Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
         ScopeContext scope,
         string systemName,
-        CancellationToken ct)
+        Guid? excludeRunId = null,
+        CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        return _inner.ExistsActiveRunWithSystemNameInWorkspaceAsync(scope, systemName, ct);
+        return _inner.ExistsActiveRunWithSystemNameInWorkspaceAsync(scope, systemName, excludeRunId, ct);
     }
 
     /// <inheritdoc />
