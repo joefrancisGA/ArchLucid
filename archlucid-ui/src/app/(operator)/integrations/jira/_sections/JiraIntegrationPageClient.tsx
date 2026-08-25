@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useItsmConnectorPage } from "@/hooks/use-itsm-connector-page";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   fetchItsmIntegrationHealth,
@@ -92,18 +93,10 @@ export function JiraIntegrationPageClient(): React.ReactElement {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canConfigureAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const showOperatorNotes = isShowSystemAdministrationNavEnabled();
-  const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
-  const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
-  const [connection, setConnection] = useState<TenantItsmConnectorConnectionResponse | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [settingsLoadFailed, setSettingsLoadFailed] = useState(false);
-  const [healthLoadFailed, setHealthLoadFailed] = useState(false);
-  const [connectionLoadFailed, setConnectionLoadFailed] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [testError, setTestError] = useState<string | null>(null);
   const [connectError, setConnectError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -113,52 +106,30 @@ export function JiraIntegrationPageClient(): React.ReactElement {
   const [lastTestAt, setLastTestAt] = useState<string | null>(null);
   const [lastTestSummary, setLastTestSummary] = useState<string | null>(null);
   const [lastTestSuccess, setLastTestSuccess] = useState<boolean | null>(null);
-  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
 
   const applySettings = useCallback((loaded: TenantItsmOutboundSettingsResponse | null) => {
-    setSettings(loaded);
     setJiraProjectKey(loaded?.jiraProjectKeyOverride ?? "");
     setJiraSendInfo(loaded?.jiraSendInfoSeverity ?? false);
     setIssueTypeJson(loaded?.jiraIssueTypeBySeverityJson ?? "");
   }, []);
 
-  const refresh = useCallback(async () => {
-    setIsLoading(true);
-    setLoadError(null);
-
-    // Isolate slice failures so one 500 cannot wipe successful connection/settings (TB-1162).
-    const [healthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
-      fetchItsmIntegrationHealth(),
-      fetchTenantItsmOutboundSettings(),
-      fetchTenantItsmConnectorConnection("jira"),
-    ]);
-
-    const loaded = buildJiraPageLoadResult({
-      health: healthOutcome,
-      settings: settingsOutcome,
-      connection: connectionOutcome,
-    });
-
-    setHealthLoadFailed(loaded.health.failed);
-    setSettingsLoadFailed(loaded.settings.failed);
-    setConnectionLoadFailed(loaded.connection.failed);
-
-    if (!loaded.health.failed) {
-      setHealth(loaded.health.value);
-    }
-
-    if (!loaded.settings.failed) {
-      applySettings(loaded.settings.value);
-    }
-
-    if (!loaded.connection.failed) {
-      setConnection(loaded.connection.value);
-    }
-
-    setLoadError(loaded.loadError);
-    setLastCheckedAt(new Date());
-    setIsLoading(false);
-  }, [applySettings]);
+  const {
+    health,
+    settings,
+    connection,
+    loadError,
+    settingsLoadFailed,
+    healthLoadFailed,
+    connectionLoadFailed,
+    isLoading,
+    lastCheckedAt,
+    refresh,
+    setSettings,
+  } = useItsmConnectorPage({
+    providerId: "jira",
+    buildPageLoadResult: buildJiraPageLoadResult,
+    applySettings,
+  });
 
   useEffect(() => {
     void refresh();

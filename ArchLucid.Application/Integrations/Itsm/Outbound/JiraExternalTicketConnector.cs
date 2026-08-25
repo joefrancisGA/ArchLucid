@@ -21,7 +21,7 @@ public sealed class JiraExternalTicketConnector(
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ITenantItsmOutboundSettingsRepository tenantItsmOutboundSettings,
     JiraOutboundIssueClient jiraClient,
-    IItsmOutboundHttpAuthenticator httpAuthenticator) : IExternalTicketConnector
+    IItsmOutboundHttpAuthenticator httpAuthenticator) : ExternalTicketCreatePipeline, IExternalTicketConnector
 {
     private const string ProjectKeyMissingMessage = "Jira connector not configured: project key required.";
 
@@ -47,13 +47,19 @@ public sealed class JiraExternalTicketConnector(
 
     public ItsmOutboundIssueProvider ProviderId => ItsmOutboundIssueProvider.Jira;
 
-    public string ProviderLabel => "Jira";
+    public string ProviderLabel => PipelineProviderLabel;
 
-    public string CreateFailedAuditEventType => AuditEventTypes.IntegrationJiraIssueCreateFailed;
+    protected override string PipelineProviderLabel => "Jira";
+
+    public string CreateFailedAuditEventType => PipelineCreateFailedAuditEventType;
+
+    protected override string PipelineCreateFailedAuditEventType => AuditEventTypes.IntegrationJiraIssueCreateFailed;
 
     public string CreateSkippedAuditEventType => AuditEventTypes.IntegrationJiraIssueCreateSkipped;
 
-    public string CreateSucceededAuditEventType => AuditEventTypes.IntegrationJiraIssueCreateSucceeded;
+    public string CreateSucceededAuditEventType => PipelineCreateSucceededAuditEventType;
+
+    protected override string PipelineCreateSucceededAuditEventType => AuditEventTypes.IntegrationJiraIssueCreateSucceeded;
 
     public async Task<ItsmOutboundIssueCreationResult> TryCreateForFindingAsync(
         ExternalTicketCreateContext context,
@@ -195,73 +201,13 @@ public sealed class JiraExternalTicketConnector(
             };
         }
 
-        try
-        {
-            Guid? findingRecordId =
-                await ExternalTicketConnectorSupport
-                    .ResolveFindingRecordIdForInspectAsync(_correlations, scope, inspect, cancellationToken)
-                    .ConfigureAwait(false);
-
-            await _correlations.RegisterAsync(
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    inspect.FindingId,
-                    ProviderLabel,
-                    http.IssueKey,
-                    http.RemoteId,
-                    findingRecordId,
-                    cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            AuditEvent ev = new()
-            {
-                EventType = CreateFailedAuditEventType,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = inspect.RunId,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    findingId = inspect.FindingId,
-                    issueKey = http.IssueKey,
-                    reason = "correlation_persist_failed",
-                    error = ex.Message
-                })
-            };
-
-            return new ItsmOutboundIssueCreationResult
-            {
-                Kind = ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed,
-                UserMessage = "Jira issue was created but ArchLucid could not persist ITSM correlation.",
-                ExternalKey = http.IssueKey,
-                AuditEvents = [ev]
-            };
-        }
-
-        AuditEvent ok = new()
-        {
-            EventType = CreateSucceededAuditEventType,
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            RunId = inspect.RunId,
-            DataJson = JsonSerializer.Serialize(new
-            {
-                findingId = inspect.FindingId,
-                issueKey = http.IssueKey
-            })
-        };
-
-        return new ItsmOutboundIssueCreationResult
-        {
-            Kind = ItsmOutboundCreateTerminalKind.Succeeded,
-            ExternalKey = http.IssueKey,
-            UserMessage = "Jira issue created.",
-            AuditEvents = [ok]
-        };
+        return await RegisterCorrelationOrReturnPersistenceFailureAsync(
+            _correlations,
+            scope,
+            inspect,
+            http.IssueKey,
+            http.RemoteId,
+            cancellationToken);
     }
 
     public async Task<string?> TryBuildBrowseUrlAsync(
