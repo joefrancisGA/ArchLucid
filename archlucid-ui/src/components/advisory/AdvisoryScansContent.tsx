@@ -17,6 +17,7 @@ import { AdvisoryRecommendationDispositionDialog } from "@/components/advisory/A
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
 import { AdvisoryScanSummaryPanel } from "@/components/advisory/AdvisoryScanSummaryPanel";
 import { AdvisoryScansPickReviewBeforeScanningStrip } from "@/components/advisory/AdvisoryScansPickReviewBeforeScanningStrip";
+import { AdvisoryScansNextReviewFooterClient } from "@/components/advisory/AdvisoryScansNextReviewFooterClient";
 import { AdvisoryResultsSchedulesVocabularyRail } from "@/components/AdvisoryResultsSchedulesVocabularyRail";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -688,6 +689,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
       ) : null}
 
       <div className="mt-8 space-y-4" data-testid="advisory-scans-orientation-footer">
+        {runId.trim().length > 0 ? <AdvisoryScansNextReviewFooterClient runId={runId.trim()} /> : null}
         <AdvisoryResultsSchedulesVocabularyRail currentSurfaceId="advisory-results" />
         <PageCapabilityBoundaryStrip surfaceId="advisoryScans" />
         <CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
