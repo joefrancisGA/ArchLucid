@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 
 import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { MutatingInTenantChip } from "@/components/MutatingInTenantChip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,10 @@ import {
   shouldShowDigestTypeSelector,
   suggestedSubscriptionName,
 } from "@/lib/digest-subscriptions-workflow";
+import {
+  resolveDigestSubscriptionCreateEmphasizedStepId,
+  resolveDigestSubscriptionCreateSteps,
+} from "@/lib/digest-subscription-create-checklist";
 import {
   digestSubscriptionsCreateSubscriptionButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
@@ -162,6 +167,21 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
   ]);
   const createButtonDescribedBy =
     createDisabledReason === null ? undefined : createDisabledHintId;
+  const destinationConfigured =
+    channelType.trim().length > 0 &&
+    destination.trim().length > 0 &&
+    destinationError === null &&
+    !integrationBlocksCreate;
+  const digestCreateSteps = resolveDigestSubscriptionCreateSteps({
+    nameConfigured: name.trim().length > 0,
+    destinationConfigured,
+    subscriptionSaved: props.createSuccess,
+  });
+  const digestCreateEmphasizedStepId = resolveDigestSubscriptionCreateEmphasizedStepId({
+    nameConfigured: name.trim().length > 0,
+    destinationConfigured,
+    subscriptionSaved: props.createSuccess,
+  });
   const destinationFieldLabel: string = channelDestinationFieldLabel(channelType);
   const destinationLabelText: string = isEmailChannel(channelType)
     ? `${destinationFieldLabel} (required)`
@@ -221,6 +241,13 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
           to configure delivery for your organization.
         </p>
       ) : null}
+
+      <IntegrationConnectChecklist
+        title="Subscription checklist"
+        steps={digestCreateSteps}
+        emphasizedStepId={digestCreateEmphasizedStepId}
+        testIdPrefix="digest-subscription-create"
+      />
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="grid gap-1.5">
