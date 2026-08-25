@@ -89,6 +89,7 @@ vi.mock("./_sections/operator-home-page-view-deferred-chunks", async () => {
     OperatorHomeStickinessCockpitDeferred: () => null,
     OperatorHomeGateDeferred: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
     CtoDemoSponsorLandingRedirectDeferred: () => null,
+    DevTestingQuickSwitchPanelDeferred: () => null,
   };
 
   return deferredExports;
@@ -135,6 +136,7 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
     OperatorHomeStickinessCockpitDeferred: () => null,
     OperatorHomeGateDeferred: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
     CtoDemoSponsorLandingRedirectDeferred: () => null,
+    DevTestingQuickSwitchPanelDeferred: () => null,
   };
 });
 
@@ -457,7 +459,7 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA })).toBeInTheDocument();
   });
 
-  it("exposes recent-reviews filter pills instead of an Open all reviews footer link", async () => {
+  it("exposes recent-reviews filter pills and Open all reviews beside the section heading", async () => {
     mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(runsDashboardWithSampleRun());
     listRunsByProjectPaged.mockResolvedValue({
       items: [sampleHomeRun],
@@ -472,6 +474,9 @@ describe("HomePage (55R smoke — landing)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("runs-dashboard-filter-all")).toBeInTheDocument();
     });
-    expect(screen.queryByRole("link", { name: "Open all reviews" })).toBeNull();
+    expect(screen.getAllByRole("link", { name: "Open all reviews" })).toHaveLength(1);
+    expect(screen.getByTestId("operator-home-recent-reviews")).toContainElement(
+      screen.getByTestId("runs-dashboard-open-all-reviews"),
+    );
   });
 });

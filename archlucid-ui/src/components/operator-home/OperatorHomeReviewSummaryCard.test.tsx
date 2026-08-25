@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { OperatorHomeReviewSummaryCard } from "@/components/operator-home/OperatorHomeReviewSummaryCard";
+import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -65,11 +66,16 @@ describe("OperatorHomeReviewSummaryCard", () => {
     expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveTextContent(
       SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
     );
-    expect(screen.getByTestId("runs-dashboard-buyer-proof-title").tagName).toBe("P");
+    expect(screen.getByTestId("runs-dashboard-buyer-proof-title").tagName).toBe("A");
     expect(screen.getByText("Package finalized")).toBeInTheDocument();
-    expect(screen.getByText(/9 findings · Ready evidence · Complete audit/)).toBeInTheDocument();
-    expect(screen.getByText(/Decision:/)).toBeInTheDocument();
-    expect(screen.getByText(/Approver: Jordan Lee/)).toBeInTheDocument();
+    expect(screen.getByText("Findings")).toBeInTheDocument();
+    expect(screen.getByText(/9 findings, including 1 monitored risk under active review/)).toBeInTheDocument();
+    expect(screen.getByText("Finalized")).toBeInTheDocument();
+    expect(
+      screen.getByText(buyerDemoPackageCardMeta(SHOWCASE_STATIC_DEMO_RUN_ID)?.decisionDate ?? ""),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Decision:/)).toBeNull();
+    expect(screen.getByTestId("runs-dashboard-buyer-proof-details")).toHaveTextContent(/Approver: Jordan Lee/);
     expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View record" })).toHaveAttribute(
       "href",
@@ -164,6 +170,8 @@ describe("OperatorHomeReviewSummaryCard", () => {
     );
 
     fireEvent.click(screen.getByText("Details"));
+
+    expect(screen.getByText(/Approver: Jordan Lee/)).toBeInTheDocument();
 
     const origin = screen.getByTestId("architecture-package-origin-reviewed");
 

@@ -512,35 +512,28 @@ export function RunsDashboardPanelClient({
               <div
                 className={cn(
                   "flex flex-wrap items-center gap-2",
-                  buyerPolishedShell ? "justify-between" : OPERATOR_LAYOUT.inlineGap,
+                  buyerPolishedShell && !hideHeading ? "justify-between" : OPERATOR_LAYOUT.inlineGap,
                 )}
               >
                 {buyerPolishedShell ? (
-                  <div
-                    className="flex flex-wrap gap-1.5"
-                    role="group"
-                    aria-label="Filter reviews"
-                    data-testid="runs-dashboard-status-filters"
-                  >
-                    {statusTabIds.map((id) => {
-                      const label = runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id]);
-                      const selected = tab === id && !showArchived;
-
-                      return (
-                        <FilterChip
+                  <>
+                    <TabsList
+                      aria-label="Filter reviews"
+                      data-testid="runs-dashboard-status-filters"
+                      className="flex flex-wrap gap-1.5"
+                    >
+                      {statusTabIds.map((id) => (
+                        <TabsTrigger
                           key={id}
+                          value={id}
                           data-testid={`runs-dashboard-filter-${id}`}
-                          className={buyerFilterChipClass(selected, false, statusTabCounts[id] === 0)}
-                          aria-pressed={selected}
-                          aria-label={`Filter reviews: ${label}`}
-                          onClick={() => {
-                            selectDashboardTab(id);
-                          }}
+                          className="shrink-0"
+                          disabled={statusTabCounts[id] === 0 && id !== "all"}
                         >
-                          {label}
-                        </FilterChip>
-                      );
-                    })}
+                          {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id])}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
                     {archivedFieldSupported ? (
                       <FilterChip
                         data-testid="runs-dashboard-show-archived"
@@ -560,7 +553,7 @@ export function RunsDashboardPanelClient({
                         Archived {archivedCount}
                       </FilterChip>
                     ) : null}
-                  </div>
+                  </>
                 ) : (
                   <TabsList
                     aria-label="Review views"
@@ -579,7 +572,7 @@ export function RunsDashboardPanelClient({
                     ))}
                   </TabsList>
                 )}
-                {buyerPolishedShell && hideHeading ? (
+                {buyerPolishedShell && !hideHeading ? (
                   <Link
                     href={openAllReviewsHref}
                     className={cn("inline-block shrink-0 font-semibold", OPERATOR_LINK.nav)}

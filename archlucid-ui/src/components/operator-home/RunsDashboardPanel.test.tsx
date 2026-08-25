@@ -398,14 +398,14 @@ describe("RunsDashboardPanel", () => {
       expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveTextContent(
         CUSTOMER_INTAKE_BUYER_REVIEW_TITLE,
       );
-      expect(screen.queryByRole("link", { name: CUSTOMER_INTAKE_BUYER_REVIEW_TITLE })).toBeNull();
+      expect(screen.getByRole("link", { name: CUSTOMER_INTAKE_BUYER_REVIEW_TITLE })).toBeInTheDocument();
       // Showcase title lives on the proof card — do not repeat it as a trailing list row.
       expect(screen.queryByTestId("recent-runs-home-panel")).toBeNull();
       expect(screen.queryByRole("link", { name: "Signed manifest summary" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
       // All / Approved / Action needed pills already cover list scope — no duplicate footer CTA.
       expect(screen.queryByTestId("runs-dashboard-open-review-packages")).toBeNull();
-      expect(screen.queryByRole("link", { name: BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA })).toBeNull();
+      expect(screen.getByRole("link", { name: BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA })).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "All" })).toBeNull();
     } finally {
       runsDashBuyerPolishedForced.on = false;
@@ -581,7 +581,7 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
-      expect(screen.getByRole("group", { name: "Filter reviews" })).toBeInTheDocument();
+      expect(screen.getByRole("tablist", { name: "Filter reviews" })).toBeInTheDocument();
       expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveTextContent("All (1)");
       expect(screen.getByTestId("runs-dashboard-filter-approved")).toHaveTextContent("Approved (1)");
     });

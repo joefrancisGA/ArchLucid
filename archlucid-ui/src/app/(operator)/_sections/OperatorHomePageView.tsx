@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { OperatorHomeDeferredOnboarding } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
 import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRail";
 import { OperatorHomeRecommendedNextCard } from "@/components/operator-home/OperatorHomeRecommendedNextCard";
@@ -14,7 +16,9 @@ import { OperatorHomeBuyerChrome } from "@/components/operator-home/OperatorHome
 import {
   OPERATOR_HOME_PRIMARY_SECTION_HEADING,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
 } from "@/lib/design-tokens";
+import { BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
 import { deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns } from "@/lib/resolve-operator-home-workspace-phase";
@@ -43,6 +47,7 @@ import type { OperatorHomePageViewModel } from "./operator-home-page-view-model"
 import {
   operatorHomePageSubtitle,
 } from "@/lib/operator/operator-home-page-copy";
+import { cn } from "@/lib/utils";
 
 type OperatorHomePageViewProps = {
   model: OperatorHomePageViewModel;
@@ -65,13 +70,26 @@ function OperatorHomePageChrome(props: { readonly buyerPolishedShell: boolean })
 }
 
 function HomeRecentReviewsSection(props: { readonly model: OperatorHomePageViewModel }) {
+  const openAllReviewsHref = `/architecture/reviews?projectId=${encodeURIComponent(props.model.runsDashboard.projectId)}`;
+
   return (
     <section
       aria-labelledby="operator-home-reviews-heading"
       className={OPERATOR_LAYOUT.sectionHeadingStack}
       data-testid="operator-home-recent-reviews"
     >
-      <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
+        <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
+        {props.model.buyerPolishedShell ? (
+          <Link
+            href={openAllReviewsHref}
+            className={cn("inline-block shrink-0 font-semibold", OPERATOR_LINK.nav)}
+            data-testid="runs-dashboard-open-all-reviews"
+          >
+            {BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA}
+          </Link>
+        ) : null}
+      </div>
       {/* Outcome line renders inside the runs panel from live list rows (avoids empty vs sample mismatch). */}
       <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
     </section>

@@ -260,7 +260,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
 
       {showEvalWithDraftsResumeHeader ? (
         <div
-          className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+          className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:gap-x-4 sm:gap-y-2"
           data-testid="operator-home-eval-with-drafts-resume-header"
         >
           <div className="min-w-0 space-y-1">
