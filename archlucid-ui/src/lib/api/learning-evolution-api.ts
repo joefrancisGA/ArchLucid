@@ -84,11 +84,7 @@ export async function fetchLearningThemes(maxThemes?: number): Promise<LearningT
 /** Lists improvement plans for the current scope (newest first). */
 export async function fetchLearningPlans(
   maxPlans?: number,
-<<<<<<< HEAD
   options?: { readonly signal?: AbortSignal },
-=======
-  options?: Pick<ApiGetOptions, "suppressErrorToast">,
->>>>>>> cursor/quiet-quick-jump-and-api-warmup-9725
 ): Promise<LearningPlansListResponse> {
   const q = learningMaxQuery("maxPlans", maxPlans);
   return apiGet<LearningPlansListResponse>(`/${ApiV1Routes.learning}/plans${q}`, options);

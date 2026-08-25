@@ -13,6 +13,7 @@ import {
   REVIEW_START_PREPARING_LABEL,
   REVIEW_START_WAIT_OPERATION_LABEL,
 } from "@/lib/review-start-progress-copy";
+import { trackCreateUnresolved } from "@/lib/telemetry";
 import {
   resolveReviewStartStages,
   type ReviewStartStageId,
@@ -35,6 +36,8 @@ export type ReviewCreationOutcome =
 
 export type ReviewCreationProgressBeginInput = {
   readonly hasTemplate: boolean;
+  /** Telemetry `wizardType` passed to {@link trackCreateUnresolved}. */
+  readonly wizardType?: string;
   /** Override soft-fail budget (e.g. longer when evidence upload follows create). */
   readonly timeoutMs?: number;
 };
@@ -50,6 +53,13 @@ export function useReviewCreationProgress() {
   const timerIdsRef = useRef<number[]>([]);
   const activityTimeoutIdRef = useRef<number | null>(null);
   const elapsedIntervalIdRef = useRef<number | null>(null);
+  const wizardTypeRef = useRef<string>("unknown");
+
+  const reportUnresolved = useCallback(() => {
+    trackCreateUnresolved(wizardTypeRef.current);
+    settle();
+    setOutcome({ kind: "unresolved" });
+  }, [settle]);
 
   const clearTimers = useCallback(() => {
     for (const timerId of timerIdsRef.current) {
@@ -125,6 +135,7 @@ export function useReviewCreationProgress() {
       }
 
       const hasTemplateStage = input?.hasTemplate === true;
+      wizardTypeRef.current = input?.wizardType ?? "unknown";
 
       clearTimers();
       setOutcome(null);
@@ -144,8 +155,7 @@ export function useReviewCreationProgress() {
       // Hitting this ceiling means we gave up waiting, not that the server failed.
       activityTimeoutIdRef.current = window.setTimeout(() => {
         activityTimeoutIdRef.current = null;
-        settle();
-        setOutcome({ kind: "unresolved" });
+        reportUnresolved();
       }, timeoutMs);
 
       if (hasTemplateStage) {
@@ -156,7 +166,7 @@ export function useReviewCreationProgress() {
         );
       }
     },
-    [clearTimers, isActive, settle],
+    [clearTimers, isActive, reportUnresolved],
   );
 
   const markPreparingQuestions = useCallback(() => {
@@ -185,9 +195,8 @@ export function useReviewCreationProgress() {
   );
 
   const markUnresolved = useCallback(() => {
-    settle();
-    setOutcome({ kind: "unresolved" });
-  }, [settle]);
+    reportUnresolved();
+  }, [reportUnresolved]);
 
   const bindOperation = useCallback((operationId: string | null) => {
     if (operationId === null || operationId.trim().length === 0) {

@@ -1,41 +1,41 @@
-const WIZARD_IDEMPOTENCY_SESSION_KEY = "archlucid_wizard_idempotency_key_v1";
-const WIZARD_REQUEST_ID_SESSION_KEY = "archlucid_wizard_request_id_v1";
+const WIZARD_IDEMPOTENCY_STORAGE_KEY = "archlucid_wizard_idempotency_key_v1";
+const WIZARD_REQUEST_ID_STORAGE_KEY = "archlucid_wizard_request_id_v1";
 
 function createWizardRequestId(): string {
   return crypto.randomUUID().replace(/-/g, "");
 }
 
-function readSessionValue(key: string): string {
+function readStorageValue(key: string): string {
   if (typeof window === "undefined") {
     return "";
   }
 
   try {
-    return window.sessionStorage.getItem(key)?.trim() ?? "";
+    return window.localStorage.getItem(key)?.trim() ?? "";
   } catch {
     return "";
   }
 }
 
-function writeSessionValue(key: string, value: string): void {
+function writeStorageValue(key: string, value: string): void {
   if (typeof window === "undefined") {
     return;
   }
 
   try {
-    window.sessionStorage.setItem(key, value);
+    window.localStorage.setItem(key, value);
   } catch {
     /* ignore private mode */
   }
 }
 
-function removeSessionValue(key: string): void {
+function removeStorageValue(key: string): void {
   if (typeof window === "undefined") {
     return;
   }
 
   try {
-    window.sessionStorage.removeItem(key);
+    window.localStorage.removeItem(key);
   } catch {
     /* ignore private mode */
   }
@@ -47,14 +47,14 @@ export function getOrCreateWizardIdempotencyKey(): string {
     return crypto.randomUUID();
   }
 
-  const existing = readSessionValue(WIZARD_IDEMPOTENCY_SESSION_KEY);
+  const existing = readStorageValue(WIZARD_IDEMPOTENCY_STORAGE_KEY);
 
   if (existing.length > 0) {
     return existing;
   }
 
   const created = crypto.randomUUID();
-  writeSessionValue(WIZARD_IDEMPOTENCY_SESSION_KEY, created);
+  writeStorageValue(WIZARD_IDEMPOTENCY_STORAGE_KEY, created);
 
   return created;
 }
@@ -68,22 +68,22 @@ export function getOrCreateWizardRequestId(): string {
     return createWizardRequestId();
   }
 
-  const existing = readSessionValue(WIZARD_REQUEST_ID_SESSION_KEY);
+  const existing = readStorageValue(WIZARD_REQUEST_ID_STORAGE_KEY);
 
   if (existing.length > 0) {
     return existing;
   }
 
   const created = createWizardRequestId();
-  writeSessionValue(WIZARD_REQUEST_ID_SESSION_KEY, created);
+  writeStorageValue(WIZARD_REQUEST_ID_STORAGE_KEY, created);
 
   return created;
 }
 
 /** Clears wizard idempotency + request id after a successful submission. */
 export function clearWizardSubmissionSession(): void {
-  removeSessionValue(WIZARD_IDEMPOTENCY_SESSION_KEY);
-  removeSessionValue(WIZARD_REQUEST_ID_SESSION_KEY);
+  removeStorageValue(WIZARD_IDEMPOTENCY_STORAGE_KEY);
+  removeStorageValue(WIZARD_REQUEST_ID_STORAGE_KEY);
 }
 
 /** @deprecated Use {@link clearWizardSubmissionSession}. */

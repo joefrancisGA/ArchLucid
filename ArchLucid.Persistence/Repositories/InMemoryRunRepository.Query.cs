@@ -212,7 +212,8 @@ public sealed partial class InMemoryRunRepository
     public Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
         ScopeContext scope,
         string systemName,
-        CancellationToken ct)
+        Guid? excludeRunId = null,
+        CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
@@ -222,6 +223,7 @@ public sealed partial class InMemoryRunRepository
         bool exists = _store.Values.Any(r =>
             RunRepositoryCore.MatchesWorkspace(r, scope) &&
             !r.ArchivedUtc.HasValue &&
+            (excludeRunId is null || r.RunId != excludeRunId.Value) &&
             string.Equals(r.ProjectId.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase));
 
         return Task.FromResult(exists);

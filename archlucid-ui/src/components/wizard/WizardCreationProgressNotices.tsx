@@ -3,6 +3,7 @@
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { ReviewStartUnresolvedNotice } from "@/components/review-intake/ReviewStartUnresolvedNotice";
 import type { ReviewCreationProgress } from "@/hooks/use-review-creation-progress";
+import { useReviewCreationAutoRecheck } from "@/hooks/use-review-creation-auto-recheck";
 import type { ReviewStartInFlightProgress } from "@/hooks/use-review-start-in-flight-progress";
 import { REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
 
@@ -29,6 +30,11 @@ export function WizardCreationProgressNotices(
   props: WizardCreationProgressNoticesProps,
 ): React.ReactElement {
   const { progress, inFlightProgress, testIdPrefix, onRecheck } = props;
+  const { autoRecheckExhausted } = useReviewCreationAutoRecheck({
+    outcome: progress.outcome,
+    isActive: progress.isActive,
+    onRecheck,
+  });
   const serverStepLabel = inFlightProgress?.serverStepLabel ?? null;
   const showServerProgress =
     serverStepLabel !== null && serverStepLabel.length > 0 && progress.activeStageId === null;
@@ -65,6 +71,8 @@ export function WizardCreationProgressNotices(
         <div className="mt-3">
           <ReviewStartUnresolvedNotice
             onRecheck={onRecheck}
+            onStartAgain={onRecheck}
+            autoRecheckExhausted={autoRecheckExhausted}
             isRechecking={progress.isRechecking}
             testId={`${testIdPrefix}-unresolved-notice`}
           />

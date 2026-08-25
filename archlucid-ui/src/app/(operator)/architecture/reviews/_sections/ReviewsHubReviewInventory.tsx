@@ -118,6 +118,7 @@ function matchesSearch(
   run: RunSummary,
   query: string,
   ownerContext: ReviewPackageOwnerResolutionContext,
+  siblingRuns: readonly RunSummary[],
 ): boolean {
   const normalized = query.trim().toLowerCase();
 
@@ -125,7 +126,7 @@ function matchesSearch(
     return true;
   }
 
-  const row = toReviewsHubReviewRowDisplay(run, ownerContext);
+  const row = toReviewsHubReviewRowDisplay(run, ownerContext, siblingRuns);
   const haystack = [
     row.reviewTitle,
     row.reviewTitlePrimary,
@@ -147,8 +148,9 @@ function matchesFilter(
   run: RunSummary,
   filter: ReviewFilterId,
   ownerContext: ReviewPackageOwnerResolutionContext,
+  siblingRuns: readonly RunSummary[],
 ): boolean {
-  const row = toReviewsHubReviewRowDisplay(run, ownerContext);
+  const row = toReviewsHubReviewRowDisplay(run, ownerContext, siblingRuns);
 
   if (filter === "all") {
     return true;
@@ -255,11 +257,12 @@ function emptyInventoryDescription(draftCount: number): string {
 type InventoryRowProps = {
   readonly run: RunSummary;
   readonly ownerContext: ReviewPackageOwnerResolutionContext;
+  readonly siblingRuns: readonly RunSummary[];
   readonly style?: CSSProperties;
 };
 
 function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
-  const row = toReviewsHubReviewRowDisplay(props.run, props.ownerContext);
+  const row = toReviewsHubReviewRowDisplay(props.run, props.ownerContext, props.siblingRuns);
 
   return (
     <EnterpriseTableRow
@@ -346,6 +349,7 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
 
 type ReviewsHubInventoryTableProps = {
   readonly runs: readonly RunSummary[];
+  readonly siblingRuns: readonly RunSummary[];
   readonly ownerContext: ReviewPackageOwnerResolutionContext;
   readonly ariaLabel: string;
   readonly tableTestId: string;
@@ -403,6 +407,7 @@ function ReviewsHubInventoryTable(props: ReviewsHubInventoryTableProps): React.J
                   key={run.runId}
                   run={run}
                   ownerContext={props.ownerContext}
+                  siblingRuns={props.siblingRuns}
                   style={rowStyle}
                 />
               );
@@ -419,7 +424,12 @@ function ReviewsHubInventoryTable(props: ReviewsHubInventoryTableProps): React.J
         <ReviewsHubInventoryTableHead />
         <EnterpriseTableBody>
           {props.runs.map((run) => (
-            <ReviewsHubInventoryRow key={run.runId} run={run} ownerContext={props.ownerContext} />
+            <ReviewsHubInventoryRow
+              key={run.runId}
+              run={run}
+              ownerContext={props.ownerContext}
+              siblingRuns={props.siblingRuns}
+            />
           ))}
         </EnterpriseTableBody>
       </EnterpriseTable>
@@ -448,7 +458,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     [archivedRuns, props.runs],
   );
   const rows = useMemo(
-    () => mergedRuns.map((run) => toReviewsHubReviewRowDisplay(run, ownerContext)),
+    () => mergedRuns.map((run) => toReviewsHubReviewRowDisplay(run, ownerContext, mergedRuns)),
     [mergedRuns, ownerContext],
   );
   const draftCount = draftEntries.length;
@@ -470,9 +480,11 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
 
   const filteredRuns = useMemo(() => {
     return visibilityFilteredRuns.filter(
-      (run) => matchesSearch(run, searchQuery, ownerContext) && matchesFilter(run, activeFilter, ownerContext),
+      (run) =>
+        matchesSearch(run, searchQuery, ownerContext, mergedRuns) &&
+        matchesFilter(run, activeFilter, ownerContext, mergedRuns),
     );
-  }, [activeFilter, ownerContext, searchQuery, visibilityFilteredRuns]);
+  }, [activeFilter, mergedRuns, ownerContext, searchQuery, visibilityFilteredRuns]);
 
   const sortedFilteredRuns = useMemo(
     () => sortRunsForInventory(filteredRuns, isFavorite),
@@ -599,6 +611,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
 
           <ReviewsHubInventoryTable
             runs={sortedFilteredRuns}
+            siblingRuns={mergedRuns}
             ownerContext={ownerContext}
             ariaLabel={REVIEWS_HUB_PAGE_TITLE}
             tableTestId="reviews-hub-packages-table"

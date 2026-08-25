@@ -84,3 +84,21 @@ export function trackWizardValidationFailed(
     );
   });
 }
+
+export function trackCreateUnresolved(wizardType: string) {
+  trackWithAppInsights((ai) => {
+    ai.trackEvent({ name: "CreateUnresolved" }, { wizardType });
+  });
+}
+
+export function trackCreateRecheckResolvedExisting(wizardType: string, runId: string) {
+  trackWithAppInsights((ai) => {
+    ai.trackEvent({ name: "CreateRecheckResolvedExisting" }, { wizardType, runId });
+  });
+}
+
+export function trackCreateIdempotentReplay(wizardType: string) {
+  trackWithAppInsights((ai) => {
+    ai.trackEvent({ name: "CreateIdempotentReplay" }, { wizardType });
+  });
+}

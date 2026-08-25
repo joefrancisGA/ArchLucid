@@ -1,3 +1,4 @@
+import { formatRunListTitleWithDisambiguator } from "@/lib/operator/run-home-list-disambiguator";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import {
   getBuyerSafeReviewsTableLinkForRun,
@@ -185,16 +186,21 @@ function reviewRiskCount(run: RunSummary): number {
 export function toReviewsHubReviewRowDisplay(
   run: RunSummary,
   ownerContext: ReviewPackageOwnerResolutionContext = {},
+  siblingRuns: readonly RunSummary[] = [],
 ): ReviewsHubReviewRowDisplay {
   const runId = canonicalizeDemoRunId(run.runId);
   const primaryAction = getBuyerSafeReviewsTableLinkForRun(run);
   const reviewTitle = buyerFacingReviewTitleFromSummary(run);
   const titleParts = splitReviewsHubReviewTitle(reviewTitle);
+  const reviewTitlePrimary =
+    siblingRuns.length > 1
+      ? formatRunListTitleWithDisambiguator(run, siblingRuns)
+      : titleParts.primary;
 
   return {
     runId,
     reviewTitle,
-    reviewTitlePrimary: titleParts.primary,
+    reviewTitlePrimary,
     reviewTitleKindLabel: titleParts.kindLabel,
     architectureName: reviewPackageArchitectureName(run),
     overallStatus: reviewsHubOverallStatus(run),

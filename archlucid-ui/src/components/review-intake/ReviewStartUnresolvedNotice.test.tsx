@@ -9,7 +9,7 @@ import {
 } from "@/lib/review-start-progress-copy";
 
 describe("ReviewStartUnresolvedNotice", () => {
-  it("announces as status rather than an error, and warns against resubmitting", () => {
+  it("announces as status rather than an error, and explains the review is still starting", () => {
     render(<ReviewStartUnresolvedNotice onRecheck={vi.fn()} isRechecking={false} />);
 
     expect(screen.getByRole("status")).toBeInTheDocument();

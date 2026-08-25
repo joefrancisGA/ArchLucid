@@ -38,10 +38,17 @@ export const REVIEW_START_WAIT_OPERATION_LABEL = "Starting your architecture rev
  * Deliberately not phrased as a failure: reporting an unresolved create as failed is what
  * drives duplicate submissions.
  */
-export const REVIEW_START_UNRESOLVED_HEADLINE = "Still working on it";
+export const REVIEW_START_UNRESOLVED_HEADLINE = "Your review is still starting";
 
 export const REVIEW_START_UNRESOLVED_MESSAGE =
-  "We stopped waiting for a response, but your review may still be starting on the server. Nothing was canceled. Check for it below rather than submitting again — submitting again is what creates duplicates.";
+  "We stopped waiting for the server to answer. Nothing was canceled and nothing was lost. We're checking on it now.";
+
+export const REVIEW_START_UNRESOLVED_EXHAUSTED_HEADLINE = "Still no answer from the server";
+
+export const REVIEW_START_UNRESOLVED_EXHAUSTED_MESSAGE =
+  "Your review is safe to open from Reviews. It's also safe to start again — we'll match it to the same review rather than creating a second one.";
+
+export const REVIEW_START_UNRESOLVED_START_AGAIN_CTA = "Start again";
 
 /** Recovery CTA — replays the wizard-session idempotent create to resolve an outstanding review. */
 export const REVIEW_START_UNRESOLVED_RECHECK_CTA = "Check for my review";

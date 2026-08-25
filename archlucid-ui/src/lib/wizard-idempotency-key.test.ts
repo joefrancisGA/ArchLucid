@@ -41,7 +41,7 @@ describe("wizard-idempotency-key", () => {
     const nextIdempotency = getOrCreateWizardIdempotencyKey();
     const nextRequestId = getOrCreateWizardRequestId();
 
-    expect(window.sessionStorage.getItem("archlucid_wizard_idempotency_key_v1")).toBe(nextIdempotency);
-    expect(window.sessionStorage.getItem("archlucid_wizard_request_id_v1")).toBe(nextRequestId);
+    expect(window.localStorage.getItem("archlucid_wizard_idempotency_key_v1")).toBe(nextIdempotency);
+    expect(window.localStorage.getItem("archlucid_wizard_request_id_v1")).toBe(nextRequestId);
   });
 });

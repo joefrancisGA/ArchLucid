@@ -82,11 +82,7 @@ function buildManifestLinks(manifestIds: readonly string[]): DevTestingQuickJump
 
 async function loadPlanIds(signal?: AbortSignal): Promise<string[]> {
   try {
-<<<<<<< HEAD
     const response = await fetchLearningPlans(DEV_TESTING_QUICK_JUMP_MAX_ITEMS, { signal });
-=======
-    const response = await fetchLearningPlans(DEV_TESTING_QUICK_JUMP_MAX_ITEMS, QUIET_PROBE_GET_OPTIONS);
->>>>>>> cursor/quiet-quick-jump-and-api-warmup-9725
 
     return uniqueNonEmptyIds(response.plans.map((plan) => plan.planId));
   } catch {
