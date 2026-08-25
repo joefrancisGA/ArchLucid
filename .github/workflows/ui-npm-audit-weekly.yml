@@ -17,16 +17,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
       - name: UI npm audit runner unit tests (TB-864)
         run: python -m unittest discover -s scripts/ci/tests -p "test_run_ui_npm_audit.py"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -43,7 +43,7 @@ jobs:
             --json-out artifacts/ui-npm-audit/npm-audit.json \
             --markdown-out artifacts/ui-npm-audit/npm-audit.md
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ui-npm-audit-weekly

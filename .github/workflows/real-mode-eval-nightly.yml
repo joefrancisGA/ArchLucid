@@ -16,7 +16,7 @@ jobs:
     if: github.event.repository.fork == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Eligibility (TB-683)
         id: eligibility
@@ -29,14 +29,14 @@ jobs:
           fi
           echo "enabled=true" >> "${GITHUB_OUTPUT}"
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         if: steps.eligibility.outputs.enabled == 'true'
         with:
           python-version: "3.12"
 
       - name: Restore previous night trend
         if: steps.eligibility.outputs.enabled == 'true'
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: ${{ runner.temp }}/real-mode-eval-previous
           key: real-mode-eval-trend-${{ github.run_id }}
@@ -118,12 +118,12 @@ jobs:
 
       - name: Cache trend for consecutive-night compare
         if: steps.eligibility.outputs.enabled == 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: ${{ runner.temp }}/real-mode-eval-previous
           key: real-mode-eval-trend-${{ github.run_id }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: steps.eligibility.outputs.enabled == 'true'
         with:
           name: real-mode-eval-nightly-${{ github.run_id }}
