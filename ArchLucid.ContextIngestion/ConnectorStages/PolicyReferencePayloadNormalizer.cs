@@ -24,7 +24,7 @@ public sealed class PolicyReferencePayloadNormalizer(IPolicyTopologyOverlapResol
         _ = ct;
 
         NormalizedContextBatch batch = new();
-        HashSet<string> seenReferences = new(StringComparer.Ordinal);
+        HashSet<string> seenReferences = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string policy in payload.PolicyReferences)
         {
@@ -32,13 +32,14 @@ public sealed class PolicyReferencePayloadNormalizer(IPolicyTopologyOverlapResol
                 continue;
 
             string trimmed = policy.Trim();
+            string canonicalReference = trimmed.ToLowerInvariant();
 
-            if (!seenReferences.Add(trimmed))
+            if (!seenReferences.Add(canonicalReference))
                 continue;
 
             Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
             {
-                ["reference"] = trimmed, ["status"] = "referenced"
+                ["reference"] = canonicalReference, ["status"] = "referenced"
             };
 
             string? targeted = _overlapResolver.ResolveApplicableTopologyNodeIds(trimmed, payload.TopologyHints);
@@ -49,9 +50,9 @@ public sealed class PolicyReferencePayloadNormalizer(IPolicyTopologyOverlapResol
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "PolicyControl",
-                Name = trimmed,
+                Name = canonicalReference,
                 SourceType = "PolicyReference",
-                SourceId = trimmed,
+                SourceId = canonicalReference,
                 Properties = properties
             });
         }
