@@ -1,5 +1,6 @@
 "use client";
 
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { CloudPlatformScopePanel } from "@/components/preferences/CloudPlatformScopePanel";
@@ -24,6 +25,11 @@ import {
 } from "@/lib/sample-reviews-on-overview-preference-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
+import {
+  resolvePreferencesSaveEmphasizedStepId,
+  resolvePreferencesSaveSteps,
+} from "@/lib/preferences-save-checklist";
+import { useUserAppearancePreference } from "@/lib/use-user-appearance-preference";
 import { useCloudPlatformScope } from "@/lib/use-cloud-platform-scope";
 import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { useSampleReviewsOnOverviewPreference } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
@@ -31,6 +37,7 @@ import { useWhereToGoNextPreference } from "@/components/WhereToGoNextPreference
 import { cn } from "@/lib/utils";
 
 export function PreferencesSettingsPageView() {
+  const { mounted: appearanceMounted } = useUserAppearancePreference();
   const { scope, mounted, accountSyncState, setAndPersist } = useCloudPlatformScope();
   const {
     enabled: whereToGoNextEnabled,
@@ -51,6 +58,33 @@ export function PreferencesSettingsPageView() {
     setAndPersist: setTimeZoneAndPersist,
   } = useIanaTimeZonePreference();
 
+  const preferencesSaveSteps = resolvePreferencesSaveSteps({
+    appearanceConfigured: appearanceMounted,
+    localeScopeSaved:
+      timeZoneMounted &&
+      mounted &&
+      timeZoneAccountSyncState === "synced" &&
+      accountSyncState === "synced",
+    followUpPreferencesSaved:
+      whereToGoNextMounted &&
+      sampleReviewsOnOverviewMounted &&
+      whereToGoNextAccountSyncState === "synced" &&
+      sampleReviewsOnOverviewAccountSyncState === "synced",
+  });
+  const preferencesSaveEmphasizedStepId = resolvePreferencesSaveEmphasizedStepId({
+    appearanceConfigured: appearanceMounted,
+    localeScopeSaved:
+      timeZoneMounted &&
+      mounted &&
+      timeZoneAccountSyncState === "synced" &&
+      accountSyncState === "synced",
+    followUpPreferencesSaved:
+      whereToGoNextMounted &&
+      sampleReviewsOnOverviewMounted &&
+      whereToGoNextAccountSyncState === "synced" &&
+      sampleReviewsOnOverviewAccountSyncState === "synced",
+  });
+
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="preferences-settings-page">
       <OperatorPageHeader
@@ -59,6 +93,12 @@ export function PreferencesSettingsPageView() {
         subtitle="Personal settings saved to your account."
         titleTestId="preferences-settings-page-title"
         actions={<PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />}
+      />
+      <IntegrationConnectChecklist
+        title="Save preferences checklist"
+        steps={preferencesSaveSteps}
+        emphasizedStepId={preferencesSaveEmphasizedStepId}
+        testIdPrefix="preferences-save"
       />
       <Card id="appearance" data-testid="preferences-appearance-card">
         <CardHeader>
