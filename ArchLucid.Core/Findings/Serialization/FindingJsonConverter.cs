@@ -48,11 +48,9 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         finding.ReviewedByUserId = ReadOptionalString(root, "reviewedByUserId");
         finding.ReviewNotes = ReadOptionalString(root, "reviewNotes");
 
-        if (root.TryGetProperty("enforcementTier", out JsonElement tierEl) &&
-            tierEl.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(tierEl.GetString(), ignoreCase: true, out FindingEnforcementTier tier))
+        if (root.TryGetProperty("enforcementTier", out JsonElement tierEl))
         {
-            finding.EnforcementTier = tier;
+            finding.EnforcementTier = ReadEnforcementTier(tierEl);
         }
         else if (finding.Properties.TryGetValue(FindingPropertyKeys.EnforcementTier, out string? tierFromProps) &&
                  Enum.TryParse(tierFromProps, ignoreCase: true, out FindingEnforcementTier tierFromProperties))
@@ -75,9 +73,8 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             Enum.TryParse(eclEl.GetString(), ignoreCase: true, out FindingConfidenceLevel ecl))
             finding.ConfidenceLevel = ecl;
 
-        if (root.TryGetProperty("humanReviewStatus", out JsonElement hrsEl) &&
-            Enum.TryParse(hrsEl.GetString(), true, out FindingHumanReviewStatus hrs))
-            finding.HumanReviewStatus = hrs;
+        if (root.TryGetProperty("humanReviewStatus", out JsonElement hrsEl))
+            finding.HumanReviewStatus = ReadHumanReviewStatus(hrsEl);
 
         if (root.TryGetProperty("projectedImpactUsd", out JsonElement impactEl) &&
             impactEl.ValueKind == JsonValueKind.Number &&
@@ -320,6 +317,54 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             "high" => FindingSeverity.Error,
             _ => throw new JsonException($"Unknown finding severity value '{raw}'."),
         };
+    }
+
+    private static FindingEnforcementTier ReadEnforcementTier(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+            if (!Enum.IsDefined(typeof(FindingEnforcementTier), numeric))
+                throw new JsonException($"Unknown finding enforcement tier value '{numeric}'.");
+
+            return (FindingEnforcementTier)numeric;
+        }
+
+        if (element.ValueKind != JsonValueKind.String)
+            throw new JsonException("Expected string or number for finding enforcement tier.");
+
+        string? raw = element.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            throw new JsonException("Finding enforcement tier value is required.");
+
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed))
+            return parsed;
+
+        throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
+    }
+
+    private static FindingHumanReviewStatus ReadHumanReviewStatus(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+            if (!Enum.IsDefined(typeof(FindingHumanReviewStatus), numeric))
+                throw new JsonException($"Unknown finding human review status value '{numeric}'.");
+
+            return (FindingHumanReviewStatus)numeric;
+        }
+
+        if (element.ValueKind != JsonValueKind.String)
+            throw new JsonException("Expected string or number for finding human review status.");
+
+        string? raw = element.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            throw new JsonException("Finding human review status value is required.");
+
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingHumanReviewStatus parsed))
+            return parsed;
+
+        throw new JsonException($"Unknown finding human review status value '{raw}'.");
     }
 }
 

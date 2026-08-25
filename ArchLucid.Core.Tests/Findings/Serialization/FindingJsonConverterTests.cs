@@ -109,6 +109,101 @@ public sealed class FindingJsonConverterTests
             .WithMessage("*Unknown finding severity value 'blocker'*");
     }
 
+    [Theory]
+    [InlineData(1, FindingHumanReviewStatus.Pending)]
+    [InlineData(2, FindingHumanReviewStatus.Approved)]
+    public void Deserialize_numeric_humanReviewStatus_maps_defined_ordinals(int ordinal, FindingHumanReviewStatus expected)
+    {
+        string json = $$"""
+                        {
+                          "findingSchemaVersion": 2,
+                          "findingId": "abc123",
+                          "findingType": "TopologyGap",
+                          "category": "Topology",
+                          "engineType": "TopologyCoverage",
+                          "severity": "Warning",
+                          "title": "Missing worker subnet",
+                          "rationale": "No subnet is defined for worker pool isolation.",
+                          "relatedNodeIds": [],
+                          "recommendedActions": [],
+                          "properties": {},
+                          "payloadType": null,
+                          "payload": null,
+                          "trace": {},
+                          "humanReviewStatus": {{ordinal}}
+                        }
+                        """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.HumanReviewStatus.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Deserialize_numeric_enforcementTier_maps_advisory_ordinal()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "enforcementTier": 1
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.EnforcementTier.Should().Be(FindingEnforcementTier.Advisory);
+    }
+
+    [Fact]
+    public void Deserialize_integer_humanReviewStatus_out_of_range_throws()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": 99
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<Finding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding human review status value '99'*");
+    }
+
     private static JsonSerializerOptions CreateOptions()
     {
         JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
