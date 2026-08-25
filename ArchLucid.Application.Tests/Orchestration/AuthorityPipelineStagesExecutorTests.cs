@@ -32,12 +32,9 @@ using ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 using JetBrains.Annotations;
 
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
+using FluentAssertions;
 
 using Moq;
-
-using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Orchestration;
 
@@ -69,8 +66,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         parent.Should().NotBeNull();
 
-        (AuthorityPipelineStagesExecutor sut, _, _) = CreateExecutor();
-        AuthorityPipelineContext ctx = CreateContext(parent, Guid.NewGuid());
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture = AuthorityPipelineStagesExecutorTestFactory.CreateExecutor();
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(parent, Guid.NewGuid());
 
         await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -129,8 +127,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
         using Activity? parent = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.run.test");
         parent.Should().NotBeNull();
 
-        (AuthorityPipelineStagesExecutor sut, _, _) = CreateExecutor();
-        AuthorityPipelineContext ctx = CreateContext(parent, Guid.NewGuid());
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture = AuthorityPipelineStagesExecutorTestFactory.CreateExecutor();
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(parent, Guid.NewGuid());
 
         await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -203,8 +202,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         meterListener.Start();
 
-        (AuthorityPipelineStagesExecutor sut, _, _) = CreateExecutor();
-        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture = AuthorityPipelineStagesExecutorTestFactory.CreateExecutor();
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(runId: Guid.NewGuid());
 
         await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -265,8 +265,10 @@ public sealed class AuthorityPipelineStagesExecutorTests
             .Setup(s => s.IngestAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("ingest failed"));
 
-        AuthorityPipelineStagesExecutor sut = CreateExecutor(ingestMock: ingest).Executor;
-        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture =
+            AuthorityPipelineStagesExecutorTestFactory.CreateExecutor(ingestMock: ingest);
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(runId: Guid.NewGuid());
 
         Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -289,8 +291,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
-        (AuthorityPipelineStagesExecutor sut, _, _) = CreateExecutor();
-        AuthorityPipelineContext ctx = CreateContext(null, Guid.NewGuid());
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture = AuthorityPipelineStagesExecutorTestFactory.CreateExecutor();
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(null, Guid.NewGuid());
 
         Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -303,7 +306,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
         DateTime utc = TimeProvider.System.UtcNowDateTime();
-        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture = AuthorityPipelineStagesExecutorTestFactory.CreateExecutor(
             configureFindings: s =>
             {
                 s.GenerationStatus = FindingsSnapshotGenerationStatus.Failed;
@@ -319,7 +322,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
                     });
             });
 
-        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
+        Mock<IDecisionEngine> decision = fixture.Decision;
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(runId: Guid.NewGuid());
 
         Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -341,7 +346,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
         DateTime utc = TimeProvider.System.UtcNowDateTime();
-        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture = AuthorityPipelineStagesExecutorTestFactory.CreateExecutor(
             configureFindings: s =>
             {
                 s.GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete;
@@ -368,7 +373,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
             },
             authorityPipelineOptions: new AuthorityPipelineOptions { HaltOnPartialFindings = true });
 
-        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
+        Mock<IDecisionEngine> decision = fixture.Decision;
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(runId: Guid.NewGuid());
 
         Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -390,7 +397,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
         DateTime utc = TimeProvider.System.UtcNowDateTime();
-        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture = AuthorityPipelineStagesExecutorTestFactory.CreateExecutor(
             configureFindings: s =>
             {
                 s.GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete;
@@ -417,7 +424,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
             },
             authorityPipelineOptions: new AuthorityPipelineOptions { HaltOnPartialFindings = false });
 
-        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
+        Mock<IDecisionEngine> decision = fixture.Decision;
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(runId: Guid.NewGuid());
 
         await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -437,7 +446,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
         DateTime utc = TimeProvider.System.UtcNowDateTime();
-        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture = AuthorityPipelineStagesExecutorTestFactory.CreateExecutor(
             configureFindings: s =>
             {
                 s.GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete;
@@ -454,7 +463,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
             },
             authorityPipelineOptions: new AuthorityPipelineOptions { HaltOnPartialFindings = false });
 
-        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
+        Mock<IDecisionEngine> decision = fixture.Decision;
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(runId: Guid.NewGuid());
 
         Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -507,13 +518,14 @@ public sealed class AuthorityPipelineStagesExecutorTests
             .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), graphId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(committedGraph);
 
-        (AuthorityPipelineStagesExecutor sut, _, _) = CreateExecutor(
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture = AuthorityPipelineStagesExecutorTestFactory.CreateExecutor(
             ingestMock: ingest,
             contextSnapshotRepositoryMock: ctxRepo,
             graphSnapshotRepositoryMock: graphRepo,
             knowledgeGraphServiceMock: kg);
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
 
-        AuthorityPipelineContext ctx = CreateContext(runId: runGuid);
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(runId: runGuid);
         ctx.Run.ContextSnapshotId = contextId;
         ctx.Run.GraphSnapshotId = graphId;
 
@@ -537,7 +549,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
     public async Task ExecuteAfterRunPersistedAsync_when_artifact_synthesis_throws_logs_ArtifactSynthesisFailed_and_rethrows()
     {
         Guid runGuid = Guid.NewGuid();
-        (AuthorityPipelineStagesExecutor sut, _, Mock<IAuditService> audit) = CreateExecutor(
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture = AuthorityPipelineStagesExecutorTestFactory.CreateExecutor(
             configureSynthesis: s =>
             {
                 s.Setup(x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
@@ -548,8 +560,10 @@ public sealed class AuthorityPipelineStagesExecutorTests
                         It.IsAny<CancellationToken>()))
                     .ThrowsAsync(new InvalidOperationException("synthesis failed"));
             });
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
+        Mock<IAuditService> audit = fixture.Audit;
 
-        AuthorityPipelineContext ctx = CreateContext(runId: runGuid);
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(runId: runGuid);
 
         Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -564,314 +578,6 @@ public sealed class AuthorityPipelineStagesExecutorTests
                     && e.ManifestId.Value != Guid.Empty),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-    }
-
-    private static AuthorityPipelineContext CreateContext(Activity? runActivity = null, Guid? runId = null)
-    {
-        Guid rid = runId ?? Guid.NewGuid();
-        RunRecord run = new()
-        {
-            RunId = rid,
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ScopeProjectId = Guid.NewGuid(),
-            ProjectId = "p1",
-            CreatedUtc = TimeProvider.System.UtcNowDateTime()
-        };
-
-        Mock<IArchLucidUnitOfWork> uow = new();
-        uow.SetupGet(x => x.SupportsExternalTransaction).Returns(false);
-
-        return new AuthorityPipelineContext
-        {
-            Run = run,
-            Request = new ContextIngestionRequest { RunId = rid, ProjectId = "p1" },
-            UnitOfWork = uow.Object,
-            Scope = new ScopeContext
-            {
-                TenantId = run.TenantId,
-                WorkspaceId = run.WorkspaceId,
-                ProjectId = run.ScopeProjectId
-            },
-            RunActivity = runActivity
-        };
-    }
-
-    private static (AuthorityPipelineStagesExecutor Executor, Mock<IDecisionEngine> Decision, Mock<IAuditService> Audit)
-        CreateExecutor(
-        Mock<IContextIngestionService>? ingestMock = null,
-        Mock<IContextSnapshotRepository>? contextSnapshotRepositoryMock = null,
-        Mock<IGraphSnapshotRepository>? graphSnapshotRepositoryMock = null,
-        Mock<IKnowledgeGraphService>? knowledgeGraphServiceMock = null,
-        Action<FindingsSnapshot>? configureFindings = null,
-        AuthorityPipelineOptions? authorityPipelineOptions = null,
-        Action<Mock<IArtifactSynthesisService>>? configureSynthesis = null)
-    {
-        Guid snapshotId = Guid.NewGuid();
-        Guid graphId = Guid.NewGuid();
-        Guid findingsId = Guid.NewGuid();
-        Guid manifestId = Guid.NewGuid();
-        Guid traceId = Guid.NewGuid();
-        Guid bundleId = Guid.NewGuid();
-
-        Mock<IRunRepository> runRepo = new();
-        runRepo
-            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        Mock<IContextIngestionService> ingest = ingestMock ?? new Mock<IContextIngestionService>();
-
-        if (ingestMock is null)
-        {
-            ingest
-                .Setup(s => s.IngestAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(
-                    new ContextSnapshot
-                    {
-                        SnapshotId = snapshotId,
-                        RunId = Guid.Empty,
-                        ProjectId = "p1",
-                        CreatedUtc = TimeProvider.System.UtcNowDateTime()
-                    });
-        }
-
-        Mock<IContextSnapshotRepository> ctxRepo = contextSnapshotRepositoryMock ?? new Mock<IContextSnapshotRepository>();
-        ctxRepo
-            .Setup(r => r.GetLatestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ContextSnapshot?)null);
-        ctxRepo
-            .Setup(r => r.SaveAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        Mock<IKnowledgeGraphService> kg = knowledgeGraphServiceMock ?? new Mock<IKnowledgeGraphService>();
-
-        if (knowledgeGraphServiceMock is null)
-        {
-            kg
-                .Setup(k => k.BuildSnapshotAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(
-                    new GraphSnapshot
-                    {
-                        GraphSnapshotId = graphId,
-                        ContextSnapshotId = snapshotId,
-                        RunId = Guid.Empty,
-                        CreatedUtc = TimeProvider.System.UtcNowDateTime()
-                    });
-        }
-
-        Mock<IGraphSnapshotRepository> graphRepo = graphSnapshotRepositoryMock ?? new Mock<IGraphSnapshotRepository>();
-        graphRepo
-            .Setup(r => r.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        Mock<IFindingsOrchestrator> findingsOrch = new();
-        FindingsSnapshot findingsReturn = new()
-        {
-            FindingsSnapshotId = findingsId,
-            RunId = Guid.Empty,
-            ContextSnapshotId = snapshotId,
-            GraphSnapshotId = graphId,
-            CreatedUtc = TimeProvider.System.UtcNowDateTime()
-        };
-
-        configureFindings?.Invoke(findingsReturn);
-
-        findingsOrch
-            .Setup(f => f.GenerateFindingsSnapshotAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<GraphSnapshot>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(findingsReturn);
-
-        Mock<IFindingsSnapshotRepository> findingsRepo = new();
-        findingsRepo
-            .Setup(r => r.SaveAsync(It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        ManifestDocument manifest = new()
-        {
-            ManifestId = manifestId,
-            RunId = Guid.Empty,
-            ContextSnapshotId = snapshotId,
-            GraphSnapshotId = graphId,
-            FindingsSnapshotId = findingsId,
-            DecisionTraceId = traceId,
-            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            ManifestHash = "h",
-            RuleSetId = "r",
-            RuleSetVersion = "1",
-            RuleSetHash = "rh"
-        };
-
-        DecisionTraceDto trace = RuleAuditTraceDto.From(
-            new RuleAuditTracePayload { DecisionTraceId = traceId, RunId = Guid.Empty, CreatedUtc = TimeProvider.System.UtcNowDateTime() });
-
-        Mock<IDecisionEngine> decision = new();
-        decision
-            .Setup(d => d.DecideAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<GraphSnapshot>(),
-                It.IsAny<FindingsSnapshot>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((manifest, trace));
-
-        Mock<IDecisionTraceRepository> traceRepo = new();
-        traceRepo
-            .Setup(r => r.SaveAsync(It.IsAny<DecisionTraceDto>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        Mock<IGoldenManifestRepository> manifestRepo = new();
-        manifestRepo
-            .Setup(r => r.SaveAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        SynthesizedArtifact oneArtifact = new()
-        {
-            ArtifactId = Guid.NewGuid(),
-            Name = "n",
-            ArtifactType = "t",
-            Format = "json",
-            Content = "{}",
-            ContentHash = "x"
-        };
-
-        Mock<IArtifactSynthesisService> synth = new();
-        synth
-            .Setup(s => s.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArtifactBundle
-                {
-                    BundleId = bundleId,
-                    RunId = Guid.Empty,
-                    ManifestId = manifestId,
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-                    Artifacts = [oneArtifact],
-                    Trace = new SynthesisTrace { TraceId = Guid.NewGuid() }
-                });
-        synth
-            .Setup(s => s.SynthesizeAsync(
-                It.IsAny<ManifestDocument>(),
-                It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArtifactBundle
-                {
-                    BundleId = bundleId,
-                    RunId = Guid.Empty,
-                    ManifestId = manifestId,
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-                    Artifacts = [oneArtifact],
-                    Trace = new SynthesisTrace { TraceId = Guid.NewGuid() }
-                });
-
-        configureSynthesis?.Invoke(synth);
-
-        Mock<IArtifactBundleRepository> bundleRepo = new();
-        bundleRepo
-            .Setup(r => r.SaveAsync(It.IsAny<ArtifactBundle>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        Mock<IAuditService> audit = new();
-        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        Mock<IFindingsSnapshotEvaluationConfidenceEnricher> snapshotConfidence = new();
-        snapshotConfidence
-            .Setup(e => e.TryEnrichAsync(It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        Mock<IRunStageOutcomesRepository> stageOutcomes = new();
-        stageOutcomes
-            .Setup(r => r.RecordStageStartedAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<System.Data.IDbConnection>(),
-                It.IsAny<System.Data.IDbTransaction>()))
-            .Returns(Task.CompletedTask);
-        stageOutcomes
-            .Setup(r => r.RecordStageCompletedAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<System.Data.IDbConnection>(),
-                It.IsAny<System.Data.IDbTransaction>()))
-            .Returns(Task.CompletedTask);
-
-        Mock<IGraphSnapshotSqlAuthorityWriter> graphSqlWriter = new();
-        graphSqlWriter
-            .Setup(x => x.SaveAsync(
-                It.IsAny<GraphSnapshot>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<System.Data.IDbConnection>(),
-                It.IsAny<System.Data.IDbTransaction>()))
-            .Returns(Task.CompletedTask);
-
-        Mock<ICosmosGraphSnapshotOutboxRepository> cosmosGraphOutbox = new();
-        cosmosGraphOutbox
-            .Setup(x => x.EnqueueAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        Mock<IOptionsMonitor<CosmosDbOptions>> cosmosDb = new();
-        cosmosDb.SetupGet(m => m.CurrentValue).Returns(new CosmosDbOptions());
-
-        Mock<IOptionsMonitor<AuthorityPipelineOptions>> apPipeline = new();
-        apPipeline.Setup(m => m.CurrentValue).Returns(authorityPipelineOptions ?? new AuthorityPipelineOptions());
-
-        Mock<ITechnologyLedgerRepository> ledgerRepo = new();
-        ledgerRepo
-            .Setup(r => r.GetByRunIdAsync(
-                It.IsAny<ScopeContext>(),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-
-        return (new AuthorityPipelineStagesExecutor(
-            runRepo.Object,
-            ingest.Object,
-            ctxRepo.Object,
-            kg.Object,
-            graphRepo.Object,
-            graphSqlWriter.Object,
-            cosmosGraphOutbox.Object,
-            findingsOrch.Object,
-            findingsRepo.Object,
-            decision.Object,
-            traceRepo.Object,
-            manifestRepo.Object,
-            synth.Object,
-            bundleRepo.Object,
-            ledgerRepo.Object,
-            audit.Object,
-            cosmosDb.Object,
-            apPipeline.Object,
-            snapshotConfidence.Object,
-            stageOutcomes.Object,
-            Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IAuthorityClosedLoopStrengtheningPass>(),
-            Mock.Of<IIntegrationEventOutboxRepository>(),
-            Mock.Of<IIntegrationEventPublisher>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
-            CreatePublicSiteOptionsMonitor(),
-            NullLogger<AuthorityPipelineStagesExecutor>.Instance), decision, audit);
-    }
-
-    private static IOptionsMonitor<PublicSiteOptions> CreatePublicSiteOptionsMonitor()
-    {
-        Mock<IOptionsMonitor<PublicSiteOptions>> options = new();
-        options.Setup(o => o.CurrentValue).Returns(new PublicSiteOptions());
-
-        return options.Object;
     }
 
     private sealed record HistogramMeasurement([UsedImplicitly] double Value, List<KeyValuePair<string, object?>> Tags);

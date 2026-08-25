@@ -9,7 +9,7 @@ using ArchLucid.Persistence.Models;
 namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 /// <summary>
-///     Mutable state passed through ordered <see cref="IAuthorityPipelineStage" /> executions inside one unit of work.
+///     Mutable state passed through ordered authority pipeline stage handlers inside one unit of work.
 /// </summary>
 public sealed class AuthorityPipelineContext
 {
