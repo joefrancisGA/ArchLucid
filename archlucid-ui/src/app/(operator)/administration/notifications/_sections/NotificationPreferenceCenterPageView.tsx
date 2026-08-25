@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { NotificationPreferenceCenterEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { StatusTag } from "@/components/StatusTag";
@@ -25,6 +26,10 @@ import {
   NOTIFICATION_PREFERENCE_CENTER_RELATIONS_SECTIONS,
   notificationPreferenceCenterPageSubtitle,
 } from "@/lib/notification-preference-center";
+import {
+  resolveNotificationPreferenceSaveChannelEmphasizedStepId,
+  resolveNotificationPreferenceSaveChannelSteps,
+} from "@/lib/notification-preference-save-channel-checklist";
 import { cn } from "@/lib/utils";
 
 import { NotificationPreferenceCenterBreadcrumb } from "./NotificationPreferenceCenterBreadcrumb";
@@ -40,6 +45,15 @@ import {
 export function NotificationPreferenceCenterPageView() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { statusByChannelId, loading, loadFailed, refresh } = useNotificationChannelDeliveryStatus();
+  const channelReady = (channelId: string): boolean => statusByChannelId[channelId]?.kind === "ready";
+  const saveChannelChecklistInput = {
+    channelsReviewed: !loading && !loadFailed,
+    primaryChannelsReady: channelReady("digests") && channelReady("alerts-inbox"),
+    allChannelsReady: NOTIFICATION_PREFERENCE_CHANNELS.every((channel) => channelReady(channel.id)),
+  };
+  const saveChannelSteps = resolveNotificationPreferenceSaveChannelSteps(saveChannelChecklistInput);
+  const saveChannelEmphasizedStepId =
+    resolveNotificationPreferenceSaveChannelEmphasizedStepId(saveChannelChecklistInput);
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="notification-preference-center-page">
@@ -100,6 +114,13 @@ export function NotificationPreferenceCenterPageView() {
         ) : loading ? (
           <NotificationPreferenceCenterLoadingSkeleton />
         ) : (
+          <>
+            <IntegrationConnectChecklist
+              title="Save channel checklist"
+              steps={saveChannelSteps}
+              emphasizedStepId={saveChannelEmphasizedStepId}
+              testIdPrefix="notification-preference-save-channel"
+            />
           <div
             className="grid gap-4 md:grid-cols-2"
             data-testid="notification-preference-channel-grid"
@@ -153,6 +174,7 @@ export function NotificationPreferenceCenterPageView() {
               );
             })}
           </div>
+          </>
         )}
 
         <details
