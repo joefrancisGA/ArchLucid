@@ -50,6 +50,7 @@ internal static class RunRecordParameters
             run.LastFailureReason,
             run.EngineProvenanceJson,
             run.GovernanceScopeJson,
+            run.ImproveLoopEvidenceJson,
             run.PackageOrigin
         };
     }
@@ -93,6 +94,7 @@ internal static class RunRecordParameters
             run.LastFailureReason,
             run.EngineProvenanceJson,
             run.GovernanceScopeJson,
+            run.ImproveLoopEvidenceJson,
             run.PackageOrigin,
             run.RowVersion
         };

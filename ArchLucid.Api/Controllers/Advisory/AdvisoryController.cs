@@ -51,11 +51,15 @@ public sealed class AdvisoryController(
     IRecommendationRepository recommendationRepository,
     IAuditService auditService,
     ILogger<AdvisoryController> logger,
-    IRecommendationImproveLoopCoordinator? recommendationImproveLoopCoordinator = null)
+    IRecommendationImproveLoopCoordinator? recommendationImproveLoopCoordinator = null,
+    IRecommendationImproveLoopEvidencePersister? recommendationImproveLoopEvidencePersister = null)
     : ControllerBase
 {
     private readonly IRecommendationImproveLoopCoordinator? _recommendationImproveLoopCoordinator =
         recommendationImproveLoopCoordinator;
+
+    private readonly IRecommendationImproveLoopEvidencePersister? _recommendationImproveLoopEvidencePersister =
+        recommendationImproveLoopEvidencePersister;
 
     private readonly ILogger<AdvisoryController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -217,6 +221,14 @@ public sealed class AdvisoryController(
             && request.Action is RecommendationActionType.Accept or RecommendationActionType.MarkImplemented)
         {
             improveLoop = await _recommendationImproveLoopCoordinator.TryApplyAsync(updated, ct).ConfigureAwait(false);
+
+            if (_recommendationImproveLoopEvidencePersister is not null)
+            {
+                ScopeContext scope = scopeProvider.GetCurrentScope();
+                await _recommendationImproveLoopEvidencePersister
+                    .PersistAsync(scope, updated.RunId, improveLoop, ct)
+                    .ConfigureAwait(false);
+            }
         }
 
         string eventType = request.Action switch

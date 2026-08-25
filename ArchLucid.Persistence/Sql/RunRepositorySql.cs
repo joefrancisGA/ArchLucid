@@ -160,6 +160,7 @@ internal static class RunRepositorySql
                                      LastFailureReason = @LastFailureReason,
                                      EngineProvenanceJson = @EngineProvenanceJson,
                                      GovernanceScopeJson = @GovernanceScopeJson,
+                                     ImproveLoopEvidenceJson = @ImproveLoopEvidenceJson,
                                      PackageOrigin = @PackageOrigin
                                  OUTPUT inserted.RowVersionStamp INTO @RunUpdateOutput
                                  WHERE RunId = @RunId

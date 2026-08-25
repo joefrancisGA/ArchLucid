@@ -204,6 +204,13 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>JSON-serialized last recommendation improve-loop evidence for operator replay.</summary>
+    public string? ImproveLoopEvidenceJson
+    {
+        get;
+        set;
+    }
+
     /// <summary>Count of user/API-initiated retries after <see cref="LegacyRunStatus" /> <c>Failed</c>.</summary>
     public int RetryCount
     {
