@@ -57,11 +57,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
     ArchitectureRunCreateIdempotencyHelper idempotencyHelper,
     ArchitectureRunCreatePersistenceHelper persistenceHelper,
-    IAuditService auditService,
-    IUsageMeteringService usageMetering,
+    ArchitectureRunCreatePostCreateHooks postCreateHooks,
     TimeProvider timeProvider,
-    DefaultPolicyPackCloudBaselineApplicator defaultPolicyPackCloudBaselineApplicator,
-    IArchitectureIdentityService architectureIdentityService,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
     private readonly IOptions<ArchitectureRunCreateOptions> _createRunOptions = createRunOptions ?? throw new ArgumentNullException(nameof(createRunOptions));
@@ -69,10 +66,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
     private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
         requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
 
-    private readonly DefaultPolicyPackCloudBaselineApplicator _defaultPolicyPackCloudBaselineApplicator =
-        defaultPolicyPackCloudBaselineApplicator ?? throw new ArgumentNullException(nameof(defaultPolicyPackCloudBaselineApplicator));
-
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly ArchitectureRunCreatePostCreateHooks _postCreateHooks =
+        postCreateHooks ?? throw new ArgumentNullException(nameof(postCreateHooks));
 
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
@@ -116,13 +111,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     private readonly ArchitectureRunCreatePersistenceHelper _persistenceHelper =
         persistenceHelper ?? throw new ArgumentNullException(nameof(persistenceHelper));
 
-    private readonly IUsageMeteringService _usageMetering =
-        usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
-
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-
-    private readonly IArchitectureIdentityService _architectureIdentityService =
-        architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
 
     /// <inheritdoc/>
     public async Task<CreateRunResult> CreateRunAsync(ArchitectureRequest request, CreateRunIdempotencyState? idempotency = null,
@@ -498,149 +487,9 @@ public sealed class ArchitectureRunCreateOrchestrator(
         await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunCreated, actor, coordination.Run.RunId,
             $"RequestId={request.RequestId}; Environment={request.Environment}; SystemName={request.SystemName}", cancellationToken);
 
-        ScopeContext scopeCtx = _scopeContextProvider.GetCurrentScope();
+        await _postCreateHooks.ExecuteAsync(request, coordination, actor, cancellationToken);
 
-        if (!TryParseCoordinationRunGuid(coordination.Run.RunId, out Guid runGuid))
-            runGuid = Guid.Empty;
-
-        AuditEvent requestCreated = scopeCtx.CreateAuditEvent(
-            AuditEventTypes.RequestCreated,
-            actor,
-            actor,
-            JsonSerializer.Serialize(
-                new
-                {
-                    requestId = request.RequestId,
-                    runId = coordination.Run.RunId,
-                    systemName = request.SystemName,
-                    environment = request.Environment,
-                    cloudProvider = request.CloudProvider.ToString()
-                }, AuditJsonSerializationOptions.Instance));
-        requestCreated.RunId = runGuid == Guid.Empty ? null : runGuid;
-        requestCreated.ExplicitActor = true;
-
-        await DurableAuditLogRetry.TryLogAsync(
-            ct => _auditService.LogAsync(requestCreated, ct),
-            _logger,
-            $"{AuditEventTypes.RequestCreated}:{LogSanitizer.Sanitize(coordination.Run.RunId)}",
-            cancellationToken,
-            auditEventTypeForMetrics: AuditEventTypes.RequestCreated);
-
-        AuditEvent requestLocked = scopeCtx.CreateAuditEvent(
-            AuditEventTypes.RequestLocked,
-            actor,
-            actor,
-            JsonSerializer.Serialize(
-                new
-                {
-                    requestId = request.RequestId,
-                    runId = coordination.Run.RunId,
-                    rationale =
-                        "Run persisted for this ArchitectureRequest — request is scoped as locked relative to drafts until terminal runs settle."
-                }, AuditJsonSerializationOptions.Instance));
-        requestLocked.RunId = runGuid == Guid.Empty ? null : runGuid;
-        requestLocked.ExplicitActor = true;
-
-        await DurableAuditLogRetry.TryLogAsync(
-            ct => _auditService.LogAsync(requestLocked, ct),
-            _logger,
-            $"{AuditEventTypes.RequestLocked}:{LogSanitizer.Sanitize(coordination.Run.RunId)}",
-            cancellationToken,
-            auditEventTypeForMetrics: AuditEventTypes.RequestLocked);
-
-        if (_logger.IsEnabled(LogLevel.Information))
-            _logger.LogInformation("Architecture run created: RunId={RunId}, TaskCount={TaskCount}", LogSanitizer.Sanitize(coordination.Run.RunId),
-                coordination.Tasks.Count);
-        await TryRecordArchitectureRunMeteringAsync(_scopeContextProvider.GetCurrentScope(), coordination.Run.RunId, cancellationToken);
-        await TryApplyCloudPolicyPackBaselineAsync(request, cancellationToken);
-        await TryLinkReviewRunArchitectureIdentityAsync(request, coordination.Run.RunId, cancellationToken);
         return new CreateRunResult { Run = coordination.Run, EvidenceBundle = coordination.EvidenceBundle, Tasks = coordination.Tasks };
-    }
-
-    private async Task TryLinkReviewRunArchitectureIdentityAsync(
-        ArchitectureRequest request,
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        if (!TryParseCoordinationRunGuid(runId, out Guid reviewRunGuid))
-            return;
-
-        try
-        {
-            await _architectureIdentityService
-                .TryEnsureReviewRunLinkedAsync(_scopeContextProvider.GetCurrentScope(), reviewRunGuid, request, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning(
-                    ex,
-                    "Review run architecture identity link failed for RunId={RunId}.",
-                    LogSanitizer.Sanitize(runId));
-            }
-        }
-    }
-
-    private async Task TryApplyCloudPolicyPackBaselineAsync(
-        ArchitectureRequest request,
-        CancellationToken cancellationToken)
-    {
-        if (request.CloudProvider is not (CloudProvider.Aws or CloudProvider.Gcp))
-            return;
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        if (scope.TenantId == Guid.Empty)
-            return;
-
-        try
-        {
-            await _defaultPolicyPackCloudBaselineApplicator.TryApplyAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                request.CloudProvider,
-                cancellationToken);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning(
-                    ex,
-                    "Cloud policy pack baseline adjustment failed for architecture run (CloudProvider={CloudProvider}).",
-                    request.CloudProvider);
-            }
-        }
-    }
-
-    private async Task TryRecordArchitectureRunMeteringAsync(ScopeContext scope, string runId, CancellationToken cancellationToken)
-    {
-        if (scope.TenantId == Guid.Empty)
-            return;
-        try
-        {
-            await _usageMetering
-                .RecordAsync(
-                    new UsageEvent
-                    {
-                        TenantId = scope.TenantId,
-                        WorkspaceId = scope.WorkspaceId,
-                        ProjectId = scope.ProjectId,
-                        Kind = UsageMeterKind.ArchitectureRun,
-                        Quantity = 1,
-                        RecordedUtc = _timeProvider.GetUtcNow(),
-                        CorrelationId = runId,
-                        IdempotencyKey = UsageEventIdempotencyKeys.ForArchitectureRun(runId)
-                    }, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning(ex, "Usage metering failed for architecture run (tenant {TenantId}).", scope.TenantId);
-        }
     }
 
     private static bool TryParseCoordinationRunGuid(string runId, out Guid runGuid) =>
