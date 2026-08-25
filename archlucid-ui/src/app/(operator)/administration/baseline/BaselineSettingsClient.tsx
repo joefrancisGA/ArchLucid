@@ -17,6 +17,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { BaselineSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -45,6 +46,10 @@ import {
   validateBaselinePeoplePerReview,
   validateBaselineReviewCycleHours,
 } from "@/lib/baseline-settings-present";
+import {
+  resolveBaselineSaveEmphasizedStepId,
+  resolveBaselineSaveSteps,
+} from "@/lib/baseline-save-checklist";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -167,6 +172,7 @@ export function BaselineSettingsClient() {
   const [reviewHours, setReviewHours] = useState("");
   const [reviewNote, setReviewNote] = useState("");
   const [loadedSnapshot, setLoadedSnapshot] = useState<TenantBaselineSnapshot | null>(null);
+  const [baselineSaveComplete, setBaselineSaveComplete] = useState(false);
   const demoMode = isNextPublicDemoMode();
 
   const reviewValidation = useMemo(() => validateBaselineReviewCycleHours(reviewHours), [reviewHours]);
@@ -331,6 +337,7 @@ export function BaselineSettingsClient() {
       };
 
       showSuccess(resolveBaselineSaveToastMessage(savedDraft));
+      setBaselineSaveComplete(true);
       await load();
     } catch (err) {
       showError("Baseline", err instanceof Error ? err.message : "Request failed.");
@@ -388,6 +395,16 @@ export function BaselineSettingsClient() {
     noteWouldBeDroppedOnSave ? whyDisabledIncompleteInput(BASELINE_REVIEW_NOTE_SAVE_READINESS) : null,
   ]);
   const hasSavedBaseline = loadedSnapshot !== null && hasSavedWorkspaceBaseline(loadedSnapshot);
+  const measurementsEntered =
+    reviewHoursTrimmed.length > 0 || manualPrep.trim().length > 0 || people.trim().length > 0;
+  const validationReady = !hasValidationErrors && !noteWouldBeDroppedOnSave;
+  const baselineSaveChecklistInput = {
+    measurementsEntered,
+    validationReady,
+    saveComplete: baselineSaveComplete || hasSavedBaseline,
+  };
+  const baselineSaveSteps = resolveBaselineSaveSteps(baselineSaveChecklistInput);
+  const baselineSaveEmphasizedStepId = resolveBaselineSaveEmphasizedStepId(baselineSaveChecklistInput);
 
   return (
     <OperatorPageContainer variant="settings" className="space-y-4">
@@ -517,6 +534,13 @@ export function BaselineSettingsClient() {
               </div>
             </div>
           </section>
+
+          <IntegrationConnectChecklist
+            title="Save checklist"
+            steps={baselineSaveSteps}
+            emphasizedStepId={baselineSaveEmphasizedStepId}
+            testIdPrefix="baseline-save"
+          />
 
           <form onSubmit={onSave} className="space-y-4">
             <section
