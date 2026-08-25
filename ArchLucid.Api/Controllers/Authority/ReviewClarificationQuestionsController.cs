@@ -97,7 +97,7 @@ public sealed class ReviewClarificationQuestionsController(
             cancellationToken).ConfigureAwait(false);
 
         IncrementalReReviewResult? reReview = await clarificationAnswerReReviewCoordinator
-            .TryRunAfterApplyAsync(scope, runId, applied, cancellationToken)
+            .TryRunAfterApplyAsync(scope, runId, applied, request.Answers, cancellationToken)
             .ConfigureAwait(false);
 
         int mergedFindingCount = reReview?.SpecialistResults

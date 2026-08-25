@@ -18,6 +18,7 @@ public interface IClarificationAnswerReReviewCoordinator
         ScopeContext scope,
         Guid runId,
         int appliedAnswerCount,
+        IReadOnlyDictionary<string, string> answers,
         CancellationToken cancellationToken = default);
 }
 
@@ -53,9 +54,11 @@ public sealed class ClarificationAnswerReReviewCoordinator(
         ScopeContext scope,
         Guid runId,
         int appliedAnswerCount,
+        IReadOnlyDictionary<string, string> answers,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(answers);
 
         if (appliedAnswerCount <= 0
             || runId == Guid.Empty
@@ -69,11 +72,13 @@ public sealed class ClarificationAnswerReReviewCoordinator(
         if (model is null)
             return null;
 
+        List<string> affectedElementIds = ClarificationAnswerAffectedElementResolver.Resolve(answers);
+
         ReReviewScope reReviewScope = new()
         {
+            AffectedElementIds = affectedElementIds,
             IncludeGlobalInvariantChecks = true,
-            FullReReview = true,
-            Trigger = ReReviewTrigger.MajorTopologyChange,
+            FullReReview = false,
         };
 
         DateTime startedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;

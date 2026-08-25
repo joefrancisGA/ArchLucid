@@ -27,6 +27,7 @@ public sealed class ClarificationAnswerReReviewCoordinatorTests
         new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() },
         Guid.NewGuid(),
         0,
+        new Dictionary<string, string>(),
         CancellationToken.None);
 
     result.Should().BeNull();
