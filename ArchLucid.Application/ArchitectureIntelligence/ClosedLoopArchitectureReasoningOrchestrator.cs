@@ -33,6 +33,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess;
     private readonly ITechnologyLedgerRepository? _technologyLedgerRepository;
     private readonly IScopeContextProvider? _scopeContextProvider;
+    private readonly IAuthorityFindingsSnapshotUpdater? _authorityFindingsSnapshotUpdater;
 
     public ClosedLoopArchitectureReasoningOrchestrator(
         IImmutableSourceStore sourceStore,
@@ -55,7 +56,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         IArchitectureIntelligencePersistence? persistence = null,
         IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
         ITechnologyLedgerRepository? technologyLedgerRepository = null,
-        IScopeContextProvider? scopeContextProvider = null)
+        IScopeContextProvider? scopeContextProvider = null,
+        IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater = null)
     {
         _sourceStore = sourceStore ?? throw new ArgumentNullException(nameof(sourceStore));
         _ontologyService = ontologyService ?? throw new ArgumentNullException(nameof(ontologyService));
@@ -79,6 +81,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         _knowledgeModelAccess = knowledgeModelAccess;
         _technologyLedgerRepository = technologyLedgerRepository;
         _scopeContextProvider = scopeContextProvider;
+        _authorityFindingsSnapshotUpdater = authorityFindingsSnapshotUpdater;
     }
 
     public async Task<ClosedLoopReasoningResult> RunAsync(
@@ -285,6 +288,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                     scope,
                     _specialistReviewService,
                     cancellationToken).ConfigureAwait(false);
+
+                await TryMergeClosedLoopReReviewAsync(request, reReview, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -356,6 +361,31 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         }
 
         return result;
+    }
+
+    private async Task TryMergeClosedLoopReReviewAsync(
+        ClosedLoopReasoningRequest request,
+        IncrementalReReviewResult reReview,
+        CancellationToken cancellationToken)
+    {
+        if (_authorityFindingsSnapshotUpdater is null
+            || _scopeContextProvider is null
+            || !Guid.TryParse(request.RunId, out Guid runId))
+            return;
+
+        List<SpecialistReviewFinding> incrementalFindings = reReview.SpecialistResults
+            .SelectMany(static result => result.Findings)
+            .ToList();
+
+        if (incrementalFindings.Count == 0)
+            return;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<string> mergedFindingIds = await _authorityFindingsSnapshotUpdater
+            .MergeSpecialistFindingsAsync(scope, runId, incrementalFindings, cancellationToken)
+            .ConfigureAwait(false);
+
+        reReview.MergedFindingIds = mergedFindingIds;
     }
 
     private async Task ApplyProductPublishAsync(
