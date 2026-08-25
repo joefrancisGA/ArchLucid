@@ -1892,11 +1892,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 5
-- **bugs-found:** 7
+- **hunts:** 6
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — data archival health check stayed registered when offloaded; SCIM rotation reminder on Api role; LLM budget reclaim without leader election; value report async poll failed across replicas
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — Combined role omitted Service Bus integration event consumer registration
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1916,6 +1916,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ScimTokenRotationReminderJob` registered on Api role — **hit 2026-08-24:** split Api+Worker deployments duplicated daily rotation admin notices; regression in `AddArchLucidApplicationServices_Api_role_does_not_register_ScimTokenRotationReminderJob`
 - [x] (proven) `LlmMonthlyTenantBudgetReservationReclaimHostedService` lacked leader election — **hit 2026-08-24:** every replica reclaimed and inflated `LlmMonthlyBudgetReservationReclaimedTotal`; now uses `HostLeaderElectionCoordinator` + `hosted:llm-monthly-tenant-budget-reservation-reclaim`
 - [x] (proven) `InMemoryValueReportJobQueue` poll failed across service instances — **hit 2026-08-24:** enqueue/poll used per-process memory only; regression in `InMemoryValueReportJobQueue_poll_reads_job_enqueued_on_another_instance_via_distributed_cache`
+- [x] (hunt-ready) `OutboxProcessorsCompositionRegistrar.RegisterIntegrationEventConsumer` gates on `hostingRole == Worker` only — sibling outbox/advisory registrars include `Combined`, so default Combined hosts never register `AzureServiceBusIntegrationEventConsumer` or integration handlers.
+- [x] (proven) Combined role omitted Service Bus integration event consumer — **hit 2026-08-25:** `RegisterIntegrationEventConsumer` returned before wiring handlers/consumer when role was `Combined`; fixed to match Worker (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Combined_role_registers_ServiceBus_integration_event_consumer`).
 
 ---
 

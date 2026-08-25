@@ -5,6 +5,7 @@ using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Integration;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.TestSupport;
@@ -288,6 +289,43 @@ public sealed class ContainerJobsOffloadRegistrationTests
             && d.ImplementationType == typeof(ScimTokenRotationReminderJob));
 
         hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Combined_role_registers_ServiceBus_integration_event_consumer()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Combined";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Combined);
+
+        bool hasConsumer = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AzureServiceBusIntegrationEventConsumer));
+
+        hasConsumer.Should().BeTrue(
+            "Combined hosts background services and must consume integration events like Worker when not container-offloaded");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_does_not_register_ServiceBus_integration_event_consumer()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasConsumer = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AzureServiceBusIntegrationEventConsumer));
+
+        hasConsumer.Should().BeFalse();
     }
 
     private static Dictionary<string, string?> CreateWorkerCompositionDictionary()

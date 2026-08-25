@@ -139,7 +139,7 @@ internal static class OutboxProcessorsCompositionRegistrar
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
-        if (hostingRole is not ArchLucidHostingRole.Worker)
+        if (hostingRole is not (ArchLucidHostingRole.Worker or ArchLucidHostingRole.Combined))
             return;
 
 
