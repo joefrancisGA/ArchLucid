@@ -1510,11 +1510,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — snapshot muted severity buckets; unresolved PilotStrict pass; scorecard ready-for-commit counted as committed; buyer proof summary omitted governed coverage
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — buyer proof ZIP omitted extractor collection timestamp (ROI freshness PASS vs API HOLD); pilot-run-deltas JSON used PascalCase and failed commit guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1528,6 +1528,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Unresolved PilotStrict trace query reported satisfied sponsor evidence — **hit 2026-08-24:** `PilotProofPackageCompletenessMapper` treated `AgentOutputPilotStrictSignalsResolved=false` as pass; fixed with explicit resolved check plus gate soft-gap (`Build_UnresolvedPilotStrictSignals_FlagsEvidenceUnsatisfied`).
 - [x] (proven) `PilotScorecardBuilder` counted `ReadyForCommit` runs with manifest ids as committed — **hit 2026-08-24:** predicate used manifest version/id only; fixed to require `LegacyRunStatus == Committed` (`PilotScorecardBuilderTests.BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted`).
 - [x] (proven) Buyer proof `artifact-and-proof-summary.md` omitted governed-finding coverage — **hit 2026-08-24:** `BuyerProofPackArtifactSummaryBuilder` ignored `governedFindingCoverage` in deltas JSON (`BuyerProofPackArtifactSummaryBuilderTests.Build_WhenGovernedFindingCoveragePresent_EmitsGovernedCoverageSection`).
+- [x] (proven) `BuyerProofPackBuilder` hard-coded `extractorCollectionTimestampUtc: null` — **hit 2026-08-25:** sponsor proof ZIP `pilot-run-deltas.json` reported `roiSourceFreshnessDisposition: PASS` while `GET /v1/pilots/runs/{runId}/pilot-run-deltas` returned HOLD for stale extractor + positive savings; fixed by resolving via `RoiCostEvidenceCollectionResolver` (`BuyerProofPackBuilderTests.TryBuildZipAsync_stale_extractor_timestamp_maps_hold_freshness_like_api_path`).
+- [x] (proven) `BuyerProofPackBuilder` serialized `PilotRunDeltasResponse` with default PascalCase — **hit 2026-08-25:** `BuyerProofPackCommitGuard.TryValidateDeltasJson` expects camelCase `proofPackageCompleteness.runInCommittedStatus`, so every ZIP build returned null; fixed with camelCase `JsonSerializerOptions` (`BuyerProofPackCommitGuardTests.TryValidateDeltasJson_accepts_default_serialized_pilot_run_deltas_response`).
 
 ---
 
