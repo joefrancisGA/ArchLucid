@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
+using ArchLucid.Api.Mapping;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application.ArchitectureIntelligence;
@@ -182,7 +183,7 @@ public sealed class AdvisoryController(
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("recommendations/{recommendationId:guid}/action")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [ProducesResponseType(typeof(RecommendationRecordResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RecommendationActionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ApplyRecommendationAction(
@@ -210,10 +211,12 @@ public sealed class AdvisoryController(
             return this.NotFoundProblem($"Recommendation '{recommendationId}' was not found.",
                 ProblemTypes.ResourceNotFound);
 
+        RecommendationImproveLoopResult? improveLoop = null;
+
         if (_recommendationImproveLoopCoordinator is not null
             && request.Action is RecommendationActionType.Accept or RecommendationActionType.MarkImplemented)
         {
-            await _recommendationImproveLoopCoordinator.TryApplyAsync(updated, ct).ConfigureAwait(false);
+            improveLoop = await _recommendationImproveLoopCoordinator.TryApplyAsync(updated, ct).ConfigureAwait(false);
         }
 
         string eventType = request.Action switch
@@ -234,7 +237,11 @@ public sealed class AdvisoryController(
             },
             ct);
 
-        return Ok(ToRecordResponse(updated));
+        return Ok(new RecommendationActionResponse
+        {
+            Recommendation = ToRecordResponse(updated),
+            ImproveLoop = RecommendationImproveLoopResponseMapper.ToEvidenceResponse(improveLoop),
+        });
     }
 
     private static bool IsKnownRecommendationAction(string? action)
