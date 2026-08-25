@@ -80,7 +80,7 @@ public sealed class InMemoryArchitectureIntelligencePersistence : IArchitectureI
         }
 
         string key = BuildModelKey(model.TenantId, model.ModelId);
-        _models[key] = CloneModel(model);
+        _models[key] = ArchitectureKnowledgeModelCloner.Clone(model);
 
         return Task.CompletedTask;
     }
@@ -104,7 +104,7 @@ public sealed class InMemoryArchitectureIntelligencePersistence : IArchitectureI
             return Task.FromResult<ArchitectureKnowledgeModel?>(null);
         }
 
-        return Task.FromResult<ArchitectureKnowledgeModel?>(CloneModel(model));
+        return Task.FromResult<ArchitectureKnowledgeModel?>(ArchitectureKnowledgeModelCloner.Clone(model));
     }
 
     public Task<ArchitectureKnowledgeModel?> GetModelByRunIdAsync(
@@ -125,7 +125,7 @@ public sealed class InMemoryArchitectureIntelligencePersistence : IArchitectureI
             .OrderByDescending(model => model.UpdatedUtc)
             .FirstOrDefault();
 
-        return Task.FromResult(latest is null ? null : CloneModel(latest));
+        return Task.FromResult(latest is null ? null : ArchitectureKnowledgeModelCloner.Clone(latest));
     }
 
     private static string BuildSourceKey(string tenantId, string artifactId)
@@ -161,42 +161,6 @@ public sealed class InMemoryArchitectureIntelligencePersistence : IArchitectureI
             Version = artifact.Version,
             BlobUri = artifact.BlobUri,
             Metadata = new Dictionary<string, string>(artifact.Metadata),
-        };
-    }
-
-    private static ArchitectureKnowledgeModel CloneModel(ArchitectureKnowledgeModel model)
-    {
-        return new ArchitectureKnowledgeModel
-        {
-            ModelId = model.ModelId,
-            TenantId = model.TenantId,
-            RunId = model.RunId,
-            SchemaVersion = model.SchemaVersion,
-            CreatedUtc = model.CreatedUtc,
-            UpdatedUtc = model.UpdatedUtc,
-            Elements = model.Elements.Select(element => new ArchitectureModelElement
-            {
-                ElementId = element.ElementId,
-                Kind = element.Kind,
-                Name = element.Name,
-                Description = element.Description,
-                ExtractionConfidence = element.ExtractionConfidence,
-                SourcePassageIds = element.SourcePassageIds.ToList(),
-                RelatedElementIds = element.RelatedElementIds.ToList(),
-                Properties = new Dictionary<string, string>(element.Properties),
-                Provenance = new ClaimProvenance
-                {
-                    Origin = element.Provenance.Origin,
-                    SupportStatus = element.Provenance.SupportStatus,
-                    Confidence = element.Provenance.Confidence,
-                    SourceArtifactId = element.Provenance.SourceArtifactId,
-                    PassageLocator = element.Provenance.PassageLocator,
-                    Notes = element.Provenance.Notes,
-                },
-            }).ToList(),
-            DeclaredPriorities = model.DeclaredPriorities.ToList(),
-            FramingAnswers = new Dictionary<string, string>(model.FramingAnswers),
-            IsProvisionalSynthesis = model.IsProvisionalSynthesis,
         };
     }
 

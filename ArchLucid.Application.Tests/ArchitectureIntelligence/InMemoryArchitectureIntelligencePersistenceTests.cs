@@ -85,4 +85,49 @@ public sealed class InMemoryArchitectureIntelligencePersistenceTests
         stored.Should().NotBeNull();
         stored!.IsProvisionalSynthesis.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task GetModel_returns_deep_clone_with_lifecycle_scope_and_passage_locator()
+    {
+        InMemoryArchitectureIntelligencePersistence persistence = new();
+        SourcePassageLocator locator = new()
+        {
+            ArtifactId = "artifact-1",
+            StartOffset = 4,
+            EndOffset = 12,
+            Quote = "quoted text",
+        };
+        ClaimProvenance provenance = new()
+        {
+            Origin = ClaimOrigin.UserAsserted,
+            SupportStatus = SupportStatus.DirectlyEstablished,
+            PassageLocator = locator,
+        };
+
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-clone",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "element-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "API",
+                    LifecycleScope = ArchitectureLifecycleScope.Transition,
+                    Provenance = provenance,
+                },
+            ],
+        };
+
+        await persistence.SaveModelAsync(model);
+
+        ArchitectureKnowledgeModel? stored = await persistence.GetModelAsync("tenant-1", "model-clone");
+
+        stored.Should().NotBeNull();
+        stored!.Elements.Single().LifecycleScope.Should().Be(ArchitectureLifecycleScope.Transition);
+        stored.Elements.Single().Provenance.PassageLocator.Should().NotBeSameAs(locator);
+        stored.Elements.Single().Provenance.PassageLocator!.Quote.Should().Be("quoted text");
+    }
 }
