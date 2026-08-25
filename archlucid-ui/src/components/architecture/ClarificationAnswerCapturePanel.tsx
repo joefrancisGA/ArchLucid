@@ -5,16 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  admitDraftRequest,
-  createDraftRequest,
-  patchDraftRequest,
-  submitDraftRequest,
-} from "@/lib/api/draft-intake-api";
-import { architectureCreationDefaultActorSet } from "@/lib/architecture/architecture-creation-init";
-import { structuredBriefToPatchPayload } from "@/lib/architecture/architecture-draft-structured-brief";
-import { projectClarificationAnswersToConfirmedAssumptions } from "@/lib/architecture/clarification-answer-projection";
-import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { applyKnowledgeModelClarificationAnswers } from "@/lib/api/knowledge-model-clarification-api";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
@@ -53,36 +44,17 @@ export function ClarificationAnswerCapturePanel(
     setBusy(true);
 
     try {
-      const created = await createDraftRequest(props.freeTextIntent, "start-review", props.priorRunId);
-      const confirmedAssumptions = projectClarificationAnswersToConfirmedAssumptions(answers);
-
-      await patchDraftRequest(created.draftId, {
-        freeTextIntent: props.freeTextIntent,
-        actorSet: architectureCreationDefaultActorSet(),
-        workflowIntent: "start-review",
-        structuredBrief: structuredBriefToPatchPayload({
-          confirmedConstraints: [],
-          confirmedAssumptions,
-          confirmedRequiredCapabilities: [],
-          suggestedConstraints: [],
-          suggestedAssumptions: [],
-          suggestedRequiredCapabilities: [],
-          qualityAttribute: "",
-          failureModeNote: "",
-          operationalOwner: "",
-        }),
-      });
-
-      await admitDraftRequest(created.draftId);
-      const submitted = await submitDraftRequest(created.draftId);
-      showSuccess("Clarification answers submitted for the next review run.");
-      window.location.assign(buildReviewGenerationRedirect(submitted.runId, "socratic-intake"));
+      const result = await applyKnowledgeModelClarificationAnswers(props.runId, answers);
+      showSuccess(
+        `Applied ${result.appliedCount} clarification answer(s) to the architecture knowledge model.`,
+      );
+      window.location.reload();
     } catch (error) {
       showError("Clarification answers", error instanceof Error ? error.message : "Submit failed.");
     } finally {
       setBusy(false);
     }
-  }, [allAnswersValid, answers, props.freeTextIntent, props.priorRunId]);
+  }, [allAnswersValid, answers, props.runId]);
 
   if (props.questions.length === 0) {
     return null;
@@ -98,7 +70,7 @@ export function ClarificationAnswerCapturePanel(
           Answer findings-derived clarifications
         </h3>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Capture inline answers here to start a clarification round. Each answer needs at least {MIN_ANSWER_CHARS}{" "}
+          Answers update κ on this review and trigger a scoped re-review. Each answer needs at least {MIN_ANSWER_CHARS}{" "}
           characters.
         </p>
       </div>
@@ -128,7 +100,7 @@ export function ClarificationAnswerCapturePanel(
       </ul>
 
       <Button type="button" disabled={!allAnswersValid || busy} onClick={() => void submitAnswers()}>
-        Submit clarification round
+        Apply answers and re-review
       </Button>
     </section>
   );
