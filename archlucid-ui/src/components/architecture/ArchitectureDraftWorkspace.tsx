@@ -33,8 +33,8 @@ import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStar
 import { Card, CardContent } from "@/components/ui/card";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { useArchitectureDraftWorkspace } from "@/hooks/use-architecture-draft-workspace";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
-import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useReviewStartNavigationProgress } from "@/hooks/use-review-start-navigation-progress";
 import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
@@ -108,21 +108,39 @@ type ArchitectureDraftWorkspaceProps = {
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const isNewDraft = isArchitectureNewDraftSegment(props.architectureId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const isDetailDraft = !isNewDraft;
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
-  const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
-  const [loading, setLoading] = useState(!isNewDraft);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [draft, setDraft] = useState<DraftRequestResponse | null>(null);
-  const [fields, setFields] = useState({
-    freeTextIntent: "",
-    businessOutcome: "",
-    systemName: "",
-    structuredBrief: emptyArchitectureDraftStructuredBrief(),
+  const acceptServerBaselineRef = useRef<
+    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string) => void
+  >(() => undefined);
+  const onDraftHydratedRef = useRef<(loaded: DraftRequestResponse, formState: ArchitectureDraftFieldState) => void>(
+    (loaded, formState) => {
+      acceptServerBaselineRef.current(formState, loaded.updatedUtc);
+    },
+  );
+  const {
+    isNewDraft,
+    loading,
+    loadError,
+    draft,
+    setDraft,
+    fields,
+    setFields,
+    actorSet,
+    setActorSet,
+    handoffAcknowledged,
+    setHandoffAcknowledged,
+    resolvedDraftId,
+    setResolvedDraftId,
+    linkedReviewId,
+    handoffEditorLocked,
+    blocksLlmExecution,
+    loadDraft,
+    applyLoadedDraftToForm,
+  } = useArchitectureDraftWorkspace({
+    architectureId: props.architectureId,
+    onDraftHydratedRef,
   });
-  const [actorSet, setActorSet] = useState<ActorSet>(() => architectureCreationDefaultActorSet());
   const [exitPending, setExitPending] = useState(false);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
@@ -130,13 +148,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [actorSuggestionGateRequestId, setActorSuggestionGateRequestId] = useState(0);
   const [startReviewError, setStartReviewError] = useState<string | null>(null);
   const [saveActionError, setSaveActionError] = useState<string | null>(null);
-  const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [unlockBusy, setUnlockBusy] = useState(false);
-  const [resolvedDraftId, setResolvedDraftId] = useState<string | null>(null);
+  const isDetailDraft = !isNewDraft;
   const [qualityAttributesEncouragementOpen, setQualityAttributesEncouragementOpen] = useState(false);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
-  const loadDraftInFlightRef = useRef<Promise<void> | null>(null);
   const syncDraftInFlightRef = useRef<Promise<void> | null>(null);
   const draftLifecycleRef = useRef<{
     status: DraftRequestResponse["status"] | null;
@@ -145,10 +161,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     status: null,
     spawnedRunId: null,
   });
-  const loadDraftRef = useRef<() => Promise<void>>(async () => undefined);
+  const loadDraftRef = useRef(loadDraft);
   const reviewStartProgress = useReviewStartNavigationProgress();
 
-  const linkedReviewId = architectureDraftSpawnedRunId(draft);
   const linkedReviewSummaryQuery = useRunSummaryQuery(linkedReviewId ?? "", {
     enabled: linkedReviewId !== null,
   });
@@ -167,7 +182,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
     return "Untitled review";
   }, [linkedReviewId, linkedReviewSummaryQuery.data, linkedReviewSummaryQuery.isError]);
-  const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
   const intakeModeActive = isArchitectureDraftInReviewIntake(draft?.status);
   const briefFrozen = isArchitectureDraftBriefFrozen(draft?.status);
   const canUnlockBrief = architectureDraftAllowsBriefUnlock(draft?.status);
@@ -191,25 +205,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       setResolvedDraftId(draftId);
       replaceArchitectureCreationUrlWithoutNavigation(draftId);
     },
-    [],
+    [setResolvedDraftId],
   );
-
-  const applyLoadedDraftToForm = useCallback((loaded: DraftRequestResponse) => {
-    const formState = applyArchitectureCreationDraftToFormState(loaded);
-    setDraft(loaded);
-    setFields(formState);
-    setActorSet(
-      loaded.document.actorSet.actors.length > 0
-        ? loaded.document.actorSet
-        : architectureCreationDefaultActorSet(),
-    );
-
-    return formState;
-  }, []);
-
-  const acceptServerBaselineRef = useRef<
-    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string) => void
-  >(() => undefined);
 
   const handleDraftLoaded = useCallback(
     (loaded: DraftRequestResponse) => {
@@ -295,68 +292,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     setStartReviewError(null);
   }, [fields, scopeGateOpen]);
 
-  const loadDraft = useCallback(async () => {
-    if (isNewDraft) {
-      return;
-    }
-
-    if (loadDraftInFlightRef.current !== null) {
-      return loadDraftInFlightRef.current;
-    }
-
-    const loadPromise = (async () => {
-      setLoading(true);
-      setLoadError(null);
-
-      try {
-        const loaded = await queryClient.fetchQuery({
-          queryKey: operatorQueryKeys.architectureDraft(props.architectureId),
-          queryFn: () => getDraftRequest(props.architectureId),
-          staleTime: OPERATOR_QUERY_STALE_MS,
-        });
-
-        if (loaded.document.workflowIntent !== undefined && loaded.document.workflowIntent !== CREATE_ARCHITECTURE_INTENT) {
-          // Draft exists but is not a create-architecture draft — still allow editing with create intent on save.
-        }
-
-        const formState = applyLoadedDraftToForm(loaded);
-        // Match autosave baseline to the hydrated form so reload does not look "unsaved"
-        // and accidentally PATCH empty system name / business outcome over the server copy.
-        acceptServerBaselineRef.current(formState, loaded.updatedUtc);
-        setHandoffAcknowledged(isArchitectureDraftHandoffAcknowledged(props.architectureId));
-        upsertArchitectureDraftRegistryEntry(
-          buildArchitectureDraftRegistryEntry(loaded, {
-            linkedReviewId: architectureDraftSpawnedRunId(loaded),
-          }),
-        );
-      } catch (err) {
-        if (isApiRequestError(err) && err.httpStatus === 429) {
-          const waitSec = err.retryAfterSeconds;
-          const waitHint =
-            waitSec !== null && waitSec > 0
-              ? ` Wait about ${waitSec} second${waitSec === 1 ? "" : "s"}, then retry.`
-              : " Wait a short time, then retry.";
-
-          setLoadError(`Too many requests while loading this draft.${waitHint}`);
-        } else {
-          setLoadError("Could not load this architecture draft.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    })();
-
-    loadDraftInFlightRef.current = loadPromise;
-
-    try {
-      await loadPromise;
-    } finally {
-      if (loadDraftInFlightRef.current === loadPromise) {
-        loadDraftInFlightRef.current = null;
-      }
-    }
-  }, [applyLoadedDraftToForm, isNewDraft, props.architectureId, queryClient]);
-
   loadDraftRef.current = loadDraft;
 
   useEffect(() => {
@@ -368,10 +303,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   const syncDraftFromServer = useCallback(async () => {
     if (isNewDraft || loading) {
-      return;
-    }
-
-    if (loadDraftInFlightRef.current !== null) {
       return;
     }
 
@@ -415,15 +346,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         syncDraftInFlightRef.current = null;
       }
     }
-  }, [applyLoadedDraftToForm, isNewDraft, loading, props.architectureId]);
-
-  useEffect(() => {
-    if (isNewDraft) {
-      return;
-    }
-
-    void loadDraftRef.current();
-  }, [isNewDraft, props.architectureId]);
+  }, [applyLoadedDraftToForm, isNewDraft, loading, props.architectureId, queryClient]);
 
   useEffect(() => {
     if (isNewDraft) {
