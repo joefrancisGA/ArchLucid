@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AlertsInboxPickReviewBeforeTriageStrip } from "@/components/alerts/AlertsInboxPickReviewBeforeTriageStrip";
+import { AlertsInboxNextReviewFooterClient } from "@/components/alerts/AlertsInboxNextReviewFooterClient";
 import { AlertsInboxAlertListSection } from "@/components/alerts/AlertsInboxAlertListSection";
 import { AlertsInboxControls } from "@/components/alerts/AlertsInboxControls";
 import { AlertsInboxDialogsDeferred } from "@/components/alerts/alerts-inbox-deferred-chunks";
@@ -127,6 +128,10 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
         }}
       />
         </>
+      ) : null}
+
+      {controller.scopedRunFilterActive ? (
+        <AlertsInboxNextReviewFooterClient runId={controller.scopedRunId} />
       ) : null}
     </OperatorPageContainer>
   );
