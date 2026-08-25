@@ -11,6 +11,7 @@ import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdvisoryRecommendationCard } from "@/components/advisory/AdvisoryRecommendationCard";
+import { RecommendationImproveLoopEvidencePanel } from "@/components/advisory/RecommendationImproveLoopEvidencePanel";
 import { AdvisoryScansTriageFirstPendingStrip } from "@/components/advisory/AdvisoryScansTriageFirstPendingStrip";
 import { AdvisoryRecommendationDispositionDialog } from "@/components/advisory/AdvisoryRecommendationDispositionDialog";
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
@@ -74,7 +75,7 @@ import {
   readOperatorScopeFromStorage,
 } from "@/lib/operator/operator-scope-storage";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
-import type { ImprovementPlan, RecommendationRecord } from "@/types/advisory";
+import type { ImprovementPlan, RecommendationImproveLoopEvidence, RecommendationRecord } from "@/types/advisory";
 
 export type AdvisoryScansContentProps = {
   /** Optional product-run scope from `?runId=` deep links. */
@@ -140,6 +141,8 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   } | null>(null);
   const [dispositionBusy, setDispositionBusy] = useState(false);
   const [dispositionError, setDispositionError] = useState<string | null>(null);
+  const [lastImproveLoopEvidence, setLastImproveLoopEvidence] =
+    useState<RecommendationImproveLoopEvidence | null>(null);
   const [projectLabel, setProjectLabel] = useState("Current project");
   const [lastLoadedUtc, setLastLoadedUtc] = useState<string | null>(null);
   const bootstrapRecommendationsQuery = useAdvisoryRecommendationsQuery(bootstrappedRunId, {
@@ -280,6 +283,10 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
           comment,
           rationale,
         );
+
+        if (actionResult.improveLoop) {
+          setLastImproveLoopEvidence(actionResult.improveLoop);
+        }
 
         if (actionResult.improveLoop?.mergedFindingIds?.length) {
           showSuccess(
@@ -612,6 +619,10 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
             ))}
           </ul>
         </section>
+      ) : null}
+
+      {lastImproveLoopEvidence !== null ? (
+        <RecommendationImproveLoopEvidencePanel evidence={lastImproveLoopEvidence} />
       ) : null}
 
       {recommendations.length > 0 ? (

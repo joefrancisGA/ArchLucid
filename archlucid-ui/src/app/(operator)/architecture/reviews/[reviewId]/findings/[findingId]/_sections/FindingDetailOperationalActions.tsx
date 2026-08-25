@@ -6,7 +6,8 @@ import Link from "next/link";
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { FindingMergeConflictResolvePanel } from "@/components/findings/FindingMergeConflictResolvePanel";
 import { Button } from "@/components/ui/button";
-import { classifyInspectPayloadJobView } from "@/lib/findings/finding-inspect-job-view";
+import { mapInspectPayloadToQuickDecisionFinding } from "@/lib/findings/finding-inspect-job-view";
+import { isFindingMergeConflictReviewFinding } from "@/lib/review-quality/finding-quality-signals";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -23,6 +24,8 @@ export type FindingDetailOperationalActionsProps = {
 
 /** Grouped primary finding actions — navigation as links; work-item handoff as a button. */
 export function FindingDetailOperationalActions(props: FindingDetailOperationalActionsProps): React.JSX.Element {
+  const mergeConflictFinding = mapInspectPayloadToQuickDecisionFinding(props.payload);
+
   return (
     <section
       className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
@@ -53,7 +56,7 @@ export function FindingDetailOperationalActions(props: FindingDetailOperationalA
           compact
         />
       </div>
-      {classifyInspectPayloadJobView(props.payload) === "resolve-contradictions" ? (
+      {isFindingMergeConflictReviewFinding(mergeConflictFinding) ? (
         <FindingMergeConflictResolvePanel runId={props.runId} findingId={props.findingId} />
       ) : null}
     </section>
