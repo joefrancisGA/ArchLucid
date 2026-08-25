@@ -21,7 +21,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-  formatOperatorHomeDraftArchitectureEyebrow,
+  formatOperatorHomeCompactDraftStatusRow,
 } from "@/lib/buyer/buyer-polish-copy";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import {
@@ -179,7 +179,10 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
           createdUtc: latestDraft.lastUpdatedUtc,
         })
       : null;
-  const draftHeroEyebrowLabel = formatOperatorHomeDraftArchitectureEyebrow(draftLastEditedLabel);
+  const compactDraftStatusRow =
+    workspacePhase === "eval-with-drafts"
+      ? formatOperatorHomeCompactDraftStatusRow(phaseSignals.draftCount, draftLastEditedLabel)
+      : null;
   const showLeadCopy = props.suppressLeadCopy !== true;
   const showContextualHelp = props.showContextualHelp !== false;
 
@@ -261,20 +264,14 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
           data-testid="operator-home-eval-with-drafts-resume-header"
         >
           <div className="min-w-0 space-y-1">
-            {draftHeroEyebrowLabel !== null ? (
+            {compactDraftStatusRow !== null ? (
               <p
-                className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
-                data-testid="operator-home-draft-hero-labels"
+                className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+                data-testid="operator-home-draft-status-row"
               >
-                {draftHeroEyebrowLabel}
+                {compactDraftStatusRow}
               </p>
             ) : null}
-            <p
-              className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
-              data-testid="operator-home-resume-draft-bridge"
-            >
-              {heroCopy.lead}
-            </p>
           </div>
           {resumeHref !== null ? (
             <Button asChild variant="primary" size="sm" className={cn(heroCtaButtonClass, "shrink-0")}>

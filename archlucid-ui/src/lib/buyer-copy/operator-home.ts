@@ -115,6 +115,25 @@ export function formatOperatorHomeContinueArchitectureLead(draftCount: number): 
   return `${safeCount} drafts saved — ${ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE}`;
 }
 
+/** Single-row draft status beside Resume latest draft on Overview (eval-with-drafts). */
+export function formatOperatorHomeCompactDraftStatusRow(
+  draftCount: number,
+  draftLastEditedLabel: string | null,
+): string {
+  const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
+  const countLabel = safeCount === 1 ? "1 draft" : `${safeCount} drafts`;
+  const trimmedEditedLabel =
+    draftLastEditedLabel !== null && draftLastEditedLabel.trim().length > 0
+      ? draftLastEditedLabel.trim()
+      : null;
+
+  if (trimmedEditedLabel !== null) {
+    return `${countLabel} · ${trimmedEditedLabel} — Continue refining it before starting a review.`;
+  }
+
+  return `${countLabel} — Continue refining it before starting a review.`;
+}
+
 export function formatOperatorHomePastDraftingLead(displayName: string): string {
   const trimmedName = displayName.trim();
 

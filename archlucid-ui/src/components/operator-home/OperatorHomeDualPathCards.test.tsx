@@ -256,6 +256,8 @@ describe("OperatorHomeDualPathCards", () => {
     expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toHaveClass("border-neutral-300");
     expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toHaveClass("border-neutral-300");
     expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toHaveClass("border-neutral-300");
+    expect(screen.queryByTestId("operator-home-lifecycle-recommended-review-architecture")).toBeNull();
+    expect(screen.queryByTestId("operator-home-lifecycle-recommended-create-architecture")).toBeNull();
   });
 
   it("does not mark the lifecycle grid as a live region", () => {

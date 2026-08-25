@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BookOpen, ClipboardCheck, PenLine } from "lucide-react";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCompletedSampleAction } from "@/components/operator-home/OperatorHomeCompletedSampleAction";
@@ -90,9 +91,10 @@ function lifecycleCardClassName(
   path: Exclude<SelectedHomePath, null>,
   emphasizedPath: OperatorHomeLifecyclePath | null | undefined,
   selectedPath: SelectedHomePath,
+  pagePrimaryOwnedElsewhere: boolean,
   extraClassName?: string,
 ): string {
-  const isEmphasized = emphasizedPath === path;
+  const isEmphasized = emphasizedPath === path && !pagePrimaryOwnedElsewhere;
 
   return cn(
     OPERATOR_SURFACE_CARD_CLASS,
@@ -107,8 +109,9 @@ function lifecycleRecommendedBadge(
   path: OperatorHomeLifecyclePath,
   emphasizedPath: OperatorHomeLifecyclePath | null | undefined,
   isCompact: boolean,
+  pagePrimaryOwnedElsewhere: boolean,
 ): React.JSX.Element | null {
-  if (isCompact || emphasizedPath !== path) {
+  if (isCompact || pagePrimaryOwnedElsewhere || emphasizedPath !== path) {
     return null;
   }
 
@@ -191,17 +194,28 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
         )}
       >
         <article
-          className={lifecycleCardClassName("create-architecture", emphasizedPath, selectedPath)}
+          className={lifecycleCardClassName(
+            "create-architecture",
+            emphasizedPath,
+            selectedPath,
+            pagePrimaryOwnedElsewhere,
+          )}
           data-testid="operator-home-create-architecture-card"
           aria-labelledby="operator-home-create-architecture-title"
           aria-current={selectedPath === "create-architecture" ? "true" : undefined}
         >
           <div className="min-w-0 space-y-1">
-            {lifecycleRecommendedBadge("create-architecture", emphasizedPath, isCompact)}
+            {lifecycleRecommendedBadge(
+              "create-architecture",
+              emphasizedPath,
+              isCompact,
+              pagePrimaryOwnedElsewhere,
+            )}
             <h3
-              className={cn("m-0", OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
+              className={cn("m-0 flex items-center gap-2", OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
               id="operator-home-create-architecture-title"
             >
+              <PenLine className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden />
               {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE}
             </h3>
             {!isCompact ? (
@@ -257,17 +271,28 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
         </article>
 
         <article
-          className={lifecycleCardClassName("review-architecture", emphasizedPath, selectedPath)}
+          className={lifecycleCardClassName(
+            "review-architecture",
+            emphasizedPath,
+            selectedPath,
+            pagePrimaryOwnedElsewhere,
+          )}
           data-testid="operator-home-review-architecture-card"
           aria-labelledby="operator-home-review-architecture-title"
           aria-current={selectedPath === "review-architecture" ? "true" : undefined}
         >
           <div className="min-w-0 space-y-1">
-            {lifecycleRecommendedBadge("review-architecture", emphasizedPath, isCompact)}
+            {lifecycleRecommendedBadge(
+              "review-architecture",
+              emphasizedPath,
+              isCompact,
+              pagePrimaryOwnedElsewhere,
+            )}
             <h3
-              className={cn("m-0", OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
+              className={cn("m-0 flex items-center gap-2", OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
               id="operator-home-review-architecture-title"
             >
+              <ClipboardCheck className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden />
               {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE}
             </h3>
             {!isCompact ? (
@@ -303,17 +328,27 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
             "explore-completed-review",
             emphasizedPath,
             selectedPath,
+            pagePrimaryOwnedElsewhere,
             hideExplorePath ? "hidden" : "sm:col-span-2 md:col-span-1",
           )}
           data-testid="operator-home-explore-completed-review-card"
           aria-labelledby="operator-home-explore-completed-review-title"
         >
           <div className="min-w-0 space-y-2">
-            {lifecycleRecommendedBadge("explore-completed-review", emphasizedPath, isCompact)}
+            {lifecycleRecommendedBadge(
+              "explore-completed-review",
+              emphasizedPath,
+              isCompact,
+              pagePrimaryOwnedElsewhere,
+            )}
             <h3
-              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
+              className={cn(
+                "m-0 flex items-center gap-2",
+                isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_HOME_LIFECYCLE_CARD_TITLE,
+              )}
               id="operator-home-explore-completed-review-title"
             >
+              <BookOpen className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden />
               {OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE}
             </h3>
             {!isCompact ? (

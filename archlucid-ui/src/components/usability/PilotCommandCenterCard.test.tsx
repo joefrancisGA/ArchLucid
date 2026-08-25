@@ -213,11 +213,11 @@ describe("PilotCommandCenterCard", () => {
     expect(
       screen.queryByRole("heading", { level: 2, name: "Claims intake" }),
     ).toBeNull();
-    expect(screen.getByTestId("operator-home-draft-hero-labels")).toHaveTextContent(
-      /Draft architecture — Updated/,
+    expect(screen.getByTestId("operator-home-draft-status-row")).toHaveTextContent(
+      /1 draft · Updated/,
     );
-    expect(screen.getByTestId("operator-home-draft-hero-labels")).not.toHaveTextContent(
-      /undefined/,
+    expect(screen.getByTestId("operator-home-draft-status-row")).toHaveTextContent(
+      /Continue refining it before starting a review\./,
     );
     expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveAttribute(
       "href",
@@ -232,6 +232,7 @@ describe("PilotCommandCenterCard", () => {
       "border-neutral-300",
     );
     expect(screen.queryByTestId("operator-home-lifecycle-recommended-review-architecture")).toBeNull();
+    expect(screen.queryByTestId("operator-home-lifecycle-recommended-create-architecture")).toBeNull();
     expect(screen.queryByTestId("first-pilot-operate-unlock-vocabulary")).toBeNull();
     expect(screen.queryByTestId("operator-home-do-this-next")).toBeNull();
   });
