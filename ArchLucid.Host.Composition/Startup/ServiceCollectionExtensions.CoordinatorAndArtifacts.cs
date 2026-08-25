@@ -111,6 +111,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPreCommitGovernanceBlockExplainer, PreCommitGovernanceBlockExplainer>();
         services.AddScoped<IAgentEvaluationService, FindingsBackedAgentEvaluationService>();
         services.AddScoped<DefaultEvidenceBuilder>();
+        services.AddScoped<EffectiveGovernanceSnapshotBuilder>();
         services.AddScoped<IEvidenceBuilder, WorkspacePolicyPackEvidenceBuilder>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
         services.AddScoped<ICommitRunIdempotencyCoordinator, CommitRunIdempotencyCoordinator>();
