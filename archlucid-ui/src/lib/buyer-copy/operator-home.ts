@@ -219,7 +219,7 @@ export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Create architecture";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
-  "Use any combination of a description, uploaded briefs and diagrams, or read-only cloud inventory from Azure, AWS, or Google Cloud. It produces an architecture draft you can revise, then review when ready.";
+  "Use any combination of a description, uploaded briefs and diagrams, or read-only cloud inventory from AWS, Azure, or Google Cloud. It produces an architecture draft you can revise, then review when ready.";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review architecture";
 
