@@ -34,6 +34,20 @@ public sealed class ReviewCacheManifestBuilderTests
             .NotBe(ReviewCacheManifestBuilder.Build(cost).DeclaredPrioritiesHash);
     }
 
+    [Fact]
+    public void Build_changes_hash_when_publish_intent_changes()
+    {
+        ClosedLoopReasoningRequest withoutPublish = CreateRequest("Architecture note.");
+        withoutPublish.PublishToProduct = false;
+
+        ClosedLoopReasoningRequest withPublish = CreateRequest("Architecture note.");
+        withPublish.PublishToProduct = true;
+
+        ReviewCacheManifestBuilder.Build(withoutPublish).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(withPublish).ContentHash);
+    }
+
     private static ClosedLoopReasoningRequest CreateRequest(string content)
     {
         return new ClosedLoopReasoningRequest

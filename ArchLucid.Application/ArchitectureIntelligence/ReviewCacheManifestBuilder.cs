@@ -28,6 +28,7 @@ public static class ReviewCacheManifestBuilder
     {
         StringBuilder builder = new();
         builder.Append("continue=").Append(request.ContinueFromExistingRun ? '1' : '0').Append('|');
+        builder.Append("publish=").Append(request.PublishToProduct ? '1' : '0').Append('|');
         builder.Append("tier=").Append(request.ReviewTier.ToString()).Append('|');
 
         foreach (ClosedLoopReasoningSourceText source in request.SourceTexts
