@@ -90,15 +90,16 @@ public sealed class ArchitectureKnowledgeModelAccess(
         DateTime utcNow = TimeProvider.System.GetUtcNow().UtcDateTime;
         string nextModelId = Guid.NewGuid().ToString("D");
 
-        model.ModelId = nextModelId;
-        model.RunId = runId.ToString("D");
+        ArchitectureKnowledgeModel modelToSave = ArchitectureKnowledgeModelCloner.Clone(model);
+        modelToSave.ModelId = nextModelId;
+        modelToSave.RunId = runId.ToString("D");
 
-        if (model.CreatedUtc == default)
-            model.CreatedUtc = utcNow;
+        if (modelToSave.CreatedUtc == default)
+            modelToSave.CreatedUtc = utcNow;
 
-        model.UpdatedUtc = utcNow;
+        modelToSave.UpdatedUtc = utcNow;
 
-        await _persistence.SaveModelAsync(model, cancellationToken).ConfigureAwait(false);
+        await _persistence.SaveModelAsync(modelToSave, cancellationToken).ConfigureAwait(false);
 
         if (_runRepository is null)
             return;

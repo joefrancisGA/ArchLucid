@@ -178,15 +178,15 @@ public sealed class ArchitectureKnowledgeModelAccessTests
 
     await access.SaveForRunAsync(TestScope, runId, model);
 
-    model.ModelId.Should().NotBe(priorModelId);
-    run.KnowledgeModelId.Should().Be(model.ModelId);
+    model.ModelId.Should().Be(priorModelId);
+    run.KnowledgeModelId.Should().NotBe(priorModelId);
 
     identities.Verify(
-      i => i.UpdateCurrentModelAsync(TestScope, architectureId, model.ModelId, It.IsAny<CancellationToken>()),
+      i => i.UpdateCurrentModelAsync(TestScope, architectureId, run.KnowledgeModelId!, It.IsAny<CancellationToken>()),
       Times.Once);
     persistence.Verify(
       p => p.SaveModelAsync(
-        It.Is<ArchitectureKnowledgeModel>(saved => saved.ModelId == model.ModelId),
+        It.Is<ArchitectureKnowledgeModel>(saved => saved.ModelId == run.KnowledgeModelId),
         It.IsAny<CancellationToken>()),
       Times.Once);
   }
