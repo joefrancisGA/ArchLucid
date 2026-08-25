@@ -102,6 +102,9 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<FindingConfidenceCalculator>();
         services.AddSingleton<IExplanationFaithfulnessChecker, ExplanationFaithfulnessChecker>();
         services.AddSingleton<Di.IDecisionRuleProvider, Dr.InMemoryDecisionRuleProvider>();
+        services.AddScoped<Dm.TopologyManifestSectionPopulator>();
+        services.AddScoped<Dm.SecurityManifestSectionPopulator>();
+        services.AddScoped<Dm.CostManifestSectionPopulator>();
         services.AddScoped<Di.IGoldenManifestBuilder, Dm.DefaultGoldenManifestBuilder>();
         services.AddSingleton<Di.IGoldenManifestValidator, Ds.GoldenManifestValidator>();
         services.AddSingleton<IManifestHashService, Ds.ManifestHashService>();
