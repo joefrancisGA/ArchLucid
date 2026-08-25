@@ -285,4 +285,96 @@ public sealed class IdentityProviderActivationServiceTests
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*HTTP(S)*");
     }
+
+    [Theory]
+    [InlineData("https://")]
+    [InlineData("http://")]
+    public async Task ActivateAsync_rejects_issuer_without_host(string issuerUri)
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("88888888-8888-8888-8888-888888888888"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                ClaimMapping = ValidClaimMapping()
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*HTTP(S)*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_empty_role_claim_name()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("99999999-9999-9999-9999-999999999999"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "   ",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                }
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*RoleClaimName*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_null_claim_mapping_entries_throw_argument_null_exception()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings = null!
+                }
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    private static IdentityClaimRoleMappingRequest ValidClaimMapping() => new()
+    {
+        RoleClaimName = "groups",
+        Mappings =
+        [
+            new IdentityClaimRoleMappingEntryRequest
+            {
+                IdpValue = "al-admins",
+                ArchLucidRole = "Admin"
+            }
+        ]
+    };
 }
