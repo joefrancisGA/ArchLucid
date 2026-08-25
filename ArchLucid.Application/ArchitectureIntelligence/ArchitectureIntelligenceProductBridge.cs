@@ -183,7 +183,10 @@ public static class ArchitectureIntelligenceProductBridge
 
     private static string BuildPolicyRuleId(SpecialistReviewFinding finding)
     {
-        return $"architecture-intelligence.{finding.Dimension.ToString().ToLowerInvariant()}.{finding.FindingId}";
+        string dimension = finding.Dimension.ToString().ToLowerInvariant();
+        string checkKey = ArchitectureIntelligenceStableCheckKey.FromFinding(finding);
+
+        return $"architecture-intelligence.{dimension}.{checkKey}";
     }
 
     private static FindingHumanReviewStatus MapHumanReviewStatus(GovernanceDisposition disposition)
