@@ -106,6 +106,31 @@ describe("splitSidebarLinksDailyVsMore", () => {
     ]);
   });
 
+  it("splits Insights into daily vs more and preserves daily order", () => {
+    const links = [
+      link("/insights/patterns", "Pattern library"),
+      link("/insights/evidence-graph", "Evidence graph"),
+      link("/insights/ask-review-questions", "Ask review questions"),
+      link("/insights/search-review-evidence", "Search review evidence"),
+      link("/insights/compare-two-reviews", "Compare two reviews"),
+      link("/insights/architecture-scorecard", "Architecture scorecard"),
+      link("/insights/sponsor-report", "Sponsor report"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("operate-analysis", links, "/");
+
+    expect(split.daily.map((row) => row.href)).toEqual([
+      "/insights/evidence-graph",
+      "/insights/ask-review-questions",
+      "/insights/search-review-evidence",
+      "/insights/compare-two-reviews",
+      "/insights/architecture-scorecard",
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual([
+      "/insights/patterns",
+      "/insights/sponsor-report",
+    ]);
+  });
+
   it("promotes an active more-link into daily so the route stays visible", () => {
     const links = [
       link("/governance/approval-queue", "Approval"),

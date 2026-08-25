@@ -21,6 +21,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 vi.mock("./operator-home-page-view-deferred-chunks", () => ({
   BuyerPolishedHomeHeroSectionDeferred: () => <div data-testid="operator-home-hero-section" />,
+  DevTestingQuickSwitchPanelDeferred: () => null,
   OperatorHomeBelowFoldPanelsDeferred: () => <div data-testid="home-block-explore-sample" />,
   OperatorHomeSponsorRoiStripDeferred: () => null,
   OperatorHomeStickinessCockpitDeferred: () => <div data-testid="operator-home-stickiness-cockpit" />,
@@ -91,7 +92,7 @@ function mockHomeModel(overrides?: Partial<OperatorHomePageViewModel["runsDashbo
 }
 
 describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
-  it("renders skip link, buyer subtitle, and contextual help on first-run overview", () => {
+  it("renders skip link, contextual help, and no buyer subtitle on first-run overview", () => {
     render(<OperatorHomePageView model={mockHomeModel()} />);
 
     expect(screen.getByRole("link", { name: OPERATOR_HOME_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -103,10 +104,8 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
       OPERATOR_HOME_PRIMARY_CONTENT_ID,
     );
     expect(screen.queryByTestId("operator-home-orientation-top")).toBeNull();
-    expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(
-      BUYER_OPERATOR_HOME_PAGE_SUBTITLE,
-    );
-    expect(screen.queryByText(OPERATOR_HOME_PAGE_SUBTITLE)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-page-subtitle")).toBeNull();
+    expect(screen.queryByText(BUYER_OPERATOR_HOME_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId("operator-home-primary-content");

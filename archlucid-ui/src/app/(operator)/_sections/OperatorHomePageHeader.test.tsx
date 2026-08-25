@@ -58,12 +58,10 @@ describe("OperatorHomePageHeader", () => {
     expect(requestRefresh).toHaveBeenCalledTimes(1);
   });
 
-  it("renders the buyer-polished Home subtitle without lifecycle documentation", () => {
+  it("omits the buyer-polished Home subtitle", () => {
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(true)} />);
 
-    expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(
-      BUYER_OPERATOR_HOME_PAGE_SUBTITLE,
-    );
-    expect(screen.queryByText("Two ways in:")).toBeNull();
+    expect(screen.queryByTestId("operator-home-page-subtitle")).toBeNull();
+    expect(screen.queryByText(BUYER_OPERATOR_HOME_PAGE_SUBTITLE)).toBeNull();
   });
 });

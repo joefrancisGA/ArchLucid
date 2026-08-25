@@ -12,8 +12,12 @@ export { BUYER_OPERATOR_HOME_PAGE_SUBTITLE };
 
 export const OPERATOR_HOME_PAGE_SUBTITLE_OPERATOR = OPERATOR_HOME_PAGE_SUBTITLE;
 
-export function operatorHomePageSubtitle(buyerPolishedShell: boolean): string {
-  return buyerPolishedShell ? BUYER_OPERATOR_HOME_PAGE_SUBTITLE : OPERATOR_HOME_PAGE_SUBTITLE_OPERATOR;
+export function operatorHomePageSubtitle(buyerPolishedShell: boolean): string | undefined {
+  if (buyerPolishedShell) {
+    return undefined;
+  }
+
+  return OPERATOR_HOME_PAGE_SUBTITLE_OPERATOR;
 }
 
 export const OPERATOR_HOME_LAST_REFRESHED_PREFIX = "Last refreshed" as const;

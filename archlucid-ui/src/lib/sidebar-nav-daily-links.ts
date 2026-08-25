@@ -1,4 +1,9 @@
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
+import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import type { NavLinkItem } from "@/lib/nav-config.types";
 import {
   SETTINGS_NOTIFICATIONS_PATH,
@@ -28,6 +33,13 @@ function sidebarLinkMatchesPathname(pathname: string, href: string): boolean {
  * Keep lists short (≈5) so the first viewport stays scannable.
  */
 export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly string[]>> = {
+  "operate-analysis": [
+    EVIDENCE_GRAPH_PATH,
+    ASK_REVIEW_QUESTIONS_PATH,
+    SEARCH_REVIEW_EVIDENCE_PATH,
+    COMPARE_TWO_REVIEWS_PATH,
+    ARCHITECTURE_SCORECARD_PATH,
+  ],
   "operate-governance": [
     "/governance/approval-queue",
     "/governance/setup",

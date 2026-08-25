@@ -15,7 +15,7 @@ export function DemoDataBadge(props: DemoDataBadgeProps) {
     <span
       className={cn(
         METADATA_STATUS_TAG_SHELL,
-        "bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]",
+        "border border-neutral-300 bg-transparent text-neutral-600 dark:border-neutral-600 dark:text-neutral-400",
         variant === "banner" ? "px-2 py-1" : undefined,
         props.className,
       )}
