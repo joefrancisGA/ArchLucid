@@ -5,12 +5,17 @@ using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Abstractions.Agents;
+using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Alerts;
+using ArchLucid.Core.Integration;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Composition.Startup.Modules;
+using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Persistence.Coordination.Retrieval;
 
 using FluentAssertions;
 
@@ -20,8 +25,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Host.Composition.Tests.Startup;
 
 /// <summary>
-///     Pins host-composition refactor #10: agent, pipeline, and alerts bounded-context modules own
-///     their DI registrations instead of mega <see cref="ServiceCollectionExtensions" /> partials.
+///     Pins host-composition refactors #10 and #39: agent, pipeline, and alerts bounded-context modules
+///     plus scheduling/outbox registrars own their DI registrations instead of mega
+///     <see cref="ServiceCollectionExtensions" /> partials.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -125,6 +131,89 @@ public sealed class CompositionModulesRegistrationDisciplineTests
         services.Should().Contain(static d => d.ServiceType == typeof(IAgentExecutor));
         services.Should().Contain(static d => d.ServiceType == typeof(IArchitectureRunCommitOrchestrator));
         services.Should().Contain(static d => d.ServiceType == typeof(IAlertService));
+        services.Should().Contain(static d => d.ServiceType == typeof(DataArchivalHostHealthState));
+        services.Should().Contain(static d => d.ServiceType == typeof(IRetrievalIndexingOutboxProcessor));
+        services.Should().Contain(static d => d.ServiceType == typeof(IScanScheduleCalculator));
+    }
+
+    [Theory]
+    [InlineData(typeof(HostedServicesCompositionRegistrar))]
+    [InlineData(typeof(OutboxProcessorsCompositionRegistrar))]
+    [InlineData(typeof(AdvisoryDigestSchedulingRegistrar))]
+    public void Scheduling_registrar_exposes_Register_in_Startup_Modules_namespace(Type registrarType)
+    {
+        registrarType.Namespace.Should().Be("ArchLucid.Host.Composition.Startup.Modules");
+
+        MethodInfo? register = registrarType.GetMethod(
+            "Register",
+            BindingFlags.Public | BindingFlags.Static,
+            binder: null,
+            [typeof(IServiceCollection), typeof(IConfiguration), typeof(ArchLucidHostingRole)],
+            modifiers: null);
+
+        register.Should().NotBeNull(
+            $"{registrarType.Name} must expose public static Register(IServiceCollection, IConfiguration, ArchLucidHostingRole)");
+        register!.ReturnType.Should().Be(typeof(void));
+    }
+
+    [Fact]
+    public void ServiceCollectionExtensions_keeps_scheduling_and_alerts_wrapper_methods()
+    {
+        MethodInfo[] methods = typeof(ArchLucid.Host.Composition.Startup.ServiceCollectionExtensions)
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Static);
+
+        string[] wrappers =
+        [
+            "RegisterDataArchivalHostedService",
+            "RegisterRetrievalIndexingOutbox",
+            "RegisterAdvisoryScheduling",
+            "RegisterDigestDelivery",
+            "RegisterIntegrationEventPublishing",
+        ];
+
+        foreach (string name in wrappers)
+        {
+            methods.Should().Contain(
+                m => m.Name == name,
+                $"refactor #39 keeps {name} as a thin wrapper so AddArchLucidApplicationServices call sites stay stable");
+        }
+    }
+
+    [Fact]
+    public void HostedServicesCompositionRegistrar_registers_archival_health_state()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        HostedServicesCompositionRegistrar.Register(services, configuration, ArchLucidHostingRole.Api);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(DataArchivalHostHealthState));
+    }
+
+    [Fact]
+    public void OutboxProcessorsCompositionRegistrar_registers_outbox_and_integration_services()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        OutboxProcessorsCompositionRegistrar.Register(services, configuration, ArchLucidHostingRole.Api);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(IRetrievalIndexingOutboxProcessor));
+        services.Should().Contain(static d => d.ServiceType == typeof(IAuthorityPipelineWorkProcessor));
+        services.Should().Contain(static d => d.ServiceType == typeof(IAzureDevOpsCommitStatusPublisher));
+        services.Should().Contain(static d => d.ServiceType == typeof(IIntegrationEventPublisher));
+    }
+
+    [Fact]
+    public void AdvisoryDigestSchedulingRegistrar_registers_scan_and_digest_services()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        AdvisoryDigestSchedulingRegistrar.Register(services, configuration, ArchLucidHostingRole.Api);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(IScanScheduleCalculator));
+        services.Should().Contain(static d => d.ServiceType == typeof(IDigestDeliveryDispatcher));
     }
 
     private static IConfiguration CreateModuleTestConfiguration(ArchLucidHostingRole role = ArchLucidHostingRole.Api)
