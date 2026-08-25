@@ -70,16 +70,38 @@ public sealed class AlertMetricSnapshotBuilderTests
     }
 
     [Fact]
-    public void Build_ThreeSecurityDeltas_ComplianceGapCountIsThree()
+    public void Build_SecurityImprovements_NotCountedAsComplianceGaps()
     {
         AlertEvaluationContext ctx = EmptyContext();
         ctx.ComparisonResult = new ComparisonResult
         {
             SecurityChanges =
             [
-                new SecurityDelta { ControlName = "a" },
-                new SecurityDelta { ControlName = "b" },
-                new SecurityDelta { ControlName = "c" }
+                new SecurityDelta
+                {
+                    ControlName = "Encryption",
+                    BaseStatus = "NonCompliant",
+                    TargetStatus = "Compliant"
+                }
+            ]
+        };
+
+        AlertMetricSnapshot snap = _sut.Build(ctx);
+
+        snap.NewComplianceGapCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void Build_ThreeSecurityRegressions_ComplianceGapCountIsThree()
+    {
+        AlertEvaluationContext ctx = EmptyContext();
+        ctx.ComparisonResult = new ComparisonResult
+        {
+            SecurityChanges =
+            [
+                new SecurityDelta { ControlName = "a", BaseStatus = "Compliant", TargetStatus = "NonCompliant" },
+                new SecurityDelta { ControlName = "b", BaseStatus = "Enabled", TargetStatus = "Disabled" },
+                new SecurityDelta { ControlName = "c", BaseStatus = "Compliant", TargetStatus = null }
             ]
         };
 

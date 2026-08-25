@@ -119,13 +119,50 @@ public sealed class AlertEvaluatorTests
     // ──────────────────────────────────────────────────────────────────────────
 
     [Fact]
+    public void Evaluate_NewComplianceGapCount_SecurityImprovements_NotCounted()
+    {
+        AlertRule rule = MakeRule(AlertRuleType.NewComplianceGapCount, threshold: 1);
+        AlertEvaluationContext ctx = EmptyContext();
+        ctx.ComparisonResult = new ComparisonResult
+        {
+            SecurityChanges =
+            [
+                new SecurityDelta
+                {
+                    ControlName = "Encryption",
+                    BaseStatus = "NonCompliant",
+                    TargetStatus = "Compliant"
+                },
+                new SecurityDelta
+                {
+                    ControlName = "MFA",
+                    BaseStatus = "Partial",
+                    TargetStatus = "Compliant"
+                }
+            ]
+        };
+
+        IReadOnlyList<AlertRecord> result = _sut.Evaluate([rule], ctx);
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Evaluate_NewComplianceGapCount_BelowThreshold_NoAlert()
     {
         AlertRule rule = MakeRule(AlertRuleType.NewComplianceGapCount, threshold: 5);
         AlertEvaluationContext ctx = EmptyContext();
         ctx.ComparisonResult = new ComparisonResult
         {
-            SecurityChanges = [new SecurityDelta { ControlName = "gap" }]
+            SecurityChanges =
+            [
+                new SecurityDelta
+                {
+                    ControlName = "gap",
+                    BaseStatus = "Compliant",
+                    TargetStatus = "NonCompliant"
+                }
+            ]
         };
 
         IReadOnlyList<AlertRecord> result = _sut.Evaluate([rule], ctx);
@@ -140,7 +177,21 @@ public sealed class AlertEvaluatorTests
         AlertEvaluationContext ctx = EmptyContext();
         ctx.ComparisonResult = new ComparisonResult
         {
-            SecurityChanges = [new SecurityDelta { ControlName = "gap-1" }, new SecurityDelta { ControlName = "gap-2" }]
+            SecurityChanges =
+            [
+                new SecurityDelta
+                {
+                    ControlName = "gap-1",
+                    BaseStatus = "Compliant",
+                    TargetStatus = "Not Compliant"
+                },
+                new SecurityDelta
+                {
+                    ControlName = "gap-2",
+                    BaseStatus = "Enabled",
+                    TargetStatus = "Disabled"
+                }
+            ]
         };
 
         IReadOnlyList<AlertRecord> result = _sut.Evaluate([rule], ctx);

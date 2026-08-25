@@ -26,6 +26,13 @@ internal static class SecurityDeltaRegressionClassifier
         return targetRank < baseRank;
     }
 
+    internal static int CountRegressions(IEnumerable<SecurityDelta> deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        return deltas.Count(IsRegression);
+    }
+
     private static int RankStatus(string status)
     {
         string normalized = status.Trim().ToLowerInvariant();

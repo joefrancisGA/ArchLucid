@@ -1,4 +1,5 @@
 using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Analysis;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Workflow;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -88,7 +89,9 @@ public sealed class AlertEvaluator : IAlertEvaluator
         AlertEvaluationContext context,
         List<AlertRecord> alerts)
     {
-        int count = context.ComparisonResult?.SecurityChanges.Count ?? 0;
+        int count = context.ComparisonResult is null
+            ? 0
+            : SecurityDeltaRegressionClassifier.CountRegressions(context.ComparisonResult.SecurityChanges);
 
         if (count >= rule.ThresholdValue)
 

@@ -36,6 +36,18 @@ public sealed class SecurityDeltaRegressionClassifierTests
     }
 
     [Fact]
+    public void CountRegressions_security_improvements_not_counted()
+    {
+        IEnumerable<SecurityDelta> deltas =
+        [
+            new SecurityDelta { BaseStatus = "NonCompliant", TargetStatus = "Compliant" },
+            new SecurityDelta { BaseStatus = "Compliant", TargetStatus = "NonCompliant" }
+        ];
+
+        SecurityDeltaRegressionClassifier.CountRegressions(deltas).Should().Be(1);
+    }
+
+    [Fact]
     public void IsRegression_bypass_status_does_not_rank_as_pass()
     {
         SecurityDelta delta = new()

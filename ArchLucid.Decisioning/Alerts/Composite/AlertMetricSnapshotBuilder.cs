@@ -1,4 +1,5 @@
 using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Analysis;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Workflow;
 
@@ -24,7 +25,9 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
                     string.Equals(x.Urgency, AlertUrgencies.Critical, StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(x.Urgency, AlertUrgencies.High, StringComparison.OrdinalIgnoreCase)) ?? 0,
             NewComplianceGapCount =
-                context.ComparisonResult?.SecurityChanges.Count ?? 0,
+                context.ComparisonResult is null
+                    ? 0
+                    : SecurityDeltaRegressionClassifier.CountRegressions(context.ComparisonResult.SecurityChanges),
             DeferredHighPriorityRecommendationCount =
                 AlertEvaluationRecordScope.ForRun(context).Count(x =>
                     string.Equals(x.Status, RecommendationStatus.Deferred, StringComparison.OrdinalIgnoreCase) &&

@@ -92,8 +92,8 @@ public sealed class AlertEvaluatorDeduplicationKeyPropertyTests
                 .Select(i => new SecurityDelta
                 {
                     ControlName = $"ctrl-{i}",
-                    BaseStatus = "Uncovered",
-                    TargetStatus = "Covered",
+                    BaseStatus = "Compliant",
+                    TargetStatus = "NonCompliant",
                 })
                 .ToList();
 
