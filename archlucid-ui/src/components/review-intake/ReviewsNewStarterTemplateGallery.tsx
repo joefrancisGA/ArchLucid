@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { starterArchitectureTemplates } from "@/data/starter-templates";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEWS_NEW_DETAILED_HREF,
   REVIEWS_NEW_QUICK_REVIEW_HREF,
@@ -76,13 +76,13 @@ export function ReviewsNewStarterTemplateGallery(): React.JSX.Element {
           data-testid="reviews-new-starter-template-browse-more"
         >
           {REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_LEAD}{" "}
-          <Link href={REVIEWS_NEW_DETAILED_HREF} className="text-al-link underline-offset-2 hover:underline">
+          <Link href={REVIEWS_NEW_DETAILED_HREF} className={OPERATOR_LINK.inline}>
             {REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_ACTION}
           </Link>
         </p>
       ) : null}
       <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-        <Link href={REVIEWS_NEW_QUICK_REVIEW_HREF} className="text-al-link underline-offset-2 hover:underline">
+        <Link href={REVIEWS_NEW_QUICK_REVIEW_HREF} className={OPERATOR_LINK.inline}>
           Or start blank in the wizard
         </Link>
       </p>
