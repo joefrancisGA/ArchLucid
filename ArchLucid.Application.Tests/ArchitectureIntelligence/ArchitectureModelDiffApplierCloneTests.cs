@@ -54,6 +54,8 @@ public sealed class ArchitectureModelDiffApplierCloneTests
 
         ArchitectureModelDiff diff = sut.ApplyRecommendation(before, recommendation);
 
+        diff.BeforeModel.Should().NotBeSameAs(before);
+        diff.BeforeModel.Elements.Should().ContainSingle(element => element.ElementId == "svc-1");
         diff.AfterModel.IsProvisionalSynthesis.Should().BeTrue();
         diff.AfterModel.Elements
             .Single(element => element.ElementId == "svc-1")

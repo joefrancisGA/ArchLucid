@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 public sealed class ArchitectureModelDiffPayloadSlimmerTests
 {
     [Fact]
-    public void WithoutModels_keeps_entries_and_clears_before_and_after_models()
+    public void WithoutModels_keeps_before_model_and_clears_after_model()
     {
         ArchitectureKnowledgeModel before = new()
         {
@@ -46,10 +46,11 @@ public sealed class ArchitectureModelDiffPayloadSlimmerTests
 
         slim.RecommendationId.Should().Be("rec-1");
         slim.Entries.Should().ContainSingle(entry => entry.ElementId == "svc-after");
-        slim.BeforeModel.ModelId.Should().BeNull();
-        slim.BeforeModel.Elements.Should().BeEmpty();
+        slim.BeforeModel.ModelId.Should().Be("before");
+        slim.BeforeModel.Elements.Should().ContainSingle(element => element.ElementId == "svc-before");
         slim.AfterModel.ModelId.Should().BeNull();
         slim.AfterModel.Elements.Should().BeEmpty();
+        slim.BeforeModel.Should().NotBeSameAs(before);
         before.Elements.Should().ContainSingle(element => element.ElementId == "svc-before");
         after.Elements.Should().ContainSingle(element => element.ElementId == "svc-after");
     }

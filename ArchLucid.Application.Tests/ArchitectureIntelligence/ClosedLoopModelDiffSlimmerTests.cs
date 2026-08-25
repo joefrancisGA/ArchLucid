@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 public sealed class ClosedLoopModelDiffSlimmerTests
 {
     [Fact]
-    public void WithoutModels_strips_full_models_from_each_closed_loop_diff()
+    public void WithoutModels_strips_after_model_from_each_closed_loop_diff()
     {
         ArchitectureKnowledgeModel before = new()
         {
@@ -34,7 +34,7 @@ public sealed class ClosedLoopModelDiffSlimmerTests
 
         slim.Should().ContainSingle(diff => diff.RecommendationId == "rec-1");
         slim[0].Entries.Should().ContainSingle(entry => entry.ElementId == "e2");
-        slim[0].BeforeModel.Elements.Should().BeEmpty();
+        slim[0].BeforeModel.Elements.Should().ContainSingle(element => element.ElementId == "e1");
         slim[0].AfterModel.Elements.Should().BeEmpty();
     }
 }

@@ -15,7 +15,9 @@ public static class ArchitectureModelDiffPayloadSlimmer
         {
             RecommendationId = diff.RecommendationId,
             Entries = diff.Entries ?? [],
-            BeforeModel = new ArchitectureKnowledgeModel(),
+            BeforeModel = diff.BeforeModel is null
+                ? new ArchitectureKnowledgeModel()
+                : ArchitectureKnowledgeModelCloner.Clone(diff.BeforeModel),
             AfterModel = new ArchitectureKnowledgeModel(),
         };
     }

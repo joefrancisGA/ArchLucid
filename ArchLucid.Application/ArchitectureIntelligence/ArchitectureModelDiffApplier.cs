@@ -15,7 +15,7 @@ public sealed class ArchitectureModelDiffApplier : IArchitectureModelDiffApplier
         ArgumentNullException.ThrowIfNull(beforeModel);
         ArgumentNullException.ThrowIfNull(recommendation);
 
-        ArchitectureKnowledgeModel afterModel = CloneModel(beforeModel);
+        ArchitectureKnowledgeModel afterModel = ArchitectureKnowledgeModelCloner.Clone(beforeModel);
         List<ArchitectureModelDiffEntry> entries = [];
 
         string recommendationElementId = Guid.NewGuid().ToString("N");
@@ -26,7 +26,7 @@ public sealed class ArchitectureModelDiffApplier : IArchitectureModelDiffApplier
             Name = recommendation.Problem,
             Description = recommendation.ProposedChange,
             ExtractionConfidence = recommendation.Confidence,
-            Provenance = CloneProvenance(recommendation.Provenance),
+            Provenance = ArchitectureKnowledgeModelCloner.CloneProvenance(recommendation.Provenance),
             Properties = new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["recommendationId"] = recommendation.RecommendationId,
@@ -117,63 +117,9 @@ public sealed class ArchitectureModelDiffApplier : IArchitectureModelDiffApplier
         {
             RecommendationId = recommendation.RecommendationId,
             Entries = entries,
-            BeforeModel = beforeModel,
+            BeforeModel = ArchitectureKnowledgeModelCloner.Clone(beforeModel),
             AfterModel = afterModel,
         };
     }
 
-    private static ArchitectureKnowledgeModel CloneModel(ArchitectureKnowledgeModel source)
-    {
-        return new ArchitectureKnowledgeModel
-        {
-            ModelId = source.ModelId,
-            TenantId = source.TenantId,
-            RunId = source.RunId,
-            SchemaVersion = source.SchemaVersion,
-            CreatedUtc = source.CreatedUtc,
-            UpdatedUtc = source.UpdatedUtc,
-            Elements = source.Elements
-                .Select(element => new ArchitectureModelElement
-                {
-                    ElementId = element.ElementId,
-                    Kind = element.Kind,
-                    Name = element.Name,
-                    Description = element.Description,
-                    Provenance = CloneProvenance(element.Provenance),
-                    ExtractionConfidence = element.ExtractionConfidence,
-                    SourcePassageIds = [.. element.SourcePassageIds],
-                    RelatedElementIds = [.. element.RelatedElementIds],
-                    Properties = new Dictionary<string, string>(element.Properties),
-                    LifecycleScope = element.LifecycleScope,
-                })
-                .ToList(),
-            DeclaredPriorities = [.. source.DeclaredPriorities],
-            FramingAnswers = new Dictionary<string, string>(source.FramingAnswers),
-            IsProvisionalSynthesis = source.IsProvisionalSynthesis,
-        };
-    }
-
-    private static ClaimProvenance CloneProvenance(ClaimProvenance provenance)
-    {
-        SourcePassageLocator? locator = provenance.PassageLocator is null
-            ? null
-            : new SourcePassageLocator
-            {
-                ArtifactId = provenance.PassageLocator.ArtifactId,
-                StartOffset = provenance.PassageLocator.StartOffset,
-                EndOffset = provenance.PassageLocator.EndOffset,
-                Quote = provenance.PassageLocator.Quote,
-                SectionPath = provenance.PassageLocator.SectionPath,
-            };
-
-        return new ClaimProvenance
-        {
-            Origin = provenance.Origin,
-            SupportStatus = provenance.SupportStatus,
-            Confidence = provenance.Confidence,
-            SourceArtifactId = provenance.SourceArtifactId,
-            PassageLocator = locator,
-            Notes = provenance.Notes,
-        };
-    }
 }
