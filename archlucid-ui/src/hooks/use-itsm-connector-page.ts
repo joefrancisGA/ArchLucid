@@ -92,6 +92,7 @@ export function useItsmConnectorPage(options: UseItsmConnectorPageOptions) {
     isLoading,
     lastCheckedAt,
     refresh,
+    setHealth,
     setSettings,
     setConnection,
   };

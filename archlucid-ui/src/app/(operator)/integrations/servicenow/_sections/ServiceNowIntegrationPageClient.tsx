@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
@@ -10,51 +9,22 @@ import { ServiceNowIntegrationEvidenceOrientationStrip } from "@/components/evid
 import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useItsmConnectorPage } from "@/hooks/use-itsm-connector-page";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   probeItsmIntegrationHealth,
   upsertTenantItsmOutboundSettings,
-  type ItsmIntegrationHealthResponse,
-  type TenantItsmConnectorConnectionResponse,
   type TenantItsmOutboundSettingsResponse,
 } from "@/lib/api/itsm-outbound-api";
-import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import {
-  SERVICENOW_CMDB_AUTO_CREATE_HELPER,
-  SERVICENOW_CMDB_AUTO_CREATE_LABEL,
-  SERVICENOW_CONNECTION_SETTINGS_LEAD,
-  SERVICENOW_CONNECTION_SETTINGS_TITLE,
   SERVICENOW_CONNECTION_STATUS_HEADING,
-  SERVICENOW_CONNECTION_TEST_BUTTON,
-  SERVICENOW_CONNECTION_TEST_COLLAPSED_SUMMARY,
-  SERVICENOW_CONNECTION_TEST_LEAD,
-  SERVICENOW_CONNECTION_TEST_PENDING,
-  SERVICENOW_CONNECTION_TEST_TITLE,
-  SERVICENOW_CONNECTION_VERIFICATION_HELP_LABEL,
-  SERVICENOW_CREDENTIALS_ADMIN_REQUIRED,
-  SERVICENOW_FIELD_AUTH_METHOD,
-  SERVICENOW_FIELD_CONNECTION_LABEL,
-  SERVICENOW_FIELD_CREDENTIAL_STATUS,
-  SERVICENOW_FIELD_INSTANCE_URL,
-  SERVICENOW_INCIDENT_SETTINGS_COLLAPSED_SUMMARY,
-  SERVICENOW_INCIDENT_SETTINGS_LEAD,
-  SERVICENOW_INCIDENT_SETTINGS_TITLE,
-  SERVICENOW_INCIDENT_SETTINGS_UNAVAILABLE_LEAD,
   SERVICENOW_INTEGRATION_PAGE_TITLE,
   SERVICENOW_INSTANCE_URL_NOT_SET,
   SERVICENOW_LOADING_MESSAGE,
-  SERVICENOW_MUTATION_DISABLED_HELPER,
-  SERVICENOW_RELOAD_BUTTON,
-  SERVICENOW_SAVE_PENDING,
-  SERVICENOW_SAVE_SETTINGS_BUTTON,
   SERVICENOW_SAVE_SUCCESS,
 } from "@/lib/servicenow-integration-page-copy";
 import {
@@ -64,10 +34,8 @@ import {
   resolveServiceNowConnectionTestGate,
   resolveServiceNowCredentialStatusLabel,
   resolveServiceNowPageComposition,
-  resolveServiceNowSetupSteps,
   sanitizeCustomerFacingProbeSummary,
 } from "@/lib/servicenow-integration-present";
-import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buildServiceNowPageLoadResult } from "@/lib/servicenow-page-load";
 import {
@@ -76,6 +44,9 @@ import {
 } from "@/lib/integration-zone-recovery";
 
 import { ItsmNotConfiguredNextStep } from "../../_sections/itsm/ItsmNotConfiguredNextStep";
+import { ServiceNowConnectionSettingsPanel } from "./ServiceNowConnectionSettingsPanel";
+import { ServiceNowConnectionTestPanel } from "./ServiceNowConnectionTestPanel";
+import { ServiceNowIncidentSettingsPanel } from "./ServiceNowIncidentSettingsPanel";
 import { ServiceNowIntegrationAside } from "./ServiceNowIntegrationAside";
 import { ServiceNowIntegrationPageHeader } from "./ServiceNowIntegrationPageHeader";
 
@@ -110,7 +81,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     isLoading,
     lastCheckedAt,
     refresh,
-    setSettings,
+    setHealth,
   } = useItsmConnectorPage({
     providerId: "servicenow",
     buildPageLoadResult: buildServiceNowPageLoadResult,
@@ -178,16 +149,6 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     [credentialsReady, isSaving, isTesting, nativeEnabled],
   );
 
-  const setupSteps = useMemo(
-    () =>
-      resolveServiceNowSetupSteps({
-        nativeEnabled,
-        credentialsReady,
-        probe,
-      }),
-    [credentialsReady, nativeEnabled, probe],
-  );
-
   const pageComposition = useMemo(
     () =>
       resolveServiceNowPageComposition({
@@ -237,7 +198,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     } finally {
       setIsTesting(false);
     }
-  }, [testGate.allowed]);
+  }, [setHealth, testGate.allowed]);
 
   const saveSettings = useCallback(async () => {
     if (!canMutate || settingsLoadFailed || settings === null) {
@@ -265,101 +226,6 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
   const authMethod = formatServiceNowAuthMethod(connection?.authMode);
   const credentialStatus = resolveServiceNowCredentialStatusLabel(settings, connection, credentialsReady);
   const connectionLabel = connection?.label?.trim();
-
-  const incidentSettingsBody = (
-    <>
-      {saveError ? (
-        <p className="m-0 text-red-600 dark:text-red-400" role="alert">
-          {saveError}
-        </p>
-      ) : null}
-
-      {saveSuccess ? (
-        <p className="m-0 text-teal-800 dark:text-teal-200" role="status">
-          {saveSuccess}
-        </p>
-      ) : null}
-
-      <div className="space-y-2">
-        <div className="flex items-start gap-2">
-          <Checkbox
-            id="snow-auto-cmdb"
-            checked={snowAutoCmdb}
-            onCheckedChange={(checked) => setSnowAutoCmdb(checked === true)}
-            disabled={isSaving || !incidentSettingsEditable}
-            aria-describedby="snow-auto-cmdb-helper"
-          />
-          <div className="space-y-1">
-            <Label htmlFor="snow-auto-cmdb">{SERVICENOW_CMDB_AUTO_CREATE_LABEL}</Label>
-            <p id="snow-auto-cmdb-helper" className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {SERVICENOW_CMDB_AUTO_CREATE_HELPER}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {settingsLoadFailed ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-          Incident creation settings could not be loaded. Reload the page before changing them.
-        </p>
-      ) : null}
-
-      <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          onClick={() => void saveSettings()}
-          disabled={isSaving || !incidentSettingsEditable}
-          title={
-            !canMutate
-              ? enterpriseMutationControlDisabledTitle
-              : settingsLoadFailed || settings === null
-                ? "Reload incident creation settings before saving."
-                : undefined
-          }
-        >
-          {isSaving ? SERVICENOW_SAVE_PENDING : SERVICENOW_SAVE_SETTINGS_BUTTON}
-        </Button>
-        <Button type="button" variant="outline" onClick={() => void refresh()} disabled={isSaving || isTesting}>
-          {SERVICENOW_RELOAD_BUTTON}
-        </Button>
-      </div>
-
-      {!canMutate ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SERVICENOW_MUTATION_DISABLED_HELPER}</p>
-      ) : null}
-    </>
-  );
-
-  const connectionTestBody = (
-    <>
-      {testError ? (
-        <p className="m-0 text-red-600 dark:text-red-400" role="alert">
-          {testError}
-        </p>
-      ) : null}
-
-      {!testGate.allowed && testGate.reason ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} id="servicenow-test-disabled-reason">
-          {testGate.reason}
-        </p>
-      ) : null}
-
-      <Button
-        type="button"
-        onClick={() => void runConnectionTest()}
-        disabled={!testGate.allowed}
-        aria-describedby={!testGate.allowed ? "servicenow-test-disabled-reason" : undefined}
-      >
-        {isTesting ? SERVICENOW_CONNECTION_TEST_PENDING : SERVICENOW_CONNECTION_TEST_BUTTON}
-      </Button>
-
-      <p className="m-0">
-        <Link href={ITSM_PRODUCT_SMOKE_VERIFICATION_HREF} className={cn(OPERATOR_LINK.inline)}>
-          {SERVICENOW_CONNECTION_VERIFICATION_HELP_LABEL}
-        </Link>
-      </p>
-    </>
-  );
 
   return (
     <OperatorPageContainer
@@ -418,124 +284,37 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
               />
             ) : null}
 
-            <section aria-labelledby="servicenow-connection-settings-heading" className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800">
-              <div>
-                <h2 id="servicenow-connection-settings-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                  {SERVICENOW_CONNECTION_SETTINGS_TITLE}
-                </h2>
-                <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {SERVICENOW_CONNECTION_SETTINGS_LEAD}
-                </p>
-              </div>
+            <ServiceNowConnectionSettingsPanel
+              instanceUrl={instanceUrl}
+              authMethod={authMethod}
+              credentialStatus={credentialStatus}
+              connectionLabel={connectionLabel}
+              credentialsReady={credentialsReady}
+            />
 
-              <dl className="grid max-w-2xl gap-4 sm:grid-cols-2">
-                <div>
-                  <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{SERVICENOW_FIELD_INSTANCE_URL}</dt>
-                  <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="servicenow-instance-url">
-                    {instanceUrl}
-                  </dd>
-                </div>
-                <div>
-                  <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{SERVICENOW_FIELD_AUTH_METHOD}</dt>
-                  <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="servicenow-auth-method">
-                    {authMethod}
-                  </dd>
-                </div>
-                <div>
-                  <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{SERVICENOW_FIELD_CREDENTIAL_STATUS}</dt>
-                  <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="servicenow-credential-status">
-                    {credentialStatus}
-                  </dd>
-                </div>
-                {connectionLabel ? (
-                  <div>
-                    <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{SERVICENOW_FIELD_CONNECTION_LABEL}</dt>
-                    <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{connectionLabel}</dd>
-                  </div>
-                ) : null}
-              </dl>
+            <ServiceNowIncidentSettingsPanel
+              pageComposition={pageComposition}
+              canMutate={canMutate}
+              incidentSettingsEditable={incidentSettingsEditable}
+              settingsLoadFailed={settingsLoadFailed}
+              settings={settings}
+              snowAutoCmdb={snowAutoCmdb}
+              onSnowAutoCmdbChange={setSnowAutoCmdb}
+              saveError={saveError}
+              saveSuccess={saveSuccess}
+              isSaving={isSaving}
+              isTesting={isTesting}
+              onSaveSettings={() => void saveSettings()}
+              onRefresh={() => void refresh()}
+            />
 
-              {!credentialsReady ? (
-                <p className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)} role="status">
-                  {SERVICENOW_CREDENTIALS_ADMIN_REQUIRED}
-                </p>
-              ) : null}
-            </section>
-
-            {pageComposition.incidentSettingsCollapsed ? (
-              <details
-                className="rounded-md border border-neutral-200 bg-neutral-50/80 p-5 dark:border-neutral-800 dark:bg-neutral-900/40"
-                data-testid="servicenow-incident-settings-collapsed"
-              >
-                <summary
-                  className={cn(
-                    "cursor-pointer select-none outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
-                    OPERATOR_DISCLOSURE_TRIGGER_CLASS,
-                  )}
-                >
-                  {SERVICENOW_INCIDENT_SETTINGS_COLLAPSED_SUMMARY}
-                </summary>
-                <div className="mt-3 space-y-3">
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {SERVICENOW_INCIDENT_SETTINGS_UNAVAILABLE_LEAD}
-                  </p>
-                </div>
-              </details>
-            ) : (
-              <section
-                aria-labelledby="servicenow-incident-settings-heading"
-                className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800"
-                data-testid="servicenow-incident-settings"
-              >
-                <div>
-                  <h2 id="servicenow-incident-settings-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                    {SERVICENOW_INCIDENT_SETTINGS_TITLE}
-                  </h2>
-                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {SERVICENOW_INCIDENT_SETTINGS_LEAD}
-                  </p>
-                </div>
-
-                {incidentSettingsBody}
-              </section>
-            )}
-
-            {pageComposition.showConnectionTest ? (
-              <section
-                aria-labelledby="servicenow-test-heading"
-                className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800"
-                data-testid="servicenow-connection-test"
-              >
-                <div>
-                  <h2 id="servicenow-test-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                    {SERVICENOW_CONNECTION_TEST_TITLE}
-                  </h2>
-                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {SERVICENOW_CONNECTION_TEST_LEAD}
-                  </p>
-                </div>
-
-                {connectionTestBody}
-              </section>
-            ) : pageComposition.connectionTestCollapsed ? (
-              <details
-                className="rounded-md border border-neutral-200 bg-neutral-50/80 p-5 dark:border-neutral-800 dark:bg-neutral-900/40"
-                data-testid="servicenow-connection-test-collapsed"
-              >
-                <summary
-                  className={cn(
-                    "cursor-pointer select-none outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
-                    OPERATOR_DISCLOSURE_TRIGGER_CLASS,
-                  )}
-                >
-                  {SERVICENOW_CONNECTION_TEST_COLLAPSED_SUMMARY}
-                </summary>
-                <div className="mt-3 space-y-3">
-                  {connectionTestBody}
-                </div>
-              </details>
-            ) : null}
-
+            <ServiceNowConnectionTestPanel
+              pageComposition={pageComposition}
+              testGate={testGate}
+              testError={testError}
+              isTesting={isTesting}
+              onRunConnectionTest={() => void runConnectionTest()}
+            />
           </div>
 
           <ServiceNowIntegrationAside
