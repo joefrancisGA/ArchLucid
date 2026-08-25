@@ -117,6 +117,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<DefaultEvidenceBuilder>();
         services.AddScoped<EffectiveGovernanceSnapshotBuilder>();
         services.AddScoped<IEvidenceBuilder, WorkspacePolicyPackEvidenceBuilder>();
+        services.AddScoped<IAgentExecutionTraceForensicPersistence, AgentExecutionTraceForensicPersistence>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
         services.AddScoped<ICommitRunIdempotencyCoordinator, CommitRunIdempotencyCoordinator>();
 
