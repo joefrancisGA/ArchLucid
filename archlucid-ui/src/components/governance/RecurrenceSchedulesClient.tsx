@@ -18,6 +18,7 @@ import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OperatorInventoryRowMoreActions } from "@/components/operator/OperatorInventoryRowMoreActions";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceScheduleCreatePanel } from "@/components/governance/RecurrenceScheduleCreatePanel";
+import { RecurrenceScheduleWorkspaceActiveReviewStrip } from "@/components/governance/RecurrenceScheduleWorkspaceActiveReviewStrip";
 import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
 import { RecurrenceScheduleFormFields } from "@/components/governance/RecurrenceScheduleFormFields";
 import { RecurrenceSchedulesWorkflowHelperCard } from "@/components/governance/RecurrenceSchedulesWorkflowHelperCard";
@@ -174,6 +175,7 @@ export default function RecurrenceSchedulesClient() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [showCreatePanel, setShowCreatePanel] = useState(false);
   const [createSeed, setCreateSeed] = useState<RecurrenceScheduleExample | null>(null);
+  const [createSourceRunId, setCreateSourceRunId] = useState<string | undefined>(undefined);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editorState, setEditorState] = useState<RecurrenceScheduleRowEditorState | null>(null);
   const [pendingDisable, setPendingDisable] = useState<ArchitectureReviewRecurrenceSchedule | null>(null);
@@ -184,12 +186,24 @@ export default function RecurrenceSchedulesClient() {
     }
 
     setCreateSeed(example);
+    setCreateSourceRunId(undefined);
+    setShowCreatePanel(true);
+  }
+
+  function openCreateFromWorkspaceActive(runId: string): void {
+    if (!canMutate) {
+      return;
+    }
+
+    setCreateSeed(null);
+    setCreateSourceRunId(runId);
     setShowCreatePanel(true);
   }
 
   function closeCreatePanel(): void {
     setShowCreatePanel(false);
     setCreateSeed(null);
+    setCreateSourceRunId(undefined);
   }
 
   const reload = useCallback(async (): Promise<void> => {
@@ -417,17 +431,24 @@ export default function RecurrenceSchedulesClient() {
             <RecurrenceScheduleCreatePanel
               key={
                 createSeed === null
-                  ? "create-default"
+                  ? createSourceRunId === undefined
+                    ? "create-default"
+                    : `create-workspace-${createSourceRunId}`
                   : `create-${createSeed.cronExpression}-${createSeed.title}`
               }
               initialName={createSeed?.title}
               initialCronExpression={createSeed?.cronExpression}
+              initialSourceRunId={createSourceRunId}
               onCreated={async () => {
                 closeCreatePanel();
                 await reload();
               }}
               onCancel={closeCreatePanel}
             />
+          ) : null}
+
+          {isEmpty && !showCreatePanel ? (
+            <RecurrenceScheduleWorkspaceActiveReviewStrip onScheduleFromWorkspaceActive={openCreateFromWorkspaceActive} />
           ) : null}
 
           {isEmpty ? (

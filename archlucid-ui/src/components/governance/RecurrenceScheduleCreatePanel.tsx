@@ -20,13 +20,15 @@ export type RecurrenceScheduleCreatePanelProps = {
   /** Optional seed from a Common schedule example click (TB-1132). */
   readonly initialName?: string;
   readonly initialCronExpression?: string;
+  /** Optional seed from workspace active review strip. */
+  readonly initialSourceRunId?: string;
 };
 
 /** Inline create panel wired to the governance recurrence schedule API. */
 export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePanelProps) {
-  const { onCreated, onCancel, initialName, initialCronExpression } = props;
+  const { onCreated, onCancel, initialName, initialCronExpression, initialSourceRunId } = props;
   const canMutate = useOperateCapability();
-  const [sourceRunId, setSourceRunId] = useState("");
+  const [sourceRunId, setSourceRunId] = useState(initialSourceRunId?.trim() ?? "");
   const [name, setName] = useState(initialName?.trim() || DEFAULT_NAME);
   const [cronExpression, setCronExpression] = useState(initialCronExpression?.trim() || DEFAULT_CRON);
   const [busy, setBusy] = useState(false);
