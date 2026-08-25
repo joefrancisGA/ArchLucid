@@ -78,6 +78,66 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_string_enforcement_tier_maps_advisory()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "message": "Consider reserved capacity for the worker pool.",
+                              "enforcementTier": "Advisory"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.EnforcementTier.Should().Be(FindingEnforcementTier.Advisory);
+    }
+
+    [Fact]
+    public void Deserialize_numeric_enforcement_tier_maps_advisory_ordinal()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "message": "Consider reserved capacity for the worker pool.",
+                              "enforcementTier": 1
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.EnforcementTier.Should().Be(FindingEnforcementTier.Advisory);
+    }
+
+    [Fact]
+    public void Deserialize_integer_enforcement_tier_out_of_range_throws()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "message": "Invalid ordinal must not deserialize as PolicyViolation.",
+                              "enforcementTier": 99
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding enforcement tier value*");
+    }
+
+    [Fact]
     public void Deserialize_integer_severity_out_of_range_throws()
     {
         const string json = """

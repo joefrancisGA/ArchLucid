@@ -1723,11 +1723,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 8
-- **bugs-found:** 11
+- **hunts:** 9
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — structured claim evidenceRefs dropped on AgentResult deserialize
+- **last-bug:** 2026-08-25 — `ArchitectureFindingJsonConverter` mapped numeric `enforcementTier` `1` (Advisory) to default `PolicyViolation`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1746,6 +1746,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Global API enum conversion still permits out-of-range numeric `StructuralExecutionMode`, `FindingEnforcementTier`, `FindingHumanReviewStatus`, and `FindingTreatment`; unlike protected sibling enums, these types have no defined-value converter, so ordinal `99` may reach downstream switches — **hit 2026-08-25:** ordinal `99` deserialized silently via global `JsonStringEnumConverter`; fixed with dedicated converters and `Enum.IsDefined` guards (`StructuralExecutionModeJsonConverterTests`, `FindingEnforcementTierJsonConverterTests`, `FindingHumanReviewStatusJsonConverterTests`, `FindingTreatmentJsonConverterTests`).
 - [x] (proven) `AgentResultClaimListJsonConverter` flattens structured claim text but ignores an entry-level `evidenceRefs` array, so `{"detail":"Subnet missing","evidenceRefs":["pol-123"]}` loses its evidence linkage — **hit 2026-08-25:** structured claim objects dropped claim-level refs at parse time; fixed with `AgentResultJsonConverter.MergeClaimEvidenceRefs`; regression in `Deserialize_merges_structured_claim_evidence_refs_into_result_evidence_refs`.
 - [x] (invalid) `FindingJsonConverter` reads `humanReviewStatus` only when the token is a string; persisted JSON with numeric `1` leaves the default `NotRequired`, silently downgrading pending review state on round trip — locus is `ArchLucid.Core/Findings/Serialization/FindingJsonConverter.cs`, outside zone `paths` (`ArchLucid.Contracts/` only).
+- [x] (proven) `ArchitectureFindingJsonConverter.Read` required `enforcementTier` to be a JSON string, so numeric `1` (Advisory) stayed default `PolicyViolation` and `99` was accepted silently — **hit 2026-08-25:** sibling `FindingEnforcementTierJsonConverter` already guards ordinals; the finding converter bypassed it; fixed with `TryReadEnforcementTier` (`Deserialize_numeric_enforcement_tier_maps_advisory_ordinal`, `Deserialize_integer_enforcement_tier_out_of_range_throws`).
+- [ ] (hunt-ready) `ArchitectureFindingJsonConverter.Read` uses case-sensitive `JsonDocument.TryGetProperty("enforcementTier")` while `AgentResultParser` sets `PropertyNameCaseInsensitive = true` — PascalCase `"EnforcementTier":"Advisory"` never matches and stays `PolicyViolation`.
+- [ ] (hunt-ready) `ArchitectureFindingJsonConverter` evidenceRefs loop keeps only `JsonValueKind.String` items, so `{"evidenceRefs":[{"id":"pol-123"}]}` yields an empty list while `HeuristicAgentOutputSemanticEvaluator` treats object refs as citations.
+- [ ] (hunt-ready) `RequestStatus` has no defined-value `[JsonConverter]` unlike sibling `ArchitectureRunStatusJsonConverter`, so numeric `99` can deserialize through `ContractJson.Default` / `JsonStringEnumConverter` and reach request-lifecycle switches.
 
 ---
 
