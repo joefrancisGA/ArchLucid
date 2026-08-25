@@ -840,6 +840,8 @@ public sealed class PilotRunDeltaComputerTests
         deltas.TopFindingId.Should().Be("f-governed");
         deltas.TopFindingSeverity.Should().Be("Critical");
         deltas.TopFindingEvidenceChain.Should().NotBeNull();
+        deltas.SnapshotFallbackFindings.Should().ContainSingle(f => f.FindingId == "f-governed");
+        deltas.SnapshotFallbackFindings[0].Message.Should().NotBeNullOrWhiteSpace();
     }
 
     [SkippableFact]

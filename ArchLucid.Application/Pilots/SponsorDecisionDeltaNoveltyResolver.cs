@@ -27,7 +27,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
         ArgumentNullException.ThrowIfNull(proof);
         ArgumentNullException.ThrowIfNull(buyerSafeGate);
 
-        List<ArchitectureFinding> materialFindings = CollectMaterialFindings(detail);
+        List<ArchitectureFinding> materialFindings = PilotMaterialFindingsCollector.Collect(detail, deltas, take: 5);
         string decisionDeltaSummary = BuildDecisionDeltaSummary(materialFindings, detail.IsCommitted);
         string nonObviousRationale = BuildNonObviousRationale(materialFindings, deltas, proof);
         SponsorNoveltyConfidence noveltyConfidence = ResolveNoveltyConfidence(materialFindings, deltas, proof, buyerSafeGate);
@@ -40,17 +40,6 @@ public static class SponsorDecisionDeltaNoveltyResolver
             noveltyConfidence,
             evidenceClassLabel,
             confidenceBasisSummary);
-    }
-
-    private static List<ArchitectureFinding> CollectMaterialFindings(ArchitectureRunDetail detail)
-    {
-        return detail.Results
-            .SelectMany(static result => result.Findings)
-            .Where(static finding => !finding.IsMuted)
-            .OrderByDescending(static finding => finding.Severity)
-            .ThenBy(static finding => finding.Category, StringComparer.OrdinalIgnoreCase)
-            .Take(5)
-            .ToList();
     }
 
     private static string BuildDecisionDeltaSummary(IReadOnlyList<ArchitectureFinding> findings, bool isCommitted)

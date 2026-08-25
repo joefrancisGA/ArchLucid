@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
@@ -46,6 +47,16 @@ public sealed record PilotRunDeltas
 
     /// <summary>Findings-by-severity counts taken from <c>ArchitectureRunDetail.Results[*].Findings</c>, ordered descending.</summary>
     public IReadOnlyList<KeyValuePair<string, int>> FindingsBySeverity
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>
+    ///     Snapshot-backed findings projected when agent results carry no rows but
+    ///     <see cref="PilotRunDeltaComputer" /> loaded a persisted findings snapshot.
+    /// </summary>
+    public IReadOnlyList<ArchitectureFinding> SnapshotFallbackFindings
     {
         get;
         init;

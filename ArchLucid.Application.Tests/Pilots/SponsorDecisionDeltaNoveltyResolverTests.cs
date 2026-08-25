@@ -16,6 +16,42 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class SponsorDecisionDeltaNoveltyResolverTests
 {
     [Fact]
+    public void Resolve_when_snapshot_fallback_findings_present_uses_deltas_for_decision_delta()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);
+        PilotRunDeltas deltas = BuildDeltas() with
+        {
+            SnapshotFallbackFindings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "f-governed",
+                    Severity = FindingSeverity.Critical,
+                    Category = "security",
+                    Message = "Enable TLS 1.2 minimum",
+                    EvidenceRefs = ["trace:trace-1"],
+                    EvaluationConfidenceScore = 88,
+                    ConfidenceLevel = FindingConfidenceLevel.High,
+                },
+            ],
+            TopFindingId = "f-governed",
+            TopFindingSeverity = "Critical",
+        };
+        ProofPackageCompletenessResponse proof = BuildProof();
+        PilotBuyerSafeEvidenceGateResult gate = BuildGate();
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            proof,
+            gate);
+
+        result.DecisionDeltaSummary.Should().Contain("Critical");
+        result.DecisionDeltaSummary.Should().NotContain("No active findings recorded");
+        result.NoveltyConfidence.Should().NotBe(SponsorNoveltyConfidence.NotAssessed);
+    }
+
+    [Fact]
     public void Resolve_when_committed_with_findings_emits_partial_or_strong_novelty()
     {
         ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: true);

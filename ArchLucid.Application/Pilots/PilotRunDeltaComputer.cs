@@ -145,12 +145,21 @@ public sealed class PilotRunDeltaComputer(
         (int? artifactCount, bool artifactResolved) = await artifactsTask;
         decimal? estimatedUsdSavings = await savingsTask;
         bool isDemo = ContosoRetailDemoIdentifiers.IsDemoRunId(runId) || ContosoRetailDemoIdentifiers.IsDemoRequestId(run.RequestId);
+        IReadOnlyList<ArchitectureFinding> snapshotFallbackFindings = persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotRows
+            && SumFindingCounts(AggregateFindingsBySeverity(detail)) == 0
+            ? snapshotRows
+                .Where(static finding => !finding.IsMuted)
+                .Select(PilotSnapshotFindingMapper.ToArchitectureFinding)
+                .ToList()
+            : [];
+
         return new PilotRunDeltas
         {
             RunCreatedUtc = run.CreatedUtc,
             ManifestCommittedUtc = committedUtc,
             TimeToCommittedManifest = wall,
             FindingsBySeverity = findings,
+            SnapshotFallbackFindings = snapshotFallbackFindings,
             GovernedFindingCoverage = governedCoverage,
             AuditRowCount = auditCount,
             AuditRowCountTruncated = auditTruncated,

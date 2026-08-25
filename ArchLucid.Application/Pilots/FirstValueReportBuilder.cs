@@ -257,7 +257,7 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine($"| ROI claim gate | {roiClaimGate.DispositionLeadLine} |");
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");
         sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
-        sb.AppendLine($"| Top findings | {FormatSponsorTopFindings(detail)} |");
+        sb.AppendLine($"| Top findings | {FormatSponsorTopFindings(detail, deltas)} |");
         sb.AppendLine($"| Deferred buyer requirements | {FormatSponsorDeferredBuyerRequirements()} |");
         sb.AppendLine($"| Recommended next action | {FormatSponsorNextAction(disposition, proof, deltas, run)} |");
         sb.AppendLine();
@@ -309,17 +309,9 @@ public sealed class FirstValueReportBuilder(
         return $"**{proof.RoiEvidenceConfidence}** — {label}; {fallback}.{inputsSummary}";
     }
 
-    private static string FormatSponsorTopFindings(ArchitectureRunDetail detail)
+    private static string FormatSponsorTopFindings(ArchitectureRunDetail detail, PilotRunDeltas deltas)
     {
-        List<ArchitectureFinding> topFindings = detail.Results
-            .SelectMany(static r => r.Findings)
-            .Select(static (Finding, Index) => new { Finding, Index })
-            .Where(static f => !f.Finding.IsMuted)
-            .OrderByDescending(static f => f.Finding.Severity)
-            .ThenBy(static f => f.Index)
-            .Take(3)
-            .Select(static f => f.Finding)
-            .ToList();
+        List<ArchitectureFinding> topFindings = PilotMaterialFindingsCollector.Collect(detail, deltas, take: 3);
 
         if (topFindings.Count == 0)
             return "No active findings recorded in this package.";
