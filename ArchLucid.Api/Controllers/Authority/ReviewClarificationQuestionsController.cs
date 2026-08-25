@@ -105,9 +105,7 @@ public sealed class ReviewClarificationQuestionsController(
             .TryRunAfterApplyAsync(scope, runId, applied, request.Answers, cancellationToken)
             .ConfigureAwait(false);
 
-        int mergedFindingCount = reReview?.SpecialistResults
-            .SelectMany(static result => result.Findings)
-            .Count() ?? 0;
+        int mergedFindingCount = reReview?.MergedFindingIds.Count ?? 0;
 
         await auditService.LogAsync(
             new AuditEvent

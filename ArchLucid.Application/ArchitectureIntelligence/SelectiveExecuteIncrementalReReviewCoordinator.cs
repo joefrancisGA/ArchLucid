@@ -117,16 +117,20 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
             .SelectMany(specialistResult => specialistResult.Findings)
             .ToList();
 
+        IReadOnlyList<string> mergedFindingIds = [];
+
         if (incrementalFindings.Count > 0
             && _authorityFindingsSnapshotUpdater is not null
             && Guid.TryParse(runId, out Guid runGuidForFindings))
         {
-            await _authorityFindingsSnapshotUpdater.MergeSpecialistFindingsAsync(
+            mergedFindingIds = await _authorityFindingsSnapshotUpdater.MergeSpecialistFindingsAsync(
                 scope,
                 runGuidForFindings,
                 incrementalFindings,
                 cancellationToken).ConfigureAwait(false);
         }
+
+        result.MergedFindingIds = mergedFindingIds;
 
         bool allGlobalInvariantsPassed = result.GlobalInvariantResults.All(check => check.Passed);
         string outcomeStatus = allGlobalInvariantsPassed ? "succeeded" : "completed-with-invariant-warnings";

@@ -39,6 +39,12 @@ public sealed class RecommendationImproveLoopResult
         get;
         init;
     }
+
+    public IReadOnlyList<string> MergedFindingIds
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class RecommendationImproveLoopCoordinator(
@@ -123,9 +129,11 @@ public sealed class RecommendationImproveLoopCoordinator(
             .SelectMany(result => result.Findings)
             .ToList();
 
+        IReadOnlyList<string> mergedFindingIds = [];
+
         if (incrementalFindings.Count > 0 && _findingsSnapshotUpdater is not null)
         {
-            await _findingsSnapshotUpdater.MergeSpecialistFindingsAsync(
+            mergedFindingIds = await _findingsSnapshotUpdater.MergeSpecialistFindingsAsync(
                 scope,
                 recommendation.RunId,
                 incrementalFindings,
@@ -138,6 +146,7 @@ public sealed class RecommendationImproveLoopCoordinator(
             Impact = impact,
             ReReview = reReview,
             PartialScopeDisclaimer = reReview.PartialScopeDisclaimer,
+            MergedFindingIds = mergedFindingIds,
         };
     }
 }

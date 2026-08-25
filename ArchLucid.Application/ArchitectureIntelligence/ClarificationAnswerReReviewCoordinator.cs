@@ -97,9 +97,11 @@ public sealed class ClarificationAnswerReReviewCoordinator(
             .SelectMany(specialistResult => specialistResult.Findings)
             .ToList();
 
+        IReadOnlyList<string> mergedFindingIds = [];
+
         if (incrementalFindings.Count > 0 && _authorityFindingsSnapshotUpdater is not null)
         {
-            await _authorityFindingsSnapshotUpdater.MergeSpecialistFindingsAsync(
+            mergedFindingIds = await _authorityFindingsSnapshotUpdater.MergeSpecialistFindingsAsync(
                 scope,
                 runId,
                 incrementalFindings,
@@ -132,11 +134,13 @@ public sealed class ClarificationAnswerReReviewCoordinator(
                     trigger = "clarification-answers-applied",
                     appliedAnswerCount,
                     fullReReviewTriggered = result.FullReReviewTriggered,
-                    mergedFindingCount = incrementalFindings.Count,
+                    mergedFindingCount = mergedFindingIds.Count,
                     partialScopeDisclaimer = result.PartialScopeDisclaimer,
                 }),
             },
             cancellationToken).ConfigureAwait(false);
+
+        result.MergedFindingIds = mergedFindingIds;
 
         return result;
     }
