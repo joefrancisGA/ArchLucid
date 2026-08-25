@@ -1,3 +1,4 @@
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
@@ -18,12 +19,16 @@ public interface IArchitectureIntelligenceAuthorityFindingsContributor
 
 public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
     IArchitectureIntelligencePersistence? persistence,
-    ISpecialistReviewService specialistReviewService) : IArchitectureIntelligenceAuthorityFindingsContributor
+    ISpecialistReviewService specialistReviewService,
+    IAdversarialReviewService adversarialReviewService) : IArchitectureIntelligenceAuthorityFindingsContributor
 {
     private readonly IArchitectureIntelligencePersistence? _persistence = persistence;
 
     private readonly ISpecialistReviewService _specialistReviewService =
         specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
+
+    private readonly IAdversarialReviewService _adversarialReviewService =
+        adversarialReviewService ?? throw new ArgumentNullException(nameof(adversarialReviewService));
 
     public async Task<IReadOnlyList<Finding>> ContributeAsync(
         ScopeContext scope,
@@ -49,6 +54,11 @@ public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
         if (specialistFindings.Count == 0)
             return [];
 
-        return ArchitectureIntelligenceProductBridge.ToFindings(specialistFindings);
+        AdversarialReviewResult adversarial = _adversarialReviewService.Review(specialistFindings);
+
+        List<Finding> findings = ArchitectureIntelligenceProductBridge.ToFindings(adversarial.SubstantiatedFindings);
+        findings.AddRange(ArchitectureIntelligenceProductBridge.ToHypothesisLaneFindings(adversarial.Challenges));
+
+        return findings;
     }
 }

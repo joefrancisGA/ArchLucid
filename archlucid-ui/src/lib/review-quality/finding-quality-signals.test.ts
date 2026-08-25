@@ -70,13 +70,24 @@ describe("finding-quality-signals", () => {
     expect(isContradictionReviewFinding(row)).toBe(true);
   });
 
-  it("detects requirement coverage gaps", () => {
+  it("detects adversarial lane from architecture intelligence wire properties", () => {
     const row = finding({
-      findingId: "f-4",
-      policyRuleId: "requirement-coverage-relation",
-      title: "Uncovered requirement: audit logging",
+      findingId: "f-hypothesis",
+      title: "Challenge finding: backup assumption",
+      recommendation: "Falsify/confirm with: recovery tier inventory",
+      severityValue: 1,
+      aiReasoning: {
+        wireJson: JSON.stringify({
+          properties: {
+            "architectureIntelligence.adversarialLane": "AdversarialChallenge",
+            "architectureIntelligence.provenancePresentation": "Hypothesis",
+          },
+        }),
+        reasoningTrace: "",
+      },
     });
 
-    expect(isCoverageGapReviewFinding(row)).toBe(true);
+    expect(isVerifyHypothesisReviewFinding(row)).toBe(true);
+    expect(isCannotDetermineReviewFinding(row)).toBe(false);
   });
 });

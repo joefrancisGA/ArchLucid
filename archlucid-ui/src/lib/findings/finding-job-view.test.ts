@@ -163,6 +163,25 @@ describe("finding-job-view", () => {
     expect(classifyGovernanceFindingJobView(row)).toBe("verify-hypotheses");
   });
 
+  it("maps architecture intelligence adversarial lane findings to verify-hypotheses", () => {
+    const finding = reviewFinding({
+      findingId: "f-hypothesis",
+      title: "Challenge finding: backup assumption",
+      recommendation: "Falsify/confirm with: recovery tier inventory",
+      severityValue: 1,
+      aiReasoning: {
+        wireJson: JSON.stringify({
+          properties: {
+            "architectureIntelligence.adversarialLane": "AdversarialChallenge",
+          },
+        }),
+        reasoningTrace: "",
+      },
+    });
+
+    expect(classifyReviewFindingJobView(finding)).toBe("verify-hypotheses");
+  });
+
   it("resolveEffectiveFindingJobView skips persisted job view when the filter bar is hidden", () => {
     expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", true)).toBe("ready-for-sponsor-packet");
     expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", false)).toBeNull();

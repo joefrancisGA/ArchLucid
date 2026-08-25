@@ -45,6 +45,30 @@ public sealed class ArchitectureIntelligenceProductBridgeTests
     }
 
     [Fact]
+    public void ToHypothesisLaneFindings_maps_adversarial_challenges_to_info_lane_findings()
+    {
+        AdversarialChallenge challenge = new()
+        {
+            ChallengeId = "challenge-1",
+            SourceFindingId = "finding-9",
+            Hypothesis = "Challenge finding: failover may be overstated",
+            FalsificationEvidenceNeeded = "Inventory-backed recovery tier evidence",
+            Lane = AdversarialLane.AdversarialChallenge,
+            Confidence = 0.4,
+        };
+
+        List<Finding> findings = ArchitectureIntelligenceProductBridge.ToHypothesisLaneFindings([challenge]);
+
+        findings.Should().ContainSingle();
+        findings[0].Severity.Should().Be(FindingSeverity.Info);
+        findings[0].FindingType.Should().Be("ArchitectureIntelligence.AdversarialChallenge");
+        findings[0].Properties["architectureIntelligence.adversarialLane"]
+            .Should().Be(AdversarialLane.AdversarialChallenge.ToString());
+        findings[0].Properties["architectureIntelligence.provenancePresentation"]
+            .Should().Be(ProvenancePresentationBucket.Hypothesis.ToString());
+    }
+
+    [Fact]
     public void ToRecommendationRecords_maps_proposed_status_and_supporting_findings()
     {
         SpecialistReviewFinding finding = new()
