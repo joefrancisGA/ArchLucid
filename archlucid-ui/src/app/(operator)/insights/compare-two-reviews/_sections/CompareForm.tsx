@@ -39,6 +39,10 @@ import {
   writeCompareLastComparisonPair,
   type CompareLastComparisonPair,
 } from "@/lib/compare/compare-last-comparison-pair-storage";
+import {
+  resolveCompareTwoReviewsEmphasizedStepId,
+  resolveCompareTwoReviewsSteps,
+} from "@/lib/compare-two-reviews-checklist";
 import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareEmptyResultsPlaceholder";
 import { CompareHowComparisonWorksSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareHowComparisonWorksSection";
 import { CompareRelatedReviewLinks } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRelatedReviewLinks";
@@ -51,6 +55,7 @@ import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/insights/compare-two-rev
 import { CompareResultsPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanel";
 import { CompareAdvancedDiagnosticsSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareAdvancedDiagnosticsSection";
 import { CompareRunPickersSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersSection";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { useCompareFinalizedRunAvailability } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFinalizedRunAvailability";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -423,6 +428,17 @@ export function CompareForm() {
     aiMalformed !== null;
 
   const compareInsightFirstLayout = pairAligned && !loading && compareHasRenderableOutcome;
+  const compareComplete = lastComparedPair !== null && (result !== null || golden !== null);
+  const compareChecklistSteps = resolveCompareTwoReviewsSteps({
+    priorPicked: leftTrim.length > 0,
+    laterPicked: rightTrim.length > 0,
+    compareComplete,
+  });
+  const compareChecklistEmphasizedStepId = resolveCompareTwoReviewsEmphasizedStepId({
+    priorPicked: leftTrim.length > 0,
+    laterPicked: rightTrim.length > 0,
+    compareComplete,
+  });
 
   async function onCompare() {
     if (sameCanonicalRunIdsBlocked) {
@@ -586,6 +602,13 @@ export function CompareForm() {
             </div>
           </div>
         ) : null}
+
+        <IntegrationConnectChecklist
+          title="Compare checklist"
+          steps={compareChecklistSteps}
+          emphasizedStepId={compareChecklistEmphasizedStepId}
+          testIdPrefix="compare-two-reviews"
+        />
 
         <CompareRunPickersSection
           leftPickerLabel={leftPickerLabel}
