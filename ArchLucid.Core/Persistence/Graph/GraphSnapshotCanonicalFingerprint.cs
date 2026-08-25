@@ -103,6 +103,30 @@ public static class GraphSnapshotCanonicalFingerprint
             ]);
     }
 
+    /// <summary>
+    ///     Stable κ content fingerprint for review-cache partitioning (omits run/model identity and <see cref="ArchitectureKnowledgeModel.UpdatedUtc" />).
+    /// </summary>
+    public static string ComputeReviewCacheKnowledgeModelFingerprint(ArchitectureKnowledgeModel? knowledgeModel)
+    {
+        if (knowledgeModel is null)
+            return string.Empty;
+
+        IEnumerable<string> elementParts = (knowledgeModel.Elements ?? [])
+            .OrderBy(element => element.ElementId, StringComparer.OrdinalIgnoreCase)
+            .Select(FormatKnowledgeModelElementFingerprint);
+
+        return string.Join(
+            "\n",
+            [
+                knowledgeModel.TenantId ?? string.Empty,
+                knowledgeModel.SchemaVersion.ToString(),
+                knowledgeModel.IsProvisionalSynthesis ? "provisional" : "complete",
+                FormatFramingAnswers(knowledgeModel),
+                FormatDeclaredPriorities(knowledgeModel),
+                .. elementParts,
+            ]);
+    }
+
     private static string FormatDeclaredPriorities(ArchitectureKnowledgeModel knowledgeModel)
     {
         if (knowledgeModel.DeclaredPriorities is null || knowledgeModel.DeclaredPriorities.Count == 0)

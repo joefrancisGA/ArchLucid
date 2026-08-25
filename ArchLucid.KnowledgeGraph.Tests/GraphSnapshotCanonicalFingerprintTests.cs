@@ -290,6 +290,24 @@ public sealed class GraphSnapshotCanonicalFingerprintTests
             .Should().NotBe(GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(tenantB));
     }
 
+    [Fact]
+    public void ComputeReviewCacheKnowledgeModelFingerprint_ignores_run_model_identity_and_updated_utc()
+    {
+        DateTime baselineUtc = new(2026, 8, 25, 12, 0, 0, DateTimeKind.Utc);
+        ArchitectureKnowledgeModel baseline = CreateFingerprintModel(baselineUtc, "Orders API", false, "scale");
+
+        ArchitectureKnowledgeModel identityChanged = CreateFingerprintModel(
+            baselineUtc.AddHours(2),
+            "Orders API",
+            false,
+            "scale");
+        identityChanged.ModelId = "model-2";
+        identityChanged.RunId = "run-2";
+
+        GraphSnapshotCanonicalFingerprint.ComputeReviewCacheKnowledgeModelFingerprint(baseline)
+            .Should().Be(GraphSnapshotCanonicalFingerprint.ComputeReviewCacheKnowledgeModelFingerprint(identityChanged));
+    }
+
     private static ArchitectureKnowledgeModel CreateFingerprintModel(
         DateTime updatedUtc,
         string description,

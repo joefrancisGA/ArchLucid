@@ -10,6 +10,6 @@ public static class ReviewCacheModelFingerprint
 {
     public static string Compute(ArchitectureKnowledgeModel? knowledgeModel)
     {
-        return GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(knowledgeModel);
+        return GraphSnapshotCanonicalFingerprint.ComputeReviewCacheKnowledgeModelFingerprint(knowledgeModel);
     }
 }
