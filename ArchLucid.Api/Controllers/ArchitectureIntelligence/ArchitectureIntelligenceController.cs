@@ -29,7 +29,6 @@ namespace ArchLucid.Api.Controllers.ArchitectureIntelligence;
 public sealed class ArchitectureIntelligenceController(
     IClosedLoopArchitectureReasoningOrchestrator reasoningOrchestrator,
     IGoldenArchitectureTestRunner goldenArchitectureTestRunner,
-    IArchitectureIntelligencePersistence? architectureIntelligencePersistence,
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
     IArchitectureIntelligenceProductPublishService productPublishService,
     IArchitectureIntelligenceProductRunSourceContextLoader productRunSourceContextLoader,
