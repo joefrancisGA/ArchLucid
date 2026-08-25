@@ -41,19 +41,11 @@ public static class PolicyPackCoverageProofEvaluator
             };
         }
 
-        HashSet<string> triggeredPolicyRuleIds = findings
-            .Where(finding => !string.IsNullOrWhiteSpace(finding.PolicyRuleId))
-            .Select(finding => finding.PolicyRuleId!)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
         int unproven = 0;
 
         foreach (CommittedGovernancePackAssignmentSnapshot assignment in assignments)
         {
-            string packToken = assignment.PolicyPackId.ToString("D");
-
-            bool hasSignal = triggeredPolicyRuleIds.Any(ruleId =>
-                ruleId.Contains(packToken, StringComparison.OrdinalIgnoreCase));
+            bool hasSignal = findings.Any(finding => PolicyPackFindingMatcher.MatchesAssignment(finding, assignment));
 
             if (!hasSignal)
                 unproven++;

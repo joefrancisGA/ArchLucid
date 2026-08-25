@@ -19,11 +19,6 @@ public static class PolicyPackAssignmentOutcomeRecorder
         if (descriptor?.PackAssignments is not { Count: > 0 } assignments)
             return governanceScopeJson;
 
-        HashSet<string> triggeredPolicyRuleIds = findings
-            .Where(finding => !string.IsNullOrWhiteSpace(finding.PolicyRuleId))
-            .Select(finding => finding.PolicyRuleId!)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
         bool findingsComplete = findingsSnapshot?.GenerationStatus == FindingsSnapshotGenerationStatus.Complete;
         bool findingsFailed = findingsSnapshot?.GenerationStatus == FindingsSnapshotGenerationStatus.Failed;
 
@@ -31,7 +26,7 @@ public static class PolicyPackAssignmentOutcomeRecorder
         {
             assignment.EvaluationOutcome = DetermineOutcome(
                 assignment,
-                triggeredPolicyRuleIds,
+                findings,
                 findingsSnapshot,
                 findingsComplete,
                 findingsFailed);
@@ -42,7 +37,7 @@ public static class PolicyPackAssignmentOutcomeRecorder
 
     private static string DetermineOutcome(
         CommittedGovernancePackAssignmentSnapshot assignment,
-        HashSet<string> triggeredPolicyRuleIds,
+        IReadOnlyList<Finding> findings,
         FindingsSnapshot? findingsSnapshot,
         bool findingsComplete,
         bool findingsFailed)
@@ -58,8 +53,7 @@ public static class PolicyPackAssignmentOutcomeRecorder
         if (!findingsComplete && findingsSnapshot is not null)
             return PolicyPackEvaluationOutcomes.Skipped;
 
-        bool hasSignal = triggeredPolicyRuleIds.Any(ruleId =>
-            ruleId.Contains(packToken, StringComparison.OrdinalIgnoreCase));
+        bool hasSignal = findings.Any(finding => PolicyPackFindingMatcher.MatchesAssignment(finding, assignment));
 
         if (hasSignal || findingsComplete)
             return PolicyPackEvaluationOutcomes.Evaluated;
