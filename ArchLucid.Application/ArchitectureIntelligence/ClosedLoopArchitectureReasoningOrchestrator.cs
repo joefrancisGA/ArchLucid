@@ -373,7 +373,6 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
         if (cacheManifest is not null)
         {
-            ClosedLoopCacheHitPublishGuard.SanitizeForStorage(result);
             _reviewResultCache.Set(cacheManifest, result);
         }
 
