@@ -238,7 +238,7 @@ public sealed class AdvisoryController(
             {
                 ScopeContext scope = scopeProvider.GetCurrentScope();
                 await _recommendationImproveLoopEvidencePersister
-                    .PersistAsync(scope, updated.RunId, improveLoop, ct)
+                    .PersistAsync(scope, updated.RunId, improveLoop, improveLoop?.MergedFindingIds, ct)
                     .ConfigureAwait(false);
             }
         }

@@ -18,11 +18,18 @@ internal static class RecommendationImproveLoopResponseMapper
         if (string.IsNullOrWhiteSpace(improveLoopEvidenceJson))
             return null;
 
-        RecommendationImproveLoopResult? improveLoop = JsonSerializer.Deserialize<RecommendationImproveLoopResult>(
+        RecommendationImproveLoopEvidenceRecord? record = JsonSerializer.Deserialize<RecommendationImproveLoopEvidenceRecord>(
             improveLoopEvidenceJson,
             PersistedEvidenceJsonOptions);
 
-        return ToEvidenceResponse(improveLoop);
+        if (record is not null)
+            return ToEvidenceResponse(record);
+
+        RecommendationImproveLoopResult? legacyImproveLoop = JsonSerializer.Deserialize<RecommendationImproveLoopResult>(
+            improveLoopEvidenceJson,
+            PersistedEvidenceJsonOptions);
+
+        return ToEvidenceResponse(legacyImproveLoop);
     }
 
     public static RecommendationImproveLoopEvidenceResponse? ToEvidenceResponse(
@@ -31,12 +38,19 @@ internal static class RecommendationImproveLoopResponseMapper
         if (improveLoop is null)
             return null;
 
-        List<string> mergedFindingIds = improveLoop.ReReview?.SpecialistResults
-            .SelectMany(static result => result.Findings)
-            .Select(static finding => finding.FindingId)
-            .Where(static id => !string.IsNullOrWhiteSpace(id))
-            .Distinct(StringComparer.Ordinal)
-            .ToList() ?? [];
+        List<string> mergedFindingIds = improveLoop.MergedFindingIds.Count > 0
+            ? improveLoop.MergedFindingIds.ToList()
+            : improveLoop.ReReview?.MergedFindingIds.ToList() ?? [];
+
+        if (mergedFindingIds.Count == 0 && improveLoop.ReReview is not null)
+        {
+            mergedFindingIds = improveLoop.ReReview.SpecialistResults
+                .SelectMany(static result => result.Findings)
+                .Select(static finding => finding.FindingId)
+                .Where(static id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+        }
 
         return new RecommendationImproveLoopEvidenceResponse
         {
@@ -45,6 +59,22 @@ internal static class RecommendationImproveLoopResponseMapper
             PartialScopeDisclaimer = improveLoop.PartialScopeDisclaimer,
             MergedFindingIds = mergedFindingIds,
             FullReReviewTriggered = improveLoop.ReReview?.FullReReviewTriggered ?? false,
+        };
+    }
+
+    public static RecommendationImproveLoopEvidenceResponse? ToEvidenceResponse(
+        RecommendationImproveLoopEvidenceRecord? record)
+    {
+        if (record is null)
+            return null;
+
+        return new RecommendationImproveLoopEvidenceResponse
+        {
+            DiffEntries = record.DiffEntries,
+            Impact = record.Impact,
+            PartialScopeDisclaimer = record.PartialScopeDisclaimer,
+            MergedFindingIds = record.MergedFindingIds,
+            FullReReviewTriggered = record.FullReReviewTriggered,
         };
     }
 }

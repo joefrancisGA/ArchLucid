@@ -13,6 +13,7 @@ public interface IRecommendationImproveLoopEvidencePersister
         ScopeContext scope,
         Guid runId,
         RecommendationImproveLoopResult? improveLoop,
+        IReadOnlyList<string>? mergedFindingIds = null,
         CancellationToken cancellationToken = default);
 }
 
@@ -28,19 +29,32 @@ public sealed class RecommendationImproveLoopEvidencePersister(
         ScopeContext scope,
         Guid runId,
         RecommendationImproveLoopResult? improveLoop,
+        IReadOnlyList<string>? mergedFindingIds = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-
-        if (improveLoop is null)
-            return;
 
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
         if (run is null)
             return;
 
-        run.ImproveLoopEvidenceJson = JsonSerializer.Serialize(improveLoop, JsonOptions);
+        if (improveLoop is null)
+        {
+            run.ImproveLoopEvidenceJson = null;
+            await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+
+            return;
+        }
+
+        RecommendationImproveLoopEvidenceRecord? record = RecommendationImproveLoopEvidenceRecord.FromImproveLoopResult(
+            improveLoop,
+            mergedFindingIds ?? improveLoop.MergedFindingIds);
+
+        run.ImproveLoopEvidenceJson = record is null
+            ? null
+            : JsonSerializer.Serialize(record, JsonOptions);
+
         await runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
     }
 }
