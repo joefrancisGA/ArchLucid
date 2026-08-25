@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
@@ -113,6 +114,31 @@ public sealed class ArchitectureFindingJsonConverterTests
 
         act.Should().Throw<JsonException>()
             .WithMessage("*Unknown finding severity value*");
+    }
+
+    [Fact]
+    public void Deserialize_pascal_case_sourceAgent_and_severity_when_options_are_case_insensitive()
+    {
+        const string json = """
+                            {
+                              "SourceAgent": "Topology",
+                              "Severity": "Warning",
+                              "category": "Topology",
+                              "message": "Subnet missing."
+                            }
+                            """;
+
+        JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
+        {
+            PropertyNameCaseInsensitive = true,
+            Converters = { new ArchitectureFindingJsonConverter() },
+        };
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.SourceAgent.Should().Be(AgentType.Topology);
+        finding.Severity.Should().Be(FindingSeverity.Warning);
     }
 
     private static JsonSerializerOptions CreateOptions()
