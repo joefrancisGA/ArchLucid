@@ -9,6 +9,7 @@ import { OperateExecutePageHint } from "@/components/OperateCapabilityHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { AlertRoutingContinueLastViewedRow } from "@/components/alerts/AlertRoutingContinueLastViewedRow";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -69,6 +70,10 @@ import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } fro
 import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_AUDIT_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import {
+  resolveContinueLastAlertRoutingSubscription,
+  writeAlertRoutingSubscriptionLastViewedId,
+} from "@/lib/resolve-continue-last-alert-routing-subscription";
+import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
   testWebhookSubscription,
@@ -95,6 +100,10 @@ export function AlertRoutingContent() {
   const formSectionRef = useRef<HTMLElement | null>(null);
   const statusRegionId = useId();
   const items = routingQuery.items;
+  const continueLastSubscription = useMemo(
+    () => resolveContinueLastAlertRoutingSubscription(items),
+    [items],
+  );
   const loading = routingQuery.loading;
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const failure = routingQuery.failure ?? mutationFailure;
@@ -238,6 +247,7 @@ export function AlertRoutingContent() {
       setName("");
       setMinimumSeverity("High");
       setFieldErrors({});
+      writeAlertRoutingSubscriptionLastViewedId(created.routingSubscriptionId);
       setStatusMessage("Notification destination created.");
       await routingQuery.refresh();
     } catch (e) {
@@ -274,6 +284,7 @@ export function AlertRoutingContent() {
 
   async function executeToggle(id: string): Promise<void> {
     setMutationFailure(null);
+    writeAlertRoutingSubscriptionLastViewedId(id);
 
     try {
       await toggleAlertRoutingSubscription(id);
@@ -304,6 +315,8 @@ export function AlertRoutingContent() {
   }
 
   async function loadAttempts(routingSubscriptionId: string) {
+    writeAlertRoutingSubscriptionLastViewedId(routingSubscriptionId);
+
     try {
       const rows = await listAlertRoutingDeliveryAttempts(routingSubscriptionId, 30);
       setAttemptsBySub((prev) => ({ ...prev, [routingSubscriptionId]: rows }));
@@ -317,6 +330,7 @@ export function AlertRoutingContent() {
       return;
     }
 
+    writeAlertRoutingSubscriptionLastViewedId(routingSubscriptionId);
     setTestingId(routingSubscriptionId);
     try {
       const result = await testWebhookSubscription(routingSubscriptionId);
@@ -326,6 +340,18 @@ export function AlertRoutingContent() {
     } finally {
       setTestingId(null);
     }
+  }
+
+  function rememberSubscription(subscriptionId: string): void {
+    writeAlertRoutingSubscriptionLastViewedId(subscriptionId);
+  }
+
+  function openSubscription(subscriptionId: string): void {
+    rememberSubscription(subscriptionId);
+    document
+      .querySelector(`[data-alert-routing-subscription-id="${subscriptionId}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    void loadAttempts(subscriptionId);
   }
 
   return (
@@ -390,6 +416,12 @@ export function AlertRoutingContent() {
           <h3 id="alert-routing-destinations-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Notification destinations
           </h3>
+          {continueLastSubscription !== null ? (
+            <AlertRoutingContinueLastViewedRow
+              target={continueLastSubscription}
+              onOpen={openSubscription}
+            />
+          ) : null}
           <AlertRoutingDestinationList
             items={items}
             attemptsBySub={attemptsBySub}

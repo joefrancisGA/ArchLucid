@@ -83,7 +83,10 @@ export function AlertRoutingDestinationList({
             const attempts = attemptsBySub[item.routingSubscriptionId] ?? [];
 
             return (
-              <EnterpriseTableRow key={item.routingSubscriptionId}>
+              <EnterpriseTableRow
+                key={item.routingSubscriptionId}
+                data-alert-routing-subscription-id={item.routingSubscriptionId}
+              >
                 <EnterpriseTableCell className={OPERATOR_TYPOGRAPHY.body}>{item.name}</EnterpriseTableCell>
                 <EnterpriseTableCell className={OPERATOR_TYPOGRAPHY.body}>
                   {channelDisplayLabel(item.channelType)}

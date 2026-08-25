@@ -310,6 +310,10 @@ describe("AlertRoutingContent", () => {
 
     await screen.findByTestId("alert-routing-destination-list");
 
+    expect(screen.getByTestId("alert-routing-continue-last-viewed-row")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-routing-continue-last-viewed-open")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-routing-continue-last-viewed-row")).toHaveTextContent("Ops email");
+
     const hint = screen.getByTestId("alert-routing-list-mutate-disabled-hint");
 
     expect(hint).toHaveTextContent(enterpriseMutationControlDisabledTitle);
