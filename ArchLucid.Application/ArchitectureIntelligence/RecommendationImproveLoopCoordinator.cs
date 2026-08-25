@@ -103,15 +103,19 @@ public sealed class RecommendationImproveLoopCoordinator(
         };
 
         ArchitectureModelDiff diff = _diffApplier.ApplyRecommendation(model, architectureRecommendation);
-        await _knowledgeModelAccess.SaveForRunAsync(scope, runId, diff.AfterModel, cancellationToken)
+        ArchitectureKnowledgeModel afterModel = diff.AfterModel
+            ?? throw new InvalidOperationException("Recommendation apply did not produce an after-model.");
+
+        await _knowledgeModelAccess.SaveForRunAsync(scope, runId, afterModel, cancellationToken)
             .ConfigureAwait(false);
 
         ChangeImpactResult impact = _changeImpactAnalyzer.Analyze(diff, architectureRecommendation);
 
         ReReviewScope scopeForReReview = new()
         {
-            AffectedElementIds = impact.ImpactedItems
+            AffectedElementIds = (impact.ImpactedItems ?? [])
                 .Select(item => item.ElementId)
+                .Where(static id => !string.IsNullOrWhiteSpace(id))
                 .Distinct(StringComparer.Ordinal)
                 .ToList(),
             IncludeGlobalInvariantChecks = true,
@@ -120,7 +124,7 @@ public sealed class RecommendationImproveLoopCoordinator(
         };
 
         IncrementalReReviewResult reReview = await _incrementalReReviewService.ReReviewAsync(
-            diff.AfterModel,
+            afterModel,
             scopeForReReview,
             _specialistReviewService,
             cancellationToken).ConfigureAwait(false);
@@ -142,7 +146,7 @@ public sealed class RecommendationImproveLoopCoordinator(
 
         return new RecommendationImproveLoopResult
         {
-            Diff = diff,
+            Diff = ArchitectureModelDiffPayloadSlimmer.WithoutModels(diff),
             Impact = impact,
             ReReview = reReview,
             PartialScopeDisclaimer = reReview.PartialScopeDisclaimer,
