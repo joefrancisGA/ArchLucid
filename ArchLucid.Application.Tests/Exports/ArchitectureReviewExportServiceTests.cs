@@ -200,6 +200,57 @@ public sealed class ArchitectureReviewExportServiceTests
     }
 
     [Fact]
+    public async Task GenerateReportAsync_html_includes_active_trial_notice_when_tenant_on_active_trial()
+    {
+        const string runId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        runDetailQuery.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = detail.Run,
+            Manifest = detail.Manifest,
+            Summary = "Summary text."
+        };
+
+        Mock<IArchitectureAnalysisService> analysis = new();
+        analysis.Setup(x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(report);
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "Trial tenant",
+                    Slug = "trial",
+                    Tier = TenantTier.Standard,
+                    TrialStatus = TrialLifecycleStatus.Active
+                });
+
+        ArchitectureReviewExportService sut = CreateSut(runDetailQuery.Object, analysis.Object, scope.Object, tenants.Object);
+
+        ExportResult result =
+            await sut.GenerateReportAsync(runId, ExportFormat.Html, whitelabel: null, logoImageBytes: null, httpCorrelationId: null,
+                CancellationToken.None);
+
+        using MemoryStream ms = new();
+        await result.Content.CopyToAsync(ms);
+        string html = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+
+        html.Should().Contain("Trial notice");
+        html.Should().Contain(ActiveTrialExportNoticeFormatter.BaseSuffix);
+
+        await result.Content.DisposeAsync();
+    }
+
+    [Fact]
     public async Task GenerateReportAsync_throws_when_run_missing()
     {
         Mock<IRunDetailQueryService> runDetailQuery = new();

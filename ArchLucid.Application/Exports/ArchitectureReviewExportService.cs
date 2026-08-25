@@ -139,7 +139,7 @@ public sealed class ArchitectureReviewExportService(
 
             case ExportFormat.Html:
             {
-                byte[] bytes = Encoding.UTF8.GetBytes(BuildMinimalHtml(documentModel));
+                byte[] bytes = Encoding.UTF8.GetBytes(BuildMinimalHtml(documentModel, activeTrialExportNotice));
                 MemoryStream stream = new(bytes);
 
                 return new ExportResult(stream, "text/html; charset=utf-8", $"architecture-review-board-{safeSegment}.html");
@@ -222,7 +222,7 @@ public sealed class ArchitectureReviewExportService(
         return false;
     }
 
-    private static string BuildMinimalHtml(ArchitectureReviewBoardExportDocumentModel documentModel)
+    private static string BuildMinimalHtml(ArchitectureReviewBoardExportDocumentModel documentModel, string? activeTrialExportNotice)
     {
         ArgumentNullException.ThrowIfNull(documentModel);
 
@@ -249,6 +249,13 @@ public sealed class ArchitectureReviewExportService(
             html.AppendLine(
                 CultureInfo.InvariantCulture,
                 $"<p><strong>Demo notice:</strong> {HtmlEncode(ArchitectureReviewBoardCoverPageContent.DemoTenantNotice)}</p>");
+        }
+
+        if (!string.IsNullOrWhiteSpace(activeTrialExportNotice))
+        {
+            html.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"<p><strong>Trial notice:</strong> {HtmlEncode(activeTrialExportNotice)}</p>");
         }
 
         if (!string.IsNullOrWhiteSpace(documentModel.ExplanationConfidenceCallout))
