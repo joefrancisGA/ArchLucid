@@ -40,4 +40,14 @@ describe("loadGovernanceReviewContext", () => {
       manifestVersion: null,
     });
   });
+
+  it("uses static showcase context for customer-intake-modernization without API calls", async () => {
+    await expect(loadGovernanceReviewContext("customer-intake-modernization")).resolves.toEqual({
+      displayTitle: "Enterprise Customer Intake Modernization",
+      manifestVersion: null,
+    });
+
+    expect(apiHoisted.getRunSummary).not.toHaveBeenCalled();
+    expect(apiHoisted.getRunDetail).not.toHaveBeenCalled();
+  });
 });

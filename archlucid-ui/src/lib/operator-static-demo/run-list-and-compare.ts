@@ -36,6 +36,40 @@ function isRunsListCuratedShowcaseAllowed(): boolean {
 }
 
 /**
+ * Showcase spine list row for a known sample run id — active in buyer-polished / dev shells without demo env.
+ */
+export function tryShowcaseSpineRunSummariesPaged(
+  projectId: string,
+  runId: string,
+): { items: RunSummary[]; totalCount: number } | null {
+  const effectiveRunId = canonicalizeDemoRunId(runId.trim());
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
+    return null;
+  }
+
+  const d = getShowcaseStaticDemoPayload(effectiveRunId);
+  const chain = d.authorityChain;
+
+  const item: RunSummary = {
+    runId: effectiveRunId,
+    projectId,
+    description: d.run.description,
+    createdUtc: d.run.createdUtc,
+    hasContextSnapshot: !!chain.contextSnapshotId,
+    hasGraphSnapshot: !!chain.graphSnapshotId,
+    hasFindingsSnapshot: !!chain.findingsSnapshotId,
+    hasGoldenManifest: true,
+    hasGovernanceWarnings: true,
+    findingCount: SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
+    warningCount: SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
+    packageOrigin: "Reviewed",
+  };
+
+  return { items: [item], totalCount: 1 };
+}
+
+/**
  * When the runs list API fails (or returns unusable JSON), serve one curated Customer Intake row so
  * primary nav + `/runs` screenshots stay credible in demo / static-operator deploys.
  */

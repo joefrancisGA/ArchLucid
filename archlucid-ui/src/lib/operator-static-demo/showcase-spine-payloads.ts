@@ -4,13 +4,19 @@ import { SHOWCASE_HOME_AHA_MOMENT } from "@/lib/showcase-home-aha-moment";
 import { CUSTOMER_INTAKE_RULE_SET_VERSION } from "@/lib/samples/customer-intake-modernization/definition";
 import { resolveSampleScenarioByManifestId, resolveSampleScenarioByRunId } from "@/lib/samples/registry";
 import { sampleScenarioPolicyPackLabel } from "@/lib/samples/policy-pack-presentation";
+import type {
+  RunDetailCriticalPageBundle,
+  RunDetailWorkspaceContextBundle,
+} from "@/lib/fetch-run-detail-page-bundle-client";
 import {
   getShowcaseDecisionSynopsesForRunId,
   getShowcaseStaticDemoPayload,
   getShowcaseWarningSynopsesForRunId,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
+  SHOWCASE_STATIC_DEMO_SPINE_COUNTS,
 } from "@/lib/showcase-static-demo";
+import type { RunSummary } from "@/types/authority";
 import type {
   ArtifactDescriptor,
   ManifestSummary,
@@ -605,21 +611,19 @@ export function tryStaticDemoFindingInspect(runId: string, findingId: string): F
 }
 
 export function tryStaticDemoManifestSummary(manifestId: string): ManifestSummary | null {
-  if (!isShowcaseSpineStaticPayloadActiveForManifest(manifestId)) {
-    return null;
-  }
+  const trimmed = manifestId.trim();
 
-  if (manifestId === SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID) {
+  if (trimmed === SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID) {
     return buildStaticDemoManifestSummaryFromCreatedShowcase(SHOWCASE_CREATED_STATIC_DEMO_RUN_ID);
   }
 
-  const scenarioByManifest = resolveSampleScenarioByManifestId(manifestId);
+  const scenarioByManifest = resolveSampleScenarioByManifestId(trimmed);
 
   if (scenarioByManifest !== null) {
     return buildStaticDemoManifestSummaryFromShowcase(scenarioByManifest.runId);
   }
 
-  return buildStaticDemoManifestSummaryFromShowcase(SHOWCASE_STATIC_DEMO_RUN_ID);
+  return null;
 }
 
 export function tryStaticDemoPipelineTimeline(runId: string): PipelineTimelineItem[] | null {
@@ -649,11 +653,11 @@ export function tryStaticDemoPipelineTimeline(runId: string): PipelineTimelineIt
 }
 
 export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: string): ArtifactDescriptor[] | null {
-  if (!isShowcaseSpineStaticPayloadActiveForRun(runIdForPayload)) {
+  const effectiveRunId = canonicalizeDemoRunId(runIdForPayload);
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
     return null;
   }
-
-  const effectiveRunId = canonicalizeDemoRunId(runIdForPayload);
 
   if (manifestId === SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID) {
     return buildStaticDemoArtifactsFromCreatedShowcase(effectiveRunId);
@@ -685,4 +689,73 @@ export function tryStaticDemoExplanationSummary(runId: string): RunExplanationSu
   }
 
   return getShowcaseStaticDemoPayload(effectiveRunId).runExplanation;
+}
+
+function buildShowcaseSpineRunSummaryForProject(runId: string, projectId: string): RunSummary | null {
+  const effectiveRunId = canonicalizeDemoRunId(runId.trim());
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
+    return null;
+  }
+
+  const d = getShowcaseStaticDemoPayload(effectiveRunId);
+  const chain = d.authorityChain;
+
+  return {
+    runId: effectiveRunId,
+    projectId,
+    description: d.run.description,
+    createdUtc: d.run.createdUtc,
+    hasContextSnapshot: !!chain.contextSnapshotId,
+    hasGraphSnapshot: !!chain.graphSnapshotId,
+    hasFindingsSnapshot: !!chain.findingsSnapshotId,
+    hasGoldenManifest: true,
+    hasGovernanceWarnings: true,
+    findingCount: SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
+    warningCount: SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
+    packageOrigin: "Reviewed",
+  };
+}
+
+/** Bundled critical-page payload for showcase spine runs — avoids run-scoped authority HTTP. */
+export function tryStaticRunDetailCriticalPageBundle(runId: string): RunDetailCriticalPageBundle | null {
+  const effectiveRunId = canonicalizeDemoRunId(runId.trim());
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
+    return null;
+  }
+
+  const detail = isShowcaseCreatedStaticDemoRunId(effectiveRunId)
+    ? buildStaticDemoRunDetailFromCreatedShowcase(effectiveRunId)
+    : buildStaticDemoRunDetailFromShowcase(effectiveRunId);
+
+  const manifestId = detail.run.goldenManifestId?.trim() ?? "";
+  const manifestSummary =
+    manifestId.length > 0 ? tryStaticDemoManifestSummary(manifestId) : null;
+  const artifacts =
+    manifestId.length > 0 ? tryStaticDemoArtifacts(runId, manifestId) ?? [] : [];
+  const progressSummary = buildShowcaseSpineRunSummaryForProject(runId, detail.run.projectId);
+
+  return {
+    buyerSummary: detail,
+    progressSummary,
+    manifestSummary,
+    artifacts,
+  };
+}
+
+/** Empty workspace context for showcase spine runs — defers compare/next-review to static list helpers. */
+export function tryStaticRunDetailWorkspaceContextBundle(runId: string): RunDetailWorkspaceContextBundle | null {
+  const effectiveRunId = canonicalizeDemoRunId(runId.trim());
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
+    return null;
+  }
+
+  return {
+    recentProjectRuns: [],
+    priorCommittedRunComparison: null,
+    priorCommittedRunId: null,
+    priorCommittedRunCreatedUtc: null,
+  };
 }

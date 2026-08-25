@@ -1,6 +1,7 @@
 import { getArchitectureRequest, getRunDetail } from "@/lib/api";
 import { ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL } from "@/lib/architecture/architecture-draft-structured-brief";
 import { coerceRunDetail } from "@/lib/operator/operator-response-guards";
+import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 
 function mergeUniqueAssumptionTexts(existing: readonly string[], incoming: readonly string[]): string[] {
   const seen = new Set(existing.map((value) => value.trim().toLowerCase()).filter((value) => value.length > 0));
@@ -28,8 +29,14 @@ function mergeUniqueAssumptionTexts(existing: readonly string[], incoming: reado
 
 /** Best-effort load of architecture-request assumptions for review assumption strip (TB-2314). */
 export async function tryLoadRequestAssumptionsForRun(runId: string): Promise<readonly string[]> {
+  const trimmedRunId = runId.trim();
+
+  if (trimmedRunId.length === 0 || shouldSkipLiveAuthorityRunScopedApi(trimmedRunId)) {
+    return [];
+  }
+
   try {
-    const detailEnvelope = await getRunDetail(runId.trim());
+    const detailEnvelope = await getRunDetail(trimmedRunId);
     const coercedDetail = coerceRunDetail(detailEnvelope.data);
 
     if (!coercedDetail.ok) {
