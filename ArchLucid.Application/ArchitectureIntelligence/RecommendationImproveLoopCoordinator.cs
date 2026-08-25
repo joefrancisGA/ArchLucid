@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Advisory.Workflow;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Scoping;
 
@@ -49,8 +48,7 @@ public sealed class RecommendationImproveLoopCoordinator(
     IChangeImpactAnalyzer changeImpactAnalyzer,
     IIncrementalReReviewService incrementalReReviewService,
     ISpecialistReviewService specialistReviewService,
-    IAuthorityFindingsSnapshotUpdater? findingsSnapshotUpdater,
-    IArchitectureIntelligenceAuthorityFindingsContributor? authorityFindingsContributor = null) : IRecommendationImproveLoopCoordinator
+    IAuthorityFindingsSnapshotUpdater? findingsSnapshotUpdater) : IRecommendationImproveLoopCoordinator
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -70,9 +68,6 @@ public sealed class RecommendationImproveLoopCoordinator(
         specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
 
     private readonly IAuthorityFindingsSnapshotUpdater? _findingsSnapshotUpdater = findingsSnapshotUpdater;
-
-    private readonly IArchitectureIntelligenceAuthorityFindingsContributor? _authorityFindingsContributor =
-        authorityFindingsContributor;
 
     public async Task<RecommendationImproveLoopResult?> TryApplyAsync(
         RecommendationRecord recommendation,
@@ -126,18 +121,6 @@ public sealed class RecommendationImproveLoopCoordinator(
         List<SpecialistReviewFinding> incrementalFindings = reReview.SpecialistResults
             .SelectMany(result => result.Findings)
             .ToList();
-
-        if (_authorityFindingsContributor is not null && _findingsSnapshotUpdater is not null)
-        {
-            IReadOnlyList<Finding> authorityFindings = await _authorityFindingsContributor
-                .ContributeAsync(scope, recommendation.RunId.ToString("D"), cancellationToken)
-                .ConfigureAwait(false);
-
-            List<SpecialistReviewFinding> mappedFindings = AuthorityFindingToSpecialistMapper.MapAll(authorityFindings);
-
-            if (mappedFindings.Count > 0)
-                incrementalFindings = mappedFindings;
-        }
 
         if (incrementalFindings.Count > 0 && _findingsSnapshotUpdater is not null)
         {
