@@ -98,6 +98,19 @@ public sealed class NoOpScimUserRepository : IScimUserRepository
         throw new NotSupportedException("SCIM user storage is not configured.");
 
     /// <inheritdoc />
+    public Task<ScimUserRecord> ReactivateAsync(
+        Guid tenantId,
+        Guid id,
+        string externalId,
+        string userName,
+        string? displayName,
+        bool active,
+        string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
+        CancellationToken cancellationToken) =>
+        throw new NotSupportedException("SCIM user storage is not configured.");
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<(string DisplayName, string ExternalId)>> ListGroupKeysForUserAsync(
         Guid tenantId,
         Guid userId,

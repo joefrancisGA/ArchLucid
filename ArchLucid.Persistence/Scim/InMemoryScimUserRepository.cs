@@ -184,6 +184,44 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
     }
 
     /// <inheritdoc />
+    public Task<ScimUserRecord> ReactivateAsync(
+        Guid tenantId,
+        Guid id,
+        string externalId,
+        string userName,
+        string? displayName,
+        bool active,
+        string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        if (!_byId.TryGetValue(id, out ScimUserRecord? existing) || existing.TenantId != tenantId)
+            throw new InvalidOperationException($"SCIM user '{id:D}' was not found for tenant '{tenantId:D}'.");
+
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+        ScimUserRecord u = new()
+        {
+            Id = id,
+            TenantId = tenantId,
+            ExternalId = externalId,
+            UserName = userName,
+            DisplayName = displayName,
+            Active = active,
+            ResolvedRole = resolvedRole,
+            ResolvedRoleOrigin = resolvedRoleOrigin,
+            DirectoryRemovedUtc = null,
+            CreatedUtc = existing.CreatedUtc,
+            UpdatedUtc = now
+        };
+
+        _byId[id] = u;
+
+        return Task.FromResult(u);
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<(string DisplayName, string ExternalId)>> ListGroupKeysForUserAsync(
         Guid tenantId,
         Guid userId,

@@ -1070,11 +1070,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — repeat DELETE returned 204 for directory-removed user
+- **last-bug:** 2026-08-25 — POST create after DELETE returned 409 on tombstoned externalId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1089,6 +1089,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) PUT re-activation reserved seat then leaked it when replace failed — **hit 2026-08-24:** `CompensateSeatTransitionAsync` on persistence failure; regression in `ReplaceAsync_compensates_seat_when_persistence_fails_after_activation`
 - [x] (proven) DELETE decremented enterprise seat then leaked it when repository deactivate failed — **hit 2026-08-24:** `DeactivateAsync` had no compensating increment; regression in `DeactivateAsync_restores_seat_when_persistence_fails`
 - [x] (proven) Repeat DELETE on directory-removed user returned success instead of notFound — **hit 2026-08-25:** `DeactivateAsync` omitted `DirectoryRemovedUtc` guard used by GET/PUT/PATCH; second DELETE returned HTTP 204 while GET returned 404; regression in `DeactivateAsync_throws_not_found_when_user_already_directory_removed`
+- [x] (proven) POST create after directory DELETE returned 409 on tombstoned `externalId` instead of reactivating — **hit 2026-08-25:** `CreateAsync` treated directory-removed rows as active duplicates; `UQ_ScimUsers_TenantId_ExternalId` blocks insert; `ReactivateAsync` clears `DirectoryRemovedUtc` and restores profile; regression in `CreateAsync_after_directory_remove_reactivates_same_external_id`
 
 ---
 

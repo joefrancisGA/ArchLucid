@@ -306,6 +306,52 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task CreateAsync_after_directory_remove_reactivates_same_external_id()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "SCIM Reactivation Tenant",
+            $"slug-{tenantId:N}",
+            TenantTier.Enterprise,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None,
+            enterpriseScimSeatsLimit: 10);
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        await sut.DeactivateAsync(tenantId, created.Id, CancellationToken.None);
+
+        using JsonDocument body = JsonDocument.Parse(
+            """
+            {
+              "userName": "alice@example.com",
+              "externalId": "ext-1",
+              "active": true
+            }
+            """);
+
+        ScimUserRecord reactivated = await sut.CreateAsync(tenantId, body.RootElement, CancellationToken.None);
+
+        reactivated.Id.Should().Be(created.Id);
+        reactivated.ExternalId.Should().Be("ext-1");
+        reactivated.Active.Should().BeTrue();
+        reactivated.DirectoryRemovedUtc.Should().BeNull();
+    }
+
+    [Fact]
     public async Task ListAsync_normalizes_start_index_below_one()
     {
         Guid tenantId = Guid.NewGuid();

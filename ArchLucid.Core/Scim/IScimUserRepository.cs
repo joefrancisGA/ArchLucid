@@ -50,6 +50,17 @@ public interface IScimUserRepository
 
     Task DeactivateAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
 
+    Task<ScimUserRecord> ReactivateAsync(
+        Guid tenantId,
+        Guid id,
+        string externalId,
+        string userName,
+        string? displayName,
+        bool active,
+        string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
+        CancellationToken cancellationToken);
+
     Task<IReadOnlyList<(string DisplayName, string ExternalId)>> ListGroupKeysForUserAsync(
         Guid tenantId,
         Guid userId,

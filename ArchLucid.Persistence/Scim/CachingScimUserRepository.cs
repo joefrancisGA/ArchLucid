@@ -181,6 +181,48 @@ public sealed class CachingScimUserRepository(IScimUserRepository inner, IHotPat
     }
 
     /// <inheritdoc />
+    public async Task<ScimUserRecord> ReactivateAsync(
+        Guid tenantId,
+        Guid id,
+        string externalId,
+        string userName,
+        string? displayName,
+        bool active,
+        string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
+        CancellationToken cancellationToken)
+    {
+        ScimUserRecord? prior = await _inner.GetByIdAsync(tenantId, id, cancellationToken);
+
+        ScimUserRecord reactivated = await _inner.ReactivateAsync(
+            tenantId,
+            id,
+            externalId,
+            userName,
+            displayName,
+            active,
+            resolvedRole,
+            resolvedRoleOrigin,
+            cancellationToken);
+
+        await HotPathCacheEviction.RemoveScimUserAsync(
+            _hotPathReadCache,
+            tenantId,
+            id,
+            prior?.ExternalId,
+            cancellationToken);
+
+        await HotPathCacheEviction.RemoveScimUserAsync(
+            _hotPathReadCache,
+            tenantId,
+            id,
+            externalId,
+            cancellationToken);
+
+        return reactivated;
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<(string DisplayName, string ExternalId)>> ListGroupKeysForUserAsync(
         Guid tenantId,
         Guid userId,

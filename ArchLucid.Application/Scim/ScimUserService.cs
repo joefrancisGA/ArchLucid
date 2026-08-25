@@ -52,8 +52,22 @@ public sealed class ScimUserService(
     public async Task<ScimUserRecord> CreateAsync(Guid tenantId, JsonElement resource, CancellationToken cancellationToken)
     {
         (string userName, string? displayName, bool active, string externalId) = ScimUserResourceParser.ParseUser(resource);
-        if (await _users.GetByExternalIdAsync(tenantId, externalId, cancellationToken) is not null)
-            throw new ScimConflictException($"User with externalId '{externalId}' already exists.");
+        ScimUserRecord? existingByExternalId = await _users.GetByExternalIdAsync(tenantId, externalId, cancellationToken);
+
+        if (existingByExternalId is not null)
+        {
+            if (existingByExternalId.DirectoryRemovedUtc is null)
+                throw new ScimConflictException($"User with externalId '{externalId}' already exists.");
+
+            return await ReactivateRemovedUserAsync(
+                tenantId,
+                existingByExternalId.Id,
+                externalId,
+                userName,
+                displayName,
+                active,
+                cancellationToken);
+        }
 
         bool seatReserved = false;
 
@@ -220,8 +234,62 @@ public sealed class ScimUserService(
     {
         ScimUserRecord? other = await _users.GetByExternalIdAsync(tenantId, externalId, cancellationToken);
 
-        if (other is not null && other.Id != userId)
+        if (other is not null && other.Id != userId && other.DirectoryRemovedUtc is null)
             throw new ScimConflictException($"User with externalId '{externalId}' already exists.");
+    }
+
+    private async Task<ScimUserRecord> ReactivateRemovedUserAsync(
+        Guid tenantId,
+        Guid id,
+        string externalId,
+        string userName,
+        string? displayName,
+        bool active,
+        CancellationToken cancellationToken)
+    {
+        bool seatReserved = false;
+
+        try
+        {
+            if (active)
+            {
+                bool ok = await _tenants.TryIncrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
+
+                if (!ok)
+                    throw new ScimSeatLimitExceededException();
+
+                seatReserved = true;
+            }
+
+            ScimUserRecord reactivated = await _users.ReactivateAsync(
+                tenantId,
+                id,
+                externalId,
+                userName,
+                displayName,
+                active,
+                null,
+                ScimResolvedRoleOrigin.Unknown,
+                cancellationToken);
+            string? role = await ResolveRoleAsync(tenantId, id, cancellationToken);
+            ScimResolvedRoleOrigin origin = role is null ? ScimResolvedRoleOrigin.Unknown : ScimResolvedRoleOrigin.ScimGroups;
+
+            if (!string.Equals(role, reactivated.ResolvedRole, StringComparison.Ordinal))
+                await _users.PatchAsync(tenantId, id, null, null, null, null, role, origin, cancellationToken);
+
+            reactivated = await _users.GetByIdAsync(tenantId, id, cancellationToken) ?? reactivated;
+            await LogAsync(tenantId, AuditEventTypes.ScimUserProvisioned, $"{{\"userId\":\"{reactivated.Id:D}\",\"externalId\":\"{JsonEncoded(externalId)}\"}}",
+                cancellationToken);
+
+            return reactivated;
+        }
+        catch
+        {
+            if (seatReserved)
+                await _tenants.DecrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
+
+            throw;
+        }
     }
 
     private static Dictionary<string, JsonElement> ToCoreNextMap(IReadOnlyDictionary<string, JsonElement> next)
