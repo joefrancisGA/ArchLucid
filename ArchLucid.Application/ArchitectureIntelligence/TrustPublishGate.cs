@@ -24,8 +24,8 @@ public sealed class TrustPublishGate : ITrustPublishGate
             .Where(violation => violation.Blocked)
             .ToList();
 
-        HashSet<string> blockedFindingIds = ExtractBlockedFindingIds(blockingViolations, findings);
-        HashSet<string> blockedRecommendationIds = ExtractBlockedRecommendationIds(blockingViolations, recommendations);
+        HashSet<string> blockedFindingIds = ExtractBlockedFindingIds(blockingViolations);
+        HashSet<string> blockedRecommendationIds = ExtractBlockedRecommendationIds(blockingViolations);
 
         List<SpecialistReviewFinding> publishableFindings = findings
             .Where(finding => integrityPassedIds.Contains(finding.FindingId))
@@ -55,64 +55,30 @@ public sealed class TrustPublishGate : ITrustPublishGate
     }
 
     private static HashSet<string> ExtractBlockedFindingIds(
-        IReadOnlyList<MustNotFailViolation> blockingViolations,
-        IReadOnlyList<SpecialistReviewFinding> findings)
+        IReadOnlyList<MustNotFailViolation> blockingViolations)
     {
         HashSet<string> blocked = new(StringComparer.Ordinal);
 
         foreach (MustNotFailViolation violation in blockingViolations)
         {
             if (!string.IsNullOrWhiteSpace(violation.FindingId))
-            {
                 blocked.Add(violation.FindingId);
-                continue;
-            }
-
-            foreach (SpecialistReviewFinding finding in findings)
-            {
-                if (violation.Message.Contains(finding.Title, StringComparison.OrdinalIgnoreCase)
-                    || violation.Message.Contains($"'{finding.Title}'", StringComparison.Ordinal))
-                {
-                    blocked.Add(finding.FindingId);
-                }
-            }
         }
 
         return blocked;
     }
 
     private static HashSet<string> ExtractBlockedRecommendationIds(
-        IReadOnlyList<MustNotFailViolation> blockingViolations,
-        IReadOnlyList<ArchitectureRecommendation> recommendations)
+        IReadOnlyList<MustNotFailViolation> blockingViolations)
     {
         HashSet<string> blocked = new(StringComparer.Ordinal);
 
         foreach (MustNotFailViolation violation in blockingViolations)
         {
             if (!string.IsNullOrWhiteSpace(violation.RecommendationId))
-            {
                 blocked.Add(violation.RecommendationId);
-                continue;
-            }
-
-            foreach (ArchitectureRecommendation recommendation in recommendations)
-            {
-                if (violation.Message.Contains(recommendation.Problem, StringComparison.OrdinalIgnoreCase)
-                    || violation.Class == MustNotFailClass.UnlabeledCloudSpecificRecommendation
-                    && MentionsCloud(recommendation.ProposedChange))
-                {
-                    blocked.Add(recommendation.RecommendationId);
-                }
-            }
         }
 
         return blocked;
-    }
-
-    private static bool MentionsCloud(string text)
-    {
-        return text.Contains("Azure", StringComparison.OrdinalIgnoreCase)
-            || text.Contains("AWS", StringComparison.OrdinalIgnoreCase)
-            || text.Contains("GCP", StringComparison.OrdinalIgnoreCase);
     }
 }

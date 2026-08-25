@@ -98,6 +98,66 @@ public sealed class TrustPublishGateTests
     }
 
     [Fact]
+    public void Decide_does_not_infer_blocked_finding_from_violation_message_without_finding_id()
+    {
+        SpecialistReviewFinding finding = CreateFinding("ok", "Integrity ok");
+
+        TrustPublishDecision decision = _gate.Decide(
+            [finding],
+            [],
+            [
+                new EvidenceValidationResult
+                {
+                    FindingId = "ok",
+                    OverallPassedIntegrity = true,
+                },
+            ],
+            [
+                new MustNotFailViolation
+                {
+                    Class = MustNotFailClass.FabricatedCitation,
+                    Message = "Finding 'Integrity ok' cites an invalid artifact id.",
+                    Blocked = true,
+                },
+            ]);
+
+        decision.PublishableFindings.Should().ContainSingle(f => f.FindingId == "ok");
+        decision.PublishBlocked.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Decide_does_not_infer_blocked_recommendation_from_violation_message_without_recommendation_id()
+    {
+        ArchitectureRecommendation recommendation = new()
+        {
+            RecommendationId = "rec-1",
+            Problem = "Use managed identity",
+            Evidence = "Security guidance.",
+            AffectedRequirementOrQualityAttribute = "Security",
+            ConsequenceOfInaction = "Risk remains.",
+            ProposedChange = "Deploy on Azure App Service.",
+            ValidationMethod = "Review.",
+        };
+
+        TrustPublishDecision decision = _gate.Decide(
+            [],
+            [recommendation],
+            [],
+            [
+                new MustNotFailViolation
+                {
+                    Class = MustNotFailClass.UnlabeledCloudSpecificRecommendation,
+                    Message =
+                        "Recommendation 'Use managed identity' mentions a cloud provider without an explicit assumption note.",
+                    Blocked = true,
+                },
+            ]);
+
+        decision.PublishableRecommendations.Should().ContainSingle(r => r.RecommendationId == "rec-1");
+        decision.PublishBlocked.Should().BeTrue();
+    }
+
+    [Fact]
     public void Decide_excludes_finding_when_violation_carries_finding_id()
     {
         SpecialistReviewFinding finding = CreateFinding("blocked-finding", "Fabricated evidence");
