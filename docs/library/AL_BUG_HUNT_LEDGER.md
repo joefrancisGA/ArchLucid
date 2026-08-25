@@ -1119,7 +1119,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
@@ -1135,6 +1135,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Missing `Hosting:Role=Worker` let production validation use Combined — **hit 2026-08-24:** `ContainerJobsOffloadRules` skipped when role unset; `WorkerProcessHostingRoleConfiguration` defaults/rejects
 - [x] (proven) Invalid configuration built full DI before fail-fast — **hit 2026-08-24:** `ValidateOrThrow` runs before `Build()` in Worker `Program.cs`
 - [x] (proven) Real mode with `AzureOpenAI:AuthenticationMode=ManagedIdentity` fails worker startup — **hit 2026-08-24:** `AgentExecutionRules` required ApiKey despite MI; `AzureOpenAiOptionsValidator` rejected partial credentials without ApiKey; fixed via `AzureOpenAiConfigurationProbe.IsCompletionStackConfigured` and MI-aware options validation; regression in `Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`
+- [x] (valid-no-repro) Real mode startup with `AZURE_OPENAI_*` shell env aliases — `AzureOpenAiEnvironmentConfigurationBridge.Apply` runs before `ValidateOrThrow`; regression in `Worker_host_starts_when_real_mode_uses_azure_openai_environment_aliases`
+- [x] (valid-no-repro) Production InMemory storage and Prometheus without scrape credentials — `ValidateOrThrow` rejects via `CollectEphemeralStorageDisallowedInProductionLike` and `ObservabilityRules.CollectPrometheus`; regressions in `Worker_host_fails_fast_when_production_uses_in_memory_storage` and `Worker_host_fails_fast_when_prometheus_enabled_without_scrape_credentials`
+- [ ] (hunt-ready) `WorkerProcessHostingRoleConfiguration.ValidateOrThrow` before `Build()` vs `AzureOpenAiOptions` `ValidateOnStart` at `Build()` — when `AgentExecution:Mode=Simulator` and `AzureOpenAI:MaxCompletionTokens=-1` with partial Azure keys, `CollectErrors` passes but options validation fails at service build; input: invalid token cap with endpoint/deployment/key set.
+- [ ] (hunt-ready) `ConfigurationValidationHostedService` at `StartAsync` — uses `CriticalConfigurationValidator` after `ValidateOrThrow` succeeded; hunt config that passes `ArchLucidConfigurationRules.CollectErrors` but fails the narrower hosted validator when the host starts.
 
 ---
 
