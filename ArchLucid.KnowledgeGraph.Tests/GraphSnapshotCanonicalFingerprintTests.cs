@@ -180,6 +180,109 @@ public sealed class GraphSnapshotCanonicalFingerprintTests
         equivalent.Should().BeFalse();
     }
 
+    [Fact]
+    public void AreEquivalentForReuse_WhenModelIdsDiffer_ReturnsFalse()
+    {
+        List<CanonicalObject> objects =
+        [
+            new()
+            {
+                ObjectId = "a",
+                ObjectType = "type",
+                Name = "A",
+                SourceType = "src",
+                SourceId = "1"
+            }
+        ];
+
+        ContextSnapshot previous = BuildSnapshot("proj", objects, Guid.NewGuid());
+        ContextSnapshot current = BuildSnapshot("proj", objects, Guid.NewGuid());
+        DateTime updatedUtc = DateTime.UtcNow;
+
+        ArchitectureKnowledgeModel priorModel = new()
+        {
+            ModelId = "model-prior",
+            UpdatedUtc = updatedUtc,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "svc-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Orders",
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel currentModel = new()
+        {
+            ModelId = "model-current",
+            UpdatedUtc = updatedUtc,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "svc-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Orders",
+                },
+            ],
+        };
+
+        bool equivalent = GraphSnapshotCanonicalFingerprint.AreEquivalentForReuse(
+            previous,
+            current,
+            priorModel,
+            currentModel);
+
+        equivalent.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ComputeKnowledgeModelFingerprint_includes_description_framing_answers_and_provisional_flag()
+    {
+        DateTime updatedUtc = new(2026, 8, 25, 12, 0, 0, DateTimeKind.Utc);
+
+        ArchitectureKnowledgeModel baseline = CreateFingerprintModel(updatedUtc, "Orders API", false, "scale");
+        ArchitectureKnowledgeModel descriptionChanged = CreateFingerprintModel(updatedUtc, "Orders API v2", false, "scale");
+        ArchitectureKnowledgeModel framingChanged = CreateFingerprintModel(updatedUtc, "Orders API", false, "latency");
+        ArchitectureKnowledgeModel provisionalChanged = CreateFingerprintModel(updatedUtc, "Orders API", true, "scale");
+
+        string baselineFingerprint = GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(baseline);
+
+        baselineFingerprint.Should().NotBe(GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(descriptionChanged));
+        baselineFingerprint.Should().NotBe(GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(framingChanged));
+        baselineFingerprint.Should().NotBe(GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(provisionalChanged));
+        baselineFingerprint.Should().Contain("complete");
+        GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(provisionalChanged).Should().Contain("provisional");
+        baselineFingerprint.Should().Contain("goal=scale");
+    }
+
+    private static ArchitectureKnowledgeModel CreateFingerprintModel(
+        DateTime updatedUtc,
+        string description,
+        bool isProvisionalSynthesis,
+        string framingGoal)
+    {
+        return new ArchitectureKnowledgeModel
+        {
+            ModelId = "model-1",
+            UpdatedUtc = updatedUtc,
+            IsProvisionalSynthesis = isProvisionalSynthesis,
+            FramingAnswers = new Dictionary<string, string> { ["goal"] = framingGoal },
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "svc-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Orders",
+                    Description = description,
+                },
+            ],
+        };
+    }
+
     private static ContextSnapshot BuildSnapshot(string projectId, List<CanonicalObject> objects,
         Guid? snapshotId = null)
     {

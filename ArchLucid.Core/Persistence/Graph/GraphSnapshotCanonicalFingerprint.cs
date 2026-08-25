@@ -35,9 +35,31 @@ public static class GraphSnapshotCanonicalFingerprint
         if (!AreEquivalent(previous, current))
             return false;
 
+        if (!HaveSameProducingKnowledgeModelId(priorKnowledgeModel, currentKnowledgeModel))
+            return false;
+
         return string.Equals(
             ComputeKnowledgeModelFingerprint(priorKnowledgeModel),
             ComputeKnowledgeModelFingerprint(currentKnowledgeModel),
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    ///     Γ reuse is bound to the producing κ identity, not only canonical context equivalence.
+    /// </summary>
+    private static bool HaveSameProducingKnowledgeModelId(
+        ArchitectureKnowledgeModel? priorKnowledgeModel,
+        ArchitectureKnowledgeModel? currentKnowledgeModel)
+    {
+        if (priorKnowledgeModel is null && currentKnowledgeModel is null)
+            return true;
+
+        if (priorKnowledgeModel is null || currentKnowledgeModel is null)
+            return false;
+
+        return string.Equals(
+            priorKnowledgeModel.ModelId,
+            currentKnowledgeModel.ModelId,
             StringComparison.Ordinal);
     }
 
@@ -62,7 +84,7 @@ public static class GraphSnapshotCanonicalFingerprint
         if (knowledgeModel is null)
             return string.Empty;
 
-        IEnumerable<string> elementParts = knowledgeModel.Elements
+        IEnumerable<string> elementParts = (knowledgeModel.Elements ?? [])
             .OrderBy(element => element.ElementId, StringComparer.OrdinalIgnoreCase)
             .Select(FormatKnowledgeModelElementFingerprint);
 
@@ -72,17 +94,31 @@ public static class GraphSnapshotCanonicalFingerprint
                 knowledgeModel.ModelId,
                 knowledgeModel.SchemaVersion.ToString(),
                 knowledgeModel.UpdatedUtc.ToString("O"),
+                knowledgeModel.IsProvisionalSynthesis ? "provisional" : "complete",
+                FormatFramingAnswers(knowledgeModel),
                 .. elementParts,
             ]);
+    }
+
+    private static string FormatFramingAnswers(ArchitectureKnowledgeModel knowledgeModel)
+    {
+        if (knowledgeModel.FramingAnswers is null || knowledgeModel.FramingAnswers.Count == 0)
+            return string.Empty;
+
+        IEnumerable<string> parts = knowledgeModel.FramingAnswers
+            .OrderBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(static pair => $"{pair.Key}={pair.Value}");
+
+        return string.Join(",", parts);
     }
 
     private static string FormatKnowledgeModelElementFingerprint(ArchitectureModelElement element)
     {
         string related = string.Join(
             ",",
-            element.RelatedElementIds.OrderBy(static id => id, StringComparer.OrdinalIgnoreCase));
+            (element.RelatedElementIds ?? []).OrderBy(static id => id, StringComparer.OrdinalIgnoreCase));
 
-        IEnumerable<string> propertyParts = element.Properties
+        IEnumerable<string> propertyParts = (element.Properties ?? [])
             .OrderBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase)
             .Select(static pair => $"{pair.Key}={pair.Value}");
 
@@ -93,6 +129,7 @@ public static class GraphSnapshotCanonicalFingerprint
             element.ElementId,
             element.Kind.ToString(),
             element.Name,
+            element.Description ?? string.Empty,
             element.LifecycleScope.ToString(),
             related,
             properties);

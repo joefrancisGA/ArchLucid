@@ -2,6 +2,7 @@ using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Contracts.Persistence.Ports;
+using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Interfaces;
@@ -52,7 +53,7 @@ public sealed class KnowledgeModelGraphReprojector(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(model);
 
-        if (runId == Guid.Empty || !HasProjectableElements(model))
+        if (runId == Guid.Empty || !ArchitectureKnowledgeModelProjectableElements.HasAny(model))
             return;
 
         ArchLucid.Persistence.Models.RunRecord? run = await _runRepository
@@ -73,7 +74,7 @@ public sealed class KnowledgeModelGraphReprojector(
             .BuildSnapshotAsync(contextSnapshot, cancellationToken)
             .ConfigureAwait(false);
         GraphSnapshot modelGraph = _knowledgeModelGraphProjector.Project(model, contextSnapshot, runId);
-        GraphSnapshot merged = MergeGraphSnapshots(contextGraph, modelGraph);
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
 
         await _graphSnapshotRepository
             .SaveAsync(merged, cancellationToken)
@@ -81,56 +82,5 @@ public sealed class KnowledgeModelGraphReprojector(
 
         run.GraphSnapshotId = merged.GraphSnapshotId;
         await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
-    }
-
-    private static bool HasProjectableElements(ArchitectureKnowledgeModel model) =>
-        model.Elements.Any(element => element.Kind is ArchitectureElementKind.Component
-            or ArchitectureElementKind.Interface
-            or ArchitectureElementKind.DataFlow
-            or ArchitectureElementKind.TrustBoundary
-            or ArchitectureElementKind.DeploymentTopology
-            or ArchitectureElementKind.ComplianceObligation
-            or ArchitectureElementKind.FunctionalRequirement);
-
-    private static GraphSnapshot MergeGraphSnapshots(GraphSnapshot contextGraph, GraphSnapshot modelGraph)
-    {
-        HashSet<string> modelNodeIds = modelGraph.Nodes
-            .Select(static node => node.NodeId)
-            .ToHashSet(StringComparer.Ordinal);
-
-        List<GraphNode> mergedNodes = [.. modelGraph.Nodes];
-
-        foreach (GraphNode contextNode in contextGraph.Nodes)
-        {
-            if (!modelNodeIds.Contains(contextNode.NodeId))
-                mergedNodes.Add(contextNode);
-        }
-
-        HashSet<string> edgeKeys = modelGraph.Edges
-            .Select(static edge => $"{edge.FromNodeId}|{edge.ToNodeId}|{edge.EdgeType}")
-            .ToHashSet(StringComparer.Ordinal);
-
-        List<GraphEdge> mergedEdges = [.. modelGraph.Edges];
-
-        foreach (GraphEdge contextEdge in contextGraph.Edges)
-        {
-            string key = $"{contextEdge.FromNodeId}|{contextEdge.ToNodeId}|{contextEdge.EdgeType}";
-
-            if (!edgeKeys.Contains(key))
-                mergedEdges.Add(contextEdge);
-        }
-
-        List<string> warnings = [.. modelGraph.Warnings, .. contextGraph.Warnings];
-
-        return new GraphSnapshot
-        {
-            GraphSnapshotId = modelGraph.GraphSnapshotId,
-            ContextSnapshotId = modelGraph.ContextSnapshotId,
-            RunId = modelGraph.RunId,
-            CreatedUtc = modelGraph.CreatedUtc,
-            Nodes = mergedNodes,
-            Edges = mergedEdges,
-            Warnings = warnings,
-        };
     }
 }

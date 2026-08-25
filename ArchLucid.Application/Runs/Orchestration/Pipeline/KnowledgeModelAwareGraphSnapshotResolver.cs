@@ -32,7 +32,7 @@ public static class KnowledgeModelAwareGraphSnapshotResolver
         ArgumentNullException.ThrowIfNull(knowledgeModelGraphProjector);
         ArgumentNullException.ThrowIfNull(graphSnapshotRepository);
 
-        if (knowledgeModel is not null && HasProjectableElements(knowledgeModel))
+        if (ArchitectureKnowledgeModelProjectableElements.HasAny(knowledgeModel))
         {
             if (priorCommittedContext is not null
                 && GraphSnapshotCanonicalFingerprint.AreEquivalentForReuse(
@@ -53,8 +53,8 @@ public static class KnowledgeModelAwareGraphSnapshotResolver
             }
 
             GraphSnapshot contextGraph = await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
-            GraphSnapshot modelGraph = knowledgeModelGraphProjector.Project(knowledgeModel, contextSnapshot, runId);
-            GraphSnapshot merged = MergeGraphSnapshots(contextGraph, modelGraph);
+            GraphSnapshot modelGraph = knowledgeModelGraphProjector.Project(knowledgeModel!, contextSnapshot, runId);
+            GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
 
             return new GraphSnapshotResolutionResult(merged, "projected_from_knowledge_model");
         }
@@ -69,56 +69,5 @@ public static class KnowledgeModelAwareGraphSnapshotResolver
             ct,
             priorKnowledgeModel,
             knowledgeModel);
-    }
-
-    private static bool HasProjectableElements(ArchitectureKnowledgeModel model) =>
-        model.Elements.Any(element => element.Kind is ArchitectureElementKind.Component
-            or ArchitectureElementKind.Interface
-            or ArchitectureElementKind.DataFlow
-            or ArchitectureElementKind.TrustBoundary
-            or ArchitectureElementKind.DeploymentTopology
-            or ArchitectureElementKind.ComplianceObligation
-            or ArchitectureElementKind.FunctionalRequirement);
-
-    private static GraphSnapshot MergeGraphSnapshots(GraphSnapshot contextGraph, GraphSnapshot modelGraph)
-    {
-        HashSet<string> modelNodeIds = modelGraph.Nodes
-            .Select(static node => node.NodeId)
-            .ToHashSet(StringComparer.Ordinal);
-
-        List<GraphNode> mergedNodes = [.. modelGraph.Nodes];
-
-        foreach (GraphNode contextNode in contextGraph.Nodes)
-        {
-            if (!modelNodeIds.Contains(contextNode.NodeId))
-                mergedNodes.Add(contextNode);
-        }
-
-        HashSet<string> edgeKeys = modelGraph.Edges
-            .Select(static edge => $"{edge.FromNodeId}|{edge.ToNodeId}|{edge.EdgeType}")
-            .ToHashSet(StringComparer.Ordinal);
-
-        List<GraphEdge> mergedEdges = [.. modelGraph.Edges];
-
-        foreach (GraphEdge contextEdge in contextGraph.Edges)
-        {
-            string key = $"{contextEdge.FromNodeId}|{contextEdge.ToNodeId}|{contextEdge.EdgeType}";
-
-            if (!edgeKeys.Contains(key))
-                mergedEdges.Add(contextEdge);
-        }
-
-        List<string> warnings = [.. modelGraph.Warnings, .. contextGraph.Warnings];
-
-        return new GraphSnapshot
-        {
-            GraphSnapshotId = modelGraph.GraphSnapshotId,
-            ContextSnapshotId = modelGraph.ContextSnapshotId,
-            RunId = modelGraph.RunId,
-            CreatedUtc = modelGraph.CreatedUtc,
-            Nodes = mergedNodes,
-            Edges = mergedEdges,
-            Warnings = warnings,
-        };
     }
 }
