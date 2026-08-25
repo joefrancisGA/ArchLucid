@@ -275,3 +275,4 @@
 {"at":"2026-08-25T20:18:15.8133873Z","zoneId":"weekly-digest-email","outcome":"hit"}
 {"at":"2026-08-25T20:22:59.6590996Z","zoneId":"cli-tenant-isolation","outcome":"hit"}
 {"at":"2026-08-25T20:32:34.8091544Z","zoneId":"saml-jwt-bearer","outcome":"hit"}
+{"at":"2026-08-25T21:21:59.1447018Z","zoneId":"scim-users","outcome":"hit"}
