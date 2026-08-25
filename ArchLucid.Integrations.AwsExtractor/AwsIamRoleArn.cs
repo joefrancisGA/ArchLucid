@@ -2,7 +2,7 @@ namespace ArchLucid.Integrations.AwsExtractor;
 
 internal static class AwsIamRoleArn
 {
-    private const string IamRoleArnPrefix = "arn:aws:iam::";
+    private const string IamRoleArnInfix = ":iam::";
 
     public static bool TryGetAccountId(string roleArn, out string accountId)
     {
@@ -13,10 +13,15 @@ internal static class AwsIamRoleArn
 
         string trimmed = roleArn.Trim();
 
-        if (!trimmed.StartsWith(IamRoleArnPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!trimmed.StartsWith("arn:", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        int accountStart = IamRoleArnPrefix.Length;
+        int iamInfixIndex = trimmed.IndexOf(IamRoleArnInfix, StringComparison.OrdinalIgnoreCase);
+
+        if (iamInfixIndex < 0)
+            return false;
+
+        int accountStart = iamInfixIndex + IamRoleArnInfix.Length;
         int colonAfterAccount = trimmed.IndexOf(':', accountStart);
 
         if (colonAfterAccount <= accountStart)
