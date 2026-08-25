@@ -108,7 +108,7 @@ public static class CrossAgentProposalConsistencyGate
 
         foreach (ManifestService service in services)
         {
-            if (TopologyProposalRelationshipEndpointIndex.TryClaimService(service, claimedServiceEndpointKeys))
+            if (TopologyEndpointSources.Service.TryClaim(service, claimedServiceEndpointKeys))
             {
                 accepted.Add(service);
                 acceptedBatchServices.Add(service);
@@ -134,7 +134,7 @@ public static class CrossAgentProposalConsistencyGate
 
         foreach (ManifestDatastore datastore in datastores)
         {
-            if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(datastore, claimedDatastoreEndpointKeys))
+            if (TopologyEndpointSources.Datastore.TryClaim(datastore, claimedDatastoreEndpointKeys))
             {
                 accepted.Add(datastore);
                 acceptedBatchDatastores.Add(datastore);

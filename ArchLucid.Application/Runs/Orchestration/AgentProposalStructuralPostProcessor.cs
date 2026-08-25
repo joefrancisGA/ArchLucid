@@ -90,7 +90,7 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (ManifestService service in services)
         {
-            if (TopologyProposalRelationshipEndpointIndex.TryClaimService(service, seenEndpointKeys))
+            if (TopologyEndpointSources.Service.TryClaim(service, seenEndpointKeys))
             {
                 deduped.Add(service);
                 continue;
@@ -113,7 +113,7 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (ManifestDatastore datastore in datastores)
         {
-            if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(datastore, seenEndpointKeys))
+            if (TopologyEndpointSources.Datastore.TryClaim(datastore, seenEndpointKeys))
             {
                 deduped.Add(datastore);
                 continue;
