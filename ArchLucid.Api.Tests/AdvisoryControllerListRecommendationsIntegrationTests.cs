@@ -28,10 +28,10 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         List<RecommendationRecordResponse>? items =
-            await response.Content.ReadFromJsonAsync<List<RecommendationRecordResponse>>(JsonOptions);
+            await response.Content.ReadFromJsonAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
 
         items.Should().NotBeNull();
-        items.Should().BeEmpty();
+        items!.Recommendations.Should().BeEmpty();
     }
 
     [SkippableFact]
@@ -53,10 +53,10 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         List<RecommendationRecordResponse>? items =
-            await response.Content.ReadFromJsonAsync<List<RecommendationRecordResponse>>(JsonOptions);
+            await response.Content.ReadFromJsonAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
 
         items.Should().NotBeNull();
-        items.Should().BeEmpty();
+        items!.Recommendations.Should().BeEmpty();
     }
 
     [SkippableFact]
@@ -82,13 +82,13 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        List<RecommendationRecordResponse>? items =
-            await response.Content.ReadFromJsonAsync<List<RecommendationRecordResponse>>(JsonOptions);
+        AdvisoryRunRecommendationsListResponse? payload =
+            await response.Content.ReadFromJsonAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
 
-        items.Should().NotBeNull();
-        items.Should().NotBeEmpty();
+        payload.Should().NotBeNull();
+        payload!.Recommendations.Should().NotBeEmpty();
 
-        RecommendationRecordResponse findingBacked = items!
+        RecommendationRecordResponse findingBacked = payload.Recommendations
             .First(rec => rec.SourceEvidenceLinks.Any(link =>
                 string.Equals(link.Kind, "finding", StringComparison.OrdinalIgnoreCase)));
 

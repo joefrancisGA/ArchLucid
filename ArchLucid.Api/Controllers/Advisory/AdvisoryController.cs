@@ -50,6 +50,7 @@ public sealed class AdvisoryController(
     IRecommendationWorkflowService recommendationWorkflowService,
     IRecommendationRepository recommendationRepository,
     IAuditService auditService,
+    ArchLucid.Persistence.Interfaces.IRunRepository runRepository,
     ILogger<AdvisoryController> logger,
     IRecommendationImproveLoopCoordinator? recommendationImproveLoopCoordinator = null,
     IRecommendationImproveLoopEvidencePersister? recommendationImproveLoopEvidencePersister = null)
@@ -60,6 +61,9 @@ public sealed class AdvisoryController(
 
     private readonly IRecommendationImproveLoopEvidencePersister? _recommendationImproveLoopEvidencePersister =
         recommendationImproveLoopEvidencePersister;
+
+    private readonly ArchLucid.Persistence.Interfaces.IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     private readonly ILogger<AdvisoryController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -156,8 +160,8 @@ public sealed class AdvisoryController(
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Rows ordered per <see cref="IRecommendationRepository.ListByRunAsync" />.</returns>
     [HttpGet("runs/{runId:guid}/recommendations")]
-    [ProducesResponseType(typeof(IReadOnlyList<RecommendationRecordResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<RecommendationRecordResponse>>> ListRecommendations(
+    [ProducesResponseType(typeof(AdvisoryRunRecommendationsListResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AdvisoryRunRecommendationsListResponse>> ListRecommendations(
         Guid runId,
         CancellationToken ct = default)
     {
@@ -170,7 +174,15 @@ public sealed class AdvisoryController(
             runId,
             ct);
 
-        return Ok(items.Select(ToRecordResponse).ToList());
+        ArchLucid.Persistence.Models.RunRecord? run =
+            await _runRepository.GetByIdAsync(scope, runId, ct).ConfigureAwait(false);
+
+        return Ok(new AdvisoryRunRecommendationsListResponse
+        {
+            Recommendations = items.Select(ToRecordResponse).ToList(),
+            ImproveLoopEvidence = RecommendationImproveLoopResponseMapper.TryParsePersistedEvidence(
+                run?.ImproveLoopEvidenceJson),
+        });
     }
 
     /// <summary>

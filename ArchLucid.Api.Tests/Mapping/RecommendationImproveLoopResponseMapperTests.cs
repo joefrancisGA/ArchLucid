@@ -62,8 +62,9 @@ public sealed class RecommendationImproveLoopResponseMapperTests
     }
 
     [Fact]
-    public void ToEvidenceResponse_returns_null_when_improve_loop_missing()
+    public void TryParsePersistedEvidence_returns_null_for_blank_json()
     {
-        RecommendationImproveLoopResponseMapper.ToEvidenceResponse(null).Should().BeNull();
+        RecommendationImproveLoopResponseMapper.TryParsePersistedEvidence(null).Should().BeNull();
+        RecommendationImproveLoopResponseMapper.TryParsePersistedEvidence("").Should().BeNull();
     }
 }

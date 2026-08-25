@@ -63,3 +63,9 @@ export type RecommendationActionResult = {
   recommendation: RecommendationRecord;
   improveLoop?: RecommendationImproveLoopEvidence | null;
 };
+
+/** Persisted recommendations list plus optional improve-loop evidence from the run row. */
+export type AdvisoryRunRecommendationsList = {
+  recommendations: RecommendationRecord[];
+  improveLoopEvidence?: RecommendationImproveLoopEvidence | null;
+};

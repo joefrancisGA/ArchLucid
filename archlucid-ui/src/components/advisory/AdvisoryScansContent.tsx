@@ -213,7 +213,8 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
       return;
     }
 
-    setRecommendations(bootstrapRecommendationsQuery.data);
+    setRecommendations(bootstrapRecommendationsQuery.data.recommendations);
+    setLastImproveLoopEvidence(bootstrapRecommendationsQuery.data.improveLoopEvidence ?? null);
     setLoading(false);
     setLastLoadedUtc(new Date().toISOString());
   }, [bootstrapRecommendationsQuery.data]);
@@ -248,11 +249,15 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
 
       await queryClient.invalidateQueries({ queryKey });
 
-      return queryClient.fetchQuery({
+      const data = await queryClient.fetchQuery({
         queryKey,
         queryFn: () => listRecommendations(rid),
         staleTime: 0,
       });
+
+      setLastImproveLoopEvidence(data.improveLoopEvidence ?? null);
+
+      return data.recommendations;
     },
     [queryClient, scope],
   );

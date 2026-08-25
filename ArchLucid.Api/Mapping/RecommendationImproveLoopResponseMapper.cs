@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Contracts.ArchitectureIntelligence;
@@ -6,6 +8,23 @@ namespace ArchLucid.Api.Mapping;
 
 internal static class RecommendationImproveLoopResponseMapper
 {
+    private static readonly JsonSerializerOptions PersistedEvidenceJsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
+    public static RecommendationImproveLoopEvidenceResponse? TryParsePersistedEvidence(string? improveLoopEvidenceJson)
+    {
+        if (string.IsNullOrWhiteSpace(improveLoopEvidenceJson))
+            return null;
+
+        RecommendationImproveLoopResult? improveLoop = JsonSerializer.Deserialize<RecommendationImproveLoopResult>(
+            improveLoopEvidenceJson,
+            PersistedEvidenceJsonOptions);
+
+        return ToEvidenceResponse(improveLoop);
+    }
+
     public static RecommendationImproveLoopEvidenceResponse? ToEvidenceResponse(
         RecommendationImproveLoopResult? improveLoop)
     {
