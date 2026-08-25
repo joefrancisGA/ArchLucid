@@ -5,6 +5,7 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Query;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
@@ -348,7 +349,7 @@ public sealed class RunsControllerTests
     [Fact]
     public async Task CreateRun_create_architecture_calls_command_service_synthesis_path()
     {
-        Mock<IArchitectureRunCommandService> commands = new();
+        Mock<IRunLifecycleCommandService> commands = new();
         commands
             .Setup(s => s.CreateRunAsync(
                 Scope,
@@ -364,7 +365,7 @@ public sealed class RunsControllerTests
                 }
             });
 
-        RunsController controller = CreateController(runCommandService: commands.Object);
+        RunsController controller = CreateController(runLifecycleCommandService: commands.Object);
 
         ArchitectureRequest request = new()
         {
@@ -404,7 +405,7 @@ public sealed class RunsControllerTests
         IArchitectureOverviewRewriteService? overviewRewriteService = null,
         IClarificationAnswerRephraseService? clarificationRephraseService = null,
         IStructuredBriefSuggestionExplainService? explainService = null,
-        IArchitectureRunCommandService? runCommandService = null,
+        IRunLifecycleCommandService? runLifecycleCommandService = null,
         IRunRepository? runRepository = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -419,7 +420,7 @@ public sealed class RunsControllerTests
             .ReturnsAsync(new ValidationResult());
 
         return new RunsController(
-            runCommandService ?? Mock.Of<IArchitectureRunCommandService>(),
+            runLifecycleCommandService ?? Mock.Of<IRunLifecycleCommandService>(),
             architectureApplicationService ?? Mock.Of<IArchitectureApplicationService>(),
             draftService ?? Mock.Of<IArchitectureRequestDraftService>(),
             overviewRewriteService ?? Mock.Of<IArchitectureOverviewRewriteService>(),
@@ -431,9 +432,9 @@ public sealed class RunsControllerTests
             scopeProvider.Object,
             actor.Object,
             Mock.Of<IAuditService>(),
-            runRepository ?? Mock.Of<IRunRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IFindingFeedbackRepository>(),
+            runRepository ?? Mock.Of<IRunRepository>(),
             NullLogger<RunsController>.Instance)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }

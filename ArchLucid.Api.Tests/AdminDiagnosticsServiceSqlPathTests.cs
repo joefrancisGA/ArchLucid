@@ -969,20 +969,17 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
             ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
         });
 
-        return new AdminDiagnosticsService(
+        return AdminDiagnosticsServiceTestFactory.Create(
+            connectionFactory,
+            Options.Create(options),
+            auditService,
+            actor.Object,
+            scopeProvider.Object,
+            CacheTelemetryProvider(),
             outboxSnapshot.Object,
             integration.Object,
             hostLeases.Object,
-            runRepository.Object,
-            scopeProvider.Object,
-            connectionFactory,
-            Options.Create(options),
-            Options.Create(new IntegrationEventsOptions()),
-            CacheTelemetryProvider(),
-            actor.Object,
-            auditService,
-            MissingArchitectureRequestOptionsMonitor(),
-            new DataConsistencyRemediationExecutor(connectionFactory, auditService));
+            runRepository.Object);
     }
 
     private static IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions>

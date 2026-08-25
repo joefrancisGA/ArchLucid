@@ -1219,20 +1219,17 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         hostLeases = new Mock<IHostLeaderLeaseRepository>();
         runRepository = new Mock<IRunRepository>();
 
-        return new AdminDiagnosticsService(
+        return AdminDiagnosticsServiceTestFactory.Create(
+            connectionFactory.Object,
+            archLucidOptions,
+            audit.Object,
+            actor.Object,
+            scopeContextProvider,
+            cacheTelemetrySnapshotProvider,
             outboxSnapshot.Object,
             integration.Object,
             hostLeases.Object,
-            runRepository.Object,
-            scopeContextProvider,
-            connectionFactory.Object,
-            archLucidOptions,
-            Options.Create(new IntegrationEventsOptions()),
-            cacheTelemetrySnapshotProvider,
-            actor.Object,
-            audit.Object,
-            MissingArchitectureRequestOptionsMonitor(),
-            new DataConsistencyRemediationExecutor(connectionFactory.Object, audit.Object));
+            runRepository.Object);
     }
 
     private static ScopeContext DefaultScope() =>

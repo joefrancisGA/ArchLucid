@@ -58,6 +58,10 @@ public static class ApiWebLayerServiceCollectionExtensions
         }
 
         services.AddScoped<IDataConsistencyRemediationExecutor, DataConsistencyRemediationExecutor>();
+        services.AddScoped<IAdminRunArchiveAuditLogger, AdminRunArchiveAuditLogger>();
+        services.AddScoped<IAdminIntegrationOutboxDiagnosticsService, AdminIntegrationOutboxDiagnosticsService>();
+        services.AddScoped<IAdminDataConsistencyDiagnosticsService, AdminDataConsistencyDiagnosticsService>();
+        services.AddScoped<IAdminRunArchiveDiagnosticsService, AdminRunArchiveDiagnosticsService>();
         services.AddScoped<IAdminDiagnosticsService, AdminDiagnosticsService>();
         services.AddSingleton<IHostBuildInfoAccessor, ApiHostBuildInfoAccessor>();
         services.Configure<DeploymentStatusOptions>(configuration.GetSection(DeploymentStatusOptions.SectionPath));

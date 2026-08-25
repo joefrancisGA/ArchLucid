@@ -1,334 +1,125 @@
-using System.Data.Common;
-using System.Globalization;
-using System.Text.Json;
-
-using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Admin;
-using ArchLucid.Core.Audit;
-using ArchLucid.Core.Pagination;
-using ArchLucid.Host.Core.Configuration;
-using ArchLucid.Host.Core.DataConsistency;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Admin;
-using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
-using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-
-using ArchLucid.Core.Integration;
-using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Scoping;
-using Microsoft.Extensions.Options;
-
-using MissingArchitectureRequestAutoRemediationOptions =
-    ArchLucid.Application.DataConsistency.MissingArchitectureRequestAutoRemediationOptions;
 
 namespace ArchLucid.Api.Services.Admin;
 
 /// <inheritdoc cref="IAdminDiagnosticsService" />
 public sealed class AdminDiagnosticsService(
-    IAdminOutboxSnapshotReader adminOutboxSnapshotReader,
-    IIntegrationEventOutboxRepository integrationEventOutbox,
+    IAdminIntegrationOutboxDiagnosticsService integrationOutboxDiagnostics,
+    IAdminDataConsistencyDiagnosticsService dataConsistencyDiagnostics,
+    IAdminRunArchiveDiagnosticsService runArchiveDiagnostics,
     IHostLeaderLeaseRepository hostLeaderLeases,
-    IRunRepository runRepository,
-    IScopeContextProvider scopeContextProvider,
-    IDbConnectionFactory connectionFactory,
-    IOptions<ArchLucidOptions> archLucidOptions,
-    IOptions<IntegrationEventsOptions> integrationEventsOptions,
-    ICacheTelemetrySnapshotProvider cacheTelemetrySnapshotProvider,
-    IActorContext actorContext,
-    IAuditService auditService,
-    IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions> missingArchitectureRequestAutoRemediationOptions,
-    IDataConsistencyRemediationExecutor dataConsistencyRemediationExecutor)
-    : IAdminDiagnosticsService
+    ICacheTelemetrySnapshotProvider cacheTelemetrySnapshotProvider) : IAdminDiagnosticsService
 {
-    private readonly IAdminOutboxSnapshotReader _adminOutboxSnapshotReader =
-        adminOutboxSnapshotReader ?? throw new ArgumentNullException(nameof(adminOutboxSnapshotReader));
-    private readonly IActorContext _actorContext =
-        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
-    private readonly IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions>
-        _missingArchitectureRequestAutoRemediationOptions =
-            missingArchitectureRequestAutoRemediationOptions
-            ?? throw new ArgumentNullException(nameof(missingArchitectureRequestAutoRemediationOptions));
+    private readonly IAdminDataConsistencyDiagnosticsService _dataConsistencyDiagnostics =
+        dataConsistencyDiagnostics ?? throw new ArgumentNullException(nameof(dataConsistencyDiagnostics));
 
-    private readonly IOptions<ArchLucidOptions> _archLucidOptions =
-        archLucidOptions ?? throw new ArgumentNullException(nameof(archLucidOptions));
+    private readonly IAdminIntegrationOutboxDiagnosticsService _integrationOutboxDiagnostics =
+        integrationOutboxDiagnostics ?? throw new ArgumentNullException(nameof(integrationOutboxDiagnostics));
 
-    private readonly IOptions<IntegrationEventsOptions> _integrationEventsOptions =
-        integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
-
-    private readonly ICacheTelemetrySnapshotProvider _cacheTelemetrySnapshotProvider =
-        cacheTelemetrySnapshotProvider ?? throw new ArgumentNullException(nameof(cacheTelemetrySnapshotProvider));
-
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly IDataConsistencyRemediationExecutor _dataConsistencyRemediationExecutor =
-        dataConsistencyRemediationExecutor
-        ?? throw new ArgumentNullException(nameof(dataConsistencyRemediationExecutor));
-
-    private readonly IDbConnectionFactory _connectionFactory =
-        connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+    private readonly IAdminRunArchiveDiagnosticsService _runArchiveDiagnostics =
+        runArchiveDiagnostics ?? throw new ArgumentNullException(nameof(runArchiveDiagnostics));
 
     private readonly IHostLeaderLeaseRepository _hostLeaderLeases =
         hostLeaderLeases ?? throw new ArgumentNullException(nameof(hostLeaderLeases));
 
-    private readonly IIntegrationEventOutboxRepository _integrationEventOutbox =
-        integrationEventOutbox ?? throw new ArgumentNullException(nameof(integrationEventOutbox));
+    private readonly ICacheTelemetrySnapshotProvider _cacheTelemetrySnapshotProvider =
+        cacheTelemetrySnapshotProvider ?? throw new ArgumentNullException(nameof(cacheTelemetrySnapshotProvider));
 
-    private readonly IRunRepository _runRepository =
-        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    public Task<AdminOutboxSnapshot> GetOutboxSnapshotAsync(CancellationToken cancellationToken = default) =>
+        _integrationOutboxDiagnostics.GetOutboxSnapshotAsync(cancellationToken);
 
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    public Task<IReadOnlyList<HostLeaderLeaseSnapshot>> GetLeasesAsync(CancellationToken cancellationToken = default) =>
+        _hostLeaderLeases.ListAllAsync(cancellationToken);
 
-    /// <inheritdoc />
-    public async Task<AdminOutboxSnapshot> GetOutboxSnapshotAsync(CancellationToken cancellationToken = default)
-    {
-        AdminOutboxSnapshotCounts counts = await _adminOutboxSnapshotReader.ReadAsync(cancellationToken);
-
-        return new AdminOutboxSnapshot(
-            counts.AuthorityPipelineWorkPending,
-            counts.AuthorityPipelineWorkDeadLetter,
-            counts.RetrievalIndexingPending,
-            counts.IntegrationEventOutboxPublishPending,
-            counts.IntegrationEventOutboxDeadLetter);
-    }
-
-    /// <inheritdoc />
-    public Task<IReadOnlyList<HostLeaderLeaseSnapshot>> GetLeasesAsync(CancellationToken cancellationToken = default)
-    {
-        return _hostLeaderLeases.ListAllAsync(cancellationToken);
-    }
-
-    /// <inheritdoc />
     public Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListIntegrationOutboxDeadLettersAsync(
         int maxRows,
-        CancellationToken cancellationToken = default)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        CancellationToken cancellationToken = default) =>
+        _integrationOutboxDiagnostics.ListIntegrationOutboxDeadLettersAsync(maxRows, cancellationToken);
 
-        return _integrationEventOutbox.ListDeadLettersAsync(maxRows, scope.TenantId, skip: 0, cancellationToken);
-    }
+    public Task<bool> RetryIntegrationOutboxDeadLetterAsync(Guid outboxId, CancellationToken cancellationToken = default) =>
+        _integrationOutboxDiagnostics.RetryIntegrationOutboxDeadLetterAsync(outboxId, cancellationToken);
 
-    /// <inheritdoc />
-    public async Task<bool> RetryIntegrationOutboxDeadLetterAsync(
-        Guid outboxId,
-        CancellationToken cancellationToken = default)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        bool ok = await _integrationEventOutbox
-            .ResetDeadLetterForRetryAsync(outboxId, scope.TenantId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (ok)
-        {
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.IntegrationOutboxDeadLetterRetried,
-                    DataJson = JsonSerializer.Serialize(new { outboxId, single = true })
-                },
-                cancellationToken).ConfigureAwait(false);
-        }
-
-        return ok;
-    }
-
-    /// <inheritdoc />
-    public async Task<bool> SuppressIntegrationOutboxDeadLetterAsync(
+    public Task<bool> SuppressIntegrationOutboxDeadLetterAsync(
         Guid outboxId,
         IntegrationOutboxDeadLetterSuppressRequest? request,
-        CancellationToken cancellationToken = default)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        CancellationToken cancellationToken = default) =>
+        _integrationOutboxDiagnostics.SuppressIntegrationOutboxDeadLetterAsync(outboxId, request, cancellationToken);
 
-        bool ok = await _integrationEventOutbox
-            .AcknowledgeDeadLetterAsync(outboxId, scope.TenantId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (ok)
-        {
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.IntegrationOutboxDeadLetterSuppressed,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        outboxId,
-                        comment = request?.Comment
-                    })
-                },
-                cancellationToken).ConfigureAwait(false);
-        }
-
-        return ok;
-    }
-
-    /// <inheritdoc />
-    public async Task<IntegrationOutboxDeadLetterBulkRetryResponse> RetryIntegrationOutboxDeadLettersAsync(
+    public Task<IntegrationOutboxDeadLetterBulkRetryResponse> RetryIntegrationOutboxDeadLettersAsync(
         IntegrationOutboxDeadLetterBulkRetryRequest request,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(request);
+        CancellationToken cancellationToken = default) =>
+        _integrationOutboxDiagnostics.RetryIntegrationOutboxDeadLettersAsync(request, cancellationToken);
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        IntegrationOutboxDeadLetterBulkRetryResult result =
-            await _integrationEventOutbox.RetryMatchingDeadLettersAsync(
-                scope.TenantId,
-                request.EventType,
-                request.MaxRows,
-                cancellationToken).ConfigureAwait(false);
-
-        if (result.RetriedCount > 0)
-        {
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.IntegrationOutboxDeadLetterRetried,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            tenantId = scope.TenantId,
-                            eventType = request.EventType,
-                            retriedCount = result.RetriedCount,
-                            outboxIds = result.RetriedOutboxIds
-                        })
-                },
-                cancellationToken).ConfigureAwait(false);
-        }
-
-        return new IntegrationOutboxDeadLetterBulkRetryResponse
-        {
-            RetriedCount = result.RetriedCount,
-            RetriedOutboxIds = result.RetriedOutboxIds
-        };
-    }
-
-    /// <inheritdoc />
-    public async Task<IntegrationEventDeadLetterCurlResponse?> TryBuildIntegrationOutboxDeadLetterCurlAsync(
+    public Task<IntegrationEventDeadLetterCurlResponse?> TryBuildIntegrationOutboxDeadLetterCurlAsync(
         Guid outboxId,
-        CancellationToken cancellationToken = default)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        CancellationToken cancellationToken = default) =>
+        _integrationOutboxDiagnostics.TryBuildIntegrationOutboxDeadLetterCurlAsync(outboxId, cancellationToken);
 
-        IntegrationEventOutboxEntry? entry =
-            await _integrationEventOutbox
-                .TryGetDeadLetterEntryAsync(outboxId, scope.TenantId, cancellationToken)
-                .ConfigureAwait(false);
+    public Task<DataConsistencyOrphanCounts> GetDataConsistencyOrphanCountsAsync(CancellationToken cancellationToken = default) =>
+        _dataConsistencyDiagnostics.GetDataConsistencyOrphanCountsAsync(cancellationToken);
 
-        if (entry is null)
-            return null;
+    public Task<DataConsistencyHeaderRepointCounts> GetDataConsistencyHeaderRepointCountsAsync(
+        CancellationToken cancellationToken = default) =>
+        _dataConsistencyDiagnostics.GetDataConsistencyHeaderRepointCountsAsync(cancellationToken);
 
-        string curl = IntegrationEventDeadLetterCurlFormatter.Format(
-            entry,
-            _integrationEventsOptions.Value.ReplayWebhookReceiverUrl);
+    public Task<OrphanComparisonRemediationResult> RemediateOrphanComparisonRecordsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default) =>
+        _dataConsistencyDiagnostics.RemediateOrphanComparisonRecordsAsync(dryRun, maxRows, cancellationToken);
 
-        return new IntegrationEventDeadLetterCurlResponse
-        {
-            OutboxId = outboxId,
-            CurlCommand = curl,
-        };
-    }
+    public Task<OrphanGoldenManifestRemediationResult> RemediateOrphanGoldenManifestsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default) =>
+        _dataConsistencyDiagnostics.RemediateOrphanGoldenManifestsAsync(dryRun, maxRows, cancellationToken);
 
-    /// <inheritdoc />
-    public async Task<DataConsistencyOrphanCounts> GetDataConsistencyOrphanCountsAsync(
-        CancellationToken cancellationToken = default)
-    {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new DataConsistencyOrphanCounts(0, 0, 0, 0, 0, 0);
+    public Task<OrphanFindingsSnapshotRemediationResult> RemediateOrphanFindingsSnapshotsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default) =>
+        _dataConsistencyDiagnostics.RemediateOrphanFindingsSnapshotsAsync(dryRun, maxRows, cancellationToken);
 
-        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
+    public Task<DataConsistencyStaleInFlightSnapshot> GetDataConsistencyStaleInFlightSnapshotAsync(
+        int maxSampleRows = 50,
+        CancellationToken cancellationToken = default) =>
+        _dataConsistencyDiagnostics.GetDataConsistencyStaleInFlightSnapshotAsync(maxSampleRows, cancellationToken);
 
-        long golden = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.GoldenManifestsRunId,
-            cancellationToken);
-        long findings = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.FindingsSnapshotsRunId,
-            cancellationToken);
-        long contextSnapshots = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.ContextSnapshotsRunId,
-            cancellationToken);
-        long graphSnapshots = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.GraphSnapshotsRunId,
-            cancellationToken);
+    public Task<StaleInFlightRemediationResult> RemediateStaleInFlightRunsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default) =>
+        _dataConsistencyDiagnostics.RemediateStaleInFlightRunsAsync(dryRun, maxRows, cancellationToken);
 
-        return new DataConsistencyOrphanCounts(0, 0, golden, findings, contextSnapshots, graphSnapshots);
-    }
+    public Task<DataConsistencyMissingArchitectureRequestSnapshot> GetDataConsistencyMissingArchitectureRequestSnapshotAsync(
+        int maxSampleRows = 50,
+        CancellationToken cancellationToken = default) =>
+        _dataConsistencyDiagnostics.GetDataConsistencyMissingArchitectureRequestSnapshotAsync(maxSampleRows, cancellationToken);
 
-    /// <inheritdoc />
-    public async Task<DataConsistencyHeaderRepointCounts> GetDataConsistencyHeaderRepointCountsAsync(
-        CancellationToken cancellationToken = default)
-    {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new DataConsistencyHeaderRepointCounts(0, 0, 0, 0, 0, 0);
+    public Task<MissingArchitectureRequestRemediationResult> RemediateMissingArchitectureRequestRunsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default) =>
+        _dataConsistencyDiagnostics.RemediateMissingArchitectureRequestRunsAsync(dryRun, maxRows, cancellationToken);
 
-        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
+    public Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
+        DateTimeOffset createdBeforeUtc,
+        CancellationToken cancellationToken = default) =>
+        _runArchiveDiagnostics.ArchiveRunsCreatedBeforeAsync(createdBeforeUtc, cancellationToken);
 
-        long contextSnapshotId = await ExecuteCountAsync(
-            connection,
-            CommittedRunHeaderFkRepointProbeSql.ContextSnapshotId,
-            cancellationToken);
-        long graphSnapshotId = await ExecuteCountAsync(
-            connection,
-            CommittedRunHeaderFkRepointProbeSql.GraphSnapshotId,
-            cancellationToken);
-        long findingsSnapshotId = await ExecuteCountAsync(
-            connection,
-            CommittedRunHeaderFkRepointProbeSql.FindingsSnapshotId,
-            cancellationToken);
-        long goldenManifestId = await ExecuteCountAsync(
-            connection,
-            CommittedRunHeaderFkRepointProbeSql.GoldenManifestId,
-            cancellationToken);
-        long decisionTraceId = await ExecuteCountAsync(
-            connection,
-            CommittedRunHeaderFkRepointProbeSql.DecisionTraceId,
-            cancellationToken);
-        long artifactBundleId = await ExecuteCountAsync(
-            connection,
-            CommittedRunHeaderFkRepointProbeSql.ArtifactBundleId,
-            cancellationToken);
+    public Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(
+        IReadOnlyList<Guid> runIds,
+        CancellationToken cancellationToken = default) =>
+        _runArchiveDiagnostics.ArchiveRunsByIdsAsync(runIds, cancellationToken);
 
-        return new DataConsistencyHeaderRepointCounts(
-            contextSnapshotId,
-            graphSnapshotId,
-            findingsSnapshotId,
-            goldenManifestId,
-            decisionTraceId,
-            artifactBundleId);
-    }
+    public Task<CrossTenantUsageRollup> GetCrossTenantUsageRollupAsync(CancellationToken cancellationToken = default) =>
+        _dataConsistencyDiagnostics.GetCrossTenantUsageRollupAsync(cancellationToken);
 
-    /// <inheritdoc />
-    public async Task<CrossTenantUsageRollup> GetCrossTenantUsageRollupAsync(
-        CancellationToken cancellationToken = default)
-    {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new CrossTenantUsageRollup(0, 0, 0, TimeProvider.System.GetUtcNow());
-
-        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
-
-        long totalRuns =
-            await ExecuteCountAsync(connection, "SELECT COUNT_BIG(*) FROM dbo.Runs;", cancellationToken);
-
-        long committedRuns =
-            await ExecuteCountAsync(connection,
-                "SELECT COUNT_BIG(*) FROM dbo.Runs WHERE GoldenManifestId IS NOT NULL;",
-                cancellationToken);
-
-        long distinctTenants =
-            await ExecuteCountAsync(connection,
-                "SELECT COUNT_BIG(DISTINCT TenantId) FROM dbo.Runs;",
-                cancellationToken);
-
-        return new CrossTenantUsageRollup(distinctTenants, committedRuns, totalRuns, TimeProvider.System.GetUtcNow());
-    }
-
-    /// <inheritdoc />
     public Task<AdminCacheDiagnosticsResponse> GetCacheDiagnosticsAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -350,409 +141,5 @@ public sealed class AdminDiagnosticsService(
         };
 
         return Task.FromResult(response);
-    }
-
-    /// <inheritdoc />
-    public async Task<OrphanComparisonRemediationResult> RemediateOrphanComparisonRecordsAsync(
-        bool dryRun,
-        int maxRows,
-        CancellationToken cancellationToken = default)
-    {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new OrphanComparisonRemediationResult(dryRun, 0, []);
-
-        DataConsistencyRemediationResult result = await _dataConsistencyRemediationExecutor.ExecuteAsync(
-            DataConsistencyOrphanRemediationRegistry.ComparisonRecords,
-            dryRun,
-            maxRows,
-            cancellationToken).ConfigureAwait(false);
-
-        return new OrphanComparisonRemediationResult(result.DryRun, result.RowCount, result.RemediatedIds);
-    }
-
-    /// <inheritdoc />
-    public async Task<OrphanGoldenManifestRemediationResult> RemediateOrphanGoldenManifestsAsync(
-        bool dryRun,
-        int maxRows,
-        CancellationToken cancellationToken = default)
-    {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new OrphanGoldenManifestRemediationResult(dryRun, 0, []);
-
-        DataConsistencyRemediationResult result = await _dataConsistencyRemediationExecutor.ExecuteAsync(
-            DataConsistencyOrphanRemediationRegistry.GoldenManifests,
-            dryRun,
-            maxRows,
-            cancellationToken).ConfigureAwait(false);
-
-        return new OrphanGoldenManifestRemediationResult(result.DryRun, result.RowCount, result.RemediatedIds);
-    }
-
-    /// <inheritdoc />
-    public async Task<OrphanFindingsSnapshotRemediationResult> RemediateOrphanFindingsSnapshotsAsync(
-        bool dryRun,
-        int maxRows,
-        CancellationToken cancellationToken = default)
-    {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new OrphanFindingsSnapshotRemediationResult(dryRun, 0, []);
-
-        DataConsistencyRemediationResult result = await _dataConsistencyRemediationExecutor.ExecuteAsync(
-            DataConsistencyOrphanRemediationRegistry.FindingsSnapshots,
-            dryRun,
-            maxRows,
-            cancellationToken).ConfigureAwait(false);
-
-        return new OrphanFindingsSnapshotRemediationResult(result.DryRun, result.RowCount, result.RemediatedIds);
-    }
-
-    /// <inheritdoc />
-    public async Task<DataConsistencyStaleInFlightSnapshot> GetDataConsistencyStaleInFlightSnapshotAsync(
-        int maxSampleRows = 50,
-        CancellationToken cancellationToken = default)
-    {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new DataConsistencyStaleInFlightSnapshot(0, []);
-
-        int capped = Math.Clamp(maxSampleRows, 1, PaginationDefaults.MaxListingTake);
-        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
-
-        long count = await ExecuteCountAsync(
-            connection,
-            DataConsistencyStaleInFlightRemediationSql.CountStaleInFlightRuns,
-            cancellationToken);
-
-        List<string> sampleIds = [];
-
-        await using (DbCommand selectCommand = connection.CreateCommand())
-        {
-            selectCommand.CommandText = DataConsistencyStaleInFlightRemediationSql.SelectStaleInFlightRunIds;
-            DbParameter maxRowsParameter = selectCommand.CreateParameter();
-            maxRowsParameter.ParameterName = "@MaxRows";
-            maxRowsParameter.Value = capped;
-            selectCommand.Parameters.Add(maxRowsParameter);
-
-            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
-
-            while (await reader.ReadAsync(cancellationToken))
-                sampleIds.Add(reader.GetGuid(0).ToString("D"));
-        }
-
-        return new DataConsistencyStaleInFlightSnapshot(count, sampleIds);
-    }
-
-    /// <inheritdoc />
-    public async Task<StaleInFlightRemediationResult> RemediateStaleInFlightRunsAsync(
-        bool dryRun,
-        int maxRows,
-        CancellationToken cancellationToken = default)
-    {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new StaleInFlightRemediationResult(dryRun, 0, [], [], []);
-
-        int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
-        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
-
-        List<Guid> candidateIds = [];
-
-        await using (DbCommand selectCommand = connection.CreateCommand())
-        {
-            selectCommand.CommandText = DataConsistencyStaleInFlightRemediationSql.SelectStaleInFlightRunIds;
-            DbParameter maxRowsParameter = selectCommand.CreateParameter();
-            maxRowsParameter.ParameterName = "@MaxRows";
-            maxRowsParameter.Value = capped;
-            selectCommand.Parameters.Add(maxRowsParameter);
-
-            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
-
-            while (await reader.ReadAsync(cancellationToken))
-                candidateIds.Add(reader.GetGuid(0));
-        }
-
-        IReadOnlyList<string> candidateIdStrings =
-            candidateIds.Select(static id => id.ToString("D")).ToList();
-
-        if (dryRun)
-            return new StaleInFlightRemediationResult(true, candidateIds.Count, candidateIdStrings, [], []);
-
-        if (candidateIds.Count == 0)
-            return new StaleInFlightRemediationResult(false, 0, [], [], []);
-
-        RunArchiveByIdsResult archiveResult =
-            await _runRepository.ArchiveRunsByIdsAsync(candidateIds, cancellationToken);
-
-        if (archiveResult.SucceededRunIds.Count > 0)
-        {
-            await LogManifestArchivedBatchAsync(
-                "staleInFlight",
-                archiveResult.SucceededRunIds.Count,
-                archiveResult.SucceededRunIds.Select(static r => r.ToString("D")).ToList(),
-                archiveResult.ChildCascade,
-                cancellationToken);
-        }
-
-        return new StaleInFlightRemediationResult(
-            false,
-            candidateIds.Count,
-            candidateIdStrings,
-            archiveResult.SucceededRunIds.Select(static r => r.ToString("D")).ToList(),
-            archiveResult.Failed);
-    }
-
-    /// <inheritdoc />
-    public async Task<DataConsistencyMissingArchitectureRequestSnapshot>
-        GetDataConsistencyMissingArchitectureRequestSnapshotAsync(
-            int maxSampleRows = 50,
-            CancellationToken cancellationToken = default)
-    {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new DataConsistencyMissingArchitectureRequestSnapshot(0, []);
-
-        int capped = Math.Clamp(maxSampleRows, 1, PaginationDefaults.MaxListingTake);
-        int minAgeMinutes = ResolveMissingArchitectureRequestMinAgeMinutes();
-        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
-
-        long count = await ExecuteCountWithMinAgeAsync(
-            connection,
-            DataConsistencyMissingArchitectureRequestRemediationSql.CountMissingArchitectureRequestRuns,
-            minAgeMinutes,
-            cancellationToken);
-
-        List<string> sampleIds = [];
-
-        await using (DbCommand selectCommand = connection.CreateCommand())
-        {
-            selectCommand.CommandText =
-                DataConsistencyMissingArchitectureRequestRemediationSql.SelectMissingArchitectureRequestRunIds;
-            AddMaxRowsParameter(selectCommand, capped);
-            AddMinAgeParameter(selectCommand, minAgeMinutes);
-
-            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
-
-            while (await reader.ReadAsync(cancellationToken))
-                sampleIds.Add(reader.GetGuid(0).ToString("D"));
-        }
-
-        return new DataConsistencyMissingArchitectureRequestSnapshot(count, sampleIds);
-    }
-
-    /// <inheritdoc />
-    public async Task<MissingArchitectureRequestRemediationResult> RemediateMissingArchitectureRequestRunsAsync(
-        bool dryRun,
-        int maxRows,
-        CancellationToken cancellationToken = default)
-    {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new MissingArchitectureRequestRemediationResult(dryRun, 0, [], [], []);
-
-        int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
-        int minAgeMinutes = ResolveMissingArchitectureRequestMinAgeMinutes();
-        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
-
-        List<Guid> candidateIds = [];
-
-        await using (DbCommand selectCommand = connection.CreateCommand())
-        {
-            selectCommand.CommandText =
-                DataConsistencyMissingArchitectureRequestRemediationSql.SelectMissingArchitectureRequestRunIds;
-            AddMaxRowsParameter(selectCommand, capped);
-            AddMinAgeParameter(selectCommand, minAgeMinutes);
-
-            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
-
-            while (await reader.ReadAsync(cancellationToken))
-                candidateIds.Add(reader.GetGuid(0));
-        }
-
-        IReadOnlyList<string> candidateIdStrings =
-            candidateIds.Select(static id => id.ToString("D")).ToList();
-
-        if (dryRun)
-            return new MissingArchitectureRequestRemediationResult(true, candidateIds.Count, candidateIdStrings, [], []);
-
-        if (candidateIds.Count == 0)
-            return new MissingArchitectureRequestRemediationResult(false, 0, [], [], []);
-
-        RunArchiveByIdsResult archiveResult =
-            await _runRepository.ArchiveRunsByIdsAsync(candidateIds, cancellationToken);
-
-        if (archiveResult.SucceededRunIds.Count > 0)
-        {
-            await LogManifestArchivedBatchAsync(
-                "missingArchitectureRequest",
-                archiveResult.SucceededRunIds.Count,
-                archiveResult.SucceededRunIds.Select(static r => r.ToString("D")).ToList(),
-                archiveResult.ChildCascade,
-                cancellationToken);
-        }
-
-        return new MissingArchitectureRequestRemediationResult(
-            false,
-            candidateIds.Count,
-            candidateIdStrings,
-            archiveResult.SucceededRunIds.Select(static r => r.ToString("D")).ToList(),
-            archiveResult.Failed);
-    }
-
-    private int ResolveMissingArchitectureRequestMinAgeMinutes()
-    {
-        return Math.Clamp(_missingArchitectureRequestAutoRemediationOptions.CurrentValue.MinAgeMinutes, 1, 24 * 60);
-    }
-
-    private static void AddMaxRowsParameter(DbCommand command, int maxRows)
-    {
-        DbParameter maxRowsParameter = command.CreateParameter();
-        maxRowsParameter.ParameterName = "@MaxRows";
-        maxRowsParameter.Value = maxRows;
-        command.Parameters.Add(maxRowsParameter);
-    }
-
-    private static void AddMinAgeParameter(DbCommand command, int minAgeMinutes)
-    {
-        DbParameter minAgeParameter = command.CreateParameter();
-        minAgeParameter.ParameterName = "@MinAgeMinutes";
-        minAgeParameter.Value = minAgeMinutes;
-        command.Parameters.Add(minAgeParameter);
-    }
-
-    private static async Task<long> ExecuteCountWithMinAgeAsync(
-        DbConnection connection,
-        string sql,
-        int minAgeMinutes,
-        CancellationToken cancellationToken)
-    {
-        await using DbCommand command = connection.CreateCommand();
-        command.CommandText = sql;
-        AddMinAgeParameter(command, minAgeMinutes);
-        object? scalar = await command.ExecuteScalarAsync(cancellationToken);
-
-        return scalar is long value
-            ? value
-            : Convert.ToInt64(scalar ?? 0L, CultureInfo.InvariantCulture);
-    }
-
-    /// <inheritdoc />
-    public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
-        DateTimeOffset createdBeforeUtc,
-        CancellationToken cancellationToken = default)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunArchiveBatchResult result =
-            await _runRepository.ArchiveRunsCreatedBeforeForScopeAsync(scope, createdBeforeUtc, cancellationToken)
-                .ConfigureAwait(false);
-
-        if (result.UpdatedCount > 0)
-
-            await LogManifestArchivedBatchAsync(
-                $"createdBefore:{createdBeforeUtc.UtcDateTime:o}",
-                result.ArchivedRuns.Count,
-                result.ArchivedRuns.Select(static r => r.RunId.ToString("D")).ToList(),
-                result.ChildCascade,
-                cancellationToken);
-
-        return result;
-    }
-
-    /// <inheritdoc />
-    public async Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(
-        IReadOnlyList<Guid> runIds,
-        CancellationToken cancellationToken = default)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        List<Guid> scopedRunIds = [];
-        List<RunArchiveByIdFailure> outOfScopeFailures = [];
-
-        foreach (Guid runId in runIds.Distinct())
-        {
-            RunRecord? run = await _runRepository
-                .GetByIdAsync(scope, runId, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (run is null)
-            {
-                outOfScopeFailures.Add(new RunArchiveByIdFailure(runId, "Run not found."));
-                continue;
-            }
-
-            scopedRunIds.Add(runId);
-        }
-
-        if (scopedRunIds.Count == 0)
-        {
-            return new RunArchiveByIdsResult { Failed = outOfScopeFailures };
-        }
-
-        RunArchiveByIdsResult result = await _runRepository
-            .ArchiveRunsByIdsAsync(scopedRunIds, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (outOfScopeFailures.Count > 0)
-        {
-            List<RunArchiveByIdFailure> mergedFailures = [..result.Failed, ..outOfScopeFailures];
-            result = new RunArchiveByIdsResult
-            {
-                SucceededRunIds = result.SucceededRunIds,
-                ArchivedRuns = result.ArchivedRuns,
-                Failed = mergedFailures,
-                ChildCascade = result.ChildCascade
-            };
-        }
-
-        if (result.SucceededRunIds.Count > 0)
-
-            await LogManifestArchivedBatchAsync(
-                "byIds",
-                result.SucceededRunIds.Count,
-                result.SucceededRunIds.Select(static r => r.ToString("D")).ToList(),
-                result.ChildCascade,
-                cancellationToken);
-
-        return result;
-    }
-
-    private async Task LogManifestArchivedBatchAsync(
-        string kind,
-        int updatedCount,
-        List<string> archivedRunIdsSample,
-        RunArchiveChildCascadeCounts childCascade,
-        CancellationToken cancellationToken)
-    {
-        string actor = _actorContext.GetActor();
-
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.ManifestArchived,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        kind,
-                        updatedRuns = updatedCount,
-                        sampleRunIds = archivedRunIdsSample.Take(64).ToList(),
-                        childCascade
-                    })
-            },
-            cancellationToken);
-    }
-
-    private static async Task<long> ExecuteCountAsync(
-        DbConnection connection,
-        string sql,
-        CancellationToken cancellationToken)
-    {
-        await using DbCommand command = connection.CreateCommand();
-        command.CommandText = sql;
-        object? scalar = await command.ExecuteScalarAsync(cancellationToken);
-        return scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, CultureInfo.InvariantCulture);
     }
 }
