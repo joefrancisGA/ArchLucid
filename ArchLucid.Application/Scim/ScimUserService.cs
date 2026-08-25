@@ -175,6 +175,10 @@ public sealed class ScimUserService(
     public async Task DeactivateAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
     {
         ScimUserRecord existing = await _users.GetByIdAsync(tenantId, id, cancellationToken) ?? throw new ScimNotFoundException("User not found.");
+
+        if (existing.DirectoryRemovedUtc is not null)
+            throw new ScimNotFoundException("User not found.");
+
         bool seatDecremented = false;
 
         try
