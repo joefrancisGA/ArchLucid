@@ -94,6 +94,66 @@ public sealed class PolicyPackWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task TryDuplicatePackAsync_returns_null_when_pack_is_out_of_scope()
+    {
+        Guid foreignPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(foreignPackId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPack
+                {
+                    PolicyPackId = foreignPackId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    Name = "foreign-workspace-pack",
+                    CurrentVersion = "1.0.0",
+                    IsDeleted = false,
+                });
+
+        Mock<IPolicyPacksAppService> appService = new(MockBehavior.Strict);
+
+        PolicyPackWorkflowFacade sut = CreateSut(packs.Object, appService: appService.Object);
+
+        PolicyPack? result = await sut.TryDuplicatePackAsync(foreignPackId, CancellationToken.None);
+
+        result.Should().BeNull();
+        appService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TrySoftDeletePackAsync_returns_false_when_pack_is_out_of_scope()
+    {
+        Guid foreignPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(foreignPackId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPack
+                {
+                    PolicyPackId = foreignPackId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    Name = "foreign-workspace-pack",
+                    CurrentVersion = "1.0.0",
+                    IsDeleted = false,
+                });
+
+        Mock<IPolicyPacksAppService> appService = new(MockBehavior.Strict);
+
+        PolicyPackWorkflowFacade sut = CreateSut(packs.Object, appService: appService.Object);
+
+        bool result = await sut.TrySoftDeletePackAsync(foreignPackId, CancellationToken.None);
+
+        result.Should().BeFalse();
+        appService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task TrySimulateBulkAsync_returns_null_when_pack_has_no_versions()
     {
         Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

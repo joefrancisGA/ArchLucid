@@ -156,6 +156,11 @@ public sealed class PolicyPackWorkflowFacade(
     public async Task<bool> TrySoftDeletePackAsync(Guid policyPackId, CancellationToken ct)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        PolicyPack? pack = await _packRepository.GetByIdAsync(policyPackId, ct);
+
+        if (!IsPackVisibleInScope(pack, scope))
+            return false;
+
         return await _policyPacksApp.TrySoftDeletePackAsync(scope.TenantId, policyPackId, ct);
     }
 
@@ -163,6 +168,10 @@ public sealed class PolicyPackWorkflowFacade(
     public async Task<PolicyPack?> TryDuplicatePackAsync(Guid policyPackId, CancellationToken ct)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        PolicyPack? pack = await _packRepository.GetByIdAsync(policyPackId, ct);
+
+        if (!IsPackVisibleInScope(pack, scope))
+            return null;
 
         return await _policyPacksApp.TryDuplicatePackAsync(
             scope.TenantId,
