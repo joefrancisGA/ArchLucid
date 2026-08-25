@@ -19,10 +19,11 @@
 | Decompose authority commit orchestrator | Done (2026-08-25) — `AuthorityCommit*Stage` handlers under `ArchLucid.Application/Runs/Orchestration/Commit/`; orchestrator ~283 lines |
 | Consolidate identity/auth bounded module | Done (2026-08-25) — `AuthAuditEmitter`, `AuthRateLimitHelper`, `AuthValidationResultMapper` in `ArchLucid.Application/Identity/`; migrated Email OTP, post-auth bootstrap, and identity linking services |
 | Tighten governance API boundaries | Done (2026-08-25) — `PolicyPackWorkflowFacade` in `ArchLucid.Application/Governance/PolicyPacks/`; `PolicyPacksController` thinned to HTTP concerns |
+| Finish demo/sample scenario decoupling | Done (2026-08-25) — `resolveSampleScenarioByPolicyPackId` / hero-finding registry lookups; UI helpers (`finding-display-from-inspect.ts`, `graph-mapper.ts`, `policy-pack-detail-resolver.ts`, `showcase-page-copy.ts`, `graph-buyer-node-detail.ts`, `provenance-graph-presentation.ts`) read from `archlucid-ui/src/lib/samples/registry.ts`; TB-978, TB-979, TB-980 |
 
 ## Active items (remaining)
 
-4. **Finish demo/sample scenario decoupling** — Complete typed sample-definition layer so UI, seeds, and tests stop branching on healthcare/Claims literals. **Impact:** High (product) · **Effort:** Medium · **Backlog:** TB-978, TB-979, TB-980 · **Paths:** `archlucid-ui/src/lib/samples/`, `DemoSeedService.*.cs`
+*(none)*
 
 ## Completed (2026-08-24 pass)
 
