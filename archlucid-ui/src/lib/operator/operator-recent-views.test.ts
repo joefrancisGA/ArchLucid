@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   parseStoredRecentViews,
   recordRecentView,
@@ -22,6 +24,12 @@ describe("operator-recent-views", () => {
 
     expect(twice.entries).toHaveLength(1);
     expect(twice.entries[0]?.href).toBe("/architecture/reviews/abc");
+  });
+
+  it("maps assigned-to-me findings path to the sidebar label", () => {
+    expect(recentViewLabelFromPathname(GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH)).toBe(
+      OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
+    );
   });
 
   it("maps pathname labels", () => {
