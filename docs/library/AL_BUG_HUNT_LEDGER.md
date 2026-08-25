@@ -375,11 +375,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — same-family/name agent proposals with distinct evidence refs were deduplicated
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — duplicate agent rows when EvidenceRef differed only by casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -392,6 +392,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Ledger merge keeps an agent-proposed technology that the inventory already replaced — inventory/evidence rows are `Chosen`; same `ProviderFamily` proposals are already skipped via chosen-family gate; name-level dedupe now also matches authoritative `Chosen` rows
 - [x] (proven) Same provider family and technology name dropped a second agent proposal with a distinct non-empty `EvidenceRef` — **hit 2026-08-24:** `HasMatchingProposal` treated matching names as duplicates before comparing evidence refs; fixed by skipping name dedupe when both refs are non-empty and differ; regression in `Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`
 - [x] (invalid) Inventory `Chosen` row with `CloudProvider.None` suppresses every proposal family — **2026-08-24:** `chosen.ProviderFamily == candidate.ProviderFamily` uses enum equality; `None` only blocks other `None` proposals, not Aws/Azure/Gcp candidates (`Resolve_inserts_assumed_on_provider_conflict`).
+- [x] (proven) Duplicate agent rows when `EvidenceRef` differed only by casing — **hit 2026-08-25:** `EvidenceRefsMatch` used ordinal case-sensitive compare; topology re-seed with case-variant proposal ids duplicated rows; fixed with `OrdinalIgnoreCase`; regression in `Resolve_skips_when_evidence_ref_matches_case_insensitively`
 
 ---
 
