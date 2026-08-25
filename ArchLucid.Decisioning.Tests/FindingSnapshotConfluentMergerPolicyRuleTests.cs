@@ -86,4 +86,42 @@ public sealed class FindingSnapshotConfluentMergerPolicyRuleTests
         snapshot.EngineFailures.Should().ContainSingle(failure =>
             failure.EngineType == "finding-merge-conflict");
     }
+
+    [Fact]
+    public void Merge_preserves_mute_when_incoming_payload_matches_muted_primary()
+    {
+        Finding muted = new()
+        {
+            FindingId = "muted",
+            FindingType = "Test",
+            Category = "Security",
+            EngineType = "engine-a",
+            PolicyRuleId = "rule-1",
+            Title = "Shared title",
+            Rationale = "same payload",
+            Severity = FindingSeverity.Warning,
+            IsMuted = true,
+            MuteReason = "Resolved by operator clarification answer.",
+        };
+
+        Finding incoming = new()
+        {
+            FindingId = "incoming",
+            FindingType = "Test",
+            Category = "Security",
+            EngineType = "engine-b",
+            PolicyRuleId = "rule-1",
+            Title = "Shared title",
+            Rationale = "same payload",
+            Severity = FindingSeverity.Warning,
+        };
+
+        FindingsSnapshot snapshot = new() { Findings = [muted] };
+
+        FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(snapshot, [incoming], TimeProvider.System);
+
+        snapshot.Findings.Should().ContainSingle();
+        snapshot.Findings[0].IsMuted.Should().BeTrue();
+        snapshot.Findings[0].MuteReason.Should().Be("Resolved by operator clarification answer.");
+    }
 }

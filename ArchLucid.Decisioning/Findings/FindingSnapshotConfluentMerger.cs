@@ -36,6 +36,7 @@ internal static class FindingSnapshotConfluentMerger
                 continue;
 
             Finding primary = SelectPrimary(members);
+            PreserveMuteFromPartition(primary, members);
 
             if (members.Count == 1 || AreAllPayloadEqual(members))
             {
@@ -56,6 +57,19 @@ internal static class FindingSnapshotConfluentMerger
             .OrderBy(static f => f.EngineType ?? string.Empty, StringComparer.Ordinal)
             .ThenBy(static f => f.FindingId ?? string.Empty, StringComparer.Ordinal)
             .First();
+    }
+
+    private static void PreserveMuteFromPartition(Finding primary, IReadOnlyList<Finding> members)
+    {
+        Finding? mutedMember = members.FirstOrDefault(static member => member.IsMuted);
+
+        if (mutedMember is null)
+            return;
+
+        primary.IsMuted = true;
+
+        if (string.IsNullOrWhiteSpace(primary.MuteReason))
+            primary.MuteReason = mutedMember.MuteReason;
     }
 
     private static bool AreAllPayloadEqual(IReadOnlyList<Finding> members)
