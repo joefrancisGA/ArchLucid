@@ -54,6 +54,13 @@ export function isProxyDevelopmentCatalogResetRequest(pathForLog: string): boole
   return path.includes("diagnostics/reset-development-catalog");
 }
 
+/** True when the proxy forwards advisory LLM intake (structured-brief suggest, overview rewrite, etc.). */
+export function isProxyLlmAdvisoryRequest(pathForLog: string): boolean {
+  const path = pathForLog.toLowerCase().replaceAll("\\", "/");
+
+  return path.startsWith("v1/architecture/request/draft");
+}
+
 /** Resolves the proxy body byte cap for a mutating forward. */
 export function resolveProxyMaxBodyBytes(pathForLog: string, contentType: string | null): number {
   if (isProxyLargeUploadRequest(pathForLog, contentType)) {

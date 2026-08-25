@@ -4,6 +4,8 @@ using ArchLucid.Core.Llm;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.Planning;
@@ -33,7 +35,11 @@ public sealed class ArchitectureRequestDraftServiceTests
         Mock<IArchitectureRequestDraftSemanticUniquePass> semanticPass = CreatePassThroughSemanticPassMock();
         Mock<IBriefAssumptionEvidenceContradictionPass> contradictionPass = CreateEmptyContradictionPassMock();
 
-        ArchitectureRequestDraftService sut = new(client.Object, semanticPass.Object, contradictionPass.Object);
+        ArchitectureRequestDraftService sut = new(
+            client.Object,
+            semanticPass.Object,
+            contradictionPass.Object,
+            NullLogger<ArchitectureRequestDraftService>.Instance);
 
         DraftArchitectureRequestResponse response = await sut.DraftAsync(
             new DraftArchitectureRequestInput { FreeTextDescription = "This is a sufficiently long architecture description." },
@@ -67,7 +73,11 @@ public sealed class ArchitectureRequestDraftServiceTests
         Mock<IArchitectureRequestDraftSemanticUniquePass> semanticPass = CreatePassThroughSemanticPassMock();
         Mock<IBriefAssumptionEvidenceContradictionPass> contradictionPass = CreateEmptyContradictionPassMock();
 
-        ArchitectureRequestDraftService sut = new(client.Object, semanticPass.Object, contradictionPass.Object);
+        ArchitectureRequestDraftService sut = new(
+            client.Object,
+            semanticPass.Object,
+            contradictionPass.Object,
+            NullLogger<ArchitectureRequestDraftService>.Instance);
 
         DraftArchitectureRequestResponse response = await sut.DraftAsync(
             new DraftArchitectureRequestInput { FreeTextDescription = "Vertex B2B SaaS tenant migration platform overview." },
@@ -114,7 +124,8 @@ public sealed class ArchitectureRequestDraftServiceTests
         ArchitectureRequestDraftService sut = new(
             client.Object,
             semanticPass.Object,
-            CreateEmptyContradictionPassMock().Object);
+            CreateEmptyContradictionPassMock().Object,
+            NullLogger<ArchitectureRequestDraftService>.Instance);
 
         DraftArchitectureRequestResponse response = await sut.DraftAsync(
             new DraftArchitectureRequestInput

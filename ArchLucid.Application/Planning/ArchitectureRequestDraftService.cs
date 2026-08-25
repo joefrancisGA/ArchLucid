@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -5,12 +6,15 @@ using System.Text.Json.Serialization;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Llm;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Planning;
 
 public sealed class ArchitectureRequestDraftService(
     IAgentCompletionClient completionClient,
     IArchitectureRequestDraftSemanticUniquePass semanticUniquePass,
-    IBriefAssumptionEvidenceContradictionPass assumptionEvidenceContradictionPass) : IArchitectureRequestDraftService
+    IBriefAssumptionEvidenceContradictionPass assumptionEvidenceContradictionPass,
+    ILogger<ArchitectureRequestDraftService> logger) : IArchitectureRequestDraftService
 {
     private const string DraftSystemPrompt =
         "You are an enterprise architecture intake assistant. " +
@@ -42,17 +46,29 @@ public sealed class ArchitectureRequestDraftService(
         assumptionEvidenceContradictionPass
         ?? throw new ArgumentNullException(nameof(assumptionEvidenceContradictionPass));
 
+    private readonly ILogger<ArchitectureRequestDraftService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private const int SlowDraftWarningThresholdMs = 45_000;
+
+    private static readonly EventId DraftCompletedEvent = new(20_401, "ArchitectureRequestDraft.Completed");
+    private static readonly EventId DraftSlowEvent = new(20_402, "ArchitectureRequestDraft.Slow");
+
     public async Task<DraftArchitectureRequestResponse> DraftAsync(
         DraftArchitectureRequestInput input,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(input);
 
+        long totalStartTicks = Stopwatch.GetTimestamp();
+        int overviewLength = input.FreeTextDescription.Trim().Length;
 
         if (string.IsNullOrWhiteSpace(input.FreeTextDescription))
             throw new ArgumentException("FreeTextDescription is required.", nameof(input));
 
         string userPrompt = BuildDraftUserPrompt(input);
+
+        long extractionStartTicks = Stopwatch.GetTimestamp();
 
         string responseJson = await _completionClient.CompleteJsonAsync(
             DraftSystemPrompt,
@@ -60,6 +76,8 @@ public sealed class ArchitectureRequestDraftService(
             maxTokens: null,
             temperature: null,
             cancellationToken: cancellationToken);
+
+        double extractionMs = Stopwatch.GetElapsedTime(extractionStartTicks).TotalMilliseconds;
 
         DraftArchitectureRequestResponseShape? response =
             JsonSerializer.Deserialize<DraftArchitectureRequestResponseShape>(responseJson, JsonOptions);
@@ -72,23 +90,44 @@ public sealed class ArchitectureRequestDraftService(
         string[] existingConstraints = ArchitectureRequestDraftSemanticUniquePass.NormalizeExact(input.CurrentConstraints);
         string[] existingAssumptions = ArchitectureRequestDraftSemanticUniquePass.NormalizeExact(input.CurrentAssumptions);
 
-        string[] filteredConstraints = await _semanticUniquePass.FilterDuplicatesAsync(
+        long postProcessStartTicks = Stopwatch.GetTimestamp();
+
+        Task<string[]> filteredConstraintsTask = _semanticUniquePass.FilterDuplicatesAsync(
             ArchitectureRequestDraftListKind.Constraints,
             existingConstraints,
             normalizedConstraints,
             cancellationToken);
 
-        string[] filteredAssumptions = await _semanticUniquePass.FilterDuplicatesAsync(
+        Task<string[]> filteredAssumptionsTask = _semanticUniquePass.FilterDuplicatesAsync(
             ArchitectureRequestDraftListKind.Assumptions,
             existingAssumptions,
             normalizedAssumptions,
             cancellationToken);
 
-        IReadOnlyList<EvidenceContradictedBriefAssumption> evidenceContradictedAssumptions =
-            await _assumptionEvidenceContradictionPass.DetectAsync(
+        Task<IReadOnlyList<EvidenceContradictedBriefAssumption>> contradictionsTask =
+            _assumptionEvidenceContradictionPass.DetectAsync(
                 input.FreeTextDescription,
                 input.ConfirmedAssumptions,
                 cancellationToken);
+
+        await Task.WhenAll(filteredConstraintsTask, filteredAssumptionsTask, contradictionsTask);
+
+        string[] filteredConstraints = await filteredConstraintsTask;
+        string[] filteredAssumptions = await filteredAssumptionsTask;
+        IReadOnlyList<EvidenceContradictedBriefAssumption> evidenceContradictedAssumptions =
+            await contradictionsTask;
+
+        double postProcessMs = Stopwatch.GetElapsedTime(postProcessStartTicks).TotalMilliseconds;
+        double totalMs = Stopwatch.GetElapsedTime(totalStartTicks).TotalMilliseconds;
+
+        LogDraftTiming(
+            overviewLength,
+            extractionMs,
+            postProcessMs,
+            totalMs,
+            filteredConstraints.Length,
+            filteredAssumptions.Length,
+            Normalize(response.SuggestedCapabilities, response.RequiredCapabilities).Length);
 
         return new DraftArchitectureRequestResponse
         {
@@ -100,6 +139,40 @@ public sealed class ArchitectureRequestDraftService(
             SuggestedFailureModeNote = NormalizeFailureModeNote(response.SuggestedFailureModeNote, response.FailureModeNote),
             EvidenceContradictedAssumptions = evidenceContradictedAssumptions.ToList(),
         };
+    }
+
+    private void LogDraftTiming(
+        int overviewLength,
+        double extractionMs,
+        double postProcessMs,
+        double totalMs,
+        int constraintCount,
+        int assumptionCount,
+        int capabilityCount)
+    {
+        if (!_logger.IsEnabled(LogLevel.Information))
+            return;
+
+        _logger.LogInformation(
+            DraftCompletedEvent,
+            "Architecture request draft completed in {TotalMs:F0}ms (extraction {ExtractionMs:F0}ms, post-process {PostProcessMs:F0}ms) overviewLength={OverviewLength} constraints={ConstraintCount} assumptions={AssumptionCount} capabilities={CapabilityCount}",
+            totalMs,
+            extractionMs,
+            postProcessMs,
+            overviewLength,
+            constraintCount,
+            assumptionCount,
+            capabilityCount);
+
+        if (totalMs < SlowDraftWarningThresholdMs)
+            return;
+
+        _logger.LogWarning(
+            DraftSlowEvent,
+            "Architecture request draft exceeded slow threshold ({TotalMs:F0}ms >= {ThresholdMs}ms) overviewLength={OverviewLength}",
+            totalMs,
+            SlowDraftWarningThresholdMs,
+            overviewLength);
     }
 
     internal static string BuildDraftUserPrompt(DraftArchitectureRequestInput input)

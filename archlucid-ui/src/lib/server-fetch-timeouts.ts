@@ -10,6 +10,12 @@ export const MARKETING_UPSTREAM_FETCH_TIMEOUT_MS = 12_000;
 export const PROXY_UPSTREAM_FETCH_TIMEOUT_MS = 60_000;
 
 /**
+ * LLM advisory intake (structured-brief suggest, overview rewrite, suggestion explain).
+ * Multiple sequential completion calls can exceed the default 60s proxy budget on long overviews.
+ */
+export const PROXY_UPSTREAM_LLM_ADVISORY_FETCH_TIMEOUT_MS = 180_000;
+
+/**
  * Development catalog reset (drop/create + migrations + bootstrap) through the UI BFF.
  * SQL catalog work can run several minutes on a locked local instance.
  */
