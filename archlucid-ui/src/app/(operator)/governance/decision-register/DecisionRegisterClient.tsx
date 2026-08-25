@@ -31,6 +31,7 @@ import { DecisionRegisterViewEmptyShell } from "./DecisionRegisterViewEmptyShell
 import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
 import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
 import { DecisionRegisterViewSwitcher, type DecisionRegisterViewMode } from "./DecisionRegisterViewSwitcher";
+import { DecisionRegisterWorkspaceActiveApprovalStrip } from "./DecisionRegisterWorkspaceActiveApprovalStrip";
 import {
   DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE,
   DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES,
@@ -219,6 +220,7 @@ export default function DecisionRegisterClient() {
       {!loading && !loadError && !hasWorkspaceDecisions ? (
         <DecisionRegisterViewEmptyShell viewMode={viewMode}>
           <div className="space-y-3">
+            <DecisionRegisterWorkspaceActiveApprovalStrip />
             {buyerPolishedShell ? null : <DecisionRegisterEmptyTeaching />}
             <EnterpriseCompactEmptyState
               testId="decision-register-empty-state"
