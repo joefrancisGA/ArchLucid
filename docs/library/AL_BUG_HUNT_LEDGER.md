@@ -1094,10 +1094,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
+- **last-hunt:** 2026-08-25
 - **last-bug:** 2026-08-24 — activation accepted non-HTTP(S) issuer URIs that discovery rejects
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1113,6 +1113,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Empty SAML metadata HTTP body threw `ArgumentException` to callers — **hit 2026-08-24:** parser throw was uncaught; regression in `DiscoverAsync_saml_empty_body_returns_failed_response_instead_of_throwing`
 - [x] (proven) Protocol switch preserved prior protocol `MetadataXml` / `KeyVaultSecretName` when omitted — **hit 2026-08-24:** `ResolveOptionalPersistedField` inherited existing values across SAML↔OIDC; now only preserves within same protocol; regression in `ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted` and `ActivateAsync_protocol_switch_clears_oidc_key_vault_secret_when_omitted`
 - [x] (proven) Activation accepted non-HTTP(S) issuer URIs that discovery rejects — **hit 2026-08-24:** `ActivateAsync` validated only non-whitespace and persisted `file:` / `javascript:` issuers; shared absolute HTTP(S) validation now covers discovery and activation; regression in `ActivateAsync_rejects_non_http_scheme_issuer_uri`
+- [x] (invalid) Null `ClaimMapping.Mappings` crashes activation with HTTP 500 — **seed 2026-08-25:** LINQ `.Where` throws `ArgumentNullException` (derives from `ArgumentException`); controller maps to 400; regression in `ActivateAsync_null_claim_mapping_entries_throw_argument_null_exception`
+- [x] (valid-no-repro) Activation accepts issuer URI without host (`https://`) — **seed 2026-08-25:** `IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps` rejects; regression in `ActivateAsync_rejects_issuer_without_host`
+- [x] (valid-no-repro) Empty `RoleClaimName` persists broken mapping — **seed 2026-08-25:** `IdentityClaimRoleMappingValidator.ValidateOrThrow` fails before upsert; regression in `ActivateAsync_rejects_empty_role_claim_name`
 
 ---
 
