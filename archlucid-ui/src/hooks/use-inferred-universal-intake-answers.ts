@@ -9,6 +9,7 @@ import { ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS } from "@/lib/architecture/ar
 import { buildArchitectureIntakeInferenceCorpus } from "@/lib/evidence-readable-text";
 import {
   UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS,
+  canSuggestUniversalIntakeAnswersFromEvidence,
   inferUniversalIntakeAnswersFromCorpus,
   mergeInferredUniversalIntakeAnswers,
 } from "@/lib/universal-intake-answer-inference";
@@ -25,6 +26,8 @@ type UseInferredUniversalIntakeAnswersResult = {
   readonly inferredQuestionKeys: ReadonlySet<string>;
   readonly isExtractingEvidenceText: boolean;
   readonly clarificationSuggestionsUnavailable: boolean;
+  readonly canSuggestFromEvidence: boolean;
+  readonly suggestAnswersFromEvidence: () => void;
   readonly markQuestionEdited: (questionKey: string) => void;
 };
 
@@ -38,100 +41,108 @@ export function useInferredUniversalIntakeAnswers(
   const lockedQuestionKeysRef = useRef(new Set<string>());
   const onAnswersChangeRef = useRef(input.onAnswersChange);
   const answersRef = useRef(input.answers);
+  const inputRef = useRef(input);
 
   onAnswersChangeRef.current = input.onAnswersChange;
   answersRef.current = input.answers;
+  inputRef.current = input;
+
+  const canSuggestFromEvidence = canSuggestUniversalIntakeAnswersFromEvidence({
+    briefText: input.briefText,
+    evidenceFiles: input.evidenceFiles,
+  });
+
+  const applyInference = useCallback(async (): Promise<void> => {
+    const currentInput = inputRef.current;
+    setIsExtractingEvidenceText(true);
+
+    try {
+      const corpus = await buildArchitectureIntakeInferenceCorpus({
+        briefText: currentInput.briefText,
+        evidenceFiles: currentInput.evidenceFiles,
+      });
+
+      const hasInferenceSource =
+        currentInput.evidenceFiles.length > 0
+        || currentInput.briefText.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS;
+
+      const inferredAnswers = inferUniversalIntakeAnswersFromCorpus(corpus);
+      let answersToApply = inferredAnswers;
+
+      if (
+        currentInput.blocksLlmRephrase !== true
+        && Object.keys(inferredAnswers).length > 0
+      ) {
+        const rephraseItems = buildClarificationRephraseItems({
+          inferredAnswers,
+          questions: ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS,
+        });
+
+        if (rephraseItems.length > 0) {
+          try {
+            const rephrased = await rephraseClarificationAnswersFromExtractedText({ items: rephraseItems });
+            answersToApply = mergeRephrasedClarificationAnswers({
+              currentAnswers: answersRef.current,
+              inferredAnswers,
+              rephrasedAnswers: rephrased.rephrasedAnswers,
+              lockedQuestionKeys: lockedQuestionKeysRef.current,
+            });
+          }
+          catch {
+            // Keep deterministic extracted answers when the advisory rephrase endpoint is unavailable.
+          }
+        }
+      }
+
+      const { mergedAnswers, newlyInferredQuestionKeys } = mergeInferredUniversalIntakeAnswers({
+        currentAnswers: answersRef.current,
+        inferredAnswers: answersToApply,
+        lockedQuestionKeys: lockedQuestionKeysRef.current,
+      });
+
+      setClarificationSuggestionsUnavailable(
+        hasInferenceSource
+          && corpus.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS
+          && Object.keys(inferredAnswers).length === 0,
+      );
+
+      if (newlyInferredQuestionKeys.length === 0) {
+        return;
+      }
+
+      onAnswersChangeRef.current(mergedAnswers);
+      setInferredQuestionKeys((current) => {
+        const next = new Set(current);
+
+        for (const questionKey of newlyInferredQuestionKeys) {
+          next.add(questionKey);
+        }
+
+        return next;
+      });
+    }
+    finally {
+      setIsExtractingEvidenceText(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    if (!canSuggestFromEvidence) {
+      setClarificationSuggestionsUnavailable(false);
 
-    async function applyInference(): Promise<void> {
-      setIsExtractingEvidenceText(true);
-
-      try {
-        const corpus = await buildArchitectureIntakeInferenceCorpus({
-          briefText: input.briefText,
-          evidenceFiles: input.evidenceFiles,
-        });
-
-        if (cancelled) {
-          return;
-        }
-
-        const hasInferenceSource =
-          input.evidenceFiles.length > 0 || input.briefText.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS;
-
-        const inferredAnswers = inferUniversalIntakeAnswersFromCorpus(corpus);
-        let answersToApply = inferredAnswers;
-
-        if (
-          input.blocksLlmRephrase !== true
-          && Object.keys(inferredAnswers).length > 0
-        ) {
-          const rephraseItems = buildClarificationRephraseItems({
-            inferredAnswers,
-            questions: ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS,
-          });
-
-          if (rephraseItems.length > 0) {
-            try {
-              const rephrased = await rephraseClarificationAnswersFromExtractedText({ items: rephraseItems });
-
-              if (!cancelled) {
-                answersToApply = mergeRephrasedClarificationAnswers({
-                  currentAnswers: answersRef.current,
-                  inferredAnswers,
-                  rephrasedAnswers: rephrased.rephrasedAnswers,
-                  lockedQuestionKeys: lockedQuestionKeysRef.current,
-                });
-              }
-            }
-            catch {
-              // Keep deterministic extracted answers when the advisory rephrase endpoint is unavailable.
-            }
-          }
-        }
-
-        const { mergedAnswers, newlyInferredQuestionKeys } = mergeInferredUniversalIntakeAnswers({
-          currentAnswers: answersRef.current,
-          inferredAnswers: answersToApply,
-          lockedQuestionKeys: lockedQuestionKeysRef.current,
-        });
-
-        setClarificationSuggestionsUnavailable(
-          hasInferenceSource
-            && corpus.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS
-            && Object.keys(inferredAnswers).length === 0,
-        );
-
-        if (newlyInferredQuestionKeys.length === 0) {
-          return;
-        }
-
-        onAnswersChangeRef.current(mergedAnswers);
-        setInferredQuestionKeys((current) => {
-          const next = new Set(current);
-
-          for (const questionKey of newlyInferredQuestionKeys) {
-            next.add(questionKey);
-          }
-
-          return next;
-        });
-      }
-      finally {
-        if (!cancelled) {
-          setIsExtractingEvidenceText(false);
-        }
-      }
+      return;
     }
 
     void applyInference();
+  }, [applyInference, canSuggestFromEvidence, input.briefText, input.blocksLlmRephrase, input.evidenceFiles]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [input.briefText, input.blocksLlmRephrase, input.evidenceFiles]);
+  const suggestAnswersFromEvidence = useCallback(() => {
+    if (!canSuggestFromEvidence || isExtractingEvidenceText) {
+      return;
+    }
+
+    void applyInference();
+  }, [applyInference, canSuggestFromEvidence, isExtractingEvidenceText]);
 
   const markQuestionEdited = useCallback((questionKey: string) => {
     lockedQuestionKeysRef.current.add(questionKey);
@@ -151,6 +162,8 @@ export function useInferredUniversalIntakeAnswers(
     inferredQuestionKeys,
     isExtractingEvidenceText,
     clarificationSuggestionsUnavailable,
+    canSuggestFromEvidence,
+    suggestAnswersFromEvidence,
     markQuestionEdited,
   };
 }

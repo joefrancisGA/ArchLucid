@@ -25,6 +25,14 @@ vi.mock("@/lib/wizard-pending-evidence-upload", () => ({
   uploadWizardPendingDocumentEvidence: (...args: unknown[]) => uploadDocuments(...args),
 }));
 
+vi.mock("@/lib/extract-evidence-document-text", () => ({
+  extractEvidenceDocumentText: vi.fn().mockResolvedValue({
+    ok: true,
+    text: "",
+    truncated: false,
+  }),
+}));
+
 vi.mock("@/lib/first-tenant-funnel-telemetry", () => ({
   recordFirstTenantFunnelEvent: vi.fn(),
 }));
@@ -445,5 +453,13 @@ describe("FirstPilotIntakeWizard", () => {
 
     expect(screen.getByTestId("first-pilot-intake-action-row")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: NEW_REVIEW_SAMPLE_ESCAPE_CTA })).toBeInTheDocument();
+  });
+
+  it("shows suggest-from-evidence control after architecture evidence is attached", () => {
+    render(<FirstPilotIntakeWizard />);
+
+    expect(screen.queryByTestId("first-pilot-suggest-from-evidence")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
+    expect(screen.getByTestId("first-pilot-suggest-from-evidence")).toBeInTheDocument();
   });
 });

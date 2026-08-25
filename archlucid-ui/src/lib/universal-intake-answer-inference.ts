@@ -17,6 +17,21 @@ export const UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER =
 export const UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER =
   "Clarification answer suggestions from uploaded documents require Real agent execution with Azure OpenAI connected. Answer each required clarification manually while Simulator mode is active.";
 
+export const UNIVERSAL_INTAKE_SUGGEST_FROM_EVIDENCE_LABEL = "Suggest answers from evidence";
+
+export const UNIVERSAL_INTAKE_SUGGEST_FROM_EVIDENCE_HELPER =
+  "Reads attached PDF or DOCX files and your architecture context to fill empty clarifications. Review each suggestion before you continue.";
+
+export function canSuggestUniversalIntakeAnswersFromEvidence(input: {
+  readonly briefText: string;
+  readonly evidenceFiles: readonly File[];
+}): boolean {
+  return (
+    input.evidenceFiles.length > 0
+    || input.briefText.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS
+  );
+}
+
 const QUESTION_KEY = {
   additionalActors: "l0.actor.additional-kinds",
   reliability: "l0.pillar.reliability",
