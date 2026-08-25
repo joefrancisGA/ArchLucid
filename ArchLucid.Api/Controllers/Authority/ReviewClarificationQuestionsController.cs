@@ -2,9 +2,10 @@ using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Clarifications;
 using ArchLucid.Contracts.Clarifications;
-using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.ProblemDetails;
@@ -30,6 +31,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class ReviewClarificationQuestionsController(
     IReviewClarificationQuestionService clarificationQuestionService,
+    IKnowledgeModelClarificationAnswerApplicator clarificationAnswerApplicator,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
@@ -73,5 +75,26 @@ public sealed class ReviewClarificationQuestionsController(
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+    }
+
+    [HttpPost("review/{runId:guid}/knowledge-model/clarification-answers")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(ApplyKnowledgeModelClarificationAnswersResponse), StatusCodes.Status200OK)]
+  public async Task<IActionResult> ApplyKnowledgeModelClarificationAnswers(
+        [FromRoute] Guid runId,
+        [FromBody] ApplyKnowledgeModelClarificationAnswersRequest? request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        int applied = await clarificationAnswerApplicator.ApplyAnswersAsync(
+            scope,
+            runId,
+            request.Answers,
+            cancellationToken).ConfigureAwait(false);
+
+        return Ok(new ApplyKnowledgeModelClarificationAnswersResponse { AppliedCount = applied });
     }
 }
