@@ -1254,13 +1254,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — SAML IdP metadata binder picked first SingleLogoutService regardless of HTTPS or Redirect binding
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 0
 
 ### Hypotheses
 
@@ -1273,6 +1273,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) JwtBearer principals without a bound `tenant_id` claim could steer tenant via `x-tenant-id` — **hit 2026-08-24:** header-only escalation guard applied only to ApiKey; extended to Bearer and SAML2 in `ScopeIdentityBindingMiddleware` (`ScopeIdentityBindingMiddlewareTests`).
 - [x] (proven) SAML inbound normalizer promoted non-GUID tenant/workspace/project values onto canonical scope claims — **hit 2026-08-24:** non-GUID `tenant_id` claims failed `Guid.TryParse` in scope resolution and fell back to headers; fixed by skipping non-GUID promotion (`ArchLucidSamlInboundClaimsNormalizerTests`).
 - [x] (proven) SAML IdP metadata binder picked first SSO endpoint regardless of HTTPS or Redirect binding — **hit 2026-08-24:** `SingleSignOnServices.First()` could select cleartext HTTP-POST before HTTPS Redirect; fixed with ordered selection (`ArchLucidSaml2IdpMetadataBinderTests`).
+- [x] (proven) SAML IdP metadata binder picked first SingleLogoutService regardless of HTTPS or Redirect binding — **hit 2026-08-25:** `SingleLogoutServices.First()` could select cleartext HTTP-POST before HTTPS Redirect; fixed with ordered selection mirroring SSO (`ApplyResolvedEntity_prefers_https_single_logout_endpoint_over_http_post_listed_first`).
 
 ---
 

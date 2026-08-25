@@ -30,7 +30,7 @@ internal static class ArchLucidSaml2IdpMetadataBinder
         saml2Configuration.SingleSignOnDestination = SelectSingleSignOnDestination(idp.SingleSignOnServices);
 
         if (idp.SingleLogoutServices.Any())
-            saml2Configuration.SingleLogoutDestination = idp.SingleLogoutServices.First().Location;
+            saml2Configuration.SingleLogoutDestination = SelectSingleLogoutDestination(idp.SingleLogoutServices);
 
         foreach (X509Certificate2 signingCertificate in idp.SigningCertificates)
         {
@@ -57,6 +57,21 @@ internal static class ArchLucidSaml2IdpMetadataBinder
         if (candidates.Count == 0)
             throw new InvalidOperationException(
                 "SAML IdP metadata did not contain a usable SingleSignOnService Location; check ArchLucidAuth:Saml2:IdPMetadata.");
+
+        return candidates[0].Location;
+    }
+
+    private static Uri SelectSingleLogoutDestination(IEnumerable<SingleLogoutService> singleLogoutServices)
+    {
+        List<SingleLogoutService> candidates = singleLogoutServices
+            .Where(endpoint => endpoint.Location is not null)
+            .OrderByDescending(endpoint => endpoint.Location.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            .ThenByDescending(endpoint => IsHttpRedirectBinding(endpoint.Binding))
+            .ToList();
+
+        if (candidates.Count == 0)
+            throw new InvalidOperationException(
+                "SAML IdP metadata did not contain a usable SingleLogoutService Location; check ArchLucidAuth:Saml2:IdPMetadata.");
 
         return candidates[0].Location;
     }
