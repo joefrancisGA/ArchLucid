@@ -96,4 +96,27 @@ public sealed class ReviewResultCacheTests
         again!.MustNotFailViolations[0].Blocked.Should().BeTrue();
         again.ProductFindings[0].Title.Should().Be("Gap");
     }
+
+    [Fact]
+    public void Set_stores_result_without_publish_side_effects()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-publish-sanitized" };
+        ClosedLoopReasoningResult stored = new()
+        {
+            RunId = "run-published",
+            PublishedToProduct = true,
+            PublishedFindingsSnapshotId = Guid.NewGuid(),
+            PublishedRecommendationCount = 5,
+            PublishSkipReason = "published",
+        };
+
+        cache.Set(manifest, stored);
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+
+        cached!.PublishedToProduct.Should().BeFalse();
+        cached.PublishedFindingsSnapshotId.Should().BeNull();
+        cached.PublishedRecommendationCount.Should().Be(0);
+        cached.PublishSkipReason.Should().BeNull();
+    }
 }

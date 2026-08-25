@@ -48,6 +48,7 @@ public sealed class ReviewResultCache : IReviewResultCache
         ArgumentNullException.ThrowIfNull(result);
 
         ClosedLoopReasoningResult snapshot = ClosedLoopReasoningResultCloner.Clone(result);
+        ClosedLoopCacheHitPublishGuard.SanitizeForStorage(snapshot);
 
         lock (_evictionLock)
         {
