@@ -94,6 +94,15 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             runStateTransitionService,
             NullLogger<ArchitectureRunCreatePersistenceHelper>.Instance);
 
+        ArchitectureRunCreatePostCreateHooks postCreateHooks = new(
+            auditService,
+            scopeContextProvider,
+            usageMetering,
+            timeProvider,
+            defaultPolicyPackCloudBaselineApplicator,
+            architectureIdentityService,
+            NullLogger<ArchitectureRunCreatePostCreateHooks>.Instance);
+
         return new ArchitectureRunCreateOrchestrator(
             coordination,
             requestRepository,
@@ -113,11 +122,8 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             workspaceSystemNameCollisionGuard,
             idempotencyHelper,
             persistenceHelper,
-            auditService,
-            usageMetering,
+            postCreateHooks,
             timeProvider,
-            defaultPolicyPackCloudBaselineApplicator,
-            architectureIdentityService,
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }
