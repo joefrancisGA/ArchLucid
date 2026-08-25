@@ -21,22 +21,22 @@ public sealed class ArchitectureKnowledgeModelAccessTests
   };
 
   [Fact]
-  public async Task GetForRunAsync_prefers_run_scoped_row_over_CurrentModelId()
+  public async Task GetForRunAsync_prefers_pinned_KnowledgeModelId_over_run_row_and_CurrentModelId()
   {
     Guid runId = Guid.Parse("44444444-4444-4444-4444-444444444444");
     Guid architectureId = Guid.Parse("55555555-5555-5555-5555-555555555555");
     string currentModelId = "model-current";
-    string runScopedModelId = "model-run-scoped";
+    string pinnedModelId = "model-pinned";
 
     Mock<IArchitectureIntelligencePersistence> persistence = new();
     persistence
-      .Setup(p => p.GetModelByRunIdAsync(TestScope.TenantId.ToString("D"), runId.ToString("D"), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new ArchitectureKnowledgeModel { ModelId = runScopedModelId, TenantId = TestScope.TenantId.ToString("D") });
+      .Setup(p => p.GetModelAsync(TestScope.TenantId.ToString("D"), pinnedModelId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ArchitectureKnowledgeModel { ModelId = pinnedModelId, TenantId = TestScope.TenantId.ToString("D") });
 
     Mock<IRunRepository> runs = new();
     runs
       .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new RunRecord { RunId = runId, ArchitectureId = architectureId });
+      .ReturnsAsync(new RunRecord { RunId = runId, ArchitectureId = architectureId, KnowledgeModelId = pinnedModelId });
 
     Mock<IArchitectureIdentityRepository> identities = new();
     identities
@@ -55,9 +55,9 @@ public sealed class ArchitectureKnowledgeModelAccessTests
     ArchitectureKnowledgeModel? model = await access.GetForRunAsync(TestScope, runId);
 
     model.Should().NotBeNull();
-    model!.ModelId.Should().Be(runScopedModelId);
+    model!.ModelId.Should().Be(pinnedModelId);
     persistence.Verify(
-      p => p.GetModelAsync(It.IsAny<string>(), currentModelId, It.IsAny<CancellationToken>()),
+      p => p.GetModelByRunIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
       Times.Never);
   }
 
@@ -113,9 +113,10 @@ public sealed class ArchitectureKnowledgeModelAccessTests
 
     Mock<IArchitectureIntelligencePersistence> persistence = new();
     Mock<IRunRepository> runs = new();
+    RunRecord run = new() { RunId = runId, ArchitectureId = architectureId };
     runs
       .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new RunRecord { RunId = runId, ArchitectureId = architectureId });
+      .ReturnsAsync(run);
 
     Mock<IArchitectureIdentityRepository> identities = new();
 
@@ -134,6 +135,7 @@ public sealed class ArchitectureKnowledgeModelAccessTests
     await access.SaveForRunAsync(TestScope, runId, model);
 
     model.ModelId.Should().NotBe(priorModelId);
+    run.KnowledgeModelId.Should().Be(model.ModelId);
 
     identities.Verify(
       i => i.UpdateCurrentModelAsync(TestScope, architectureId, model.ModelId, It.IsAny<CancellationToken>()),

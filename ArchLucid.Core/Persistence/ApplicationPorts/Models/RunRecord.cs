@@ -90,6 +90,13 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>Pinned κ <see cref="ArchitectureKnowledgeModel.ModelId" /> for as-of-this-run reads.</summary>
+    public string? KnowledgeModelId
+    {
+        get;
+        set;
+    }
+
     /// <summary>FK logical key to <c>ArchitectureRequests.RequestId</c>.</summary>
     public string? ArchitectureRequestId
     {

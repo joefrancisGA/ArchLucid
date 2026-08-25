@@ -185,6 +185,7 @@ internal static class RunRepositorySql
                                      EngineProvenanceJson = @EngineProvenanceJson,
                                      GovernanceScopeJson = @GovernanceScopeJson,
                                      ImproveLoopEvidenceJson = @ImproveLoopEvidenceJson,
+                                     KnowledgeModelId = @KnowledgeModelId,
                                      PackageOrigin = @PackageOrigin
                                  OUTPUT inserted.RowVersionStamp INTO @RunUpdateOutput
                                  WHERE RunId = @RunId

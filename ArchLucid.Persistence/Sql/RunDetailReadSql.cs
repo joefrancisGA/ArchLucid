@@ -14,6 +14,7 @@ internal static class RunDetailReadSql
                                             IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                             StructuralExecutionMode,
                                             RetryCount, LastFailureReason, EngineProvenanceJson, GovernanceScopeJson,
+                                            KnowledgeModelId,
                                             RowVersionStamp AS RowVersion
                                             """;
 

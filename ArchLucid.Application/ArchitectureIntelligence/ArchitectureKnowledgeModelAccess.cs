@@ -30,13 +30,28 @@ public sealed class ArchitectureKnowledgeModelAccess(
             return null;
 
         string tenantId = scope.TenantId.ToString("D");
+
+        ArchLucid.Persistence.Models.RunRecord? run = await _runRepository
+            .GetByIdAsync(scope, runId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is not null && !string.IsNullOrWhiteSpace(run.KnowledgeModelId))
+        {
+            ArchitectureKnowledgeModel? pinned = await _persistence
+                .GetModelAsync(tenantId, run.KnowledgeModelId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (pinned is not null)
+                return pinned;
+        }
+
         ArchitectureKnowledgeModel? runScoped = await LoadByRunIdFallbackAsync(tenantId, runId, cancellationToken)
             .ConfigureAwait(false);
 
         if (runScoped is not null)
             return runScoped;
 
-        return await TryLoadViaArchitectureIdentityAsync(scope, runId, tenantId, cancellationToken)
+        return await TryLoadViaArchitectureIdentityAsync(scope, run, tenantId, cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -72,11 +87,12 @@ public sealed class ArchitectureKnowledgeModelAccess(
         if (run is null)
             return;
 
+        run.KnowledgeModelId = nextModelId;
+
         if (run.GraphSnapshotId.HasValue)
-        {
             run.GraphSnapshotId = null;
-            await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
-        }
+
+        await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
 
         if (run.ArchitectureId is not Guid architectureId
             || _architectureIdentityRepository is null)
@@ -89,18 +105,11 @@ public sealed class ArchitectureKnowledgeModelAccess(
 
     private async Task<ArchitectureKnowledgeModel?> TryLoadViaArchitectureIdentityAsync(
         ScopeContext scope,
-        Guid runId,
+        ArchLucid.Persistence.Models.RunRecord? run,
         string tenantId,
         CancellationToken cancellationToken)
     {
-        if (_architectureIdentityRepository is null)
-            return null;
-
-        ArchLucid.Persistence.Models.RunRecord? run = await _runRepository
-            .GetByIdAsync(scope, runId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (run?.ArchitectureId is not Guid architectureId)
+        if (_architectureIdentityRepository is null || run?.ArchitectureId is not Guid architectureId)
             return null;
 
         ArchitectureIdentityRecord? identity = await _architectureIdentityRepository
