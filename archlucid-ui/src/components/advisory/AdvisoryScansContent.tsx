@@ -11,6 +11,7 @@ import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdvisoryRecommendationCard } from "@/components/advisory/AdvisoryRecommendationCard";
+import { AdvisoryScansTriageFirstPendingStrip } from "@/components/advisory/AdvisoryScansTriageFirstPendingStrip";
 import { AdvisoryRecommendationDispositionDialog } from "@/components/advisory/AdvisoryRecommendationDispositionDialog";
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
 import { AdvisoryScanSummaryPanel } from "@/components/advisory/AdvisoryScanSummaryPanel";
@@ -24,6 +25,7 @@ import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { applyRecommendationAction, listRecommendations } from "@/lib/advisory-api";
+import { resolveAdvisoryScansTriageFirstPending } from "@/lib/advisory/resolve-advisory-scans-triage-first-pending";
 import { resolveCurrentProjectLabel } from "@/lib/advisory-schedule-page-model";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
@@ -254,6 +256,10 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   const scanSummary = useMemo(
     () => buildAdvisoryScanSummary(recommendations, planSummary, compareToRunId),
     [compareToRunId, planSummary, recommendations],
+  );
+  const triageFirstPending = useMemo(
+    () => resolveAdvisoryScansTriageFirstPending(recommendations),
+    [recommendations],
   );
 
   const submitDisposition = useCallback(
@@ -600,6 +606,15 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
 
       {recommendations.length > 0 ? (
         <section className="space-y-4" data-testid="advisory-recommendations-list">
+          {triageFirstPending !== null ? (
+            <AdvisoryScansTriageFirstPendingStrip
+              target={triageFirstPending}
+              onReviewRecommendation={(recommendationId) => {
+                setDispositionError(null);
+                setPendingDisposition({ recommendationId, action: "Accept" });
+              }}
+            />
+          ) : null}
           <div className="space-y-1">
             <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE}
