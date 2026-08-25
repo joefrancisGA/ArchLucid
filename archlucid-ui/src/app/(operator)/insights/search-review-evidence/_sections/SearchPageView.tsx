@@ -40,6 +40,7 @@ import { SearchReviewEvidenceBuyerChrome } from "./SearchReviewEvidenceBuyerChro
 import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
 import { SearchReviewEvidenceLoadFailurePanel } from "./SearchReviewEvidenceLoadFailurePanel";
 import { SearchReviewEvidencePageHeader } from "./SearchReviewEvidencePageHeader";
+import { SearchPickReviewBeforeSearchStrip } from "./SearchPickReviewBeforeSearchStrip";
 
 type SearchPageViewProps = {
   model: SearchPageViewModel;
@@ -129,6 +130,10 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
       )}
       {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
+
+      {scopedRunId.length === 0 ? (
+        <SearchPickReviewBeforeSearchStrip selectedReviewId={runId} onSelectReview={setRunId} />
+      ) : null}
 
       <Card className="max-w-xl border-neutral-200 dark:border-neutral-700" data-testid="search-review-evidence-form">
         <CardContent className="grid gap-4 p-4">
