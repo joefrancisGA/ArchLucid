@@ -182,6 +182,58 @@ public sealed partial class DapperTenantRepository
         }
     }
 
+    private static async Task ApplyTrialRunIncrementAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        Guid tenantId,
+        string selectSql,
+        string updateSql,
+        CancellationToken ct)
+    {
+        TrialRunGateRow? row = await connection.QuerySingleOrDefaultAsync<TrialRunGateRow>(
+            new CommandDefinition(selectSql, new
+            {
+                Id = tenantId
+            }, transaction, cancellationToken: ct)).ConfigureAwait(false);
+
+        if (row is null)
+            return;
+
+        if (!string.Equals(row.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+            row.TrialRunsLimit is null ||
+            row.TrialRunsLimit.Value < 1)
+            return;
+
+        if (row.TrialExpiresUtc is { } exp && exp <= TimeProvider.System.GetUtcNow())
+
+            throw new TrialLimitExceededException(
+                TrialLimitReason.Expired,
+                ComputeDaysRemaining(row.TrialExpiresUtc));
+
+        if (row.TrialRunsUsed >= row.TrialRunsLimit.Value)
+
+            throw new TrialLimitExceededException(
+                TrialLimitReason.RunsExceeded,
+                ComputeDaysRemaining(row.TrialExpiresUtc));
+
+        int updated = await connection.ExecuteAsync(
+            new CommandDefinition(
+                updateSql,
+                new
+                {
+                    Id = tenantId,
+                    TrialLifecycleStatus.Active
+                },
+                transaction,
+                cancellationToken: ct)).ConfigureAwait(false);
+
+        if (updated == 0)
+
+            throw new TrialLimitExceededException(
+                TrialLimitReason.RunsExceeded,
+                ComputeDaysRemaining(row.TrialExpiresUtc));
+    }
+
 
     /// <inheritdoc />
     public async Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct)
