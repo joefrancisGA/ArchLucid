@@ -24,13 +24,10 @@ import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { LlmUsageBandHint } from "@/components/llm/LlmUsageBandHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
-import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
-import { isApiRequestError } from "@/lib/api-request-error";
-import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -39,19 +36,6 @@ import {
 } from "@/lib/new-run-wizard-complete-setup-checklist";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
-import {
-  evaluateWizardFormCreateRunGates,
-  executeWizardFormCreateRun,
-  resolveCreateRunFailureMessage,
-} from "@/lib/wizard-form-create-run-submit";
-import { recheckUnresolvedArchitectureReviewCreate } from "@/lib/review-start-unresolved-recheck";
-import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
-import {
-  REVIEW_START_CREATION_FAILED_MESSAGE,
-  REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
-  REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
-  REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
-} from "@/lib/review-start-progress-copy";
 import {
   deriveWizardPolicyPackCloudMismatch,
   type WizardCreateRunPayloadOptions,
@@ -105,6 +89,7 @@ import { useNewRunWizardIntakeParams } from "./use-new-run-wizard-intake-params"
 import { useNewRunWizardMode } from "./use-new-run-wizard-mode";
 import { useNewRunWizardPendingEvidence } from "./use-new-run-wizard-pending-evidence";
 import { useNewRunWizardQueryPrefill } from "./use-new-run-wizard-query-prefill";
+import { useNewRunWizardSubmit } from "./use-new-run-wizard-submit";
 
 export type NewRunWizardClientProps = {
   /**
@@ -151,10 +136,8 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
   }, [baselineFirst, embeddedInPathSwitcher, persistWizardMode]);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [advancedConfigurationOptIn, setAdvancedConfigurationOptIn] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<unknown | null>(null);
-  const creationProgress = useReviewCreationProgress();
   const [runId, setRunId] = useState<string | null>(null);
+  const clearWizardSessionRef = useRef<() => void>(() => {});
   const [trackPollSession, setTrackPollSession] = useState(0);
   const {
     baselineReviewCycleHours,
@@ -227,13 +210,6 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     [getValues, watchedWizardValues],
   );
 
-  useEffect(() => {
-    if (stepIndex !== REVIEW_STEP_INDEX) {
-      setSubmitError(null);
-    }
-  }, [stepIndex]);
-
-  const isCreating = submitting || creationProgress.isActive;
   /**
    * Payload options shared by the live mismatch banner, the pre-submit gates, and the create call.
    * They must agree: a gate that evaluates different options than the create call would let a run
@@ -251,8 +227,32 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     () => deriveWizardPolicyPackCloudMismatch(templateWizardSessionState, payloadOptions),
     [payloadOptions, templateWizardSessionState],
   );
-  const canProceed = !isCreating;
-  const canSubmit = !isCreating && !blocksLlmExecution && policyPackCloudMismatch === null;
+
+  const {
+    submitError,
+    creationProgress,
+    isCreating,
+    canProceed,
+    canSubmit,
+    submitRun,
+    recheckUnresolvedRun,
+  } = useNewRunWizardSubmit({
+    trigger,
+    getValues,
+    blocksLlmExecution,
+    payloadOptions,
+    presetDeeplinkToken,
+    policyPackCloudMismatch,
+    stepIndex,
+    goToStep,
+    setRunId,
+    showToast,
+    clearWizardSession: () => {
+      clearWizardSessionRef.current();
+    },
+    hasPendingEvidence: evidence.hasPendingEvidence,
+    uploadPendingEvidence: evidence.uploadPendingEvidence,
+  });
 
   const saveWizardDraft = useCallback(() => {
     try {
@@ -351,137 +351,6 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     advance();
   };
 
-  const submitRun = async () => {
-    const gateFailure = await evaluateWizardFormCreateRunGates({
-      trigger,
-      blocksLlmExecution,
-      getValues,
-      payloadOptions,
-    });
-
-    if (gateFailure === "validation") {
-      showToast("err", REVIEW_START_SUBMIT_VALIDATION_MESSAGE);
-
-      return;
-    }
-
-    if (gateFailure === "llm-budget") {
-      showToast("err", REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
-
-      return;
-    }
-
-    if (gateFailure === "policy-cloud-mismatch") {
-      const mismatch = deriveWizardPolicyPackCloudMismatch(getValues(), payloadOptions);
-      showToast(
-        "err",
-        mismatch !== null
-          ? `${REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE} ${mismatch}`
-          : REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
-      );
-
-      return;
-    }
-
-    setSubmitting(true);
-    setSubmitError(null);
-    creationProgress.begin({ hasTemplate: presetDeeplinkToken !== null });
-
-    try {
-      const result = await executeWizardFormCreateRun({
-        getValues,
-        payloadOptions,
-        wizardCompletedName: "FullGuided",
-        progress: creationProgress,
-      });
-
-      if (!result.ok) {
-        if (result.reason === "no-run-id") {
-          creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
-          showToast("err", REVIEW_START_CREATION_FAILED_MESSAGE);
-
-          return;
-        }
-
-        if (isArchitectureRequestCreateUnresolvedError(result.error)) {
-          creationProgress.markUnresolved();
-
-          return;
-        }
-
-        creationProgress.fail(resolveCreateRunFailureMessage(result.error));
-        setSubmitError(result.error);
-
-        if (!isApiRequestError(result.error)) {
-          const message =
-            result.error && typeof result.error === "object" && "message" in result.error
-              ? String((result.error as { message?: string }).message)
-              : "Request failed.";
-          showToast("err", message);
-        }
-
-        return;
-      }
-
-      const id = result.runId;
-
-      creationProgress.succeed();
-      setRunId(id);
-      goToStep(TRACK_STEP_INDEX);
-      templateWizardSession.clearSession();
-      showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
-
-      if (evidence.hasPendingEvidence) {
-        await evidence.uploadPendingEvidence(id);
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const recheckUnresolvedRun = async () => {
-    if (creationProgress.outcome?.kind !== "unresolved") {
-      return;
-    }
-
-    creationProgress.beginRecheck();
-
-    try {
-      const body = wizardValuesToCreateRunPayload(getValues(), payloadOptions);
-      const result = await recheckUnresolvedArchitectureReviewCreate(body);
-
-      if (result.status === "still-unresolved") {
-        creationProgress.endRecheck();
-
-        return;
-      }
-
-      if (result.status === "failed") {
-        creationProgress.fail(result.message);
-        creationProgress.endRecheck();
-        setSubmitError(new Error(result.message));
-        showToast("err", result.message);
-
-        return;
-      }
-
-      const id = result.runId;
-      creationProgress.markResumed();
-      setRunId(id);
-      goToStep(TRACK_STEP_INDEX);
-      templateWizardSession.clearSession();
-      showToast("ok", `Architecture review ${id} found — tracking pipeline below.`);
-
-      if (evidence.hasPendingEvidence) {
-        await evidence.uploadPendingEvidence(id);
-      }
-    } catch {
-      creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
-      creationProgress.endRecheck();
-      showToast("err", REVIEW_START_CREATION_FAILED_MESSAGE);
-    }
-  };
-
   const showNav: boolean = stepIndex < TRACK_STEP_INDEX;
   const showQuickTrack = wizardMode === "quick" && runId !== null;
   const showFullWizardShell = wizardMode === "full" && !showQuickTrack;
@@ -519,6 +388,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
       wizardSessionHasTextContent(state.description),
     onRestore: handleTemplateWizardRestore,
   });
+  clearWizardSessionRef.current = templateWizardSession.clearSession;
 
   const postCreateEvidencePanel = runId === null ? null : (
     <WizardPostCreateEvidenceUploadPanel
