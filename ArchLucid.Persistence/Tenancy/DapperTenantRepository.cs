@@ -12,7 +12,7 @@ namespace ArchLucid.Persistence.Tenancy;
 
 [TenantScopeExempt(TenantScopeExemptReason.SystemPlaneOnly, "Tenant registry and lifecycle SQL against system-plane tables and cross-catalog provisioning commands.")]
 /// <remarks>
-///     Aggregate methods live in <c>DapperTenantRepository.{Directory|Lifecycle|Workspace|Trial|Seat|Erasure}.cs</c>
+///     Aggregate methods live in <c>DapperTenantRepository.{Directory|Lifecycle|Workspace|TrialPreseed|TrialSeats|TrialLifecycle|Seat|Erasure}.cs</c>
 ///     partials that mirror <see cref="ITenantRepository"/>'s composed interfaces. Dapper row types live in
 ///     <c>DapperTenantRepository.Rows.cs</c>. The type remains one DI registration;
 ///     narrowing <see cref="TenantScopeExemptAttribute"/> to system-plane aggregates only requires separate classes.
