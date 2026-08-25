@@ -16,7 +16,14 @@ public sealed class ArchitectureIntelligenceBatch47Tests
     {
         TrustPublishDecision publishDecision = new()
         {
-            PublishableFindings = [],
+            PublishableFindings =
+            [
+                new SpecialistReviewFinding
+                {
+                    FindingId = "finding-1",
+                    Title = "Security gap",
+                },
+            ],
             PublishableRecommendations =
             [
                 new ArchitectureRecommendation
@@ -41,6 +48,7 @@ public sealed class ArchitectureIntelligenceBatch47Tests
             publishDecision);
 
         merged.PublishBlocked.Should().BeTrue();
+        merged.PublishableFindings.Should().BeEmpty();
         merged.PublishableRecommendations.Should().BeEmpty();
         merged.BlockReasons.Should().Contain(ArchitectureFramingMustGate.PublishBlockReason);
     }
@@ -113,5 +121,6 @@ public sealed class ArchitectureIntelligenceBatch47Tests
         result.ModelDiffs.Should().BeEmpty();
         result.ReReview.Should().BeNull();
         result.ProductRecommendations.Should().BeEmpty();
+        result.ProductFindings.Should().BeEmpty();
     }
 }

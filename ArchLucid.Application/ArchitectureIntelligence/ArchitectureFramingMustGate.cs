@@ -29,7 +29,7 @@ public static class ArchitectureFramingMustGate
 
         return new TrustPublishDecision
         {
-            PublishableFindings = publishDecision.PublishableFindings,
+            PublishableFindings = [],
             PublishableRecommendations = [],
             IntegrityPassedFindingIds = publishDecision.IntegrityPassedFindingIds,
             PublishBlocked = true,
