@@ -6,6 +6,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
@@ -92,5 +93,38 @@ public sealed class ArchitectureKnowledgeModelAccessTests
       i => i.UpdateCurrentModelAsync(TestScope, architectureId, modelId, It.IsAny<CancellationToken>()),
       Times.Once);
     persistence.Verify(p => p.SaveModelAsync(model, It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Fact]
+  public async Task GetForRunAsync_without_identity_repository_falls_back_to_run_scoped_row()
+  {
+    Guid runId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+    string tenantId = TestScope.TenantId.ToString("D");
+
+    Mock<IArchitectureIntelligencePersistence> persistence = new();
+    persistence
+      .Setup(p => p.GetModelByRunIdAsync(tenantId, runId.ToString("D"), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ArchitectureKnowledgeModel { ModelId = "run-model", TenantId = tenantId });
+
+    Mock<IRunRepository> runs = new();
+
+    ArchitectureKnowledgeModelAccess access = new(persistence.Object, runs.Object);
+
+    ArchitectureKnowledgeModel? model = await access.GetForRunAsync(TestScope, runId);
+
+    model.Should().NotBeNull();
+    model!.ModelId.Should().Be("run-model");
+  }
+
+  [Fact]
+  public void AddArchitectureIntelligence_registers_IArchitectureKnowledgeModelAccess()
+  {
+    ServiceCollection services = new();
+    services.AddArchitectureIntelligence();
+
+    services.Should().Contain(static descriptor =>
+      descriptor.ServiceType == typeof(IArchitectureKnowledgeModelAccess)
+      && descriptor.ImplementationType == typeof(ArchitectureKnowledgeModelAccess)
+      && descriptor.Lifetime == ServiceLifetime.Scoped);
   }
 }

@@ -60,6 +60,7 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IAsyncArchitectureRecommendationEngine, LlmBackedArchitectureRecommendationEngine>();
 
         services.AddScoped<IArchitectureOntologyService, ArchitectureOntologyService>();
+        services.AddScoped<IArchitectureKnowledgeModelAccess, ArchitectureKnowledgeModelAccess>();
         services.AddScoped<IExtractionFidelityBenchmark, ExtractionFidelityBenchmark>();
         services.AddScoped<IArchitectureIntelligenceBenchmark, ArchitectureIntelligenceBenchmark>();
         services.AddScoped<IProgressiveInterviewService, ProgressiveInterviewService>();
