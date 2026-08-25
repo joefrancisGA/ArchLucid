@@ -47,6 +47,11 @@ public sealed partial class RunsController
                 $"FreeTextDescription must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
+        if (input.FreeTextDescription.Trim().Length > MaximumChatIntakeTextLength)
+            return this.BadRequestProblem(
+                $"FreeTextDescription must not exceed {MaximumChatIntakeTextLength} characters.",
+                ProblemTypes.ValidationFailed);
+
         DraftArchitectureRequestResponse response = await architectureRequestDraftService.DraftAsync(input, cancellationToken);
         return Ok(response);
     }
@@ -72,6 +77,11 @@ public sealed partial class RunsController
         if (input.FreeTextDescription.Trim().Length < MinimumIntakeTextLength)
             return this.BadRequestProblem(
                 $"FreeTextDescription must be at least {MinimumIntakeTextLength} characters.",
+                ProblemTypes.ValidationFailed);
+
+        if (input.FreeTextDescription.Trim().Length > MaximumChatIntakeTextLength)
+            return this.BadRequestProblem(
+                $"FreeTextDescription must not exceed {MaximumChatIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
         string operationId = await advisoryDraftOperationAcceptor.AcceptAsync(
