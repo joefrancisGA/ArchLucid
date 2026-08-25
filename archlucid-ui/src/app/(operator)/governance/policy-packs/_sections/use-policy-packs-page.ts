@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -38,6 +38,8 @@ import type {
 } from "@/types/policy-packs";
 
 import { POLICY_PACK_ID_QUERY_PARAM, POLICY_PACKS_TAB_QUERY_PARAM, POLICY_RULE_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { POLICY_PACKS_REVIEW_ID_QUERY_PARAM } from "@/lib/policy-packs-review-handoff";
 import { applyGeneratedCuratedPolicyPack } from "@/lib/apply-generated-curated-policy-pack";
 import type { CuratedRulesDocument } from "@/lib/policy/policy-pack-curated-rules-v1";
 import { isBundledPlatformDefaultPackType } from "@/lib/policy/policy-pack-type-label";
@@ -64,9 +66,11 @@ function pageTabFromQuery(raw: string | null): PolicyPacksPageTab {
 }
 
 export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): PolicyPacksPageViewModel {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const packIdFromUrl = searchParams.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
   const ruleIdFromUrl = searchParams.get(POLICY_RULE_ID_QUERY_PARAM)?.trim() ?? "";
+  const pickedReviewId = searchParams.get(POLICY_PACKS_REVIEW_ID_QUERY_PARAM)?.trim() ?? "";
   const pageTabFromUrl = pageTabFromQuery(searchParams.get(POLICY_PACKS_TAB_QUERY_PARAM));
   const canMutatePacks = useNavSurface("policy-packs").mutationCapability;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -624,6 +628,22 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     await onCreate();
   }, [onCreate]);
 
+  const setPickedReviewId = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (trimmed.length > 0) {
+        params.set(POLICY_PACKS_REVIEW_ID_QUERY_PARAM, trimmed);
+      } else {
+        params.delete(POLICY_PACKS_REVIEW_ID_QUERY_PARAM);
+      }
+
+      router.replace(`${GOVERNANCE_POLICY_PACKS_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
   return {
     canMutatePacks,
     buyerPolishedShell,
@@ -697,5 +717,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     authoringToolsOpen,
     setAuthoringToolsOpen,
     onCreateFromGenerator,
+    pickedReviewId,
+    setPickedReviewId,
   };
 }

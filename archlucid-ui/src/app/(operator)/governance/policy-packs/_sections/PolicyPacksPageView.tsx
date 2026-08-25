@@ -305,6 +305,8 @@ export function PolicyPacksPageView(props: Props) {
                       assignPinned={m.assignPinned}
                       onAssignPinnedChange={m.setAssignPinned}
                       onAssign={m.onAssign}
+                      pickedReviewId={m.pickedReviewId}
+                      onPickReviewForAssign={m.setPickedReviewId}
                     />
                   )}
                 </AdvancedOptionsAccordion>

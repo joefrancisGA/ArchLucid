@@ -136,6 +136,8 @@ function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPa
     authoringToolsOpen: false,
     setAuthoringToolsOpen: vi.fn(),
     onCreateFromGenerator: vi.fn(async () => undefined),
+    pickedReviewId: "",
+    setPickedReviewId: vi.fn(),
     workspaceSelectionItems: [],
     workspaceSelectionLoading: false,
     togglingAssignmentId: null,

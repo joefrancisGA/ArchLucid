@@ -1,5 +1,7 @@
 ﻿"use client";
 
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -17,8 +19,10 @@ import {
   policyPacksLifecycleLeadReaderLine,
   policyPacksPublishButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { PACK_TYPES, VERTICAL_POLICY_PACK_IMPORTS } from "./policy-packs-page-constants";
+import { PolicyPacksPickReviewBeforeAssigningStrip } from "./PolicyPacksPickReviewBeforeAssigningStrip";
 
 export type PolicyPacksLifecycleSectionProps = {
   canMutatePacks: boolean;
@@ -48,6 +52,8 @@ export type PolicyPacksLifecycleSectionProps = {
   assignPinned: boolean;
   onAssignPinnedChange: (value: boolean) => void;
   onAssign: () => void;
+  pickedReviewId: string;
+  onPickReviewForAssign: (reviewId: string) => void;
 };
 
 export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionProps) {
@@ -79,7 +85,12 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
     assignPinned,
     onAssignPinnedChange,
     onAssign,
+    pickedReviewId,
+    onPickReviewForAssign,
   } = props;
+
+  const scopedReviewId = pickedReviewId.trim();
+  const scopedReviewFilterActive = scopedReviewId.length > 0;
 
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
 
@@ -261,71 +272,100 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
 
         <section className="mb-0">
           <h4 className={cn("mb-2 mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Assign to current scope</h4>
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Assignment must reference an existing version string for that pack (e.g. the one you published).
-          </p>
-          <PolicyPackChangeImpactNotice findingCount={0} />
-          <MutatingInWorkspaceChip className="mb-1" />
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="space-y-2">
-              <label
-                htmlFor="policy-pack-assign-version"
-                className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-              >
-                Version
-              </label>
-              <Input
-                id="policy-pack-assign-version"
-                value={assignVersion}
-                onChange={(e) => {
-                  onAssignVersionChange(e.target.value);
-                }}
-                readOnly={!canMutatePacks}
-                className="mt-1 w-40"
-              />
-            </div>
-            <label className="flex items-center gap-2">
-              Scope level
-              <InlineHelp
-                label="Scope level"
-                hint="The organizational level where this policy pack applies (Tenant, Workspace, or Project)."
-              />
-              <select
-                value={assignScopeLevel}
-                onChange={(e) => onAssignScopeLevelChange(e.target.value)}
-                disabled={!canMutatePacks}
-                className="block p-2 mt-1 min-w-[140px]"
-              >
-                <option value="Tenant">Tenant</option>
-                <option value="Workspace">Workspace</option>
-                <option value="Project">Project</option>
-              </select>
-            </label>
-            <label className="flex items-center gap-2 mb-1">
-              <input
-                type="checkbox"
-                checked={assignPinned}
-                disabled={!canMutatePacks}
-                onChange={(e) => onAssignPinnedChange(e.target.checked)}
-              />
-              Pinned
-              <InlineHelp
-                label="Pinned"
-                hint="Pinned assignments prevent lower scopes from overriding this policy pack."
-              />
-            </label>
-            <button
-              type="button"
-              onClick={() => void onAssign()}
-              disabled={loading || !selectedPackId || !canMutatePacks}
-              className={cn(
-                !canMutatePacks &&
-                  "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
-              )}
+          {scopedReviewFilterActive ? (
+            <p
+              className={cn("mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="policy-packs-assign-review-scope-banner"
             >
-              {canMutatePacks ? "Assign" : policyPacksAssignButtonLabelReaderRank}
-            </button>
-          </div>
+              {"Assigning for review "}
+              <span className="font-mono text-al-text-primary">{scopedReviewId}</span>
+              {" · "}
+              <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_POLICY_PACKS_PATH}>
+                Clear review scope
+              </Link>
+              {" · "}
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={`/architecture/reviews/${encodeURIComponent(scopedReviewId)}`}
+              >
+                Open review
+              </Link>
+            </p>
+          ) : (
+            <PolicyPacksPickReviewBeforeAssigningStrip
+              selectedReviewId=""
+              onSelectReview={onPickReviewForAssign}
+            />
+          )}
+          {scopedReviewFilterActive ? (
+            <>
+              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                Assignment must reference an existing version string for that pack (e.g. the one you published).
+              </p>
+              <PolicyPackChangeImpactNotice findingCount={0} />
+              <MutatingInWorkspaceChip className="mb-1" />
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="policy-pack-assign-version"
+                    className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+                  >
+                    Version
+                  </label>
+                  <Input
+                    id="policy-pack-assign-version"
+                    value={assignVersion}
+                    onChange={(e) => {
+                      onAssignVersionChange(e.target.value);
+                    }}
+                    readOnly={!canMutatePacks}
+                    className="mt-1 w-40"
+                  />
+                </div>
+                <label className="flex items-center gap-2">
+                  Scope level
+                  <InlineHelp
+                    label="Scope level"
+                    hint="The organizational level where this policy pack applies (Tenant, Workspace, or Project)."
+                  />
+                  <select
+                    value={assignScopeLevel}
+                    onChange={(e) => onAssignScopeLevelChange(e.target.value)}
+                    disabled={!canMutatePacks}
+                    className="block p-2 mt-1 min-w-[140px]"
+                  >
+                    <option value="Tenant">Tenant</option>
+                    <option value="Workspace">Workspace</option>
+                    <option value="Project">Project</option>
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 mb-1">
+                  <input
+                    type="checkbox"
+                    checked={assignPinned}
+                    disabled={!canMutatePacks}
+                    onChange={(e) => onAssignPinnedChange(e.target.checked)}
+                  />
+                  Pinned
+                  <InlineHelp
+                    label="Pinned"
+                    hint="Pinned assignments prevent lower scopes from overriding this policy pack."
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => void onAssign()}
+                  disabled={loading || !selectedPackId || !canMutatePacks}
+                  className={cn(
+                    !canMutatePacks &&
+                      "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
+                  )}
+                >
+                  {canMutatePacks ? "Assign" : policyPacksAssignButtonLabelReaderRank}
+                </button>
+              </div>
+            </>
+          ) : null}
         </section>
       </div>
 

@@ -18,6 +18,10 @@ function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPa
     setSelectedCatalogEntryId: vi.fn(),
     refreshCatalog: vi.fn(async () => undefined),
     onCloneCatalogEntry: vi.fn(async () => undefined),
+    workspaceSelectionItems: [],
+    workspaceSelectionLoading: false,
+    togglingAssignmentId: null,
+    onToggleWorkspaceSelection: vi.fn(async () => undefined),
     packs: [],
     effective: null,
     effectiveContent: null,
@@ -75,6 +79,8 @@ function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPa
     authoringToolsOpen: false,
     setAuthoringToolsOpen: vi.fn(),
     onCreateFromGenerator: vi.fn(async () => undefined),
+    pickedReviewId: "",
+    setPickedReviewId: vi.fn(),
     ...overrides,
   };
 }
