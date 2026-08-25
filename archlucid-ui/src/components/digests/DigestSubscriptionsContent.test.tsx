@@ -196,7 +196,9 @@ describe("DigestSubscriptionsContent", () => {
     renderWithOperatorQuery(<DigestSubscriptionsContent healthSnap={null} />);
 
     expect(await screen.findByRole("table", { name: "Digest subscriptions" })).toBeInTheDocument();
-    expect(screen.getByText("Ops mailbox")).toBeInTheDocument();
+    expect(screen.getAllByText("Ops mailbox").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("digest-subscriptions-continue-last-viewed-row")).toBeInTheDocument();
+    expect(screen.getByTestId("digest-subscriptions-continue-last-viewed-open")).toBeInTheDocument();
     expect(screen.getByText("Active")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("digest-subscription-more-s1"));
