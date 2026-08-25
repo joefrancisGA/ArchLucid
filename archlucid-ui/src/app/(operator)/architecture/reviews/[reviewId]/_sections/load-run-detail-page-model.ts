@@ -24,6 +24,7 @@ import {
   tryStaticDemoManifestSummary,
   tryStaticDemoRunDetail,
 } from "@/lib/operator/operator-static-demo";
+import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import {
@@ -77,6 +78,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     serverScopeHeaders !== null ? { scopeHeaders: serverScopeHeaders } : undefined;
 
   const usedBuyerRunDetailSummary = true;
+  const showcaseSpineStaticActive = shouldSkipLiveAuthorityRunScopedApi(runId);
 
   try {
     const bundleResponse = await fetchRunDetailCriticalPageBundle(runId, apiScopeOptions);
@@ -104,6 +106,10 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       artifactsMalformed = coercedArtifacts.message;
     } else {
       artifacts = coercedArtifacts.items;
+    }
+
+    if (showcaseSpineStaticActive) {
+      usedStaticDemoRun = true;
     }
   } catch (e) {
     const fallback = tryStaticDemoRunDetail(runId);

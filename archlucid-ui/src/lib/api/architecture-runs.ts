@@ -23,6 +23,8 @@ import type {
 } from "@/types/agent-forensics";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 
+import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live-api";
+
 export type RunToolInvocationForensicsPayload = components["schemas"]["RunToolInvocationForensicsResponse"];
 import {
   clearWizardSubmissionSession,
@@ -476,6 +478,10 @@ export async function getRunSummary(
   runId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<RunSummary> {
+  if (!isLiveAuthorityRunId(runId)) {
+    throw new Error(`Run id "${runId.trim()}" is not a live authority key.`);
+  }
+
   return apiGet<RunSummary>(`/v1/authority/reviews/${runId}/summary`, options);
 }
 
@@ -484,6 +490,10 @@ export async function getRunDetail(
   runId: string,
   options?: ApiGetOptions,
 ): Promise<ApiResponseWithTrace<RunDetail>> {
+  if (!isLiveAuthorityRunId(runId)) {
+    throw new Error(`Run id "${runId.trim()}" is not a live authority key.`);
+  }
+
   return apiGetJsonWithTrace<RunDetail>(`/v1/authority/reviews/${runId}`, options);
 }
 

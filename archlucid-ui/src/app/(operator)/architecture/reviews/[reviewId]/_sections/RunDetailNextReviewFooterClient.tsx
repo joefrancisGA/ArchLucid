@@ -7,7 +7,8 @@ import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-revi
 import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
-import { tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
+import { tryStaticDemoRunSummariesPaged, tryShowcaseSpineRunSummariesPaged } from "@/lib/operator/operator-static-demo";
+import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { resolveNextRunsListRow } from "@/lib/resolve-next-runs-list-row";
 import type { RunSummary } from "@/types/authority";
 
@@ -26,6 +27,16 @@ export function RunDetailNextReviewFooterClient(
   const loadRuns = useCallback(async () => {
     const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
     const projectId = projectIdFromScopeHeaders(scopeHeaders) ?? "default";
+
+    if (shouldSkipLiveAuthorityRunScopedApi(props.runId)) {
+      const showcaseSpinePaged = tryShowcaseSpineRunSummariesPaged(projectId, props.runId);
+
+      if (showcaseSpinePaged !== null) {
+        setRuns(showcaseSpinePaged.items);
+
+        return;
+      }
+    }
 
     try {
       const raw: unknown = await listRunsByProjectPaged(projectId, 1, 100, { scopeHeaders });

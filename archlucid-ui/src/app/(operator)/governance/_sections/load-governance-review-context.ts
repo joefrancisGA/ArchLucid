@@ -1,5 +1,7 @@
 import { getRunDetail, getRunSummary } from "@/lib/api";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
+import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
 
 export type GovernanceReviewContextLoad = {
   readonly displayTitle: string | null;
@@ -15,6 +17,13 @@ export async function loadGovernanceReviewContext(runId: string): Promise<Govern
 
   if (trimmed.length === 0) {
     return { displayTitle: null, manifestVersion: null };
+  }
+
+  if (shouldSkipLiveAuthorityRunScopedApi(trimmed)) {
+    return {
+      displayTitle: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+      manifestVersion: null,
+    };
   }
 
   const [summaryResult, detailResult] = await Promise.allSettled([

@@ -19,6 +19,7 @@ import type {
   GovernanceEnvironmentActivation,
   GovernancePromotionRecord,
 } from "@/types/governance-workflow";
+import { isLiveAuthorityRunId, shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import type {
   EffectivePolicyPackSet,
   PolicyPack,
@@ -157,6 +158,10 @@ export async function listApprovalRequests(
   runId: string,
   options?: Pick<ApiGetOptions, "suppressErrorToast">,
 ): Promise<GovernanceApprovalRequest[]> {
+  if (shouldSkipLiveAuthorityRunScopedApi(runId)) {
+    return [];
+  }
+
   return apiGet<GovernanceApprovalRequest[]>(
     `${governanceBase()}/runs/${encodeURIComponent(runId)}/approval-requests`,
     options,
@@ -245,6 +250,10 @@ export async function activateEnvironment(body: {
 
 /** Lists promotion audit rows for a run. */
 export async function listPromotions(runId: string): Promise<GovernancePromotionRecord[]> {
+  if (shouldSkipLiveAuthorityRunScopedApi(runId)) {
+    return [];
+  }
+
   return apiGet<GovernancePromotionRecord[]>(
     `${governanceBase()}/runs/${encodeURIComponent(runId)}/promotions`,
   );
@@ -252,6 +261,10 @@ export async function listPromotions(runId: string): Promise<GovernancePromotion
 
 /** Lists environment activation rows for a run. */
 export async function listActivations(runId: string): Promise<GovernanceEnvironmentActivation[]> {
+  if (shouldSkipLiveAuthorityRunScopedApi(runId)) {
+    return [];
+  }
+
   return apiGet<GovernanceEnvironmentActivation[]>(
     `${governanceBase()}/runs/${encodeURIComponent(runId)}/activations`,
   );

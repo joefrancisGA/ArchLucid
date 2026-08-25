@@ -44,6 +44,13 @@ describe("API governance workflow (v1/governance)", () => {
     expect(init?.method).toBeUndefined();
   });
 
+  it("listApprovalRequests skips network for showcase spine slugs", async () => {
+    const fetchMock = vi.mocked(fetch);
+
+    await expect(listApprovalRequests("customer-intake-modernization")).resolves.toEqual([]);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("submitApprovalRequest POSTs approval-requests with body", async () => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockResolvedValueOnce(

@@ -46,10 +46,6 @@ export function shouldMergeOperatorDemoAlertSample(): boolean {
 }
 
 export function tryStaticDemoGovernanceApprovalRequests(runId: string): GovernanceApprovalRequest[] | null {
-  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
-    return null;
-  }
-
   const effectiveRunId = canonicalizeDemoRunId(runId);
 
   if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
@@ -77,10 +73,6 @@ export function tryStaticDemoGovernanceApprovalRequests(runId: string): Governan
 }
 
 export function tryStaticDemoGovernancePromotions(runId: string): GovernancePromotionRecord[] | null {
-  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
-    return null;
-  }
-
   const effectiveRunId = canonicalizeDemoRunId(runId);
 
   if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {

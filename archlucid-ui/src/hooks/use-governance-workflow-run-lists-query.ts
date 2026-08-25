@@ -9,6 +9,7 @@ import {
   listPromotions,
 } from "@/lib/api/policy-governance-api";
 import { resolveGovernanceWorkflowRunLists } from "@/lib/governance/governance-workflow-run-lists-resolve";
+import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -24,7 +25,8 @@ export function useGovernanceWorkflowRunListsQuery(
   options?: UseGovernanceWorkflowRunListsQueryOptions,
 ) {
   const trimmed = runId?.trim() ?? "";
-  const enabled = (options?.enabled ?? true) && trimmed.length > 0;
+  const skipLiveApi = trimmed.length > 0 && shouldSkipLiveAuthorityRunScopedApi(trimmed);
+  const enabled = (options?.enabled ?? true) && trimmed.length > 0 && !skipLiveApi;
 
   const [approvalsQuery, promotionsQuery, activationsQuery] = useQueries({
     queries: [
@@ -56,8 +58,12 @@ export function useGovernanceWorkflowRunListsQuery(
   });
 
   const resolved = useMemo(
-    () =>
-      resolveGovernanceWorkflowRunLists(
+    () => {
+      if (skipLiveApi) {
+        return resolveGovernanceWorkflowRunLists(trimmed, undefined, undefined, undefined, null, null, null);
+      }
+
+      return resolveGovernanceWorkflowRunLists(
         trimmed,
         approvalsQuery.data,
         promotionsQuery.data,
@@ -65,8 +71,10 @@ export function useGovernanceWorkflowRunListsQuery(
         approvalsQuery.error,
         promotionsQuery.error,
         activationsQuery.error,
-      ),
+      );
+    },
     [
+      skipLiveApi,
       trimmed,
       approvalsQuery.data,
       promotionsQuery.data,
@@ -77,10 +85,14 @@ export function useGovernanceWorkflowRunListsQuery(
     ],
   );
 
-  const isPending = enabled && (approvalsQuery.isPending || promotionsQuery.isPending || activationsQuery.isPending);
+  const isPending =
+    !skipLiveApi && enabled && (approvalsQuery.isPending || promotionsQuery.isPending || activationsQuery.isPending);
   const isFetching =
-    enabled && (approvalsQuery.isFetching || promotionsQuery.isFetching || activationsQuery.isFetching);
+    !skipLiveApi &&
+    enabled &&
+    (approvalsQuery.isFetching || promotionsQuery.isFetching || activationsQuery.isFetching);
   const isFetched =
+    skipLiveApi ||
     !enabled ||
     (approvalsQuery.isFetched && promotionsQuery.isFetched && activationsQuery.isFetched);
 
