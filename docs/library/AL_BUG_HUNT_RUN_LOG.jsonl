@@ -252,3 +252,4 @@
 {"at":"2026-08-25T00:49:29.6496154Z","zoneId":"technology-ledger-merge","outcome":"hit"}
 {"at":"2026-08-25T00:55:56.0504777Z","zoneId":"identity-provider-config","outcome":"seed-only"}
 {"at":"2026-08-25T00:58:45.7963875Z","zoneId":"cli-draft-new","outcome":"hit"}
+{"at":"2026-08-25T01:06:42.5157037Z","zoneId":"notifications-pipeline","outcome":"hit"}

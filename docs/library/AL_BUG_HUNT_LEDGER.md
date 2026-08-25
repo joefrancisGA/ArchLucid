@@ -1817,11 +1817,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 5
-- **bugs-found:** 11
+- **hunts:** 6
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — multi-recipient digest dispatch reserved tenant-level ledger before send loop, blocking retry for remaining recipients after partial failure
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1841,6 +1841,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Exec digest email reserved ledger before template render — **hit 2026-08-24:** `ExecDigestEmailDispatcher` reserved the weekly ledger before render and accepted all-whitespace recipient lists; fixed by render-before-ledger and recipient normalization.
 - [x] (proven) Trial lifecycle email reserved ledger before template render — **hit 2026-08-24:** `TrialLifecycleEmailDispatcher` reserved the idempotency key before Razor render; template failures permanently blocked trial onboarding mail; fixed by rendering before ledger reservation.
 - [x] (proven) Digest webhook subscriptions bypass the alert-routing SSRF destination policy — **hit 2026-08-24:** `DigestSubscriptionsController.Create` persisted `SlackWebhook` and `TeamsWebhook` destinations without calling `AlertRoutingWebhookDestinationPolicy`, accepting HTTP and loopback URLs; fixed by applying the shared policy before persistence.
+- [x] (proven) Multi-recipient digest dispatch reserved tenant-level ledger before the send loop — **hit 2026-08-25:** `ExecDigestEmailDispatcher` (and sibling weekly/recurrence dispatchers) called `TryRecordSentAsync` on the tenant/week key before iterating mailboxes; when the first recipient succeeded and a later send failed, retry returned `false` and skipped remaining recipients; fixed with per-mailbox send-then-ledger via `MultiRecipientEmailDispatch` and `ISentEmailLedger.IsRecordedAsync`; regression in `ExecDigestEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry`.
+- [ ] (candidate) Digest subscription create accepts blank channel/destination — `DigestSubscriptionsController.Create` lacks required-field validation present on alert-routing subscriptions
+- [ ] (candidate) Commit sponsor email has no sent-email ledger — `CommitSponsorEmailNotifier` relies on provider idempotency only
+- [ ] (candidate) User invitation email idempotency key includes fresh GUID — `UserInvitationEmailNotifier` generates a new suffix on every send attempt
 
 ---
 
