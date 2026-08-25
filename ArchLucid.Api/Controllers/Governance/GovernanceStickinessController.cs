@@ -41,12 +41,20 @@ public sealed class GovernanceStickinessController(
     IArchitectureDecisionRegisterService decisionRegisterService,
     IArchitectureReviewRecurrenceScheduleRepository recurrenceScheduleRepository,
     IArchitectureReviewRecurrenceNextRunCalculator recurrenceNextRunCalculator,
+    ArchLucid.Persistence.Interfaces.IRunRepository runRepository,
+    ArchLucid.Application.Findings.IFindingMergeConflictResolutionService findingMergeConflictResolutionService,
     IGovernanceDigestDecisionNeededComposer governanceDigestDecisionNeededComposer,
     IReviewsAwaitingActionQueryService reviewsAwaitingActionQueryService,
     IAuditService auditService) : ControllerBase
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ArchLucid.Persistence.Interfaces.IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly ArchLucid.Application.Findings.IFindingMergeConflictResolutionService _findingMergeConflictResolutionService =
+        findingMergeConflictResolutionService ?? throw new ArgumentNullException(nameof(findingMergeConflictResolutionService));
 
     [HttpGet("risk-register")]
     [ProducesResponseType(typeof(ArchitectureRiskRegisterResponse), StatusCodes.Status200OK)]
@@ -464,6 +472,10 @@ public sealed class GovernanceStickinessController(
         DateTime now = TimeProvider.System.UtcNowDateTime();
         string cronExpression = string.IsNullOrWhiteSpace(request.CronExpression) ? "0 8 * * 1" : request.CronExpression.Trim();
 
+        ArchLucid.Persistence.Models.RunRecord? sourceRun = await _runRepository
+            .GetByIdAsync(scope, request.SourceRunId, cancellationToken)
+            .ConfigureAwait(false);
+
         if (!recurrenceNextRunCalculator.IsSupportedCronExpression(cronExpression))
         {
             return this.BadRequestProblem(
@@ -488,6 +500,7 @@ public sealed class GovernanceStickinessController(
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             SourceRunId = request.SourceRunId,
+            ArchitectureId = sourceRun?.ArchitectureId,
             Name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim(),
             CronExpression = cronExpression,
             IsEnabled = request.IsEnabled.Value,
@@ -693,6 +706,33 @@ public sealed class GovernanceStickinessController(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         await attestationService.SaveAttestationAsync(scope.TenantId, request, cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpPost("runs/{runId:guid}/finding-merge-conflicts/{findingId}/resolve")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ResolveFindingMergeConflict(
+        [FromRoute] Guid runId,
+        [FromRoute] string findingId,
+        [FromBody] ArchLucid.Contracts.Findings.ResolveFindingMergeConflictRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        bool resolved = await _findingMergeConflictResolutionService.TryResolveAsync(
+            scope,
+            runId,
+            findingId,
+            request.Action,
+            cancellationToken).ConfigureAwait(false);
+
+        if (!resolved)
+            return this.NotFoundProblem("Finding merge conflict was not found.", ProblemTypes.ResourceNotFound);
 
         return NoContent();
     }

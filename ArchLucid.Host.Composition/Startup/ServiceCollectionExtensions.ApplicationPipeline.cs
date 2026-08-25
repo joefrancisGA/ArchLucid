@@ -216,6 +216,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<IPreFinalizeChecklistService, PreFinalizeChecklistService>();
+        services.AddScoped<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService,
+            ArchLucid.Application.Findings.FindingMergeConflictResolutionService>();
         services.AddScoped<ITechnologyConsistencyFindingEngine, TechnologyConsistencyFindingEngine>();
         services.AddScoped<ICommittedEffectiveGovernanceSnapshotCapturer, CommittedEffectiveGovernanceSnapshotCapturer>();
         services.AddScoped<ICommittedReviewStandardsSnapshotCapturer, CommittedReviewStandardsSnapshotCapturer>();

@@ -131,6 +131,8 @@ public sealed class GovernanceStickinessControllerTests
                 decisionRegister.Object,
                 recurrenceRepository.Object,
                 nextRun.Object,
+                Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+                Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
                 digestComposer.Object,
                 reviewsAwaiting.Object,
                 audit.Object)
