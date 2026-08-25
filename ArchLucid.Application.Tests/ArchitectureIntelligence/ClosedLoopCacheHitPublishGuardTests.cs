@@ -35,6 +35,52 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
     }
 
     [Fact]
+    public void ApplyCacheHitPolicy_rewrites_product_payload_run_identity()
+    {
+        Guid originalRunGuid = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        ClosedLoopReasoningRequest request = new() { PublishToProduct = false };
+        ClosedLoopReasoningResult cached = new()
+        {
+            RunId = "cached-run",
+            Model = new ArchitectureKnowledgeModel { RunId = "cached-run", ModelId = "cached-model" },
+            Interview = new ProgressiveInterviewState { ModelId = "cached-model" },
+            ProductFindings =
+            [
+                new ArchLucid.Contracts.Findings.Finding
+                {
+                    FindingId = "finding-1",
+                    FindingType = "gap",
+                    Category = "security",
+                    EngineType = "specialist",
+                    Severity = ArchLucid.Contracts.Findings.FindingSeverity.Error,
+                    Title = "Gap",
+                    Rationale = "Rationale.",
+                    RunIdRef = "cached-run",
+                },
+            ],
+            ProductRecommendations =
+            [
+                new ArchLucid.Contracts.Advisory.Workflow.RecommendationRecord
+                {
+                    RecommendationId = Guid.NewGuid(),
+                    RunId = originalRunGuid,
+                    Title = "Fix gap",
+                    Category = "security",
+                    Rationale = "Rationale.",
+                    SuggestedAction = "Action",
+                },
+            ],
+        };
+
+        ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(request, "current-run", cached);
+
+        cached.Interview.ModelId.Should().Be("current-run");
+        cached.ProductFindings[0].RunIdRef.Should().Be("current-run");
+        cached.ProductRecommendations[0].RunId
+            .Should().Be(ArchitectureIntelligenceTenantIdMapper.ToStorageGuid("current-run"));
+    }
+
+    [Fact]
     public void ApplyCacheHitPolicy_clears_published_flags_even_when_publish_was_not_requested()
     {
         ClosedLoopReasoningRequest request = new() { PublishToProduct = false };

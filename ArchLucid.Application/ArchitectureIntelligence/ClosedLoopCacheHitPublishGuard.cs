@@ -1,4 +1,6 @@
+using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -23,6 +25,9 @@ public static class ClosedLoopCacheHitPublishGuard
         cached.Model.RunId = runId;
         cached.ModelId = runId;
         cached.Model.ModelId = runId;
+        cached.Interview.ModelId = runId;
+
+        RewriteProductRunIdentity(cached, runId);
 
         cached.PublishedToProduct = false;
         cached.PublishedFindingsSnapshotId = null;
@@ -40,5 +45,16 @@ public static class ClosedLoopCacheHitPublishGuard
         result.PublishedFindingsSnapshotId = null;
         result.PublishedRecommendationCount = 0;
         result.PublishSkipReason = null;
+    }
+
+    private static void RewriteProductRunIdentity(ClosedLoopReasoningResult cached, string runId)
+    {
+        Guid runGuid = ArchitectureIntelligenceTenantIdMapper.ToStorageGuid(runId);
+
+        foreach (Finding finding in cached.ProductFindings)
+            finding.RunIdRef = runId;
+
+        foreach (RecommendationRecord recommendation in cached.ProductRecommendations)
+            recommendation.RunId = runGuid;
     }
 }
