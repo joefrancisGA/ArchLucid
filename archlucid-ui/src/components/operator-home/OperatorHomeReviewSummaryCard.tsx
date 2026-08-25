@@ -61,6 +61,16 @@ function formatFindingsMetadata(run: RunSummary): string | null {
   return `${findings} finding${findings === 1 ? "" : "s"}`;
 }
 
+function formatFeaturedCompactMetricsLine(findingCount: number, warningCount: number): string {
+  const findingsPart = `${findingCount} finding${findingCount === 1 ? "" : "s"}`;
+
+  if (warningCount > 0) {
+    return `${findingsPart} · Ready evidence · Complete audit`;
+  }
+
+  return `${findingsPart} · Ready evidence · Complete audit`;
+}
+
 function ReviewSummaryMetadataItem(props: { readonly label: string; readonly value: string }) {
   return (
     <div className="min-w-0">
@@ -70,6 +80,99 @@ function ReviewSummaryMetadataItem(props: { readonly label: string; readonly val
       <dd className={cn("m-0 mt-0.5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
         {props.value}
       </dd>
+    </div>
+  );
+}
+
+type FeaturedShowcaseSummaryProps = {
+  readonly run: RunSummary;
+  readonly title: string;
+  readonly buyerPolishedShell: boolean;
+  readonly primaryAction?: { readonly href: string; readonly label: string } | null;
+  readonly pagePrimaryOwnedElsewhere?: boolean;
+};
+
+function FeaturedShowcaseReviewSummary(props: FeaturedShowcaseSummaryProps): React.JSX.Element {
+  const showcaseProofMeta = buyerDemoPackageCardMeta(props.run.runId ?? "");
+  const updatedLabel = formatRunHomeListUpdatedLabel(props.run);
+  const decisionDateLabel =
+    updatedLabel !== null ? updatedLabel.replace(/^Updated /, "") : showcaseProofMeta.decisionDate;
+  const primaryActionVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
+  const recordHref = signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
+  const recordLabel = finalizedReviewRecordDisplayLabel(props.run, SHOWCASE_STATIC_DEMO_MANIFEST_ID, {
+    cardTitle: props.title,
+  });
+
+  return (
+    <div className="space-y-2" data-testid="runs-dashboard-buyer-proof-metadata">
+      <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
+        Package finalized
+      </p>
+      <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+        {formatFeaturedCompactMetricsLine(
+          SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
+          SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
+        )}
+      </p>
+      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.navHelper)}>
+        Decision: {decisionDateLabel}
+      </p>
+      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.navHelper)}>
+        Approver: {showcaseProofMeta.approvalAuthority}
+      </p>
+
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        {props.primaryAction !== null && props.primaryAction !== undefined ? (
+          <Button asChild variant={primaryActionVariant} size="sm" className="h-8">
+            <Link href={props.primaryAction.href}>{props.primaryAction.label}</Link>
+          </Button>
+        ) : null}
+        <Button asChild variant="outline" size="sm" className="h-8">
+          <Link href={recordHref} data-testid="runs-dashboard-buyer-proof-view-record-link">
+            View record
+          </Link>
+        </Button>
+      </div>
+
+      <details className="group pt-1" data-testid="runs-dashboard-buyer-proof-details">
+        <summary
+          className={cn(
+            "cursor-pointer list-none text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
+            OPERATOR_LINK.optional,
+          )}
+        >
+          <span className="group-open:hidden">Details</span>
+          <span className="hidden group-open:inline">Hide details</span>
+        </summary>
+        <div className="mt-2 space-y-2 border-t border-neutral-200 pt-2 dark:border-neutral-800">
+          <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
+          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+            {BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(
+              SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
+              SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
+            )}
+          </p>
+          <InlineMetadataLine label="Evidence trail" value="Ready" />
+          <InlineMetadataLine label="Audit trail" value="Complete" />
+          <InlineMetadataLine label="Decision date" value={showcaseProofMeta.decisionDate} />
+          <InlineMetadataLine
+            label="Finalized review record"
+            value={
+              <span className="inline-flex min-w-0 items-center gap-1">
+                <Link
+                  href={recordHref}
+                  className={OPERATOR_LINK.nav}
+                  title={SHOWCASE_STATIC_DEMO_MANIFEST_ID}
+                  data-testid="runs-dashboard-buyer-proof-finalized-record-link"
+                >
+                  {recordLabel}
+                </Link>
+                <CopyIdButton value={SHOWCASE_STATIC_DEMO_MANIFEST_ID} aria-label="Copy finalized review record ID" />
+              </span>
+            }
+          />
+        </div>
+      </details>
     </div>
   );
 }
@@ -90,8 +193,8 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
   const isExampleReview =
     isShowcaseDemo || isDemoSeededOverviewInjectedRun(props.run);
   const showcaseProofMetadata = variant === "featured" && isShowcaseDemo;
-  const showcaseProofMeta = showcaseProofMetadata ? buyerDemoPackageCardMeta(props.run.runId ?? "") : null;
   const insightText = [insightLine, updatedLabel].filter((part) => part !== null).join(" · ");
+  const usePlainFeaturedTitle = variant === "featured";
 
   if (variant === "compact") {
     return (
@@ -140,13 +243,21 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
       data-testid={variant === "featured" ? "runs-dashboard-buyer-proof-summary" : `operator-home-review-summary-${props.run.runId}`}
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <Link
-          href={props.href}
-          className={cn("min-w-0", OPERATOR_LINK.nav, OPERATOR_TYPE_SCALE.cardTitle)}
-          data-testid={variant === "featured" ? "runs-dashboard-buyer-proof-title" : undefined}
-        >
-          {title}
-        </Link>
+        {usePlainFeaturedTitle ? (
+          <p
+            className={cn("m-0 min-w-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPE_SCALE.cardTitle)}
+            data-testid="runs-dashboard-buyer-proof-title"
+          >
+            {title}
+          </p>
+        ) : (
+          <Link
+            href={props.href}
+            className={cn("min-w-0", OPERATOR_LINK.nav, OPERATOR_TYPE_SCALE.cardTitle)}
+          >
+            {title}
+          </Link>
+        )}
         <StatusTag
           kind={statusTag.kind}
           label={statusTag.label}
@@ -156,81 +267,48 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
 
       {isExampleReview ? <DemoDataBadge /> : null}
 
-      <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
-
       {showcaseProofMetadata ? (
-        <div className="space-y-1" data-testid="runs-dashboard-buyer-proof-metadata">
-          {/* Decision is metadata, not the card title — it must not outrank the review link above. */}
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
-            Decision: Package finalized
-          </p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-            {BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(
-              SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
-              SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
-            )}
-          </p>
-          <InlineMetadataLine label="Evidence trail" value="Ready" />
-          <InlineMetadataLine label="Audit trail" value="Complete" />
-          {showcaseProofMeta !== null ? (
-            <>
-              <InlineMetadataLine label="Decision date" value={showcaseProofMeta.decisionDate} />
-              <InlineMetadataLine
-                label="Finalized review record"
-                value={
-                  <span className="inline-flex min-w-0 items-center gap-1">
-                    <Link
-                      href={signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}
-                      className={OPERATOR_LINK.nav}
-                      title={SHOWCASE_STATIC_DEMO_MANIFEST_ID}
-                      data-testid="runs-dashboard-buyer-proof-finalized-record-link"
-                    >
-                      {finalizedReviewRecordDisplayLabel(props.run, SHOWCASE_STATIC_DEMO_MANIFEST_ID, {
-                        cardTitle: title,
-                      })}
-                    </Link>
-                    <CopyIdButton
-                      value={SHOWCASE_STATIC_DEMO_MANIFEST_ID}
-                      aria-label="Copy finalized review record ID"
-                    />
-                  </span>
-                }
-              />
-              <InlineMetadataLine label="Approver" value={showcaseProofMeta.approvalAuthority} />
-            </>
-          ) : null}
-        </div>
+        <FeaturedShowcaseReviewSummary
+          run={props.run}
+          title={title}
+          buyerPolishedShell={props.buyerPolishedShell}
+          primaryAction={props.primaryAction}
+          pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
+        />
       ) : (
-        <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
-          {findingsMetadata !== null ? (
-            <ReviewSummaryMetadataItem label="Findings" value={findingsMetadata} />
+        <>
+          <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
+
+          <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+            {findingsMetadata !== null ? (
+              <ReviewSummaryMetadataItem label="Findings" value={findingsMetadata} />
+            ) : null}
+            {updatedLabel !== null ? (
+              <ReviewSummaryMetadataItem label="Last updated" value={updatedLabel.replace(/^Updated /, "")} />
+            ) : null}
+          </dl>
+
+          {insightText.length > 0 ? (
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}
+              data-testid={`run-home-list-insight-${props.run.runId}`}
+            >
+              {insightText}
+            </p>
           ) : null}
-          {updatedLabel !== null ? (
-            <ReviewSummaryMetadataItem label="Last updated" value={updatedLabel.replace(/^Updated /, "")} />
+
+          {props.primaryAction !== null && props.primaryAction !== undefined ? (
+            <Button
+              asChild
+              variant={props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary"}
+              size="sm"
+              className="mt-1 h-8"
+            >
+              <Link href={props.primaryAction.href}>{props.primaryAction.label}</Link>
+            </Button>
           ) : null}
-        </dl>
+        </>
       )}
-
-      {/* The proof block already states findings, monitored risk, and the decision — do not restate them. */}
-      {!showcaseProofMetadata && insightText.length > 0 ? (
-        <p
-          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}
-          data-testid={`run-home-list-insight-${props.run.runId}`}
-        >
-          {insightText}
-        </p>
-      ) : null}
-
-      {props.primaryAction !== null && props.primaryAction !== undefined ? (
-        <Button
-          asChild
-          variant={props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary"}
-          size="sm"
-          className="mt-1 h-8"
-        >
-          <Link href={props.primaryAction.href}>{props.primaryAction.label}</Link>
-        </Button>
-      ) : null}
     </article>
   );
 }

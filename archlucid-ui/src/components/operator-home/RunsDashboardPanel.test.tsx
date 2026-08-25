@@ -392,16 +392,13 @@ describe("RunsDashboardPanel", () => {
         expect(screen.getByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
       });
       expect(screen.getByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
-      expect(screen.getByText("Decision: Package finalized")).toBeInTheDocument();
+      expect(screen.getByText("Package finalized")).toBeInTheDocument();
       expect(screen.queryByTestId("operator-home-showcase-demo-banner")).toBeNull();
       expect(screen.queryByRole("link", { name: "Jump to review journey" })).toBeNull();
-      expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveAttribute(
-        "href",
-        `/architecture/reviews/${CUSTOMER_INTAKE_SAMPLE_RUN_ID}`,
-      );
       expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveTextContent(
         CUSTOMER_INTAKE_BUYER_REVIEW_TITLE,
       );
+      expect(screen.queryByRole("link", { name: CUSTOMER_INTAKE_BUYER_REVIEW_TITLE })).toBeNull();
       // Showcase title lives on the proof card — do not repeat it as a trailing list row.
       expect(screen.queryByTestId("recent-runs-home-panel")).toBeNull();
       expect(screen.queryByRole("link", { name: "Signed manifest summary" })).toBeNull();

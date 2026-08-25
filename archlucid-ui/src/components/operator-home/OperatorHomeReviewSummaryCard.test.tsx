@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { OperatorHomeReviewSummaryCard } from "@/components/operator-home/OperatorHomeReviewSummaryCard";
@@ -38,7 +38,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
     );
   });
 
-  it("emphasizes buyer proof metadata labels on Label: value rows (TB-1998)", () => {
+  it("renders compact featured showcase summary with details disclosure (TB-1998)", () => {
     const run: RunSummary = {
       runId: SHOWCASE_STATIC_DEMO_RUN_ID,
       projectId: "default",
@@ -62,26 +62,28 @@ describe("OperatorHomeReviewSummaryCard", () => {
     );
 
     expect(screen.getByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
-    expect(screen.getByText("Decision: Package finalized")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
-
-    const proofMetadata = screen.getByTestId("runs-dashboard-buyer-proof-metadata");
-    const emphasizedLabels = proofMetadata.querySelectorAll(".font-medium");
-
-    expect(Array.from(emphasizedLabels).map((node) => node.textContent)).toEqual(
-      expect.arrayContaining(["Evidence trail:", "Audit trail:"]),
+    expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveTextContent(
+      SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
     );
-    expect(proofMetadata.textContent).toMatch(/Audit trail:\s*Complete/);
-    expect(proofMetadata.textContent).toMatch(/Decision date:/);
-    expect(proofMetadata.textContent).toMatch(/Finalized review record:/);
-    expect(proofMetadata.textContent).toMatch(/Approver:/);
+    expect(screen.getByTestId("runs-dashboard-buyer-proof-title").tagName).toBe("P");
+    expect(screen.getByText("Package finalized")).toBeInTheDocument();
+    expect(screen.getByText(/9 findings · Ready evidence · Complete audit/)).toBeInTheDocument();
+    expect(screen.getByText(/Decision:/)).toBeInTheDocument();
+    expect(screen.getByText(/Approver: Jordan Lee/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View record" })).toHaveAttribute(
+      "href",
+      signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID),
+    );
+
+    const details = screen.getByTestId("runs-dashboard-buyer-proof-details");
+    expect(details).toBeInTheDocument();
+    expect(details.querySelector("summary")).toHaveTextContent("Details");
 
     const finalizedRecordLink = screen.getByTestId("runs-dashboard-buyer-proof-finalized-record-link");
-
     expect(finalizedRecordLink).toHaveTextContent(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
     expect(finalizedRecordLink).toHaveAttribute("href", signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID));
     expect(finalizedRecordLink).toHaveAttribute("title", SHOWCASE_STATIC_DEMO_MANIFEST_ID);
-    expect(proofMetadata.textContent).not.toContain(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
     expect(screen.getByRole("button", { name: "Copy finalized review record ID" })).toBeInTheDocument();
   });
 
@@ -140,7 +142,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
     expect(screen.getAllByText(/Approved with monitoring/)).toHaveLength(1);
   });
 
-  it("labels package origin so it does not read as a second verdict", () => {
+  it("labels package origin inside featured details so it does not read as a second verdict", () => {
     const run: RunSummary = {
       runId: SHOWCASE_STATIC_DEMO_RUN_ID,
       projectId: "default",
@@ -157,8 +159,11 @@ describe("OperatorHomeReviewSummaryCard", () => {
         run={run}
         href={`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`}
         buyerPolishedShell
+        variant="featured"
       />,
     );
+
+    fireEvent.click(screen.getByText("Details"));
 
     const origin = screen.getByTestId("architecture-package-origin-reviewed");
 
