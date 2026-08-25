@@ -19,15 +19,21 @@ public sealed class InlineRequirementsPayloadNormalizer : IConnectorNormalizer<I
         NormalizedContextBatch batch = new();
 
         foreach (string requirement in payload.InlineRequirements)
+        {
+            if (string.IsNullOrWhiteSpace(requirement))
+                continue;
+
+            string trimmed = requirement.Trim();
 
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "Requirement",
-                Name = requirement.Length > 80 ? requirement[..80] : requirement,
+                Name = trimmed.Length > 80 ? trimmed[..80] : trimmed,
                 SourceType = "InlineRequirement",
-                SourceId = StableRequirementSourceId(requirement),
-                Properties = new Dictionary<string, string> { ["text"] = requirement }
+                SourceId = StableRequirementSourceId(trimmed),
+                Properties = new Dictionary<string, string> { ["text"] = trimmed }
             });
+        }
 
 
         return Task.FromResult(batch);
@@ -35,7 +41,7 @@ public sealed class InlineRequirementsPayloadNormalizer : IConnectorNormalizer<I
 
     private static string StableRequirementSourceId(string requirement)
     {
-        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(requirement.Trim()));
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(requirement));
         return Convert.ToHexString(hash.AsSpan(0, 16)).ToLowerInvariant();
     }
 }

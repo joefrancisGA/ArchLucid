@@ -1781,11 +1781,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 5
-- **bugs-found:** 9
+- **hunts:** 6
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25
+- **last-bug:** 2026-08-25 — connector hint normalizers emitted raw padded/cased text while stable ids used trimmed hashes, churning deltas; topology whitespace-only hints threw
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1803,6 +1803,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PlainTextContextDocumentParser` ignored UTF-8 BOM before `REQ:` prefix — **hit 2026-08-24:** `\uFEFFREQ:` lines produced zero requirements; fixed by stripping leading BOM (`PlainTextContextDocumentParserTests.ParseAsync_Utf8BomReqLine_ExtractsRequirement`).
 - [x] (proven) `CanonicalDeduplicator` merged infrastructure resources from different declarations when name/type matched — **hit 2026-08-24:** same `hub-vnet` from `decl-a` and `decl-b` collapsed to one object; fixed by scoping dedupe suffix to non-`PolicyReference` `SourceId` (`CanonicalDeduplicatorTests.Deduplicate_KeepsInfrastructureResourcesFromDifferentDeclarations`).
 - [x] (proven) `PolicyReferencePayloadNormalizer` kept policy reference casing in `SourceId` — **hit 2026-08-25:** `SOC2` vs `soc2` reported false add/remove on policy-reference connector delta; fixed by lowercasing trimmed references for `SourceId`, `Name`, and batch dedupe (`PolicyReferenceConnectorTopologyTests.DeltaAsync_PolicyReferenceCaseChange_ReportsUnchanged`).
+- [x] (proven) `SecurityBaselineHintsPayloadNormalizer` padded hints false-modified delta — **hit 2026-08-25:** `StableHintSourceId` hashed trimmed text but `Name`/`text` kept padding; fixed by trimming/skipping blanks before emit (`ConnectorHintNormalizationDeltaTests.SecurityBaselineHintsConnector_DeltaAsync_PaddedHint_ReportsUnchanged`).
+- [x] (proven) `InlineRequirementsPayloadNormalizer` padded requirements false-modified delta — **hit 2026-08-25:** same trim/hash mismatch as security baseline hints; fixed by trimming/skipping blanks (`ConnectorHintNormalizationDeltaTests.InlineRequirementsConnector_DeltaAsync_PaddedRequirement_ReportsUnchanged`).
+- [x] (proven) `TopologyHintsPayloadNormalizer` topology hint casing and slash spacing churned `ObjectId` deltas — **hit 2026-08-25:** `TopologyHintStableObjectIds` hashed case-sensitive text and slash hints kept spacing in `ObjectId`; fixed by canonicalizing slash segments, lowercasing stable keys, and skipping whitespace-only hints (`ConnectorHintNormalizationDeltaTests`).
+- [x] (proven) `JsonInfrastructureDeclarationParser` preserved `resourceType` casing in properties — **hit 2026-08-25:** `VNet` vs `vnet` false-modified infrastructure declaration deltas; fixed by lowercasing `resourceType` property (`ConnectorHintNormalizationDeltaTests.JsonInfrastructureDeclarationParser_ResourceTypeCasing_IsCanonicalized`).
+- [ ] (candidate) `InlineRequirementsPayloadNormalizer` long requirement `Name` truncation without hash suffix — two requirements identical in first 80 chars may collapse in downstream `PriorRequirementNames` scope metadata (delta `SourceId` remains distinct).
 
 ---
 

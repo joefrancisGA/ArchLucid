@@ -22,14 +22,19 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
         foreach (string hint in payload.TopologyHints)
         {
             string trimmed = hint.Trim();
-            Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase) { ["text"] = trimmed };
 
-            int slash = trimmed.IndexOf('/');
+            if (trimmed.Length == 0)
+                continue;
 
-            if (slash > 0 && slash < trimmed.Length - 1)
+            string canonicalHint = CanonicalizeTopologyHint(trimmed).ToLowerInvariant();
+            Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase) { ["text"] = canonicalHint };
+
+            int slash = canonicalHint.IndexOf('/');
+
+            if (slash > 0 && slash < canonicalHint.Length - 1)
             {
-                string parentName = trimmed[..slash].Trim();
-                string childRemainder = trimmed[(slash + 1)..].Trim();
+                string parentName = canonicalHint[..slash];
+                string childRemainder = canonicalHint[(slash + 1)..];
 
                 if (parentName.Length > 0 && childRemainder.Length > 0)
                 {
@@ -41,9 +46,9 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
 
             batch.CanonicalObjects.Add(new CanonicalObject
             {
-                ObjectId = _overlapResolver.ResolveStableObjectId(trimmed),
+                ObjectId = _overlapResolver.ResolveStableObjectId(canonicalHint),
                 ObjectType = "TopologyResource",
-                Name = trimmed,
+                Name = canonicalHint,
                 SourceType = "TopologyHint",
                 SourceId = "topology-hint",
                 Properties = properties
@@ -51,5 +56,21 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
         }
 
         return Task.FromResult(batch);
+    }
+
+    private static string CanonicalizeTopologyHint(string trimmed)
+    {
+        int slash = trimmed.IndexOf('/');
+
+        if (slash > 0 && slash < trimmed.Length - 1)
+        {
+            string parentName = trimmed[..slash].Trim();
+            string childRemainder = trimmed[(slash + 1)..].Trim();
+
+            if (parentName.Length > 0 && childRemainder.Length > 0)
+                return $"{parentName}/{childRemainder}";
+        }
+
+        return trimmed;
     }
 }

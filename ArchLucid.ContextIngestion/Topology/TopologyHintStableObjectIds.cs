@@ -15,7 +15,7 @@ public static class TopologyHintStableObjectIds
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(topologyHintName);
 
-        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(topologyHintName.Trim()));
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(topologyHintName.Trim().ToLowerInvariant()));
         return Convert.ToHexString(hash.AsSpan(0, 16)).ToLowerInvariant();
     }
 }

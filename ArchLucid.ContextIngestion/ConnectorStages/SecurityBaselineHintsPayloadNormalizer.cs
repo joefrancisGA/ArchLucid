@@ -19,15 +19,21 @@ public sealed class SecurityBaselineHintsPayloadNormalizer : IConnectorNormalize
         NormalizedContextBatch batch = new();
 
         foreach (string hint in payload.SecurityBaselineHints)
+        {
+            if (string.IsNullOrWhiteSpace(hint))
+                continue;
+
+            string trimmed = hint.Trim();
 
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "SecurityBaseline",
-                Name = hint,
+                Name = trimmed,
                 SourceType = "SecurityBaselineHint",
-                SourceId = StableHintSourceId(hint),
-                Properties = new Dictionary<string, string> { ["text"] = hint, ["status"] = "declared" }
+                SourceId = StableHintSourceId(trimmed),
+                Properties = new Dictionary<string, string> { ["text"] = trimmed, ["status"] = "declared" }
             });
+        }
 
 
         return Task.FromResult(batch);
@@ -35,7 +41,7 @@ public sealed class SecurityBaselineHintsPayloadNormalizer : IConnectorNormalize
 
     private static string StableHintSourceId(string hint)
     {
-        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(hint.Trim()));
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(hint));
         return Convert.ToHexString(hash.AsSpan(0, 16)).ToLowerInvariant();
     }
 }

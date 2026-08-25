@@ -57,7 +57,7 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
             if (!string.IsNullOrWhiteSpace(resource.Region))
                 properties["region"] = resource.Region!;
 
-            properties["resourceType"] = resource.Type;
+            properties["resourceType"] = resource.Type.Trim().ToLowerInvariant();
 
             results.Add(new CanonicalObject
             {
