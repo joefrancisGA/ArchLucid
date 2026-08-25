@@ -77,6 +77,38 @@ public sealed class ProgressiveInterviewServiceTests
     }
 
     [Fact]
+    public void ApplyAnswers_twice_does_not_duplicate_evidence_elements()
+    {
+        ArchitectureKnowledgeModel model = new ArchitectureOntologyService().CreateEmptyModel("tenant-1");
+        ProgressiveInterviewState state = new()
+        {
+            ModelId = model.ModelId,
+            FramingQuestions =
+            [
+                new FramingQuestion
+                {
+                    QuestionId = "business-outcome",
+                    Prompt = "What business outcome?",
+                    IsAnswered = false,
+                    Source = FramingQuestionSource.Framing,
+                },
+            ],
+        };
+
+        Dictionary<string, string> answers = new()
+        {
+            ["business-outcome"] = "Process claims faster",
+        };
+
+        state = _service.ApplyAnswers(model, state, answers);
+        state = _service.ApplyAnswers(model, state, answers);
+
+        model.Elements
+            .Count(element => element.Kind == ArchitectureElementKind.Evidence)
+            .Should().Be(1);
+    }
+
+    [Fact]
     public void DeriveEvidenceDrivenQuestions_creates_questions_for_indeterminate_insufficient_findings()
     {
         SpecialistReviewResult specialistResult = new()

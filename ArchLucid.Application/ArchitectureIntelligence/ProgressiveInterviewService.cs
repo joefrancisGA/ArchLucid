@@ -133,26 +133,59 @@ public sealed class ProgressiveInterviewService : IProgressiveInterviewService
             }
 
             // Persist answered evidence as user-asserted model elements for the next review pass.
-            model.Elements.Add(new ArchitectureModelElement
-            {
-                ElementId = Guid.NewGuid().ToString("N"),
-                Kind = ArchitectureElementKind.Evidence,
-                Name = $"Interview answer: {pair.Key}",
-                Description = pair.Value.Trim(),
-                ExtractionConfidence = 1.0,
-                Provenance = new ClaimProvenance
-                {
-                    Origin = ClaimOrigin.UserAsserted,
-                    SupportStatus = SupportStatus.DirectlyEstablished,
-                    Confidence = 1.0,
-                    Notes = "Operator interview answer.",
-                },
-            });
+            UpsertInterviewEvidenceElement(model, pair.Key, pair.Value.Trim());
         }
 
         state.IsFramingComplete = state.FramingQuestions.All(question => question.IsAnswered);
 
         return state;
+    }
+
+    private static void UpsertInterviewEvidenceElement(
+        ArchitectureKnowledgeModel model,
+        string questionId,
+        string answer)
+    {
+        ArchitectureModelElement? existing = model.Elements
+            .FirstOrDefault(element => element.Kind == ArchitectureElementKind.Evidence
+                && element.Properties.TryGetValue("framingQuestionId", out string? storedQuestionId)
+                && string.Equals(storedQuestionId, questionId, StringComparison.Ordinal));
+
+        if (existing is not null)
+        {
+            existing.Name = $"Interview answer: {questionId}";
+            existing.Description = answer;
+            existing.ExtractionConfidence = 1.0;
+            existing.Provenance = new ClaimProvenance
+            {
+                Origin = ClaimOrigin.UserAsserted,
+                SupportStatus = SupportStatus.DirectlyEstablished,
+                Confidence = 1.0,
+                Notes = "Operator interview answer.",
+            };
+
+            return;
+        }
+
+        model.Elements.Add(new ArchitectureModelElement
+        {
+            ElementId = Guid.NewGuid().ToString("N"),
+            Kind = ArchitectureElementKind.Evidence,
+            Name = $"Interview answer: {questionId}",
+            Description = answer,
+            ExtractionConfidence = 1.0,
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["framingQuestionId"] = questionId,
+            },
+            Provenance = new ClaimProvenance
+            {
+                Origin = ClaimOrigin.UserAsserted,
+                SupportStatus = SupportStatus.DirectlyEstablished,
+                Confidence = 1.0,
+                Notes = "Operator interview answer.",
+            },
+        });
     }
 
     private static string? TryInferAnswer(
