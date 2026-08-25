@@ -37,6 +37,7 @@ public sealed class GcpWorkloadIdentityCredentialFactory(
     {
         const string audiencePrefix = "//iam.googleapis.com/";
         const string httpsAudiencePrefix = "https://iam.googleapis.com/";
+        const string httpAudiencePrefix = "http://iam.googleapis.com/";
 
         if (workloadIdentityPoolProvider.StartsWith(audiencePrefix, StringComparison.OrdinalIgnoreCase))
         {
@@ -46,6 +47,11 @@ public sealed class GcpWorkloadIdentityCredentialFactory(
         if (workloadIdentityPoolProvider.StartsWith(httpsAudiencePrefix, StringComparison.OrdinalIgnoreCase))
         {
             return audiencePrefix + workloadIdentityPoolProvider.Substring(httpsAudiencePrefix.Length);
+        }
+
+        if (workloadIdentityPoolProvider.StartsWith(httpAudiencePrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return audiencePrefix + workloadIdentityPoolProvider.Substring(httpAudiencePrefix.Length);
         }
 
         return $"{audiencePrefix}{workloadIdentityPoolProvider.TrimStart('/')}";
