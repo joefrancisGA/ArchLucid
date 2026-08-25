@@ -199,13 +199,11 @@ public sealed class TenantAuthDomainAdminServiceTests
         InMemoryTenantIdentityProviderConfigurationRepository idpConfigs,
         InMemoryPlatformTenantAuthRecoveryGrantRepository grants,
         InMemoryWorkspaceMembershipRepository memberships,
-        FakeTimeProvider clock) =>
-        new(
+        FakeTimeProvider clock)
+    {
+        TenantAuthDomainVerificationService verification = new(
             domains,
             recoveryAdmins,
-            idpConfigs,
-            grants,
-            memberships,
             new AuthDomainDnsVerificationService(new NoOpDnsTxtRecordLookup(), clock),
             new AuthSignInRoutingService(
                 domains,
@@ -215,6 +213,19 @@ public sealed class TenantAuthDomainAdminServiceTests
                 grants,
                 clock),
             clock);
+
+        TenantAuthDomainEnforcementService enforcement = new(
+            domains,
+            recoveryAdmins,
+            idpConfigs,
+            grants,
+            memberships,
+            clock);
+
+        TenantAuthDomainRecoveryAdminService recovery = new(domains, recoveryAdmins, clock);
+
+        return new TenantAuthDomainAdminService(domains, clock, verification, enforcement, recovery);
+    }
 
     private static TenantSignInEmailDomainRecord CreateVerifiedDomain(Guid tenantId, string domain) =>
         new()

@@ -86,6 +86,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IEmailOtpSignInDomainPolicyService, EmailOtpSignInDomainPolicyService>();
         services.AddScoped<IAuthSignInRoutingService, AuthSignInRoutingService>();
         services.AddScoped<AuthDomainDnsVerificationService>();
+        services.AddScoped<TenantAuthDomainVerificationService>();
+        services.AddScoped<TenantAuthDomainEnforcementService>();
+        services.AddScoped<TenantAuthDomainRecoveryAdminService>();
         services.AddScoped<TenantAuthDomainAdminService>();
         services.AddScoped<IPlatformAuthRecoveryService, PlatformAuthRecoveryService>();
         services.AddScoped<IPlatformRecoveryNotificationService, PlatformRecoveryNotificationService>();
