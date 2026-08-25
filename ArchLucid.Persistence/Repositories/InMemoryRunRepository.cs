@@ -222,6 +222,62 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult(best?.RunId);
     }
 
+  public Task<Guid?> GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid currentRunId,
+        DateTime currentCreatedUtc,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (architectureId == Guid.Empty)
+            return Task.FromResult<Guid?>(null);
+
+        RunRecord? best = null;
+
+        foreach (RunRecord candidate in _store.Values)
+        {
+            if (!MatchesScope(candidate, scope))
+                continue;
+
+            if (candidate.ArchivedUtc.HasValue)
+                continue;
+
+            if (candidate.ArchitectureId != architectureId)
+                continue;
+
+            if (candidate.RunId == currentRunId)
+                continue;
+
+            if (!candidate.GoldenManifestId.HasValue)
+                continue;
+
+            if (!IsCommittedRun(candidate))
+                continue;
+
+            if (candidate.CreatedUtc > currentCreatedUtc)
+                continue;
+
+            if (candidate.CreatedUtc == currentCreatedUtc && candidate.RunId >= currentRunId)
+                continue;
+
+            if (best is not null)
+            {
+                if (candidate.CreatedUtc < best.CreatedUtc)
+                    continue;
+
+                if (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId <= best.RunId)
+                    continue;
+            }
+
+            best = candidate;
+        }
+
+        return Task.FromResult(best?.RunId);
+    }
+
     private static bool IsCommittedRun(RunRecord run)
     {
         if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))

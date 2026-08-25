@@ -111,6 +111,23 @@ public sealed class DapperAuthorityQueryService(
         DateTime currentCreatedUtc,
         CancellationToken ct)
     {
+        RunRecord? currentRun = await runRepository.GetByIdAsync(scope, currentRunId, ct).ConfigureAwait(false);
+
+        if (currentRun?.ArchitectureId is Guid architectureId)
+        {
+            Guid? architecturePriorRunId = await runRepository
+                .GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync(
+                    scope,
+                    architectureId,
+                    currentRunId,
+                    currentCreatedUtc,
+                    ct)
+                .ConfigureAwait(false);
+
+            if (architecturePriorRunId is not null)
+                return await GetRunSummaryAsync(scope, architecturePriorRunId.Value, ct).ConfigureAwait(false);
+        }
+
         Guid? priorRunId = await runRepository.GetPriorCommittedRunIdBeforeCurrentAsync(
             scope,
             projectId,
