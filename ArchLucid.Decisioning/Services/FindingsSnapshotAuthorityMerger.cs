@@ -20,7 +20,12 @@ public static class FindingsSnapshotAuthorityMerger
         if (additionalFindings.Count == 0)
             return;
 
-        List<Finding> combined = [.. snapshot.Findings, .. additionalFindings];
+        List<Finding> gatedFindings = AuthorityFindingAuthorityGate.ForAuthoritySnapshotMerge(additionalFindings);
+
+        if (gatedFindings.Count == 0)
+            return;
+
+        List<Finding> combined = [.. snapshot.Findings, .. gatedFindings];
         FindingSnapshotMergeResult mergeResult = FindingSnapshotConfluentMerger.Merge(combined, clock);
 
         snapshot.Findings = mergeResult.Findings.ToList();

@@ -57,7 +57,6 @@ public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
         AdversarialReviewResult adversarial = _adversarialReviewService.Review(specialistFindings);
 
         List<Finding> findings = ArchitectureIntelligenceProductBridge.ToFindings(adversarial.SubstantiatedFindings);
-        findings.AddRange(ArchitectureIntelligenceProductBridge.ToHypothesisLaneFindings(adversarial.Challenges));
 
         return findings;
     }
