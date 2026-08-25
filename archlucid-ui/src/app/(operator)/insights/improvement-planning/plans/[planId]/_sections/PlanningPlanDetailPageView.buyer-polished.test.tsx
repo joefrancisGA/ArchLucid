@@ -33,6 +33,7 @@ function buildModel(overrides: Partial<UsePlanningPlanDetailPageModel> = {}): Us
     failure: null,
     loading: false,
     plan: null,
+    plans: [],
     planId: "demo-plan",
     ...overrides,
   };

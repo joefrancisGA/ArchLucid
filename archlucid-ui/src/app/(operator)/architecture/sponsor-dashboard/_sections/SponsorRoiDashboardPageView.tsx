@@ -18,8 +18,10 @@ import {
   isSponsorSampleWorkspaceData,
 } from "@/lib/sponsor/sponsor-dashboard-workspace-state";
 import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID } from "@/lib/sponsor/sponsor-dashboard-route";
+import { resolveSponsorDashboardLatestFinalizedRunId } from "@/lib/resolve-sponsor-dashboard-latest-finalized-run";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SponsorDashboardBaselineWarningBanner } from "./SponsorDashboardBaselineWarningBanner";
+import { SponsorDashboardLatestFinalizedReviewStrip } from "./SponsorDashboardLatestFinalizedReviewStrip";
 import {
   BusinessImpactSummaryWidgetDeferred,
   SponsorComplianceDriftTrendSectionDeferred,
@@ -66,6 +68,9 @@ function SponsorRoiDashboardPortfolioSections({
   const showSampleBanner = isSponsorSampleWorkspaceData(summary);
   const hasDriftData = (driftPoints?.length ?? 0) > 0;
   const dashboardReady = hasCommittedReviews && summaryLoading !== true;
+  const latestFinalizedRunId = resolveSponsorDashboardLatestFinalizedRunId(summary);
+  const latestFinalizedReviewTitle =
+    summary?.systems.find((system) => system.runId === latestFinalizedRunId)?.systemName ?? null;
 
   return (
     <div data-testid="sponsor-roi-dashboard-ready" data-ready={dashboardReady ? "true" : "false"}>
@@ -75,6 +80,13 @@ function SponsorRoiDashboardPortfolioSections({
       {!dashboardEmpty ? <OperatorWelcomeOnboardingDeferred /> : null}
 
       <SponsorDashboardPageHero dashboardEmpty={dashboardEmpty} />
+
+      {latestFinalizedRunId !== null && hasCommittedReviews && !summaryLoading ? (
+        <SponsorDashboardLatestFinalizedReviewStrip
+          runId={latestFinalizedRunId}
+          reviewTitle={latestFinalizedReviewTitle}
+        />
+      ) : null}
 
       {summaryLoading ? <SponsorDashboardLoadingSkeleton /> : null}
 

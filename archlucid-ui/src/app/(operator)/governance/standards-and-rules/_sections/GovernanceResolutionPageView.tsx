@@ -53,6 +53,7 @@ import {
   filterStandardsRuleRows,
   resolveStandardsRulesPolicyPackProvenanceLabel,
 } from "@/lib/standards-rules-rows";
+import { resolveFirstUnmatchedStandardsRule } from "@/lib/resolve-first-unmatched-standards-rule";
 import {
   STANDARDS_RULES_FILTER_NO_MATCH_BODY,
   STANDARDS_RULES_FILTER_NO_MATCH_TITLE,
@@ -67,6 +68,7 @@ import type { GovernanceResolutionPageViewModel } from "./governance-resolution-
 import { GovernanceResolutionExportControls } from "./GovernanceResolutionExportControls";
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
 import { StandardsRulesFilters } from "./StandardsRulesFilters";
+import { StandardsRulesApplyFirstUnmatchedStrip } from "./StandardsRulesApplyFirstUnmatchedStrip";
 import { StandardsRulesPolicyPackReference } from "./StandardsRulesPolicyPackReference";
 import { StandardsRulesReviewContextRow } from "./StandardsRulesReviewContextRow";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
@@ -209,6 +211,7 @@ export function GovernanceResolutionPageView(props: Props) {
     [m.buyerPolishedShell, m.data, m.failure],
   );
   const filteredRuleRows = useMemo(() => filterStandardsRuleRows(allRuleRows, filters), [allRuleRows, filters]);
+  const firstUnmatchedRule = useMemo(() => resolveFirstUnmatchedStandardsRule(allRuleRows), [allRuleRows]);
   const summary = useMemo(() => buildStandardsRulesSummary(allRuleRows), [allRuleRows]);
   const filterOptions = useMemo(() => collectStandardsRulesFilterOptions(allRuleRows), [allRuleRows]);
   const useShowcaseFallback = m.buyerPolishedShell;
@@ -301,6 +304,14 @@ export function GovernanceResolutionPageView(props: Props) {
                 setFilters((current) => ({ ...current, ...partial }));
               }}
             />
+            {firstUnmatchedRule !== null ? (
+              <StandardsRulesApplyFirstUnmatchedStrip
+                target={firstUnmatchedRule}
+                onApplyFilter={() => {
+                  setFilters((current) => ({ ...current, linkedFindings: "unlinked" }));
+                }}
+              />
+            ) : null}
             <StandardsRulesFilters
               filters={filters}
               visibleCount={filteredRuleRows.length}
