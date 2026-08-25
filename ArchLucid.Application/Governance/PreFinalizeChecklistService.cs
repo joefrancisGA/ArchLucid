@@ -144,6 +144,19 @@ public sealed class PreFinalizeChecklistService(
         return snapshot?.Findings is { Count: > 0 } ? snapshot.Findings.ToList() : [];
     }
 
+    private async Task<FindingsSnapshot?> LoadFindingsSnapshotAsync(
+        ScopeContext scope,
+        Guid runKey,
+        CancellationToken cancellationToken)
+    {
+        RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
+
+        if (run?.FindingsSnapshotId is not Guid snapshotId)
+            return null;
+
+        return await _findingsSnapshotRepository.GetByIdAsync(scope, snapshotId, cancellationToken).ConfigureAwait(false);
+    }
+
     private static int CountActiveFindings(IReadOnlyList<Finding> findings, FindingSeverity severity) =>
         findings.Count(finding =>
             !finding.IsMuted
@@ -368,8 +381,22 @@ public sealed class PreFinalizeChecklistService(
         }
 
         List<Finding> findings = await LoadFindingsAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
-        PolicyPackCoverageProofResult proof = PolicyPackCoverageProofEvaluator.Evaluate(
+        FindingsSnapshot? findingsSnapshot =
+            await LoadFindingsSnapshotAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
+
+        string updatedScopeJson = PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes(
             run.GovernanceScopeJson,
+            findings,
+            findingsSnapshot);
+
+        if (!string.Equals(updatedScopeJson, run.GovernanceScopeJson, StringComparison.Ordinal))
+        {
+            run.GovernanceScopeJson = updatedScopeJson;
+            await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+        }
+
+        PolicyPackCoverageProofResult proof = PolicyPackCoverageProofEvaluator.Evaluate(
+            updatedScopeJson,
             findings);
 
         if (proof.UnprovenAssignmentCount == 0)

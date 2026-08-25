@@ -20,4 +20,14 @@ public sealed class CommittedGovernancePackAssignmentSnapshot
         get;
         set;
     } = GovernanceScopeLevel.Project;
+
+    /// <summary>
+    ///     Persisted outcome after findings are available:
+    ///     <see cref="PolicyPackEvaluationOutcomes" />.
+    /// </summary>
+    public string? EvaluationOutcome
+    {
+        get;
+        set;
+    }
 }
