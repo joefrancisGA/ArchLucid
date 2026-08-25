@@ -411,6 +411,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRiskRegisterService, ArchitectureRiskRegisterService>();
         services.AddScoped<IArchitectureDecisionRegisterService, ArchitectureDecisionRegisterService>();
         services.AddScoped<IGovernanceDigestDecisionNeededComposer, GovernanceDigestDecisionNeededComposer>();
+        services.AddScoped<IPilotsApplicationService, PilotsApplicationService>();
+        services.AddScoped<IComparisonsApplicationService, ComparisonsApplicationService>();
+        services.AddScoped<ITraceabilityBundleExportApplicationService, TraceabilityBundleExportApplicationService>();
         services.AddScoped<ISponsorEvidencePackService, SponsorEvidencePackService>();
         services.AddScoped<IPilotValueReportService, PilotValueReportService>();
         services.AddScoped<IPilotValueReportMarkdownFormatter, PilotValueReportMarkdownFormatter>();

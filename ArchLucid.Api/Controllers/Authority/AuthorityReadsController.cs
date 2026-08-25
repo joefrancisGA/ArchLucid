@@ -10,9 +10,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Pagination;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
-using ArchLucid.Persistence.Serialization;
 using ArchLucid.Provenance;
 
 using Asp.Versioning;
@@ -36,9 +34,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class AuthorityReadsController(
     AuthorityRunReadHandlers readHandlers,
-    ITraceabilityBundleBuilder traceabilityBundleBuilder,
-    IScopeContextProvider scopeContextProvider,
-    IAuditService auditService) : ControllerBase
+    ITraceabilityBundleExportApplicationService traceabilityBundleExport) : ControllerBase
 {
     /// <summary>Lists runs across the current tenant/workspace/project scope (newest first, keyset).</summary>
     [HttpGet("")]
@@ -197,44 +193,30 @@ public sealed class AuthorityReadsController(
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public async Task<IActionResult> GetReviewTrailExport(Guid runId, CancellationToken ct = default)
     {
-        const long maxZipBytes = 1_500_000L;
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         string runIdText = runId.ToString("D");
+        TraceabilityBundleExportResult result = await traceabilityBundleExport.TryBuildZipAsync(
+            runIdText,
+            HttpContext.TraceIdentifier,
+            ct);
 
-        try
+        return result.Outcome switch
         {
-            byte[]? zip = await traceabilityBundleBuilder.BuildAsync(runIdText, scope, maxZipBytes, ct);
-
-            if (zip is null)
-                return this.NotFoundProblem($"Run '{runIdText}' was not found.", ProblemTypes.RunNotFound);
-
-            await auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.ExportDownloadSucceeded,
-                    RunId = runId,
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    CorrelationId = HttpContext.TraceIdentifier,
-                    DataJson = System.Text.Json.JsonSerializer.Serialize(
-                        new { exportType = "traceability-bundle.zip", fileName = $"traceability-{runIdText}.zip" },
-                        AuditJsonSerializationOptions.Instance)
-                },
-                ct);
-
-            return File(zip, "application/zip", $"traceability-{runIdText}.zip");
-        }
-        catch (TraceabilityBundleTooLargeException ex)
-        {
-            return this.PayloadTooLargeProblem(
-                ex.Message,
+            TraceabilityBundleExportOutcome.RunNotFound => this.NotFoundProblem(
+                $"Run '{runIdText}' was not found.",
+                ProblemTypes.RunNotFound),
+            TraceabilityBundleExportOutcome.TooLarge => this.PayloadTooLargeProblem(
+                result.ErrorMessage!,
                 ProblemTypes.ExportFailed,
                 extensions: new Dictionary<string, object?>
                 {
-                    ["attemptedBytes"] = ex.AttemptedBytes,
-                    ["maxBytes"] = ex.MaxBytes
-                });
-        }
+                    ["attemptedBytes"] = result.AttemptedBytes,
+                    ["maxBytes"] = result.MaxBytes,
+                }),
+            TraceabilityBundleExportOutcome.Success => File(
+                result.ZipBytes!,
+                "application/zip",
+                $"traceability-{runIdText}.zip"),
+            _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
+        };
     }
 }

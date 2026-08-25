@@ -33,7 +33,8 @@ public sealed class ComparisonsControllerTests
         IRunExportRecordRepository? runExportRecordRepository = null,
         IComparisonRecordRepository? comparisonRecordRepository = null,
         IComparisonReplayApiService? comparisonReplayApiService = null,
-        IComparisonReplayCostEstimator? comparisonReplayCostEstimator = null)
+        IComparisonReplayCostEstimator? comparisonReplayCostEstimator = null,
+        IComparisonReplayService? comparisonReplayService = null)
     {
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail
@@ -128,14 +129,23 @@ public sealed class ComparisonsControllerTests
         IValidator<BatchReplayComparisonRequest> batchValidator =
             new BatchReplayComparisonRequestValidator(batchOptionsMonitor.Object);
 
+        Mock<IComparisonReplayService> replayService = new();
+        replayService
+            .Setup(s => s.AnalyzeDriftAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DriftAnalysisResult { Summary = "ok" });
+
+        IComparisonsApplicationService comparisonsService = new ComparisonsApplicationService(
+            runDetailQueryService ?? runDetail.Object,
+            runExportRecordRepository ?? exports.Object,
+            comparisonRecordRepository ?? comparisons.Object,
+            comparisonReplayService ?? replayService.Object,
+            comparisonReplayCostEstimator ?? costEstimator.Object,
+            driftFormatter.Object,
+            new DriftReportDocxExport());
+
         return new ComparisonsController(
-                runDetailQueryService ?? runDetail.Object,
-                runExportRecordRepository ?? exports.Object,
-                comparisonRecordRepository ?? comparisons.Object,
+                comparisonsService,
                 comparisonReplayApiService ?? replay.Object,
-                comparisonReplayCostEstimator ?? costEstimator.Object,
-                driftFormatter.Object,
-                new DriftReportDocxExport(),
                 historyValidator,
                 replayValidator,
                 batchValidator)
@@ -394,7 +404,8 @@ public sealed class ComparisonsControllerTests
     }
 
     private static ComparisonsController CreateControllerWithScopedComparison(
-        IComparisonReplayApiService? comparisonReplayApiService = null)
+        IComparisonReplayApiService? comparisonReplayApiService = null,
+        IComparisonReplayService? comparisonReplayService = null)
     {
         ComparisonRecord record = new()
         {
@@ -415,7 +426,8 @@ public sealed class ComparisonsControllerTests
         return CreateController(
             runDetailQueryService: runDetail.Object,
             comparisonRecordRepository: comparisons.Object,
-            comparisonReplayApiService: comparisonReplayApiService);
+            comparisonReplayApiService: comparisonReplayApiService,
+            comparisonReplayService: comparisonReplayService);
     }
 
     [Fact]
@@ -438,12 +450,13 @@ public sealed class ComparisonsControllerTests
             ]
         };
 
-        Mock<IComparisonReplayApiService> replay = new();
-        replay
+        Mock<IComparisonReplayService> replayService = new();
+        replayService
             .Setup(s => s.AnalyzeDriftAsync(ComparisonId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(drift);
 
-        ComparisonsController controller = CreateControllerWithScopedComparison(comparisonReplayApiService: replay.Object);
+        ComparisonsController controller = CreateControllerWithScopedComparison(
+            comparisonReplayService: replayService.Object);
 
         IActionResult action = await controller.AnalyzeComparisonDrift(ComparisonId, CancellationToken.None);
 

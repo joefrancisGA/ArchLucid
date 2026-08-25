@@ -1,21 +1,14 @@
-using System.Globalization;
-using System.IO.Compression;
-
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services;
-using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
-using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Services;
-using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
 
@@ -33,12 +26,6 @@ namespace ArchLucid.Api.Controllers.Planning;
 /// <summary>
 ///     HTTP API for managing architectural run comparison records, drift analysis, and comparison replay.
 /// </summary>
-/// <remarks>
-///     Routes are prefixed <c>v{version}/architecture</c>. Read actions (comparison history, drift reports,
-///     export downloads) require <see cref="ArchLucidPolicies.ReadAuthority" />. Replay and mutation actions
-///     additionally require <see cref="ArchLucidPolicies.CanReplayComparisons" />.
-///     Run existence is validated through <see cref="IRunDetailQueryService" /> before acting on comparison records.
-/// </remarks>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
@@ -47,18 +34,29 @@ namespace ArchLucid.Api.Controllers.Planning;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class ComparisonsController(
-    IRunDetailQueryService runDetailQueryService,
-    IRunExportRecordRepository runExportRecordRepository,
-    IComparisonRecordRepository comparisonRecordRepository,
+    IComparisonsApplicationService comparisons,
     IComparisonReplayApiService comparisonReplayApiService,
-    IComparisonReplayCostEstimator comparisonReplayCostEstimator,
-    IDriftReportFormatter driftReportFormatter,
-    DriftReportDocxExport driftReportDocxExport,
     IValidator<ComparisonHistoryQuery> comparisonHistoryQueryValidator,
     IValidator<ApiReplayComparisonRequest> replayComparisonRequestValidator,
     IValidator<BatchReplayComparisonRequest> batchReplayComparisonRequestValidator)
     : ControllerBase
 {
+    private readonly IComparisonsApplicationService _comparisons =
+        comparisons ?? throw new ArgumentNullException(nameof(comparisons));
+
+    private readonly IComparisonReplayApiService _comparisonReplayApiService =
+        comparisonReplayApiService ?? throw new ArgumentNullException(nameof(comparisonReplayApiService));
+
+    private readonly IValidator<ComparisonHistoryQuery> _comparisonHistoryQueryValidator =
+        comparisonHistoryQueryValidator ?? throw new ArgumentNullException(nameof(comparisonHistoryQueryValidator));
+
+    private readonly IValidator<ApiReplayComparisonRequest> _replayComparisonRequestValidator =
+        replayComparisonRequestValidator ?? throw new ArgumentNullException(nameof(replayComparisonRequestValidator));
+
+    private readonly IValidator<BatchReplayComparisonRequest> _batchReplayComparisonRequestValidator =
+        batchReplayComparisonRequestValidator
+        ?? throw new ArgumentNullException(nameof(batchReplayComparisonRequestValidator));
+
     [HttpGet("run/{runId}/comparisons")]
     [ProducesResponseType(typeof(ComparisonHistoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -66,14 +64,12 @@ public sealed class ComparisonsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        ArchitectureRunDetail? runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
-        if (runDetail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        IReadOnlyList<ArchLucid.Contracts.Metadata.ComparisonRecord>? records =
+            await _comparisons.TryListByRunIdAsync(runId, cancellationToken);
 
-        IReadOnlyList<ComparisonRecord> records =
-            await comparisonRecordRepository.GetByRunIdAsync(runId, cancellationToken);
-
-        return Ok(new ComparisonHistoryResponse { Records = records.ToList() });
+        return records is null
+            ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
+            : Ok(new ComparisonHistoryResponse { Records = records.ToList() });
     }
 
     [HttpGet("run/exports/{exportRecordId}/comparisons")]
@@ -83,14 +79,12 @@ public sealed class ComparisonsController(
         [FromRoute] string exportRecordId,
         CancellationToken cancellationToken)
     {
-        if (await LoadScopedExportRecordAsync(exportRecordId, cancellationToken) is null)
-            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+        IReadOnlyList<ArchLucid.Contracts.Metadata.ComparisonRecord>? records =
+            await _comparisons.TryListByExportRecordIdAsync(exportRecordId, cancellationToken);
 
-        IReadOnlyList<ComparisonRecord> records =
-            await comparisonRecordRepository.GetByExportRecordIdAsync(exportRecordId, cancellationToken);
-
-        return Ok(new ComparisonHistoryResponse { Records = records.ToList() });
+        return records is null
+            ? this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound)
+            : Ok(new ComparisonHistoryResponse { Records = records.ToList() });
     }
 
     [HttpGet("comparisons/{comparisonRecordId}")]
@@ -100,15 +94,14 @@ public sealed class ComparisonsController(
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        ComparisonRecord? record = await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken);
-        if (record is null)
-            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+        ArchLucid.Contracts.Metadata.ComparisonRecord? record =
+            await _comparisons.TryGetScopedRecordAsync(comparisonRecordId, cancellationToken);
 
-        return Ok(new ComparisonRecordResponse { Record = record });
+        return record is null
+            ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound)
+            : Ok(new ComparisonRecordResponse { Record = record });
     }
 
-    /// <summary>Heuristic cost / effort estimate for replaying a comparison (does not run a replay).</summary>
     [HttpGet("comparisons/{comparisonRecordId}/replay/cost-estimate")]
     [ProducesResponseType(typeof(ComparisonReplayCostEstimateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -120,26 +113,20 @@ public sealed class ComparisonsController(
         [FromQuery] bool persistReplay = false,
         CancellationToken cancellationToken = default)
     {
-        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
-            return this.NotFoundProblem(
-                $"Comparison record '{comparisonRecordId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-
         try
         {
-            ComparisonReplayCostEstimate? estimate = await comparisonReplayCostEstimator.TryEstimateAsync(
+            ComparisonReplayCostEstimate? estimate = await _comparisons.TryEstimateReplayCostAsync(
                 comparisonRecordId,
                 format,
                 replayMode,
                 persistReplay,
                 cancellationToken);
 
-            if (estimate is null)
-                return this.NotFoundProblem(
+            return estimate is null
+                ? this.NotFoundProblem(
                     $"Comparison record '{comparisonRecordId}' was not found.",
-                    ProblemTypes.ResourceNotFound);
-
-            return Ok(ComparisonReplayCostEstimateResponse.FromDomain(estimate));
+                    ProblemTypes.ResourceNotFound)
+                : Ok(ComparisonReplayCostEstimateResponse.FromDomain(estimate));
         }
         catch (ArgumentException ex)
         {
@@ -154,32 +141,18 @@ public sealed class ComparisonsController(
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        ComparisonRecord? record = await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken);
-        if (record is null)
-            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+        ReplayComparisonResult? replay =
+            await _comparisons.TryReplaySummaryMarkdownAsync(comparisonRecordId, cancellationToken);
 
-        if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
-            return Ok(new ComparisonSummaryResponse
+        return replay is null
+            ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound)
+            : Ok(new ComparisonSummaryResponse
             {
-                ComparisonRecordId = record.ComparisonRecordId,
-                ComparisonType = record.ComparisonType,
+                ComparisonRecordId = replay.ComparisonRecordId,
+                ComparisonType = replay.ComparisonType,
                 Format = "markdown",
-                Summary = record.SummaryMarkdown
+                Summary = replay.Content ?? string.Empty,
             });
-
-        ReplayComparisonResult replay = await comparisonReplayApiService.ReplayAsync(
-            ReplayComparisonRequestMapper.ForSummaryMarkdown(comparisonRecordId),
-            false,
-            cancellationToken);
-
-        return Ok(new ComparisonSummaryResponse
-        {
-            ComparisonRecordId = replay.ComparisonRecordId,
-            ComparisonType = replay.ComparisonType,
-            Format = "markdown",
-            Summary = replay.Content ?? string.Empty
-        });
     }
 
     [HttpGet("comparisons")]
@@ -189,72 +162,49 @@ public sealed class ComparisonsController(
         [FromQuery] ComparisonHistoryQuery query,
         CancellationToken cancellationToken = default)
     {
-        ValidationResult? vr = await comparisonHistoryQueryValidator.ValidateAsync(query, cancellationToken);
+        ValidationResult? vr = await _comparisonHistoryQueryValidator.ValidateAsync(query, cancellationToken);
+
         if (!vr.IsValid)
+        {
             return this.BadRequestProblem(
                 string.Join(" ", vr.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
+        }
 
         if (!ApiPaging.TryParseUtcTicksIdCursor(query.Cursor, out DateTime? cursorCreatedUtc, out string? cursorId,
                 out string? cursorError))
+        {
             return this.BadRequestProblem(cursorError!, ProblemTypes.ValidationFailed);
-
-        string? normalizedType = string.IsNullOrWhiteSpace(query.ComparisonType) ? null : query.ComparisonType.Trim();
-        List<string> normalizedTags = ComparisonHistoryQuery.NormalizeTagList(query.Tag, query.Tags);
-        int limit = query.Limit <= 0 ? PaginationDefaults.DefaultPageSize : query.Limit;
-        string sortBy = query.SortBy ?? "createdUtc";
-        string sortDir = query.SortDir ?? "desc";
-
-        IReadOnlyList<ComparisonRecord> records;
-
-        if (Request.Query.ContainsKey("cursor"))
-        {
-            records = await comparisonRecordRepository.SearchByCursorAsync(
-                normalizedType,
-                query.LeftRunId,
-                query.RightRunId,
-                query.CreatedFromUtc,
-                query.CreatedToUtc,
-                query.LeftExportRecordId,
-                query.RightExportRecordId,
-                query.Label,
-                normalizedTags,
-                sortBy,
-                sortDir,
-                cursorCreatedUtc,
-                cursorId,
-                limit,
-                cancellationToken);
-        }
-        else
-        {
-            records = await comparisonRecordRepository.SearchAsync(
-                normalizedType,
-                query.LeftRunId,
-                query.RightRunId,
-                query.CreatedFromUtc,
-                query.CreatedToUtc,
-                query.LeftExportRecordId,
-                query.RightExportRecordId,
-                query.Label,
-                normalizedTags,
-                sortBy,
-                sortDir,
-                query.Skip,
-                limit,
-                cancellationToken);
         }
 
-        string? nextCursor =
-            records.Count > 0 && string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase)
-                ? $"{records[^1].CreatedUtc.Ticks}:{records[^1].ComparisonRecordId}"
-                : null;
+        ComparisonHistorySearchResult search = await _comparisons.SearchAsync(
+            new ComparisonHistorySearchCriteria
+            {
+                ComparisonType = query.ComparisonType,
+                LeftRunId = query.LeftRunId,
+                RightRunId = query.RightRunId,
+                LeftExportRecordId = query.LeftExportRecordId,
+                RightExportRecordId = query.RightExportRecordId,
+                Label = query.Label,
+                CreatedFromUtc = query.CreatedFromUtc,
+                CreatedToUtc = query.CreatedToUtc,
+                Tags = ComparisonHistoryQuery.NormalizeTagList(query.Tag, query.Tags),
+                SortBy = query.SortBy ?? "createdUtc",
+                SortDir = query.SortDir ?? "desc",
+                Cursor = query.Cursor,
+                Skip = query.Skip,
+                Limit = query.Limit,
+                UseCursorPaging = Request.Query.ContainsKey("cursor"),
+                CursorCreatedUtc = cursorCreatedUtc,
+                CursorId = cursorId,
+            },
+            cancellationToken);
 
         return Ok(new ComparisonHistoryResponse
         {
-            Records = records.ToList(),
-            Limit = limit,
-            Skip = query.Skip,
+            Records = search.Records.ToList(),
+            Limit = search.Limit,
+            Skip = search.Skip,
             ComparisonType = query.ComparisonType,
             LeftRunId = query.LeftRunId,
             RightRunId = query.RightRunId,
@@ -264,10 +214,10 @@ public sealed class ComparisonsController(
             CreatedFromUtc = query.CreatedFromUtc,
             CreatedToUtc = query.CreatedToUtc,
             Tag = query.Tag,
-            Tags = normalizedTags,
-            SortBy = sortBy,
-            SortDir = sortDir,
-            NextCursor = nextCursor
+            Tags = ComparisonHistoryQuery.NormalizeTagList(query.Tag, query.Tags),
+            SortBy = query.SortBy ?? "createdUtc",
+            SortDir = query.SortDir ?? "desc",
+            NextCursor = search.NextCursor,
         });
     }
 
@@ -283,28 +233,17 @@ public sealed class ComparisonsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
-            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-
-        bool updated = await comparisonRecordRepository.UpdateLabelAndTagsAsync(
+        ArchLucid.Contracts.Metadata.ComparisonRecord? record = await _comparisons.TryUpdateLabelAndTagsAsync(
             comparisonRecordId,
             request.Label,
             request.Tags,
             cancellationToken);
-        if (!updated)
-            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-
-        ComparisonRecord? record = await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken);
 
         return record is null
-            ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found after update.",
-                ProblemTypes.ResourceNotFound)
+            ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound)
             : Ok(new ComparisonRecordResponse { Record = record });
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("comparisons/{comparisonRecordId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanReplayComparisons)]
@@ -324,20 +263,24 @@ public sealed class ComparisonsController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ValidationResult replayBodyValidation =
-            await replayComparisonRequestValidator.ValidateAsync(request, cancellationToken);
+            await _replayComparisonRequestValidator.ValidateAsync(request, cancellationToken);
+
         if (!replayBodyValidation.IsValid)
+        {
             return this.BadRequestProblem(
                 string.Join(" ", replayBodyValidation.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
+        }
 
-        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
+        ReplayComparisonResult? result = await _comparisons.TryReplayAsync(
+            ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint(comparisonRecordId, request, format),
+            cancellationToken);
+
+        if (result is null)
+        {
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
                 ProblemTypes.ResourceNotFound);
-
-        ReplayComparisonResult result = await comparisonReplayApiService.ReplayAsync(
-            ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint(comparisonRecordId, request, format),
-            false,
-            cancellationToken);
+        }
 
         ReplayComparisonResultHeaders.ApplyFull(Response, result);
 
@@ -349,7 +292,6 @@ public sealed class ComparisonsController(
                 ProblemTypes.BadRequest));
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("comparisons/{comparisonRecordId}/drift")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DriftAnalysisResponse), StatusCodes.Status200OK)]
@@ -359,13 +301,11 @@ public sealed class ComparisonsController(
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
-            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
-                ProblemTypes.ResourceNotFound);
+        DriftAnalysisResult? drift = await _comparisons.TryAnalyzeDriftAsync(comparisonRecordId, cancellationToken);
 
-        DriftAnalysisResult drift =
-            await comparisonReplayApiService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
-        return Ok(MapDriftAnalysis(drift));
+        return drift is null
+            ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound)
+            : Ok(MapDriftAnalysis(drift));
     }
 
     [HttpGet("comparisons/{comparisonRecordId}/drift-report")]
@@ -378,45 +318,28 @@ public sealed class ComparisonsController(
         [FromQuery] string format = "markdown",
         CancellationToken cancellationToken = default)
     {
-        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
+        DriftAnalysisResult? drift = await _comparisons.TryAnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+
+        if (drift is null)
+        {
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
                 ProblemTypes.ResourceNotFound);
-
-        DriftAnalysisResult drift =
-            await comparisonReplayApiService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
-        string normalizedFormat = format.Trim().ToLowerInvariant();
-
-        switch (normalizedFormat)
-        {
-            case "markdown":
-                {
-                    string content = driftReportFormatter.FormatMarkdown(drift, comparisonRecordId);
-                    return ApiFileResults.RangeText(Request, content, "text/markdown",
-                        $"drift-report_{comparisonRecordId}.md");
-                }
-            case "html":
-                {
-                    string content = driftReportFormatter.FormatHtml(drift, comparisonRecordId);
-                    return ApiFileResults.RangeText(Request, content, "text/html",
-                        $"drift-report_{comparisonRecordId}.html");
-                }
-            case "docx":
-                {
-                    byte[] bytes = driftReportDocxExport.GenerateDocx(drift, comparisonRecordId);
-                    return ApiFileResults.RangeBytes(
-                        Request,
-                        bytes,
-                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                        $"drift-report_{comparisonRecordId}.docx");
-                }
-            default:
-                return this.BadRequestProblem(
-                    $"Unsupported drift report format '{format}'. Use markdown, html, or docx.",
-                    ProblemTypes.BadRequest);
         }
+
+        DriftReportContent? content = _comparisons.TryBuildDriftReportContent(drift, comparisonRecordId, format);
+
+        if (content is null)
+        {
+            return this.BadRequestProblem(
+                $"Unsupported drift report format '{format}'. Use markdown, html, or docx.",
+                ProblemTypes.BadRequest);
+        }
+
+        return content.IsText
+            ? ApiFileResults.RangeText(Request, content.TextPayload!, content.ContentType, content.FileName)
+            : ApiFileResults.RangeBytes(Request, content.Payload, content.ContentType, content.FileName);
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("comparisons/{comparisonRecordId}/replay/metadata")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanReplayComparisons)]
@@ -432,17 +355,22 @@ public sealed class ComparisonsController(
         request ??= new ApiReplayComparisonRequest();
 
         ValidationResult metadataReplayValidation =
-            await replayComparisonRequestValidator.ValidateAsync(request, cancellationToken);
+            await _replayComparisonRequestValidator.ValidateAsync(request, cancellationToken);
+
         if (!metadataReplayValidation.IsValid)
+        {
             return this.BadRequestProblem(
                 string.Join(" ", metadataReplayValidation.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
+        }
 
-        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
+        if (await _comparisons.TryGetScopedRecordAsync(comparisonRecordId, cancellationToken) is null)
+        {
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
                 ProblemTypes.ResourceNotFound);
+        }
 
-        ReplayComparisonResult result = await comparisonReplayApiService.ReplayAsync(
+        ReplayComparisonResult result = await _comparisonReplayApiService.ReplayAsync(
             ReplayComparisonRequestMapper.ToApplication(comparisonRecordId, request),
             true,
             cancellationToken);
@@ -465,11 +393,10 @@ public sealed class ComparisonsController(
             RightExportRecordId = result.RightExportRecordId,
             CreatedUtc = result.CreatedUtc,
             FormatProfile = result.FormatProfile,
-            PersistedReplayRecordId = result.PersistedReplayRecordId
+            PersistedReplayRecordId = result.PersistedReplayRecordId,
         });
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("comparisons/replay/batch")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanReplayComparisons)]
@@ -486,181 +413,39 @@ public sealed class ComparisonsController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ValidationResult batchValidation =
-            await batchReplayComparisonRequestValidator.ValidateAsync(request, cancellationToken);
+            await _batchReplayComparisonRequestValidator.ValidateAsync(request, cancellationToken);
+
         if (!batchValidation.IsValid)
+        {
             return this.BadRequestProblem(
                 string.Join(" ", batchValidation.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
+        }
 
-        List<string> processedIds = [];
-        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+        Application.Analysis.ComparisonBatchReplay.ComparisonBatchReplayZipResult? zipResult =
+            await _comparisons.TryBuildBatchReplayZipAsync(
+                request.ComparisonRecordIds,
+                request.Format,
+                request.ReplayMode,
+                request.Profile,
+                request.PersistReplay,
+                cancellationToken);
 
-        foreach (string id in request.ComparisonRecordIds)
-
-            if (seen.Add(id))
-
-                processedIds.Add(id);
-
-        List<(string Id, ReplayComparisonResult Result)> successes = [];
-        List<BatchReplayManifestFailureEntry> failed = [];
-
-        foreach (string id in processedIds)
-
-            try
-            {
-                if (await LoadScopedComparisonRecordAsync(id, cancellationToken) is null)
-                {
-                    failed.Add(new BatchReplayManifestFailureEntry
-                    {
-                        ComparisonRecordId = id,
-                        Reason = $"Comparison record '{id}' was not found.",
-                        ExceptionType = nameof(InvalidOperationException)
-                    });
-
-                    continue;
-                }
-
-                ReplayComparisonResult result = await comparisonReplayApiService.ReplayAsync(
-                    ReplayComparisonRequestMapper.ToApplicationForBatchEntry(
-                        id,
-                        request.Format,
-                        request.ReplayMode,
-                        request.Profile,
-                        request.PersistReplay),
-                    false,
-                    cancellationToken);
-
-                successes.Add((id, result));
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                failed.Add(new BatchReplayManifestFailureEntry
-                {
-                    ComparisonRecordId = id, Reason = ex.Message, ExceptionType = ex.GetType().Name
-                });
-            }
-
-        if (successes.Count == 0 && processedIds.Count > 0)
+        if (zipResult is null)
+        {
             return this.UnprocessableEntityProblem(
                 "No comparison replays succeeded for the requested comparisonRecordIds. Adjust IDs or replay parameters and retry.",
                 ProblemTypes.BatchReplayAllFailed);
-
-        List<BatchReplayManifestSuccessEntry> succeededManifest = [];
-
-        MemoryStream ms = new();
-
-        await using (ZipArchive zip = new(ms, ZipArchiveMode.Create, true))
-        {
-            foreach ((string id, ReplayComparisonResult result) in successes)
-            {
-                string entryName = result.FileName;
-
-                if (string.IsNullOrWhiteSpace(entryName))
-
-                    entryName = $"comparison_{id}.{result.Format}";
-
-                string folder = BatchReplayZipPathSanitizer.FolderForComparisonRecordId(id);
-                string zipEntryPath = $"{folder}/{entryName}";
-                ZipArchiveEntry entry = zip.CreateEntry(zipEntryPath, CompressionLevel.Fastest);
-                await using Stream entryStream = await entry.OpenAsync(cancellationToken);
-                byte[] payload = ReplayArtifactResponseFactory.GetComparisonReplayEntryBytes(result);
-                await entryStream.WriteAsync(payload, cancellationToken);
-
-                succeededManifest.Add(new BatchReplayManifestSuccessEntry
-                {
-                    ComparisonRecordId = id, ZipEntryPath = zipEntryPath
-                });
-            }
-
-            BatchReplayManifestDocument manifest = new()
-            {
-                GeneratedUtc = TimeProvider.System.UtcNowDateTime().ToString("o", CultureInfo.InvariantCulture),
-                ProcessedComparisonRecordIds = processedIds,
-                Succeeded = succeededManifest,
-                Failed = failed
-            };
-
-            byte[] manifestBytes = BatchReplayManifestSerializer.ToUtf8Bytes(manifest);
-            ZipArchiveEntry manifestEntry =
-                zip.CreateEntry(BatchReplayManifestSerializer.ManifestEntryName, CompressionLevel.Fastest);
-            await using (Stream manifestStream = await manifestEntry.OpenAsync(cancellationToken))
-
-                await manifestStream.WriteAsync(manifestBytes, cancellationToken);
         }
 
-        if (failed.Count > 0 && successes.Count > 0)
+        if (zipResult.IsPartialSuccess)
             Response.Headers.Append(ArchLucidHttpHeaders.BatchReplayPartial, "true");
 
-        byte[] zipBytes = ms.ToArray();
-        return File(zipBytes, "application/zip", "comparison_replays.zip");
+        return File(zipResult.ZipBytes, "application/zip", "comparison_replays.zip");
     }
 
-    private async Task<RunExportRecord?> LoadScopedExportRecordAsync(
-        string exportRecordId,
-        CancellationToken cancellationToken)
-    {
-        RunExportRecord? export = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
-        if (export is null)
-            return null;
-
-        if (await runDetailQueryService.GetRunDetailAsync(export.RunId, cancellationToken) is null)
-            return null;
-
-        return export;
-    }
-
-    private async Task<ComparisonRecord?> LoadScopedComparisonRecordAsync(
-        string comparisonRecordId,
-        CancellationToken cancellationToken)
-    {
-        ComparisonRecord? record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
-        if (record is null)
-            return null;
-
-        if (!await IsComparisonRecordInScopeAsync(record, cancellationToken))
-            return null;
-
-        return record;
-    }
-
-    private async Task<bool> IsComparisonRecordInScopeAsync(
-        ComparisonRecord record,
-        CancellationToken cancellationToken)
-    {
-        if (!string.IsNullOrWhiteSpace(record.LeftRunId)
-            && await runDetailQueryService.GetRunDetailAsync(record.LeftRunId, cancellationToken) is not null)
-        {
-            return true;
-        }
-
-        if (!string.IsNullOrWhiteSpace(record.RightRunId)
-            && await runDetailQueryService.GetRunDetailAsync(record.RightRunId, cancellationToken) is not null)
-        {
-            return true;
-        }
-
-        if (!string.IsNullOrWhiteSpace(record.LeftExportRecordId)
-            && await LoadScopedExportRecordAsync(record.LeftExportRecordId, cancellationToken) is not null)
-        {
-            return true;
-        }
-
-        if (!string.IsNullOrWhiteSpace(record.RightExportRecordId)
-            && await LoadScopedExportRecordAsync(record.RightExportRecordId, cancellationToken) is not null)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private static DriftAnalysisResponse MapDriftAnalysis(DriftAnalysisResult drift)
-    {
-        return new DriftAnalysisResponse
+    private static DriftAnalysisResponse MapDriftAnalysis(DriftAnalysisResult drift) =>
+        new()
         {
             DriftDetected = drift.DriftDetected,
             Summary = drift.Summary,
@@ -670,8 +455,7 @@ public sealed class ComparisonsController(
                 Path = i.Path,
                 StoredValue = i.StoredValue,
                 RegeneratedValue = i.RegeneratedValue,
-                Description = i.Description
-            }).ToList()
+                Description = i.Description,
+            }).ToList(),
         };
-    }
 }

@@ -72,7 +72,7 @@ public sealed class RunQueryController(
     IFindingTrustLabelMapper findingTrustLabelMapper,
     IReasoningSummaryBuilder reasoningSummaryBuilder,
     IScopeContextProvider scopeContextProvider,
-    ITraceabilityBundleBuilder traceabilityBundleBuilder,
+    ITraceabilityBundleExportApplicationService traceabilityBundleExport,
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
     ILlmCostEstimator llmCostEstimator,
     IAuthorityQueryService authorityQueryService,
@@ -757,48 +757,30 @@ public sealed class RunQueryController(
         string runId,
         CancellationToken cancellationToken)
     {
-        const long maxZipBytes = 1_500_000L;
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        TraceabilityBundleExportResult result = await traceabilityBundleExport.TryBuildZipAsync(
+            runId,
+            HttpContext.TraceIdentifier,
+            cancellationToken);
 
-        try
+        return result.Outcome switch
         {
-            byte[]? zip = await traceabilityBundleBuilder.BuildAsync(runId, scope, maxZipBytes, cancellationToken);
-
-            if (zip is null)
-                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-            Guid? auditRunId = AuthorityRunIdentifier.TryParse(runId, out Guid runGuidForAudit) ? runGuidForAudit : null;
-
-            await auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.ExportDownloadSucceeded,
-                    RunId = auditRunId,
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    CorrelationId = HttpContext.TraceIdentifier,
-                    DataJson = JsonSerializer.Serialize(
-                        new { exportType = "traceability-bundle.zip", fileName = $"traceability-{runId}.zip" },
-                        AuditJsonSerializationOptions.Instance)
-                },
-                cancellationToken);
-
-            return File(zip, "application/zip", $"traceability-{runId}.zip");
-        }
-        catch (TraceabilityBundleTooLargeException ex)
-        {
-            // ExportFailed rather than a size-specific type: 413 plus the byte extensions already tell a client the
-            // bundle exceeded the cap, so this reuses an existing contract value instead of adding one.
-            return this.PayloadTooLargeProblem(
-                ex.Message,
+            TraceabilityBundleExportOutcome.RunNotFound => this.NotFoundProblem(
+                $"Run '{runId}' was not found.",
+                ProblemTypes.RunNotFound),
+            TraceabilityBundleExportOutcome.TooLarge => this.PayloadTooLargeProblem(
+                result.ErrorMessage!,
                 ProblemTypes.ExportFailed,
                 extensions: new Dictionary<string, object?>
                 {
-                    ["attemptedBytes"] = ex.AttemptedBytes,
-                    ["maxBytes"] = ex.MaxBytes
-                });
-        }
+                    ["attemptedBytes"] = result.AttemptedBytes,
+                    ["maxBytes"] = result.MaxBytes,
+                }),
+            TraceabilityBundleExportOutcome.Success => File(
+                result.ZipBytes!,
+                "application/zip",
+                $"traceability-{runId}.zip"),
+            _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
+        };
     }
 
     private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
