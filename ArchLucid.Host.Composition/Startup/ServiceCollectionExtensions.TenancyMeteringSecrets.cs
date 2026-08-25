@@ -89,6 +89,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPlatformAuthRecoveryService, PlatformAuthRecoveryService>();
         services.AddScoped<IPlatformRecoveryNotificationService, PlatformRecoveryNotificationService>();
         services.AddScoped<IUserAccountRecoveryService, UserAccountRecoveryService>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalService, AuthenticationIdentityLinkProposalService>();
+        services.AddScoped<IAuthenticationIdentityLinkChallengeService, AuthenticationIdentityLinkChallengeService>();
         services.AddScoped<IAuthenticationIdentityLinkingService, AuthenticationIdentityLinkingService>();
         services.AddScoped<ISignInMethodRemovalPolicyService, SignInMethodRemovalPolicyService>();
         services.AddHttpClient<CloudflareDnsTxtRecordLookup>(static client =>

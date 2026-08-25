@@ -94,7 +94,7 @@ public sealed class AuthenticationIdentityLinkingAdversarialTests
 
 
 
-        return new AuthenticationIdentityLinkingService(
+        AuthenticationIdentityLinkProposalService proposalService = new(
 
             platformIdentity,
 
@@ -106,9 +106,39 @@ public sealed class AuthenticationIdentityLinkingAdversarialTests
 
             reviews,
 
+            audit.Object,
+
+            timeProvider);
+
+
+
+        AuthenticationIdentityLinkChallengeService challengeService = new(
+
+            identities,
+
+            proposalService,
+
             challenges,
 
             notifier.Object,
+
+            audit.Object,
+
+            Options.Create(new EmailOtpAuthOptions { Enabled = true, CodeLength = 6, CodeLifetimeMinutes = 10 }),
+
+            timeProvider);
+
+
+
+        return new AuthenticationIdentityLinkingService(
+
+            platformIdentity,
+
+            identities,
+
+            challengeService,
+
+            proposalService,
 
             new SignInMethodRemovalPolicyService(
 
@@ -130,11 +160,7 @@ public sealed class AuthenticationIdentityLinkingAdversarialTests
 
                     timeProvider)),
 
-            audit.Object,
-
-            Options.Create(new EmailOtpAuthOptions { Enabled = true, CodeLength = 6, CodeLifetimeMinutes = 10 }),
-
-            timeProvider);
+            audit.Object);
 
     }
 

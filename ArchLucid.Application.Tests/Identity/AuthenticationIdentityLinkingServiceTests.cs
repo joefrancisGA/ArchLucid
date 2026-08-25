@@ -53,18 +53,33 @@ public sealed class AuthenticationIdentityLinkingServiceTests
             new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
             clock ?? TimeProvider.System);
 
-        return new AuthenticationIdentityLinkingService(
+        TimeProvider clockProvider = clock ?? new FakeTimeProvider(DateTimeOffset.UtcNow);
+
+        AuthenticationIdentityLinkProposalService proposalService = new(
             platformIdentity,
             users,
             identities,
             proposals,
             reviews,
+            audit.Object,
+            clockProvider);
+
+        AuthenticationIdentityLinkChallengeService challengeService = new(
+            identities,
+            proposalService,
             challenges,
             notifier.Object,
-            new SignInMethodRemovalPolicyService(identities, users, routing),
             audit.Object,
             Options.Create(new EmailOtpAuthOptions { Enabled = true, CodeLength = 6, CodeLifetimeMinutes = 10 }),
-            clock ?? new FakeTimeProvider(DateTimeOffset.UtcNow));
+            clockProvider);
+
+        return new AuthenticationIdentityLinkingService(
+            platformIdentity,
+            identities,
+            challengeService,
+            proposalService,
+            new SignInMethodRemovalPolicyService(identities, users, routing),
+            audit.Object);
     }
 
     [Fact]
