@@ -1,21 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { StatusTag } from "@/components/ui/status-tag";
-import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useAzureBoardsWorkItemTypesQuery } from "@/hooks/use-azure-boards-work-item-types-query";
 import {
@@ -52,43 +40,19 @@ import {
   sanitizeCustomerFacingProbeSummary,
 } from "@/lib/azure-boards-integration-present";
 import {
-  AZURE_BOARDS_CONNECTION_SETTINGS_LEAD,
-  AZURE_BOARDS_CONNECTION_SETTINGS_TITLE,
+  AZURE_BOARDS_CONNECTION_SAVE_SUCCESS,
   AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_CREDENTIALS_SUMMARY,
   AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_SUMMARY,
-  AZURE_BOARDS_CONNECTION_AUDIT_TRAIL_LINK_LABEL,
-  AZURE_BOARDS_CONNECTION_SAVE_SUCCESS,
-  AZURE_BOARDS_DEFAULT_BEHAVIOR_COLLAPSED_SUMMARY,
-  AZURE_BOARDS_DEFAULT_BEHAVIOR_LEAD,
-  AZURE_BOARDS_DEFAULT_BEHAVIOR_TITLE,
-  AZURE_BOARDS_DEFAULT_BEHAVIOR_UNAVAILABLE_LEAD,
-  AZURE_BOARDS_FIELD_AREA_PATH,
-  AZURE_BOARDS_FIELD_CREDENTIAL_STATUS,
-  AZURE_BOARDS_FIELD_DEFAULT_TAGS,
-  AZURE_BOARDS_FIELD_ITERATION_PATH,
-  AZURE_BOARDS_FIELD_ORGANIZATION_URL,
-  AZURE_BOARDS_FIELD_PROJECT,
-  AZURE_BOARDS_FIELD_TOKEN_REFERENCE,
-  AZURE_BOARDS_FIELD_WORK_ITEM_TYPE,
-  AZURE_BOARDS_MUTATION_DISABLED_HELPER,
-  AZURE_BOARDS_ORGANIZATION_URL_PLACEHOLDER,
-  AZURE_BOARDS_SAVE_CONNECTION_LABEL,
-  AZURE_BOARDS_SAVE_SETTINGS_LABEL,
   AZURE_BOARDS_SAVE_SUCCESS,
-  AZURE_BOARDS_SAVING_CONNECTION_LABEL,
-  AZURE_BOARDS_SAVING_SETTINGS_LABEL,
   AZURE_BOARDS_TEST_CONNECTION_LABEL,
   AZURE_BOARDS_TEST_CONNECTION_LEAD,
   AZURE_BOARDS_TEST_CONNECTION_PENDING,
   AZURE_BOARDS_TEST_CONNECTION_TITLE,
-  AZURE_BOARDS_TOKEN_REFERENCE_PLACEHOLDER,
 } from "@/lib/azure-boards-page-copy";
 import { cn } from "@/lib/utils";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import {
   buildIntegrationZoneRecoveries,
   type IntegrationZoneLoadSlice,
@@ -96,6 +60,8 @@ import {
 import { AzureBoardsIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 
+import { AzureBoardsConnectionSettingsPanel } from "./AzureBoardsConnectionSettingsPanel";
+import { AzureBoardsDefaultBehaviorPanel } from "./AzureBoardsDefaultBehaviorPanel";
 import { AzureBoardsIntegrationAside } from "./AzureBoardsIntegrationAside";
 import { AzureBoardsConnectionStatusPanel } from "./AzureBoardsConnectionStatusPanel";
 import { AzureBoardsIntegrationPageHeader } from "./AzureBoardsIntegrationPageHeader";
@@ -488,261 +454,45 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
             />
 
             {pageComposition.showConnectionSettings ? (
-              <section
-                aria-labelledby="azure-boards-connection-settings-heading"
-                id="azure-boards-connection-settings"
-                className={cn("space-y-4 rounded-md border border-neutral-200 p-4 dark:border-neutral-800", OPERATOR_LAYOUT.sectionHeadingStack)}
-                data-testid="azure-boards-connection-settings"
-              >
-                <div>
-                  <h2 id="azure-boards-connection-settings-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                    {AZURE_BOARDS_CONNECTION_SETTINGS_TITLE}
-                  </h2>
-                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {AZURE_BOARDS_CONNECTION_SETTINGS_LEAD}
-                  </p>
-                </div>
-
-                {connectionSaveError ? (
-                  <p className="m-0 text-red-600 dark:text-red-400" role="alert">
-                    {connectionSaveError}
-                  </p>
-                ) : null}
-
-                {connectionSaveSuccess ? (
-                  <p className="m-0 text-teal-800 dark:text-teal-200" role="status">
-                    {connectionSaveSuccess}
-                  </p>
-                ) : null}
-
-                <div className="grid max-w-2xl gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="azure-boards-org-url">{AZURE_BOARDS_FIELD_ORGANIZATION_URL}</Label>
-                    <Input
-                      id="azure-boards-org-url"
-                      value={organizationUrl}
-                      onChange={(event) => setOrganizationUrl(event.target.value)}
-                      placeholder={AZURE_BOARDS_ORGANIZATION_URL_PLACEHOLDER}
-                      disabled={!canMutate || isSavingConnection}
-                      data-testid="azure-boards-organization-url"
-                    />
-                    {!canMutate ? (
-                      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="azure-boards-organization-display">
-                        Saved: {organizationDisplay}
-                      </p>
-                    ) : null}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="azure-boards-token-ref">{AZURE_BOARDS_FIELD_TOKEN_REFERENCE}</Label>
-                    <Input
-                      id="azure-boards-token-ref"
-                      type="password"
-                      autoComplete="off"
-                      value={tokenReference}
-                      onChange={(event) => setTokenReference(event.target.value)}
-                      placeholder={AZURE_BOARDS_TOKEN_REFERENCE_PLACEHOLDER}
-                      disabled={!canMutate || isSavingConnection}
-                      data-testid="azure-boards-token-reference"
-                    />
-                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      Enter a new secure reference to replace the saved token. Leave blank to keep the existing reference.
-                    </p>
-                  </div>
-
-                  <div>
-                    <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                      {AZURE_BOARDS_FIELD_CREDENTIAL_STATUS}
-                    </dt>
-                    <dd className="m-0 mt-1" data-testid="azure-boards-credential-status">
-                      <StatusTag kind={credentialStatusKind} label={credentialStatus} />
-                    </dd>
-                  </div>
-
-                  <div data-testid="azure-boards-connection-provenance">
-                    <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                      Change history
-                    </dt>
-                    <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      <p className="m-0" role="status">
-                        {connectionProvenance}
-                      </p>
-                      <p className="m-0 mt-2">
-                        <Link
-                          href={GOVERNANCE_AUDIT_PATH}
-                          className={OPERATOR_LINK.inline}
-                          data-testid="azure-boards-audit-trail-link"
-                        >
-                          {AZURE_BOARDS_CONNECTION_AUDIT_TRAIL_LINK_LABEL}
-                        </Link>
-                      </p>
-                    </dd>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      onClick={() => void saveConnection()}
-                      disabled={!connectionSaveGate.allowed}
-                      title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                    >
-                      {isSavingConnection ? AZURE_BOARDS_SAVING_CONNECTION_LABEL : AZURE_BOARDS_SAVE_CONNECTION_LABEL}
-                    </Button>
-                  </div>
-                  <WhyDisabledCtaHint
-                    reason={connectionSaveGate.reason}
-                    testId="azure-boards-save-connection-disabled-helper"
-                    className="max-w-3xl"
-                  />
-                </div>
-
-                {!canMutate ? (
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_BOARDS_MUTATION_DISABLED_HELPER}</p>
-                ) : null}
-              </section>
+              <AzureBoardsConnectionSettingsPanel
+                canMutate={canMutate}
+                organizationUrl={organizationUrl}
+                onOrganizationUrlChange={setOrganizationUrl}
+                tokenReference={tokenReference}
+                onTokenReferenceChange={setTokenReference}
+                organizationDisplay={organizationDisplay}
+                credentialStatus={credentialStatus}
+                credentialStatusKind={credentialStatusKind}
+                connectionProvenance={connectionProvenance}
+                connectionSaveError={connectionSaveError}
+                connectionSaveSuccess={connectionSaveSuccess}
+                connectionSaveGate={connectionSaveGate}
+                isSavingConnection={isSavingConnection}
+                onSaveConnection={() => void saveConnection()}
+              />
             ) : null}
 
-            {!pageComposition.blocked && pageComposition.defaultBehaviorCollapsed ? (
-              <details
-                id="azure-boards-default-behavior-heading"
-                className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
-                data-testid="azure-boards-default-behavior-collapsed"
-              >
-                <summary
-                  className={cn(
-                    "cursor-pointer select-none outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
-                    OPERATOR_DISCLOSURE_TRIGGER_CLASS,
-                  )}
-                >
-                  {AZURE_BOARDS_DEFAULT_BEHAVIOR_COLLAPSED_SUMMARY}
-                </summary>
-                <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {AZURE_BOARDS_DEFAULT_BEHAVIOR_UNAVAILABLE_LEAD}
-                </p>
-              </details>
-            ) : null}
-
-            {!pageComposition.blocked && !pageComposition.defaultBehaviorCollapsed ? (
-              <section
-                aria-labelledby="azure-boards-default-behavior-heading"
-                className={cn("space-y-4 rounded-md border border-neutral-200 p-4 dark:border-neutral-800", OPERATOR_LAYOUT.sectionHeadingStack)}
-                data-testid="azure-boards-default-behavior"
-              >
-                <div>
-                  <h2 id="azure-boards-default-behavior-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                    {AZURE_BOARDS_DEFAULT_BEHAVIOR_TITLE}
-                  </h2>
-                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {AZURE_BOARDS_DEFAULT_BEHAVIOR_LEAD}
-                  </p>
-                </div>
-
-                {discoveryError ? (
-                  <p className="m-0 text-amber-800 dark:text-amber-200" role="status">
-                    {discoveryError}
-                  </p>
-                ) : null}
-
-                {saveError ? (
-                  <p className="m-0 text-red-600 dark:text-red-400" role="alert">
-                    {saveError}
-                  </p>
-                ) : null}
-
-                {saveSuccess ? (
-                  <p className="m-0 text-teal-800 dark:text-teal-200" role="status">
-                    {saveSuccess}
-                  </p>
-                ) : null}
-
-                <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="azure-boards-project">{AZURE_BOARDS_FIELD_PROJECT}</Label>
-                    <Select
-                      value={projectName || undefined}
-                      onValueChange={setProjectName}
-                      disabled={!canMutate || isSaving || projects.length === 0}
-                    >
-                      <SelectTrigger id="azure-boards-project" data-testid="azure-boards-project-select">
-                        <SelectValue placeholder={projects.length === 0 ? "Save connection first" : "Select project"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {projects.map((project) => (
-                          <SelectItem key={project} value={project}>
-                            {project}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="azure-boards-work-item-type">{AZURE_BOARDS_FIELD_WORK_ITEM_TYPE}</Label>
-                    <Select
-                      value={workItemType || undefined}
-                      onValueChange={setWorkItemType}
-                      disabled={!canMutate || isSaving || workItemTypes.length === 0}
-                    >
-                      <SelectTrigger id="azure-boards-work-item-type" data-testid="azure-boards-work-item-type-select">
-                        <SelectValue placeholder={workItemTypes.length === 0 ? "Select a project first" : "Select type"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {workItemTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="azure-boards-area-path">{AZURE_BOARDS_FIELD_AREA_PATH}</Label>
-                    <Input
-                      id="azure-boards-area-path"
-                      value={areaPath}
-                      onChange={(event) => setAreaPath(event.target.value)}
-                      disabled={!canMutate || isSaving}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="azure-boards-iteration-path">{AZURE_BOARDS_FIELD_ITERATION_PATH}</Label>
-                    <Input
-                      id="azure-boards-iteration-path"
-                      value={iterationPath}
-                      onChange={(event) => setIterationPath(event.target.value)}
-                      disabled={!canMutate || isSaving}
-                    />
-                  </div>
-
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="azure-boards-default-tags">{AZURE_BOARDS_FIELD_DEFAULT_TAGS}</Label>
-                    <Input
-                      id="azure-boards-default-tags"
-                      value={defaultTags}
-                      onChange={(event) => setDefaultTags(event.target.value)}
-                      disabled={!canMutate || isSaving}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant={pageComposition.saveSettingsVariant}
-                    onClick={() => void saveSettings()}
-                    disabled={isSaving || !canMutate || projectName.trim().length === 0 || workItemType.trim().length === 0}
-                    title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                    data-testid="azure-boards-save-settings-button"
-                  >
-                    {isSaving ? AZURE_BOARDS_SAVING_SETTINGS_LABEL : AZURE_BOARDS_SAVE_SETTINGS_LABEL}
-                  </Button>
-                </div>
-              </section>
-            ) : null}
+            <AzureBoardsDefaultBehaviorPanel
+              pageComposition={pageComposition}
+              canMutate={canMutate}
+              projects={projects}
+              workItemTypes={workItemTypes}
+              projectName={projectName}
+              onProjectNameChange={setProjectName}
+              workItemType={workItemType}
+              onWorkItemTypeChange={setWorkItemType}
+              areaPath={areaPath}
+              onAreaPathChange={setAreaPath}
+              iterationPath={iterationPath}
+              onIterationPathChange={setIterationPath}
+              defaultTags={defaultTags}
+              onDefaultTagsChange={setDefaultTags}
+              discoveryError={discoveryError}
+              saveError={saveError}
+              saveSuccess={saveSuccess}
+              isSaving={isSaving}
+              onSaveSettings={() => void saveSettings()}
+            />
 
             {pageComposition.showConnectionTest ? (
               <section

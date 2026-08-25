@@ -5,10 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, sta
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
-import { ArchitectureIntelligenceEvidenceGraphVocabularyRail } from "@/components/ArchitectureIntelligenceEvidenceGraphVocabularyRail";
-import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
-import { PackageEvidenceEvidenceGraphVocabularyRail } from "@/components/PackageEvidenceEvidenceGraphVocabularyRail";
-import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/runs/RunProvenanceEvidenceGraphVocabularyRail";
+import { GraphPageVocabularyRails } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageVocabularyRails";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { EvidenceGraphFirstOpenCoach } from "@/components/EvidenceGraphFirstOpenCoach";
@@ -733,10 +730,7 @@ export function GraphPageContent() {
       {!buyerPolishedShell ? (
         <>
           <OperatorRelatedSurfacesDisclosure testId="evidence-graph-related-surfaces-disclosure">
-            <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
-            <AuditEvidenceTrailVocabularyRail currentSurfaceId="evidence-graph" />
-            <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
-            <PackageEvidenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
+            <GraphPageVocabularyRails />
           </OperatorRelatedSurfacesDisclosure>
           <EvidenceGraphFirstOpenCoach />
         </>

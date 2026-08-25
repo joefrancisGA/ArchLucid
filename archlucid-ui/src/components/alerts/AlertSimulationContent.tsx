@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { AlertSimulationPickReviewBeforeSimulatingStrip } from "@/components/alerts/AlertSimulationPickReviewBeforeSimulatingStrip";
+import { AlertSimulationSummaryBlock } from "@/components/alerts/AlertSimulationSummaryBlock";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
@@ -11,15 +12,6 @@ import { operatorPageContainerClass } from "@/components/operator/OperatorPageCo
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  EnterpriseTable,
-  EnterpriseTableBody,
-  EnterpriseTableCell,
-  EnterpriseTableHead,
-  EnterpriseTableHeadRow,
-  EnterpriseTableHeaderCell,
-  EnterpriseTableRow,
-} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -27,7 +19,6 @@ import {
   ALERT_SIMULATION_COMPARED_REVIEW_DISABLED_HELPER,
   ALERT_SIMULATION_COMPARED_REVIEW_ID_HELPER,
   ALERT_SIMULATION_MODE_TABS,
-  ALERT_SIMULATION_OUTCOMES_TABLE_EMPTY,
   ALERT_SIMULATION_PROJECT_SLUG_HELPER,
   ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER,
   ALERT_SIMULATION_READINESS_RECENT_COUNT,
@@ -54,10 +45,6 @@ import {
   whyDisabledIncompleteInput,
   type WhyDisabledCtaReason,
 } from "@/lib/why-disabled-cta";
-import type {
-  RuleSimulationResult,
-  SimulatedAlertOutcome,
-} from "@/types/alert-simulation";
 import { useAlertSimulation } from "./use-alert-simulation";
 
 const SIMPLE_RULE_TYPES = [
@@ -135,88 +122,6 @@ function AlertSimulationRunButton(props: {
         {props.busy ? "Running…" : props.label}
       </Button>
       <FieldHelpTooltip label={props.label} hint={alertSimulationRunControlTitle} />
-    </div>
-  );
-}
-
-function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
-  if (outcomes.length === 0) {
-    return (
-      <div className="grid max-w-xl gap-3">
-        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          {ALERT_SIMULATION_OUTCOMES_TABLE_EMPTY}
-        </p>
-        <GettingStartedSteps {...ALERT_SIMULATION_BEHAVIOR_EMPTY_GETTING_STARTED} />
-      </div>
-    );
-  }
-  return (
-    <EnterpriseTable ariaLabel="Alert simulation outcomes" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
-      <EnterpriseTableHead>
-        <EnterpriseTableHeadRow>
-          <EnterpriseTableHeaderCell>Review ID</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Match</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Would create</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Suppressed</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Title / description</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>Suppression / dedupe</EnterpriseTableHeaderCell>
-        </EnterpriseTableHeadRow>
-      </EnterpriseTableHead>
-      <EnterpriseTableBody>
-        {outcomes.map((o, i) => (
-          <EnterpriseTableRow key={`${o.runId ?? "x"}-${i}`}>
-            <EnterpriseTableCell className="whitespace-nowrap">{o.runId ?? " — "}</EnterpriseTableCell>
-            <EnterpriseTableCell>{o.ruleMatched ? "yes" : "no"}</EnterpriseTableCell>
-            <EnterpriseTableCell>{o.wouldCreateAlert ? "yes" : "no"}</EnterpriseTableCell>
-            <EnterpriseTableCell>{o.wouldBeSuppressed ? "yes" : "no"}</EnterpriseTableCell>
-            <EnterpriseTableCell>{o.severity}</EnterpriseTableCell>
-            <EnterpriseTableCell className="align-top">
-              <strong>{o.title}</strong>
-              <div className="mt-1 text-neutral-600 dark:text-neutral-400">{o.description}</div>
-              {o.notes?.length ? (
-                <ul className="mt-1.5 pl-[18px] text-neutral-600 dark:text-neutral-400">
-                  {o.notes.map((n, j) => (
-                    <li key={j}>{n}</li>
-                  ))}
-                </ul>
-              ) : null}
-            </EnterpriseTableCell>
-            <EnterpriseTableCell className={cn("align-top", OPERATOR_TYPOGRAPHY.helper)}>
-              <div>
-                <strong>Reason:</strong> {o.suppressionReason || " — "}
-              </div>
-              <div className="mt-1">
-                <strong>Dedupe:</strong> {o.deduplicationKey || " — "}
-              </div>
-            </EnterpriseTableCell>
-          </EnterpriseTableRow>
-        ))}
-      </EnterpriseTableBody>
-    </EnterpriseTable>
-  );
-}
-
-function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
-  if (!result) return null;
-  return (
-    <div className="mt-4">
-      <h4 className="mb-2">Summary</h4>
-      <ul className="m-0">
-        <li>Evaluated reviews: {result.evaluatedRunCount}</li>
-        <li>Matched: {result.matchedCount}</li>
-        <li>Would create alerts: {result.wouldCreateCount}</li>
-        <li>Would suppress: {result.wouldSuppressCount}</li>
-      </ul>
-      {result.summaryNotes?.length ? (
-        <ul className="mt-2">
-          {result.summaryNotes.map((n, i) => (
-            <li key={i}>{n}</li>
-          ))}
-        </ul>
-      ) : null}
-      <h4 className="mb-2 mt-4">Outcomes</h4>
-      <OutcomeTable outcomes={result.outcomes} />
     </div>
   );
 }
@@ -535,7 +440,7 @@ export function AlertSimulationContent() {
           }
           behavior={
             simpleResult ? (
-              <SummaryBlock result={simpleResult} />
+              <AlertSimulationSummaryBlock result={simpleResult} />
             ) : (
               <SimulationBehaviorEmpty />
             )
@@ -750,7 +655,7 @@ export function AlertSimulationContent() {
           }
           behavior={
             compositeResult ? (
-              <SummaryBlock result={compositeResult} />
+              <AlertSimulationSummaryBlock result={compositeResult} />
             ) : (
               <SimulationBehaviorEmpty />
             )
@@ -878,9 +783,9 @@ export function AlertSimulationContent() {
                   ))}
                 </ul>
                 <h4 className="mb-2 mt-4">Candidate A</h4>
-                <SummaryBlock result={compareResult.candidateA} />
+                <AlertSimulationSummaryBlock result={compareResult.candidateA} />
                 <h4 className="mb-2 mt-4">Candidate B</h4>
-                <SummaryBlock result={compareResult.candidateB} />
+                <AlertSimulationSummaryBlock result={compareResult.candidateB} />
               </div>
             ) : (
               <SimulationBehaviorEmpty />
