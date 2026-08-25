@@ -182,6 +182,7 @@ public static class AgentExecutionCompositionModule
                     if (useEchoClient)
                     {
                         services.AddSingleton<LlmTokenQuotaWindowTracker>();
+                        services.AddScoped<LlmCompletionAccountingTelemetry>();
                         AgentCompletionPipelineCompositionModule.RegisterEchoPipeline(services);
                     }
                     else if (useAzureOpenAi)
@@ -347,6 +348,7 @@ public static class AgentExecutionCompositionModule
                         });
 
                         services.AddSingleton<LlmTokenQuotaWindowTracker>();
+                        services.AddScoped<LlmCompletionAccountingTelemetry>();
 
                         services.AddKeyedScoped<IAgentCompletionClient>(
                             AgentOutputLlmJudgeCompletionServiceKey.Value,

@@ -378,16 +378,22 @@ public sealed class LlmCompletionAccountingClientTests
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
+        LlmCompletionAccountingTelemetry accountingTelemetry = new(
+            new FixedValueOptionsMonitor<LlmTelemetryOptions>(new LlmTelemetryOptions()),
+            new FixedValueOptionsMonitor<LlmTelemetryLabelOptions>(new LlmTelemetryLabelOptions()),
+            metering.Object,
+            costEstimator.Object,
+            new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOptsBinding),
+            NullLogger<LlmCompletionAccountingTelemetry>.Instance);
+
         return new LlmCompletionAccountingClient(
             inner,
             tracker,
             scope.Object,
             new FixedValueOptionsMonitor<LlmTokenQuotaOptions>(quotaOptsBinding),
-            new FixedValueOptionsMonitor<LlmTelemetryOptions>(new LlmTelemetryOptions()),
-            new FixedValueOptionsMonitor<LlmTelemetryLabelOptions>(new LlmTelemetryLabelOptions()),
+            accountingTelemetry,
             new FixedValueOptionsMonitor<LlmPromptRedactionOptions>(redaction),
             redactor,
-            metering.Object,
             new FixedValueOptionsMonitor<LlmDailyTenantTokenWindowOptions>(dailyOptsBinding),
             dailyTracker,
             new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOptsBinding),
@@ -396,8 +402,7 @@ public sealed class LlmCompletionAccountingClientTests
             new NoOpAiBudgetPreCallGuard(),
             new NoOpDemoAiPromptCache(),
             new FixedValueOptionsMonitor<AiUsageControlsOptions>(new AiUsageControlsOptions()),
-            audit.Object,
-            NullLogger<LlmCompletionAccountingClient>.Instance);
+            audit.Object);
     }
 
     /// <summary>Maps inputs to fixed redacted outputs for deterministic assertions.</summary>

@@ -137,14 +137,9 @@ internal static class AgentCompletionPipelineHelpers
             LlmTokenQuotaWindowTracker quotaTracker = sp.GetRequiredService<LlmTokenQuotaWindowTracker>();
             IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
             IOptionsMonitor<LlmTokenQuotaOptions> quotaOpts = sp.GetRequiredService<IOptionsMonitor<LlmTokenQuotaOptions>>();
-            IOptionsMonitor<LlmTelemetryOptions> telemetryOpts =
-                sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
-            IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
-                sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
             IOptionsMonitor<LlmPromptRedactionOptions> redactionOpts =
                 sp.GetRequiredService<IOptionsMonitor<LlmPromptRedactionOptions>>();
             IPromptRedactor promptRedactor = sp.GetRequiredService<IPromptRedactor>();
-            IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
             IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyBudgetOpts =
                 sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>>();
             LlmDailyTenantBudgetTracker dailyBudgetTracker = sp.GetRequiredService<LlmDailyTenantBudgetTracker>();
@@ -153,19 +148,17 @@ internal static class AgentCompletionPipelineHelpers
             LlmMonthlyTenantDollarBudgetTracker monthlyDollarTracker =
                 sp.GetRequiredService<LlmMonthlyTenantDollarBudgetTracker>();
             IAuditService auditService = sp.GetRequiredService<IAuditService>();
-            ILogger<LlmCompletionAccountingClient> accountingLogger =
-                sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
+            LlmCompletionAccountingTelemetry accountingTelemetry =
+                sp.GetRequiredService<LlmCompletionAccountingTelemetry>();
 
             IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
                 echoInner,
                 quotaTracker,
                 scopeProvider,
                 quotaOpts,
-                telemetryOpts,
-                labelTelemetryOpts,
+                accountingTelemetry,
                 redactionOpts,
                 promptRedactor,
-                usageMetering,
                 dailyBudgetOpts,
                 dailyBudgetTracker,
                 monthlyDollarOpts,
@@ -175,7 +168,6 @@ internal static class AgentCompletionPipelineHelpers
                 sp.GetRequiredService<IDemoAiPromptCache>(),
                 sp.GetRequiredService<IOptionsMonitor<AiUsageControlsOptions>>(),
                 auditService,
-                accountingLogger,
                 spendCapPolicy: sp.GetRequiredService<IAgentLogicalStepSpendCapPolicy>());
 
             IConfiguration config = sp.GetRequiredService<IConfiguration>();
@@ -413,12 +405,9 @@ internal static class AgentCompletionPipelineHelpers
         LlmTokenQuotaWindowTracker quotaTracker = sp.GetRequiredService<LlmTokenQuotaWindowTracker>();
         IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
         IOptionsMonitor<LlmTokenQuotaOptions> quotaOpts = sp.GetRequiredService<IOptionsMonitor<LlmTokenQuotaOptions>>();
-        IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
-            sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
         IOptionsMonitor<LlmPromptRedactionOptions> redactionOpts =
             sp.GetRequiredService<IOptionsMonitor<LlmPromptRedactionOptions>>();
         IPromptRedactor promptRedactor = sp.GetRequiredService<IPromptRedactor>();
-        IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
         IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyBudgetOpts =
             sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>>();
         LlmDailyTenantBudgetTracker dailyBudgetTracker = sp.GetRequiredService<LlmDailyTenantBudgetTracker>();
@@ -430,19 +419,17 @@ internal static class AgentCompletionPipelineHelpers
         LlmMonthlyTenantDollarBudgetTracker monthlyDollarTracker =
             sp.GetRequiredService<LlmMonthlyTenantDollarBudgetTracker>();
         IAuditService auditService = sp.GetRequiredService<IAuditService>();
-        ILogger<LlmCompletionAccountingClient> accountingLogger =
-            sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
+        LlmCompletionAccountingTelemetry accountingTelemetry =
+            sp.GetRequiredService<LlmCompletionAccountingTelemetry>();
 
         IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
             azureCompletionEnvelope,
             quotaTracker,
             scopeProvider,
             quotaOpts,
-            llmTelemetryOptions,
-            labelTelemetryOpts,
+            accountingTelemetry,
             redactionOpts,
             promptRedactor,
-            usageMetering,
             dailyBudgetOpts,
             dailyBudgetTracker,
             monthlyDollarOpts,
@@ -452,7 +439,6 @@ internal static class AgentCompletionPipelineHelpers
             sp.GetRequiredService<IDemoAiPromptCache>(),
             sp.GetRequiredService<IOptionsMonitor<AiUsageControlsOptions>>(),
             auditService,
-            accountingLogger,
             useJudgeDailyCapOnly: true,
             judgeDailyBudgetOptions: judgeDailyBudgetOpts,
             judgeDailyBudgetTracker: judgeDailyBudgetTracker,
@@ -527,14 +513,9 @@ internal static class AgentCompletionPipelineHelpers
         LlmTokenQuotaWindowTracker quotaTracker = sp.GetRequiredService<LlmTokenQuotaWindowTracker>();
         IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
         IOptionsMonitor<LlmTokenQuotaOptions> quotaOpts = sp.GetRequiredService<IOptionsMonitor<LlmTokenQuotaOptions>>();
-        IOptionsMonitor<LlmTelemetryOptions> telemetryOpts =
-            sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
-        IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
-            sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
         IOptionsMonitor<LlmPromptRedactionOptions> redactionOpts =
             sp.GetRequiredService<IOptionsMonitor<LlmPromptRedactionOptions>>();
         IPromptRedactor promptRedactor = sp.GetRequiredService<IPromptRedactor>();
-        IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
         IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyBudgetOpts =
             sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>>();
         LlmDailyTenantBudgetTracker dailyBudgetTracker = sp.GetRequiredService<LlmDailyTenantBudgetTracker>();
@@ -543,8 +524,8 @@ internal static class AgentCompletionPipelineHelpers
         LlmMonthlyTenantDollarBudgetTracker monthlyDollarTracker =
             sp.GetRequiredService<LlmMonthlyTenantDollarBudgetTracker>();
         IAuditService auditService = sp.GetRequiredService<IAuditService>();
-        ILogger<LlmCompletionAccountingClient> accountingLogger =
-            sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
+        LlmCompletionAccountingTelemetry accountingTelemetry =
+            sp.GetRequiredService<LlmCompletionAccountingTelemetry>();
 
         IContentSafetyGuard contentSafetyGuard = sp.GetRequiredService<IContentSafetyGuard>();
         IOptionsMonitor<ContentSafetyOptions> contentSafetyOpts =
@@ -573,11 +554,9 @@ internal static class AgentCompletionPipelineHelpers
             quotaTracker,
             scopeProvider,
             quotaOpts,
-            telemetryOpts,
-            labelTelemetryOpts,
+            accountingTelemetry,
             redactionOpts,
             promptRedactor,
-            usageMetering,
             dailyBudgetOpts,
             dailyBudgetTracker,
             monthlyDollarOpts,
@@ -587,7 +566,6 @@ internal static class AgentCompletionPipelineHelpers
             sp.GetRequiredService<IDemoAiPromptCache>(),
             sp.GetRequiredService<IOptionsMonitor<AiUsageControlsOptions>>(),
             auditService,
-            accountingLogger,
             spendCapPolicy: sp.GetRequiredService<IAgentLogicalStepSpendCapPolicy>());
 
         IConfiguration config = sp.GetRequiredService<IConfiguration>();
