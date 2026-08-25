@@ -10,6 +10,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { recordSearchRecentQuery, readSearchRecentQueries, clearSearchRecentQueries } from "@/lib/search-recent-queries";
 import type { RetrievalHit } from "./retrieval-hit";
 import { SearchPageView } from "./SearchPageView";
+import type { SearchPageViewModel } from "./search-page-view-model";
 
 type SearchPageClientProps = {
   readonly buyerShell: boolean;
@@ -21,8 +22,9 @@ export function SearchPageClient(props: SearchPageClientProps) {
   const isDemo = props.isDemo;
   const searchParams = useSearchParams();
   const initialRunId = searchParams.get("runId")?.trim() ?? "";
+  const initialQuery = searchParams.get("q")?.trim() ?? "";
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [runId, setRunId] = useState(initialRunId);
   const [results, setResults] = useState<RetrievalHit[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -32,8 +34,13 @@ export function SearchPageClient(props: SearchPageClientProps) {
 
   useEffect(() => {
     const nextRunId = searchParams.get("runId")?.trim() ?? "";
+    const nextQuery = searchParams.get("q")?.trim() ?? "";
 
     setRunId(nextRunId);
+
+    if (nextQuery.length > 0) {
+      setQuery(nextQuery);
+    }
   }, [searchParams]);
 
   const onSearch = useCallback(async (overrideQuery?: string) => {

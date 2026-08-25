@@ -41,6 +41,7 @@ import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
 import { SearchReviewEvidenceLoadFailurePanel } from "./SearchReviewEvidenceLoadFailurePanel";
 import { SearchReviewEvidencePageHeader } from "./SearchReviewEvidencePageHeader";
 import { SearchPickReviewBeforeSearchStrip } from "./SearchPickReviewBeforeSearchStrip";
+import { SearchNextReviewFooterClient } from "./SearchNextReviewFooterClient";
 
 type SearchPageViewProps = {
   model: SearchPageViewModel;
@@ -288,6 +289,8 @@ export function SearchPageView({ model }: SearchPageViewProps) {
           />
         ))}
       </div>
+
+      {scopedRunId.length > 0 ? <SearchNextReviewFooterClient runId={scopedRunId} query={query} /> : null}
     </OperatorPageContainer>
   );
 }

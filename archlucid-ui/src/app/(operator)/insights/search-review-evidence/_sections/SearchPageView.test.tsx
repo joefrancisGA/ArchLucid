@@ -18,6 +18,14 @@ vi.mock("@/components/runs/RunIdPicker", () => ({
   RunIdPicker: () => <div data-testid="search-review-evidence-run-picker" />,
 }));
 
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", activeRunId: "" }),
+}));
+
+vi.mock("./SearchNextReviewFooterClient", () => ({
+  SearchNextReviewFooterClient: () => <div data-testid="search-next-review-footer-stub" />,
+}));
+
 import { SearchPageView } from "./SearchPageView";
 import type { SearchPageViewModel } from "./search-page-view-model";
 import { SEARCH_LOAD_RETRY_LABEL } from "./search-page-copy";
