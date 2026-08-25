@@ -78,6 +78,7 @@ import {
   ReviewGenerationCreatedNoticeDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { ReviewPackageAfterFinalizeNextStepsStrip } from "./ReviewPackageAfterFinalizeNextStepsStrip";
+import { RunDetailNextReviewFooterClient } from "./RunDetailNextReviewFooterClient";
 import { RunDetailBelowFoldSectionsDeferred } from "./RunDetailBelowFoldSectionsDeferred";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
@@ -680,6 +681,8 @@ export async function RunDetailPageView(props: {
       ) : null}
 
       <RunDetailBuyerPilotConversionSectionDeferred buyerPolishedArtifactTable={m.buyerPolishedArtifactTable} />
+
+      <RunDetailNextReviewFooterClient runId={m.routeRunId} />
     </div>
   );
 
