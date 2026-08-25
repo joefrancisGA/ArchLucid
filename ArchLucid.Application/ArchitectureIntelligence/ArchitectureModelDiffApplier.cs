@@ -26,7 +26,7 @@ public sealed class ArchitectureModelDiffApplier : IArchitectureModelDiffApplier
             Name = recommendation.Problem,
             Description = recommendation.ProposedChange,
             ExtractionConfidence = recommendation.Confidence,
-            Provenance = recommendation.Provenance,
+            Provenance = CloneProvenance(recommendation.Provenance),
             Properties = new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["recommendationId"] = recommendation.RecommendationId,
@@ -144,6 +144,7 @@ public sealed class ArchitectureModelDiffApplier : IArchitectureModelDiffApplier
                     SourcePassageIds = [.. element.SourcePassageIds],
                     RelatedElementIds = [.. element.RelatedElementIds],
                     Properties = new Dictionary<string, string>(element.Properties),
+                    LifecycleScope = element.LifecycleScope,
                 })
                 .ToList(),
             DeclaredPriorities = [.. source.DeclaredPriorities],

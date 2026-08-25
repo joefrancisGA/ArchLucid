@@ -33,6 +33,7 @@ public sealed class ArchitectureModelDiffApplierCloneTests
                     Kind = ArchitectureElementKind.Component,
                     Name = "API",
                     Provenance = provenance,
+                    LifecycleScope = ArchitectureLifecycleScope.Transition,
                 },
             ],
         };
@@ -60,5 +61,12 @@ public sealed class ArchitectureModelDiffApplierCloneTests
         diff.AfterModel.Elements
             .Single(element => element.ElementId == "svc-1")
             .Provenance.Should().NotBeSameAs(provenance);
+        diff.AfterModel.Elements
+            .Single(element => element.ElementId == "svc-1")
+            .LifecycleScope.Should().Be(ArchitectureLifecycleScope.Transition);
+
+        ArchitectureModelElement recommendationElement = diff.AfterModel.Elements
+            .Single(element => element.Kind == ArchitectureElementKind.Recommendation);
+        recommendationElement.Provenance.Should().NotBeSameAs(recommendation.Provenance);
     }
 }
