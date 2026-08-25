@@ -18,6 +18,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { ScimProvisioningSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ScimProvisioningCreateConfirmDialog } from "@/app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningCreateConfirmDialog";
 import { ScimProvisioningRevokeConfirmDialog } from "@/app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningRevokeConfirmDialog";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -105,6 +106,10 @@ import {
   buildScimVerifyFailureDetails,
   buildScimVerifyFailureMessage,
 } from "@/lib/scim-provisioning-verify-present";
+import {
+  resolveScimIssueTokenEmphasizedStepId,
+  resolveScimIssueTokenSteps,
+} from "@/lib/scim-issue-token-checklist";
 
 type ScimTokenSummary = {
   id: string;
@@ -403,6 +408,13 @@ export function ScimProvisioningSettingsPageClient() {
     (scimBaseUrlClassification?.requiresExternalReachabilityWarning ?? false);
   const showManualVerifyField = setupSessionToken === null && issuedToken === null;
   const createDisabled = issuing || issuedToken !== null;
+  const scimIssueChecklistInput = {
+    baseUrlReady: scimBaseUrl.length > 0 && !scimBaseUrlCopyDisabled,
+    tokenIssued: issuedToken !== null,
+    verifyComplete: verifyState.status === "verified",
+  };
+  const scimIssueSteps = resolveScimIssueTokenSteps(scimIssueChecklistInput);
+  const scimIssueEmphasizedStepId = resolveScimIssueTokenEmphasizedStepId(scimIssueChecklistInput);
 
   return (
     <OperatorPageContainer
@@ -448,6 +460,12 @@ export function ScimProvisioningSettingsPageClient() {
           <CardDescription>{SCIM_CONFIGURE_SECTION_DESCRIPTION}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <IntegrationConnectChecklist
+            title="Issue token checklist"
+            steps={scimIssueSteps}
+            emphasizedStepId={scimIssueEmphasizedStepId}
+            testIdPrefix="scim-issue-token"
+          />
           {scimBaseUrlClassification?.requiresExternalReachabilityWarning === true ? (
             <div data-testid="scim-base-url-reachability-warning">
               <OperatorApiProblem
