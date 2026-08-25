@@ -79,6 +79,47 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_numeric_enforcement_tier_maps_advisory_ordinal()
+    {
+        string json = FindingJson(
+            """
+            "humanReviewStatus": "Pending",
+            "enforcementTier": 1
+            """);
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, CreateOptions());
+
+        finding.Should().NotBeNull();
+        finding!.EnforcementTier.Should().Be(FindingEnforcementTier.Advisory);
+    }
+
+    [Fact]
+    public void Deserialize_integer_enforcement_tier_out_of_range_throws()
+    {
+        string json = FindingJson(
+            """
+            "humanReviewStatus": "Pending",
+            "enforcementTier": 99
+            """);
+
+        Action act = () => JsonSerializer.Deserialize<Finding>(json, CreateOptions());
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding enforcement tier value*");
+    }
+
+    [Fact]
+    public void Deserialize_numeric_human_review_status_maps_pending_ordinal()
+    {
+        string json = FindingJson("\"humanReviewStatus\": 1");
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, CreateOptions());
+
+        finding.Should().NotBeNull();
+        finding!.HumanReviewStatus.Should().Be(FindingHumanReviewStatus.Pending);
+    }
+
+    [Fact]
     public void Deserialize_unknown_severity_throws()
     {
         const string json = """
@@ -119,4 +160,25 @@ public sealed class FindingJsonConverterTests
 
         return options;
     }
+
+    private static string FindingJson(string extraProperties) =>
+        $$"""
+        {
+          "findingSchemaVersion": 2,
+          "findingId": "abc123",
+          "findingType": "TopologyGap",
+          "category": "Topology",
+          "engineType": "TopologyCoverage",
+          "severity": "Warning",
+          "title": "Missing worker subnet",
+          "rationale": "No subnet is defined for worker pool isolation.",
+          "relatedNodeIds": [],
+          "recommendedActions": [],
+          "properties": {},
+          "payloadType": null,
+          "payload": null,
+          "trace": {},
+          {{extraProperties}}
+        }
+        """;
 }
