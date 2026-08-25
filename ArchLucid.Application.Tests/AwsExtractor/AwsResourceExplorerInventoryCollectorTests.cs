@@ -88,4 +88,27 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
         resources.Should().ContainSingle();
         resources[0].Location.Should().Be("eu-west-1");
     }
+
+    [Fact]
+    public async Task CollectAsync_uses_govcloud_partition_query_for_us_gov_region()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+        string? capturedQuery = null;
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<SearchRequest, CancellationToken>((request, _) => capturedQuery = request.QueryString)
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources = [],
+                NextToken = null
+            });
+
+        await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-gov-west-1",
+            CancellationToken.None);
+
+        capturedQuery.Should().Be("arn:aws-us-gov:*");
+    }
 }
