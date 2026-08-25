@@ -5,11 +5,10 @@ using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Clarifications;
 using ArchLucid.Contracts.Clarifications;
-using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.ProblemDetails;
-using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -80,7 +79,7 @@ public sealed class ReviewClarificationQuestionsController(
     [HttpPost("review/{runId:guid}/knowledge-model/clarification-answers")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ApplyKnowledgeModelClarificationAnswersResponse), StatusCodes.Status200OK)]
-  public async Task<IActionResult> ApplyKnowledgeModelClarificationAnswers(
+    public async Task<IActionResult> ApplyKnowledgeModelClarificationAnswers(
         [FromRoute] Guid runId,
         [FromBody] ApplyKnowledgeModelClarificationAnswersRequest? request,
         CancellationToken cancellationToken)
@@ -94,6 +93,21 @@ public sealed class ReviewClarificationQuestionsController(
             runId,
             request.Answers,
             cancellationToken).ConfigureAwait(false);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.KnowledgeModelClarificationAnswersApplied,
+                RunId = runId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        appliedCount = applied,
+                        answerCount = request.Answers.Count,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
 
         return Ok(new ApplyKnowledgeModelClarificationAnswersResponse { AppliedCount = applied });
     }

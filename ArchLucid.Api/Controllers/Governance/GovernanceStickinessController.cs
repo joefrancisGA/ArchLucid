@@ -734,6 +734,19 @@ public sealed class GovernanceStickinessController(
         if (!resolved)
             return this.NotFoundProblem("Finding merge conflict was not found.", ProblemTypes.ResourceNotFound);
 
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.FindingMergeConflictResolved,
+                RunId = runId,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    findingId,
+                    action = request.Action.ToString(),
+                }),
+            },
+            cancellationToken);
+
         return NoContent();
     }
 }
