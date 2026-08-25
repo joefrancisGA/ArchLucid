@@ -19,4 +19,16 @@ public class MustNotFailViolation
         get;
         set;
     }
+
+    public string? FindingId
+    {
+        get;
+        set;
+    }
+
+    public string? RecommendationId
+    {
+        get;
+        set;
+    }
 }

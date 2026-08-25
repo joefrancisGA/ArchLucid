@@ -62,6 +62,12 @@ public sealed class TrustPublishGate : ITrustPublishGate
 
         foreach (MustNotFailViolation violation in blockingViolations)
         {
+            if (!string.IsNullOrWhiteSpace(violation.FindingId))
+            {
+                blocked.Add(violation.FindingId);
+                continue;
+            }
+
             foreach (SpecialistReviewFinding finding in findings)
             {
                 if (violation.Message.Contains(finding.Title, StringComparison.OrdinalIgnoreCase)
@@ -83,6 +89,12 @@ public sealed class TrustPublishGate : ITrustPublishGate
 
         foreach (MustNotFailViolation violation in blockingViolations)
         {
+            if (!string.IsNullOrWhiteSpace(violation.RecommendationId))
+            {
+                blocked.Add(violation.RecommendationId);
+                continue;
+            }
+
             foreach (ArchitectureRecommendation recommendation in recommendations)
             {
                 if (violation.Message.Contains(recommendation.Problem, StringComparison.OrdinalIgnoreCase)

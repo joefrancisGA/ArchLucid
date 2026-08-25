@@ -56,6 +56,7 @@ public sealed class TrustPublishGateTests
             Class = MustNotFailClass.UnlabeledCloudSpecificRecommendation,
             Message = "Recommendation 'Use managed identity' mentions a cloud provider without an explicit assumption note.",
             Blocked = true,
+            RecommendationId = "rec-1",
         };
 
         TrustPublishDecision decision = _gate.Decide(
@@ -94,6 +95,34 @@ public sealed class TrustPublishGateTests
 
         decision.PublishableFindings.Should().ContainSingle();
         decision.PublishBlocked.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Decide_excludes_finding_when_violation_carries_finding_id()
+    {
+        SpecialistReviewFinding finding = CreateFinding("blocked-finding", "Fabricated evidence");
+
+        TrustPublishDecision decision = _gate.Decide(
+            [finding],
+            [],
+            [
+                new EvidenceValidationResult
+                {
+                    FindingId = "blocked-finding",
+                    OverallPassedIntegrity = true,
+                },
+            ],
+            [
+                new MustNotFailViolation
+                {
+                    Class = MustNotFailClass.FabricatedCitation,
+                    Message = "Hard policy violation.",
+                    Blocked = true,
+                    FindingId = "blocked-finding",
+                },
+            ]);
+
+        decision.PublishableFindings.Should().BeEmpty();
     }
 
     private static SpecialistReviewFinding CreateFinding(string id, string title)

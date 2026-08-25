@@ -52,6 +52,7 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
             Message =
                 $"Recommendation '{recommendation.Problem}' cites technology outside the closed-world ledger.",
             Blocked = true,
+            RecommendationId = recommendation.RecommendationId,
         };
     }
 
@@ -71,6 +72,7 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
                         Class = MustNotFailClass.FabricatedCitation,
                         Message = $"Finding '{finding.Title}' cites an invalid artifact id '{artifactId}'.",
                         Blocked = true,
+                        FindingId = finding.FindingId,
                     };
                 }
             }
@@ -82,6 +84,7 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
                     Class = MustNotFailClass.FabricatedCitation,
                     Message = $"Finding '{finding.Title}' claims DirectlyEstablished support without artifact ids.",
                     Blocked = true,
+                    FindingId = finding.FindingId,
                 };
             }
         }
@@ -93,6 +96,7 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
                 Class = MustNotFailClass.InventedRegulation,
                 Message = $"Finding '{finding.Title}' appears to invent a regulatory citation.",
                 Blocked = true,
+                FindingId = finding.FindingId,
             };
         }
 
@@ -104,6 +108,7 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
                 Message =
                     $"Finding '{finding.Title}' treats missing information as a confirmed defect without an Indeterminate/Insufficient state.",
                 Blocked = true,
+                FindingId = finding.FindingId,
             };
         }
 
@@ -115,6 +120,7 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
                 Message =
                     $"Finding '{finding.Title}' appears to override an approved decision without an ExceptionGranted disposition.",
                 Blocked = true,
+                FindingId = finding.FindingId,
             };
         }
     }
@@ -130,6 +136,7 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
                 Message =
                     $"Recommendation '{recommendation.Problem}' mentions a cloud provider without an explicit assumption note.",
                 Blocked = true,
+                RecommendationId = recommendation.RecommendationId,
             };
         }
 
@@ -140,6 +147,7 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
                 Class = MustNotFailClass.InventedRegulation,
                 Message = $"Recommendation '{recommendation.Problem}' appears to invent a regulatory citation.",
                 Blocked = true,
+                RecommendationId = recommendation.RecommendationId,
             };
         }
 
@@ -151,6 +159,7 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
                 Message =
                     $"Recommendation '{recommendation.Problem}' appears to override an approved decision without explicit approval.",
                 Blocked = true,
+                RecommendationId = recommendation.RecommendationId,
             };
         }
     }
@@ -187,6 +196,7 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
                         Message =
                             $"Findings '{left.Title}' and '{right.Title}' reach opposite conclusions from overlapping evidence artifacts.",
                         Blocked = true,
+                        FindingId = left.FindingId,
                     };
                 }
             }
