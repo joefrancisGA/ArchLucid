@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { AlertTuningPickReviewBeforeTuningStrip } from "@/components/alerts/AlertTuningPickReviewBeforeTuningStrip";
+import { AlertTuningNextReviewFooterClient } from "@/components/alerts/AlertTuningNextReviewFooterClient";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
@@ -129,6 +130,7 @@ export function AlertTuningContent() {
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [result, setResult] = useState<ThresholdRecommendationResult | null>(null);
+  const [pickedReviewId, setPickedReviewId] = useState("");
 
   async function recommend() {
     setFailure(null);
@@ -249,6 +251,13 @@ export function AlertTuningContent() {
             correlationId={failure.correlationId}
           />
         </div>
+      ) : null}
+
+      {pickedReviewId.trim().length === 0 ? (
+        <AlertTuningPickReviewBeforeTuningStrip
+          selectedReviewId={pickedReviewId}
+          onSelectReview={setPickedReviewId}
+        />
       ) : null}
 
       <div className="flex flex-col gap-10">
@@ -599,6 +608,10 @@ export function AlertTuningContent() {
       </div>
         </section>
       </div>
+
+      {pickedReviewId.trim().length > 0 ? (
+        <AlertTuningNextReviewFooterClient runId={pickedReviewId.trim()} />
+      ) : null}
     </div>
   );
 }
