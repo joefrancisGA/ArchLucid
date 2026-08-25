@@ -270,7 +270,24 @@ public sealed class GraphSnapshotCanonicalFingerprintTests
         costFirst.DeclaredPriorities = ["Cost", "Security"];
 
         GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(securityFirst)
-            .Should().NotBe(GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(costFirst));
+            .Should().Be(GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(costFirst));
+    }
+
+    [Fact]
+    public void ComputeKnowledgeModelFingerprint_includes_tenant_and_run_identity()
+    {
+        DateTime updatedUtc = new(2026, 8, 25, 12, 0, 0, DateTimeKind.Utc);
+
+        ArchitectureKnowledgeModel tenantA = CreateFingerprintModel(updatedUtc, "Orders API", false, "scale");
+        tenantA.TenantId = "tenant-a";
+        tenantA.RunId = "run-a";
+
+        ArchitectureKnowledgeModel tenantB = CreateFingerprintModel(updatedUtc, "Orders API", false, "scale");
+        tenantB.TenantId = "tenant-b";
+        tenantB.RunId = "run-b";
+
+        GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(tenantA)
+            .Should().NotBe(GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(tenantB));
     }
 
     private static ArchitectureKnowledgeModel CreateFingerprintModel(

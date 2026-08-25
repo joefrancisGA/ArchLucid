@@ -92,6 +92,8 @@ public static class GraphSnapshotCanonicalFingerprint
             "\n",
             [
                 knowledgeModel.ModelId,
+                knowledgeModel.TenantId ?? string.Empty,
+                knowledgeModel.RunId ?? string.Empty,
                 knowledgeModel.SchemaVersion.ToString(),
                 knowledgeModel.UpdatedUtc.ToString("O"),
                 knowledgeModel.IsProvisionalSynthesis ? "provisional" : "complete",
@@ -108,7 +110,8 @@ public static class GraphSnapshotCanonicalFingerprint
 
         IEnumerable<string> parts = knowledgeModel.DeclaredPriorities
             .Where(static priority => !string.IsNullOrWhiteSpace(priority))
-            .Select(static priority => priority.Trim());
+            .Select(static priority => priority.Trim())
+            .OrderBy(static priority => priority, StringComparer.OrdinalIgnoreCase);
 
         return string.Join(",", parts);
     }
@@ -136,6 +139,9 @@ public static class GraphSnapshotCanonicalFingerprint
             .Select(static pair => $"{pair.Key}={pair.Value}");
 
         string properties = string.Join(",", propertyParts);
+        string passages = string.Join(
+            ",",
+            (element.SourcePassageIds ?? []).OrderBy(static id => id, StringComparer.OrdinalIgnoreCase));
 
         return string.Join(
             "|",
@@ -144,8 +150,32 @@ public static class GraphSnapshotCanonicalFingerprint
             element.Name,
             element.Description ?? string.Empty,
             element.LifecycleScope.ToString(),
+            element.ExtractionConfidence.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            FormatElementProvenance(element.Provenance),
+            passages,
             related,
             properties);
+    }
+
+    private static string FormatElementProvenance(ClaimProvenance provenance)
+    {
+        string locator = provenance.PassageLocator is null
+            ? string.Empty
+            : string.Join(
+                ":",
+                provenance.PassageLocator.ArtifactId ?? string.Empty,
+                provenance.PassageLocator.StartOffset.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                provenance.PassageLocator.EndOffset.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                provenance.PassageLocator.Quote ?? string.Empty);
+
+        return string.Join(
+            ":",
+            provenance.Origin.ToString(),
+            provenance.SupportStatus.ToString(),
+            provenance.Confidence.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            provenance.SourceArtifactId ?? string.Empty,
+            provenance.Notes ?? string.Empty,
+            locator);
     }
 }
 
