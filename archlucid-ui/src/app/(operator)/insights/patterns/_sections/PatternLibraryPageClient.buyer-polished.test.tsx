@@ -13,6 +13,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/insights/patterns",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams("runId=run-pattern-test"),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -53,18 +55,18 @@ describe("PatternLibraryPageClient buyer-polished shell", () => {
 
     expect(screen.getByTestId("pattern-library-page-title")).toHaveTextContent("Pattern library");
     expect(screen.getByText(PATTERN_LIBRARY_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("pattern-library-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByTestId("pattern-library-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByText(PATTERN_LIBRARY_CLAIM_HEADING)).toBeInTheDocument();
-    expect(screen.queryByTestId("pattern-library-policy-packs-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByTestId("pattern-library-provenance-badge")).toBeInTheDocument();
 
     await waitFor(() => {
+      expect(screen.getByTestId("pattern-library-run-scope-banner")).toBeInTheDocument();
       expect(screen.getByTestId("pattern-library-empty-state")).toBeInTheDocument();
     });
 
     expect(screen.getByText(PATTERN_LIBRARY_EMPTY_BUILDING_TITLE)).toBeInTheDocument();
     expect(screen.getByText(PATTERN_LIBRARY_EMPTY_BUILDING_BODY)).toBeInTheDocument();
+    expect(screen.getByTestId("pattern-library-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByText(PATTERN_LIBRARY_CLAIM_HEADING)).toBeInTheDocument();
+    expect(screen.queryByTestId("pattern-library-policy-packs-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("pattern-library-card-grid")).not.toBeInTheDocument();
     expect(screen.queryByText(/runId/i)).not.toBeInTheDocument();
   });

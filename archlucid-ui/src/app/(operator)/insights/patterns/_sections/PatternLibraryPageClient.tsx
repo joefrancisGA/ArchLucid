@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -26,6 +27,7 @@ import {
 } from "@/lib/pattern-library-filters";
 import type { PatternLibraryFiltersState } from "@/lib/pattern-library-types";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { patternLibraryHref } from "@/lib/pattern-library-route";
 import { resolveContinueLastPatternLibraryRecord } from "@/lib/resolve-continue-last-pattern-library-record";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
@@ -37,6 +39,7 @@ import { PatternLibraryContinueLastViewedRow } from "./PatternLibraryContinueLas
 import { PatternLibraryFiltersPanel } from "./PatternLibraryFiltersPanel";
 import { PatternLibraryLoadFailurePanel } from "./PatternLibraryLoadFailurePanel";
 import { PatternLibraryPageHeader } from "./PatternLibraryPageHeader";
+import { PatternLibraryPickReviewBeforeBrowsingStrip } from "./PatternLibraryPickReviewBeforeBrowsingStrip";
 import { PatternLibraryPatternCard } from "./PatternLibraryPatternCard";
 import { PatternLibrarySummaryRow } from "./PatternLibrarySummaryRow";
 
@@ -51,6 +54,11 @@ function toPatternLibraryLoadFailure(error: Error): ApiLoadFailureState {
 }
 
 export function PatternLibraryPageClient(): React.JSX.Element {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
+
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<PatternLibraryFiltersState>(DEFAULT_PATTERN_LIBRARY_FILTERS);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -84,6 +92,19 @@ export function PatternLibraryPageClient(): React.JSX.Element {
     void queryClient.invalidateQueries({ queryKey: operatorQueryKeys.patternLibraryInsightCards });
   };
 
+  const onPickReviewForBrowsing = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      router.replace(patternLibraryHref({ runId: trimmed }), { scroll: false });
+    },
+    [router],
+  );
+
   return (
     <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.majorSectionGap} data-testid="pattern-library-page">
       <PatternLibraryPageHeader
@@ -116,6 +137,34 @@ export function PatternLibraryPageClient(): React.JSX.Element {
 
       {!isPending && loadFailure === null ? (
         <>
+          {scopedRunFilterActive ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="pattern-library-run-scope-banner"
+            >
+              {"Browsing patterns for review "}
+              <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+              {" · "}
+              <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={patternLibraryHref()}>
+                Clear review scope
+              </Link>
+              {" · "}
+              <Link
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
+                href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+              >
+                Open review
+              </Link>
+            </p>
+          ) : (
+            <PatternLibraryPickReviewBeforeBrowsingStrip
+              selectedReviewId=""
+              onSelectReview={onPickReviewForBrowsing}
+            />
+          )}
+
+          {scopedRunFilterActive ? (
+            <>
           <PatternLibrarySummaryRow summary={summary} />
           {continueLastPattern !== null ? (
             <PatternLibraryContinueLastViewedRow record={continueLastPattern} />
@@ -154,6 +203,8 @@ export function PatternLibraryPageClient(): React.JSX.Element {
               Open Getting started
             </Link>
           </p>
+            </>
+          ) : null}
         </>
       ) : null}
     </OperatorPageContainer>

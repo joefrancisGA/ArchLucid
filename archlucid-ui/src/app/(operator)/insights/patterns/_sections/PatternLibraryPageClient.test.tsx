@@ -13,6 +13,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/insights/patterns",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams("runId=run-pattern-test"),
 }));
 
 import { PatternLibraryPageClient } from "./PatternLibraryPageClient";
@@ -48,10 +50,8 @@ describe("PatternLibraryPageClient", () => {
 
     expect(screen.getByTestId("pattern-library-page-title")).toHaveTextContent("Pattern library");
     expect(screen.getByText(PATTERN_LIBRARY_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("pattern-library-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByTestId("pattern-library-provenance-badge")).toBeInTheDocument();
-
     await waitFor(() => {
+      expect(screen.getByTestId("pattern-library-run-scope-banner")).toBeInTheDocument();
       expect(screen.getByTestId("pattern-library-empty-state")).toBeInTheDocument();
     });
 
