@@ -3518,8 +3518,8 @@ BEGIN
     );
 
     CREATE NONCLUSTERED INDEX IX_CosmosGraphSnapshotOutbox_Pending
-        ON dbo.CosmosGraphSnapshotOutbox (ProcessedUtc, CreatedUtc)
-        WHERE ProcessedUtc IS NULL;
+        ON dbo.CosmosGraphSnapshotOutbox (NextAttemptUtc, CreatedUtc)
+        WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL;
 END;
 GO
 
@@ -3543,8 +3543,8 @@ BEGIN
     );
 
     CREATE NONCLUSTERED INDEX IX_RunExportBlobPushOutbox_Pending
-        ON dbo.RunExportBlobPushOutbox (ProcessedUtc, CreatedUtc)
-        WHERE ProcessedUtc IS NULL;
+        ON dbo.RunExportBlobPushOutbox (NextAttemptUtc, CreatedUtc)
+        WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL;
 END;
 GO
 
@@ -3569,8 +3569,144 @@ BEGIN
     );
 
     CREATE NONCLUSTERED INDEX IX_PostCommitProjectionOutbox_Pending
-        ON dbo.PostCommitProjectionOutbox (ProcessedUtc, CreatedUtc)
-        WHERE ProcessedUtc IS NULL;
+        ON dbo.PostCommitProjectionOutbox (NextAttemptUtc, CreatedUtc)
+        WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL;
+END;
+GO
+
+/* DbUp 328 parity: recoverable outbox pending indexes (see Migrations/328_RecoverableOutbox_PendingIndexes.sql). */
+IF OBJECT_ID(N'dbo.RetrievalIndexingOutbox', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.RetrievalIndexingOutbox', N'NextAttemptUtc') IS NOT NULL
+   AND COL_LENGTH(N'dbo.RetrievalIndexingOutbox', N'DeadLetteredUtc') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_RetrievalIndexingOutbox_Pending'
+         AND object_id = OBJECT_ID(N'dbo.RetrievalIndexingOutbox')
+         AND (
+             filter_definition IS NULL
+             OR filter_definition NOT LIKE N'%DeadLetteredUtc%'
+             OR NOT EXISTS (
+                 SELECT 1
+                 FROM sys.index_columns AS ic
+                 INNER JOIN sys.columns AS c
+                     ON c.object_id = ic.object_id AND c.column_id = ic.column_id
+                 WHERE ic.object_id = OBJECT_ID(N'dbo.RetrievalIndexingOutbox')
+                   AND ic.index_id = (
+                       SELECT index_id
+                       FROM sys.indexes
+                       WHERE name = N'IX_RetrievalIndexingOutbox_Pending'
+                         AND object_id = OBJECT_ID(N'dbo.RetrievalIndexingOutbox'))
+                   AND c.name = N'NextAttemptUtc'
+                   AND ic.is_included_column = 0
+                   AND ic.key_ordinal = 1)))
+BEGIN
+    DROP INDEX IX_RetrievalIndexingOutbox_Pending ON dbo.RetrievalIndexingOutbox;
+
+    CREATE NONCLUSTERED INDEX IX_RetrievalIndexingOutbox_Pending
+        ON dbo.RetrievalIndexingOutbox (NextAttemptUtc, CreatedUtc)
+        WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.RetrievalIndexingOutbox', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.RetrievalIndexingOutbox', N'AttemptCount') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_RetrievalIndexingOutbox_PendingWithRetries'
+         AND object_id = OBJECT_ID(N'dbo.RetrievalIndexingOutbox'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_RetrievalIndexingOutbox_PendingWithRetries
+        ON dbo.RetrievalIndexingOutbox (NextAttemptUtc ASC, CreatedUtc ASC)
+        WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL AND AttemptCount > 0;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuthorityPipelineWorkOutbox', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AuthorityPipelineWorkOutbox', N'NextAttemptUtc') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AuthorityPipelineWorkOutbox', N'DeadLetteredUtc') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_AuthorityPipelineWorkOutbox_Pending'
+         AND object_id = OBJECT_ID(N'dbo.AuthorityPipelineWorkOutbox')
+         AND (
+             filter_definition IS NULL
+             OR filter_definition NOT LIKE N'%DeadLetteredUtc%'
+             OR NOT EXISTS (
+                 SELECT 1
+                 FROM sys.index_columns AS ic
+                 INNER JOIN sys.columns AS c
+                     ON c.object_id = ic.object_id AND c.column_id = ic.column_id
+                 WHERE ic.object_id = OBJECT_ID(N'dbo.AuthorityPipelineWorkOutbox')
+                   AND ic.index_id = (
+                       SELECT index_id
+                       FROM sys.indexes
+                       WHERE name = N'IX_AuthorityPipelineWorkOutbox_Pending'
+                         AND object_id = OBJECT_ID(N'dbo.AuthorityPipelineWorkOutbox'))
+                   AND c.name = N'NextAttemptUtc'
+                   AND ic.is_included_column = 0
+                   AND ic.key_ordinal = 1)))
+BEGIN
+    DROP INDEX IX_AuthorityPipelineWorkOutbox_Pending ON dbo.AuthorityPipelineWorkOutbox;
+
+    CREATE NONCLUSTERED INDEX IX_AuthorityPipelineWorkOutbox_Pending
+        ON dbo.AuthorityPipelineWorkOutbox (NextAttemptUtc, CreatedUtc)
+        WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuthorityPipelineWorkOutbox', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AuthorityPipelineWorkOutbox', N'AttemptCount') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_AuthorityPipelineWorkOutbox_PendingWithRetries'
+         AND object_id = OBJECT_ID(N'dbo.AuthorityPipelineWorkOutbox'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_AuthorityPipelineWorkOutbox_PendingWithRetries
+        ON dbo.AuthorityPipelineWorkOutbox (NextAttemptUtc ASC, CreatedUtc ASC)
+        WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL AND AttemptCount > 0;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.CosmosGraphSnapshotOutbox', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_CosmosGraphSnapshotOutbox_PendingWithRetries'
+         AND object_id = OBJECT_ID(N'dbo.CosmosGraphSnapshotOutbox'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_CosmosGraphSnapshotOutbox_PendingWithRetries
+        ON dbo.CosmosGraphSnapshotOutbox (NextAttemptUtc ASC, CreatedUtc ASC)
+        WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL AND AttemptCount > 0;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.RunExportBlobPushOutbox', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_RunExportBlobPushOutbox_PendingWithRetries'
+         AND object_id = OBJECT_ID(N'dbo.RunExportBlobPushOutbox'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_RunExportBlobPushOutbox_PendingWithRetries
+        ON dbo.RunExportBlobPushOutbox (NextAttemptUtc ASC, CreatedUtc ASC)
+        WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL AND AttemptCount > 0;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.PostCommitProjectionOutbox', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_PostCommitProjectionOutbox_PendingWithRetries'
+         AND object_id = OBJECT_ID(N'dbo.PostCommitProjectionOutbox'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_PostCommitProjectionOutbox_PendingWithRetries
+        ON dbo.PostCommitProjectionOutbox (NextAttemptUtc ASC, CreatedUtc ASC)
+        WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL AND AttemptCount > 0;
 END;
 GO
 
