@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+
 import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -31,10 +33,15 @@ import {
   IMPROVEMENT_PLANNING_THEME_FILTER_NO_MATCH_TITLE,
   planningPageSubtitle,
 } from "@/lib/planning-page-copy";
+import {
+  readPlanningPickedReviewId,
+  writePlanningPickedReviewId,
+} from "@/lib/planning-picked-review-storage";
 import { resolveContinueLastPlanningPlan } from "@/lib/resolve-continue-last-planning-plan";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { PlanningBuyerChrome } from "./PlanningBuyerChrome";
 import { PlanningContinueLastPlanRow } from "./PlanningContinueLastPlanRow";
+import { PlanningPickReviewBeforePlanningStrip } from "./PlanningPickReviewBeforePlanningStrip";
 import { PlanningPageEmptyState } from "./PlanningPageEmptyState";
 import { PlanningLoadFailurePanel } from "./PlanningLoadFailurePanel";
 import { PlanningPageHeader } from "./PlanningPageHeader";
@@ -49,6 +56,7 @@ export function PlanningPageView(props: Props) {
   const m = props.model;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const continueLastPlan = resolveContinueLastPlanningPlan(m.sortedPlans);
+  const [selectedReviewId, setSelectedReviewId] = useState("");
   const showTablesSkeleton = m.refreshing && m.summary !== null && !m.empty;
   const showThemeFilterNoMatch =
     m.selectedThemeId !== null &&
@@ -58,6 +66,16 @@ export function PlanningPageView(props: Props) {
     !m.refreshing &&
     m.summary !== null &&
     !m.empty;
+
+  useEffect(() => {
+    setSelectedReviewId(readPlanningPickedReviewId());
+  }, []);
+
+  const onSelectReview = useCallback((reviewId: string) => {
+    const trimmed = reviewId.trim();
+    setSelectedReviewId(trimmed);
+    writePlanningPickedReviewId(trimmed);
+  }, []);
 
   if (m.isDemo) {
     return (
@@ -80,6 +98,13 @@ export function PlanningPageView(props: Props) {
       />
 
       <PlanningBuyerChrome />
+
+      {selectedReviewId.trim().length === 0 ? (
+        <PlanningPickReviewBeforePlanningStrip
+          selectedReviewId={selectedReviewId}
+          onSelectReview={onSelectReview}
+        />
+      ) : null}
 
       {continueLastPlan !== null && !m.empty ? <PlanningContinueLastPlanRow plan={continueLastPlan} /> : null}
 

@@ -22,6 +22,10 @@ vi.mock("@/components/planning/PlanningExportReadinessNote", () => ({
   PlanningExportReadinessNote: () => null,
 }));
 
+vi.mock("./PlanningPickReviewBeforePlanningStrip", () => ({
+  PlanningPickReviewBeforePlanningStrip: () => null,
+}));
+
 function buildModel(overrides: Partial<PlanningPageViewModel> = {}): PlanningPageViewModel {
   return {
     isDemo: false,
