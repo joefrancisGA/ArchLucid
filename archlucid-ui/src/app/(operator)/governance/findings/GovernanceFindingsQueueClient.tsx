@@ -32,6 +32,7 @@ import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-las
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { FindingsQueuePickReviewBeforeTriageStrip } from "@/components/governance/findings/FindingsQueuePickReviewBeforeTriageStrip";
+import { GovernanceFindingsQueueNextReviewFooterClient } from "@/components/governance/findings/GovernanceFindingsQueueNextReviewFooterClient";
 import { ArchitecturePosturePillarOverview } from "@/components/governance/posture/ArchitecturePosturePillarOverview";
 import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governance/findings/GovernanceFindingsQueueActiveFilterChips";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
@@ -789,6 +790,10 @@ export default function GovernanceFindingsQueueClient({
 
         {!isAssignedToMe && buyerPolishedShell ? (
           <GovernanceFindingsBuyerChrome scopedRunId={scopedRunId} />
+        ) : null}
+
+        {!isAssignedToMe && scopedRunFilterActive && scopedRunId !== null ? (
+          <GovernanceFindingsQueueNextReviewFooterClient runId={scopedRunId} />
         ) : null}
       </div>
     </OperatorPageContainer>
