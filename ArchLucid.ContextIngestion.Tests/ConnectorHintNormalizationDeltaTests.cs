@@ -16,6 +16,29 @@ namespace ArchLucid.ContextIngestion.Tests;
 public sealed class ConnectorHintNormalizationDeltaTests
 {
     [Fact]
+    public async Task SecurityBaselineHintsConnector_DeltaAsync_CaseChange_ReportsUnchanged()
+    {
+        SecurityBaselineHintsConnector connector = new(
+            new SecurityBaselineHintsPayloadExtractor(),
+            new SecurityBaselineHintsPayloadNormalizer(),
+            new SetDiffConnectorDeltaComputer());
+
+        ContextSnapshot previous = await SnapshotAsync(
+            connector,
+            new RawContextPayload { SecurityBaselineHints = ["Encrypt At Rest"] });
+
+        NormalizedContextBatch currentBatch = await connector.NormalizeAsync(
+            new RawContextPayload { SecurityBaselineHints = ["encrypt at rest"] },
+            CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(currentBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task SecurityBaselineHintsConnector_DeltaAsync_PaddedHint_ReportsUnchanged()
     {
         SecurityBaselineHintsConnector connector = new(
@@ -35,6 +58,29 @@ public sealed class ConnectorHintNormalizationDeltaTests
 
         delta.UnchangedCount.Should().Be(1);
         delta.ModifiedCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task InlineRequirementsConnector_DeltaAsync_CaseChange_ReportsUnchanged()
+    {
+        InlineRequirementsConnector connector = new(
+            new InlineRequirementsPayloadExtractor(),
+            new InlineRequirementsPayloadNormalizer(),
+            new SetDiffConnectorDeltaComputer());
+
+        ContextSnapshot previous = await SnapshotAsync(
+            connector,
+            new RawContextPayload { InlineRequirements = ["Must Encrypt"] });
+
+        NormalizedContextBatch currentBatch = await connector.NormalizeAsync(
+            new RawContextPayload { InlineRequirements = ["must encrypt"] },
+            CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(currentBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
     }
 
     [Fact]

@@ -1781,11 +1781,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 7
-- **bugs-found:** 15
+- **hunts:** 8
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — long inline requirements with shared 80-char prefix collapsed in `PriorRequirementNames` scope metadata
+- **last-bug:** 2026-08-25 — security baseline and inline requirement casing churned connector deltas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1808,6 +1808,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TopologyHintsPayloadNormalizer` topology hint casing and slash spacing churned `ObjectId` deltas — **hit 2026-08-25:** `TopologyHintStableObjectIds` hashed case-sensitive text and slash hints kept spacing in `ObjectId`; fixed by canonicalizing slash segments, lowercasing stable keys, and skipping whitespace-only hints (`ConnectorHintNormalizationDeltaTests`).
 - [x] (proven) `JsonInfrastructureDeclarationParser` preserved `resourceType` casing in properties — **hit 2026-08-25:** `VNet` vs `vnet` false-modified infrastructure declaration deltas; fixed by lowercasing `resourceType` property (`ConnectorHintNormalizationDeltaTests.JsonInfrastructureDeclarationParser_ResourceTypeCasing_IsCanonicalized`).
 - [x] (proven) `InlineRequirementsPayloadNormalizer` long requirement `Name` truncation without hash suffix — **hit 2026-08-25:** two inline requirements sharing an 80-char prefix collapsed to one `Name`, so `ContextIngestionService` `PriorRequirementNames` metadata dropped a requirement; fixed with shared `ContextIngestionStableLineNames.BuildDisplayName` (same pattern as `PlainTextContextDocumentParser`); regressions `InlineRequirementsPayloadNormalizerTests`, `ContextIngestionServiceTests.IngestAsync_WhenPreviousSnapshotHadLongInlineRequirements_StoresAllPriorRequirementNames`
+- [x] (proven) `SecurityBaselineHintsPayloadNormalizer` kept hint casing in `SourceId` — **hit 2026-08-25:** `Encrypt At Rest` vs `encrypt at rest` reported false add/remove on security-baseline connector delta; fixed by lowercasing trimmed hints for `SourceId`, `Name`, and `text` (`ConnectorHintNormalizationDeltaTests.SecurityBaselineHintsConnector_DeltaAsync_CaseChange_ReportsUnchanged`)
+- [x] (proven) `InlineRequirementsPayloadNormalizer` kept requirement casing in `SourceId` — **hit 2026-08-25:** `Must Encrypt` vs `must encrypt` reported false add/remove on inline-requirements connector delta; fixed by lowercasing trimmed requirements for `SourceId`, `Name`, and `text` (`ConnectorHintNormalizationDeltaTests.InlineRequirementsConnector_DeltaAsync_CaseChange_ReportsUnchanged`)
+- [ ] (candidate) `SetDiffConnectorDeltaComputer` compares normalized batches to enriched previous snapshot objects — enricher adds `category` / `topologySensitivity` / `baselineScope` after delta; identical re-ingest may report false modified on topology/security connectors
+- [ ] (candidate) `PolicyTopologyOverlapResolver.ResolveApplicableTopologyNodeIds` does not canonicalize slash spacing before stable id — `parentNet / childSubnet` overlap id may mismatch topology hint `ObjectId` after `TopologyHintsPayloadNormalizer` collapses slash spacing
+- [ ] (candidate) `JsonInfrastructureDeclarationParser` preserves padded `name` in `CanonicalObject.Name` — `" hub-vnet "` vs `"hub-vnet"` may false-churn infrastructure declaration connector delta keys
 
 ---
 

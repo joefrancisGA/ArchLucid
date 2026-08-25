@@ -24,14 +24,15 @@ public sealed class SecurityBaselineHintsPayloadNormalizer : IConnectorNormalize
                 continue;
 
             string trimmed = hint.Trim();
+            string canonicalHint = trimmed.ToLowerInvariant();
 
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "SecurityBaseline",
-                Name = trimmed,
+                Name = canonicalHint,
                 SourceType = "SecurityBaselineHint",
-                SourceId = StableHintSourceId(trimmed),
-                Properties = new Dictionary<string, string> { ["text"] = trimmed, ["status"] = "declared" }
+                SourceId = StableHintSourceId(canonicalHint),
+                Properties = new Dictionary<string, string> { ["text"] = canonicalHint, ["status"] = "declared" }
             });
         }
 

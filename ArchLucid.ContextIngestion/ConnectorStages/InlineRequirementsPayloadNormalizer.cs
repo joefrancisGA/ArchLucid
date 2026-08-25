@@ -25,14 +25,15 @@ public sealed class InlineRequirementsPayloadNormalizer : IConnectorNormalizer<I
                 continue;
 
             string trimmed = requirement.Trim();
+            string canonicalRequirement = trimmed.ToLowerInvariant();
 
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "Requirement",
-                Name = ContextIngestionStableLineNames.BuildDisplayName(trimmed),
+                Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalRequirement),
                 SourceType = "InlineRequirement",
-                SourceId = StableRequirementSourceId(trimmed),
-                Properties = new Dictionary<string, string> { ["text"] = trimmed }
+                SourceId = StableRequirementSourceId(canonicalRequirement),
+                Properties = new Dictionary<string, string> { ["text"] = canonicalRequirement }
             });
         }
 
