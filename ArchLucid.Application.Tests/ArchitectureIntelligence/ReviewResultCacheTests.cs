@@ -26,4 +26,30 @@ public sealed class ReviewResultCacheTests
         cache.TryGet(manifest, out ClosedLoopReasoningResult? expired).Should().BeFalse();
         expired.Should().BeNull();
     }
+
+    [Fact]
+    public void TryGet_returns_snapshot_isolated_from_stored_entry()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-isolated" };
+        ClosedLoopReasoningResult stored = new()
+        {
+            RunId = "run-isolated",
+            Model = new ArchitectureKnowledgeModel
+            {
+                ModelId = "model-isolated",
+                Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+            },
+        };
+
+        cache.Set(manifest, stored);
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+
+        cached!.CacheHit = true;
+        cached.Model.Elements[0].Name = "mutated";
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? again).Should().BeTrue();
+        again!.CacheHit.Should().BeFalse();
+        again.Model.Elements[0].Name.Should().Be("API");
+    }
 }

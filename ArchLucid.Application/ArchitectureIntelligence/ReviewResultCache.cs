@@ -10,6 +10,7 @@ public sealed class ReviewResultCache : IReviewResultCache
 
     private readonly ConcurrentDictionary<string, CacheEntry> _cache = new(StringComparer.Ordinal);
     private readonly TimeProvider _clock;
+    private readonly object _evictionLock = new();
 
     public ReviewResultCache(TimeProvider? timeProvider = null)
     {
@@ -37,7 +38,7 @@ public sealed class ReviewResultCache : IReviewResultCache
             return false;
         }
 
-        result = entry.Result;
+        result = ClosedLoopReasoningResultCloner.Clone(entry.Result);
         return true;
     }
 
@@ -46,20 +47,25 @@ public sealed class ReviewResultCache : IReviewResultCache
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNull(result);
 
-        EvictExpiredEntries();
+        ClosedLoopReasoningResult snapshot = ClosedLoopReasoningResultCloner.Clone(result);
 
-        if (_cache.Count >= MaxEntries)
-            EvictOldestEntry();
-
-        DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
-        string key = ReviewCacheKeyBuilder.Build(manifest);
-
-        _cache[key] = new CacheEntry
+        lock (_evictionLock)
         {
-            Result = result,
-            CreatedUtc = utcNow,
-            ExpiresUtc = utcNow.Add(EntryTtl),
-        };
+            EvictExpiredEntries();
+
+            if (_cache.Count >= MaxEntries)
+                EvictOldestEntry();
+
+            DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
+            string key = ReviewCacheKeyBuilder.Build(manifest);
+
+            _cache[key] = new CacheEntry
+            {
+                Result = snapshot,
+                CreatedUtc = utcNow,
+                ExpiresUtc = utcNow.Add(EntryTtl),
+            };
+        }
     }
 
     private void EvictExpiredEntries()
