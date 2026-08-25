@@ -22,14 +22,14 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
         const string sql = """
             INSERT INTO dbo.ArchitectureReviewRecurrenceSchedules
             (
-                ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId,
+                ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId, ArchitectureId,
                 Name, CronExpression, IsEnabled, CreatedUtc, CreatedByUserId,
                 LastTriggeredUtc, LastTriggeredRunId, NextRunUtc,
                 LastRunStatus, LastErrorMessage, ConsecutiveFailureCount
             )
             VALUES
             (
-                @ScheduleId, @TenantId, @WorkspaceId, @ProjectId, @SourceRunId,
+                @ScheduleId, @TenantId, @WorkspaceId, @ProjectId, @SourceRunId, @ArchitectureId,
                 @Name, @CronExpression, @IsEnabled, @CreatedUtc, @CreatedByUserId,
                 @LastTriggeredUtc, @LastTriggeredRunId, @NextRunUtc,
                 @LastRunStatus, @LastErrorMessage, @ConsecutiveFailureCount
@@ -73,7 +73,7 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
     {
         const string sql = """
             SELECT TOP (@Take)
-                ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId,
+                ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId, ArchitectureId,
                 Name, CronExpression, IsEnabled, CreatedUtc, CreatedByUserId,
                 LastTriggeredUtc, LastTriggeredRunId, NextRunUtc,
                 LastRunStatus, LastErrorMessage, ConsecutiveFailureCount
@@ -102,7 +102,7 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
     {
         const string sql = """
             SELECT
-                ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId,
+                ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId, ArchitectureId,
                 Name, CronExpression, IsEnabled, CreatedUtc, CreatedByUserId,
                 LastTriggeredUtc, LastTriggeredRunId, NextRunUtc,
                 LastRunStatus, LastErrorMessage, ConsecutiveFailureCount
@@ -129,7 +129,7 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
     {
         const string sql = """
             SELECT
-                ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId,
+                ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId, ArchitectureId,
                 Name, CronExpression, IsEnabled, CreatedUtc, CreatedByUserId,
                 LastTriggeredUtc, LastTriggeredRunId, NextRunUtc,
                 LastRunStatus, LastErrorMessage, ConsecutiveFailureCount

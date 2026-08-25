@@ -67,7 +67,10 @@ public sealed class RecurringArchitectureReviewTriggerService(
                     throw new InvalidOperationException($"Architecture request {sourceRun.ArchitectureRequestId} was not found.");
 
                 ArchitectureRequest clone =
-                    RecurringArchitectureReviewRequestCloner.CloneForRecurrence(sourceRequest, schedule.SourceRunId, triggeredAt);
+                    RecurringArchitectureReviewRequestCloner.CloneForRecurrence(
+                        sourceRequest,
+                        schedule.LastTriggeredRunId ?? schedule.SourceRunId,
+                        triggeredAt);
 
                 CreateRunResult created = await createOrchestrator.CreateRunAsync(clone, null, cancellationToken);
                 string runIdHex = created.Run.RunId;

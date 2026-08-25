@@ -35,6 +35,13 @@ public sealed class ArchitectureReviewRecurrenceSchedule
         set;
     }
 
+    /// <summary>Stable architecture identity for recurrence and compare defaults.</summary>
+    public Guid? ArchitectureId
+    {
+        get;
+        set;
+    }
+
     public string Name
     {
         get;
