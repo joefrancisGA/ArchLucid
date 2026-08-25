@@ -160,13 +160,14 @@ public class ApiKeyAuthenticationHandler(
     /// <summary>
     ///     Replaces the ApiKey display-name claim when CI sends <c>X-ArchLucid-Test-Actor-Name</c>
     ///     (governance peer approve). Segregation compares display names for non-JWT principals.
+    ///     Uses the first non-empty header value; duplicate headers must not be comma-joined.
     /// </summary>
     private static Claim[] ApplyTestActorHeaderOverrides(Claim[] claims, HttpRequest request)
     {
         if (!request.Headers.TryGetValue(ArchLucidAuthOptions.TestActorNameHeader, out StringValues actorNameValues))
             return claims;
 
-        string overrideName = actorNameValues.ToString().Trim();
+        string overrideName = ExtractProvidedApiKey(actorNameValues);
 
         if (overrideName.Length == 0)
             return claims;
