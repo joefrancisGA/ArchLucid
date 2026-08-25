@@ -120,9 +120,9 @@ public sealed class RecommendationImproveLoopCoordinatorTests
 
         result.Should().NotBeNull();
         result!.Diff.Entries.Should().ContainSingle(entry => entry.ElementId == "rec-el");
-        result.Diff.BeforeModel.Elements.Should().BeEmpty();
+        result.Diff.BeforeModel.Elements.Should().ContainSingle(element => element.ElementId == "svc-1");
         result.Diff.AfterModel.Elements.Should().BeEmpty();
-        result.Diff.BeforeModel.ModelId.Should().BeNull();
+        result.Diff.BeforeModel.ModelId.Should().Be("before-model");
         result.Diff.AfterModel.ModelId.Should().BeNull();
         result.PartialScopeDisclaimer.Should().Be("partial");
 
