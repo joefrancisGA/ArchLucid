@@ -18,6 +18,7 @@ import { ArchitectureDraftIntakeModeBanner } from "@/components/architecture/Arc
 import { ArchitectureDraftQualityAttributesEncouragementDialog } from "@/components/architecture/ArchitectureDraftQualityAttributesEncouragementDialog";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
@@ -85,6 +86,10 @@ import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-revi
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import { GuidedIntakeAlreadySubmittedCallout } from "@/app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout";
 import { GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS, GUIDED_INTAKE_ACTOR_SUGGESTIONS_READINESS_HINT } from "@/lib/guided-intake-copy";
+import {
+  resolveArchitectureDraftStartReviewEmphasizedStepId,
+  resolveArchitectureDraftStartReviewSteps,
+} from "@/lib/architecture-draft-start-review-checklist";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -236,6 +241,21 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     () => validateArchitectureReviewReadiness(fields, actorSet.actors),
     [actorSet.actors, fields],
   );
+  const nameAndScopeConfigured =
+    fields.systemName.trim().length > 0 &&
+    fields.freeTextIntent.trim().length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS;
+  const qualityReadinessConfigured =
+    qualityAttributeMeetsMinimum(fields.structuredBrief.qualityAttribute) && reviewReadiness.isValid;
+  const draftStartReviewSteps = resolveArchitectureDraftStartReviewSteps({
+    nameAndScopeConfigured,
+    qualityReadinessConfigured,
+    reviewStarted: linkedReviewId !== null,
+  });
+  const draftStartReviewEmphasizedStepId = resolveArchitectureDraftStartReviewEmphasizedStepId({
+    nameAndScopeConfigured,
+    qualityReadinessConfigured,
+    reviewStarted: linkedReviewId !== null,
+  });
   const needsPersistedDraftBeforeStart = isNewDraft && !hasPersistedDraft;
   const canStartReview =
     reviewReadiness.isValid &&
@@ -750,6 +770,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           </Button>
         </div>
       ) : null}
+
+      <IntegrationConnectChecklist
+        title="Start-review checklist"
+        steps={draftStartReviewSteps}
+        emphasizedStepId={draftStartReviewEmphasizedStepId}
+        testIdPrefix="architecture-draft-start-review"
+      />
 
       <Card>
         <CardContent className="space-y-6 pt-6">

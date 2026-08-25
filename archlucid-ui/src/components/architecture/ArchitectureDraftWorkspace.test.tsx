@@ -298,6 +298,7 @@ describe("ArchitectureDraftWorkspace", () => {
       screen.getByRole("heading", { level: 1, name: "Claims intake" }),
     ).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-creation-new-draft-section-title")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-start-review-setup-progress")).toBeInTheDocument();
   });
 
   it("shows a skeleton without list wayfinding while loading an existing draft (TB-1453)", async () => {
