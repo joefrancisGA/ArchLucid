@@ -11,6 +11,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { HelpAcceleratorCostGovernancePackCard } from "@/components/accelerator/HelpAcceleratorCostGovernancePackCard";
+import { AcceleratorFollowUpPackTag } from "@/components/accelerator/AcceleratorFollowUpPackTag";
 import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import { useAcceleratorChooserPrerequisitePresentation } from "@/hooks/use-accelerator-chooser-prerequisite-presentation";
 import { buildAcceleratorChooserGridItemsForPrerequisite } from "@/lib/accelerator-chooser-grid";
@@ -26,6 +27,7 @@ import { ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO } from "@/lib/acceler
 import { ACCELERATOR_CHOOSER_HELP_PATH } from "@/lib/accelerator-chooser-help-route";
 import {
   ACCELERATOR_GREENFIELD_PACK_ID,
+  acceleratorPackRequiresSignedReviewRecord,
   resolvePackCtaState,
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 import { ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL } from "@/lib/accelerator-chooser-start-copy";
@@ -68,14 +70,14 @@ function resolveRequiredInputsHelpHref(packEntry: AcceleratorChooserEntry): stri
 type AcceleratorChooserPackCardProps = {
   readonly packEntry: AcceleratorChooserEntry;
   readonly prerequisiteStatus: AcceleratorChooserPrerequisiteStatus;
+  readonly onRetry?: () => void;
 };
 
 function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): React.ReactElement {
-  const { packEntry, prerequisiteStatus } = props;
+  const { packEntry, prerequisiteStatus, onRetry } = props;
   const ctaState = resolvePackCtaState(prerequisiteStatus, packEntry.id);
   const hasTechnicalInputs = packEntry.technicalInputs !== undefined;
-  const primaryWhenReady =
-    packEntry.id === ACCELERATOR_GREENFIELD_PACK_ID && prerequisiteStatus === "not-met";
+  const isFollowUpPack = acceleratorPackRequiresSignedReviewRecord(packEntry.id);
 
   return (
     <li
@@ -88,6 +90,9 @@ function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): Rea
       <p className={cn("m-0 mt-1 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {packEntry.packLabel}
       </p>
+      {isFollowUpPack ? (
+        <AcceleratorFollowUpPackTag testId={`help-accelerator-chooser-pack-${packEntry.id}-follow-up-tag`} />
+      ) : null}
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{packEntry.summary}</p>
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         <span className="font-medium text-al-text-primary">
@@ -135,7 +140,7 @@ function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): Rea
         blockedMessageTestId={
           ctaState !== "ready" ? `help-accelerator-chooser-pack-${packEntry.id}-blocked` : undefined
         }
-        primaryWhenReady={primaryWhenReady}
+        onRetry={onRetry}
       />
     </li>
   );
@@ -193,6 +198,7 @@ export function HelpAcceleratorChooserGuideView(
                   <HelpAcceleratorCostGovernancePackCard
                     key="cost-governance-group"
                     prerequisiteStatus={presentation.status}
+                    onRetry={presentation.retry}
                   />
                 );
               }
@@ -202,6 +208,7 @@ export function HelpAcceleratorChooserGuideView(
                   key={gridItem.entry.id}
                   packEntry={gridItem.entry}
                   prerequisiteStatus={presentation.status}
+                  onRetry={presentation.retry}
                 />
               );
             })}

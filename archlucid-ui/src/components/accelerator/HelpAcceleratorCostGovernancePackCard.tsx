@@ -6,6 +6,7 @@ import {
   AcceleratorCostGovernanceCloudPicker,
   useAcceleratorCostGovernancePackSelection,
 } from "@/components/accelerator/AcceleratorCostGovernanceCloudPicker";
+import { AcceleratorFollowUpPackTag } from "@/components/accelerator/AcceleratorFollowUpPackTag";
 import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
@@ -25,13 +26,14 @@ import { cn } from "@/lib/utils";
 
 type HelpAcceleratorCostGovernancePackCardProps = {
   readonly prerequisiteStatus: AcceleratorChooserPrerequisiteStatus;
+  readonly onRetry?: () => void;
 };
 
 /** Grouped cost-governance pack card for `/help/accelerator-chooser`. */
 export function HelpAcceleratorCostGovernancePackCard(
   props: HelpAcceleratorCostGovernancePackCardProps,
 ): React.JSX.Element {
-  const { prerequisiteStatus } = props;
+  const { prerequisiteStatus, onRetry } = props;
   const { selectedPackId, setSelectedPackId } = useAcceleratorCostGovernancePackSelection();
   const selectedPack = resolveAcceleratorCostGovernancePackEntry(selectedPackId);
   const ctaState = resolvePackCtaState(prerequisiteStatus, selectedPackId);
@@ -47,6 +49,9 @@ export function HelpAcceleratorCostGovernancePackCard(
       <p className={cn("m-0 mt-1 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {ACCELERATOR_COST_GOVERNANCE_GROUP.packLabel}
       </p>
+      <AcceleratorFollowUpPackTag
+        testId={`help-accelerator-chooser-pack-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-follow-up-tag`}
+      />
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {ACCELERATOR_COST_GOVERNANCE_GROUP.summary}
       </p>
@@ -90,6 +95,7 @@ export function HelpAcceleratorCostGovernancePackCard(
         blockedMessageTestId={
           ctaState !== "ready" ? `help-accelerator-chooser-pack-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-blocked` : undefined
         }
+        onRetry={onRetry}
       />
     </li>
   );

@@ -10,7 +10,7 @@ vi.mock("@/hooks/use-accelerator-chooser-prerequisite-presentation", () => ({
 import { AcceleratorJobChooserList } from "@/components/accelerator/AcceleratorJobChooserList";
 import { ACCELERATOR_COST_GOVERNANCE_GROUP_ID } from "@/lib/accelerator-chooser";
 import { buildAcceleratorChooserGridItems } from "@/lib/accelerator-chooser-grid";
-import { ACCELERATOR_GREENFIELD_PACK_ID, ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE } from "@/lib/accelerator-chooser-pack-prerequisite";
+import { ACCELERATOR_GREENFIELD_PACK_ID, ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE } from "@/lib/accelerator-chooser-pack-prerequisite";
 
 describe("accelerator-chooser-grid", () => {
   it("collapses Azure, AWS, and GCP cost packs into one grouped grid row", () => {
@@ -83,8 +83,12 @@ describe("AcceleratorJobChooserList", () => {
 
     expect(screen.getByTestId(`accelerator-chooser-start-${ACCELERATOR_GREENFIELD_PACK_ID}`)).toBeInTheDocument();
     expect(screen.getByTestId(`accelerator-chooser-row-ai-llm-workload-blocked`)).toHaveTextContent(
-      ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE,
+      ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
     );
+    expect(screen.getByTestId("accelerator-chooser-row-ai-llm-workload-follow-up-tag")).toHaveTextContent(
+      "Follow-up pack",
+    );
+    expect(screen.queryByRole("button", { name: /start/i })).toBeNull();
     expect(screen.getAllByRole("link", { name: /start with this pack/i })).toHaveLength(1);
   });
 });

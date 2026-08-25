@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { AcceleratorCostGovernancePackRow } from "@/components/accelerator/AcceleratorCostGovernancePackRow";
+import { AcceleratorFollowUpPackTag } from "@/components/accelerator/AcceleratorFollowUpPackTag";
 import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import { useAcceleratorChooserPrerequisitePresentation } from "@/hooks/use-accelerator-chooser-prerequisite-presentation";
 import {
@@ -11,7 +12,7 @@ import {
 } from "@/lib/accelerator-chooser-start-copy";
 import type { AcceleratorChooserEntry } from "@/lib/accelerator-chooser";
 import { buildAcceleratorChooserGridItemsForPrerequisite } from "@/lib/accelerator-chooser-grid";
-import { ACCELERATOR_GREENFIELD_PACK_ID } from "@/lib/accelerator-chooser-pack-prerequisite";
+import { acceleratorPackRequiresSignedReviewRecord } from "@/lib/accelerator-chooser-pack-prerequisite";
 import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -30,12 +31,12 @@ type AcceleratorChooserPackRowProps = {
   readonly rowPrefix: string;
   readonly startPrefix: string;
   readonly prerequisiteStatus: AcceleratorChooserPrerequisiteStatus;
+  readonly onRetry?: () => void;
 };
 
 function AcceleratorChooserPackRow(props: AcceleratorChooserPackRowProps): React.JSX.Element {
-  const { entry, compact, rowPrefix, startPrefix, prerequisiteStatus } = props;
-  const primaryWhenReady =
-    entry.id === ACCELERATOR_GREENFIELD_PACK_ID && prerequisiteStatus === "not-met";
+  const { entry, compact, rowPrefix, startPrefix, prerequisiteStatus, onRetry } = props;
+  const isFollowUpPack = acceleratorPackRequiresSignedReviewRecord(entry.id);
 
   return (
     <li
@@ -48,6 +49,9 @@ function AcceleratorChooserPackRow(props: AcceleratorChooserPackRowProps): React
       <p className={cn("m-0 mt-1 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         {entry.packLabel}
       </p>
+      {isFollowUpPack ? (
+        <AcceleratorFollowUpPackTag testId={`${rowPrefix}-${entry.id}-follow-up-tag`} />
+      ) : null}
       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {entry.summary}
       </p>
@@ -75,7 +79,7 @@ function AcceleratorChooserPackRow(props: AcceleratorChooserPackRowProps): React
         prerequisiteStatus={prerequisiteStatus}
         startTestId={`${startPrefix}-${entry.id}`}
         blockedMessageTestId={`${rowPrefix}-${entry.id}-blocked`}
-        primaryWhenReady={primaryWhenReady}
+        onRetry={onRetry}
       />
     </li>
   );
@@ -103,6 +107,7 @@ export function AcceleratorJobChooserList(props: AcceleratorJobChooserListProps)
               rowTestIdPrefix={rowPrefix}
               startTestIdPrefix={startPrefix}
               prerequisiteStatus={presentation.status}
+              onRetry={presentation.retry}
             />
           );
         }
@@ -115,6 +120,7 @@ export function AcceleratorJobChooserList(props: AcceleratorJobChooserListProps)
             rowPrefix={rowPrefix}
             startPrefix={startPrefix}
             prerequisiteStatus={presentation.status}
+            onRetry={presentation.retry}
           />
         );
       })}

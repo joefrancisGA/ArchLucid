@@ -8,6 +8,8 @@ export const ACCELERATOR_JOB_CHOOSER_EXPECTED_OUTPUTS_LABEL = "Expected outputs"
 
 export const ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL = "Required inputs";
 
-export const ACCELERATOR_JOB_CHOOSER_START_CTA = "Start with this pack";
+import { ACCELERATOR_PACK_START_GREENFIELD_LABEL } from "@/lib/accelerator-chooser-pack-prerequisite";
+
+export const ACCELERATOR_JOB_CHOOSER_START_CTA = ACCELERATOR_PACK_START_GREENFIELD_LABEL;
 
 export const ACCELERATOR_COST_GOVERNANCE_CLOUD_PICKER_LABEL = "Cloud";

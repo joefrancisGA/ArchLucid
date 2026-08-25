@@ -6,6 +6,7 @@ import {
   AcceleratorCostGovernanceCloudPicker,
   useAcceleratorCostGovernancePackSelection,
 } from "@/components/accelerator/AcceleratorCostGovernanceCloudPicker";
+import { AcceleratorFollowUpPackTag } from "@/components/accelerator/AcceleratorFollowUpPackTag";
 import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import {
   ACCELERATOR_JOB_CHOOSER_EXPECTED_OUTPUTS_LABEL,
@@ -25,6 +26,7 @@ export type AcceleratorCostGovernancePackRowProps = {
   readonly rowTestIdPrefix?: string;
   readonly startTestIdPrefix?: string;
   readonly prerequisiteStatus: AcceleratorChooserPrerequisiteStatus;
+  readonly onRetry?: () => void;
 };
 
 /** Grouped cost-governance accelerator row with Azure / AWS / GCP cloud picker. */
@@ -46,6 +48,7 @@ export function AcceleratorCostGovernancePackRow(props: AcceleratorCostGovernanc
       <p className={cn("m-0 mt-1 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         {ACCELERATOR_COST_GOVERNANCE_GROUP.packLabel}
       </p>
+      <AcceleratorFollowUpPackTag testId={`${rowPrefix}-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-follow-up-tag`} />
       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {ACCELERATOR_COST_GOVERNANCE_GROUP.summary}
       </p>
@@ -77,6 +80,7 @@ export function AcceleratorCostGovernancePackRow(props: AcceleratorCostGovernanc
         prerequisiteStatus={props.prerequisiteStatus}
         startTestId={`${startPrefix}-${selectedPackId}`}
         blockedMessageTestId={`${rowPrefix}-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-blocked`}
+        onRetry={props.onRetry}
       />
     </li>
   );

@@ -45,7 +45,7 @@ import {
   ACCELERATOR_GREENFIELD_PACK_ID,
   ACCELERATOR_PACK_CTA_PENDING_CHECKING_MESSAGE,
   ACCELERATOR_PACK_CTA_PENDING_UNKNOWN_MESSAGE,
-  ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE,
+  ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 import { getHelpCenterTier } from "@/lib/help/help-center-catalog";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -162,14 +162,17 @@ describe("HelpAcceleratorChooserGuideView", () => {
       }
 
       expect(screen.getByTestId(`help-accelerator-chooser-pack-${packEntry.id}-blocked`)).toHaveTextContent(
-        ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE,
+        ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
+      );
+      expect(screen.getByTestId(`help-accelerator-chooser-pack-${packEntry.id}-follow-up-tag`)).toHaveTextContent(
+        "Follow-up pack",
       );
       expect(screen.queryByTestId(`help-accelerator-chooser-start-${packEntry.id}`)).toBeNull();
     }
 
     expect(screen.getByTestId(ACCELERATOR_COST_GOVERNANCE_HELP_PACK_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("help-accelerator-chooser-pack-cost-governance-blocked")).toHaveTextContent(
-      ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE,
+      ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
     );
     expect(screen.queryByTestId("help-accelerator-chooser-start-azure-cost-governance")).toBeNull();
 
@@ -208,12 +211,14 @@ describe("HelpAcceleratorChooserGuideView", () => {
     expect(screen.getByTestId("help-accelerator-chooser-pack-ai-llm-workload-blocked")).toHaveTextContent(
       ACCELERATOR_PACK_CTA_PENDING_UNKNOWN_MESSAGE,
     );
+    expect(screen.getAllByRole("button", { name: /retry availability check/i }).length).toBeGreaterThan(0);
   });
 
   it("enables specialty pack CTAs when prerequisite is met", () => {
     renderGuideWithPrerequisiteStatus("met");
 
-    expect(screen.getAllByRole("link", { name: /start with this pack/i })).toHaveLength(5);
+    expect(screen.getAllByRole("link", { name: /start follow-up review/i })).toHaveLength(4);
+    expect(screen.getByRole("link", { name: /start with this pack/i })).toBeInTheDocument();
     expect(screen.getByTestId("help-accelerator-chooser-start-azure-cost-governance")).toHaveAttribute(
       "href",
       "/architecture/reviews/new?baseline=1&accelerator=azure-cost-governance",

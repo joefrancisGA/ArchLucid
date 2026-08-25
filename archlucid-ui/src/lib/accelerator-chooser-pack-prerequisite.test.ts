@@ -1,52 +1,65 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ACCELERATOR_FOLLOWUP_PACK_TAG_LABEL,
   ACCELERATOR_GREENFIELD_PACK_ID,
-  acceleratorPackRequiresSignedReviewRecord,
-  isAcceleratorPackBlockedByPrerequisite,
-  prerequisiteNeedsPrimaryFirstReviewAction,
-  prerequisiteNeedsPrimaryGreenfieldAction,
-  prerequisiteNeedsRetryAction,
-  resolvePackCtaState,
+  ACCELERATOR_PACK_CTA_PENDING_CHECKING_MESSAGE,
+  ACCELERATOR_PACK_CTA_PENDING_UNKNOWN_MESSAGE,
+  ACCELERATOR_PACK_CTA_RETRY_LABEL,
+  ACCELERATOR_PACK_START_FOLLOWUP_LABEL,
+  ACCELERATOR_PACK_START_GREENFIELD_LABEL,
+  ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
+  resolvePackCtaPresentation,
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 
-describe("accelerator-chooser-pack-prerequisite", () => {
-  it("treats greenfield as not requiring a Finalized review record", () => {
-    expect(acceleratorPackRequiresSignedReviewRecord(ACCELERATOR_GREENFIELD_PACK_ID)).toBe(false);
-    expect(acceleratorPackRequiresSignedReviewRecord("regulated-saas-soc-procurement")).toBe(true);
+describe("resolvePackCtaPresentation", () => {
+  it("returns greenfield start link when prerequisite is not met", () => {
+    expect(resolvePackCtaPresentation("not-met", ACCELERATOR_GREENFIELD_PACK_ID)).toEqual({
+      mode: "start-link",
+      visibleLabel: ACCELERATOR_PACK_START_GREENFIELD_LABEL,
+      statusMessage: null,
+      usePrimaryVariant: true,
+    });
   });
 
-  it("blocks specialty packs only when prerequisite is not met", () => {
-    expect(isAcceleratorPackBlockedByPrerequisite("not-met", "ai-llm-workload")).toBe(true);
-    expect(isAcceleratorPackBlockedByPrerequisite("unknown", "azure-cost-governance")).toBe(false);
-    expect(isAcceleratorPackBlockedByPrerequisite("checking", "ai-llm-workload")).toBe(false);
-    expect(isAcceleratorPackBlockedByPrerequisite("met", "ai-llm-workload")).toBe(false);
-    expect(isAcceleratorPackBlockedByPrerequisite("not-met", ACCELERATOR_GREENFIELD_PACK_ID)).toBe(false);
+  it("returns locked status for specialty packs when prerequisite is not met", () => {
+    expect(resolvePackCtaPresentation("not-met", "ai-llm-workload")).toEqual({
+      mode: "locked-status",
+      visibleLabel: null,
+      statusMessage: ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
+      usePrimaryVariant: false,
+    });
   });
 
-  it("resolves distinct CTA states for checking and unknown", () => {
-    expect(resolvePackCtaState("checking", "ai-llm-workload")).toBe("pending-checking");
-    expect(resolvePackCtaState("unknown", "ai-llm-workload")).toBe("pending-unknown");
-    expect(resolvePackCtaState("not-met", "ai-llm-workload")).toBe("blocked-not-met");
-    expect(resolvePackCtaState("met", "ai-llm-workload")).toBe("ready");
-    expect(resolvePackCtaState("not-met", ACCELERATOR_GREENFIELD_PACK_ID)).toBe("ready");
+  it("returns follow-up start link when prerequisite is met", () => {
+    expect(resolvePackCtaPresentation("met", "ai-llm-workload")).toEqual({
+      mode: "start-link",
+      visibleLabel: ACCELERATOR_PACK_START_FOLLOWUP_LABEL,
+      statusMessage: null,
+      usePrimaryVariant: false,
+    });
   });
 
-  it("elevates greenfield action when prerequisite is not met", () => {
-    expect(prerequisiteNeedsPrimaryGreenfieldAction("not-met")).toBe(true);
-    expect(prerequisiteNeedsPrimaryGreenfieldAction("unknown")).toBe(false);
-    expect(prerequisiteNeedsPrimaryGreenfieldAction("met")).toBe(false);
+  it("returns checking status without a start control", () => {
+    expect(resolvePackCtaPresentation("checking", "regulated-saas-soc-procurement")).toEqual({
+      mode: "checking-status",
+      visibleLabel: null,
+      statusMessage: ACCELERATOR_PACK_CTA_PENDING_CHECKING_MESSAGE,
+      usePrimaryVariant: false,
+    });
   });
 
-  it("elevates first-review help action when prerequisite is unknown", () => {
-    expect(prerequisiteNeedsPrimaryFirstReviewAction("unknown")).toBe(true);
-    expect(prerequisiteNeedsPrimaryFirstReviewAction("not-met")).toBe(false);
-    expect(prerequisiteNeedsPrimaryFirstReviewAction("met")).toBe(false);
-    expect(prerequisiteNeedsPrimaryFirstReviewAction("checking")).toBe(false);
+  it("returns retry button when prerequisite is unknown", () => {
+    expect(resolvePackCtaPresentation("unknown", "healthcare-data-workflow")).toEqual({
+      mode: "retry-button",
+      visibleLabel: ACCELERATOR_PACK_CTA_RETRY_LABEL,
+      statusMessage: ACCELERATOR_PACK_CTA_PENDING_UNKNOWN_MESSAGE,
+      usePrimaryVariant: false,
+    });
   });
 
-  it("shows retry when prerequisite is unknown", () => {
-    expect(prerequisiteNeedsRetryAction("unknown")).toBe(true);
-    expect(prerequisiteNeedsRetryAction("not-met")).toBe(false);
+  it("keeps follow-up taxonomy label separate from unlock copy", () => {
+    expect(ACCELERATOR_FOLLOWUP_PACK_TAG_LABEL).toBe("Follow-up pack");
+    expect(ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE).not.toContain(ACCELERATOR_FOLLOWUP_PACK_TAG_LABEL);
   });
 });
