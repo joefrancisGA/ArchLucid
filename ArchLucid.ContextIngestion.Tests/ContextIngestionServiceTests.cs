@@ -1,4 +1,7 @@
 using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
@@ -91,6 +94,58 @@ public sealed class ContextIngestionServiceTests
 
         snapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.PriorRequirementNames);
         snapshot.SourceHashes[ContextScopeMetadataKeys.PriorRequirementNames].Should().Be("availability|encryption");
+    }
+
+    [Fact]
+    public async Task IngestAsync_WhenPreviousSnapshotHadLongInlineRequirements_StoresAllPriorRequirementNames()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        string sharedPrefix = new('r', 80);
+        string firstRequirement = sharedPrefix + "alpha-tail";
+        string secondRequirement = sharedPrefix + "beta-tail";
+
+        IReadOnlyList<IConnectorDescriptor> descriptors =
+        [
+            new ConnectorDescriptor(
+                1,
+                new InlineRequirementsConnector(
+                    new InlineRequirementsPayloadExtractor(),
+                    new InlineRequirementsPayloadNormalizer(),
+                    new SetDiffConnectorDeltaComputer()))
+        ];
+
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(descriptors, new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-long-inline-req";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            InlineRequirements = [firstRequirement, secondRequirement]
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+        await repo.SaveAsync(firstSnapshot, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId
+        };
+
+        ContextSnapshot snapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        snapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.PriorRequirementNames);
+        string[] priorNames = snapshot.SourceHashes[ContextScopeMetadataKeys.PriorRequirementNames]
+            .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        priorNames.Should().HaveCount(2);
+        priorNames.Should().OnlyContain(name => name.StartsWith(sharedPrefix, StringComparison.Ordinal));
+        priorNames.Should().OnlyContain(name => name.Contains('#', StringComparison.Ordinal));
     }
 
     private sealed class CountingConnector : IContextConnector

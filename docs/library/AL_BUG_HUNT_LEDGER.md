@@ -1781,11 +1781,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 6
-- **bugs-found:** 14
+- **hunts:** 7
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — connector hint normalizers emitted raw padded/cased text while stable ids used trimmed hashes, churning deltas; topology whitespace-only hints threw
+- **last-bug:** 2026-08-25 — long inline requirements with shared 80-char prefix collapsed in `PriorRequirementNames` scope metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1807,7 +1807,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InlineRequirementsPayloadNormalizer` padded requirements false-modified delta — **hit 2026-08-25:** same trim/hash mismatch as security baseline hints; fixed by trimming/skipping blanks (`ConnectorHintNormalizationDeltaTests.InlineRequirementsConnector_DeltaAsync_PaddedRequirement_ReportsUnchanged`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` topology hint casing and slash spacing churned `ObjectId` deltas — **hit 2026-08-25:** `TopologyHintStableObjectIds` hashed case-sensitive text and slash hints kept spacing in `ObjectId`; fixed by canonicalizing slash segments, lowercasing stable keys, and skipping whitespace-only hints (`ConnectorHintNormalizationDeltaTests`).
 - [x] (proven) `JsonInfrastructureDeclarationParser` preserved `resourceType` casing in properties — **hit 2026-08-25:** `VNet` vs `vnet` false-modified infrastructure declaration deltas; fixed by lowercasing `resourceType` property (`ConnectorHintNormalizationDeltaTests.JsonInfrastructureDeclarationParser_ResourceTypeCasing_IsCanonicalized`).
-- [ ] (candidate) `InlineRequirementsPayloadNormalizer` long requirement `Name` truncation without hash suffix — two requirements identical in first 80 chars may collapse in downstream `PriorRequirementNames` scope metadata (delta `SourceId` remains distinct).
+- [x] (proven) `InlineRequirementsPayloadNormalizer` long requirement `Name` truncation without hash suffix — **hit 2026-08-25:** two inline requirements sharing an 80-char prefix collapsed to one `Name`, so `ContextIngestionService` `PriorRequirementNames` metadata dropped a requirement; fixed with shared `ContextIngestionStableLineNames.BuildDisplayName` (same pattern as `PlainTextContextDocumentParser`); regressions `InlineRequirementsPayloadNormalizerTests`, `ContextIngestionServiceTests.IngestAsync_WhenPreviousSnapshotHadLongInlineRequirements_StoresAllPriorRequirementNames`
 
 ---
 

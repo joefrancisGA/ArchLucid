@@ -4,6 +4,7 @@ using System.Text;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
+using ArchLucid.ContextIngestion.Parsing;
 
 namespace ArchLucid.ContextIngestion.ConnectorStages;
 
@@ -28,7 +29,7 @@ public sealed class InlineRequirementsPayloadNormalizer : IConnectorNormalizer<I
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "Requirement",
-                Name = trimmed.Length > 80 ? trimmed[..80] : trimmed,
+                Name = ContextIngestionStableLineNames.BuildDisplayName(trimmed),
                 SourceType = "InlineRequirement",
                 SourceId = StableRequirementSourceId(trimmed),
                 Properties = new Dictionary<string, string> { ["text"] = trimmed }
