@@ -1,3 +1,4 @@
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance.Resolution;
 
@@ -13,6 +14,8 @@ public static class PolicyPackAssignmentOutcomeRecorder
         ArgumentException.ThrowIfNullOrWhiteSpace(governanceScopeJson);
         ArgumentNullException.ThrowIfNull(findings);
 
+        List<Finding> rollupFindings = AuthorityFindingRollupFilter.ForAuthorityRollup(findings);
+
         ExecutedEffectiveGovernanceSnapshotDescriptor? descriptor =
             ExecutedEffectiveGovernanceSnapshotJson.TryDeserialize(governanceScopeJson);
 
@@ -26,7 +29,7 @@ public static class PolicyPackAssignmentOutcomeRecorder
         {
             assignment.EvaluationOutcome = DetermineOutcome(
                 assignment,
-                findings,
+                rollupFindings,
                 findingsSnapshot,
                 findingsComplete,
                 findingsFailed);
@@ -55,7 +58,7 @@ public static class PolicyPackAssignmentOutcomeRecorder
 
         bool hasSignal = findings.Any(finding => PolicyPackFindingMatcher.MatchesAssignment(finding, assignment));
 
-        if (hasSignal || findingsComplete)
+        if (hasSignal)
             return PolicyPackEvaluationOutcomes.Evaluated;
 
         return PolicyPackEvaluationOutcomes.Skipped;

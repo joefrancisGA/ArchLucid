@@ -177,4 +177,36 @@ public sealed class ArchitectureKnowledgeModelAccessTests
       && descriptor.ImplementationType == typeof(ArchitectureKnowledgeModelAccess)
       && descriptor.Lifetime == ServiceLifetime.Scoped);
   }
+
+  [Fact]
+  public async Task SaveForRunAsync_clears_GraphSnapshotId_so_pipeline_reprojects_graph()
+  {
+    Guid runId = Guid.Parse("abababab-abab-abab-abab-abababababab");
+    Guid graphSnapshotId = Guid.Parse("bcbcbcbc-bcbc-bcbc-bcbc-bcbcbcbcbcbc");
+
+    Mock<IArchitectureIntelligencePersistence> persistence = new();
+    Mock<IRunRepository> runs = new();
+    RunRecord run = new()
+    {
+      RunId = runId,
+      GraphSnapshotId = graphSnapshotId,
+    };
+
+    runs
+      .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(run);
+
+    ArchitectureKnowledgeModelAccess access = new(
+      persistence.Object,
+      runs.Object,
+      Mock.Of<IArchitectureIdentityRepository>());
+
+    await access.SaveForRunAsync(
+      TestScope,
+      runId,
+      new ArchitectureKnowledgeModel { TenantId = TestScope.TenantId.ToString("D") });
+
+    run.GraphSnapshotId.Should().BeNull();
+    runs.Verify(r => r.UpdateAsync(run, It.IsAny<CancellationToken>()), Times.Once);
+  }
 }

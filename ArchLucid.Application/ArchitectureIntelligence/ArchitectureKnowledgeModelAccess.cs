@@ -69,7 +69,16 @@ public sealed class ArchitectureKnowledgeModelAccess(
             .GetByIdAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
-        if (run?.ArchitectureId is not Guid architectureId
+        if (run is null)
+            return;
+
+        if (run.GraphSnapshotId.HasValue)
+        {
+            run.GraphSnapshotId = null;
+            await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+        }
+
+        if (run.ArchitectureId is not Guid architectureId
             || _architectureIdentityRepository is null)
             return;
 
