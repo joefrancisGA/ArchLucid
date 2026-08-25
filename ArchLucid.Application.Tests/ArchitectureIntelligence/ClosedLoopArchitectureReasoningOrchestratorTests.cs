@@ -2,6 +2,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 
@@ -185,5 +186,71 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
         request.TenantId.Should().Be("tenant-immutable");
         request.RunId.Should().BeEmpty();
         result.RunId.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task RunAsync_does_not_persist_recommendation_apply_when_publish_blocked()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        services.RemoveAll<ITrustPublishGate>();
+        services.AddSingleton<ITrustPublishGate, AlwaysBlockedTrustPublishGate>();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+        IArchitectureIntelligencePersistence persistence =
+            provider.GetRequiredService<IArchitectureIntelligencePersistence>();
+
+        string runId = Guid.NewGuid().ToString("N");
+        ClosedLoopReasoningResult result = await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-blocked-save",
+            RunId = runId,
+            DeclaredPriorities = ["Security"],
+            FramingAnswers = CreateCompleteFramingAnswers(),
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = """
+                        Public API exposes customer records without authentication.
+                        Billing worker is an unowned component.
+                        """,
+                },
+            ],
+        });
+
+        result.PublishBlocked.Should().BeTrue();
+        result.Recommendations.Should().NotBeEmpty();
+        result.ModelDiffs.Should().NotBeEmpty();
+        result.Model.Elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.Recommendation);
+
+        ArchitectureKnowledgeModel? persisted = await persistence.GetModelByRunIdAsync(
+            "tenant-blocked-save",
+            runId,
+            CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.Elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.Recommendation);
+    }
+
+    private static Dictionary<string, string> CreateCompleteFramingAnswers()
+    {
+        return new Dictionary<string, string>
+        {
+            ["business-outcome"] = "Secure customer onboarding",
+            ["system-boundary"] = "Public API and billing worker",
+            ["fixed-decisions"] = "Azure is the cloud provider",
+            ["critical-quality-attributes"] = "Security and reliability",
+            ["unacceptable-failures"] = "Data breach",
+            ["architecture-kind"] = "Greenfield integration",
+        };
     }
 }
