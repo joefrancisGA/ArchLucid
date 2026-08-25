@@ -69,36 +69,36 @@ export type ManifestSummary = ManifestSummaryResponseSchema &
   };
 
 /** A single diff entry from run or manifest comparison (section/key/before/after). */
-export type DiffItem = {
-  section: string;
-  key: string;
-  diffKind: string;
-  beforeValue?: string | null;
-  afterValue?: string | null;
-  notes?: string | null;
-};
+export type DiffItem = components["schemas"]["DiffItemResponse"];
+
+type ManifestComparisonResponseSchema = components["schemas"]["ManifestComparisonResponse"];
 
 /** Manifest-level comparison with added/removed/changed counts and flat diffs. */
-export type ManifestComparison = {
-  leftManifestId: string;
-  rightManifestId: string;
-  leftManifestHash: string;
-  rightManifestHash: string;
-  addedCount: number;
-  removedCount: number;
-  changedCount: number;
-  diffs: DiffItem[];
-};
+export type ManifestComparison = ManifestComparisonResponseSchema &
+  Required<
+    Pick<
+      ManifestComparisonResponseSchema,
+      | "leftManifestId"
+      | "rightManifestId"
+      | "leftManifestHash"
+      | "rightManifestHash"
+      | "addedCount"
+      | "removedCount"
+      | "changedCount"
+      | "diffs"
+    >
+  > & {
+    diffs: DiffItem[];
+  };
+
+type RunComparisonResponseSchema = components["schemas"]["RunComparisonResponse"];
 
 /** Legacy flat-diff comparison between two runs. */
-export type RunComparison = {
-  leftRunId: string;
-  rightRunId: string;
-  runLevelDiffs: DiffItem[];
-  manifestComparison?: ManifestComparison | null;
-  runLevelDiffCount?: number;
-  hasManifestComparison?: boolean;
-};
+export type RunComparison = RunComparisonResponseSchema &
+  Required<Pick<RunComparisonResponseSchema, "leftRunId" | "rightRunId" | "runLevelDiffs">> & {
+    runLevelDiffs: DiffItem[];
+    manifestComparison?: ManifestComparison | null;
+  };
 
 type ArtifactWire = components["schemas"]["ArtifactDescriptorResponse"];
 
@@ -120,31 +120,15 @@ export type ArtifactDescriptor = Omit<
 };
 
 /** Validation flags from an authority chain replay. */
-export type ReplayValidation = {
-  contextPresent: boolean;
-  graphPresent: boolean;
-  findingsPresent: boolean;
-  manifestPresent: boolean;
-  tracePresent: boolean;
-  artifactsPresent: boolean;
-  manifestHashMatches: boolean;
-  artifactBundlePresentAfterReplay: boolean;
-  notes: string[];
-  hasValidationNotes?: boolean;
-};
+export type ReplayValidation = components["schemas"]["ReplayValidationResponse"];
+
+type ReplayResponseSchema = components["schemas"]["ReplayResponse"];
 
 /** Full replay response including mode, rebuilt IDs, and validation results. */
-export type ReplayResponse = {
-  runId: string;
-  mode: string;
-  replayedUtc: string;
-  rebuiltManifestId?: string | null;
-  rebuiltManifestHash?: string | null;
-  rebuiltArtifactBundleId?: string | null;
-  validation: ReplayValidation;
-  hasRebuildOutput?: boolean;
-  validationNoteCount?: number;
-};
+export type ReplayResponse = ReplayResponseSchema &
+  Required<Pick<ReplayResponseSchema, "runId" | "mode" | "replayedUtc" | "validation">> & {
+    validation: ReplayValidation & Required<Pick<ReplayValidation, "notes">>;
+  };
 
 /** LLM usage rollup — **OpenAPI** `RunAgentLlmCostEstimateResponse`. */
 export type RunAgentExecutionLlmCostEstimate = components["schemas"]["RunAgentLlmCostEstimateResponse"];
@@ -283,34 +267,35 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots 
     results?: readonly RunDetailAgentResult[] | null;
   };
 
+type ProvenanceNodeSchema = components["schemas"]["ProvenanceNode"];
+
 /** Node in decision provenance graph (`GET …/provenance`). */
-export type ProvenanceNode = {
-  id: string;
-  type: number;
-  referenceId: string;
-  name: string;
-  metadata?: Record<string, string>;
-};
+export type ProvenanceNode = ProvenanceNodeSchema &
+  Required<Pick<ProvenanceNodeSchema, "id" | "referenceId" | "name">> & {
+    /** OpenAPI `ProvenanceNodeType` string enum; legacy numeric wire values tolerated. */
+    type: NonNullable<ProvenanceNodeSchema["type"]> | number;
+  };
 
-export type ProvenanceEdge = {
-  id: string;
-  fromNodeId: string;
-  toNodeId: string;
-  type: number;
-};
+type ProvenanceEdgeSchema = components["schemas"]["ProvenanceEdge"];
 
-export type DecisionProvenanceGraph = {
-  id: string;
-  runId: string;
-  nodes: ProvenanceNode[];
-  edges: ProvenanceEdge[];
-};
+export type ProvenanceEdge = ProvenanceEdgeSchema &
+  Required<Pick<ProvenanceEdgeSchema, "id" | "fromNodeId" | "toNodeId">> & {
+    /** OpenAPI `ProvenanceEdgeType` string enum; legacy numeric wire values tolerated. */
+    type: NonNullable<ProvenanceEdgeSchema["type"]> | number;
+  };
+
+type DecisionProvenanceGraphSchema = components["schemas"]["DecisionProvenanceGraph"];
+
+export type DecisionProvenanceGraph = DecisionProvenanceGraphSchema &
+  Required<Pick<DecisionProvenanceGraphSchema, "id" | "runId">> & {
+    nodes: ProvenanceNode[];
+    edges: ProvenanceEdge[];
+  };
+
+type RunPipelineTimelineItemResponseSchema = components["schemas"]["RunPipelineTimelineItemResponse"];
 
 /** Pipeline audit timeline row (`GET …/pipeline-timeline`). */
-export type PipelineTimelineItem = {
-  eventId: string;
-  occurredUtc: string;
-  eventType: string;
-  actorUserName: string;
-  correlationId?: string | null;
-};
+export type PipelineTimelineItem = RunPipelineTimelineItemResponseSchema &
+  Required<
+    Pick<RunPipelineTimelineItemResponseSchema, "eventId" | "occurredUtc" | "eventType" | "actorUserName">
+  >;
