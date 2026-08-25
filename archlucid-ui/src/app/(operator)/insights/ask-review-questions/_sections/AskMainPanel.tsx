@@ -2,11 +2,17 @@
 import type { RefObject } from "react";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
 import type { AskCitationActionFollowUp } from "@/lib/ask-citation-action-follow-ups";
+import {
+  isAskQuestionSent,
+  resolveAskQuestionEmphasizedStepId,
+  resolveAskQuestionSteps,
+} from "@/lib/ask-question-checklist";
 import { BUYER_ASK_SYNTHETIC_SAMPLE_HINT } from "@/lib/buyer/buyer-polish-copy";
 import type { ConversationMessage } from "@/types/conversation";
 import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
@@ -78,6 +84,20 @@ export function AskMainPanel(props: AskMainPanelProps) {
     retrievalDegraded = false,
   } = props;
 
+  const reviewPicked = runId.trim().length > 0;
+  const questionWritten = question.trim().length > 0;
+  const questionSent = isAskQuestionSent({ loading, messages });
+  const askChecklistSteps = resolveAskQuestionSteps({
+    reviewPicked,
+    questionWritten,
+    questionSent,
+  });
+  const askChecklistEmphasizedStepId = resolveAskQuestionEmphasizedStepId({
+    reviewPicked,
+    questionWritten,
+    questionSent,
+  });
+
   const messageThreadPanel = (
     <AskMessageThreadPanel
       buyerPolishedShell={buyerPolishedShell}
@@ -138,6 +158,13 @@ export function AskMainPanel(props: AskMainPanelProps) {
             />
           </div>
         ) : null}
+
+        <IntegrationConnectChecklist
+          title="Ask checklist"
+          steps={askChecklistSteps}
+          emphasizedStepId={askChecklistEmphasizedStepId}
+          testIdPrefix="ask-question"
+        />
 
         <AskQuestionForm
           questionRef={questionRef}
