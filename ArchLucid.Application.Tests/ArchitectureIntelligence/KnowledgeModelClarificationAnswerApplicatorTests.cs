@@ -70,13 +70,14 @@ public sealed class KnowledgeModelClarificationAnswerApplicatorTests
     ArchitectureKnowledgeModelAccess access = new(persistence.Object, runs.Object);
     KnowledgeModelClarificationAnswerApplicator sut = new(access);
 
-    int applied = await sut.ApplyAnswersAsync(
+    KnowledgeModelClarificationApplyResult applied = await sut.ApplyAnswersAsync(
         TestScope,
         runId,
         new Dictionary<string, string> { [questionId] = answer },
         CancellationToken.None);
 
-    applied.Should().Be(1);
+    applied.AppliedCount.Should().Be(1);
+    applied.AppliedAnswers.Should().ContainKey(questionId);
 
     model.FramingAnswers[$"{KnowledgeModelClarificationAnswerApplicator.FindingClarificationFramingKeyPrefix}{questionId}"]
         .Should().Be(answer);

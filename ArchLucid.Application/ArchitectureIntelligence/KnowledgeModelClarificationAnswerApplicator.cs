@@ -12,11 +12,18 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 /// </summary>
 public interface IKnowledgeModelClarificationAnswerApplicator
 {
-    Task<int> ApplyAnswersAsync(
+    Task<KnowledgeModelClarificationApplyResult> ApplyAnswersAsync(
         ScopeContext scope,
         Guid runId,
         IReadOnlyDictionary<string, string> answers,
         CancellationToken cancellationToken = default);
+}
+
+public sealed class KnowledgeModelClarificationApplyResult
+{
+    public int AppliedCount => AppliedAnswers.Count;
+
+    public Dictionary<string, string> AppliedAnswers { get; } = new(StringComparer.Ordinal);
 }
 
 public sealed class KnowledgeModelClarificationAnswerApplicator(
@@ -28,7 +35,7 @@ public sealed class KnowledgeModelClarificationAnswerApplicator(
 
     private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
-    public async Task<int> ApplyAnswersAsync(
+    public async Task<KnowledgeModelClarificationApplyResult> ApplyAnswersAsync(
         ScopeContext scope,
         Guid runId,
         IReadOnlyDictionary<string, string> answers,
@@ -37,17 +44,17 @@ public sealed class KnowledgeModelClarificationAnswerApplicator(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(answers);
 
+        KnowledgeModelClarificationApplyResult result = new();
+
         if (_knowledgeModelAccess is null || runId == Guid.Empty || answers.Count == 0)
-            return 0;
+            return result;
 
         ArchitectureKnowledgeModel? model = await _knowledgeModelAccess
             .GetForRunAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
         if (model is null)
-            return 0;
-
-        int applied = 0;
+            return result;
 
         foreach (KeyValuePair<string, string> entry in answers)
         {
@@ -59,16 +66,16 @@ public sealed class KnowledgeModelClarificationAnswerApplicator(
 
             if (TryApplyKnowledgeModelUnresolvedQuestion(model, questionId, answer))
             {
-                applied++;
+                result.AppliedAnswers[questionId] = answer;
                 continue;
             }
 
             if (TryApplyFindingClarificationAnswer(model, questionId, answer))
-                applied++;
+                result.AppliedAnswers[questionId] = answer;
         }
 
-        if (applied == 0)
-            return 0;
+        if (result.AppliedCount == 0)
+            return result;
 
         int unresolvedRemaining = model.Elements.Count(candidate =>
             candidate.Kind == ArchitectureElementKind.UnresolvedQuestion);
@@ -78,7 +85,7 @@ public sealed class KnowledgeModelClarificationAnswerApplicator(
 
         await _knowledgeModelAccess.SaveForRunAsync(scope, runId, model, cancellationToken).ConfigureAwait(false);
 
-        return applied;
+        return result;
     }
 
     private static bool TryApplyKnowledgeModelUnresolvedQuestion(

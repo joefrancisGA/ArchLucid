@@ -91,18 +91,18 @@ public sealed class ReviewClarificationQuestionsController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        int applied = await clarificationAnswerApplicator.ApplyAnswersAsync(
+        KnowledgeModelClarificationApplyResult applyResult = await clarificationAnswerApplicator.ApplyAnswersAsync(
             scope,
             runId,
             request.Answers,
             cancellationToken).ConfigureAwait(false);
 
         int mutedResolvedFindings = await clarificationResolvedFindingMuter
-            .MuteResolvedAsync(scope, runId, request.Answers, cancellationToken)
+            .MuteResolvedAsync(scope, runId, applyResult.AppliedAnswers, cancellationToken)
             .ConfigureAwait(false);
 
         IncrementalReReviewResult? reReview = await clarificationAnswerReReviewCoordinator
-            .TryRunAfterApplyAsync(scope, runId, applied, request.Answers, cancellationToken)
+            .TryRunAfterApplyAsync(scope, runId, applyResult.AppliedCount, applyResult.AppliedAnswers, cancellationToken)
             .ConfigureAwait(false);
 
         int mergedFindingCount = reReview?.MergedFindingIds.Count ?? 0;
@@ -115,7 +115,7 @@ public sealed class ReviewClarificationQuestionsController(
                 DataJson = JsonSerializer.Serialize(
                     new
                     {
-                        appliedCount = applied,
+                        appliedCount = applyResult.AppliedCount,
                         mutedResolvedFindingCount = mutedResolvedFindings,
                         answerCount = request.Answers.Count,
                     },
@@ -125,7 +125,7 @@ public sealed class ReviewClarificationQuestionsController(
 
         return Ok(new ApplyKnowledgeModelClarificationAnswersResponse
         {
-            AppliedCount = applied,
+            AppliedCount = applyResult.AppliedCount,
             ReReviewTriggered = reReview is not null,
             MergedFindingCount = mergedFindingCount,
             PartialScopeDisclaimer = reReview?.PartialScopeDisclaimer,
