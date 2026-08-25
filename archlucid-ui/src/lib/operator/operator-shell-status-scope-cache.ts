@@ -10,6 +10,7 @@ export const OPERATOR_SHELL_STATUS_SCOPE_AGNOSTIC_QUERY_KEYS = [
   operatorQueryKeys.tenantUsageStatus,
   operatorQueryKeys.tenantHomepageSettings,
   operatorQueryKeys.operatorStickinessSnapshot,
+  operatorQueryKeys.billingSubscriptionStatus,
 ] as const;
 
 export function clearOperatorShellStatusScopeAgnosticCaches(queryClient: QueryClient): void {
