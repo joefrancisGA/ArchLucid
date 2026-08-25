@@ -1,3 +1,4 @@
+using ArchLucid.Application.Clarifications;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Clarifications;
 using ArchLucid.Contracts.Governance;
@@ -6,7 +7,8 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 /// <summary>
-///     Applies operator clarification answers onto κ <see cref="ArchitectureElementKind.UnresolvedQuestion" /> rows.
+///     Applies operator clarification answers onto κ <see cref="ArchitectureElementKind.UnresolvedQuestion" /> rows
+///     and findings-derived clarification framing answers.
 /// </summary>
 public interface IKnowledgeModelClarificationAnswerApplicator
 {
@@ -21,6 +23,8 @@ public sealed class KnowledgeModelClarificationAnswerApplicator(
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess) : IKnowledgeModelClarificationAnswerApplicator
 {
     internal const string KnowledgeModelQuestionIdPrefix = "km-";
+
+    internal const string FindingClarificationFramingKeyPrefix = "finding-clarification:";
 
     private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
@@ -53,28 +57,14 @@ public sealed class KnowledgeModelClarificationAnswerApplicator(
             if (questionId.Length == 0 || answer.Length == 0)
                 continue;
 
-            if (!TryResolveElementId(questionId, out string elementId))
-                continue;
-
-            ArchitectureModelElement? element = model.Elements
-                .FirstOrDefault(candidate => string.Equals(candidate.ElementId, elementId, StringComparison.Ordinal));
-
-            if (element is null || element.Kind != ArchitectureElementKind.UnresolvedQuestion)
-                continue;
-
-            element.Description = answer;
-            element.Provenance ??= new ClaimProvenance();
-            element.Provenance.Notes = "Operator clarification answer applied.";
-            element.Provenance.SupportStatus = SupportStatus.DirectlyEstablished;
-
-            if (element.Name.StartsWith(
-                    KnowledgeModelInterviewQuestionDeriver.BlockedCheckNamePrefix,
-                    StringComparison.OrdinalIgnoreCase))
+            if (TryApplyKnowledgeModelUnresolvedQuestion(model, questionId, answer))
             {
-                model.Elements.Remove(element);
+                applied++;
+                continue;
             }
 
-            applied++;
+            if (TryApplyFindingClarificationAnswer(model, questionId, answer))
+                applied++;
         }
 
         if (applied == 0)
@@ -91,7 +81,100 @@ public sealed class KnowledgeModelClarificationAnswerApplicator(
         return applied;
     }
 
-    private static bool TryResolveElementId(string questionId, out string elementId)
+    private static bool TryApplyKnowledgeModelUnresolvedQuestion(
+        ArchitectureKnowledgeModel model,
+        string questionId,
+        string answer)
+    {
+        if (!TryResolveKnowledgeModelElementId(questionId, out string elementId))
+            return false;
+
+        ArchitectureModelElement? element = model.Elements
+            .FirstOrDefault(candidate => string.Equals(candidate.ElementId, elementId, StringComparison.Ordinal));
+
+        if (element is null || element.Kind != ArchitectureElementKind.UnresolvedQuestion)
+            return false;
+
+        element.Description = answer;
+        element.Provenance ??= new ClaimProvenance();
+        element.Provenance.Notes = "Operator clarification answer applied.";
+        element.Provenance.SupportStatus = SupportStatus.DirectlyEstablished;
+
+        if (element.Name.StartsWith(
+                KnowledgeModelInterviewQuestionDeriver.BlockedCheckNamePrefix,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            model.Elements.Remove(element);
+        }
+
+        return true;
+    }
+
+    private static bool TryApplyFindingClarificationAnswer(
+        ArchitectureKnowledgeModel model,
+        string questionId,
+        string answer)
+    {
+        if (!IsFindingClarificationQuestionId(questionId))
+            return false;
+
+        string framingKey = $"{FindingClarificationFramingKeyPrefix}{questionId}";
+        model.FramingAnswers[framingKey] = answer;
+
+        string formattedAssumption = OperatorAssertedClarificationAnswerFormatter.Format(questionId, answer);
+        string elementId = BuildFindingClarificationElementId(questionId);
+
+        ArchitectureModelElement? existing = model.Elements
+            .FirstOrDefault(candidate => string.Equals(candidate.ElementId, elementId, StringComparison.Ordinal));
+
+        if (existing is not null)
+        {
+            existing.Description = formattedAssumption;
+            existing.Name = framingKey;
+            existing.Provenance ??= new ClaimProvenance();
+            existing.Provenance.Notes = "Findings-derived clarification answer applied.";
+            existing.Provenance.SupportStatus = SupportStatus.DirectlyEstablished;
+
+            return true;
+        }
+
+        model.Elements.Add(new ArchitectureModelElement
+        {
+            ElementId = elementId,
+            Kind = ArchitectureElementKind.Assumption,
+            Name = framingKey,
+            Description = formattedAssumption,
+            ExtractionConfidence = 1.0,
+            Provenance = new ClaimProvenance
+            {
+                Origin = ClaimOrigin.UserAsserted,
+                SupportStatus = SupportStatus.DirectlyEstablished,
+                Confidence = 1.0,
+                Notes = "Findings-derived clarification answer applied.",
+            },
+        });
+
+        return true;
+    }
+
+    internal static bool IsFindingClarificationQuestionId(string questionId)
+    {
+        if (questionId.Length != 16)
+            return false;
+
+        foreach (char character in questionId)
+        {
+            if (!char.IsAsciiHexDigit(character))
+                return false;
+        }
+
+        return true;
+    }
+
+    internal static string BuildFindingClarificationElementId(string questionId)
+        => $"fc-{questionId}";
+
+    private static bool TryResolveKnowledgeModelElementId(string questionId, out string elementId)
     {
         if (questionId.StartsWith(KnowledgeModelQuestionIdPrefix, StringComparison.OrdinalIgnoreCase))
         {
