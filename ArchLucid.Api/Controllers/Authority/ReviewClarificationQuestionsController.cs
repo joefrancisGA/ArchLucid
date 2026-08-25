@@ -33,6 +33,7 @@ public sealed class ReviewClarificationQuestionsController(
     IReviewClarificationQuestionService clarificationQuestionService,
     IKnowledgeModelClarificationAnswerApplicator clarificationAnswerApplicator,
     IClarificationAnswerReReviewCoordinator clarificationAnswerReReviewCoordinator,
+    IClarificationResolvedFindingMuter clarificationResolvedFindingMuter,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
@@ -96,6 +97,10 @@ public sealed class ReviewClarificationQuestionsController(
             request.Answers,
             cancellationToken).ConfigureAwait(false);
 
+        int mutedResolvedFindings = await clarificationResolvedFindingMuter
+            .MuteResolvedAsync(scope, runId, request.Answers, cancellationToken)
+            .ConfigureAwait(false);
+
         IncrementalReReviewResult? reReview = await clarificationAnswerReReviewCoordinator
             .TryRunAfterApplyAsync(scope, runId, applied, request.Answers, cancellationToken)
             .ConfigureAwait(false);
@@ -113,6 +118,7 @@ public sealed class ReviewClarificationQuestionsController(
                     new
                     {
                         appliedCount = applied,
+                        mutedResolvedFindingCount = mutedResolvedFindings,
                         answerCount = request.Answers.Count,
                     },
                     AuditJsonSerializationOptions.Instance),
