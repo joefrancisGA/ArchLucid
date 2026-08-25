@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import {
   SponsorDashboardDataProvider,
@@ -19,9 +21,14 @@ import {
 } from "@/lib/sponsor/sponsor-dashboard-workspace-state";
 import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID } from "@/lib/sponsor/sponsor-dashboard-route";
 import { resolveSponsorDashboardLatestFinalizedRunId } from "@/lib/resolve-sponsor-dashboard-latest-finalized-run";
+import {
+  readSponsorDashboardPickedReviewId,
+  writeSponsorDashboardPickedReviewId,
+} from "@/lib/sponsor-dashboard-picked-review-storage";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SponsorDashboardBaselineWarningBanner } from "./SponsorDashboardBaselineWarningBanner";
 import { SponsorDashboardLatestFinalizedReviewStrip } from "./SponsorDashboardLatestFinalizedReviewStrip";
+import { SponsorDashboardPickReviewBeforeKpisStrip } from "./SponsorDashboardPickReviewBeforeKpisStrip";
 import {
   BusinessImpactSummaryWidgetDeferred,
   SponsorComplianceDriftTrendSectionDeferred,
@@ -49,6 +56,8 @@ type DashboardSectionsProps = {
   readonly driftPoints?: ReturnType<typeof useSponsorDashboardData>["driftPoints"];
   readonly driftLoading?: boolean;
   readonly driftError?: boolean;
+  readonly selectedReviewId: string;
+  readonly onSelectReview: (reviewId: string) => void;
 };
 
 function SponsorRoiDashboardPortfolioSections({
@@ -60,6 +69,8 @@ function SponsorRoiDashboardPortfolioSections({
   driftPoints,
   driftLoading,
   driftError,
+  selectedReviewId,
+  onSelectReview,
 }: DashboardSectionsProps): React.JSX.Element {
   const v = BUYER_SPONSOR_SUMMARY_VOCABULARY;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -71,6 +82,8 @@ function SponsorRoiDashboardPortfolioSections({
   const latestFinalizedRunId = resolveSponsorDashboardLatestFinalizedRunId(summary);
   const latestFinalizedReviewTitle =
     summary?.systems.find((system) => system.runId === latestFinalizedRunId)?.systemName ?? null;
+  const reviewPicked = selectedReviewId.trim().length > 0;
+  const showKpiSections = hasCommittedReviews && reviewPicked;
 
   return (
     <div data-testid="sponsor-roi-dashboard-ready" data-ready={dashboardReady ? "true" : "false"}>
@@ -80,6 +93,13 @@ function SponsorRoiDashboardPortfolioSections({
       {!dashboardEmpty ? <OperatorWelcomeOnboardingDeferred /> : null}
 
       <SponsorDashboardPageHero dashboardEmpty={dashboardEmpty} />
+
+      {!summaryLoading && !dashboardEmpty && !reviewPicked ? (
+        <SponsorDashboardPickReviewBeforeKpisStrip
+          selectedReviewId={selectedReviewId}
+          onSelectReview={onSelectReview}
+        />
+      ) : null}
 
       {latestFinalizedRunId !== null && hasCommittedReviews && !summaryLoading ? (
         <SponsorDashboardLatestFinalizedReviewStrip
@@ -97,7 +117,7 @@ function SponsorRoiDashboardPortfolioSections({
         </>
       ) : null}
 
-      {!summaryLoading && !dashboardEmpty ? (
+      {!summaryLoading && !dashboardEmpty && showKpiSections ? (
         <>
           <SponsorDashboardNextActionSectionDeferred
             timeRange={defaultTrendRange}
@@ -108,11 +128,11 @@ function SponsorRoiDashboardPortfolioSections({
         </>
       ) : null}
 
-      {hasCommittedReviews ? (
+      {showKpiSections ? (
         <SponsorExportsSectionDeferred surface={surface} hasCommittedReviews={hasCommittedReviews} />
       ) : null}
 
-      {hasCommittedReviews ? (
+      {showKpiSections ? (
         <section aria-labelledby="sponsor-findings-heading" className="space-y-4">
           <h2 id="sponsor-findings-heading" className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>
             {v.latestFindingsSectionTitle}
@@ -127,7 +147,7 @@ function SponsorRoiDashboardPortfolioSections({
         </section>
       ) : null}
 
-      {hasCommittedReviews && (hasDriftData || driftLoading) ? (
+      {showKpiSections && (hasDriftData || driftLoading) ? (
         <SponsorComplianceDriftTrendSectionDeferred
           points={driftPoints}
           loading={driftLoading}
@@ -135,14 +155,14 @@ function SponsorRoiDashboardPortfolioSections({
         />
       ) : null}
 
-      {hasCommittedReviews ? (
+      {showKpiSections ? (
         <div className="grid gap-4 lg:grid-cols-2">
           <SponsorRoiTrendSectionDeferred defaultTimeRange={defaultTrendRange} showTimeRangeSelector />
           <SponsorRoiEnvironmentSavingsSectionDeferred />
         </div>
       ) : null}
 
-      {hasCommittedReviews ? (
+      {showKpiSections ? (
         <SponsorDashboardSupportingMetricsSectionDeferred
           summary={summary ?? null}
           loading={summaryLoading ?? false}
@@ -180,6 +200,17 @@ function SponsorRoiDashboardPortfolioView({
     driftLoading,
     driftError,
   } = useSponsorDashboardData();
+  const [selectedReviewId, setSelectedReviewId] = useState("");
+
+  useEffect(() => {
+    setSelectedReviewId(readSponsorDashboardPickedReviewId());
+  }, []);
+
+  const onSelectReview = useCallback((reviewId: string) => {
+    const trimmed = reviewId.trim();
+    setSelectedReviewId(trimmed);
+    writeSponsorDashboardPickedReviewId(trimmed);
+  }, []);
 
   return (
     <SponsorRoiDashboardPortfolioSections
@@ -191,6 +222,8 @@ function SponsorRoiDashboardPortfolioView({
       driftPoints={driftPoints}
       driftLoading={driftLoading}
       driftError={driftError}
+      selectedReviewId={selectedReviewId}
+      onSelectReview={onSelectReview}
     />
   );
 }

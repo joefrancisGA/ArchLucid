@@ -17,7 +17,7 @@ vi.mock("@/components/SeedSampleReviewButton", () => ({
 vi.mock("@/components/sponsor/SponsorDashboardDataContext", () => ({
   SponsorDashboardDataProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useSponsorDashboardData: () => ({
-    summary: { systemCount: 0, latestRunCount: 0, totalEstimatedUsdSavings: 0 },
+    summary: { systemCount: 0, latestRunCount: 0, totalEstimatedUsdSavings: 0, systems: [] },
     summaryLoading: false,
     summaryError: null,
     driftPoints: [],
@@ -47,6 +47,14 @@ vi.mock("@/components/sponsor/SponsorDashboardPageHero", () => ({
       </button>
     </header>
   ),
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", activeRunId: "" }),
+}));
+
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
 }));
 
 vi.mock("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorComplianceDriftTrendSection", () => ({
