@@ -101,7 +101,6 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   const clarificationQuestionsQuery = useReviewClarificationQuestions({
     runId: props.baseline.runId,
     priorRunId: props.baseline.clarificationPriorRunId ?? null,
-    enabled: props.analysisStagesComplete === true,
   });
 
   const merged = useMemo(() => {
@@ -197,7 +196,11 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     (item) => !dismissedClarificationGapIds.has(item.id),
   );
   const clarificationGapCount = countClarificationGaps(visibleClarificationGaps);
-  const clarificationsCount = countOpenClarifications(clarificationGapCount, openQuestionCount);
+  const modelBackedInterviewQuestions = clarificationQuestionsQuery.data?.questions ?? [];
+  const clarificationsCount =
+    modelBackedInterviewQuestions.length > 0
+      ? clarificationGapCount
+      : countOpenClarifications(clarificationGapCount, openQuestionCount);
   const diagramClarifyHref = buildArchitectureCorrectionHref(props.baseline.runId, props.correctionHref);
   const compactViewportMode =
     activeTab === "clarifications" ||

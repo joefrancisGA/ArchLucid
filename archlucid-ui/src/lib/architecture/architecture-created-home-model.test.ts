@@ -90,4 +90,29 @@ describe("buildArchitectureCreatedHomeModel", () => {
     expect(clarificationGap).toBeDefined();
     expect(clarificationGap?.href).toContain("rerun=run-1");
   });
+
+  it("prefers knowledge-model interview questions over intake heuristic gaps", () => {
+    const model = buildArchitectureCreatedHomeModel({
+      ...baseInput,
+      architectureOverview: "",
+      businessOutcome: "",
+      peopleAndSystems: [],
+      architectureName: "",
+      findingsDerivedQuestions: [
+        {
+          questionId: "km-q-blocked",
+          prompt: "Policy pack threshold blocks finalize until disposition is recorded.",
+          sourceFindingId: "finding-42",
+          sourceFindingType: "KnowledgeModel.BlockedCheck",
+          severity: 3,
+          missingItem: "Policy pack threshold blocks finalize until disposition is recorded.",
+        },
+      ],
+    });
+
+    expect(model.missingItems).toHaveLength(1);
+    expect(model.missingItems[0]?.id).toBe("km-q-blocked");
+    expect(model.clarificationGaps[0]?.label).toContain("Policy pack threshold");
+    expect(model.clarificationGaps.some((item) => item.id === "business-outcome")).toBe(false);
+  });
 });
