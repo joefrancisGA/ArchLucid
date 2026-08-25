@@ -1510,11 +1510,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — snapshot muted severity buckets; unresolved PilotStrict pass; scorecard ready-for-commit counted as committed; buyer proof summary omitted governed coverage
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — proof-package completeness flagged missing committed timestamp when deltas already carried CompletedUtc fallback
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1528,6 +1528,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Unresolved PilotStrict trace query reported satisfied sponsor evidence — **hit 2026-08-24:** `PilotProofPackageCompletenessMapper` treated `AgentOutputPilotStrictSignalsResolved=false` as pass; fixed with explicit resolved check plus gate soft-gap (`Build_UnresolvedPilotStrictSignals_FlagsEvidenceUnsatisfied`).
 - [x] (proven) `PilotScorecardBuilder` counted `ReadyForCommit` runs with manifest ids as committed — **hit 2026-08-24:** predicate used manifest version/id only; fixed to require `LegacyRunStatus == Committed` (`PilotScorecardBuilderTests.BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted`).
 - [x] (proven) Buyer proof `artifact-and-proof-summary.md` omitted governed-finding coverage — **hit 2026-08-24:** `BuyerProofPackArtifactSummaryBuilder` ignored `governedFindingCoverage` in deltas JSON (`BuyerProofPackArtifactSummaryBuilderTests.Build_WhenGovernedFindingCoveragePresent_EmitsGovernedCoverageSection`).
+- [x] (proven) `PilotProofPackageCompletenessMapper` reported `CommittedManifestTimestampResolved == false` when `PilotRunDeltaComputer` already populated `ManifestCommittedUtc` from `CompletedUtc` but manifest metadata `CreatedUtc` was default — **hit 2026-08-25:** proof table showed **Missing** while elapsed-time cells used the fallback timestamp; regression in `Build_WhenManifestCreatedUtcDefaultButDeltasCarryCompletedUtc_ResolvesCommittedTimestamp`.
+- [ ] (hunt-ready) `BuyerProofPackBuilder.TryBuildZipAsync` passes `extractorCollectionTimestampUtc: null` into `PilotRunDeltasResponseMapper` while `PilotsApplicationService.TryGetPilotRunDeltasAsync` resolves workspace extractor timestamps — ZIP `roiSourceFreshnessDisposition` can stay `PASS` when API returns `HOLD` for stale cost evidence.
+- [ ] (hunt-ready) `FirstValueReportSponsorStatusSectionFormatter.FormatSponsorTopFindings` reads only `detail.Results` findings while `PilotRunDeltaComputer` falls back to persisted snapshot counts — sponsor table can say **no active findings** when deltas JSON shows severity buckets.
+- [ ] (hunt-ready) `BoardPackQuarterWindow.Resolve` ignores a lone `overrideStartUtc`/`overrideEndUtc` and silently uses calendar `year`/`quarter` bounds.
 
 ---
 
