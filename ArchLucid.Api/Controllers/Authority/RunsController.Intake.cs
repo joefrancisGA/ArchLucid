@@ -88,6 +88,7 @@ public sealed partial class RunsController
     [ProducesResponseType(typeof(DraftArchitectureRequestResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public IActionResult GetDraftRequestAsyncResult(
         [FromRoute] Guid operationId,
         [FromServices] IAdvisoryDraftOperationStore advisoryDraftOperationStore)
@@ -114,9 +115,9 @@ public sealed partial class RunsController
 
         if (record.State == OperationState.Failed)
         {
-            return this.BadRequestProblem(
+            return this.UnprocessableEntityProblem(
                 record.ErrorMessage ?? "Structured brief suggestion failed.",
-                ProblemTypes.ValidationFailed);
+                ProblemTypes.BusinessRuleViolation);
         }
 
         if (record.State == OperationState.Canceled)
