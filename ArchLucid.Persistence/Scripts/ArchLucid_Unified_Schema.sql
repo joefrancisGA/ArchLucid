@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 328_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 330_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -6838,6 +6838,21 @@ BEGIN
     );
 
     CREATE NONCLUSTERED INDEX IX_ScimGroupMembers_UserId ON dbo.ScimGroupMembers (UserId, TenantId);
+END;
+
+GO
+
+/* DbUp 329 parity: SCIM group member listing by tenant + group. */
+IF OBJECT_ID(N'dbo.ScimGroupMembers', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_ScimGroupMembers_Tenant_Group'
+         AND object_id = OBJECT_ID(N'dbo.ScimGroupMembers'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_ScimGroupMembers_Tenant_Group
+        ON dbo.ScimGroupMembers (TenantId, GroupId)
+        INCLUDE (UserId);
 END;
 
 GO

@@ -7948,6 +7948,20 @@ BEGIN
 END;
 GO
 
+/* DbUp 329 parity: SCIM group member listing by tenant + group. */
+IF OBJECT_ID(N'dbo.ScimGroupMembers', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_ScimGroupMembers_Tenant_Group'
+         AND object_id = OBJECT_ID(N'dbo.ScimGroupMembers'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_ScimGroupMembers_Tenant_Group
+        ON dbo.ScimGroupMembers (TenantId, GroupId)
+        INCLUDE (UserId);
+END;
+GO
+
 /* 133: SCIM ResolvedRoleOrigin + dbo.AdminNotifications (see Migrations/133_ScimResolvedRole_AdminNotifications.sql). */
 IF COL_LENGTH(N'dbo.ScimUsers', N'ResolvedRoleOrigin') IS NULL
 BEGIN
