@@ -154,10 +154,12 @@ public sealed class AuthorityPipelineFindingsStage(
 
     private static void RecordFindingsProducedForMetrics(FindingsSnapshot snapshot)
     {
-        if (snapshot.Findings.Count == 0)
+        List<Finding> rollupFindings = AuthorityFindingRollupFilter.ForAuthorityRollup(snapshot.Findings);
+
+        if (rollupFindings.Count == 0)
             return;
 
-        foreach (IGrouping<FindingSeverity, Finding> group in snapshot.Findings.GroupBy(static f => f.Severity))
+        foreach (IGrouping<FindingSeverity, Finding> group in rollupFindings.GroupBy(static f => f.Severity))
         {
             TagList tags = new() { { "severity", group.Key.ToString() } };
 
