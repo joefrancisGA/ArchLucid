@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceWorkflowSubmitCardDescriptionReader,
@@ -35,6 +36,10 @@ import {
   GOVERNANCE_WORKFLOW_SUBMIT_CARD_DESCRIPTION_OPERATOR,
 } from "@/lib/governance/governance-workflow-release-copy";
 import { GOVERNANCE_ENV_OPTIONS } from "./governance-workflow-helpers";
+import {
+  resolveGovernanceWorkflowSubmitEmphasizedStepId,
+  resolveGovernanceWorkflowSubmitSteps,
+} from "@/lib/governance-workflow-submit-checklist";
 
 export type GovernanceWorkflowSubmitSectionProps = {
   buyerPolishedShell: boolean;
@@ -54,6 +59,7 @@ export type GovernanceWorkflowSubmitSectionProps = {
   submitComment: string;
   setSubmitComment: (v: string) => void;
   submitBusy: boolean;
+  submitApprovalComplete?: boolean;
   onSubmitApproval: () => void | Promise<void>;
 };
 
@@ -75,6 +81,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
     submitComment,
     setSubmitComment,
     submitBusy,
+    submitApprovalComplete = false,
     onSubmitApproval,
   } = props;
 
@@ -102,6 +109,18 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
 
   const submitReadinessMessage: string =
     missingSubmitFields.length === 0 ? "Ready to submit." : `Missing: ${missingSubmitFields.join(", ")}.`;
+  const reviewPicked = submitRunId.trim().length > 0;
+  const requiredFieldsComplete =
+    submitManifestVersion.trim().length > 0 &&
+    submitSource.trim().length > 0 &&
+    submitTarget.trim().length > 0;
+  const submitChecklistInput = {
+    reviewPicked,
+    requiredFieldsComplete,
+    submitComplete: submitApprovalComplete,
+  };
+  const submitSteps = resolveGovernanceWorkflowSubmitSteps(submitChecklistInput);
+  const submitEmphasizedStepId = resolveGovernanceWorkflowSubmitEmphasizedStepId(submitChecklistInput);
 
   return (
     <section className="mb-6">
@@ -136,6 +155,14 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
+            {canMutateWorkflow ? (
+              <IntegrationConnectChecklist
+                title="Submit checklist"
+                steps={submitSteps}
+                emphasizedStepId={submitEmphasizedStepId}
+                testIdPrefix="governance-workflow-submit"
+              />
+            ) : null}
             <div className="grid gap-2">
               <AskRunIdPicker
                 fieldId="gov-submit-run"

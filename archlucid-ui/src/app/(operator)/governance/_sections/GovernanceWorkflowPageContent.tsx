@@ -108,6 +108,7 @@ export function GovernanceWorkflowPageContent() {
   const [submitTarget, setSubmitTarget] = useState<string>("");
   const [submitComment, setSubmitComment] = useState("");
   const [submitBusy, setSubmitBusy] = useState(false);
+  const [submitApprovalComplete, setSubmitApprovalComplete] = useState(false);
 
   const [queryRunId, setQueryRunId] = useState("");
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
@@ -373,6 +374,7 @@ export function GovernanceWorkflowPageContent() {
       setMutationSuccessMessage(GOVERNANCE_WORKFLOW_APPROVAL_SUBMITTED_SUCCESS);
       setMutationErrorMessage(null);
       setSubmitComment("");
+      setSubmitApprovalComplete(true);
 
       if (activeRunId === runId) {
         await refetchRunLists();
@@ -720,6 +722,7 @@ export function GovernanceWorkflowPageContent() {
               submitComment={submitComment}
               setSubmitComment={setSubmitComment}
               submitBusy={submitBusy}
+              submitApprovalComplete={submitApprovalComplete}
               onSubmitApproval={onSubmitApproval}
             />
           </div>
