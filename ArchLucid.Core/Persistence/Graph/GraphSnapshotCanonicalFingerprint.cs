@@ -164,8 +164,8 @@ public static class GraphSnapshotCanonicalFingerprint
             : string.Join(
                 ":",
                 provenance.PassageLocator.ArtifactId ?? string.Empty,
-                provenance.PassageLocator.StartOffset.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                provenance.PassageLocator.EndOffset.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                provenance.PassageLocator.StartOffset?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
+                provenance.PassageLocator.EndOffset?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
                 provenance.PassageLocator.Quote ?? string.Empty);
 
         return string.Join(
