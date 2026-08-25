@@ -110,7 +110,7 @@ public sealed class PolicyPackAssignmentOutcomeRecorderTests
 
         FindingsSnapshot snapshot = new()
         {
-            GenerationStatus = FindingsSnapshotGenerationStatus.InProgress,
+            GenerationStatus = FindingsSnapshotGenerationStatus.Generating,
         };
 
         string updated = PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes(scopeJson, findings, snapshot);
