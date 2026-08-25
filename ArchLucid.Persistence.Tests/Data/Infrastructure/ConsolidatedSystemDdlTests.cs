@@ -26,7 +26,7 @@ public sealed class ConsolidatedSystemDdlTests
 
         tables.Should().Contain("Tenants");
         tables.Should().Contain("TenantDatabaseBindings");
-        tables.Should().Contain("TenantDatabaseProvisioningJobs");
+        tables.Should().NotContain("TenantDatabaseProvisioningJobs");
         tables.Should().Contain("WarmTenantCatalogStandby");
     }
 

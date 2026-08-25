@@ -8,7 +8,7 @@ Generated from canonical DDL: `ArchLucid.Persistence/Scripts/ArchLucid.sql`, sup
 - Only declared SQL `PRIMARY KEY` and `FOREIGN KEY` constraints are listed.
 
 **Tenant catalog tables:** 166
-**System catalog tables:** 4
+**System catalog tables:** 3
 
 # Tenant / product catalog
 
@@ -864,11 +864,6 @@ Generated from canonical DDL: `ArchLucid.Persistence/Scripts/ArchLucid.sql`, sup
 
 - **Primary key:** `(TenantId)`
 - **Foreign key:** `TenantId -> dbo.Tenants(Id)`
-
-## dbo.TenantDatabaseProvisioningJobs
-
-- **Primary key:** `(JobId)`
-- **Foreign key:** `TenantId -> dbo.TenantDatabaseBindings(TenantId)`
 
 ## dbo.WarmTenantCatalogStandby
 

@@ -27,16 +27,6 @@ public static class SystemSchemaSentinelManifest
         },
         new SchemaSentinelExpectation
         {
-            TableName = "TenantDatabaseProvisioningJobs",
-            Columns =
-            [
-                new SchemaSentinelColumn { ColumnName = "JobId", SqlDataType = "uniqueidentifier" },
-                new SchemaSentinelColumn { ColumnName = "TenantId", SqlDataType = "uniqueidentifier" },
-            ],
-            IndexNames = ["IX_TenantDatabaseProvisioningJobs_TenantId"],
-        },
-        new SchemaSentinelExpectation
-        {
             TableName = "WarmTenantCatalogStandby",
             Columns =
             [

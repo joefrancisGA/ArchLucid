@@ -24,11 +24,11 @@ Accepted golden manifests contain architecture decisions, topology labels, and f
 
 3. **Training-data export (Phase 1):** `AcceptedManifestTrainingDataExporter` builds JSONL-style `FineTuningTrainingRecord` rows from committed manifests in caller scope only. All free-text passes through `IPromptRedactor.RedactAlways` plus manifest-specific GUID tokenization. No cross-tenant manifest mixing in a single export batch.
 
-4. **Orchestration (Phase 2):** Azure OpenAI fine-tuning jobs are submitted via `AzureOpenAiFineTuningJobOrchestrator` when `Retrieval:FineTuning:Enabled` is true and Azure OpenAI is configured; otherwise `DisabledFineTuningJobOrchestrator` is registered. Job metadata and deployment names are held in **`IFineTunedModelRegistry`** — V1 DI wires **`InMemoryFineTunedModelRegistry`** only; `dbo.FineTunedModelRegistryEntries` exists as schema reserved for future SQL parity (no SQL writer yet).
+4. **Orchestration (Phase 2):** Azure OpenAI fine-tuning jobs are submitted via `AzureOpenAiFineTuningJobOrchestrator` when `Retrieval:FineTuning:Enabled` is true and Azure OpenAI is configured; otherwise `DisabledFineTuningJobOrchestrator` is registered. Job metadata and deployment names are held in **`IFineTunedModelRegistry`** — V1 DI wires **`InMemoryFineTunedModelRegistry`** only. Reserved table **`dbo.FineTunedModelRegistryEntries`** was dropped in migration **326** (never written).
 
 5. **Promotion gate (Phase 3):** `GoldenCohortFineTuningPromotionGate` compares fine-tuned vs. base golden-cohort faithfulness support ratios. Promotion requires fine-tuned ≥ base and fine-tuned ≥ configured floor (`Retrieval:FineTuning:MinEvalSupportRatio`, default **0.80**). Failed promotion leaves the prior active model unchanged; rollback marks the registry entry `RolledBack`.
 
-6. **Tenant isolation:** All export and registry rows are tenant-scoped (`TenantId` on row). Workspace/project scope is preserved on export audit rows. No fine-tuned model is promoted across tenants.
+6. **Tenant isolation:** Export audit rows are tenant-scoped (`TenantId` on `dbo.FineTuningTrainingExportAudits`) with workspace/project columns. The V1 in-memory registry is process-local and is not a SQL table. No fine-tuned model is promoted across tenants.
 
 ## Trade-offs
 
