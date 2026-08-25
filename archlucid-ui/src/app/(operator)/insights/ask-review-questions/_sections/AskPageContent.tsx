@@ -2,9 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { askReviewQuestionsHref, ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -32,6 +32,7 @@ import type { ConversationMessage, ConversationThread } from "@/types/conversati
 import { AskMainPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskMainPanel";
 import { AskArchitectureIntelligenceVocabularyRail } from "@/components/AskArchitectureIntelligenceVocabularyRail";
 import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceVocabularyRail";
+import { AskPickReviewBeforeAskingStrip } from "@/components/ask/AskPickReviewBeforeAskingStrip";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskThreadHistoryPanel";
@@ -43,6 +44,7 @@ const ASK_PAGE_SUBTITLE =
   "Ask questions across finalized reviews in this workspace, or narrow to one review. Answers cite indexed evidence when available.";
 
 export function AskPageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const urlRunIdRaw = searchParams.get("runId")?.trim() ?? "";
 
@@ -80,28 +82,6 @@ export function AskPageContent() {
 
     setRunId(canonicalizeDemoRunId(urlRunIdRaw));
   }, [urlRunIdRaw]);
-
-  useEffect(() => {
-    if (!buyerPolishedShell) {
-      return;
-    }
-
-    if (urlRunIdRaw.length > 0) {
-      return;
-    }
-
-    const fromWs = workspaceRun?.activeRunId?.trim() ?? "";
-
-    if (fromWs.length === 0) {
-      return;
-    }
-
-    if (selectedThreadId.trim().length > 0) {
-      return;
-    }
-
-    setRunId(canonicalizeDemoRunId(fromWs));
-  }, [buyerPolishedShell, workspaceRun?.activeRunId, selectedThreadId, urlRunIdRaw]);
 
   const {
     data: prefetchedThreads,
@@ -209,20 +189,6 @@ export function AskPageContent() {
 
     applyThreadList(prefetchedThreads);
   }, [applyThreadList, buyerPolishedShell, prefetchedThreads, threadsQueryError]);
-
-  useEffect(() => {
-    const fromWorkspace = workspaceRun?.activeRunId?.trim() ?? "";
-
-    if (fromWorkspace.length === 0) {
-      return;
-    }
-
-    if (selectedThreadId.trim().length > 0) {
-      return;
-    }
-
-    setRunId(canonicalizeDemoRunId(fromWorkspace));
-  }, [workspaceRun?.activeRunId, selectedThreadId]);
 
   const loadMessages = useCallback(async (threadId: string) => {
     setActionFailure(null);
@@ -471,6 +437,22 @@ export function AskPageContent() {
     runId,
   ]);
 
+  const onPickReviewForAsking = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      router.replace(askReviewQuestionsHref({ runId: trimmed }), { scroll: false });
+    },
+    [router],
+  );
+
+  const reviewScopedForAsking =
+    urlRunIdRaw.length > 0 || selectedThreadId.trim().length > 0;
+
   const onNewConversation = useCallback(() => {
     setSelectedThreadId("");
     setMessages([]);
@@ -478,15 +460,12 @@ export function AskPageContent() {
     setLastAskReferencedFindings([]);
     setLastAskReferencedDecisions([]);
     setLastAskReferencedArtifacts([]);
-
-    if (buyerPolishedShell) {
-      const fromWs = workspaceRun?.activeRunId?.trim() ?? "";
-
-      setRunId(fromWs.length > 0 ? canonicalizeDemoRunId(fromWs) : SHOWCASE_STATIC_DEMO_RUN_ID);
-    } else {
-      setRunId("");
-    }
-  }, [buyerPolishedShell, workspaceRun?.activeRunId]);
+    setRunId("");
+    setBaseRunId("");
+    setTargetRunId("");
+    setCompareOpen(false);
+    router.replace(ASK_REVIEW_QUESTIONS_PATH, { scroll: false });
+  }, [router]);
 
   const showThreadHistoryPanel = threads.length > 0;
 
@@ -521,6 +500,10 @@ export function AskPageContent() {
         </div>
       ) : null}
 
+      {reviewScopedForAsking ? null : (
+        <AskPickReviewBeforeAskingStrip selectedReviewId="" onSelectReview={onPickReviewForAsking} />
+      )}
+
       <div
           className={cn(
             "grid grid-cols-1 gap-4",
@@ -539,36 +522,38 @@ export function AskPageContent() {
             />
           ) : null}
 
-          <AskMainPanel
-            runId={runId}
-            onRunIdChange={setRunId}
-            selectedThreadId={selectedThreadId}
-            buyerPolishedShell={buyerPolishedShell}
-            hideCompareChrome={hideCompareChrome}
-            compareOpen={compareOpen}
-            onCompareOpenChange={setCompareOpen}
-            baseRunId={baseRunId}
-            onBaseRunIdChange={setBaseRunId}
-            targetRunId={targetRunId}
-            onTargetRunIdChange={setTargetRunId}
-            questionRef={questionRef}
-            question={question}
-            onQuestionChange={setQuestion}
-            showRunDeepLinkPrompts={showRunDeepLinkPrompts}
-            runAnchorUnset={runAnchorUnset}
-            onMergePromptLine={mergePromptLine}
-            onStarterPromptClick={onStarterPromptClick}
-            loading={loading || askStreaming}
-            askDisabled={askDisabled}
-            onAsk={onAsk}
-            actionFailure={actionFailure}
-            messages={messages}
-            streamingAssistantContent={streamingAssistantContent.length > 0 ? streamingAssistantContent : null}
-            askAssistantGroundingLinks={askAssistantGroundingLinks}
-            askCitationActionFollowUps={askCitationActionFollowUps}
-            showPostAssistantFollowUps={showPostAssistantFollowUps}
-            retrievalDegraded={retrievalDegraded}
-          />
+          {reviewScopedForAsking ? (
+            <AskMainPanel
+              runId={runId}
+              onRunIdChange={setRunId}
+              selectedThreadId={selectedThreadId}
+              buyerPolishedShell={buyerPolishedShell}
+              hideCompareChrome={hideCompareChrome}
+              compareOpen={compareOpen}
+              onCompareOpenChange={setCompareOpen}
+              baseRunId={baseRunId}
+              onBaseRunIdChange={setBaseRunId}
+              targetRunId={targetRunId}
+              onTargetRunIdChange={setTargetRunId}
+              questionRef={questionRef}
+              question={question}
+              onQuestionChange={setQuestion}
+              showRunDeepLinkPrompts={showRunDeepLinkPrompts}
+              runAnchorUnset={runAnchorUnset}
+              onMergePromptLine={mergePromptLine}
+              onStarterPromptClick={onStarterPromptClick}
+              loading={loading || askStreaming}
+              askDisabled={askDisabled}
+              onAsk={onAsk}
+              actionFailure={actionFailure}
+              messages={messages}
+              streamingAssistantContent={streamingAssistantContent.length > 0 ? streamingAssistantContent : null}
+              askAssistantGroundingLinks={askAssistantGroundingLinks}
+              askCitationActionFollowUps={askCitationActionFollowUps}
+              showPostAssistantFollowUps={showPostAssistantFollowUps}
+              retrievalDegraded={retrievalDegraded}
+            />
+          ) : null}
         </div>
 
       {runId.trim().length > 0 ? <AskNextReviewFooterClient runId={runId.trim()} /> : null}
