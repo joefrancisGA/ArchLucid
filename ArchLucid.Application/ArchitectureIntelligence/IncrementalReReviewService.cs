@@ -112,6 +112,7 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
                 .ToList(),
             DeclaredPriorities = [.. model.DeclaredPriorities],
             FramingAnswers = new Dictionary<string, string>(model.FramingAnswers),
+            IsProvisionalSynthesis = model.IsProvisionalSynthesis,
         };
     }
 
