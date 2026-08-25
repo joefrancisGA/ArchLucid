@@ -23,6 +23,8 @@ using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Startup.Diagnostics;
 using ArchLucid.Host.Core.Startup.Validation;
 
+using Microsoft.Extensions.Options;
+
 using Serilog;
 
 namespace ArchLucid.Api;
@@ -110,6 +112,23 @@ public partial class Program
             builder.Configuration.GetSection(ArchitectureRunCreationPayloadLimitsOptions.SectionName));
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, hostingRole);
         builder.Services.AddHostedService<DemoSeedStartupHostedService>();
+
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.Configure<ControllerReadPathWarmupOptions>(
+                builder.Configuration.GetSection(ControllerReadPathWarmupOptions.SectionPath));
+            builder.Services.AddHttpClient(
+                ControllerReadPathWarmupHostedService.HttpClientName,
+                (sp, client) =>
+                {
+                    ControllerReadPathWarmupOptions opts =
+                        sp.GetRequiredService<IOptionsMonitor<ControllerReadPathWarmupOptions>>().CurrentValue;
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.Timeout = opts.GetEffectiveRequestTimeout();
+                })
+                .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.InternalLoopback);
+            builder.Services.AddHostedService<ControllerReadPathWarmupHostedService>();
+        }
 
         if (hostingRole == ArchLucidHostingRole.Api)
         {
