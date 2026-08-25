@@ -82,6 +82,7 @@ public sealed class ReviewClarificationQuestionsController(
     [HttpPost("review/{runId:guid}/knowledge-model/clarification-answers")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ApplyKnowledgeModelClarificationAnswersResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ApplyKnowledgeModelClarificationAnswers(
         [FromRoute] Guid runId,
         [FromBody] ApplyKnowledgeModelClarificationAnswersRequest? request,
@@ -91,6 +92,22 @@ public sealed class ReviewClarificationQuestionsController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        try
+        {
+            // Reuse GET's run-existence contract so missing/out-of-scope ids cannot
+            // return 200 with appliedCount 0 (the applicator treats a null κ as a no-op).
+            await clarificationQuestionService.GetQuestionsAsync(
+                scope,
+                runId,
+                priorRunId: null,
+                cancellationToken);
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+
         KnowledgeModelClarificationApplyResult applyResult = await clarificationAnswerApplicator.ApplyAnswersAsync(
             scope,
             runId,
