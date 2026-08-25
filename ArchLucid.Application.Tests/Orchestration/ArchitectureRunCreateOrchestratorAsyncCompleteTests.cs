@@ -19,6 +19,8 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
+using FluentAssertions;
+
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -105,6 +107,138 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task CompleteAsyncAcceptedCreateRunAsync_opens_unit_of_work_after_coordination()
+    {
+        Guid runId = Guid.NewGuid();
+        string runIdText = runId.ToString("N");
+        List<string> sequence = [];
+        Mock<IArchitectureRunAuthorityCoordination> coordination = new();
+        coordination
+            .Setup(c => c.CreateRunAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IArchLucidUnitOfWork?>(),
+                It.IsAny<Guid?>()))
+            .Callback(() => sequence.Add("coordinate"))
+            .ReturnsAsync(BuildSuccessfulCoordination("req-async-uow-order", runIdText));
+
+        IArchLucidUnitOfWorkFactory inner = ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory();
+        Mock<IArchLucidUnitOfWorkFactory> factory = new();
+        factory
+            .Setup(f => f.CreateAsync(It.IsAny<CancellationToken>()))
+            .Returns((CancellationToken ct) =>
+            {
+                sequence.Add("uow");
+
+                return inner.CreateAsync(ct);
+            });
+
+        Mock<IEvidenceBundleRepository> evidence = new();
+        evidence
+            .Setup(e => e.CreateAsync(
+                It.IsAny<EvidenceBundle>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(AuthorityTestScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId, ArchitectureRequestId = "req-async-uow-order" });
+
+        ArchitectureRunCreateOrchestrator sut = CreateSut(
+            coordination.Object,
+            runs.Object,
+            evidence.Object,
+            factory.Object);
+
+        await sut.CompleteAsyncAcceptedCreateRunAsync(
+            runId,
+            new ArchitectureRequest
+            {
+                RequestId = "req-async-uow-order",
+                SystemName = "Sys",
+                Environment = "prod",
+                CloudProvider = CloudProvider.Azure,
+                Description = "UoW must open after coordination."
+            },
+            idempotency: null,
+            CancellationToken.None);
+
+        sequence.Should().Equal("coordinate", "uow");
+    }
+
+    [Fact]
+    public async Task CompleteAsyncAcceptedCreateRunAsync_marks_run_failed_when_persist_throws()
+    {
+        Guid runId = Guid.NewGuid();
+        string runIdText = runId.ToString("N");
+        Mock<IArchitectureRunAuthorityCoordination> coordination = new();
+        coordination
+            .Setup(c => c.CreateRunAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IArchLucidUnitOfWork?>(),
+                It.IsAny<Guid?>()))
+            .ReturnsAsync(BuildSuccessfulCoordination("req-async-persist-fail", runIdText));
+
+        Mock<IEvidenceBundleRepository> evidence = new();
+        evidence
+            .Setup(e => e.CreateAsync(
+                It.IsAny<EvidenceBundle>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .ThrowsAsync(new InvalidOperationException("evidence persist failed"));
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(AuthorityTestScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId,
+                ArchitectureRequestId = "req-async-persist-fail",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Created)
+            });
+        runs
+            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
+
+        ArchitectureRunCreateOrchestrator sut = CreateSut(
+            coordination.Object,
+            runs.Object,
+            evidence.Object);
+
+        Func<Task> act = () => sut.CompleteAsyncAcceptedCreateRunAsync(
+            runId,
+            new ArchitectureRequest
+            {
+                RequestId = "req-async-persist-fail",
+                SystemName = "Sys",
+                Environment = "prod",
+                CloudProvider = CloudProvider.Azure,
+                Description = "Persist failure should fail the admitted stub."
+            },
+            idempotency: null,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("evidence persist failed");
+        runs.Verify(
+            r => r.UpdateAsync(
+                It.Is<RunRecord>(row =>
+                    row.RunId == runId
+                    && row.LegacyRunStatus == nameof(ArchitectureRunStatus.Failed)),
+                It.IsAny<CancellationToken>(),
+                null,
+                null),
+            Times.Once);
+        runs.Verify(
+            r => r.ArchiveRunsByIdsAsync(It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static CoordinationResult BuildSuccessfulCoordination(string requestId, string runId)
     {
         return new CoordinationResult
@@ -124,7 +258,8 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
     private static ArchitectureRunCreateOrchestrator CreateSut(
         IArchitectureRunAuthorityCoordination coordination,
         IRunRepository runRepository,
-        IEvidenceBundleRepository evidenceBundleRepository)
+        IEvidenceBundleRepository evidenceBundleRepository,
+        IArchLucidUnitOfWorkFactory? unitOfWorkFactory = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(AuthorityTestScope);
@@ -143,7 +278,7 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
             actor.Object,
             Mock.Of<IBaselineMutationAuditService>(),
             Mock.Of<IAuditService>(),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            unitOfWorkFactory ?? ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
             new InProcessCreateRunIdempotencyLock(),
             Options.Create(new ArchitectureRunCreateOptions()),

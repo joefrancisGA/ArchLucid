@@ -165,13 +165,15 @@ public sealed class ArchitectureRunCreateOrchestrator(
         Guid runId,
         ArchitectureRequest request,
         CreateRunIdempotencyState? idempotency,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string? actorOverride = null)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         if (runId == Guid.Empty)
             throw new ArgumentException("Run id must be non-empty.", nameof(runId));
 
+        string actor = ResolveCreateActor(actorOverride);
         QuickStartIntakeRequestEnricher.EnrichIfQuickStart(request);
 
         string? documentUrlRejection = await AllowedDocumentUrlPolicy
@@ -186,7 +188,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
         if (!safety.IsAllowed)
         {
-            string actor = _actorContext.GetActor();
             await _baselineMutationAudit.RecordAsync(
                 AuditEventTypes.Baseline.Architecture.RunFailed,
                 actor,
@@ -201,9 +202,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
             .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
-        // Do not enlist the HTTP/worker unit of work across authority coordination. Holding that
-        // transaction for ingestion/graph/LLM work serializes later async admits (the 60s UI proxy
-        // then reports a false create failure). Coordination uses its own short UoW / queue.
+        // Do not open the completion UoW until coordination returns. Dapper begins a SQL
+        // transaction in CreateAsync; holding it across ingestion/graph/LLM serializes later admits.
         CreateRunResult result = await CompleteAcceptedCreateWithDetachedCoordinationAsync(
             runId,
             request,
@@ -212,7 +212,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
         if (idempotency is not null && result.IdempotentReplay)
             return;
 
-        string completionActor = _actorContext.GetActor();
         await FinalizeSuccessfulCreateRunAsync(
             request,
             idempotency: null,
@@ -223,7 +222,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 Tasks = result.Tasks
             },
             inserted: true,
-            completionActor,
+            actor,
             cancellationToken);
     }
 
@@ -237,28 +236,28 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
         try
         {
+            coordination = await _authorityCoordination.CreateRunAsync(
+                request,
+                cancellationToken,
+                enlistUnitOfWork: null,
+                runId);
+
+            if (!coordination.Success)
+            {
+                string detail = string.Join("; ", coordination.Errors);
+                await _baselineMutationAudit.RecordAsync(
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
+                    actor,
+                    request.RequestId,
+                    $"Coordination failed: {detail}",
+                    cancellationToken);
+                throw new InvalidOperationException($"CreateRun failed: {detail}");
+            }
+
             await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
 
             try
             {
-                coordination = await _authorityCoordination.CreateRunAsync(
-                    request,
-                    cancellationToken,
-                    enlistUnitOfWork: null,
-                    runId);
-
-                if (!coordination.Success)
-                {
-                    string detail = string.Join("; ", coordination.Errors);
-                    await _baselineMutationAudit.RecordAsync(
-                        AuditEventTypes.Baseline.Architecture.RunFailed,
-                        actor,
-                        request.RequestId,
-                        $"Coordination failed: {detail}",
-                        cancellationToken);
-                    throw new InvalidOperationException($"CreateRun failed: {detail}");
-                }
-
                 await PersistCreateRunRowsAsync(
                     request,
                     coordination,
@@ -294,6 +293,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     cancellationToken);
             }
 
+            await TryMarkAdmittedCreateFailedAsync(runId, ex, cancellationToken);
             throw;
         }
 
@@ -506,6 +506,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     cloudProvider = request.CloudProvider.ToString()
                 }, AuditJsonSerializationOptions.Instance));
         requestCreated.RunId = runGuid == Guid.Empty ? null : runGuid;
+        requestCreated.ExplicitActor = true;
 
         await DurableAuditLogRetry.TryLogAsync(
             ct => _auditService.LogAsync(requestCreated, ct),
@@ -527,6 +528,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                         "Run persisted for this ArchitectureRequest — request is scoped as locked relative to drafts until terminal runs settle."
                 }, AuditJsonSerializationOptions.Instance));
         requestLocked.RunId = runGuid == Guid.Empty ? null : runGuid;
+        requestLocked.ExplicitActor = true;
 
         await DurableAuditLogRetry.TryLogAsync(
             ct => _auditService.LogAsync(requestLocked, ct),
@@ -656,6 +658,52 @@ public sealed class ArchitectureRunCreateOrchestrator(
             return;
 
         await _requestRepository.CreateAsync(request, cancellationToken).ConfigureAwait(false);
+    }
+
+    private string ResolveCreateActor(string? actorOverride)
+    {
+        if (!string.IsNullOrWhiteSpace(actorOverride))
+            return actorOverride;
+
+        return _actorContext.GetActor();
+    }
+
+    private async Task TryMarkAdmittedCreateFailedAsync(
+        Guid runId,
+        Exception failure,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RunRecord? header = await _runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+            if (header is null)
+                return;
+
+            if (string.Equals(
+                    header.LegacyRunStatus,
+                    nameof(ArchitectureRunStatus.Committed),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            header.LegacyRunStatus = nameof(ArchitectureRunStatus.Failed);
+            header.CompletedUtc = timeProvider.UtcNowDateTime();
+            header.LastFailureReason = failure.GetType().Name + ": " + failure.Message;
+            await _runRepository.UpdateAsync(header, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Failed to mark admitted async create as Failed: RunId={RunId}.",
+                    runId);
+            }
+        }
     }
 
     private async Task TryCompensateArchiveOrphanRunAsync(string runId, CancellationToken cancellationToken)

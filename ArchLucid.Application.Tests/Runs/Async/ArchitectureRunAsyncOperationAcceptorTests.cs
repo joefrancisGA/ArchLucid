@@ -2,6 +2,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Async;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -112,11 +113,153 @@ public sealed class ArchitectureRunAsyncOperationAcceptorTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task AcceptCreateAsync_idempotent_replay_re_enqueues_when_stub_still_created()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IArchitectureRunAsyncCreateAdmitter> admitter = new();
+        admitter
+            .Setup(a => a.AdmitAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CreateRunIdempotencyState?>(),
+                DefaultScope,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunAsyncCreateAdmitResult(runId, IdempotentReplay: true));
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(DefaultScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Created)
+            });
+        Mock<IArchitectureRunAsyncOperationQueue> queue = new();
+        ArchitectureRunAsyncOperationAcceptor sut = CreateSut(runs: runs, queue: queue, admitter: admitter);
+
+        string operationId = await sut.AcceptCreateAsync(
+            new ArchitectureRequest
+            {
+                RequestId = "req-replay-created",
+                Description = "Same-key retry must re-enqueue incomplete admits.",
+                SystemName = "Sys",
+                Environment = "prod"
+            },
+            null,
+            DefaultScope,
+            "actor",
+            "corr",
+            CancellationToken.None);
+
+        operationId.Should().Be($"run:{runId:D}");
+        queue.Verify(
+            q => q.EnqueueAsync(
+                It.Is<ArchitectureRunAsyncOperationWorkItem>(item =>
+                    item.Kind == ArchitectureRunAsyncOperationKind.Create
+                    && item.RunId == runId.ToString("N")),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task AcceptCreateAsync_idempotent_replay_skips_enqueue_when_create_completed()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IArchitectureRunAsyncCreateAdmitter> admitter = new();
+        admitter
+            .Setup(a => a.AdmitAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CreateRunIdempotencyState?>(),
+                DefaultScope,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunAsyncCreateAdmitResult(runId, IdempotentReplay: true));
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(DefaultScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated)
+            });
+        Mock<IArchitectureRunAsyncOperationQueue> queue = new();
+        ArchitectureRunAsyncOperationAcceptor sut = CreateSut(runs: runs, queue: queue, admitter: admitter);
+
+        string operationId = await sut.AcceptCreateAsync(
+            new ArchitectureRequest
+            {
+                RequestId = "req-replay-done",
+                Description = "Completed create must not re-enqueue.",
+                SystemName = "Sys",
+                Environment = "prod"
+            },
+            null,
+            DefaultScope,
+            "actor",
+            "corr",
+            CancellationToken.None);
+
+        operationId.Should().Be($"run:{runId:D}");
+        queue.Verify(
+            q => q.EnqueueAsync(It.IsAny<ArchitectureRunAsyncOperationWorkItem>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task AcceptCreateAsync_idempotent_replay_skips_enqueue_when_create_already_in_flight()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IArchitectureRunAsyncCreateAdmitter> admitter = new();
+        admitter
+            .Setup(a => a.AdmitAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CreateRunIdempotencyState?>(),
+                DefaultScope,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunAsyncCreateAdmitResult(runId, IdempotentReplay: true));
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(DefaultScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Created)
+            });
+        ArchitectureRunAsyncOperationRegistrar registrar = new();
+        registrar.TryRegister(DefaultScope, runId.ToString("N"), ArchitectureRunAsyncOperationKind.Create)
+            .Should()
+            .BeTrue();
+        Mock<IArchitectureRunAsyncOperationQueue> queue = new();
+        ArchitectureRunAsyncOperationAcceptor sut = CreateSut(
+            runs: runs,
+            queue: queue,
+            admitter: admitter,
+            registrar: registrar);
+
+        string operationId = await sut.AcceptCreateAsync(
+            new ArchitectureRequest
+            {
+                RequestId = "req-replay-inflight",
+                Description = "In-flight create must not double-enqueue.",
+                SystemName = "Sys",
+                Environment = "prod"
+            },
+            null,
+            DefaultScope,
+            "actor",
+            "corr",
+            CancellationToken.None);
+
+        operationId.Should().Be($"run:{runId:D}");
+        queue.Verify(
+            q => q.EnqueueAsync(It.IsAny<ArchitectureRunAsyncOperationWorkItem>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static ArchitectureRunAsyncOperationAcceptor CreateSut(
         Mock<IRunRepository>? runs = null,
         Mock<IArchitectureRunAsyncOperationQueue>? queue = null,
         Mock<IReplayRunService>? replay = null,
-        Mock<IArchitectureRunAsyncCreateAdmitter>? admitter = null)
+        Mock<IArchitectureRunAsyncCreateAdmitter>? admitter = null,
+        ArchitectureRunAsyncOperationRegistrar? registrar = null)
     {
         Mock<IRunRepository> runRepo = runs ?? new Mock<IRunRepository>();
         Mock<IArchitectureRunAsyncOperationQueue> operationQueue = queue ?? new Mock<IArchitectureRunAsyncOperationQueue>();
@@ -125,7 +268,7 @@ public sealed class ArchitectureRunAsyncOperationAcceptorTests
         return new ArchitectureRunAsyncOperationAcceptor(
             runRepo.Object,
             operationQueue.Object,
-            new ArchitectureRunAsyncOperationRegistrar(),
+            registrar ?? new ArchitectureRunAsyncOperationRegistrar(),
             replayService.Object,
             (admitter ?? new Mock<IArchitectureRunAsyncCreateAdmitter>()).Object);
     }

@@ -171,12 +171,24 @@ public sealed class ArchitectureRunAsyncOperationAcceptor(
             await _createAdmitter.AdmitAsync(request, idempotency, scope, cancellationToken);
 
         string runId = admitResult.RunId.ToString("N");
+        string operationId = OperationIdCodec.ForRun(admitResult.RunId);
 
         if (admitResult.IdempotentReplay)
-            return OperationIdCodec.ForRun(admitResult.RunId);
+        {
+            if (!await IsCreateIncompleteAsync(scope, admitResult.RunId, cancellationToken))
+                return operationId;
+
+            if (_registrar.IsRegistered(scope, runId, ArchitectureRunAsyncOperationKind.Create))
+                return operationId;
+        }
 
         if (!_registrar.TryRegister(scope, runId, ArchitectureRunAsyncOperationKind.Create))
+        {
+            if (admitResult.IdempotentReplay)
+                return operationId;
+
             throw new ConflictException($"Async create is already in flight for run '{runId}'.");
+        }
 
         try
         {
@@ -195,13 +207,23 @@ public sealed class ArchitectureRunAsyncOperationAcceptor(
                     CreateIdempotency: idempotency),
                 cancellationToken);
 
-            return OperationIdCodec.ForRun(admitResult.RunId);
+            return operationId;
         }
         catch
         {
             _registrar.Release(scope, runId, ArchitectureRunAsyncOperationKind.Create);
             throw;
         }
+    }
+
+    private async Task<bool> IsCreateIncompleteAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        RunRecord? header = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
+
+        return ArchitectureRunAsyncCreateCompleteness.IsIncomplete(header);
     }
 
     private async Task EnsureRunInScopeAsync(ScopeContext scope, Guid runId, CancellationToken cancellationToken)

@@ -199,6 +199,8 @@ It must **not**:
 
 Progress after 202 is **notifications + operations poll / SSE**, not a longer proxy budget. A client that stops waiting at 60s reports **unresolved** and retries the same `Idempotency-Key`.
 
+Same-key retry is recovery, not a no-op: if admit committed but enqueue or worker completion did not (run still `Created`, or `Failed` with no context snapshot), accept **re-enqueues** unless that create is already in flight. Durable `RequestCreated` is emitted once by create completion (`FinalizeSuccessfulCreateRunAsync`), not on the HTTP thread and not a second time in the worker. Create completions are bounded and dispatched without waiting for an in-flight execute/replay on the channel reader; execute for the same run waits until create completion is signaled.
+
 ### Shell operation persistence
 
 `in-flight-operations-store.ts` persists tracked operations to `sessionStorage` via `in-flight-operations-persistence.ts` so a reload does not lose an in-flight review.
