@@ -309,6 +309,11 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         if (modelBeforeRecommendationApply is not null && publishDecision.PublishBlocked)
         {
             model = modelBeforeRecommendationApply;
+            recommendations = [];
+            impactResults = [];
+            modelDiffs = [];
+            reReview = null;
+            reReviewSubstantiation = null;
         }
 
         if (!publishDecision.PublishBlocked
