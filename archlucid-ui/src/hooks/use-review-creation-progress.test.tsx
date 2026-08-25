@@ -108,4 +108,41 @@ describe("useReviewCreationProgress", () => {
     expect(result.current.waitCopy?.level).toBe("after30s");
     expect(result.current.waitCopy?.detail).not.toMatch(/%/);
   });
+
+  it("keeps the unresolved notice mounted while a recheck is in flight", () => {
+    const { result } = renderHook(() => useReviewCreationProgress());
+
+    act(() => {
+      result.current.markUnresolved();
+    });
+
+    act(() => {
+      result.current.beginRecheck();
+    });
+
+    expect(result.current.outcome).toEqual({ kind: "unresolved" });
+    expect(result.current.isRechecking).toBe(true);
+    expect(result.current.isActive).toBe(false);
+    expect(result.current.showStagedPanel).toBe(false);
+
+    act(() => {
+      result.current.endRecheck();
+    });
+
+    expect(result.current.isRechecking).toBe(false);
+  });
+
+  it("clears unresolved recovery chrome after markResumed", () => {
+    const { result } = renderHook(() => useReviewCreationProgress());
+
+    act(() => {
+      result.current.markUnresolved();
+      result.current.beginRecheck();
+      result.current.markResumed();
+    });
+
+    expect(result.current.outcome).toBeNull();
+    expect(result.current.isRechecking).toBe(false);
+    expect(result.current.isActive).toBe(false);
+  });
 });

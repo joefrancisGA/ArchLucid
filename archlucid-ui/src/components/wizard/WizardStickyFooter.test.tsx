@@ -14,6 +14,7 @@ function idleProgress(): WizardCreationProgressState {
     waitCopy: null,
     outcome: null,
     isActive: false,
+    isRechecking: false,
   };
 }
 

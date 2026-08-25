@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 const REVIEWS_HUB_HREF = "/architecture/reviews";
 
 export type ReviewStartUnresolvedNoticeProps = {
-  /** Replays the original idempotency key, so it resolves to exactly one review either way. */
+  /** Replays the wizard-session idempotent create — does not start a fresh review submission. */
   readonly onRecheck: () => void;
   readonly isRechecking: boolean;
   readonly correlationId?: string | null;

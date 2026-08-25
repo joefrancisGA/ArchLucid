@@ -41,6 +41,7 @@ export type ReviewCreationProgressBeginInput = {
 
 export function useReviewCreationProgress() {
   const [isActive, setIsActive] = useState(false);
+  const [isRechecking, setIsRechecking] = useState(false);
   const [hasTemplate, setHasTemplate] = useState(false);
   const [activeStageId, setActiveStageId] = useState<ReviewStartStageId | null>(null);
   const [showStagedPanel, setShowStagedPanel] = useState(false);
@@ -79,9 +80,35 @@ export function useReviewCreationProgress() {
 
   const reset = useCallback(() => {
     settle();
+    setIsRechecking(false);
     setOutcome(null);
     setElapsedMs(0);
   }, [settle]);
+
+  /** Recovery-only: keep the unresolved notice mounted while replaying the idempotent create. */
+  const beginRecheck = useCallback(() => {
+    if (isRechecking) {
+      return;
+    }
+
+    setIsRechecking(true);
+  }, [isRechecking]);
+
+  const endRecheck = useCallback(() => {
+    setIsRechecking(false);
+  }, []);
+
+  /** Clears unresolved recovery chrome after a successful idempotent replay. */
+  const markResumed = useCallback(() => {
+    clearTimers();
+    setIsRechecking(false);
+    setIsActive(false);
+    setHasTemplate(false);
+    setActiveStageId(null);
+    setShowStagedPanel(false);
+    setOutcome(null);
+    setElapsedMs(0);
+  }, [clearTimers]);
 
   useEffect(() => {
     return () => {
@@ -202,6 +229,9 @@ export function useReviewCreationProgress() {
 
   return {
     begin,
+    beginRecheck,
+    endRecheck,
+    markResumed,
     markPreparingQuestions,
     markOpeningReview,
     succeed,
@@ -210,6 +240,7 @@ export function useReviewCreationProgress() {
     bindOperation,
     reset,
     isActive,
+    isRechecking,
     activeStageId,
     showStagedPanel: showStagedPanel && isActive,
     stages,

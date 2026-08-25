@@ -12,6 +12,7 @@ import {
   REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
   REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
 } from "@/lib/review-start-progress-copy";
+import { recheckUnresolvedArchitectureReviewCreate } from "@/lib/review-start-unresolved-recheck";
 import { trackWizardCompleted } from "@/lib/telemetry";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 import {
@@ -117,8 +118,8 @@ export async function submitWizardFormCreateRun(
 /**
  * Subset of `useReviewCreationProgress` needed by the shared submit path. The hook owns a
  * watchdog that reports `unresolved` when the browser stops waiting, which is distinct from
- * a server-reported failure — create is idempotent per wizard session, so a recheck resolves
- * to the same review rather than a duplicate.
+ * a server-reported failure — recheck replays the wizard-session idempotent create instead of
+ * calling {@link begin}.
  */
 export type WizardCreateRunProgressBridge = {
   readonly begin: (input?: ReviewCreationProgressBeginInput) => void;
@@ -126,6 +127,9 @@ export type WizardCreateRunProgressBridge = {
   readonly fail: (message?: string) => void;
   readonly markUnresolved: () => void;
   readonly bindOperation: (operationId: string | null) => void;
+  readonly beginRecheck?: () => void;
+  readonly endRecheck?: () => void;
+  readonly markResumed?: () => void;
 };
 
 export function resolveCreateRunFailureMessage(error: unknown): string {
@@ -212,5 +216,43 @@ export async function submitQuickFamilyWizardCreateRun(
     args.setSubmitError(result.error ?? new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
   } finally {
     args.setSubmitting(false);
+  }
+}
+
+export type RecheckQuickFamilyWizardCreateRunArgs = {
+  readonly getValues: UseFormGetValues<WizardFormValues>;
+  readonly payloadOptions: WizardCreateRunPayloadOptions;
+  readonly onRunFound: (runId: string) => void;
+  readonly progress?: WizardCreateRunProgressBridge;
+};
+
+/** Idempotent replay for the unresolved-not-failed recovery notice — does not call {@link begin}. */
+export async function recheckQuickFamilyWizardCreateRun(
+  args: RecheckQuickFamilyWizardCreateRunArgs,
+): Promise<void> {
+  args.progress?.beginRecheck?.();
+
+  try {
+    const body = wizardValuesToCreateRunPayload(args.getValues(), args.payloadOptions);
+    const result = await recheckUnresolvedArchitectureReviewCreate(body);
+
+    if (result.status === "found") {
+      args.progress?.markResumed?.();
+      args.onRunFound(result.runId);
+
+      return;
+    }
+
+    if (result.status === "still-unresolved") {
+      args.progress?.endRecheck?.();
+
+      return;
+    }
+
+    args.progress?.fail(result.message);
+    args.progress?.endRecheck?.();
+  } catch {
+    args.progress?.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
+    args.progress?.endRecheck?.();
   }
 }

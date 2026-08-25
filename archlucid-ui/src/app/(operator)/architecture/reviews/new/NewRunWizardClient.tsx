@@ -29,6 +29,7 @@ import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -38,6 +39,8 @@ import {
   executeWizardFormCreateRun,
   resolveCreateRunFailureMessage,
 } from "@/lib/wizard-form-create-run-submit";
+import { recheckUnresolvedArchitectureReviewCreate } from "@/lib/review-start-unresolved-recheck";
+import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
@@ -374,12 +377,19 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
         getValues,
         payloadOptions,
         wizardCompletedName: "FullGuided",
+        progress: creationProgress,
       });
 
       if (!result.ok) {
         if (result.reason === "no-run-id") {
           creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
           showToast("err", REVIEW_START_CREATION_FAILED_MESSAGE);
+
+          return;
+        }
+
+        if (isArchitectureRequestCreateUnresolvedError(result.error)) {
+          creationProgress.markUnresolved();
 
           return;
         }
@@ -411,6 +421,49 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
       }
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const recheckUnresolvedRun = async () => {
+    if (creationProgress.outcome?.kind !== "unresolved") {
+      return;
+    }
+
+    creationProgress.beginRecheck();
+
+    try {
+      const body = wizardValuesToCreateRunPayload(getValues(), payloadOptions);
+      const result = await recheckUnresolvedArchitectureReviewCreate(body);
+
+      if (result.status === "still-unresolved") {
+        creationProgress.endRecheck();
+
+        return;
+      }
+
+      if (result.status === "failed") {
+        creationProgress.fail(result.message);
+        creationProgress.endRecheck();
+        setSubmitError(new Error(result.message));
+        showToast("err", result.message);
+
+        return;
+      }
+
+      const id = result.runId;
+      creationProgress.markResumed();
+      setRunId(id);
+      goToStep(TRACK_STEP_INDEX);
+      templateWizardSession.clearSession();
+      showToast("ok", `Architecture review ${id} found — tracking pipeline below.`);
+
+      if (evidence.hasPendingEvidence) {
+        await evidence.uploadPendingEvidence(id);
+      }
+    } catch {
+      creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
+      creationProgress.endRecheck();
+      showToast("err", REVIEW_START_CREATION_FAILED_MESSAGE);
     }
   };
 
@@ -675,7 +728,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
               testIdPrefix="new-run-wizard"
               progress={creationProgress}
               onRecheck={() => {
-                void submitRun();
+                void recheckUnresolvedRun();
               }}
               submitError={submitError}
               showSubmitError={isReviewStep}

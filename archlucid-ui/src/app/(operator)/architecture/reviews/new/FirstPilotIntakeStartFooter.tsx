@@ -85,7 +85,7 @@ export function FirstPilotIntakeStartFooter(props: FirstPilotIntakeStartFooterPr
       <ReviewStartUnresolvedNotice
         key="unresolved-notice"
         onRecheck={onRecheckUnresolved}
-        isRechecking={creationProgress.isActive}
+        isRechecking={creationProgress.isRechecking}
         testId="first-pilot-unresolved-notice"
       />,
     );

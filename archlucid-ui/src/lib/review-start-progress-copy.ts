@@ -43,7 +43,7 @@ export const REVIEW_START_UNRESOLVED_HEADLINE = "Still working on it";
 export const REVIEW_START_UNRESOLVED_MESSAGE =
   "We stopped waiting for a response, but your review may still be starting on the server. Nothing was canceled. Check for it below rather than submitting again — submitting again is what creates duplicates.";
 
-/** Recovery CTA — replays the same idempotency key, so it resolves to one review either way. */
+/** Recovery CTA — replays the wizard-session idempotent create to resolve an outstanding review. */
 export const REVIEW_START_UNRESOLVED_RECHECK_CTA = "Check for my review";
 
 export const REVIEW_START_UNRESOLVED_RECHECK_PENDING_LABEL = "Checking…";

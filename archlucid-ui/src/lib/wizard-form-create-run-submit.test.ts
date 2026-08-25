@@ -9,6 +9,7 @@ import {
 } from "@/lib/review-start-progress-copy";
 import { trackWizardCompleted } from "@/lib/telemetry";
 import {
+  recheckQuickFamilyWizardCreateRun,
   submitQuickFamilyWizardCreateRun,
   submitWizardFormCreateRun,
 } from "@/lib/wizard-form-create-run-submit";
@@ -255,5 +256,72 @@ describe("submitQuickFamilyWizardCreateRun", () => {
     expect(progress.succeed).toHaveBeenCalledOnce();
     expect(progress.fail).not.toHaveBeenCalled();
     expect(onRunCreated).toHaveBeenCalledWith("run-42");
+  });
+});
+
+describe("recheckQuickFamilyWizardCreateRun", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("replays the idempotent create without calling progress.begin", async () => {
+    createArchitectureRunMock.mockResolvedValue({ run: { runId: "run-recheck" } } as never);
+    const progress = {
+      begin: vi.fn(),
+      succeed: vi.fn(),
+      fail: vi.fn(),
+      markUnresolved: vi.fn(),
+      bindOperation: vi.fn(),
+      beginRecheck: vi.fn(),
+      endRecheck: vi.fn(),
+      markResumed: vi.fn(),
+    };
+    const onRunFound = vi.fn();
+
+    await recheckQuickFamilyWizardCreateRun({
+      getValues: vi.fn(() => emptyValues()),
+      payloadOptions: { requestSource: "wizard" },
+      onRunFound,
+      progress,
+    });
+
+    expect(progress.beginRecheck).toHaveBeenCalledOnce();
+    expect(progress.begin).not.toHaveBeenCalled();
+    expect(progress.markResumed).toHaveBeenCalledOnce();
+    expect(onRunFound).toHaveBeenCalledWith("run-recheck");
+  });
+
+  it("ends the recheck spinner when the gateway is still unresolved", async () => {
+    const { ArchitectureRequestCreateUnresolvedError } = await import(
+      "@/lib/api/architecture-request-create-unresolved-error"
+    );
+    createArchitectureRunMock.mockRejectedValue(
+      new ArchitectureRequestCreateUnresolvedError({
+        problem: { title: "Bad Gateway" },
+        correlationId: null,
+        httpStatus: 502,
+      }),
+    );
+    const progress = {
+      begin: vi.fn(),
+      succeed: vi.fn(),
+      fail: vi.fn(),
+      markUnresolved: vi.fn(),
+      bindOperation: vi.fn(),
+      beginRecheck: vi.fn(),
+      endRecheck: vi.fn(),
+      markResumed: vi.fn(),
+    };
+
+    await recheckQuickFamilyWizardCreateRun({
+      getValues: vi.fn(() => emptyValues()),
+      payloadOptions: { requestSource: "wizard" },
+      onRunFound: vi.fn(),
+      progress,
+    });
+
+    expect(progress.endRecheck).toHaveBeenCalledOnce();
+    expect(progress.markResumed).not.toHaveBeenCalled();
+    expect(progress.begin).not.toHaveBeenCalled();
   });
 });

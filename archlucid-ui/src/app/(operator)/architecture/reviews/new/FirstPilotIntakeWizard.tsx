@@ -33,7 +33,7 @@ import {
   useReviewCreationProgress,
 } from "@/hooks/use-review-creation-progress";
 import { deriveGuidedIntakeCloudTargetForMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
-import { createArchitectureRun } from "@/lib/api";
+import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -83,9 +83,11 @@ import {
 } from "@/lib/first-pilot-analyzable-evidence";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator/operator-home-example-request";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { recheckUnresolvedArchitectureReviewCreate } from "@/lib/review-start-unresolved-recheck";
 import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
 import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
+import { getOrCreateWizardRequestId } from "@/lib/wizard-idempotency-key";
 import { projectUniversalIntakeAnswersOntoCreateRunPayload } from "@/lib/universal-intake-answer-projection";
 import { buildIntakeTransparencyTrail } from "@/lib/universal-intake-must-completeness";
 
@@ -141,7 +143,7 @@ function buildFirstPilotPayload(
   focusedPilotModeEnabled: boolean,
 ): CreateArchitectureRunRequestPayload {
   return {
-    requestId: crypto.randomUUID().replace(/-/g, ""),
+    requestId: getOrCreateWizardRequestId(),
     description: brief.trim(),
     systemName: normalizeFirstPilotReviewTitle(title),
     environment: "staging",
@@ -363,6 +365,41 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const canStart =
     startBlocker === null && !creationProgress.isActive && !blocksLlmExecution;
 
+  const buildSubmitBody = useCallback(
+    (filesToUpload: readonly File[]): CreateArchitectureRunRequestPayload => {
+      const briefWithScope = mergeScopeBulletsIntoBrief(scopeBullets, resolvedBrief);
+      const intakeTransparencyTrail = buildIntakeTransparencyTrail(l0SkippedQuestionKeys);
+      const basePayload = buildFirstPilotPayload(
+        runTitle,
+        briefWithScope,
+        FIRST_PILOT_REQUIRED_CAPABILITIES,
+        focusedPilotModeEnabled,
+      );
+
+      return projectUniversalIntakeAnswersOntoCreateRunPayload(
+        basePayload,
+        l0Answers,
+        l0SkippedQuestionKeys,
+        intakeTransparencyTrail,
+        {
+          pendingEvidenceFileNames: filesToUpload.map((file) => file.name),
+          limitedEvidenceAnalysisAcknowledged,
+          operatorBriefCharacterCount: briefText.trim().length,
+        },
+      );
+    },
+    [
+      briefText,
+      focusedPilotModeEnabled,
+      l0Answers,
+      l0SkippedQuestionKeys,
+      limitedEvidenceAnalysisAcknowledged,
+      resolvedBrief,
+      runTitle,
+      scopeBullets,
+    ],
+  );
+
   const submitRun = async () => {
     const submitBlocker = describeFirstPilotStartBlocker(startBlockerInput);
 
@@ -395,25 +432,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     });
 
     try {
-      const briefWithScope = mergeScopeBulletsIntoBrief(scopeBullets, resolvedBrief);
-      const intakeTransparencyTrail = buildIntakeTransparencyTrail(l0SkippedQuestionKeys);
-      const basePayload = buildFirstPilotPayload(
-        runTitle,
-        briefWithScope,
-        FIRST_PILOT_REQUIRED_CAPABILITIES,
-        focusedPilotModeEnabled,
-      );
-      const body = projectUniversalIntakeAnswersOntoCreateRunPayload(
-        basePayload,
-        l0Answers,
-        l0SkippedQuestionKeys,
-        intakeTransparencyTrail,
-        {
-          pendingEvidenceFileNames: filesToUpload.map((file) => file.name),
-          limitedEvidenceAnalysisAcknowledged,
-          operatorBriefCharacterCount: briefText.trim().length,
-        },
-      );
+      const body = buildSubmitBody(filesToUpload);
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
 
@@ -463,6 +482,64 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           ? error.message
           : REVIEW_START_CREATION_FAILED_MESSAGE;
       creationProgress.fail(message);
+    }
+  };
+
+  const recheckUnresolvedRun = async () => {
+    if (creationProgress.outcome?.kind !== "unresolved") {
+      return;
+    }
+
+    creationProgress.beginRecheck();
+
+    try {
+      const filesToUpload = [...evidenceFiles];
+      const body = buildSubmitBody(filesToUpload);
+      const result = await recheckUnresolvedArchitectureReviewCreate(body);
+
+      if (result.status === "still-unresolved") {
+        creationProgress.endRecheck();
+
+        return;
+      }
+
+      if (result.status === "failed") {
+        creationProgress.fail(result.message);
+        creationProgress.endRecheck();
+
+        return;
+      }
+
+      const id = result.runId;
+      creationProgress.markResumed();
+      creationProgress.bindOperation(reviewPipelineOperationId(id));
+
+      if (filesToUpload.length > 0) {
+        const uploadResult = await uploadWizardPendingDocumentEvidence(id, filesToUpload);
+
+        if (!uploadResult.ok) {
+          creationProgress.fail(uploadResult.message);
+          creationProgress.endRecheck();
+
+          return;
+        }
+
+        setEvidenceFiles([]);
+      }
+
+      wizardSession.clearSession();
+
+      if (onRunCreatedNavigate !== undefined) {
+        onRunCreatedNavigate(id);
+        creationProgress.reset();
+
+        return;
+      }
+
+      router.push(buildReviewGenerationRedirect(id, "quick-review"));
+    } catch {
+      creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
+      creationProgress.endRecheck();
     }
   };
 
@@ -668,7 +745,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               void submitRun();
             }}
             onRecheckUnresolved={() => {
-              void submitRun();
+              void recheckUnresolvedRun();
             }}
           />
         </div>

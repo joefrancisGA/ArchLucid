@@ -224,7 +224,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
         testIdPrefix="quick-start"
         progress={flow.creationProgress}
         onRecheck={() => {
-          void flow.submitRun();
+          void flow.recheckUnresolvedRun();
         }}
         stepValidationMessage={flow.stepValidationMessage}
         submitError={flow.submitError}

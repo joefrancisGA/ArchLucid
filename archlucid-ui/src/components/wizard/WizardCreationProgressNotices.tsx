@@ -9,7 +9,7 @@ import { REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
 /** The slice of `useReviewCreationProgress` these notices read. */
 export type WizardCreationProgressState = Pick<
   ReviewCreationProgress,
-  "showStagedPanel" | "activeStageId" | "stages" | "waitCopy" | "outcome" | "isActive"
+  "showStagedPanel" | "activeStageId" | "stages" | "waitCopy" | "outcome" | "isActive" | "isRechecking"
 >;
 
 export type WizardCreationProgressNoticesProps = {
@@ -17,7 +17,7 @@ export type WizardCreationProgressNoticesProps = {
   readonly inFlightProgress?: ReviewStartInFlightProgress | null;
   /** Test-id stem, e.g. `quick-start`. */
   readonly testIdPrefix: string;
-  /** Replays the same idempotency key, so a recheck resolves to one review either way. */
+  /** Replays the wizard-session idempotent create — does not call submitRun again. */
   readonly onRecheck: () => void;
 };
 
@@ -65,7 +65,7 @@ export function WizardCreationProgressNotices(
         <div className="mt-3">
           <ReviewStartUnresolvedNotice
             onRecheck={onRecheck}
-            isRechecking={progress.isActive}
+            isRechecking={progress.isRechecking}
             testId={`${testIdPrefix}-unresolved-notice`}
           />
         </div>

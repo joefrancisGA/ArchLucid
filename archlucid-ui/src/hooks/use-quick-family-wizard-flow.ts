@@ -10,7 +10,7 @@ import {
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
 import { trackWizardValidationFailed } from "@/lib/telemetry";
-import { submitQuickFamilyWizardCreateRun } from "@/lib/wizard-form-create-run-submit";
+import { submitQuickFamilyWizardCreateRun, recheckQuickFamilyWizardCreateRun } from "@/lib/wizard-form-create-run-submit";
 import { deriveWizardPolicyPackCloudMismatch, type WizardCreateRunPayloadOptions } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 import {
@@ -50,6 +50,7 @@ export type QuickFamilyWizardFlow = {
   readonly goBack: () => void;
   readonly goNext: () => Promise<void>;
   readonly submitRun: () => Promise<void>;
+  readonly recheckUnresolvedRun: () => Promise<void>;
 };
 
 /**
@@ -158,6 +159,15 @@ export function useQuickFamilyWizardFlow(
     });
   };
 
+  const recheckUnresolvedRun = async () => {
+    await recheckQuickFamilyWizardCreateRun({
+      getValues,
+      payloadOptions: buildPayloadOptions(),
+      onRunFound: onRunCreated,
+      progress: creationProgress,
+    });
+  };
+
   return {
     stepIndex: navigation.stepIndex,
     isFirstStep: navigation.isFirstStep,
@@ -171,5 +181,6 @@ export function useQuickFamilyWizardFlow(
     goBack: navigation.goBack,
     goNext,
     submitRun,
+    recheckUnresolvedRun,
   };
 }

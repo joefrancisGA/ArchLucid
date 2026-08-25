@@ -154,7 +154,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
         testIdPrefix="simplified-pilot"
         progress={flow.creationProgress}
         onRecheck={() => {
-          void flow.submitRun();
+          void flow.recheckUnresolvedRun();
         }}
         stepValidationMessage={flow.stepValidationMessage}
         submitError={flow.submitError}
