@@ -1,6 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>Human review state for AI-assisted or high-impact findings.</summary>
+[JsonConverter(typeof(FindingHumanReviewStatusJsonConverter))]
 public enum FindingHumanReviewStatus
 {
     NotRequired = 0,
