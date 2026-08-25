@@ -22,7 +22,6 @@ export type FirstPilotIntakeStartFooterProps = {
   readonly creationProgress: ReviewCreationProgress;
   readonly clientValidationMessage: string | null;
   readonly wizardSaveState: WizardSessionSaveState;
-  readonly wizardLastSavedUtc: string | null;
   readonly blocksLlmExecution: boolean;
   readonly onStartReview: () => void;
   readonly onRecheckUnresolved: () => void;
@@ -38,7 +37,6 @@ export function FirstPilotIntakeStartFooter(props: FirstPilotIntakeStartFooterPr
     creationProgress,
     clientValidationMessage,
     wizardSaveState,
-    wizardLastSavedUtc,
     blocksLlmExecution,
     onStartReview,
     onRecheckUnresolved,
@@ -123,11 +121,7 @@ export function FirstPilotIntakeStartFooter(props: FirstPilotIntakeStartFooterPr
           className="flex flex-wrap items-center gap-3"
           data-testid="first-pilot-intake-action-row"
         >
-          <WizardSessionSaveStatus
-            layout="inline"
-            saveState={wizardSaveState}
-            lastSavedUtc={wizardLastSavedUtc}
-          />
+          <WizardSessionSaveStatus layout="inline" saveState={wizardSaveState} />
           <ReviewStartLoadingButton
             type="button"
             variant="primary"

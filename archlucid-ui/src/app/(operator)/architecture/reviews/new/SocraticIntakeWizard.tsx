@@ -229,10 +229,7 @@ export function SocraticIntakeWizard() {
         />
       ) : null}
       <div className="flex justify-end">
-        <WizardSessionSaveStatus
-          saveState={wizardSession.saveState}
-          lastSavedUtc={wizardSession.lastSavedUtc}
-        />
+        <WizardSessionSaveStatus saveState={wizardSession.saveState} />
       </div>
       <WizardStepper
         steps={[...INTAKE_WIZARD_STEPPER_STEPS]}

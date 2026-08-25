@@ -658,7 +658,6 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             creationProgress={creationProgress}
             clientValidationMessage={clientValidationMessage}
             wizardSaveState={wizardSession.saveState}
-            wizardLastSavedUtc={wizardSession.lastSavedUtc}
             blocksLlmExecution={blocksLlmExecution}
             onStartReview={() => {
               void submitRun();

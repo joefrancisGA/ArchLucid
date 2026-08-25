@@ -8,37 +8,13 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type WizardSessionSaveStatusProps = {
   readonly saveState: WizardSessionSaveState;
-  readonly lastSavedUtc: string | null;
   /** `inline` aligns the status row with adjacent h-9 action buttons. */
   readonly layout?: "stacked" | "inline";
 };
 
-function formatLastSavedLabel(lastSavedUtc: string | null): string | null {
-  if (lastSavedUtc === null) {
-    return null;
-  }
-
-  const savedAt = new Date(lastSavedUtc);
-  const deltaMs = Date.now() - savedAt.getTime();
-
-  if (deltaMs < 60_000) {
-    return "Saved just now";
-  }
-
-  return `Saved ${savedAt.toLocaleString()}`;
-}
-
-function renderWizardSessionSaveStatusContent(
-  saveState: WizardSessionSaveState,
-  lastSavedLabel: string | null,
-): React.JSX.Element | null {
+function renderWizardSessionSaveStatusContent(saveState: WizardSessionSaveState): React.JSX.Element | null {
   if (saveState === "saved") {
-    return (
-      <>
-        <StatusTag kind="ready" label="Saved" />
-        {lastSavedLabel !== null ? <span className="text-al-text-secondary">{lastSavedLabel}</span> : null}
-      </>
-    );
+    return <StatusTag kind="ready" label="Saved" />;
   }
 
   if (saveState === "saving") {
@@ -58,9 +34,8 @@ export function WizardSessionSaveStatus(props: WizardSessionSaveStatusProps): Re
     return null;
   }
 
-  const lastSavedLabel = formatLastSavedLabel(props.lastSavedUtc);
   const layout = props.layout ?? "stacked";
-  const statusContent = renderWizardSessionSaveStatusContent(props.saveState, lastSavedLabel);
+  const statusContent = renderWizardSessionSaveStatusContent(props.saveState);
 
   if (layout === "inline") {
     return (
