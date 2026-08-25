@@ -383,25 +383,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IGraphSnapshotRepository, SqlGraphSnapshotRepository>();
         services.AddScoped<IGraphSnapshotSqlAuthorityWriter>(static sp => sp.GetRequiredService<SqlGraphSnapshotRepository>());
         services.AddScoped<ICosmosGraphSnapshotOutboxRepository, DapperCosmosGraphSnapshotOutboxRepository>();
-        services.AddScoped<IFindingsSnapshotRepository>(sp =>
-        {
-            SqlFindingsSnapshotRepository inner = sp.GetRequiredService<SqlFindingsSnapshotRepository>();
-            HotPathCacheOptions hotPath = sp.GetRequiredService<IOptions<HotPathCacheOptions>>().Value;
-
-            if (!hotPath.Enabled)
-                return inner;
-
-            return new CachingFindingsSnapshotRepository(
-                inner,
-                sp.GetRequiredService<IHotPathReadCache>(),
-                sp.GetRequiredService<IScopeContextProvider>());
-        });
-        services.AddScoped<SqlFindingsSnapshotRepository>();
-        services.AddScoped<IFindingInspectReadRepository, DapperFindingInspectReadRepository>();
-        services.AddScoped<IRunFindingExternalTrackingReadRepository, DapperRunFindingExternalTrackingReadRepository>();
-        services.AddScoped<IFindingRecordMuteRepository, DapperFindingRecordMuteRepository>();
-        services.AddScoped<IFindingRecordRemediationAssignmentRepository, DapperFindingRecordRemediationAssignmentRepository>();
-        services.AddScoped<IDecisionTraceRepository, SqlDecisionTraceRepository>();
+        SqlFindingsSnapshotRepositoryRegistrar.Register(services);
         ArchLucidStorageServiceCollectionExtensions.RegisterGoldenManifestRunAndPolicyPackRepositories(services, configuration);
 
         services.AddScoped<IArtifactBundleRepository, SqlArtifactBundleRepository>();
