@@ -1775,11 +1775,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 4
-- **bugs-found:** 8
+- **hunts:** 5
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1796,6 +1796,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PlainTextContextDocumentParser` truncated long line text to 80-char names that collided in document connector delta keys — **hit 2026-08-24:** two long `REQ:` lines with shared prefix reported `UnchangedCount = 1`; fixed with hash suffix on truncated names (`DocumentConnectorTests.DeltaAsync_LongRequirementsWithSharedNamePrefix_ReportsBothUnchanged`).
 - [x] (proven) `PlainTextContextDocumentParser` ignored UTF-8 BOM before `REQ:` prefix — **hit 2026-08-24:** `\uFEFFREQ:` lines produced zero requirements; fixed by stripping leading BOM (`PlainTextContextDocumentParserTests.ParseAsync_Utf8BomReqLine_ExtractsRequirement`).
 - [x] (proven) `CanonicalDeduplicator` merged infrastructure resources from different declarations when name/type matched — **hit 2026-08-24:** same `hub-vnet` from `decl-a` and `decl-b` collapsed to one object; fixed by scoping dedupe suffix to non-`PolicyReference` `SourceId` (`CanonicalDeduplicatorTests.Deduplicate_KeepsInfrastructureResourcesFromDifferentDeclarations`).
+- [x] (proven) `PolicyReferencePayloadNormalizer` kept policy reference casing in `SourceId` — **hit 2026-08-25:** `SOC2` vs `soc2` reported false add/remove on policy-reference connector delta; fixed by lowercasing trimmed references for `SourceId`, `Name`, and batch dedupe (`PolicyReferenceConnectorTopologyTests.DeltaAsync_PolicyReferenceCaseChange_ReportsUnchanged`).
 
 ---
 
