@@ -189,6 +189,8 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     inferredQuestionKeys: inferredL0QuestionKeys,
     isExtractingEvidenceText,
     clarificationSuggestionsUnavailable,
+    canSuggestFromEvidence,
+    suggestAnswersFromEvidence,
     markQuestionEdited: markL0QuestionEdited,
   } = useInferredUniversalIntakeAnswers({
       briefText,
@@ -614,6 +616,9 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             skippedQuestionKeys={l0SkippedQuestionKeys}
             inferredQuestionKeys={inferredL0QuestionKeys}
             clarificationSuggestionsUnavailable={clarificationSuggestionsUnavailable}
+            canSuggestFromEvidence={canSuggestFromEvidence}
+            isSuggestingFromEvidence={isExtractingEvidenceText}
+            onSuggestFromEvidence={suggestAnswersFromEvidence}
             busy={creationProgress.isActive || blocksLlmExecution}
             onAnswersChange={setL0Answers}
             onSkippedQuestionKeysChange={setL0SkippedQuestionKeys}

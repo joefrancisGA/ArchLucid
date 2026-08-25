@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  canSuggestUniversalIntakeAnswersFromEvidence,
   inferUniversalIntakeAnswersFromCorpus,
   mergeInferredUniversalIntakeAnswers,
   UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS,
@@ -29,6 +30,31 @@ describe("isReadableInferredClarificationAnswer", () => {
     expect(isReadableInferredClarificationAnswer("Readable sentence about PCI-DSS scope.")).toBe(true);
     expect(isReadableInferredClarificationAnswer("Truncated mid thought...")).toBe(false);
     expect(isReadableInferredClarificationAnswer("Demo â€\u201D unreadable mojibake blob")).toBe(false);
+  });
+});
+
+describe("canSuggestUniversalIntakeAnswersFromEvidence", () => {
+  it("requires evidence files or a long enough architecture context", () => {
+    expect(
+      canSuggestUniversalIntakeAnswersFromEvidence({
+        briefText: "short",
+        evidenceFiles: [],
+      }),
+    ).toBe(false);
+
+    expect(
+      canSuggestUniversalIntakeAnswersFromEvidence({
+        briefText: "x".repeat(UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS),
+        evidenceFiles: [],
+      }),
+    ).toBe(true);
+
+    expect(
+      canSuggestUniversalIntakeAnswersFromEvidence({
+        briefText: "",
+        evidenceFiles: [new File(["diagram"], "network-topology.pdf", { type: "application/pdf" })],
+      }),
+    ).toBe(true);
   });
 });
 

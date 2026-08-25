@@ -15,6 +15,8 @@ import { guidedIntakeClarificationsAnsweredCounter } from "@/lib/guided-intake-c
 import {
   UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER,
   UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER,
+  UNIVERSAL_INTAKE_SUGGEST_FROM_EVIDENCE_HELPER,
+  UNIVERSAL_INTAKE_SUGGEST_FROM_EVIDENCE_LABEL,
 } from "@/lib/universal-intake-answer-inference";
 import { UNIVERSAL_INTAKE_MUST_QUESTION_KEYS } from "@/lib/universal-intake-must-completeness";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
@@ -24,6 +26,9 @@ export type QuickStartL0MustQuestionsPanelProps = {
   readonly skippedQuestionKeys: ReadonlySet<string>;
   readonly inferredQuestionKeys?: ReadonlySet<string>;
   readonly clarificationSuggestionsUnavailable?: boolean;
+  readonly canSuggestFromEvidence?: boolean;
+  readonly isSuggestingFromEvidence?: boolean;
+  readonly onSuggestFromEvidence?: () => void;
   readonly busy: boolean;
   readonly onAnswersChange: (answers: Readonly<Record<string, string>>) => void;
   readonly onSkippedQuestionKeysChange: (skippedQuestionKeys: ReadonlySet<string>) => void;
@@ -199,6 +204,28 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Quick start collects the same baseline facts Guided questions requires before analysis begins.
         </p>
+
+        {props.canSuggestFromEvidence === true ? (
+          <div className="space-y-2" data-testid="first-pilot-l0-suggest-from-evidence">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {UNIVERSAL_INTAKE_SUGGEST_FROM_EVIDENCE_HELPER}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={props.busy || props.isSuggestingFromEvidence === true}
+              data-testid="first-pilot-suggest-from-evidence"
+              onClick={() => {
+                props.onSuggestFromEvidence?.();
+              }}
+            >
+              {props.isSuggestingFromEvidence === true
+                ? "Suggesting answers…"
+                : UNIVERSAL_INTAKE_SUGGEST_FROM_EVIDENCE_LABEL}
+            </Button>
+          </div>
+        ) : null}
 
         {(props.inferredQuestionKeys?.size ?? 0) > 0 ? (
           <p
