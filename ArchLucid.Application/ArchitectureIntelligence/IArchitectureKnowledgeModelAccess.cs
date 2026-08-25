@@ -4,7 +4,8 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 /// <summary>
-///     Loads and saves κ through <see cref="ArchitectureIdentityRecord.CurrentModelId" /> when the run is linked.
+///     Loads κ as-of a run (run-scoped row first) and saves append-only versions that advance
+///     <see cref="ArchitectureIdentityRecord.CurrentModelId" />.
 /// </summary>
 public interface IArchitectureKnowledgeModelAccess
 {

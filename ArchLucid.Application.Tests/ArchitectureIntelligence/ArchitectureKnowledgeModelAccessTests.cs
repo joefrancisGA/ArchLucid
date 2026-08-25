@@ -104,11 +104,11 @@ public sealed class ArchitectureKnowledgeModelAccessTests
   }
 
   [Fact]
-  public async Task SaveForRunAsync_updates_CurrentModelId_pointer()
+  public async Task SaveForRunAsync_mints_new_ModelId_and_updates_CurrentModelId_pointer()
   {
     Guid runId = Guid.Parse("66666666-6666-6666-6666-666666666666");
     Guid architectureId = Guid.Parse("77777777-7777-7777-7777-777777777777");
-    string modelId = "model-after-save";
+    string priorModelId = "model-before-save";
 
     Mock<IArchitectureIntelligencePersistence> persistence = new();
     Mock<IRunRepository> runs = new();
@@ -125,16 +125,22 @@ public sealed class ArchitectureKnowledgeModelAccessTests
 
     ArchitectureKnowledgeModel model = new()
     {
-      ModelId = modelId,
+      ModelId = priorModelId,
       TenantId = TestScope.TenantId.ToString("D"),
       RunId = runId.ToString("D"),
     };
 
     await access.SaveForRunAsync(TestScope, runId, model);
 
+    model.ModelId.Should().NotBe(priorModelId);
+
     identities.Verify(
-      i => i.UpdateCurrentModelAsync(TestScope, architectureId, modelId, It.IsAny<CancellationToken>()),
+      i => i.UpdateCurrentModelAsync(TestScope, architectureId, model.ModelId, It.IsAny<CancellationToken>()),
       Times.Once);
-    persistence.Verify(p => p.SaveModelAsync(model, It.IsAny<CancellationToken>()), Times.Once);
+    persistence.Verify(
+      p => p.SaveModelAsync(
+        It.Is<ArchitectureKnowledgeModel>(saved => saved.ModelId == model.ModelId),
+        It.IsAny<CancellationToken>()),
+      Times.Once);
   }
 }

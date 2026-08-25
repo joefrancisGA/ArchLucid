@@ -52,18 +52,28 @@ public sealed class ArchitectureKnowledgeModelAccess(
         if (_persistence is null || runId == Guid.Empty)
             return;
 
+        DateTime utcNow = TimeProvider.System.GetUtcNow().UtcDateTime;
+        string nextModelId = Guid.NewGuid().ToString("D");
+
+        model.ModelId = nextModelId;
+        model.RunId = runId.ToString("D");
+
+        if (model.CreatedUtc == default)
+            model.CreatedUtc = utcNow;
+
+        model.UpdatedUtc = utcNow;
+
         await _persistence.SaveModelAsync(model, cancellationToken).ConfigureAwait(false);
 
         ArchLucid.Persistence.Models.RunRecord? run = await _runRepository
             .GetByIdAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
-        if (run?.ArchitectureId is not Guid architectureId
-            || string.IsNullOrWhiteSpace(model.ModelId))
+        if (run?.ArchitectureId is not Guid architectureId)
             return;
 
         await _architectureIdentityRepository
-            .UpdateCurrentModelAsync(scope, architectureId, model.ModelId, cancellationToken)
+            .UpdateCurrentModelAsync(scope, architectureId, nextModelId, cancellationToken)
             .ConfigureAwait(false);
     }
 
