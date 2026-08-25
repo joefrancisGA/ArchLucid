@@ -110,7 +110,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 cached.CacheHit = true;
                 cached.CacheReuseReason = cacheManifest.ReuseReason ?? "dependency-manifest-match";
                 ArchitectureIntelligenceBudgetResultApplier.Apply(cached, budget);
-                ClosedLoopCacheHitPublishGuard.SuppressUnpublishedCacheHit(request, cached);
+                ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(request, runId, cached);
 
                 return cached;
             }
@@ -131,6 +131,11 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             }
 
             model = ArchitectureKnowledgeModelCloner.Clone(existing);
+
+            if (request.SourceTexts.Count > 0)
+            {
+                await AppendSourceTextsToModelAsync(model, request, tenantId, cancellationToken);
+            }
         }
         else
         {
@@ -141,7 +146,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         model.RunId = runId;
         model.DeclaredPriorities = request.DeclaredPriorities.Count > 0
             ? request.DeclaredPriorities.ToList()
-            : model.DeclaredPriorities;
+            : model.DeclaredPriorities.ToList();
 
         ProgressiveInterviewState interview = _interviewService.BuildFramingState(model, request.SourceTexts);
 
@@ -238,6 +243,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         List<ChangeImpactResult> impactResults = [];
         List<ArchitectureModelDiff> modelDiffs = [];
         IncrementalReReviewResult? reReview = null;
+        SpecialistFindingsSubstantiationResult? reReviewSubstantiation = null;
+        ArchitectureKnowledgeModel? modelBeforeRecommendationApply = null;
 
         if (interview.IsFramingComplete)
         {
@@ -251,6 +258,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
             if (recommendations.Count > 0)
             {
+                modelBeforeRecommendationApply = ArchitectureKnowledgeModelCloner.Clone(model);
+
                 ClosedLoopRecommendationBatchApplyResult applied =
                     new ClosedLoopRecommendationBatchApplier(_modelDiffApplier, _changeImpactAnalyzer)
                         .Apply(model, recommendations);
@@ -265,7 +274,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                     _specialistReviewService,
                     cancellationToken).ConfigureAwait(false);
 
-                await _postStageHooks.IntegrateReReviewFindingsAsync(
+                reReviewSubstantiation = await _postStageHooks.IntegrateReReviewFindingsAsync(
                     runId,
                     reReview,
                     allFindings,
@@ -275,15 +284,19 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             }
         }
 
+        List<SpecialistReviewFinding> gateFindings = adversarial.SubstantiatedFindings.Count > 0
+            ? adversarial.SubstantiatedFindings.ToList()
+            : allFindings;
+
         List<MustNotFailViolation> mustNotFailViolations = _mustNotFailEnforcer
             .Evaluate(
-                allFindings,
+                gateFindings,
                 recommendations,
                 await TryLoadLedgerEntriesAsync(runId, cancellationToken))
             .ToList();
 
         TrustPublishDecision publishDecision = _trustPublishGate.Decide(
-            allFindings,
+            gateFindings,
             recommendations,
             validationResults,
             mustNotFailViolations);
@@ -293,6 +306,22 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             publishDecision = ArchitectureFramingMustGate.MergeFramingIncompletePublishBlock(
                 interview,
                 publishDecision);
+        }
+
+        if (modelBeforeRecommendationApply is not null && publishDecision.PublishBlocked)
+        {
+            model = modelBeforeRecommendationApply;
+        }
+
+        if (!publishDecision.PublishBlocked
+            && reReviewSubstantiation is not null
+            && reReview is not null)
+        {
+            await _postStageHooks.TryMergeAuthorityFindingsAsync(
+                runId,
+                reReviewSubstantiation,
+                reReview,
+                cancellationToken).ConfigureAwait(false);
         }
 
         await SaveModelAsync(runId, model, cancellationToken);
@@ -346,6 +375,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         if (cacheManifest is not null)
         {
+            ClosedLoopCacheHitPublishGuard.SanitizeForStorage(result);
             _reviewResultCache.Set(cacheManifest, result);
         }
 
@@ -419,6 +449,46 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         }
 
         return model;
+    }
+
+    private async Task AppendSourceTextsToModelAsync(
+        ArchitectureKnowledgeModel model,
+        ClosedLoopReasoningRequest request,
+        string tenantId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.SourceTexts.Count == 0)
+            return;
+
+        List<string> artifactIds = await StoreSourcesAsync(request, tenantId, cancellationToken);
+
+        IReadOnlyList<int> indexes = Enumerable.Range(0, request.SourceTexts.Count).ToList();
+        ArchitectureModelElement[][] extractedBatches = await BoundedParallelMap.MapAsync(
+            indexes,
+            ExtractionMaxConcurrent,
+            async (index, ct) =>
+            {
+                ClosedLoopReasoningSourceText sourceText = request.SourceTexts[index];
+                string artifactId = artifactIds[index];
+                IReadOnlyList<ArchitectureModelElement> extracted = await _extractionService.ExtractAsync(
+                    sourceText.Content,
+                    artifactId,
+                    ct);
+
+                return extracted.ToArray();
+            },
+            cancellationToken);
+
+        foreach (ArchitectureModelElement[] extracted in extractedBatches)
+        {
+            foreach (ArchitectureModelElement element in extracted)
+            {
+                model = _ontologyService.UpsertElement(model, element);
+            }
+        }
     }
 
     private async Task<List<SpecialistReviewResult>> RunSpecialistReviewsAsync(

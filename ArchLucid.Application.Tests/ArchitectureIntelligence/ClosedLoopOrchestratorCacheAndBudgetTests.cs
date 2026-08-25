@@ -46,6 +46,49 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
     }
 
     [Fact]
+    public async Task RunAsync_cache_hit_rewrites_run_identity_from_current_request()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-cache-run-id",
+            RunId = "run-cache-first",
+            DeclaredPriorities = ["Security"],
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API exposes customer records without authentication.",
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult first = await orchestrator.RunAsync(request);
+        first.CacheHit.Should().BeFalse();
+
+        ClosedLoopReasoningResult second = await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-cache-run-id",
+            RunId = "run-cache-second",
+            DeclaredPriorities = ["Security"],
+            SourceTexts = request.SourceTexts,
+        });
+
+        second.CacheHit.Should().BeTrue();
+        second.RunId.Should().Be("run-cache-second");
+        second.Model.RunId.Should().Be("run-cache-second");
+    }
+
+    [Fact]
     public async Task RunAsync_rejects_when_trial_budget_exceeded()
     {
         ServiceCollection services = new();
