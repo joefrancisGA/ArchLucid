@@ -16,6 +16,36 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class SponsorDecisionDeltaNoveltyResolverTests
 {
     [Fact]
+    public void Resolve_when_agent_results_empty_uses_sponsor_narrative_findings_from_deltas()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);
+        PilotRunDeltas deltas = BuildDeltas() with
+        {
+            SponsorNarrativeFindings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "f-governed",
+                    Severity = FindingSeverity.Critical,
+                    Category = "security",
+                    Message = "TLS policy required on storage accounts",
+                },
+            ],
+        };
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            BuildProof(),
+            BuildGate());
+
+        result.DecisionDeltaSummary.Should().Contain("Critical");
+        result.DecisionDeltaSummary.Should().Contain("TLS policy required on storage accounts");
+        result.DecisionDeltaSummary.Should().NotContain("No active findings recorded");
+        result.NoveltyConfidence.Should().NotBe(SponsorNoveltyConfidence.NotAssessed);
+    }
+
+    [Fact]
     public void Resolve_when_committed_with_findings_emits_partial_or_strong_novelty()
     {
         ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: true);

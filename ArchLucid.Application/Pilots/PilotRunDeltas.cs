@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
@@ -46,6 +47,16 @@ public sealed record PilotRunDeltas
 
     /// <summary>Findings-by-severity counts taken from <c>ArchitectureRunDetail.Results[*].Findings</c>, ordered descending.</summary>
     public IReadOnlyList<KeyValuePair<string, int>> FindingsBySeverity
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>
+    ///     Material findings for sponsor narrative when agent result rows are empty but a persisted findings snapshot
+    ///     supplied the computed delta counts.
+    /// </summary>
+    public IReadOnlyList<ArchitectureFinding> SponsorNarrativeFindings
     {
         get;
         init;

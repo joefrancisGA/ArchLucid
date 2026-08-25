@@ -347,6 +347,61 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("**Projected dollar claim disposition:** **HOLD**");
     }
 
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenFindingsOnlyInSnapshot_SponsorNarrativeMatchesDeltas()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        detail.Results[0].Findings = [];
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity = [new KeyValuePair<string, int>("Critical", 1)],
+            AuditRowCount = 4,
+            LlmCallCount = 2,
+            LlmCallCountResolved = true,
+            TopFindingId = "f-governed",
+            TopFindingSeverity = "Critical",
+            TopFindingEvidenceChain = new FindingEvidenceChainResponse
+            {
+                RunId = "r1",
+                FindingId = "f-governed",
+                ManifestVersion = "v2",
+            },
+            SponsorNarrativeFindings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "f-governed",
+                    Severity = FindingSeverity.Critical,
+                    Category = "security",
+                    Message = "TLS policy required on storage accounts",
+                },
+            ],
+            IsDemoTenant = false,
+        };
+
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("| Top findings | Critical: TLS policy required on storage accounts |");
+        md.Should().Contain("## Decision delta (recommended changes)");
+        md.Should().Contain("**Critical** (security) — TLS policy required on storage accounts");
+        md.Should().NotContain("No active findings recorded in this package.");
+        md.Should().NotContain("No active findings recorded — ArchLucid did not surface");
+    }
+
     private static ArchitectureRunDetail BuildCommittedDetail()
     {
         GoldenManifest manifest = new()
