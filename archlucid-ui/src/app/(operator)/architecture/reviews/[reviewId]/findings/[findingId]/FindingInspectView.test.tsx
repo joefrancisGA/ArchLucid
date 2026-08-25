@@ -27,6 +27,10 @@ vi.mock("./FindingInspectFindingBody", () => ({
   FindingInspectFindingBody: () => <div data-testid="finding-body-mock" />,
 }));
 
+vi.mock("./_sections/FindingInspectNextFindingEvidenceFooterClient", () => ({
+  FindingInspectNextFindingEvidenceFooterClient: () => null,
+}));
+
 const basePayload = {
   runId: "run-1",
   findingId: "finding-1",

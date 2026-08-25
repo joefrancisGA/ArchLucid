@@ -24,6 +24,10 @@ vi.mock("../FindingInspectItsmWorkflowPanel", () => ({
   FindingInspectItsmWorkflowPanel: () => <div data-testid="itsm-workflow-stub" />,
 }));
 
+vi.mock("../_sections/FindingInspectNextFindingEvidenceFooterClient", () => ({
+  FindingInspectNextFindingEvidenceFooterClient: () => null,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
   return {
