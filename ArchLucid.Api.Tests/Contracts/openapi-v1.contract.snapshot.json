@@ -1437,6 +1437,27 @@
         },
         "type": "object"
       },
+      "AdvisoryRunRecommendationsListResponse": {
+        "properties": {
+          "improveLoopEvidence": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RecommendationImproveLoopEvidenceResponse"
+              }
+            ]
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationRecordResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "AdvisoryScanExecution": {
         "properties": {
           "completedUtc": {
@@ -23241,6 +23262,42 @@
           "workspaceId": {
             "format": "uuid",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RecommendationImproveLoopEvidenceResponse": {
+        "properties": {
+          "diffEntries": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureModelDiffEntry"
+            },
+            "type": "array"
+          },
+          "fullReReviewTriggered": {
+            "type": "boolean"
+          },
+          "impact": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChangeImpactResult"
+              }
+            ]
+          },
+          "mergedFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "partialScopeDisclaimer": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -57162,26 +57219,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/RecommendationRecordResponse"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/AdvisoryRunRecommendationsListResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/RecommendationRecordResponse"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/AdvisoryRunRecommendationsListResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/RecommendationRecordResponse"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/AdvisoryRunRecommendationsListResponse"
                 }
               }
             },

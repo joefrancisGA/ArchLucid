@@ -413,6 +413,10 @@ export interface components {
             };
             substantiatedFindings?: components["schemas"]["SpecialistReviewFinding"][];
         };
+        AdvisoryRunRecommendationsListResponse: {
+            improveLoopEvidence?: null | components["schemas"]["RecommendationImproveLoopEvidenceResponse"];
+            recommendations?: components["schemas"]["RecommendationRecordResponse"][];
+        };
         AdvisoryScanExecution: {
             /** Format: date-time */
             completedUtc?: null | string;
@@ -6715,6 +6719,13 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        RecommendationImproveLoopEvidenceResponse: {
+            diffEntries?: components["schemas"]["ArchitectureModelDiffEntry"][];
+            fullReReviewTriggered?: boolean;
+            impact?: null | components["schemas"]["ChangeImpactResult"];
+            mergedFindingIds?: string[];
+            partialScopeDisclaimer?: null | string;
+        };
         RecommendationRecordResponse: {
             category?: string;
             /** Format: uuid */
@@ -7810,6 +7821,7 @@ export interface components {
             resultCount?: number;
         };
         SelectiveExecuteRunRequest: {
+            affectedElementIds?: null | string[];
             agentTypes?: null | string[];
             includeDependents?: boolean;
             taskIds?: null | string[];
