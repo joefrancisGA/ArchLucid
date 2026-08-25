@@ -1920,11 +1920,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 6
-- **bugs-found:** 9
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — AWS STS AssumeRoleWithWebIdentity always used commercial `us-east-1` instead of connection region
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — AWS GovCloud IAM role ARNs rejected before STS
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1941,6 +1941,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) GCP `ProjectId` not validated against impersonated service account email — **hit 2026-08-24:** `HostedGcpExtractorClient.CollectZipAsync` stamped manifest/search scope from request `ProjectId` without checking `{name}@{project}.iam.gserviceaccount.com`; dual-path gap vs AWS `AwsIamRoleArn.EnsureAccountMatches`; regression in `CollectZipAsync_rejects_service_account_project_mismatch`
 - [x] (proven) Azure ARM subscription list pagination follows repeating `nextLink` indefinitely — **hit 2026-08-24:** `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` had no visited-link guard; regression in `ListSubscriptionResourcesAsync_throws_when_next_link_repeats`
 - [x] (proven) AWS inventory stamps every resource with connection region — **hit 2026-08-24:** `AwsResourceExplorerInventoryCollector.CollectAsync` passed `regionSystemName` into `AwsInventoryResourceEntry.Location` instead of `resource.Region`; regression in `CollectAsync_uses_resource_region_not_connection_region`
+- [x] (proven) `AwsIamRoleArn.TryGetAccountId` rejects GovCloud/China partition role ARNs (`arn:aws-us-gov:iam::…`) because prefix is hardcoded to commercial `arn:aws:iam::`, blocking STS before collection starts — **hit 2026-08-25:** partition-aware `:iam::` parsing; regression in `AwsIamRoleArnTests.TryGetAccountId_accepts_aws_us_gov_partition_role_arn`
+- [ ] (hunt-ready) `GcpWorkloadIdentityCredentialFactory.NormalizeAudience` prepends `//iam.googleapis.com/` to full `http://iam.googleapis.com/...` provider URLs (same gap as proven `https://` fix).
+- [ ] (hunt-ready) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` hard-fails at 64 ARM list pages with no `$top` tuning, aborting large-subscription inventory runs.
+- [ ] (hunt-ready) `GetOnlyHostedAzureArmReadClient.MapResource` copies only string-valued ARM tags and silently drops array/object tag values with no warning log.
 
 ---
 
