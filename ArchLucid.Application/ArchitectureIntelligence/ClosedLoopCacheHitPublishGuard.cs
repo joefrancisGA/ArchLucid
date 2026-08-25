@@ -21,6 +21,8 @@ public static class ClosedLoopCacheHitPublishGuard
 
         cached.RunId = runId;
         cached.Model.RunId = runId;
+        cached.ModelId = runId;
+        cached.Model.ModelId = runId;
 
         cached.PublishedToProduct = false;
         cached.PublishedFindingsSnapshotId = null;

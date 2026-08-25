@@ -26,6 +26,8 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
 
         cached.RunId.Should().Be("current-run");
         cached.Model.RunId.Should().Be("current-run");
+        cached.ModelId.Should().Be("current-run");
+        cached.Model.ModelId.Should().Be("current-run");
         cached.PublishedToProduct.Should().BeFalse();
         cached.PublishedFindingsSnapshotId.Should().BeNull();
         cached.PublishedRecommendationCount.Should().Be(0);
