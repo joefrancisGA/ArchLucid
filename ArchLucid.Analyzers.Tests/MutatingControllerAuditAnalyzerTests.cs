@@ -209,6 +209,41 @@ public sealed class ExcludedController : ControllerBase
     }
 
     [Fact]
+    public async Task Mutating_audit_excluded_on_base_controller_suppresses_AL0003_on_derived_action()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+[MutatingAuditExcluded("shared base controller")]
+public abstract class ExcludedBaseController : ControllerBase
+{
+}
+
+public sealed class DerivedExcludedController : ExcludedBaseController
+{
+    [HttpPost]
+    public IActionResult Post()
+    {
+        return Ok();
+    }
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task AL0003_reports_when_HttpPatch_action_lacks_IAudit_LogAsync()
     {
         const string testCode = AuditAndMvcStubs +

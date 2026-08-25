@@ -228,18 +228,23 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 return true;
         }
 
-        INamedTypeSymbol? typeWalkerExcluded = methodDeclaredSymbolScoped.ContainingType;
+        INamedTypeSymbol? nestedTypeWalker = methodDeclaredSymbolScoped.ContainingType;
 
-        while (typeWalkerExcluded is not null)
+        while (nestedTypeWalker is not null)
         {
-            foreach (AttributeData owningTypeExcluded in typeWalkerExcluded.GetAttributes())
+            for (INamedTypeSymbol? inheritWalker = nestedTypeWalker;
+                 inheritWalker is not null;
+                 inheritWalker = inheritWalker.BaseType)
             {
-                if (SymbolEqualityComparer.Default.Equals(owningTypeExcluded.AttributeClass,
-                        exclusionAttributeSymbolScoped))
-                    return true;
+                foreach (AttributeData owningTypeExcluded in inheritWalker.GetAttributes())
+                {
+                    if (SymbolEqualityComparer.Default.Equals(owningTypeExcluded.AttributeClass,
+                            exclusionAttributeSymbolScoped))
+                        return true;
+                }
             }
 
-            typeWalkerExcluded = typeWalkerExcluded.ContainingType;
+            nestedTypeWalker = nestedTypeWalker.ContainingType;
         }
 
         return false;
