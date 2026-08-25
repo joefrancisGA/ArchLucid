@@ -1,9 +1,12 @@
+using System.Text.Json.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
 ///     How agent outputs for a run were produced at a structural level (INV-002); persisted on <c>dbo.Runs</c> and
 ///     exposed on <see cref="Metadata.ArchitectureRun" />.
 /// </summary>
+[JsonConverter(typeof(StructuralExecutionModeJsonConverter))]
 public enum StructuralExecutionMode
 {
     /// <summary>Deterministic / simulator execution path.</summary>

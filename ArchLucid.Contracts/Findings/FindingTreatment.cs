@@ -1,9 +1,12 @@
+using System.Text.Json.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>
 ///     Post-gate routing for candidate observations after insight-density scoring.
 ///     Hard suppress is intentionally excluded so demoted candidates remain audit-queryable.
-/// </summary>
+///     </summary>
+[JsonConverter(typeof(FindingTreatmentJsonConverter))]
 public enum FindingTreatment
 {
     /// <summary>Candidate promoted to the decision-grade findings surface.</summary>
