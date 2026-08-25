@@ -13,7 +13,6 @@ import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import { GovernanceFindingsAssignedToMeBreadcrumb } from "@/components/governance/findings/GovernanceFindingsAssignedToMeBreadcrumb";
@@ -24,11 +23,15 @@ import { GovernanceFindingsRelatedQueuesDisclosure } from "@/components/governan
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  GovernanceFindingsAssignedToMeHeaderActions,
+  GovernanceFindingsAssignedToMeHeaderMetadata,
+  GovernanceFindingsAssignedToMeStatusBadge,
+} from "@/app/(operator)/governance/findings/GovernanceFindingsAssignedToMeHeader";
 import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyboardTriageCoach";
 import { AssignedToMeContinueOldestFindingStrip } from "@/components/usability/AssignedToMeContinueOldestFindingStrip";
 import { FindingsTriageFirstFindingStrip } from "@/components/usability/FindingsTriageFirstFindingStrip";
 import { GovernanceFindingsContinueLastViewedRow } from "@/app/(operator)/governance/findings/GovernanceFindingsContinueLastViewedRow";
-import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-last-governance-finding";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { FindingsQueuePickReviewBeforeTriageStrip } from "@/components/governance/findings/FindingsQueuePickReviewBeforeTriageStrip";
@@ -38,8 +41,6 @@ import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governanc
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import { Button } from "@/components/ui/button";
-import { RefreshButton } from "@/components/ui/refresh-button";
-import { StatusTag } from "@/components/ui/status-tag";
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
 import { useAssignedToMeFindingsQuery } from "@/components/governance/findings/use-assigned-to-me-findings-query";
@@ -53,9 +54,6 @@ import {
   ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE,
   ARCHITECTURE_RISK_REGISTER_PAGE_TITLE,
   ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF,
-  computeArchitectureRiskRegisterSummary,
-  matchesGovernanceFindingsRunScope,
-  matchesRiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
 import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD,
@@ -84,13 +82,8 @@ import {
   buildGovernanceAssignedToMeEmptyDescription,
   GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF,
   GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL,
-  GOVERNANCE_ASSIGNED_TO_ME_LAST_CHECKED_PREFIX,
-  GOVERNANCE_ASSIGNED_TO_ME_REFRESHING_LABEL,
   resolveGovernanceAssignedToMeWorkspaceLabel,
 } from "@/lib/governance/governance-assigned-to-me-empty-state";
-import {
-  operatorFreshnessMetadataWithClockLabel,
-} from "@/lib/operator/operator-last-refreshed-label";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { comparePageHrefWithLifecycleAnchor, COMPARE_FINDING_LIFECYCLE_ANCHOR } from "@/lib/compare-finding-lifecycle";
 import {
@@ -99,22 +92,14 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
-import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
   EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
-  matchesFindingsNaturalLanguageFacets,
   type FindingsNaturalLanguageFacets,
 } from "@/lib/findings/findings-natural-language-filter";
-import {
-  governanceFindingsQueueActiveFilterChips,
-  governanceFindingsQueueActiveFiltersSummary,
-} from "@/lib/governance/governance-findings-queue-active-filters";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
-import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
-import { resolveGovernanceAssignedToMeOldestFinding } from "@/lib/governance/resolve-governance-assigned-to-me-oldest-finding";
 import {
   patchGovernanceFindingsQueueFacets,
   readGovernanceFindingsQueueFacets,
@@ -123,11 +108,24 @@ import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-corre
 import { cn } from "@/lib/utils";
 import {
   DEFAULT_FINDING_JOB_VIEW,
-  filterGovernanceRowsForJobView,
   FINDING_JOB_VIEW_LABELS,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
 import { resolveEffectiveFindingJobView } from "@/lib/findings/finding-job-view";
+import {
+  computeGovernanceFindingsRegisterSummary,
+  countAssignedToMeLoadedFindings,
+  deriveGovernanceFindingsActiveFiltersSummary,
+  deriveSponsorSynopsisCounts,
+  deriveSponsorSynopsisPackageTitle,
+  extractGovernanceFindingIds,
+  filterGovernanceFindingsDisplayedRows,
+  filterGovernanceFindingsScopedRows,
+  hasAssignedToMeCountMismatch,
+  resolveAssignedToMeOldestFindingTarget,
+  resolveContinueLastFindingTarget,
+  resolveFirstFindingTriageTarget,
+} from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -235,30 +233,19 @@ export default function GovernanceFindingsQueueClient({
   const effectiveJobView = resolveEffectiveFindingJobView(jobView, filterBarVisible);
   const jobViewFilterActive = filterBarVisible && jobView !== DEFAULT_FINDING_JOB_VIEW;
   const scopedRows = useMemo(
-    () => rows.filter((row) => matchesGovernanceFindingsRunScope(row, scopedRunId)),
+    () => filterGovernanceFindingsScopedRows(rows, scopedRunId),
     [rows, scopedRunId],
   );
-  const displayedRows = useMemo(() => {
-    const facetFilteredRows = scopedRows.filter(
-      (row) =>
-        matchesRiskRegisterFilter(row, registerFilter) &&
-        matchesFindingsNaturalLanguageFacets(
-          {
-            title: row.title,
-            severity: row.severity,
-            status: row.status,
-            latestDisposition: row.latestDisposition,
-          },
-          nlFacets,
-        ),
-    );
-
-    if (effectiveJobView === null) {
-      return facetFilteredRows;
-    }
-
-    return filterGovernanceRowsForJobView(facetFilteredRows, effectiveJobView);
-  }, [scopedRows, registerFilter, effectiveJobView, nlFacets]);
+  const displayedRows = useMemo(
+    () =>
+      filterGovernanceFindingsDisplayedRows(
+        scopedRows,
+        registerFilter,
+        nlFacets,
+        effectiveJobView,
+      ),
+    [scopedRows, registerFilter, effectiveJobView, nlFacets],
+  );
   /**
    * Scoped rows, not all rows: when `?runId=` is set, each header metric is labelled "in this review"
    * by {@link governanceRegisterMetricPresentation} and its drill-in href carries the same `runId`, so a
@@ -266,11 +253,11 @@ export default function GovernanceFindingsQueueClient({
    * Facet filters (register filter, job view, natural-language) are deliberately excluded — the header
    * describes the review, and the filter chips describe the narrowed list.
    */
-  const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(scopedRows), [scopedRows]);
-  const findingIds = useMemo(
-    () => displayedRows.filter((row) => row.recordKind === "finding").map((row) => row.findingId),
-    [displayedRows],
+  const registerSummary = useMemo(
+    () => computeGovernanceFindingsRegisterSummary(scopedRows),
+    [scopedRows],
   );
+  const findingIds = useMemo(() => extractGovernanceFindingIds(displayedRows), [displayedRows]);
   usePrefetchItsmFindingCorrelations(findingIds);
   const pageTitle =
     isAssignedToMe
@@ -310,48 +297,21 @@ export default function GovernanceFindingsQueueClient({
     : GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT;
   const secondaryViewPresentation =
     displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
-  const firstFindingTriageTarget = useMemo(() => {
-    if (isAssignedToMe) {
-      return null;
-    }
-
-    const row = displayedRows.find((candidate) => candidate.recordKind === "finding");
-
-    if (row === undefined) {
-      return null;
-    }
-
-    return {
-      findingId: row.findingId,
-      findingTitle: row.title,
-      href: governanceFindingInspectHref(row.runId, row.findingId),
-    };
-  }, [displayedRows, isAssignedToMe]);
+  const firstFindingTriageTarget = useMemo(
+    () => resolveFirstFindingTriageTarget(displayedRows, isAssignedToMe),
+    [displayedRows, isAssignedToMe],
+  );
   const continueLastFinding = useMemo(
-    () => resolveContinueLastGovernanceFinding(displayedRows),
+    () => resolveContinueLastFindingTarget(displayedRows),
     [displayedRows],
   );
-  const assignedToMeOldestFindingTarget = useMemo(() => {
-    if (!isAssignedToMe) {
-      return null;
-    }
-
-    const target = resolveGovernanceAssignedToMeOldestFinding(rows);
-
-    if (target === null) {
-      return null;
-    }
-
-    return {
-      target,
-      href: governanceFindingInspectHref(target.runId, target.findingId),
-    };
-  }, [isAssignedToMe, rows]);
-  const sponsorSynopsisPackageTitle =
-    displayedRows.find((row) => row.recordKind === "finding")?.runLabel ??
-    (scopedRunId !== null && scopedRunId.length > 0 ? scopedRunId : "this workspace");
+  const assignedToMeOldestFindingTarget = useMemo(
+    () => resolveAssignedToMeOldestFindingTarget(rows, isAssignedToMe),
+    [isAssignedToMe, rows],
+  );
+  const sponsorSynopsisPackageTitle = deriveSponsorSynopsisPackageTitle(displayedRows, scopedRunId);
   const sponsorSynopsisCounts = useMemo(
-    () => buildSponsorStoryDispositionCountsFromRows(displayedRows.filter((row) => row.recordKind === "finding")),
+    () => deriveSponsorSynopsisCounts(displayedRows),
     [displayedRows],
   );
   const sponsorHandoffHref =
@@ -366,75 +326,47 @@ export default function GovernanceFindingsQueueClient({
     hasGovernanceApprovalProvenance(governanceApprovalProvenance);
   const assignedToMeCount = assignedToMeCountQuery.data ?? rows.length;
   const assignedToMeLoadedFindingCount = useMemo(
-    () => rows.filter((row) => row.recordKind === "finding").length,
+    () => countAssignedToMeLoadedFindings(rows),
     [rows],
   );
-  const assignedToMeCountMismatch =
-    isAssignedToMe &&
-    !loading &&
-    !loadFailed &&
-    assignedToMeCountQuery.data !== undefined &&
-    assignedToMeCountQuery.data !== assignedToMeLoadedFindingCount;
+  const assignedToMeCountMismatch = hasAssignedToMeCountMismatch({
+    isAssignedToMe,
+    loading,
+    loadFailed,
+    assignedToMeCountData: assignedToMeCountQuery.data,
+    assignedToMeLoadedFindingCount,
+  });
   const activeFiltersSummary = useMemo(
     () =>
-      governanceFindingsQueueActiveFiltersSummary(
-        governanceFindingsQueueActiveFilterChips({
-          registerFilter,
-          jobView,
-          nlFacets,
-          jobViewFilterActive,
-        }),
+      deriveGovernanceFindingsActiveFiltersSummary(
+        registerFilter,
+        jobView,
+        nlFacets,
+        jobViewFilterActive,
       ),
     [registerFilter, jobView, nlFacets, jobViewFilterActive],
   );
-  const assignedToMeStatusBadge =
-    isAssignedToMe && !loading && !loadFailed ? (
-      <span aria-live="polite" aria-atomic="true">
-        <StatusTag
-          kind={assignedToMeCount > 0 ? "needs-attention" : "ready"}
-          label={
-            assignedToMeCount === 1
-              ? "1 open finding assigned"
-              : `${assignedToMeCount} open findings assigned`
-          }
-          data-testid="governance-assigned-to-me-queue-status"
-        />
-      </span>
-    ) : null;
-  const assignedToMeFreshnessLabel = assignedToMeQuery.refreshing
-    ? GOVERNANCE_ASSIGNED_TO_ME_REFRESHING_LABEL
-    : operatorFreshnessMetadataWithClockLabel({
-        prefix: GOVERNANCE_ASSIGNED_TO_ME_LAST_CHECKED_PREFIX,
-        lastRefreshedAt: assignedToMeCheckedAt,
-        refreshingLabel: null,
-      });
+  const assignedToMeStatusBadge = isAssignedToMe ? (
+    <GovernanceFindingsAssignedToMeStatusBadge
+      assignedToMeCount={assignedToMeCount}
+      loading={loading}
+      loadFailed={loadFailed}
+    />
+  ) : null;
   const assignedToMeHeaderActions = isAssignedToMe ? (
-    <div className="flex flex-wrap items-center gap-2" data-testid="governance-assigned-to-me-header-actions">
-      <PageContextualHelpButton />
-      <RefreshButton
-        variant="outline"
-        busy={assignedToMeQuery.refreshing}
-        onClick={() => {
-          refresh();
-        }}
-      />
-    </div>
+    <GovernanceFindingsAssignedToMeHeaderActions
+      assignedToMeRefreshing={assignedToMeQuery.refreshing}
+      onRefresh={refresh}
+    />
   ) : (
     <PageContextualHelpButton />
   );
   const assignedToMeHeaderMetadata = isAssignedToMe ? (
-    <>
-      <span className="text-al-text-secondary" data-testid="governance-assigned-to-me-workspace">
-        Workspace:{" "}
-        <span className="font-medium text-al-text-primary">{assignedToMeWorkspaceLabel}</span>
-      </span>
-      <OperatorPageFreshnessMetadata
-        testId="governance-assigned-to-me-last-checked"
-        lastRefreshedAt={assignedToMeQuery.refreshing ? null : assignedToMeCheckedAt}
-      >
-        {assignedToMeFreshnessLabel}
-      </OperatorPageFreshnessMetadata>
-    </>
+    <GovernanceFindingsAssignedToMeHeaderMetadata
+      assignedToMeWorkspaceLabel={assignedToMeWorkspaceLabel}
+      assignedToMeCheckedAt={assignedToMeCheckedAt}
+      assignedToMeRefreshing={assignedToMeQuery.refreshing}
+    />
   ) : undefined;
 
   return (
