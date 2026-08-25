@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
@@ -56,6 +56,7 @@ import {
 } from "@/lib/extract-upload-settings-page-copy";
 import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
 import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -63,6 +64,10 @@ import {
   EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID,
   EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
 } from "@/lib/extract-upload-settings-page-copy";
+import {
+  resolveExtractUploadPackageEmphasizedStepId,
+  resolveExtractUploadPackageSteps,
+} from "@/lib/extract-upload-package-checklist";
 
 /**
  * Guided Extract & Upload settings page — PowerShell script, validate hint, and server ZIP upload.
@@ -87,6 +92,24 @@ export function ExtractUploadSettingsPageClient() {
   const extractorScriptVersion = baselineQuery.data?.extractorScriptVersion ?? null;
   const extractorUpdateBanner = baselineQuery.data?.extractorUpdateBanner ?? null;
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
+  const extractUploadSteps = useMemo(
+    () =>
+      resolveExtractUploadPackageSteps({
+        scenarioSelected: selectedDemoScenarioId.trim().length > 0,
+        packageUploaded: packageId !== null || selectedFileLabel !== null,
+        inventoryParsed: hasBaselineArtifacts === true || packageId !== null,
+      }),
+    [hasBaselineArtifacts, packageId, selectedDemoScenarioId, selectedFileLabel],
+  );
+  const extractUploadEmphasizedStepId = useMemo(
+    () =>
+      resolveExtractUploadPackageEmphasizedStepId({
+        scenarioSelected: selectedDemoScenarioId.trim().length > 0,
+        packageUploaded: packageId !== null || selectedFileLabel !== null,
+        inventoryParsed: hasBaselineArtifacts === true || packageId !== null,
+      }),
+    [hasBaselineArtifacts, packageId, selectedDemoScenarioId, selectedFileLabel],
+  );
 
   async function onFolderSelected(files: FileList): Promise<void> {
     setUploadError(null);
@@ -234,6 +257,13 @@ export function ExtractUploadSettingsPageClient() {
         {buyerPolishedShell ? null : (
           <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="extract-upload" />
         )}
+
+        <IntegrationConnectChecklist
+          title="Upload checklist"
+          steps={extractUploadSteps}
+          emphasizedStepId={extractUploadEmphasizedStepId}
+          testIdPrefix="extract-upload-package"
+        />
 
       {extractorUpdateBanner ? (
         <div
