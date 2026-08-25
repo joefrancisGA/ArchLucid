@@ -2298,8 +2298,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (hunt-ready) `ArchitectureRunExecuteOrchestrator` releases an acquired ownership lease with `CancellationToken.None` after `ExecuteRunCoreAsync` is cancelled; a hanging release during host drain can retain ownership until TTL and make a second execute return conflict.
-- [ ] (hunt-ready) A cancellation after ownership acquisition but before durable execution state transition can expose different retry behavior between the direct API execute path and the background-job execute path.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator` releases an acquired ownership lease with `CancellationToken.None` after `ExecuteRunCoreAsync` is cancelled — intentional: passing the request token would skip release on client disconnect; host drain uses `ReleaseAllHeldByThisInstanceAsync` (TB-961); regression in `ArchitectureRunExecuteOrchestratorOwnershipTests.ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`.
+- [x] (invalid) A cancellation after ownership acquisition but before durable execution state transition can expose different retry behavior between the direct API execute path and the background-job execute path — no shipped background execute path; `ArchitectureRunCommandService.ExecuteRunAsync` delegates solely to `ArchitectureRunExecuteOrchestrator` (API-sync per `ASYNC_ORCHESTRATION_FIRST_FORCE.md`).
 
 ---
 
