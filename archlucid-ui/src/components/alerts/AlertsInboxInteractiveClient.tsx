@@ -1,6 +1,9 @@
 ﻿"use client";
 
+import Link from "next/link";
+
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { AlertsInboxPickReviewBeforeTriageStrip } from "@/components/alerts/AlertsInboxPickReviewBeforeTriageStrip";
 import { AlertsInboxAlertListSection } from "@/components/alerts/AlertsInboxAlertListSection";
 import { AlertsInboxControls } from "@/components/alerts/AlertsInboxControls";
 import { AlertsInboxDialogsDeferred } from "@/components/alerts/alerts-inbox-deferred-chunks";
@@ -10,6 +13,9 @@ import { AlertsInboxPageIntro } from "@/components/alerts/AlertsInboxPageIntro";
 import { AlertsInboxSummaryRow } from "@/components/alerts/AlertsInboxSummaryRow";
 import { useAlertsInboxController } from "@/components/alerts/use-alerts-inbox-controller";
 import type { AlertsInboxPageModel } from "@/app/(operator)/governance/alerts/_sections/alerts-inbox-page-model";
+import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type AlertsInboxInteractiveClientProps = {
   /** Server-loaded inbox snapshot for first paint (TB-564). */
@@ -44,6 +50,34 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
         workspaceContextLoading={controller.workspaceContext.loading}
       />
 
+      {controller.scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="alerts-inbox-run-scope-banner"
+        >
+          {"Showing alerts for review "}
+          <span className="font-mono text-al-text-primary">{controller.scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_ALERTS_PATH}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={`/architecture/reviews/${encodeURIComponent(controller.scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : (
+        <AlertsInboxPickReviewBeforeTriageStrip
+          selectedReviewId=""
+          onSelectReview={controller.onPickReviewForTriage}
+        />
+      )}
+
+      {controller.scopedRunFilterActive ? (
+        <>
       <AlertsInboxControls
         status={controller.status}
         page={controller.page}
@@ -92,6 +126,8 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
           onClose: controller.closeActionLoopDialog,
         }}
       />
+        </>
+      ) : null}
     </OperatorPageContainer>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { AlertActionKind } from "@/components/alerts/AlertsInboxAlertCard";
@@ -35,6 +36,7 @@ import {
 } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import type { AlertActionLoopDto } from "@/types/operate-rhythm";
 import { useSyncAlertsHubHeaderConfigureLink } from "@/components/alerts/AlertsHubHeaderConfigureLinkContext";
+import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
 
 type PendingActionState = {
   alertId: string;
@@ -53,7 +55,21 @@ function initialCursorStack(initialModel: AlertsInboxPageModel | null): string[]
   return ["", cursor];
 }
 
+function matchesAlertsInboxRunScope(alert: { runId?: string | null }, scopedRunId: string): boolean {
+  if (scopedRunId.trim().length === 0) {
+    return true;
+  }
+
+  const runId = (alert.runId ?? "").trim();
+
+  return runId.length > 0 && runId === scopedRunId.trim();
+}
+
 export function useAlertsInboxController(initialModel: AlertsInboxPageModel | null) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
   const queryClient = useQueryClient();
   const scope = useOperatorScopeQueryKey();
   const canMutateAlertInbox = useNavSurface("alerts").mutationCapability;
@@ -137,8 +153,26 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
   );
 
   const visibleAlerts = useMemo(
-    () => alerts.filter((alert) => alert.isArchived !== true),
-    [alerts],
+    () =>
+      alerts.filter(
+        (alert) => alert.isArchived !== true && matchesAlertsInboxRunScope(alert, scopedRunId),
+      ),
+    [alerts, scopedRunId],
+  );
+
+  const onPickReviewForTriage = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+      router.replace(`${GOVERNANCE_ALERTS_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
   );
 
   const selectedOnPageCount = useMemo(
@@ -402,6 +436,9 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     toggleAlertSelected,
     toggleSelectAllVisible,
     visibleAlerts,
+    scopedRunId,
+    scopedRunFilterActive,
+    onPickReviewForTriage,
     workspaceContext,
     load: refreshInbox,
   };
