@@ -1,4 +1,5 @@
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Clarifications;
 using ArchLucid.Decisioning.Findings;
 
 using FluentAssertions;
