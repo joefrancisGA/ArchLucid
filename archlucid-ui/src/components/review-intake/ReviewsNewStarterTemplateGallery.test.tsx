@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   REVIEWS_NEW_DETAILED_HREF,
-  REVIEWS_NEW_QUICK_REVIEW_HREF,
   REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_ACTION,
   REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_LEAD,
 } from "@/lib/reviews-new-path-copy";
@@ -27,12 +26,8 @@ describe("ReviewsNewStarterTemplateGallery", () => {
     ).toHaveAttribute("href", REVIEWS_NEW_DETAILED_HREF);
   });
 
-  it("styles footer links with the operator inline link affordance", () => {
+  it("styles browse-more link with the operator inline link affordance", () => {
     render(<ReviewsNewStarterTemplateGallery />);
-
-    const startBlankLink = screen.getByRole("link", { name: "Or start blank in the wizard" });
-    expect(startBlankLink).toHaveAttribute("href", REVIEWS_NEW_QUICK_REVIEW_HREF);
-    expect(startBlankLink.className).toContain("underline");
 
     const browseMoreLink = screen.getByRole("link", { name: REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_ACTION });
     expect(browseMoreLink.className).toContain("underline");

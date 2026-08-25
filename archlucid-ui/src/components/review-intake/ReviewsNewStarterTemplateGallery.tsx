@@ -8,7 +8,6 @@ import { starterArchitectureTemplates } from "@/data/starter-templates";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEWS_NEW_DETAILED_HREF,
-  REVIEWS_NEW_QUICK_REVIEW_HREF,
   REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_ACTION,
   REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_LEAD,
 } from "@/lib/reviews-new-path-copy";
@@ -81,11 +80,6 @@ export function ReviewsNewStarterTemplateGallery(): React.JSX.Element {
           </Link>
         </p>
       ) : null}
-      <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-        <Link href={REVIEWS_NEW_QUICK_REVIEW_HREF} className={OPERATOR_LINK.inline}>
-          Or start blank in the wizard
-        </Link>
-      </p>
     </section>
   );
 }
