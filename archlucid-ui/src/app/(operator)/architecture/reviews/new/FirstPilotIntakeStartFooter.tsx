@@ -43,10 +43,32 @@ export function FirstPilotIntakeStartFooter(props: FirstPilotIntakeStartFooterPr
   } = props;
 
   const readinessId = intakeGap !== null ? "first-pilot-readiness" : undefined;
-  const noticeStack: ReactNode[] = [];
+  const preActionNotices: ReactNode[] = [];
+
+  if (clientValidationMessage !== null) {
+    preActionNotices.push(
+      <ReviewStartInlineError
+        key="validation-error"
+        message={clientValidationMessage}
+        testId="first-pilot-validation-error"
+      />,
+    );
+  }
+
+  if (creationProgress.outcome?.kind === "failed") {
+    preActionNotices.push(
+      <ReviewStartInlineError
+        key="submit-error"
+        message={creationProgress.outcome.message}
+        testId="first-pilot-submit-error"
+      />,
+    );
+  }
+
+  const postActionNotices: ReactNode[] = [];
 
   if (creationProgress.showStagedPanel && creationProgress.activeStageId !== null) {
-    noticeStack.push(
+    postActionNotices.push(
       <ReviewStartStagedProgress
         key="staged-progress"
         stages={creationProgress.stages}
@@ -58,28 +80,8 @@ export function FirstPilotIntakeStartFooter(props: FirstPilotIntakeStartFooterPr
     );
   }
 
-  if (clientValidationMessage !== null) {
-    noticeStack.push(
-      <ReviewStartInlineError
-        key="validation-error"
-        message={clientValidationMessage}
-        testId="first-pilot-validation-error"
-      />,
-    );
-  }
-
-  if (creationProgress.outcome?.kind === "failed") {
-    noticeStack.push(
-      <ReviewStartInlineError
-        key="submit-error"
-        message={creationProgress.outcome.message}
-        testId="first-pilot-submit-error"
-      />,
-    );
-  }
-
   if (creationProgress.outcome?.kind === "unresolved") {
-    noticeStack.push(
+    postActionNotices.push(
       <ReviewStartUnresolvedNotice
         key="unresolved-notice"
         onRecheck={onRecheckUnresolved}
@@ -114,7 +116,7 @@ export function FirstPilotIntakeStartFooter(props: FirstPilotIntakeStartFooterPr
         ) : null}
       </div>
 
-      {noticeStack.length > 0 ? <div className="space-y-3">{noticeStack}</div> : null}
+      {preActionNotices.length > 0 ? <div className="space-y-3">{preActionNotices}</div> : null}
 
       <div className="space-y-3" data-testid="first-pilot-start-actions">
         <div
@@ -137,6 +139,8 @@ export function FirstPilotIntakeStartFooter(props: FirstPilotIntakeStartFooterPr
         </div>
         <NewReviewSampleEscapeLink presentation="inline" />
       </div>
+
+      {postActionNotices.length > 0 ? <div className="space-y-3">{postActionNotices}</div> : null}
     </div>
   );
 }

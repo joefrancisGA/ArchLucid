@@ -830,6 +830,10 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.getByTestId("architecture-start-review")).toHaveAttribute("data-loading", "true");
     expect(screen.queryByTestId("architecture-start-review-stall")).toBeNull();
 
+    const startButton = screen.getByTestId("architecture-start-review");
+    const progress = screen.getByTestId("architecture-start-review-progress");
+    expect(startButton.compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
     resolveSave(true);
   });
 

@@ -328,6 +328,10 @@ describe("FirstPilotIntakeWizard", () => {
 
     expect(screen.getByTestId("first-pilot-review-start-progress")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: REVIEW_START_PREPARING_LABEL })).toHaveAttribute("aria-busy", "true");
+
+    const startButton = screen.getByRole("button", { name: REVIEW_START_PREPARING_LABEL });
+    const progress = screen.getByTestId("first-pilot-review-start-progress");
+    expect(startButton.compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("enables start with title and a long brief without evidence files", async () => {

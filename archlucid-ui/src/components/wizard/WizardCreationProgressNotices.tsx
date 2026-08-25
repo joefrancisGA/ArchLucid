@@ -37,7 +37,7 @@ export function WizardCreationProgressNotices(
     <>
       {showServerProgress ? (
         <div
-          className="mb-3 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-3 dark:border-neutral-700"
+          className="mt-3 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-3 dark:border-neutral-700"
           role="status"
           aria-live="polite"
           data-testid={`${testIdPrefix}-review-start-server-progress`}
@@ -50,7 +50,7 @@ export function WizardCreationProgressNotices(
       ) : null}
 
       {progress.showStagedPanel && progress.activeStageId !== null ? (
-        <div className="mb-3">
+        <div className="mt-3">
           <ReviewStartStagedProgress
             stages={progress.stages}
             activeStageId={progress.activeStageId}
@@ -62,7 +62,7 @@ export function WizardCreationProgressNotices(
       ) : null}
 
       {progress.outcome?.kind === "unresolved" ? (
-        <div className="mb-3">
+        <div className="mt-3">
           <ReviewStartUnresolvedNotice
             onRecheck={onRecheck}
             isRechecking={progress.isActive}

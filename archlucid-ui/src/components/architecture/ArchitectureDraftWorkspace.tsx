@@ -794,21 +794,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             Confirm the in-scope understanding before starting a review.
           </p>
         ) : null}
-        {reviewStartProgress.stageId !== null ? (
-          <ReviewStartStagedProgress
-            stages={reviewStartProgress.stages}
-            activeStageId={reviewStartProgress.stageId}
-            headline={reviewStartProgress.loadingLabel}
-            detail={reviewStartProgress.waitCopy.detail}
-            testId="architecture-start-review-progress"
-          />
-        ) : null}
-        {reviewStartProgress.stalled ? (
-          <ReviewStartNavigationStallNotice
-            href={startReviewFromArchitectureHref(effectiveArchitectureId)}
-            testId="architecture-start-review-stall"
-          />
-        ) : null}
         {startReviewError !== null ? (
           <OperatorMutationInlineError
             message={startReviewError}
@@ -877,6 +862,21 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             Save and exit
           </Button>
         </div>
+        {reviewStartProgress.stageId !== null ? (
+          <ReviewStartStagedProgress
+            stages={reviewStartProgress.stages}
+            activeStageId={reviewStartProgress.stageId}
+            headline={reviewStartProgress.loadingLabel}
+            detail={reviewStartProgress.waitCopy.detail}
+            testId="architecture-start-review-progress"
+          />
+        ) : null}
+        {reviewStartProgress.stalled ? (
+          <ReviewStartNavigationStallNotice
+            href={startReviewFromArchitectureHref(effectiveArchitectureId)}
+            testId="architecture-start-review-stall"
+          />
+        ) : null}
       </div>
       <ArchitectureDraftQualityAttributesEncouragementDialog
         open={qualityAttributesEncouragementOpen}
