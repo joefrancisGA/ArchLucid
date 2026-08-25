@@ -1690,11 +1690,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 7
-- **bugs-found:** 10
+- **hunts:** 8
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — IPv6 ULA SSRF bypass; PascalCase alert routing metadata; FindingJsonConverter severity downgrade; Marketplace PlanId casing
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — `FindingJsonConverter` numeric `enforcementTier`/`humanReviewStatus` mishandled; integer tokens threw or defaulted to PolicyViolation/NotRequired
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1712,6 +1712,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) PascalCase `routingCriteria` / `severities` metadata silently disables alert routing filters — **hit 2026-08-24:** `AlertRoutingCriteriaMetadata.Parse` used case-sensitive `TryGetProperty`; empty criteria fail-open in `AlertRoutingMatcher`; regression in `AlertRoutingCriteriaMetadata_Parse_PascalCase_property_names_preserves_severity_filter`
 - [x] (proven) `FindingJsonConverter` downgrades unknown severity strings to `Info` — **hit 2026-08-24:** unlike `ArchitectureFindingJsonConverter`, labels like `blocker` hydrated as `Info`; fixed to throw on unknown labels (`FindingJsonConverterTests.Deserialize_unknown_severity_throws`)
 - [x] (proven) Azure Marketplace webhook `PlanId` PascalCase missed → tier defaults to Standard — **hit 2026-08-24:** `TryGetPlanId` only read camelCase `planId`; regression in `TryGetPlanId_reads_PascalCase_planId`
+- [x] (proven) `FindingJsonConverter` mishandles numeric `enforcementTier` and `humanReviewStatus` — **hit 2026-08-25:** integer `enforcementTier: 1` stayed `PolicyViolation`; `humanReviewStatus: 1` called `GetString()` on a number token (throws); out-of-range `enforcementTier: 99` silently defaulted; regression in `Deserialize_numeric_enforcement_tier_maps_advisory_ordinal`, `Deserialize_numeric_human_review_status_maps_pending_ordinal`, `Deserialize_integer_enforcement_tier_out_of_range_throws`.
+- [ ] (hunt-ready) `FindingJsonConverter` ignores numeric `evaluationConfidenceLevel` ordinals while `ReadSeverity` accepts defined integer severities — confidence level silently dropped on numeric tokens.
+- [ ] (hunt-ready) `IntegrationEventServiceBusApplicationProperties.TryResolveAlertFired` calls `GetString()` on `severity` without checking `ValueKind` — numeric severity throws `InvalidOperationException` outside the `JsonException` catch.
+- [ ] (hunt-ready) `RealLlmOutputStructuralValidator` rejects numeric finding `severity` while `FindingJsonConverter` accepts ordinals — golden-corpus structural gate disagrees with persisted finding deserialization.
 
 ---
 
