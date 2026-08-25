@@ -33,7 +33,12 @@ import {
   tryStaticDemoGoldenManifestComparison,
   tryStaticDemoRunComparison,
 } from "@/lib/operator/operator-static-demo";
-import { CompareComparisonDimensionsPreview } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareComparisonDimensionsPreview";
+import { CompareContinueLastComparisonRow } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareContinueLastComparisonRow";
+import {
+  readCompareLastComparisonPair,
+  writeCompareLastComparisonPair,
+  type CompareLastComparisonPair,
+} from "@/lib/compare/compare-last-comparison-pair-storage";
 import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareEmptyResultsPlaceholder";
 import { CompareHowComparisonWorksSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareHowComparisonWorksSection";
 import { CompareRelatedReviewLinks } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRelatedReviewLinks";
@@ -92,6 +97,11 @@ export function CompareForm() {
   const [lastComparedPair, setLastComparedPair] = useState<ComparedPair | null>(null);
   const [leftPickedSummary, setLeftPickedSummary] = useState<RunSummary | null>(null);
   const [rightPickedSummary, setRightPickedSummary] = useState<RunSummary | null>(null);
+  const [continueLastPair, setContinueLastPair] = useState<CompareLastComparisonPair | null>(null);
+
+  useEffect(() => {
+    setContinueLastPair(readCompareLastComparisonPair());
+  }, []);
 
   const syncSelectionToUrl = useCallback(
     (priorRunId: string, laterRunId: string) => {
@@ -206,6 +216,8 @@ export function CompareForm() {
       if (gen === compareGenerationRef.current) {
         setLoading(false);
         setLastComparedPair({ left: leftAtStart, right: rightAtStart });
+        writeCompareLastComparisonPair({ priorRunId: leftAtStart, laterRunId: rightAtStart });
+        setContinueLastPair({ priorRunId: leftAtStart, laterRunId: rightAtStart });
         void hydratePickedSummariesForPair(leftAtStart, rightAtStart);
         void loadComparisonNarrative(leftAtStart, rightAtStart, gen);
       }
@@ -505,6 +517,9 @@ export function CompareForm() {
     (lastComparedPair !== null && (lastComparedPair.left.length > 0 || lastComparedPair.right.length > 0)) ||
     isStaticDemoPayloadFallbackEnabled();
 
+  const showContinueLastComparisonRow =
+    continueLastPair !== null && !hasPrefilledSelection && !buyerCompareHasUrlPair;
+
   return (
     <OperatorPageContainer
       variant="workflow"
@@ -538,6 +553,9 @@ export function CompareForm() {
       ) : null}
       {isStaticDemoPayloadFallbackEnabled() && !buyerPolished ? (
         <CompareDemoQuickPick onPickClaimsIntake={pickClaimsIntakePair} />
+      ) : null}
+      {showContinueLastComparisonRow && continueLastPair !== null ? (
+        <CompareContinueLastComparisonRow pair={continueLastPair} />
       ) : null}
       {!isStaticDemoPayloadFallbackEnabled() ? (
         <CompareNaturalPairSuggestion
