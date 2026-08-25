@@ -123,7 +123,11 @@ public sealed class RecommendationImproveLoopCoordinator(
         {
             RecommendationId = recommendation.RecommendationId.ToString("D"),
             Problem = recommendation.Title,
+            Evidence = recommendation.Rationale ?? recommendation.Title,
+            AffectedRequirementOrQualityAttribute = recommendation.Title,
+            ConsequenceOfInaction = recommendation.Rationale ?? recommendation.Title,
             ProposedChange = recommendation.SuggestedAction ?? recommendation.Rationale ?? recommendation.Title,
+            ValidationMethod = "Improve-loop review.",
             Confidence = recommendation.PriorityScore / 100.0,
         };
 
