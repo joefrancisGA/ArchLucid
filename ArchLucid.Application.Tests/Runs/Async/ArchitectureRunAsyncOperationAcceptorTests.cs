@@ -1,5 +1,8 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Async;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -65,10 +68,55 @@ public sealed class ArchitectureRunAsyncOperationAcceptorTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task AcceptCreateAsync_admits_then_enqueues_create_without_waiting_on_pipeline()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IArchitectureRunAsyncCreateAdmitter> admitter = new();
+        admitter
+            .Setup(a => a.AdmitAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CreateRunIdempotencyState?>(),
+                DefaultScope,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunAsyncCreateAdmitResult(runId, IdempotentReplay: false));
+        Mock<IArchitectureRunAsyncOperationQueue> queue = new();
+        ArchitectureRunAsyncOperationAcceptor sut = CreateSut(queue: queue, admitter: admitter);
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-async-create",
+            Description = "Fast admit should enqueue create work.",
+            SystemName = "Sys",
+            Environment = "prod"
+        };
+
+        string operationId = await sut.AcceptCreateAsync(
+            request,
+            null,
+            DefaultScope,
+            "actor",
+            "corr",
+            CancellationToken.None);
+
+        operationId.Should().Be($"run:{runId:D}");
+        queue.Verify(
+            q => q.EnqueueAsync(
+                It.Is<ArchitectureRunAsyncOperationWorkItem>(item =>
+                    item.Kind == ArchitectureRunAsyncOperationKind.Create
+                    && item.RunId == runId.ToString("N")
+                    && item.CreateRequest == request),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        admitter.Verify(
+            a => a.AdmitAsync(request, null, DefaultScope, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static ArchitectureRunAsyncOperationAcceptor CreateSut(
         Mock<IRunRepository>? runs = null,
         Mock<IArchitectureRunAsyncOperationQueue>? queue = null,
-        Mock<IReplayRunService>? replay = null)
+        Mock<IReplayRunService>? replay = null,
+        Mock<IArchitectureRunAsyncCreateAdmitter>? admitter = null)
     {
         Mock<IRunRepository> runRepo = runs ?? new Mock<IRunRepository>();
         Mock<IArchitectureRunAsyncOperationQueue> operationQueue = queue ?? new Mock<IArchitectureRunAsyncOperationQueue>();
@@ -79,6 +127,6 @@ public sealed class ArchitectureRunAsyncOperationAcceptorTests
             operationQueue.Object,
             new ArchitectureRunAsyncOperationRegistrar(),
             replayService.Object,
-            Mock.Of<IArchitectureRunAsyncCreateAdmitter>());
+            (admitter ?? new Mock<IArchitectureRunAsyncCreateAdmitter>()).Object);
     }
 }

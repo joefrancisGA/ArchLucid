@@ -7,13 +7,15 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Serialization;
 
+using System.Text.Json;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Runs.Async;
 
-/// <summary>Drains the async execute/replay queue with scoped DI (TB-2075).</summary>
+/// <summary>Drains the async execute/replay queue; create items run concurrently so they are not blocked by execute.</summary>
 public sealed class ArchitectureRunAsyncOperationHostedService(
     ArchitectureRunAsyncOperationQueue queue,
     IServiceScopeFactory scopeFactory,
@@ -40,22 +42,55 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
     {
         await foreach (ArchitectureRunAsyncOperationWorkItem item in _queue.Reader.ReadAllAsync(stoppingToken))
         {
-            try
+            // Create must not sit behind a multi-minute execute/replay on this single-reader
+            // channel — the run stub is already admitted and the operator is waiting on
+            // notifications / the review workspace.
+            if (item.Kind == ArchitectureRunAsyncOperationKind.Create)
             {
-                await ProcessWorkItemAsync(item, stoppingToken);
+                _ = ProcessWorkItemDetachedAsync(item, stoppingToken);
+                continue;
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                _logger.LogError(
-                    ex,
-                    "Async run operation failed for run {RunId} kind {Kind}.",
-                    item.RunId,
-                    item.Kind);
-            }
-            finally
-            {
-                _registrar.Release(item.Scope, item.RunId, item.Kind);
-            }
+
+            await ProcessWorkItemAndReleaseAsync(item, stoppingToken);
+        }
+    }
+
+    private async Task ProcessWorkItemAndReleaseAsync(
+        ArchitectureRunAsyncOperationWorkItem item,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await ProcessWorkItemAsync(item, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(
+                ex,
+                "Async run operation failed for run {RunId} kind {Kind}.",
+                item.RunId,
+                item.Kind);
+        }
+        finally
+        {
+            _registrar.Release(item.Scope, item.RunId, item.Kind);
+        }
+    }
+
+    private async Task ProcessWorkItemDetachedAsync(
+        ArchitectureRunAsyncOperationWorkItem item,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await ProcessWorkItemAndReleaseAsync(item, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(
+                ex,
+                "Detached async create processing failed for run {RunId}.",
+                item.RunId);
         }
     }
 
@@ -106,6 +141,30 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
             {
                 throw new InvalidOperationException($"Create work item run id '{item.RunId}' is not a valid GUID.");
             }
+
+            IAuditService createAudit = scope.ServiceProvider.GetRequiredService<IAuditService>();
+            string createOperationId = OperationIdCodec.ForRun(parsedCreateRunId);
+            await createAudit.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.RequestCreated,
+                    ActorUserId = item.Actor,
+                    ActorUserName = item.Actor,
+                    TenantId = item.Scope.TenantId,
+                    WorkspaceId = item.Scope.WorkspaceId,
+                    ProjectId = item.Scope.ProjectId,
+                    RunId = parsedCreateRunId,
+                    CorrelationId = item.CorrelationId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            requestId = item.CreateRequest.RequestId,
+                            operationId = createOperationId,
+                            asyncCreateAccepted = true
+                        },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                cancellationToken);
 
             IArchitectureRunCreateOrchestrator createOrchestrator =
                 scope.ServiceProvider.GetRequiredService<IArchitectureRunCreateOrchestrator>();

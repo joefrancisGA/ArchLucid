@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ApiRequestError } from "@/lib/api-request-error";
+import { ArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { createArchitectureRun } from "@/lib/api/architecture-runs";
 import * as http from "@/lib/api/http";
 import {
@@ -8,6 +9,9 @@ import {
   getOrCreateWizardIdempotencyKey,
   getOrCreateWizardRequestId,
 } from "@/lib/wizard-idempotency-key";
+
+const runIdA = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+const runIdB = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
 
 const basePayload = {
   requestId: "ephemeral-request-id",
@@ -20,6 +24,10 @@ const basePayload = {
   assumptions: [],
 };
 
+function acceptedCreate(runId: string): { location: string; status: number } {
+  return { location: `/v1/operations/run:${runId}`, status: 202 };
+}
+
 describe("createArchitectureRun idempotency", () => {
   afterEach(() => {
     clearWizardSubmissionSession();
@@ -27,14 +35,17 @@ describe("createArchitectureRun idempotency", () => {
   });
 
   it("replaces ephemeral request ids with the stable wizard session id", async () => {
-    const apiPostJson = vi.spyOn(http, "apiPostJson").mockResolvedValue({ run: { runId: "run-1" } });
+    const apiPostAcceptedWithLocation = vi
+      .spyOn(http, "apiPostAcceptedWithLocation")
+      .mockResolvedValue(acceptedCreate(runIdA));
     const sessionRequestId = getOrCreateWizardRequestId();
     const sessionIdempotencyKey = getOrCreateWizardIdempotencyKey();
 
-    await createArchitectureRun(basePayload);
+    const response = await createArchitectureRun(basePayload);
 
-    expect(apiPostJson).toHaveBeenCalledWith(
-      "/v1/architecture/request",
+    expect(response.run?.runId).toBe(runIdA);
+    expect(apiPostAcceptedWithLocation).toHaveBeenCalledWith(
+      "/v1/architecture/request/async",
       expect.objectContaining({ requestId: sessionRequestId }),
       expect.objectContaining({
         extraHeaders: { "Idempotency-Key": sessionIdempotencyKey },
@@ -44,22 +55,22 @@ describe("createArchitectureRun idempotency", () => {
   });
 
   it("keeps the same wizard request id when a non-conflict failure is retried", async () => {
-    const apiPostJson = vi
-      .spyOn(http, "apiPostJson")
+    const apiPostAcceptedWithLocation = vi
+      .spyOn(http, "apiPostAcceptedWithLocation")
       .mockRejectedValueOnce(new Error("network down"))
-      .mockResolvedValueOnce({ run: { runId: "run-1" } });
+      .mockResolvedValueOnce(acceptedCreate(runIdA));
     const sessionRequestId = getOrCreateWizardRequestId();
 
     await expect(createArchitectureRun(basePayload)).rejects.toThrow("network down");
     await createArchitectureRun(basePayload);
 
-    expect(apiPostJson.mock.calls[0]?.[1]).toMatchObject({ requestId: sessionRequestId });
-    expect(apiPostJson.mock.calls[1]?.[1]).toMatchObject({ requestId: sessionRequestId });
+    expect(apiPostAcceptedWithLocation.mock.calls[0]?.[1]).toMatchObject({ requestId: sessionRequestId });
+    expect(apiPostAcceptedWithLocation.mock.calls[1]?.[1]).toMatchObject({ requestId: sessionRequestId });
   });
 
   it("rotates wizard session keys and retries once after an idempotency body conflict", async () => {
-    const apiPostJson = vi
-      .spyOn(http, "apiPostJson")
+    const apiPostAcceptedWithLocation = vi
+      .spyOn(http, "apiPostAcceptedWithLocation")
       .mockRejectedValueOnce(
         new ApiRequestError("Conflict: The Idempotency-Key was already used with a different request body.", {
           problem: {
@@ -70,14 +81,36 @@ describe("createArchitectureRun idempotency", () => {
           httpStatus: 409,
         }),
       )
-      .mockResolvedValueOnce({ run: { runId: "run-2" } });
+      .mockResolvedValueOnce(acceptedCreate(runIdB));
 
     const originalIdempotency = getOrCreateWizardIdempotencyKey();
     const response = await createArchitectureRun(basePayload);
 
-    expect(response.run?.runId).toBe("run-2");
-    expect(apiPostJson).toHaveBeenCalledTimes(2);
-    expect(apiPostJson.mock.calls[0]?.[2]?.extraHeaders?.["Idempotency-Key"]).toBe(originalIdempotency);
-    expect(apiPostJson.mock.calls[1]?.[2]?.extraHeaders?.["Idempotency-Key"]).not.toBe(originalIdempotency);
+    expect(response.run?.runId).toBe(runIdB);
+    expect(apiPostAcceptedWithLocation).toHaveBeenCalledTimes(2);
+    expect(apiPostAcceptedWithLocation.mock.calls[0]?.[2]?.extraHeaders?.["Idempotency-Key"]).toBe(
+      originalIdempotency,
+    );
+    expect(apiPostAcceptedWithLocation.mock.calls[1]?.[2]?.extraHeaders?.["Idempotency-Key"]).not.toBe(
+      originalIdempotency,
+    );
+  });
+
+  it("maps async create proxy timeout to unresolved, not failed", async () => {
+    vi.spyOn(http, "apiPostAcceptedWithLocation").mockRejectedValue(
+      new ApiRequestError("Upstream API unreachable", {
+        problem: {
+          title: "Bad Gateway",
+          detail:
+            "POST /v1/architecture/request/async timed out after 60s (UI BFF proxy → ArchLucid.Api; budget 60000ms). Cause: The operation was aborted due to timeout",
+        },
+        correlationId: "corr-1",
+        httpStatus: 502,
+      }),
+    );
+
+    await expect(createArchitectureRun(basePayload)).rejects.toBeInstanceOf(
+      ArchitectureRequestCreateUnresolvedError,
+    );
   });
 });

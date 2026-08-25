@@ -3,7 +3,7 @@ import { ApiRequestError } from "@/lib/api-request-error";
 
 import { REVIEW_START_UNRESOLVED_MESSAGE } from "@/lib/review-start-progress-copy";
 
-/** Thrown when sync create hits the proxy ceiling — client wait unresolved, not server failure. */
+/** Thrown when create hits the proxy ceiling — client wait unresolved, not server failure. */
 export class ArchitectureRequestCreateUnresolvedError extends ApiRequestError {
   constructor(options: {
     problem: ApiProblemDetails | null;

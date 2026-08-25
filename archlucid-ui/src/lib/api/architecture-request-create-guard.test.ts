@@ -18,6 +18,11 @@ describe("architecture-request-create-guard", () => {
         detail: "POST /v1/architecture/request timed out after 60s. Cause: The operation was aborted due to timeout",
       }),
     ).toBe(true);
+    expect(
+      isArchitectureRequestCreateGatewayTimeout(502, {
+        detail: "POST /v1/architecture/request/async timed out after 60s. Cause: The operation was aborted due to timeout",
+      }),
+    ).toBe(true);
     expect(isArchitectureRequestCreateGatewayTimeout(502, { detail: "fetch failed" })).toBe(false);
     expect(isArchitectureRequestCreateGatewayTimeout(502)).toBe(false);
   });
