@@ -24,6 +24,14 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => null,
+}));
+
 const apiHoisted = vi.hoisted(() => ({
   simulateAlertRule: vi.fn(),
   compareAlertRuleCandidates: vi.fn(),
@@ -56,6 +64,7 @@ describe("AlertSimulationContent TB-1592", () => {
     expect(reviewId).toHaveAttribute("placeholder", "");
     expect(reviewId.getAttribute("placeholder") ?? "").not.toContain("00000000");
     expect(screen.getByText(ALERT_SIMULATION_REVIEW_ID_HELPER)).toBeInTheDocument();
+    expect(screen.getByTestId("alert-simulation-pick-review-before-simulating-strip")).toBeInTheDocument();
   });
 
   it("starts project slug empty with Current project placeholder instead of default", () => {

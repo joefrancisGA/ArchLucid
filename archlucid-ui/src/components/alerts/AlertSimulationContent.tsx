@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { AlertSimulationPickReviewBeforeSimulatingStrip } from "@/components/alerts/AlertSimulationPickReviewBeforeSimulatingStrip";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
@@ -318,6 +319,10 @@ export function AlertSimulationContent() {
       <h3 id="alert-simulation-section-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
         Simulate alerts
       </h3>
+
+      {sRunId.trim().length === 0 ? (
+        <AlertSimulationPickReviewBeforeSimulatingStrip selectedReviewId={sRunId} onSelectReview={setSRunId} />
+      ) : null}
 
       <OperatorSegmentedModeToolbar
         tabs={ALERT_SIMULATION_MODE_TABS.map((mode) => ({
