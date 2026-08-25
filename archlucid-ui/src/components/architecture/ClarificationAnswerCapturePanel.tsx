@@ -45,8 +45,12 @@ export function ClarificationAnswerCapturePanel(
 
     try {
       const result = await applyKnowledgeModelClarificationAnswers(props.runId, answers);
+      const reReviewNote =
+        result.reReviewTriggered
+          ? ` Scoped re-review merged ${result.mergedFindingCount ?? 0} finding(s).`
+          : "";
       showSuccess(
-        `Applied ${result.appliedCount} clarification answer(s) to the architecture knowledge model.`,
+        `Applied ${result.appliedCount} clarification answer(s) to the architecture knowledge model.${reReviewNote}`,
       );
       window.location.reload();
     } catch (error) {

@@ -16,4 +16,22 @@ public sealed class ApplyKnowledgeModelClarificationAnswersResponse
         get;
         set;
     }
+
+    public bool ReReviewTriggered
+    {
+        get;
+        set;
+    }
+
+    public int MergedFindingCount
+    {
+        get;
+        set;
+    }
+
+    public string? PartialScopeDisclaimer
+    {
+        get;
+        set;
+    }
 }

@@ -2,6 +2,9 @@ import { apiPostJson } from "@/lib/api";
 
 export type ApplyKnowledgeModelClarificationAnswersResponse = {
   appliedCount: number;
+  reReviewTriggered?: boolean;
+  mergedFindingCount?: number;
+  partialScopeDisclaimer?: string | null;
 };
 
 /** Applies operator clarification answers onto κ unresolved-question rows for the current run. */

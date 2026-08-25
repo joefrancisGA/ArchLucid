@@ -88,6 +88,7 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
             ArchitectureIntelligenceFinalizeTrustEvaluator>();
         services.AddScoped<IBlockedReviewCheckProjector, BlockedReviewCheckProjector>();
         services.AddScoped<IKnowledgeModelClarificationAnswerApplicator, KnowledgeModelClarificationAnswerApplicator>();
+        services.AddScoped<IClarificationAnswerReReviewCoordinator, ClarificationAnswerReReviewCoordinator>();
         services.AddScoped<IRecommendationImproveLoopEvidencePersister, RecommendationImproveLoopEvidencePersister>();
         services.AddScoped<IRecommendationImproveLoopCoordinator, RecommendationImproveLoopCoordinator>();
         services.AddSingleton<IReviewResultCache, ReviewResultCache>();

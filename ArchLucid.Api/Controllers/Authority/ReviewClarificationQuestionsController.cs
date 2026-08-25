@@ -4,6 +4,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Clarifications;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Clarifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -31,6 +32,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 public sealed class ReviewClarificationQuestionsController(
     IReviewClarificationQuestionService clarificationQuestionService,
     IKnowledgeModelClarificationAnswerApplicator clarificationAnswerApplicator,
+    IClarificationAnswerReReviewCoordinator clarificationAnswerReReviewCoordinator,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
@@ -94,6 +96,14 @@ public sealed class ReviewClarificationQuestionsController(
             request.Answers,
             cancellationToken).ConfigureAwait(false);
 
+        IncrementalReReviewResult? reReview = await clarificationAnswerReReviewCoordinator
+            .TryRunAfterApplyAsync(scope, runId, applied, cancellationToken)
+            .ConfigureAwait(false);
+
+        int mergedFindingCount = reReview?.SpecialistResults
+            .SelectMany(static result => result.Findings)
+            .Count() ?? 0;
+
         await auditService.LogAsync(
             new AuditEvent
             {
@@ -109,6 +119,12 @@ public sealed class ReviewClarificationQuestionsController(
             },
             cancellationToken);
 
-        return Ok(new ApplyKnowledgeModelClarificationAnswersResponse { AppliedCount = applied });
+        return Ok(new ApplyKnowledgeModelClarificationAnswersResponse
+        {
+            AppliedCount = applied,
+            ReReviewTriggered = reReview is not null,
+            MergedFindingCount = mergedFindingCount,
+            PartialScopeDisclaimer = reReview?.PartialScopeDisclaimer,
+        });
     }
 }
