@@ -1920,11 +1920,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 8
-- **bugs-found:** 11
+- **hunts:** 9
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — AWS GovCloud IAM role ARN rejected by commercial-partition prefix check
+- **last-bug:** 2026-08-25 — AWS Resource Explorer pagination follows repeating NextToken indefinitely
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1943,7 +1943,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) AWS inventory stamps every resource with connection region — **hit 2026-08-24:** `AwsResourceExplorerInventoryCollector.CollectAsync` passed `regionSystemName` into `AwsInventoryResourceEntry.Location` instead of `resource.Region`; regression in `CollectAsync_uses_resource_region_not_connection_region`
 - [x] (proven) `AwsResourceExplorerInventoryCollector.CollectAsync` hardcodes `QueryString = "arn:aws:*"`; GovCloud inventory returns zero rows because partition ARNs use `arn:aws-us-gov:*` — **hit 2026-08-25:** query ignored connection GovCloud region; fixed with `AwsResourceExplorerQueryString.ResolveForRegion` (`CollectAsync_uses_govcloud_partition_query_for_us_gov_region`).
 - [x] (proven) `AwsIamRoleArn.TryGetAccountId` rejects GovCloud IAM role ARNs — **hit 2026-08-25:** prefix check required `arn:aws:iam::` so `arn:aws-us-gov:iam::123456789012:role/ReadOnly` failed validation and blocked GovCloud extractor runs; fixed by locating account id via `:iam::` infix across partitions; regression in `TryGetAccountId_accepts_aws_us_gov_partition_role_arn`
-- [ ] (hunt-ready) `AwsResourceExplorerInventoryCollector.CollectAsync` follows repeating `NextToken` indefinitely — pagination loop has no visited-token guard or page cap, so a stuck API response can spin forever (Azure extractor already guards repeating `nextLink`).
+- [x] (proven) `AwsResourceExplorerInventoryCollector.CollectAsync` follows repeating `NextToken` indefinitely — **hit 2026-08-25:** pagination loop had no visited-token guard or page cap; regression in `CollectAsync_throws_when_next_token_repeats`
 
 ---
 

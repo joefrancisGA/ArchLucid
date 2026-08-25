@@ -6,6 +6,7 @@ namespace ArchLucid.Integrations.AwsExtractor;
 internal static class AwsResourceExplorerInventoryCollector
 {
     public const int MaxResultsPerSearch = 50;
+    private const int MaxPaginationRequests = 64;
 
     public static async Task<List<AwsInventoryResourceEntry>> CollectAsync(
         IAmazonResourceExplorer2 explorerClient,
@@ -18,9 +19,28 @@ internal static class AwsResourceExplorerInventoryCollector
         List<AwsInventoryResourceEntry> resources = [];
         string? nextToken = null;
         string queryString = AwsResourceExplorerQueryString.ResolveForRegion(regionSystemName);
+        HashSet<string> visitedTokens = new(StringComparer.Ordinal);
+        int requestCount = 0;
 
         do
         {
+            if (!string.IsNullOrEmpty(nextToken))
+            {
+                if (!visitedTokens.Add(nextToken))
+                {
+                    throw new InvalidOperationException(
+                        "Hosted AWS extractor stopped Resource Explorer listing due to repeating NextToken.");
+                }
+            }
+
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                throw new InvalidOperationException(
+                    $"Hosted AWS extractor stopped Resource Explorer listing after {MaxPaginationRequests} pages.");
+            }
+
             SearchResponse response = await explorerClient
                 .SearchAsync(
                     new SearchRequest
