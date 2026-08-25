@@ -1,4 +1,6 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Advisory.Workflow;
+using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -20,11 +22,11 @@ internal static class ClosedLoopReasoningResultCloner
             Recommendations = source.Recommendations.Select(CloneRecommendation).ToList(),
             ImpactResults = source.ImpactResults.Select(CloneImpact).ToList(),
             ReReview = source.ReReview is null ? null : CloneReReview(source.ReReview),
-            GoldenMetrics = source.GoldenMetrics,
-            MustNotFailViolations = source.MustNotFailViolations.ToList(),
-            ValidationResults = source.ValidationResults.ToList(),
-            ProductFindings = source.ProductFindings.ToList(),
-            ProductRecommendations = source.ProductRecommendations.ToList(),
+            GoldenMetrics = source.GoldenMetrics is null ? null : CloneGoldenMetrics(source.GoldenMetrics),
+            MustNotFailViolations = source.MustNotFailViolations.Select(CloneMustNotFailViolation).ToList(),
+            ValidationResults = source.ValidationResults.Select(CloneValidationResult).ToList(),
+            ProductFindings = source.ProductFindings.Select(CloneProductFinding).ToList(),
+            ProductRecommendations = source.ProductRecommendations.Select(CloneProductRecommendation).ToList(),
             PublishBlocked = source.PublishBlocked,
             ReviewCompleteBlocked = source.ReviewCompleteBlocked,
             PublishBlockReasons = source.PublishBlockReasons.ToList(),
@@ -171,6 +173,102 @@ internal static class ClosedLoopReasoningResultCloner
                 ? new ArchitectureKnowledgeModel()
                 : ArchitectureKnowledgeModelCloner.Clone(diff.BeforeModel),
             AfterModel = new ArchitectureKnowledgeModel(),
+        };
+    }
+
+    private static MustNotFailViolation CloneMustNotFailViolation(MustNotFailViolation violation)
+    {
+        return new MustNotFailViolation
+        {
+            Class = violation.Class,
+            Message = violation.Message,
+            Blocked = violation.Blocked,
+            FindingId = violation.FindingId,
+            RecommendationId = violation.RecommendationId,
+        };
+    }
+
+    private static EvidenceValidationResult CloneValidationResult(EvidenceValidationResult result)
+    {
+        return new EvidenceValidationResult
+        {
+            FindingId = result.FindingId,
+            StageResults = result.StageResults.ToList(),
+            OverallPassedIntegrity = result.OverallPassedIntegrity,
+            SemanticAssessment = result.SemanticAssessment,
+            CompletenessNotes = result.CompletenessNotes,
+            Escalated = result.Escalated,
+            SupportTier = result.SupportTier,
+        };
+    }
+
+    private static Finding CloneProductFinding(Finding finding)
+    {
+        return new Finding
+        {
+            FindingSchemaVersion = finding.FindingSchemaVersion,
+            FindingId = finding.FindingId,
+            FindingType = finding.FindingType,
+            Category = finding.Category,
+            QualityDimension = finding.QualityDimension,
+            EngineType = finding.EngineType,
+            Severity = finding.Severity,
+            Title = finding.Title,
+            Rationale = finding.Rationale,
+            RelatedNodeIds = finding.RelatedNodeIds.ToList(),
+            RecommendedActions = finding.RecommendedActions.ToList(),
+            Properties = new Dictionary<string, string>(finding.Properties),
+        };
+    }
+
+    private static RecommendationRecord CloneProductRecommendation(RecommendationRecord recommendation)
+    {
+        return new RecommendationRecord
+        {
+            RecommendationId = recommendation.RecommendationId,
+            TenantId = recommendation.TenantId,
+            WorkspaceId = recommendation.WorkspaceId,
+            ProjectId = recommendation.ProjectId,
+            RunId = recommendation.RunId,
+            ComparedToRunId = recommendation.ComparedToRunId,
+            Title = recommendation.Title,
+            Category = recommendation.Category,
+            Rationale = recommendation.Rationale,
+            SuggestedAction = recommendation.SuggestedAction,
+            Urgency = recommendation.Urgency,
+            ExpectedImpact = recommendation.ExpectedImpact,
+            PriorityScore = recommendation.PriorityScore,
+            Status = recommendation.Status,
+            CreatedUtc = recommendation.CreatedUtc,
+            LastUpdatedUtc = recommendation.LastUpdatedUtc,
+            ReviewedByUserId = recommendation.ReviewedByUserId,
+            ReviewedByUserName = recommendation.ReviewedByUserName,
+            ReviewComment = recommendation.ReviewComment,
+            ResolutionRationale = recommendation.ResolutionRationale,
+            SupportingFindingIdsJson = recommendation.SupportingFindingIdsJson,
+            SupportingDecisionIdsJson = recommendation.SupportingDecisionIdsJson,
+            SupportingArtifactIdsJson = recommendation.SupportingArtifactIdsJson,
+            SourceEvidenceLinksJson = recommendation.SourceEvidenceLinksJson,
+        };
+    }
+
+    private static GoldenArchitectureTestResult CloneGoldenMetrics(GoldenArchitectureTestResult metrics)
+    {
+        return new GoldenArchitectureTestResult
+        {
+            BeforeCounts = new Dictionary<string, int>(metrics.BeforeCounts),
+            AfterCounts = new Dictionary<string, int>(metrics.AfterCounts),
+            DeltaCounts = new Dictionary<string, int>(metrics.DeltaCounts),
+            PlantedDefectRecall = metrics.PlantedDefectRecall,
+            PlantedDefectsDetected = metrics.PlantedDefectsDetected.ToList(),
+            PlantedDefectsMissed = metrics.PlantedDefectsMissed.ToList(),
+            FalsePositiveCount = metrics.FalsePositiveCount,
+            FalsePositivesByDimension = new Dictionary<string, int>(metrics.FalsePositivesByDimension),
+            CategoryScores = metrics.CategoryScores.ToList(),
+            MutationChangedFindings = metrics.MutationChangedFindings,
+            ReReviewTriggered = metrics.ReReviewTriggered,
+            Passed = metrics.Passed,
+            Notes = metrics.Notes,
         };
     }
 }

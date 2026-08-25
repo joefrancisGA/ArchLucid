@@ -52,4 +52,48 @@ public sealed class ReviewResultCacheTests
         again!.CacheHit.Should().BeFalse();
         again.Model.Elements[0].Name.Should().Be("API");
     }
+
+    [Fact]
+    public void TryGet_isolates_must_not_fail_and_product_payloads_from_stored_entry()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-payload-isolated" };
+        ClosedLoopReasoningResult stored = new()
+        {
+            RunId = "run-payload",
+            MustNotFailViolations =
+            [
+                new MustNotFailViolation
+                {
+                    Class = MustNotFailClass.FabricatedCitation,
+                    Message = "Blocked",
+                    Blocked = true,
+                    FindingId = "finding-1",
+                },
+            ],
+            ProductFindings =
+            [
+                new ArchLucid.Contracts.Findings.Finding
+                {
+                    FindingId = "product-finding-1",
+                    Title = "Gap",
+                    FindingType = "gap",
+                    Category = "security",
+                    EngineType = "specialist",
+                    Severity = ArchLucid.Contracts.Findings.FindingSeverity.Error,
+                    Rationale = "Rationale.",
+                },
+            ],
+        };
+
+        cache.Set(manifest, stored);
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+
+        cached!.MustNotFailViolations[0].Blocked = false;
+        cached.ProductFindings[0].Title = "mutated";
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? again).Should().BeTrue();
+        again!.MustNotFailViolations[0].Blocked.Should().BeTrue();
+        again.ProductFindings[0].Title.Should().Be("Gap");
+    }
 }
