@@ -2,6 +2,7 @@ using ArchLucid.Core.Marketing;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.GoToMarket;
 using ArchLucid.Persistence.Marketing;
+using ArchLucid.Persistence.Telemetry;
 
 namespace ArchLucid.Host.Composition.Configuration;
 
