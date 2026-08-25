@@ -112,8 +112,23 @@ internal static class ClosedLoopReasoningResultCloner
         return new AdversarialReviewResult
         {
             SubstantiatedFindings = adversarial.SubstantiatedFindings.Select(CloneFinding).ToList(),
-            Challenges = adversarial.Challenges.ToList(),
+            Challenges = adversarial.Challenges.Select(CloneAdversarialChallenge).ToList(),
             FalsePositiveRateByLane = new Dictionary<AdversarialLane, double>(adversarial.FalsePositiveRateByLane),
+        };
+    }
+
+    private static AdversarialChallenge CloneAdversarialChallenge(AdversarialChallenge challenge)
+    {
+        return new AdversarialChallenge
+        {
+            ChallengeId = challenge.ChallengeId,
+            Hypothesis = challenge.Hypothesis,
+            FalsificationEvidenceNeeded = challenge.FalsificationEvidenceNeeded,
+            Confidence = challenge.Confidence,
+            Lane = challenge.Lane,
+            Suppressed = challenge.Suppressed,
+            SuppressionReason = challenge.SuppressionReason,
+            SourceFindingId = challenge.SourceFindingId,
         };
     }
 
@@ -128,7 +143,7 @@ internal static class ClosedLoopReasoningResultCloner
             ConsequenceOfInaction = recommendation.ConsequenceOfInaction,
             ProposedChange = recommendation.ProposedChange,
             Alternatives = recommendation.Alternatives.ToList(),
-            AlternativeOptions = recommendation.AlternativeOptions.ToList(),
+            AlternativeOptions = recommendation.AlternativeOptions.Select(CloneAlternativeOption).ToList(),
             TradeOffs = recommendation.TradeOffs.ToList(),
             Effort = recommendation.Effort,
             RiskReduction = recommendation.RiskReduction,
@@ -140,14 +155,34 @@ internal static class ClosedLoopReasoningResultCloner
         };
     }
 
+    private static RecommendationAlternative CloneAlternativeOption(RecommendationAlternative option)
+    {
+        return new RecommendationAlternative
+        {
+            Path = option.Path,
+            ValidationCriteria = option.ValidationCriteria,
+        };
+    }
+
     private static ChangeImpactResult CloneImpact(ChangeImpactResult impact)
     {
         return new ChangeImpactResult
         {
             RecommendationId = impact.RecommendationId,
-            ImpactedItems = impact.ImpactedItems?.ToList() ?? [],
+            ImpactedItems = impact.ImpactedItems?.Select(CloneImpactItem).ToList() ?? [],
             GraphCompletenessCaveat = impact.GraphCompletenessCaveat,
             RequiresFullReReview = impact.RequiresFullReReview,
+        };
+    }
+
+    private static ChangeImpactItem CloneImpactItem(ChangeImpactItem item)
+    {
+        return new ChangeImpactItem
+        {
+            ElementId = item.ElementId,
+            ImpactKind = item.ImpactKind,
+            Description = item.Description,
+            Category = item.Category,
         };
     }
 
@@ -155,11 +190,33 @@ internal static class ClosedLoopReasoningResultCloner
     {
         return new IncrementalReReviewResult
         {
-            Scope = reReview.Scope,
+            Scope = CloneReReviewScope(reReview.Scope),
             SpecialistResults = reReview.SpecialistResults.Select(CloneSpecialistReview).ToList(),
-            GlobalInvariantResults = reReview.GlobalInvariantResults.ToList(),
+            GlobalInvariantResults = reReview.GlobalInvariantResults.Select(CloneGlobalInvariantResult).ToList(),
             FullReReviewTriggered = reReview.FullReReviewTriggered,
             PartialScopeDisclaimer = reReview.PartialScopeDisclaimer,
+            MergedFindingIds = reReview.MergedFindingIds.ToList(),
+        };
+    }
+
+    private static ReReviewScope CloneReReviewScope(ReReviewScope scope)
+    {
+        return new ReReviewScope
+        {
+            AffectedElementIds = scope.AffectedElementIds.ToList(),
+            IncludeGlobalInvariantChecks = scope.IncludeGlobalInvariantChecks,
+            FullReReview = scope.FullReReview,
+            Trigger = scope.Trigger,
+        };
+    }
+
+    private static GlobalInvariantCheckResult CloneGlobalInvariantResult(GlobalInvariantCheckResult result)
+    {
+        return new GlobalInvariantCheckResult
+        {
+            InvariantId = result.InvariantId,
+            Passed = result.Passed,
+            Detail = result.Detail,
         };
     }
 
@@ -193,12 +250,23 @@ internal static class ClosedLoopReasoningResultCloner
         return new EvidenceValidationResult
         {
             FindingId = result.FindingId,
-            StageResults = result.StageResults.ToList(),
+            StageResults = result.StageResults.Select(CloneValidationStageOutcome).ToList(),
             OverallPassedIntegrity = result.OverallPassedIntegrity,
             SemanticAssessment = result.SemanticAssessment,
             CompletenessNotes = result.CompletenessNotes,
             Escalated = result.Escalated,
             SupportTier = result.SupportTier,
+        };
+    }
+
+    private static EvidenceValidationStageOutcome CloneValidationStageOutcome(EvidenceValidationStageOutcome outcome)
+    {
+        return new EvidenceValidationStageOutcome
+        {
+            Stage = outcome.Stage,
+            Passed = outcome.Passed,
+            Detail = outcome.Detail,
+            IsDeterministic = outcome.IsDeterministic,
         };
     }
 
@@ -264,11 +332,21 @@ internal static class ClosedLoopReasoningResultCloner
             PlantedDefectsMissed = metrics.PlantedDefectsMissed.ToList(),
             FalsePositiveCount = metrics.FalsePositiveCount,
             FalsePositivesByDimension = new Dictionary<string, int>(metrics.FalsePositivesByDimension),
-            CategoryScores = metrics.CategoryScores.ToList(),
+            CategoryScores = metrics.CategoryScores.Select(CloneCategoryBenchmarkScore).ToList(),
             MutationChangedFindings = metrics.MutationChangedFindings,
             ReReviewTriggered = metrics.ReReviewTriggered,
             Passed = metrics.Passed,
             Notes = metrics.Notes,
+        };
+    }
+
+    private static CategoryBenchmarkScore CloneCategoryBenchmarkScore(CategoryBenchmarkScore score)
+    {
+        return new CategoryBenchmarkScore
+        {
+            Category = score.Category,
+            Score = score.Score,
+            Detail = score.Detail,
         };
     }
 }
