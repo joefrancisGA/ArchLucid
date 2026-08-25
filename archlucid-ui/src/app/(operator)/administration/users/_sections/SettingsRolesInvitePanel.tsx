@@ -25,6 +25,11 @@ import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import {
+  resolveInviteReviewerEmphasizedStepId,
+  resolveInviteReviewerSteps,
+} from "@/lib/invite-reviewer-checklist";
 
 import { resolveAdminUserInvitationAcceptLink } from "./settings-roles-pending-invitations";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
@@ -96,6 +101,16 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialM
   }
 
   const canSubmit = form.email.trim().length > 0 && form.role.length > 0;
+  const inviteReviewerSteps = resolveInviteReviewerSteps({
+    emailConfigured: form.email.trim().length > 0,
+    roleSelected: form.role.length > 0,
+    inviteSent: inviteSentForReviewId !== null,
+  });
+  const inviteReviewerEmphasizedStepId = resolveInviteReviewerEmphasizedStepId({
+    emailConfigured: form.email.trim().length > 0,
+    roleSelected: form.role.length > 0,
+    inviteSent: inviteSentForReviewId !== null,
+  });
 
   return (
     <>
@@ -123,6 +138,12 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialM
       {buyerPolishedShell ? null : (
         <ColdInviteUsersInviteVocabularyRail currentSurfaceId="users-invite" />
       )}
+      <IntegrationConnectChecklist
+        title="Invite checklist"
+        steps={inviteReviewerSteps}
+        emphasizedStepId={inviteReviewerEmphasizedStepId}
+        testIdPrefix="invite-reviewer"
+      />
       <div className="space-y-1">
         <Label htmlFor="invite-email">Email address</Label>
         <Input
