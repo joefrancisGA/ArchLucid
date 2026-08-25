@@ -4,6 +4,20 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
+
+const ALERT_SIMULATION_TAB_SOURCES = [
+  "AlertSimulationContent.tsx",
+  "AlertSimulationSimpleTab.tsx",
+  "AlertSimulationCompositeTab.tsx",
+  "AlertSimulationCompareTab.tsx",
+  "AlertSimulationTabShared.tsx",
+] as const;
+
+function readAlertSimulationSources(): string {
+  return ALERT_SIMULATION_TAB_SOURCES.map((fileName) =>
+    readFileSync(join(process.cwd(), "src", "components", "alerts", fileName), "utf8"),
+  ).join("\n");
+}
 import {
   ALERT_SIMULATION_COMPARED_REVIEW_DISABLED_HELPER,
   ALERT_SIMULATION_PROJECT_SLUG_PLACEHOLDER,
@@ -108,17 +122,18 @@ describe("AlertSimulationContent TB-1590", () => {
   });
 
   it("simulation form source avoids raw html input and button elements", () => {
-    const source = readFileSync(
+    const parentSource = readFileSync(
       join(process.cwd(), "src", "components", "alerts", "AlertSimulationContent.tsx"),
       "utf8",
     );
+    const tabSources = readAlertSimulationSources();
 
-    expect(source).not.toMatch(/<input\b/);
-    expect(source).not.toMatch(/<button\b/);
-    expect(source).toContain('testId="alert-simulation-simple-submit"');
-    expect(source).toContain('testId="alert-simulation-composite-submit"');
-    expect(source).toContain('testId="alert-simulation-compare-submit"');
-    expect(source).toContain('variant="primary"');
+    expect(parentSource).not.toMatch(/<input\b/);
+    expect(parentSource).not.toMatch(/<button\b/);
+    expect(tabSources).toContain('testId="alert-simulation-simple-submit"');
+    expect(tabSources).toContain('testId="alert-simulation-composite-submit"');
+    expect(tabSources).toContain('testId="alert-simulation-compare-submit"');
+    expect(tabSources).toContain('variant="primary"');
   });
 });
 
@@ -304,10 +319,7 @@ describe("AlertSimulationContent P0-3 simulated outcome empty state", () => {
 
 describe("AlertSimulationContent P0-5 submit button width", () => {
   it("submit buttons use content width instead of stretching the grid column", () => {
-    const source = readFileSync(
-      join(process.cwd(), "src", "components", "alerts", "AlertSimulationContent.tsx"),
-      "utf8",
-    );
+    const source = readAlertSimulationSources();
 
     expect(source).toContain('testId="alert-simulation-simple-submit"');
     expect(source).toContain('testId="alert-simulation-composite-submit"');
