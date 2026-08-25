@@ -3,24 +3,12 @@ using System.Text.Json;
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Ask;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Core.Configuration;
-using ArchLucid.Host.Core.Ask;
 using ArchLucid.Core.Ask;
-using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Comparison;
+using ArchLucid.Host.Core.Ask;
 using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Persistence.Queries;
-using ArchLucid.Provenance;
-using ArchLucid.Core.Retrieval;
-using ArchLucid.Retrieval.Indexing;
-using ArchLucid.Retrieval.Models;
-
-using ArchLucid.Retrieval.Chunking;
-
-using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Services.Ask;
 
@@ -31,39 +19,16 @@ namespace ArchLucid.Host.Core.Services.Ask;
 /// Retrieval and post-answer indexing failures are logged and do not fail the request. LLM failures return a short fallback <see cref="AskResponse"/>.
 /// </remarks>
 public sealed class AskService(
-    IAuthorityQueryService query,
-    IProvenanceQueryService provenanceQuery,
-    IComparisonService comparison,
     IAgentCompletionClient llm,
     IConversationService conversationService,
     IFindingInspectReadRepository findingInspectReadRepository,
-    IRetrievalQueryService retrievalQuery,
-    IRetrievalDocumentBuilder retrievalDocumentBuilder,
-    IRetrievalIndexingService retrievalIndexingService,
-    IOptionsMonitor<AskComparisonNarrativeOptions> askComparisonNarrativeOptions,
-    IConversationContextCompressor conversationContextCompressor,
-    IOptionsMonitor<ConversationContextOptions> conversationContextOptions,
-    IOptionsMonitor<AskRetrievalOptions> askRetrievalOptions,
+    AskContextPreparer contextPreparer,
+    AskComparisonNarrativeBuilder comparisonNarrativeBuilder,
+    AskResponseComposer responseComposer,
+    AskConversationHistoryBuilder conversationHistoryBuilder,
     ILogger<AskService> logger) : IAskService
 {
-    private readonly IOptionsMonitor<AskComparisonNarrativeOptions> _askComparisonNarrativeOptions =
-        askComparisonNarrativeOptions ?? throw new ArgumentNullException(nameof(askComparisonNarrativeOptions));
-
-    private readonly IConversationContextCompressor _conversationContextCompressor =
-        conversationContextCompressor ?? throw new ArgumentNullException(nameof(conversationContextCompressor));
-
-    private readonly IOptionsMonitor<ConversationContextOptions> _conversationContextOptions =
-        conversationContextOptions ?? throw new ArgumentNullException(nameof(conversationContextOptions));
-
-    private readonly IOptionsMonitor<AskRetrievalOptions> _askRetrievalOptions =
-        askRetrievalOptions ?? throw new ArgumentNullException(nameof(askRetrievalOptions));
-
     private const int HistoryTake = 40;
-
-    private static readonly JsonSerializerOptions JsonRead = new()
-    {
-        PropertyNameCaseInsensitive = true, ReadCommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true
-    };
 
     private const string ArchitectSystemPrompt =
         "You are a senior enterprise architect. " +
@@ -87,17 +52,41 @@ public sealed class AskService(
         "Respond with a single JSON object only (no markdown fences), keys: " +
         "answer (string), referencedDecisions (array of strings), referencedFindings (array of strings), referencedArtifacts (array of strings).";
 
+    private readonly IAgentCompletionClient _llm =
+        llm ?? throw new ArgumentNullException(nameof(llm));
+
+    private readonly IConversationService _conversationService =
+        conversationService ?? throw new ArgumentNullException(nameof(conversationService));
+
+    private readonly IFindingInspectReadRepository _findingInspectReadRepository =
+        findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
+
+    private readonly AskContextPreparer _contextPreparer =
+        contextPreparer ?? throw new ArgumentNullException(nameof(contextPreparer));
+
+    private readonly AskComparisonNarrativeBuilder _comparisonNarrativeBuilder =
+        comparisonNarrativeBuilder ?? throw new ArgumentNullException(nameof(comparisonNarrativeBuilder));
+
+    private readonly AskResponseComposer _responseComposer =
+        responseComposer ?? throw new ArgumentNullException(nameof(responseComposer));
+
+    private readonly AskConversationHistoryBuilder _conversationHistoryBuilder =
+        conversationHistoryBuilder ?? throw new ArgumentNullException(nameof(conversationHistoryBuilder));
+
+    private readonly ILogger<AskService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
     /// <inheritdoc />
     public async Task<AskResponse> AskAsync(AskRequest request, ScopeContext scope, CancellationToken ct)
     {
-        AskPreparedContext prepared = await PrepareAskContextAsync(request, scope, ct);
-        string? comparisonNarrative = await TryBuildComparisonNarrativeAsync(prepared, ct);
+        AskPreparedContext prepared = await _contextPreparer.PrepareAsync(request, scope, ct);
+        string? comparisonNarrative = await _comparisonNarrativeBuilder.TryBuildAsync(prepared, ct);
         string userPrompt = BuildUserPrompt(prepared);
 
         string? raw;
         try
         {
-            raw = await llm.CompleteJsonAsync(
+            raw = await _llm.CompleteJsonAsync(
                 ArchitectSystemPrompt,
                 userPrompt,
                 maxTokens: null,
@@ -109,16 +98,19 @@ public sealed class AskService(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "LLM completion failed for Ask (ThreadId={ThreadId}); returning fallback response.",
+            _logger.LogWarning(ex, "LLM completion failed for Ask (ThreadId={ThreadId}); returning fallback response.",
                 LogSanitizer.Sanitize(prepared.Thread.ThreadId.ToString()));
 
-            AskResponse fallback = await PersistFallbackResponseAsync(prepared, ct);
+            AskResponse fallback = _responseComposer.BuildFallbackResponse(prepared);
+            await _responseComposer.PersistFallbackAsync(prepared, fallback, ct);
             fallback.ComparisonNarrative = comparisonNarrative;
+
             return fallback;
         }
 
-        AskResponse response = await FinalizeAskResponseAsync(prepared, raw, ct);
+        AskResponse response = await _responseComposer.FinalizeAsync(prepared, raw, ct);
         response.ComparisonNarrative = comparisonNarrative;
+
         return response;
     }
 
@@ -131,8 +123,8 @@ public sealed class AskService(
     {
         ArgumentNullException.ThrowIfNull(onAnswerTokenAsync);
 
-        AskPreparedContext prepared = await PrepareAskContextAsync(request, scope, ct);
-        string? comparisonNarrative = await TryBuildComparisonNarrativeAsync(prepared, ct);
+        AskPreparedContext prepared = await _contextPreparer.PrepareAsync(request, scope, ct);
+        string? comparisonNarrative = await _comparisonNarrativeBuilder.TryBuildAsync(prepared, ct);
         string userPrompt = BuildUserPrompt(prepared);
         StreamingJsonAnswerExtractor extractor = new();
 
@@ -140,7 +132,7 @@ public sealed class AskService(
         try
         {
             await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
-                               llm,
+                               _llm,
                                ArchitectSystemPrompt,
                                userPrompt,
                                maxTokens: null,
@@ -160,16 +152,17 @@ public sealed class AskService(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "LLM streaming failed for Ask (ThreadId={ThreadId}); returning fallback response.",
+            _logger.LogWarning(ex, "LLM streaming failed for Ask (ThreadId={ThreadId}); returning fallback response.",
                 LogSanitizer.Sanitize(prepared.Thread.ThreadId.ToString()));
 
-            AskResponse streamFallback = await PersistFallbackResponseAsync(prepared, ct);
+            AskResponse streamFallback = _responseComposer.BuildFallbackResponse(prepared);
+            await _responseComposer.PersistFallbackAsync(prepared, streamFallback, ct);
             streamFallback.ComparisonNarrative = comparisonNarrative;
 
             return streamFallback;
         }
 
-        AskResponse streamResponse = await FinalizeAskResponseAsync(prepared, raw, ct);
+        AskResponse streamResponse = await _responseComposer.FinalizeAsync(prepared, raw, ct);
         streamResponse.ComparisonNarrative = comparisonNarrative;
 
         return streamResponse;
@@ -181,16 +174,14 @@ public sealed class AskService(
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(scope);
 
-
         if (request.FindingId == Guid.Empty)
             throw new ArgumentException("FindingId is required.", nameof(request));
-
 
         if (string.IsNullOrWhiteSpace(request.Question))
             throw new ArgumentException("Question is required.", nameof(request));
 
         string findingId = request.FindingId.ToString("N");
-        ConversationThread thread = await conversationService.GetOrCreateThreadAsync(
+        ConversationThread thread = await _conversationService.GetOrCreateThreadAsync(
             request.ThreadId,
             scope.TenantId,
             scope.WorkspaceId,
@@ -201,13 +192,16 @@ public sealed class AskService(
             ct);
 
         string question = request.Question.Trim();
-        await conversationService.AppendUserMessageAsync(thread.ThreadId, question, ct);
+        await _conversationService.AppendUserMessageAsync(thread.ThreadId, question, ct);
 
-        IReadOnlyList<ConversationMessage> historyWindow = await conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
-        IReadOnlyList<ConversationMessage> priorMessages = TrimCurrentUserTurn(historyWindow, question);
-        string historyText = await BuildHistoryTextAsync(priorMessages, ct);
+        IReadOnlyList<ConversationMessage> historyWindow =
+            await _conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
+        IReadOnlyList<ConversationMessage> priorMessages =
+            AskConversationHistoryBuilder.TrimCurrentUserTurn(historyWindow, question);
+        string historyText = await _conversationHistoryBuilder.BuildHistoryTextAsync(priorMessages, ct);
 
-        Contracts.Findings.FindingInspectResponse? finding = await findingInspectReadRepository.GetInspectAsync(scope, findingId, ct);
+        Contracts.Findings.FindingInspectResponse? finding =
+            await _findingInspectReadRepository.GetInspectAsync(scope, findingId, ct);
 
         if (finding is null)
             throw new InvalidOperationException($"Finding '{findingId}' was not found in the current scope.");
@@ -234,7 +228,7 @@ public sealed class AskService(
         string? raw;
         try
         {
-            raw = await llm.CompleteJsonAsync(
+            raw = await _llm.CompleteJsonAsync(
                 FindingArchitectSystemPrompt,
                 userPrompt,
                 maxTokens: null,
@@ -246,289 +240,19 @@ public sealed class AskService(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "LLM completion failed for finding ask (ThreadId={ThreadId}); returning fallback response.",
+            _logger.LogWarning(ex, "LLM completion failed for finding ask (ThreadId={ThreadId}); returning fallback response.",
                 LogSanitizer.Sanitize(thread.ThreadId.ToString()));
-            return await PersistFindingFallbackResponseAsync(thread.ThreadId, question, ct);
+
+            AskResponse fallback = _responseComposer.BuildFindingFallbackResponse(thread.ThreadId);
+            await _responseComposer.PersistFindingTurnAsync(thread.ThreadId, question, fallback, ct);
+
+            return fallback;
         }
 
-        AskResponse response = ParseAskResponse(thread.ThreadId, raw);
-        await PersistFindingAssistantTurnAsync(thread.ThreadId, question, response, ct);
+        AskResponse response = _responseComposer.Parse(thread.ThreadId, raw);
+        await _responseComposer.PersistFindingTurnAsync(thread.ThreadId, question, response, ct);
+
         return response;
-    }
-
-    private async Task<AskPreparedContext> PrepareAskContextAsync(
-        AskRequest request,
-        ScopeContext scope,
-        CancellationToken ct)
-    {
-        ArgumentNullException.ThrowIfNull(request);
-
-        if (string.IsNullOrWhiteSpace(request.Question))
-            throw new ArgumentException("Question is required.", nameof(request));
-
-        ConversationThread thread = await conversationService.GetOrCreateThreadAsync(
-            request.ThreadId,
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            request.RunId,
-            request.BaseRunId,
-            request.TargetRunId,
-            ct);
-
-        Guid? effectiveRunId = request.RunId ?? thread.RunId;
-        Guid? effectiveBaseRunId = request.BaseRunId ?? thread.BaseRunId;
-        Guid? effectiveTargetRunId = request.TargetRunId ?? thread.TargetRunId;
-
-        string question = request.Question.Trim();
-        await conversationService.AppendUserMessageAsync(thread.ThreadId, question, ct);
-
-        IReadOnlyList<ConversationMessage> historyWindow = await conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
-        IReadOnlyList<ConversationMessage> priorMessages = TrimCurrentUserTurn(historyWindow, question);
-        string historyText = await BuildHistoryTextAsync(priorMessages, ct);
-
-        if (!effectiveRunId.HasValue)
-        {
-            if (effectiveBaseRunId.HasValue || effectiveTargetRunId.HasValue)
-            {
-                throw new ArgumentException(
-                    "Provide runId when comparing reviews.",
-                    nameof(request));
-            }
-
-            return await PrepareWorkspaceAskContextAsync(
-                thread,
-                question,
-                historyText,
-                scope,
-                ct);
-        }
-
-        RunDetailDto? detail;
-        GraphViewModel? graph;
-        ComparisonResult? comparisonResult = null;
-
-        if (effectiveBaseRunId.HasValue && effectiveTargetRunId.HasValue)
-        {
-            Task<RunDetailDto?> detailTask = query.GetRunDetailAsync(scope, effectiveRunId.Value, ct);
-            Task<GraphViewModel?> graphTask = provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
-            Task<RunDetailDto?> baseRunTask = query.GetRunDetailAsync(scope, effectiveBaseRunId.Value, ct);
-            Task<RunDetailDto?> targetRunTask = query.GetRunDetailAsync(scope, effectiveTargetRunId.Value, ct);
-
-            await Task.WhenAll(detailTask, graphTask, baseRunTask, targetRunTask);
-
-            detail = await detailTask;
-
-            if (detail?.GoldenManifest is null)
-                throw new InvalidOperationException(
-                    "Run not found or has no ManifestDocument for the current scope.");
-
-            graph = await graphTask;
-            RunDetailDto? baseRun = await baseRunTask;
-            RunDetailDto? targetRun = await targetRunTask;
-
-            if (baseRun?.GoldenManifest is not null && targetRun?.GoldenManifest is not null)
-                comparisonResult = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
-        }
-        else
-        {
-            Task<RunDetailDto?> detailTask = query.GetRunDetailAsync(scope, effectiveRunId.Value, ct);
-            Task<GraphViewModel?> graphTask = provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
-
-            await Task.WhenAll(detailTask, graphTask);
-
-            detail = await detailTask;
-
-            if (detail?.GoldenManifest is null)
-                throw new InvalidOperationException(
-                    "Run not found or has no ManifestDocument for the current scope.");
-
-            graph = await graphTask;
-        }
-
-        ManifestDocument manifest = detail.GoldenManifest;
-
-        object context = ContextBuilder.BuildContext(manifest, graph, comparisonResult);
-        string contextJson = JsonSerializer.Serialize(context, ContractJson.CamelCaseIgnoreNullCompact);
-        contextJson = TokenAwareContextBudget.TruncateToTokenBudget(contextJson, out bool contextTruncated);
-
-        if (contextTruncated)
-        {
-            logger.LogWarning(
-                "Ask structured context truncated for token budget (ThreadId={ThreadId}, RunId={RunId}).",
-                LogSanitizer.Sanitize(thread.ThreadId.ToString()),
-                LogSanitizer.Sanitize(effectiveRunId.Value.ToString()));
-        }
-
-        IReadOnlyList<RetrievalHit> retrievalHits = [];
-        bool retrievalDegraded = false;
-        string retrievalContext = string.Empty;
-
-        try
-        {
-            bool includePolicyPacks = AskRetrievalIntentDetector.DetectPolicyPackIntent(question);
-            bool includePlatformDocs = AskRetrievalIntentDetector.DetectPlatformDocIntent(question);
-            bool boostPriorManifest = AskRetrievalIntentDetector.DetectPriorManifestIntent(question);
-            const int retrievalTopK = 8;
-            bool skipExpensiveStages = _askRetrievalOptions.CurrentValue.SkipExpensiveStages;
-
-            IReadOnlyList<RetrievalHit> rawHits = await retrievalQuery.SearchAsync(
-                new RetrievalQuery
-                {
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    RunId = null,
-                    ManifestId = null,
-                    QueryText = question,
-                    TopK = retrievalTopK,
-                    IncludePlatformCorpora = includePolicyPacks || includePlatformDocs,
-                    SkipReranking = skipExpensiveStages,
-                    SkipQueryExpansion = skipExpensiveStages,
-                },
-                ct);
-
-            retrievalHits = AskRetrievalHitRanker.Rank(rawHits, boostPriorManifest, retrievalTopK);
-            retrievalContext = BuildRetrievalContext(retrievalHits);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Retrieval search failed for Ask; falling back to SQL findings/manifest text search.");
-            ArchLucidInstrumentation.RecordRagRetrievalFallback();
-            retrievalDegraded = true;
-            retrievalContext = AskRetrievalSqlFallback.BuildFromRunDetail(detail, question);
-        }
-
-        return new AskPreparedContext(
-            thread,
-            question,
-            historyText,
-            manifest,
-            effectiveRunId,
-            effectiveBaseRunId,
-            effectiveTargetRunId,
-            comparisonResult,
-            contextJson,
-            retrievalContext,
-            retrievalDegraded,
-            scope);
-    }
-
-    private async Task<AskPreparedContext> PrepareWorkspaceAskContextAsync(
-        ConversationThread thread,
-        string question,
-        string historyText,
-        ScopeContext scope,
-        CancellationToken ct)
-    {
-        string contextJson = AskWorkspaceContextBuilder.BuildContextJson(scope);
-        bool retrievalDegraded = false;
-        string retrievalContext = string.Empty;
-
-        try
-        {
-            bool includePolicyPacks = AskRetrievalIntentDetector.DetectPolicyPackIntent(question);
-            bool includePlatformDocs = AskRetrievalIntentDetector.DetectPlatformDocIntent(question);
-            bool boostPriorManifest = AskRetrievalIntentDetector.DetectPriorManifestIntent(question);
-            const int retrievalTopK = 8;
-            bool skipExpensiveStages = _askRetrievalOptions.CurrentValue.SkipExpensiveStages;
-
-            IReadOnlyList<RetrievalHit> rawHits = await retrievalQuery.SearchAsync(
-                new RetrievalQuery
-                {
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    RunId = null,
-                    ManifestId = null,
-                    QueryText = question,
-                    TopK = retrievalTopK,
-                    IncludePlatformCorpora = includePolicyPacks || includePlatformDocs,
-                    SkipReranking = skipExpensiveStages,
-                    SkipQueryExpansion = skipExpensiveStages,
-                },
-                ct);
-
-            IReadOnlyList<RetrievalHit> retrievalHits =
-                AskRetrievalHitRanker.Rank(rawHits, boostPriorManifest, retrievalTopK);
-            retrievalContext = BuildRetrievalContext(retrievalHits);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Retrieval search failed for workspace-scoped Ask.");
-            ArchLucidInstrumentation.RecordRagRetrievalFallback();
-            retrievalDegraded = true;
-        }
-
-        return new AskPreparedContext(
-            thread,
-            question,
-            historyText,
-            null,
-            null,
-            null,
-            null,
-            null,
-            contextJson,
-            retrievalContext,
-            retrievalDegraded,
-            scope);
-    }
-
-    private const string ComparisonNarrativeSystemPrompt =
-        "You are an enterprise architect. Given the delta between two architecture runs, write a 3–5 sentence narrative: "
-        + "(1) the most significant improvement, (2) any new risk introduced, (3) whether the architecture is net-better or net-worse. "
-        + "Return ONLY the narrative prose.";
-
-    private async Task<string?> TryBuildComparisonNarrativeAsync(AskPreparedContext prepared, CancellationToken ct)
-    {
-        if (!_askComparisonNarrativeOptions.CurrentValue.GenerateComparisonNarrative)
-            return null;
-
-        if (!prepared.BaseRunId.HasValue || !prepared.TargetRunId.HasValue || prepared.ComparisonResult is null)
-            return null;
-
-        ComparisonNarrativeSummaryBuilder.ComparisonNarrativeSummary summary =
-            ComparisonNarrativeSummaryBuilder.Build(prepared.ComparisonResult);
-
-        if (summary.TotalDeltaCount <= 0)
-            return null;
-
-        string userPrompt =
-            "Structured comparison delta JSON:\n" +
-            JsonSerializer.Serialize(summary, ContractJson.CamelCaseIgnoreNullCompact);
-
-        try
-        {
-            string narrative = await llm.CompleteJsonAsync(
-                ComparisonNarrativeSystemPrompt,
-                userPrompt,
-                maxTokens: null,
-                cancellationToken: ct);
-
-            return string.IsNullOrWhiteSpace(narrative) ? null : narrative.Trim();
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(
-                ex,
-                "Comparison narrative generation failed (ThreadId={ThreadId}).",
-                LogSanitizer.Sanitize(prepared.Thread.ThreadId.ToString()));
-
-            return null;
-        }
     }
 
     private static string BuildUserPrompt(AskPreparedContext prepared) =>
@@ -538,328 +262,4 @@ public sealed class AskService(
             prepared.RetrievalDegraded,
             prepared.HistoryText,
             prepared.Question);
-
-    private async Task<AskResponse> PersistFallbackResponseAsync(AskPreparedContext prepared, CancellationToken ct)
-    {
-        AskResponse response = new()
-        {
-            ThreadId = prepared.Thread.ThreadId,
-            Answer =
-                "The assistant could not be reached. Summarize from context manually or retry. " +
-                (prepared.Manifest is { Decisions: { Count: var decisionCount } }
-                    ? $"Context included {decisionCount} decision(s)."
-                    : "Workspace-scoped context relies on retrieved evidence across reviews."),
-            RetrievalDegraded = prepared.RetrievalDegraded,
-        };
-
-        await PersistAssistantTurnAsync(prepared, response, ct);
-
-        return response;
-    }
-
-    private async Task<AskResponse> FinalizeAskResponseAsync(AskPreparedContext prepared, string? raw, CancellationToken ct)
-    {
-        AskResponse response = ParseAskResponse(prepared.Thread.ThreadId, raw);
-        response.RetrievalDegraded = prepared.RetrievalDegraded;
-
-        await PersistAssistantTurnAsync(prepared, response, ct);
-
-        return response;
-    }
-
-    private async Task<AskResponse> PersistFindingFallbackResponseAsync(Guid threadId, string question, CancellationToken ct)
-    {
-        AskResponse response = new()
-        {
-            ThreadId = threadId,
-            Answer = "The assistant could not be reached. Review the finding details and retry."
-        };
-
-        await PersistFindingAssistantTurnAsync(threadId, question, response, ct);
-        return response;
-    }
-
-    private async Task PersistFindingAssistantTurnAsync(Guid threadId, string question, AskResponse response, CancellationToken ct)
-    {
-        string metadataJson = JsonSerializer.Serialize(
-            new { response.ReferencedDecisions, response.ReferencedFindings, response.ReferencedArtifacts },
-            ContractJson.CamelCaseCompact);
-
-        await conversationService.AppendAssistantMessageAsync(
-            threadId,
-            response.Answer,
-            metadataJson,
-            ct);
-
-        try
-        {
-            DateTime now = TimeProvider.System.UtcNowDateTime();
-            List<ConversationMessage> conversationTurn =
-            [
-                new()
-                {
-                    MessageId = Guid.NewGuid(),
-                    ThreadId = threadId,
-                    Role = ConversationMessageRole.User,
-                    Content = question,
-                    CreatedUtc = now,
-                    MetadataJson = "{}"
-                },
-
-                new()
-                {
-                    MessageId = Guid.NewGuid(),
-                    ThreadId = threadId,
-                    Role = ConversationMessageRole.Assistant,
-                    Content = response.Answer,
-                    CreatedUtc = now,
-                    MetadataJson = metadataJson
-                }
-            ];
-
-            IReadOnlyList<RetrievalDocument> convDocs = retrievalDocumentBuilder.BuildForConversation(
-                Guid.Empty,
-                Guid.Empty,
-                Guid.Empty,
-                null,
-                conversationTurn);
-
-            await retrievalIndexingService.IndexDocumentsAsync(convDocs, ct);
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Failed to index finding-ask conversation turn for retrieval.");
-        }
-    }
-
-    private AskResponse ParseAskResponse(Guid threadId, string? raw)
-    {
-        string? unwrapped = UnwrapJsonFence(raw);
-        LlmAskShape? parsed = TryDeserialize(unwrapped);
-
-        if (parsed is null || string.IsNullOrWhiteSpace(parsed.Answer))
-        {
-            return new AskResponse
-            {
-                ThreadId = threadId,
-                Answer = string.IsNullOrWhiteSpace(unwrapped)
-                    ? "No answer produced."
-                    : unwrapped.Trim(),
-                ReferencedDecisions = [],
-                ReferencedFindings = [],
-                ReferencedArtifacts = []
-            };
-        }
-
-        return new AskResponse
-        {
-            ThreadId = threadId,
-            Answer = parsed.Answer.Trim(),
-            ReferencedDecisions = NormalizeList(parsed.ReferencedDecisions),
-            ReferencedFindings = NormalizeList(parsed.ReferencedFindings),
-            ReferencedArtifacts = NormalizeList(parsed.ReferencedArtifacts)
-        };
-    }
-
-    private async Task PersistAssistantTurnAsync(AskPreparedContext prepared, AskResponse response, CancellationToken ct)
-    {
-        string metadataJson = JsonSerializer.Serialize(
-            new { response.ReferencedDecisions, response.ReferencedFindings, response.ReferencedArtifacts },
-            ContractJson.CamelCaseCompact);
-
-        await conversationService.AppendAssistantMessageAsync(
-            prepared.Thread.ThreadId,
-            response.Answer,
-            metadataJson,
-            ct);
-
-        try
-        {
-            DateTime now = TimeProvider.System.UtcNowDateTime();
-            List<ConversationMessage> conversationTurn =
-            [
-                new()
-                {
-                    MessageId = Guid.NewGuid(),
-                    ThreadId = prepared.Thread.ThreadId,
-                    Role = ConversationMessageRole.User,
-                    Content = prepared.Question,
-                    CreatedUtc = now,
-                    MetadataJson = "{}"
-                },
-
-                new()
-                {
-                    MessageId = Guid.NewGuid(),
-                    ThreadId = prepared.Thread.ThreadId,
-                    Role = ConversationMessageRole.Assistant,
-                    Content = response.Answer,
-                    CreatedUtc = now,
-                    MetadataJson = metadataJson
-                }
-            ];
-
-            IReadOnlyList<RetrievalDocument> convDocs = retrievalDocumentBuilder.BuildForConversation(
-                prepared.Scope.TenantId,
-                prepared.Scope.WorkspaceId,
-                prepared.Scope.ProjectId,
-                prepared.EffectiveRunId,
-                conversationTurn);
-
-            await retrievalIndexingService.IndexDocumentsAsync(convDocs, ct);
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Failed to index Ask conversation turn for retrieval.");
-        }
-    }
-
-    private sealed record AskPreparedContext(
-        ConversationThread Thread,
-        string Question,
-        string HistoryText,
-        ManifestDocument? Manifest,
-        Guid? EffectiveRunId,
-        Guid? BaseRunId,
-        Guid? TargetRunId,
-        ComparisonResult? ComparisonResult,
-        string ContextJson,
-        string RetrievalContext,
-        bool RetrievalDegraded,
-        ScopeContext Scope);
-
-    private static string BuildRetrievalContext(IReadOnlyList<RetrievalHit> hits)
-    {
-        if (hits.Count == 0)
-            return string.Empty;
-
-        return string.Join(
-            Environment.NewLine + Environment.NewLine,
-            hits.Select((h, i) =>
-                $"[{i + 1}] {h.SourceType} / {h.Title}{Environment.NewLine}{h.Text}"));
-    }
-
-    /// <summary>Exclude the just-appended user message from the history block (it is repeated as User Question).</summary>
-    private static IReadOnlyList<ConversationMessage> TrimCurrentUserTurn(
-        IReadOnlyList<ConversationMessage> messages,
-        string question)
-    {
-        if (messages.Count == 0)
-            return messages;
-
-        ConversationMessage last = messages[^1];
-
-        if (last.Role == ConversationMessageRole.User &&
-            string.Equals(last.Content.Trim(), question, StringComparison.Ordinal))
-            return messages.Take(messages.Count - 1).ToList();
-
-        return messages;
-    }
-
-    private async Task<string> BuildHistoryTextAsync(
-        IReadOnlyList<ConversationMessage> priorMessages,
-        CancellationToken ct)
-    {
-        ConversationContextOptions opts = _conversationContextOptions.CurrentValue;
-
-        if (!opts.CompressionEnabled || priorMessages.Count <= opts.MaxVerbatimTurns)
-            return BuildConversationHistory(priorMessages);
-
-        CompressedConversationContext compressed = await _conversationContextCompressor.CompressAsync(
-            priorMessages,
-            opts.MaxTurnsToKeepVerbatim,
-            ct);
-
-        List<ConversationMessage> promptMessages = [];
-
-        if (!string.IsNullOrWhiteSpace(compressed.CompressedSummary))
-        {
-            promptMessages.Add(new ConversationMessage
-            {
-                Role = ConversationMessageRole.Assistant,
-                Content = "[Compressed prior context] " + compressed.CompressedSummary
-            });
-        }
-
-        promptMessages.AddRange(compressed.RecentVerbatim);
-        return BuildConversationHistory(promptMessages);
-    }
-
-    private static string BuildConversationHistory(IReadOnlyList<ConversationMessage> messages)
-    {
-        if (messages.Count == 0)
-            return string.Empty;
-
-        return string.Join(
-            Environment.NewLine,
-            messages.Select(m => $"{m.Role}: {m.Content}"));
-    }
-
-    private static List<string> NormalizeList(IEnumerable<string>? items) =>
-        items?
-            .Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select(x => x.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList() ?? [];
-
-    private static string? UnwrapJsonFence(string? raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-            return raw;
-        string s = raw.Trim();
-
-        if (!s.StartsWith("```", StringComparison.Ordinal))
-            return s;
-        int firstNl = s.IndexOf('\n');
-
-        if (firstNl > 0)
-            s = s[(firstNl + 1)..].Trim();
-        int end = s.LastIndexOf("```", StringComparison.Ordinal);
-
-        if (end > 0)
-            s = s[..end].Trim();
-        return s;
-    }
-
-    private LlmAskShape? TryDeserialize(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-            return null;
-        try
-        {
-            return JsonSerializer.Deserialize<LlmAskShape>(json, JsonRead);
-        }
-        catch (JsonException ex)
-        {
-            logger.LogWarning(ex, "Failed to deserialize LLM Ask response as JSON; falling back to raw text.");
-            return null;
-        }
-    }
-
-    private sealed class LlmAskShape
-    {
-        public string? Answer
-        {
-            get;
-            init;
-        }
-
-        public List<string>? ReferencedDecisions
-        {
-            get;
-            init;
-        }
-
-        public List<string>? ReferencedFindings
-        {
-            get;
-            init;
-        }
-
-        public List<string>? ReferencedArtifacts
-        {
-            get;
-            init;
-        }
-    }
 }

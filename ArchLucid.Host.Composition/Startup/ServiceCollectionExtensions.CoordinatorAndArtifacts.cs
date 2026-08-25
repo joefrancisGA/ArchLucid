@@ -105,6 +105,10 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AskRetrievalOptions>(
             configuration.GetSection(AskRetrievalOptions.SectionPath));
         services.AddScoped<IConversationContextCompressor, ConversationContextCompressor>();
+        services.AddScoped<AskConversationHistoryBuilder>();
+        services.AddScoped<AskContextPreparer>();
+        services.AddScoped<AskComparisonNarrativeBuilder>();
+        services.AddScoped<AskResponseComposer>();
         services.AddScoped<IAskService, AskService>();
         services.AddScoped<IDraftIntakeReasoningService, DraftIntakeReasoningService>();
         services.AddScoped<IDraftSemanticAdmissionEvaluator, HostDraftSemanticAdmissionEvaluator>();
