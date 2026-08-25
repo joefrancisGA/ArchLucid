@@ -11,6 +11,7 @@ namespace ArchLucid.Contracts.Agents;
 ///     Contains claims, evidence references, findings, proposed manifest changes, and
 ///     a confidence score used by the decision engine during manifest synthesis.
 /// </summary>
+[JsonConverter(typeof(AgentResultJsonConverter))]
 public sealed class AgentResult
 {
     /// <summary>Unique result identifier, generated at creation time.</summary>
