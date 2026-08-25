@@ -280,10 +280,11 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                     Trigger = ResolveReReviewTrigger(impact, firstRecommendation),
                 };
 
-                reReview = _incrementalReReviewService.ReReview(
+                reReview = await _incrementalReReviewService.ReReviewAsync(
                     diff.AfterModel,
                     scope,
-                    _heuristicSpecialistReviewService);
+                    _specialistReviewService,
+                    cancellationToken).ConfigureAwait(false);
             }
         }
 
