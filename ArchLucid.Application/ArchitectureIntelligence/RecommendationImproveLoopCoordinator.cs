@@ -45,6 +45,18 @@ public sealed class RecommendationImproveLoopResult
         get;
         init;
     } = [];
+
+    public bool PublishBlocked
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<string> PublishBlockReasons
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class RecommendationImproveLoopCoordinator(
@@ -54,6 +66,9 @@ public sealed class RecommendationImproveLoopCoordinator(
     IChangeImpactAnalyzer changeImpactAnalyzer,
     IIncrementalReReviewService incrementalReReviewService,
     IAsyncSpecialistReviewService specialistReviewService,
+    ISpecialistFindingsSubstantiationService specialistFindingsSubstantiationService,
+    IMustNotFailEnforcer mustNotFailEnforcer,
+    ITrustPublishGate trustPublishGate,
     IAuthorityFindingsSnapshotUpdater? findingsSnapshotUpdater) : IRecommendationImproveLoopCoordinator
 {
     private readonly IScopeContextProvider _scopeContextProvider =
@@ -72,6 +87,16 @@ public sealed class RecommendationImproveLoopCoordinator(
 
     private readonly IAsyncSpecialistReviewService _specialistReviewService =
         specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
+
+    private readonly ISpecialistFindingsSubstantiationService _specialistFindingsSubstantiationService =
+        specialistFindingsSubstantiationService
+        ?? throw new ArgumentNullException(nameof(specialistFindingsSubstantiationService));
+
+    private readonly IMustNotFailEnforcer _mustNotFailEnforcer =
+        mustNotFailEnforcer ?? throw new ArgumentNullException(nameof(mustNotFailEnforcer));
+
+    private readonly ITrustPublishGate _trustPublishGate =
+        trustPublishGate ?? throw new ArgumentNullException(nameof(trustPublishGate));
 
     private readonly IAuthorityFindingsSnapshotUpdater? _findingsSnapshotUpdater = findingsSnapshotUpdater;
 
@@ -106,9 +131,6 @@ public sealed class RecommendationImproveLoopCoordinator(
         ArchitectureKnowledgeModel afterModel = diff.AfterModel
             ?? throw new InvalidOperationException("Recommendation apply did not produce an after-model.");
 
-        await _knowledgeModelAccess.SaveForRunAsync(scope, runId, afterModel, cancellationToken)
-            .ConfigureAwait(false);
-
         ChangeImpactResult impact = _changeImpactAnalyzer.Analyze(diff, architectureRecommendation);
 
         ReReviewScope scopeForReReview = new()
@@ -133,14 +155,49 @@ public sealed class RecommendationImproveLoopCoordinator(
             .SelectMany(result => result.Findings)
             .ToList();
 
+        SpecialistFindingsSubstantiationResult substantiation = incrementalFindings.Count == 0
+            ? new SpecialistFindingsSubstantiationResult()
+            : await _specialistFindingsSubstantiationService
+                .SubstantiateAsync(incrementalFindings, cancellationToken)
+                .ConfigureAwait(false);
+
+        List<MustNotFailViolation> mustNotFailViolations = _mustNotFailEnforcer
+            .Evaluate(
+                substantiation.SubstantiatedFindings,
+                [architectureRecommendation],
+                null)
+            .ToList();
+
+        TrustPublishDecision publishDecision = _trustPublishGate.Decide(
+            substantiation.SubstantiatedFindings,
+            [architectureRecommendation],
+            substantiation.ValidationResults.ToList(),
+            mustNotFailViolations);
+
+        if (publishDecision.PublishBlocked)
+        {
+            return new RecommendationImproveLoopResult
+            {
+                Diff = ArchitectureModelDiffPayloadSlimmer.WithoutModels(diff),
+                Impact = impact,
+                ReReview = reReview,
+                PartialScopeDisclaimer = reReview.PartialScopeDisclaimer,
+                PublishBlocked = true,
+                PublishBlockReasons = publishDecision.BlockReasons.ToList(),
+            };
+        }
+
+        await _knowledgeModelAccess.SaveForRunAsync(scope, runId, afterModel, cancellationToken)
+            .ConfigureAwait(false);
+
         IReadOnlyList<string> mergedFindingIds = [];
 
-        if (incrementalFindings.Count > 0 && _findingsSnapshotUpdater is not null)
+        if (substantiation.SubstantiatedFindings.Count > 0 && _findingsSnapshotUpdater is not null)
         {
-            mergedFindingIds = await _findingsSnapshotUpdater.MergeSpecialistFindingsAsync(
+            mergedFindingIds = await _findingsSnapshotUpdater.MergeSubstantiatedFindingsAsync(
                 scope,
                 recommendation.RunId,
-                incrementalFindings,
+                substantiation,
                 cancellationToken).ConfigureAwait(false);
         }
 

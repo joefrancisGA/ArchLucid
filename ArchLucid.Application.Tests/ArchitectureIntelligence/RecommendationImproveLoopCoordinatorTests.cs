@@ -92,6 +92,11 @@ public sealed class RecommendationImproveLoopCoordinatorTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new IncrementalReReviewResult { PartialScopeDisclaimer = "partial" });
 
+        Mock<ISpecialistFindingsSubstantiationService> substantiationService = new();
+        substantiationService
+            .Setup(service => service.SubstantiateAsync(It.IsAny<IReadOnlyList<SpecialistReviewFinding>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SpecialistFindingsSubstantiationResult());
+
         RecommendationImproveLoopCoordinator sut = new(
             scopeProvider.Object,
             knowledgeModelAccess.Object,
@@ -99,6 +104,9 @@ public sealed class RecommendationImproveLoopCoordinatorTests
             changeImpactAnalyzer.Object,
             reReviewService.Object,
             Mock.Of<IAsyncSpecialistReviewService>(),
+            substantiationService.Object,
+            new MustNotFailEnforcer(),
+            new TrustPublishGate(),
             findingsSnapshotUpdater: null);
 
         RecommendationImproveLoopResult? result = await sut.TryApplyAsync(new RecommendationRecord
