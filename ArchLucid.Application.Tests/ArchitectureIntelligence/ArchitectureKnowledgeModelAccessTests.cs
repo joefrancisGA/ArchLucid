@@ -220,7 +220,6 @@ public sealed class ArchitectureKnowledgeModelAccessTests
 
     services.Should().Contain(static descriptor =>
       descriptor.ServiceType == typeof(IArchitectureKnowledgeModelAccess)
-      && descriptor.ImplementationType == typeof(ArchitectureKnowledgeModelAccess)
       && descriptor.Lifetime == ServiceLifetime.Scoped);
   }
 

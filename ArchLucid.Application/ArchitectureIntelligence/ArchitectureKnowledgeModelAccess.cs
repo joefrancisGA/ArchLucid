@@ -8,14 +8,13 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public sealed class ArchitectureKnowledgeModelAccess(
     IArchitectureIntelligencePersistence? persistence,
-    IRunRepository runRepository,
+    IRunRepository? runRepository = null,
     IArchitectureIdentityRepository? architectureIdentityRepository = null,
     IKnowledgeModelGraphReprojector? knowledgeModelGraphReprojector = null) : IArchitectureKnowledgeModelAccess
 {
     private readonly IArchitectureIntelligencePersistence? _persistence = persistence;
 
-    private readonly IRunRepository _runRepository =
-        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IRunRepository? _runRepository = runRepository;
 
     private readonly IArchitectureIdentityRepository? _architectureIdentityRepository =
         architectureIdentityRepository;
@@ -35,18 +34,23 @@ public sealed class ArchitectureKnowledgeModelAccess(
 
         string tenantId = scope.TenantId.ToString("D");
 
-        ArchLucid.Persistence.Models.RunRecord? run = await _runRepository
-            .GetByIdAsync(scope, runId, cancellationToken)
-            .ConfigureAwait(false);
+        ArchLucid.Persistence.Models.RunRecord? run = null;
 
-        if (run is not null && !string.IsNullOrWhiteSpace(run.KnowledgeModelId))
+        if (_runRepository is not null)
         {
-            ArchitectureKnowledgeModel? pinned = await _persistence
-                .GetModelAsync(tenantId, run.KnowledgeModelId, cancellationToken)
+            run = await _runRepository
+                .GetByIdAsync(scope, runId, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (pinned is not null)
-                return pinned;
+            if (run is not null && !string.IsNullOrWhiteSpace(run.KnowledgeModelId))
+            {
+                ArchitectureKnowledgeModel? pinned = await _persistence
+                    .GetModelAsync(tenantId, run.KnowledgeModelId, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (pinned is not null)
+                    return pinned;
+            }
         }
 
         ArchitectureKnowledgeModel? runScoped = await LoadByRunIdFallbackAsync(tenantId, runId, cancellationToken)
@@ -55,7 +59,8 @@ public sealed class ArchitectureKnowledgeModelAccess(
         if (runScoped is not null)
             return runScoped;
 
-        if (run is not null
+        if (_runRepository is not null
+            && run is not null
             && run.ArchitectureId is Guid architectureId)
         {
             Guid? architectureHeadRunId = await _runRepository
@@ -94,6 +99,9 @@ public sealed class ArchitectureKnowledgeModelAccess(
         model.UpdatedUtc = utcNow;
 
         await _persistence.SaveModelAsync(model, cancellationToken).ConfigureAwait(false);
+
+        if (_runRepository is null)
+            return;
 
         ArchLucid.Persistence.Models.RunRecord? run = await _runRepository
             .GetByIdAsync(scope, runId, cancellationToken)
