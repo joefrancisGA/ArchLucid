@@ -42,11 +42,15 @@ describe("WizardStickyFooter", () => {
         }}
         onRecheck={vi.fn()}
       >
-        <span />
+        <button type="button">Next</button>
       </WizardStickyFooter>,
     );
 
     expect(screen.getByTestId("quick-start-review-start-progress")).toBeInTheDocument();
+
+    const startButton = screen.getByRole("button", { name: "Next" });
+    const progress = screen.getByTestId("quick-start-review-start-progress");
+    expect(startButton.compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("offers a recheck instead of an error when the browser stopped waiting", () => {

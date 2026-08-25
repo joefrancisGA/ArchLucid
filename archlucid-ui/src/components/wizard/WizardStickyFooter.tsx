@@ -48,12 +48,6 @@ export function WizardStickyFooter(props: WizardStickyFooterProps): React.ReactE
       className={cn(STICKY_FOOTER_CLASS, OPERATOR_SHELL_CONTENT_BLEED_X_CLASS)}
       data-testid={`${testIdPrefix}-footer`}
     >
-      <WizardCreationProgressNotices
-        progress={progress}
-        testIdPrefix={testIdPrefix}
-        onRecheck={onRecheck}
-      />
-
       {stepValidationMessage !== null ? (
         <div className="mb-3" data-testid={`${testIdPrefix}-validation-error`}>
           <ReviewStartInlineError message={stepValidationMessage} />
@@ -67,6 +61,12 @@ export function WizardStickyFooter(props: WizardStickyFooterProps): React.ReactE
       ) : null}
 
       {children}
+
+      <WizardCreationProgressNotices
+        progress={progress}
+        testIdPrefix={testIdPrefix}
+        onRecheck={onRecheck}
+      />
     </div>
   );
 }
