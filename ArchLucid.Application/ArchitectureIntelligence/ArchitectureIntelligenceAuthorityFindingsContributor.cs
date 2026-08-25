@@ -20,14 +20,14 @@ public interface IArchitectureIntelligenceAuthorityFindingsContributor
 public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
     IAsyncSpecialistReviewService specialistReviewService,
-    IAdversarialReviewService adversarialReviewService) : IArchitectureIntelligenceAuthorityFindingsContributor
+    IAsyncAdversarialReviewService adversarialReviewService) : IArchitectureIntelligenceAuthorityFindingsContributor
 {
     private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
     private readonly IAsyncSpecialistReviewService _specialistReviewService =
         specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
 
-    private readonly IAdversarialReviewService _adversarialReviewService =
+    private readonly IAsyncAdversarialReviewService _adversarialReviewService =
         adversarialReviewService ?? throw new ArgumentNullException(nameof(adversarialReviewService));
 
     public async Task<IReadOnlyList<Finding>> ContributeAsync(
@@ -56,7 +56,9 @@ public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
         if (specialistFindings.Count == 0)
             return [];
 
-        AdversarialReviewResult adversarial = _adversarialReviewService.Review(specialistFindings);
+        AdversarialReviewResult adversarial = await _adversarialReviewService
+            .ReviewAsync(specialistFindings, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
         List<Finding> findings = ArchitectureIntelligenceProductBridge.ToFindings(adversarial.SubstantiatedFindings);
 
