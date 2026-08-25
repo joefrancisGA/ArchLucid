@@ -1690,11 +1690,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 7
-- **bugs-found:** 10
+- **hunts:** 8
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — IPv6 ULA SSRF bypass; PascalCase alert routing metadata; FindingJsonConverter severity downgrade; Marketplace PlanId casing
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — `FindingJsonConverter` numeric `enforcementTier`/`humanReviewStatus` mishandled; integer tokens threw or defaulted to PolicyViolation/NotRequired
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1712,6 +1712,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) PascalCase `routingCriteria` / `severities` metadata silently disables alert routing filters — **hit 2026-08-24:** `AlertRoutingCriteriaMetadata.Parse` used case-sensitive `TryGetProperty`; empty criteria fail-open in `AlertRoutingMatcher`; regression in `AlertRoutingCriteriaMetadata_Parse_PascalCase_property_names_preserves_severity_filter`
 - [x] (proven) `FindingJsonConverter` downgrades unknown severity strings to `Info` — **hit 2026-08-24:** unlike `ArchitectureFindingJsonConverter`, labels like `blocker` hydrated as `Info`; fixed to throw on unknown labels (`FindingJsonConverterTests.Deserialize_unknown_severity_throws`)
 - [x] (proven) Azure Marketplace webhook `PlanId` PascalCase missed → tier defaults to Standard — **hit 2026-08-24:** `TryGetPlanId` only read camelCase `planId`; regression in `TryGetPlanId_reads_PascalCase_planId`
+- [x] (proven) `FindingJsonConverter` mishandles numeric `enforcementTier` and `humanReviewStatus` — **hit 2026-08-25:** integer `enforcementTier: 1` stayed `PolicyViolation`; `humanReviewStatus: 1` called `GetString()` on a number token (throws); out-of-range `enforcementTier: 99` silently defaulted; regression in `Deserialize_numeric_enforcement_tier_maps_advisory_ordinal`, `Deserialize_numeric_human_review_status_maps_pending_ordinal`, `Deserialize_integer_enforcement_tier_out_of_range_throws`.
+- [ ] (hunt-ready) `FindingJsonConverter.ReadSeverity` maps legacy aliases `low`/`medium`/`high` but `evaluationConfidenceLevel` only accepts exact enum names — numeric confidence level ordinals are ignored instead of throwing.
+- [ ] (hunt-ready) `GraphSnapshotCanonicalFingerprint` omits declared priorities from the fingerprint input while `KnowledgeModelFingerprint` includes them — graph reuse may bind to a κ with different priority ordering.
+- [ ] (hunt-ready) `RealLlmOutputStructuralValidator` requires `agentType` string but accepts any non-empty value without validating against known agent catalog — malformed agent labels pass structural gate.
 
 ---
 
