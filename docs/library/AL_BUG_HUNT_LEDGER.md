@@ -1866,13 +1866,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 2
-- **bugs-found:** 4
+- **hunts:** 3
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — reference markdown dropped constraints; unresolved issues omitted finding ids; bundle validator skipped hash verify; filename sanitizer missed unicode slash homoglyphs
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — architecture narrative omitted committed topology selected patterns
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1883,6 +1883,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `UnresolvedIssuesArtifactGenerator` dropped `SupportingFindingIds` — **hit 2026-08-24:** JSON projection omitted finding provenance; regression in `GenerateAsync_preserves_supporting_finding_ids`
 - [x] (proven) `ArtifactBundleValidator` fail-open on content-hash mismatch — **hit 2026-08-24:** required non-empty hash but never compared to `ArtifactHashing.ComputeHash`; regression in `Validate_when_content_hash_mismatch_throws`
 - [x] (proven) `FileNameSanitizer` allowed Unicode slash homoglyphs in export paths — **hit 2026-08-24:** fullwidth solidus U+FF0F survived sanitization; regression in `FileNameSanitizer_replaces_invalid_windows_characters` (`..／..／manifest.json`)
+- [x] (proven) `ArchitectureNarrativeArtifactGenerator` omitted `Topology.SelectedPatterns` — **hit 2026-08-25:** narrative listed resources/gaps only while `ReferenceArchitectureMarkdownGenerator` and DOCX export emitted `- Pattern:` lines; regression in `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_topology_selected_patterns`
 
 ---
 

@@ -201,4 +201,28 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
         artifact.Content.Should().Contain("- Applied Rules: 1");
         artifact.Content.Should().Contain("[Medium] CDN");
     }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_topology_selected_patterns()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            Topology = new TopologySection
+            {
+                SelectedPatterns = ["Hub-spoke"],
+                Resources = ["orders-api"],
+            },
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("## Topology Posture");
+        artifact.Content.Should().Contain("- Pattern: Hub-spoke");
+        artifact.Content.Should().Contain("- Resource: orders-api");
+    }
 }

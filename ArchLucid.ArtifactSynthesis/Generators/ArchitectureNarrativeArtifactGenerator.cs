@@ -45,13 +45,17 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Topology Posture");
+        foreach (string pattern in manifest.Topology.SelectedPatterns)
+
+            sb.AppendLine($"- Pattern: {pattern}");
+
         if (manifest.Topology.Resources.Count > 0)
 
             foreach (string resource in manifest.Topology.Resources)
 
                 sb.AppendLine($"- Resource: {resource}");
 
-        else
+        else if (manifest.Topology.SelectedPatterns.Count == 0 && manifest.Topology.Gaps.Count == 0)
 
             sb.AppendLine("No concrete topology resources were recorded in the manifest.");
 
