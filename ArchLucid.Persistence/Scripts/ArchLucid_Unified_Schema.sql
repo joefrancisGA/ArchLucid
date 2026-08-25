@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 322_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 325_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -8565,3 +8565,126 @@ BEGIN
                 N'DataAndCompliance',
                 N'SustainabilityAndResourceEfficiency'));
 END;
+
+GO
+
+/* 323: First-class architecture identity (tenant-scoped).
+   After ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews. COL_LENGTH and
+   ALTER TABLE against the synonym fail (SQL 4909), so resolve the physical table first. */
+IF OBJECT_ID(N'dbo.Architectures', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Architectures
+    (
+        ArchitectureId           UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_Architectures PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        TenantId               UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId            UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId         UNIQUEIDENTIFIER NOT NULL,
+        CurrentModelId         NVARCHAR(128)    NULL,
+        LatestSealedManifestId UNIQUEIDENTIFIER NULL,
+        CreatedUtc             DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_Architectures_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        UpdatedUtc             DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_Architectures_UpdatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_Architectures_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE INDEX IX_Architectures_Scope_UpdatedUtc
+        ON dbo.Architectures (TenantId, WorkspaceId, ScopeProjectId, UpdatedUtc DESC);
+END;
+
+GO
+
+DECLARE @architectureRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @architectureRunSql NVARCHAR(MAX);
+
+IF @architectureRunTable IS NOT NULL
+BEGIN
+    IF COL_LENGTH(@architectureRunTable, N'ArchitectureId') IS NULL
+    BEGIN
+        SET @architectureRunSql = N'ALTER TABLE ' + @architectureRunTable + N' ADD ArchitectureId UNIQUEIDENTIFIER NULL;';
+
+        EXEC sp_executesql @architectureRunSql;
+    END
+
+    IF COL_LENGTH(@architectureRunTable, N'ArchitectureId') IS NOT NULL
+       AND NOT EXISTS (
+           SELECT 1
+           FROM sys.indexes
+           WHERE name = N'IX_Runs_ArchitectureId'
+             AND object_id = OBJECT_ID(@architectureRunTable))
+    BEGIN
+        SET @architectureRunSql = N'
+            CREATE INDEX IX_Runs_ArchitectureId
+                ON ' + @architectureRunTable + N' (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId)
+                WHERE ArchitectureId IS NOT NULL;';
+
+        EXEC sp_executesql @architectureRunSql;
+    END
+END
+
+GO
+
+/* 324: Architecture-scoped recurrence schedules and persisted improve-loop evidence. */
+IF OBJECT_ID(N'dbo.ArchitectureReviewRecurrenceSchedules', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ArchitectureReviewRecurrenceSchedules', N'ArchitectureId') IS NULL
+BEGIN
+    ALTER TABLE dbo.ArchitectureReviewRecurrenceSchedules ADD ArchitectureId UNIQUEIDENTIFIER NULL;
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.ArchitectureReviewRecurrenceSchedules', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ArchitectureReviewRecurrenceSchedules', N'ArchitectureId') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_ArchitectureReviewRecurrenceSchedules_ArchitectureId'
+         AND object_id = OBJECT_ID(N'dbo.ArchitectureReviewRecurrenceSchedules'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_ArchitectureReviewRecurrenceSchedules_ArchitectureId
+        ON dbo.ArchitectureReviewRecurrenceSchedules (TenantId, ArchitectureId)
+        WHERE ArchitectureId IS NOT NULL;
+END;
+
+GO
+
+DECLARE @improveLoopRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @improveLoopRunSql NVARCHAR(MAX);
+
+IF @improveLoopRunTable IS NOT NULL
+   AND COL_LENGTH(@improveLoopRunTable, N'ImproveLoopEvidenceJson') IS NULL
+BEGIN
+    SET @improveLoopRunSql = N'ALTER TABLE ' + @improveLoopRunTable + N' ADD ImproveLoopEvidenceJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @improveLoopRunSql;
+END
+
+GO
+
+/* 325: Pin as-of-run knowledge model id on the physical run table (ADR 0064 synonym-safe). */
+DECLARE @knowledgeModelRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @knowledgeModelRunSql NVARCHAR(MAX);
+
+IF @knowledgeModelRunTable IS NOT NULL
+   AND COL_LENGTH(@knowledgeModelRunTable, N'KnowledgeModelId') IS NULL
+BEGIN
+    SET @knowledgeModelRunSql = N'ALTER TABLE ' + @knowledgeModelRunTable + N' ADD KnowledgeModelId NVARCHAR(64) NULL;';
+
+    EXEC sp_executesql @knowledgeModelRunSql;
+END
