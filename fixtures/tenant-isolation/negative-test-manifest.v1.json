@@ -30,7 +30,7 @@
         },
         {
           "name": "cross-tenant-run-list",
-          "path": "/v1/runs?limit=200",
+          "path": "/v1/runs?take=200",
           "expectedOutcome": "exclude-run-id",
           "observedOutcome": "HTTP 200; foreign runId absent",
           "observedStatusCode": 200,

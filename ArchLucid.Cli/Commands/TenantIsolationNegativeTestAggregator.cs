@@ -142,7 +142,7 @@ internal static class TenantIsolationNegativeTestProbeCatalog
                 "Cross-tenant GET run export must not succeed."),
             new TenantIsolationNegativeTestProbeDefinition(
                 "cross-tenant-run-list",
-                "/v1/runs?limit=200",
+                "/v1/runs?take=200",
                 "exclude-run-id",
                 "Cross-tenant run list must not include the foreign runId."),
         ];

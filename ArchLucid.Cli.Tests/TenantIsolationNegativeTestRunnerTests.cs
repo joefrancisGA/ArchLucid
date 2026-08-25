@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 
 using ArchLucid.Cli.Commands;
+using ArchLucid.Core.Pagination;
 
 using FluentAssertions;
 
@@ -95,6 +96,71 @@ public sealed class TenantIsolationNegativeTestRunnerTests
         TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(json, "aaaaaaaa-1111-1111-1111-111111111111")
             .Should()
             .BeTrue("run list payloads use N-format ids while operators often pass dashed run ids");
+    }
+
+    [Fact]
+    public async Task RunLiveAsync_FailsRunListProbeWhenForeignRunIdOnlyVisibleWithFullTakePage()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+                string query = req.RequestUri.Query;
+                string? tenant = req.Headers.TryGetValues("X-Tenant-Id", out IEnumerable<string>? values)
+                    ? values.FirstOrDefault()
+                    : null;
+
+                if (string.Equals(tenant, "44444444-4444-4444-4444-444444444444", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (string.Equals(path, "/v1/runs", StringComparison.Ordinal))
+                    {
+                        int take = ParseTakeQueryValue(query) ?? RunPagination.DefaultTake;
+
+                        if (take >= 200)
+                        {
+                            return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                            {
+                                items = new[] { new { runId = "aaaaaaaa111111111111111111111111" } },
+                            }));
+                        }
+
+                        return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                        {
+                            items = Enumerable.Range(0, take)
+                                .Select(static i => new { runId = $"bbbbbbbb2222222222222222222222{i:00}" })
+                                .ToArray(),
+                        }));
+                    }
+
+                    return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" }));
+                }
+
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient primaryClient = CreateClient(handler);
+        using HttpClient alternateClient = CreateClient(handler);
+        CliScopeHeaders.ApplyExplicit(
+            alternateClient,
+            "44444444-4444-4444-4444-444444444444",
+            "55555555-5555-5555-5555-555555555555",
+            "66666666-6666-6666-6666-666666666666");
+
+        TenantIsolationNegativeTestRunner runner = new();
+        TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+            Directory.GetCurrentDirectory(),
+            primaryClient,
+            alternateClient,
+            new TenantIsolationNegativeTestOptions { RunId = RunId });
+
+        report.Probes.Should().Contain(probe =>
+            probe.Name == "cross-tenant-run-list" && probe.Verdict == TenantIsolationNegativeTestVerdict.Fail);
+        report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Fail);
     }
 
     [Fact]
@@ -447,5 +513,27 @@ public sealed class TenantIsolationNegativeTestRunnerTests
         response.Headers.TryAddWithoutValidation("X-Correlation-ID", Guid.NewGuid().ToString("D"));
 
         return response;
+    }
+
+    private static int? ParseTakeQueryValue(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return null;
+
+        foreach (string segment in query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            string[] parts = segment.Split('=', 2);
+
+            if (parts.Length != 2)
+                continue;
+
+            if (!string.Equals(parts[0], "take", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (int.TryParse(Uri.UnescapeDataString(parts[1]), out int take))
+                return take;
+        }
+
+        return null;
     }
 }
