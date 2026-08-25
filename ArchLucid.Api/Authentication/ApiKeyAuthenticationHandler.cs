@@ -65,13 +65,9 @@ public class ApiKeyAuthenticationHandler(
                     AuthenticateResult.Fail(
                         "Authentication:ApiKey:DevelopmentBypassAll is not allowed in Production."));
 
-            ClaimsIdentity bypassIdentity = new(
-                BuildSyntheticAdminClaims(),
-                Scheme.Name);
-            ClaimsPrincipal bypassPrincipal = new(bypassIdentity);
-            AuthenticationTicket bypassTicket = new(bypassPrincipal, Scheme.Name);
+            Claim[] bypassClaims = BuildSyntheticAdminClaims();
 
-            return Task.FromResult(AuthenticateResult.Success(bypassTicket));
+            return Task.FromResult(BuildSuccessTicket(bypassClaims, authOpts));
         }
 
         if (!Request.Headers.TryGetValue("X-Api-Key", out StringValues providedKey))

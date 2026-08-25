@@ -209,6 +209,28 @@ public sealed class ApiKeyAuthenticationHandlerTests
     }
 
     [SkippableFact]
+    public async Task When_development_bypass_and_allow_test_actor_headers_overrides_display_name()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "e2e-peer-reviewer");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "false",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("e2e-peer-reviewer");
+    }
+
+    [SkippableFact]
     public async Task When_enabled_false_and_bypass_true_in_development_returns_success_without_header()
     {
         DefaultHttpContext http = new();
