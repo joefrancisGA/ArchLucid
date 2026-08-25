@@ -48,17 +48,19 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
-    IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
-    IUsageMeteringService usageMetering,
     IDistributedCreateRunIdempotencyLock distributedCreateRunIdempotencyLock,
     IOptions<ArchitectureRunCreateOptions> createRunOptions,
     IAsyncAuthorityPipelineModeResolver asyncAuthorityPipelineModeResolver,
     IRunStateTransitionService runStateTransitionService,
-    TimeProvider timeProvider,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
-    DefaultPolicyPackCloudBaselineApplicator defaultPolicyPackCloudBaselineApplicator,
     IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
+    ArchitectureRunCreateIdempotencyHelper idempotencyHelper,
+    ArchitectureRunCreatePersistenceHelper persistenceHelper,
+    IAuditService auditService,
+    IUsageMeteringService usageMetering,
+    TimeProvider timeProvider,
+    DefaultPolicyPackCloudBaselineApplicator defaultPolicyPackCloudBaselineApplicator,
     IArchitectureIdentityService architectureIdentityService,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
@@ -70,12 +72,12 @@ public sealed class ArchitectureRunCreateOrchestrator(
     private readonly DefaultPolicyPackCloudBaselineApplicator _defaultPolicyPackCloudBaselineApplicator =
         defaultPolicyPackCloudBaselineApplicator ?? throw new ArgumentNullException(nameof(defaultPolicyPackCloudBaselineApplicator));
 
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly IArchitectureRunIdempotencyRepository _architectureRunIdempotencyRepository =
         architectureRunIdempotencyRepository ?? throw new ArgumentNullException(nameof(architectureRunIdempotencyRepository));
-
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IArchitectureRunAuthorityCoordination _authorityCoordination =
         authorityCoordination ?? throw new ArgumentNullException(nameof(authorityCoordination));
@@ -103,12 +105,21 @@ public sealed class ArchitectureRunCreateOrchestrator(
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
-    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-    private readonly IUsageMeteringService _usageMetering = usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
 
     private readonly IWorkspaceSystemNameCollisionGuard _workspaceSystemNameCollisionGuard =
         workspaceSystemNameCollisionGuard ?? throw new ArgumentNullException(nameof(workspaceSystemNameCollisionGuard));
+
+    private readonly ArchitectureRunCreateIdempotencyHelper _idempotencyHelper =
+        idempotencyHelper ?? throw new ArgumentNullException(nameof(idempotencyHelper));
+
+    private readonly ArchitectureRunCreatePersistenceHelper _persistenceHelper =
+        persistenceHelper ?? throw new ArgumentNullException(nameof(persistenceHelper));
+
+    private readonly IUsageMeteringService _usageMetering =
+        usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     private readonly IArchitectureIdentityService _architectureIdentityService =
         architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
@@ -145,13 +156,13 @@ public sealed class ArchitectureRunCreateOrchestrator(
         // ReSharper disable once InvertIf
         if (idempotency is not null)
         {
-            CreateRunResult? replay = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
+            CreateRunResult? replay = await _idempotencyHelper.TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
             if (replay is not null)
                 return replay;
-            string gateKey = BuildIdempotencyGateKey(idempotency);
+            string gateKey = ArchitectureRunCreateIdempotencyHelper.BuildIdempotencyGateKey(idempotency);
             await using IAsyncDisposable _ = await _distributedCreateRunIdempotencyLock
                 .AcquireExclusiveSessionLockAsync(gateKey, _distributedIdempotencyLockTimeoutMs, cancellationToken).ConfigureAwait(false);
-            CreateRunResult? replayUnderDistributed = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
+            CreateRunResult? replayUnderDistributed = await _idempotencyHelper.TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
             if (replayUnderDistributed is not null)
                 return replayUnderDistributed;
             return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
@@ -256,14 +267,14 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     throw new InvalidOperationException($"CreateRun failed: {detail}");
                 }
 
-                await PersistCreateRunRowsAsync(
+                await _persistenceHelper.PersistCreateRunRowsAsync(
                     request,
                     coordination,
                     idempotency: null,
                     uow,
                     persistArchitectureRequest: false,
                     cancellationToken);
-                await PatchRunHeaderInTransactionAsync(
+                await _persistenceHelper.PatchRunHeaderInTransactionAsync(
                     coordination,
                     request,
                     uow,
@@ -351,7 +362,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
         // Persist ArchitectureRequest before the early-committed Runs header so a crash mid-pipeline
         // cannot leave runs_missing_architecture_request orphans that degrade /health/ready.
-        await EnsureArchitectureRequestPersistedAsync(request, cancellationToken).ConfigureAwait(false);
+        await _persistenceHelper.EnsureArchitectureRequestPersistedAsync(request, cancellationToken).ConfigureAwait(false);
 
         CoordinationResult coordination = await _authorityCoordination.CreateRunAsync(request, cancellationToken);
 
@@ -374,7 +385,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
             try
             {
-                inserted = await PersistCreateRunRowsAsync(
+                inserted = await _persistenceHelper.PersistCreateRunRowsAsync(
                     request,
                     coordination,
                     idempotency,
@@ -427,14 +438,14 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     throw new InvalidOperationException($"CreateRun failed: {detail}");
                 }
 
-                inserted = await PersistCreateRunRowsAsync(
+                inserted = await _persistenceHelper.PersistCreateRunRowsAsync(
                     request,
                     coordination,
                     idempotency,
                     uow,
                     persistArchitectureRequest: true,
                     cancellationToken);
-                await PatchRunHeaderInTransactionAsync(
+                await _persistenceHelper.PatchRunHeaderInTransactionAsync(
                     coordination,
                     request,
                     uow,
@@ -477,7 +488,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     {
         if (idempotency is not null && !inserted)
         {
-            CreateRunResult? winner = await ResolveIdempotencyRaceAsync(idempotency, cancellationToken);
+            CreateRunResult? winner = await _idempotencyHelper.ResolveIdempotencyRaceAsync(idempotency, cancellationToken);
             return winner ?? throw new InvalidOperationException("Idempotency insert failed but no winning row was found; retry the request.");
         }
 
@@ -567,21 +578,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
         }
     }
 
-    private static bool TryParseCoordinationRunGuid(string runId, out Guid runGuid)
-    {
-        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
-    }
-
-    private static string BuildIdempotencyGateKey(CreateRunIdempotencyState idempotency)
-    {
-        ArgumentNullException.ThrowIfNull(idempotency);
-        byte[] hash = idempotency.IdempotencyKeyHash;
-        if (hash is null || hash.Length == 0)
-            throw new ArgumentException("Idempotency key hash must be non-empty.", nameof(idempotency));
-        return string.Concat(idempotency.TenantId.ToString("N"), "|", idempotency.WorkspaceId.ToString("N"), "|", idempotency.ProjectId.ToString("N"), "|",
-            Convert.ToHexString(hash));
-    }
-
     private async Task TryApplyCloudPolicyPackBaselineAsync(
         ArchitectureRequest request,
         CancellationToken cancellationToken)
@@ -642,18 +638,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
         }
     }
 
-    private async Task EnsureArchitectureRequestPersistedAsync(
-        ArchitectureRequest request,
-        CancellationToken cancellationToken)
-    {
-        ArchitectureRequest? existing =
-            await _requestRepository.GetByIdAsync(request.RequestId, cancellationToken).ConfigureAwait(false);
-
-        if (existing is not null)
-            return;
-
-        await _requestRepository.CreateAsync(request, cancellationToken).ConfigureAwait(false);
-    }
+    private static bool TryParseCoordinationRunGuid(string runId, out Guid runGuid) =>
+        Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
 
     private async Task TryCompensateArchiveOrphanRunAsync(string runId, CancellationToken cancellationToken)
     {
@@ -684,119 +670,5 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     LogSanitizer.Sanitize(runId));
             }
         }
-    }
-
-    private async Task<bool> PersistCreateRunRowsAsync(
-        ArchitectureRequest request,
-        CoordinationResult coordination,
-        CreateRunIdempotencyState? idempotency,
-        IArchLucidUnitOfWork uow,
-        bool persistArchitectureRequest,
-        CancellationToken cancellationToken)
-    {
-        if (uow.SupportsExternalTransaction)
-        {
-            if (persistArchitectureRequest)
-                await _requestRepository.CreateAsync(request, cancellationToken, uow.Connection, uow.Transaction);
-
-            await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken, uow.Connection, uow.Transaction);
-            if (coordination.Tasks.Count > 0)
-                await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken, uow.Connection, uow.Transaction);
-        }
-        else
-        {
-            if (persistArchitectureRequest)
-                await _requestRepository.CreateAsync(request, cancellationToken);
-
-            await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
-            if (coordination.Tasks.Count > 0)
-                await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
-        }
-
-        if (idempotency is null)
-            return false;
-        bool inserted = uow.SupportsExternalTransaction
-            ? await _architectureRunIdempotencyRepository.TryInsertAsync(idempotency.TenantId, idempotency.WorkspaceId, idempotency.ProjectId,
-                idempotency.IdempotencyKeyHash, idempotency.RequestFingerprint, coordination.Run.RunId, cancellationToken, uow.Connection, uow.Transaction)
-            : await _architectureRunIdempotencyRepository.TryInsertAsync(idempotency.TenantId, idempotency.WorkspaceId, idempotency.ProjectId,
-                idempotency.IdempotencyKeyHash, idempotency.RequestFingerprint, coordination.Run.RunId, cancellationToken);
-        if (inserted)
-            return inserted;
-        if (_logger.IsEnabled(LogLevel.Information))
-            _logger.LogInformation("Idempotency insert did not win race for RunId={RunId}; unit of work will roll back when not committed.",
-                LogSanitizer.Sanitize(coordination.Run.RunId));
-        return inserted;
-    }
-
-    private async Task PatchRunHeaderInTransactionAsync(
-        CoordinationResult coordination,
-        ArchitectureRequest request,
-        IArchLucidUnitOfWork uow,
-        CancellationToken cancellationToken)
-    {
-        if (!TryParseCoordinationRunGuid(coordination.Run.RunId, out Guid runId))
-            return;
-
-        bool deferred = coordination.Run.Status == ArchitectureRunStatus.Created;
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunRecord? header = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
-
-        if (header is null)
-            return;
-
-        header.ArchitectureRequestId = request.RequestId;
-        string targetLegacyRunStatus = _runStateTransitionService.GetCoordinationLegacyStatusAfterCreate(deferred);
-
-        if (_runStateTransitionService.ShouldApplyCoordinationLegacyStatusPatch(header.LegacyRunStatus, targetLegacyRunStatus))
-            header.LegacyRunStatus = targetLegacyRunStatus;
-
-        header.PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request);
-
-        if (uow.SupportsExternalTransaction)
-            await _runRepository.UpdateAsync(header, cancellationToken, uow.Connection, uow.Transaction);
-        else
-            await _runRepository.UpdateAsync(header, cancellationToken);
-    }
-
-    private async Task<CreateRunResult?> TryReplayFromIdempotencyAsync(CreateRunIdempotencyState idempotency, CancellationToken cancellationToken)
-    {
-        ArchitectureRunIdempotencyLookup? existing = await _architectureRunIdempotencyRepository.TryGetAsync(idempotency.TenantId, idempotency.WorkspaceId,
-            idempotency.ProjectId, idempotency.IdempotencyKeyHash, cancellationToken);
-        if (existing is null)
-            return null;
-        if (!CryptographicOperations.FixedTimeEquals(existing.RequestFingerprint, idempotency.RequestFingerprint))
-            throw new ConflictException("The Idempotency-Key was already used with a different request body.");
-        return await RehydrateCreateRunResultAsync(existing.RunId, cancellationToken);
-    }
-
-    private async Task<CreateRunResult?> ResolveIdempotencyRaceAsync(CreateRunIdempotencyState idempotency, CancellationToken cancellationToken)
-    {
-        ArchitectureRunIdempotencyLookup? winner = await _architectureRunIdempotencyRepository.TryGetAsync(idempotency.TenantId, idempotency.WorkspaceId,
-            idempotency.ProjectId, idempotency.IdempotencyKeyHash, cancellationToken);
-        if (winner is null)
-            return null;
-        if (!CryptographicOperations.FixedTimeEquals(winner.RequestFingerprint, idempotency.RequestFingerprint))
-            throw new ConflictException("The Idempotency-Key was already used with a different request body.");
-        return await RehydrateCreateRunResultAsync(winner.RunId, cancellationToken);
-    }
-
-    private async Task<CreateRunResult> RehydrateCreateRunResultAsync(string runId, CancellationToken cancellationToken)
-    {
-        ArchitectureRun? run =
-            await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(_runRepository, _scopeContextProvider, _taskRepository, runId, cancellationToken);
-        if (run is null)
-            throw new InvalidOperationException($"Run '{runId}' from idempotency store was not found.");
-        ScopeContext rehydrateScope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(rehydrateScope, runId, cancellationToken);
-        if (tasks.Count == 0)
-            throw new InvalidOperationException($"Idempotent run '{runId}' has no tasks.");
-        string? bundleRef = tasks[0].EvidenceBundleRef;
-        if (string.IsNullOrWhiteSpace(bundleRef))
-            throw new InvalidOperationException($"Idempotent run '{runId}' is missing EvidenceBundleRef on the first task.");
-        EvidenceBundle bundle = await _evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken) ??
-                                throw new InvalidOperationException($"Evidence bundle '{bundleRef}' for idempotent run was not found.");
-        if (_logger.IsEnabled(LogLevel.Information))
-            _logger.LogInformation("CreateRun idempotent replay: RunId={RunId}, TaskCount={TaskCount}", LogSanitizer.Sanitize(runId), tasks.Count);
-        return new CreateRunResult { Run = run, EvidenceBundle = bundle, Tasks = tasks.ToList(), IdempotentReplay = true };
     }
 }
