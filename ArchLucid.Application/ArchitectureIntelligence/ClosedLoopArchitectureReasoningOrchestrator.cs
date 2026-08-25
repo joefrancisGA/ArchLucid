@@ -25,15 +25,13 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     private readonly IIncrementalReReviewService _incrementalReReviewService;
     private readonly IMustNotFailEnforcer _mustNotFailEnforcer;
     private readonly ITrustPublishGate _trustPublishGate;
-    private readonly IArchitectureIntelligenceProductPublishService _productPublishService;
     private readonly IReviewResultCache _reviewResultCache;
     private readonly IArchitectureIntelligenceReviewTierBudgetGuard _tierBudgetGuard;
+    private readonly ClosedLoopArchitectureReasoningPostStageHooks _postStageHooks;
     private readonly IArchitectureIntelligencePersistence? _persistence;
     private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess;
     private readonly ITechnologyLedgerRepository? _technologyLedgerRepository;
     private readonly IScopeContextProvider? _scopeContextProvider;
-    private readonly IAuthorityFindingsSnapshotUpdater? _authorityFindingsSnapshotUpdater;
-    private readonly ISpecialistFindingsSubstantiationService _specialistFindingsSubstantiationService;
 
     public ClosedLoopArchitectureReasoningOrchestrator(
         IImmutableSourceStore sourceStore,
@@ -49,15 +47,13 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         IIncrementalReReviewService incrementalReReviewService,
         IMustNotFailEnforcer mustNotFailEnforcer,
         ITrustPublishGate trustPublishGate,
-        IArchitectureIntelligenceProductPublishService productPublishService,
         IReviewResultCache reviewResultCache,
         IArchitectureIntelligenceReviewTierBudgetGuard tierBudgetGuard,
-        ISpecialistFindingsSubstantiationService specialistFindingsSubstantiationService,
+        ClosedLoopArchitectureReasoningPostStageHooks postStageHooks,
         IArchitectureIntelligencePersistence? persistence = null,
         IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
         ITechnologyLedgerRepository? technologyLedgerRepository = null,
-        IScopeContextProvider? scopeContextProvider = null,
-        IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater = null)
+        IScopeContextProvider? scopeContextProvider = null)
     {
         _sourceStore = sourceStore ?? throw new ArgumentNullException(nameof(sourceStore));
         _ontologyService = ontologyService ?? throw new ArgumentNullException(nameof(ontologyService));
@@ -72,16 +68,13 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         _incrementalReReviewService = incrementalReReviewService ?? throw new ArgumentNullException(nameof(incrementalReReviewService));
         _mustNotFailEnforcer = mustNotFailEnforcer ?? throw new ArgumentNullException(nameof(mustNotFailEnforcer));
         _trustPublishGate = trustPublishGate ?? throw new ArgumentNullException(nameof(trustPublishGate));
-        _productPublishService = productPublishService ?? throw new ArgumentNullException(nameof(productPublishService));
         _reviewResultCache = reviewResultCache ?? throw new ArgumentNullException(nameof(reviewResultCache));
         _tierBudgetGuard = tierBudgetGuard ?? throw new ArgumentNullException(nameof(tierBudgetGuard));
-        _specialistFindingsSubstantiationService = specialistFindingsSubstantiationService
-            ?? throw new ArgumentNullException(nameof(specialistFindingsSubstantiationService));
+        _postStageHooks = postStageHooks ?? throw new ArgumentNullException(nameof(postStageHooks));
         _persistence = persistence;
         _knowledgeModelAccess = knowledgeModelAccess;
         _technologyLedgerRepository = technologyLedgerRepository;
         _scopeContextProvider = scopeContextProvider;
-        _authorityFindingsSnapshotUpdater = authorityFindingsSnapshotUpdater;
     }
 
     public async Task<ClosedLoopReasoningResult> RunAsync(
@@ -275,7 +268,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                     _specialistReviewService,
                     cancellationToken).ConfigureAwait(false);
 
-                await IntegrateClosedLoopReReviewFindingsAsync(
+                await _postStageHooks.IntegrateReReviewFindingsAsync(
                     request,
                     reReview,
                     allFindings,
@@ -346,7 +339,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         if (request.PublishToProduct)
         {
-            await ApplyProductPublishAsync(request, result, cancellationToken);
+            await _postStageHooks.ApplyProductPublishAsync(request, result, cancellationToken);
         }
 
         if (cacheManifest is not null)
@@ -355,67 +348,6 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         }
 
         return result;
-    }
-
-    private async Task IntegrateClosedLoopReReviewFindingsAsync(
-        ClosedLoopReasoningRequest request,
-        IncrementalReReviewResult reReview,
-        List<SpecialistReviewFinding> allFindings,
-        List<EvidenceValidationResult> validationResults,
-        Dictionary<string, EvidenceValidationResult> validationByFindingId,
-        CancellationToken cancellationToken)
-    {
-        List<SpecialistReviewFinding> incrementalFindings =
-            ClosedLoopReReviewPublishIntegrator.SelectNewIncrementalFindings(reReview, allFindings);
-
-        if (incrementalFindings.Count == 0)
-            return;
-
-        SpecialistFindingsSubstantiationResult substantiation = await _specialistFindingsSubstantiationService
-            .SubstantiateAsync(incrementalFindings, cancellationToken)
-            .ConfigureAwait(false);
-
-        ClosedLoopReReviewPublishIntegrator.IntegrateFromSubstantiation(
-            incrementalFindings,
-            substantiation,
-            allFindings,
-            validationResults,
-            validationByFindingId);
-
-        if (_authorityFindingsSnapshotUpdater is null
-            || _scopeContextProvider is null
-            || !Guid.TryParse(request.RunId, out Guid runId))
-            return;
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<string> mergedFindingIds = await _authorityFindingsSnapshotUpdater
-            .MergeSubstantiatedFindingsAsync(scope, runId, substantiation, cancellationToken)
-            .ConfigureAwait(false);
-
-        reReview.MergedFindingIds = mergedFindingIds;
-    }
-
-    private async Task ApplyProductPublishAsync(
-        ClosedLoopReasoningRequest request,
-        ClosedLoopReasoningResult result,
-        CancellationToken cancellationToken)
-    {
-        string tenantId = RequireTenantId(request);
-        string workspaceId = request.WorkspaceId ?? tenantId;
-        string projectId = request.ProjectId ?? tenantId;
-
-        ArchitectureIntelligencePublishResult publishResult = await _productPublishService.PublishAsync(
-            result,
-            tenantId,
-            workspaceId,
-            projectId,
-            request.RunId!,
-            cancellationToken);
-
-        result.PublishedToProduct = publishResult.Published;
-        result.PublishedFindingsSnapshotId = publishResult.FindingsSnapshotId;
-        result.PublishedRecommendationCount = publishResult.RecommendationCount;
-        result.PublishSkipReason = publishResult.SkipReason;
     }
 
     private async Task<List<string>> StoreSourcesAsync(

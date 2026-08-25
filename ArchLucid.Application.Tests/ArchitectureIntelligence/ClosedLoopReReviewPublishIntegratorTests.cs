@@ -48,7 +48,7 @@ public sealed class ClosedLoopReReviewPublishIntegratorTests
                 ValidationResults = [incrementalValidation],
             });
 
-        await ClosedLoopReReviewPublishIntegrator.IntegrateAsync(
+        SpecialistFindingsSubstantiationResult? substantiation = await ClosedLoopReReviewPublishIntegrator.IntegrateAsync(
             reReview,
             allFindings,
             validationResults,
@@ -60,5 +60,42 @@ public sealed class ClosedLoopReReviewPublishIntegratorTests
         allFindings.Should().ContainSingle(finding => finding.FindingId == "finding-new");
         validationResults.Should().ContainSingle(result => result.FindingId == "finding-new");
         validationByFindingId.Should().ContainKey("finding-new");
+        substantiation.Should().NotBeNull();
+        substantiation!.ValidationResults.Should().ContainSingle(result => result.FindingId == "finding-new");
+    }
+
+    [Fact]
+    public async Task IntegrateAsync_returns_null_when_no_incremental_findings()
+    {
+        List<SpecialistReviewFinding> allFindings = [new() { FindingId = "finding-existing", Title = "Existing" }];
+        List<EvidenceValidationResult> validationResults = [];
+        Dictionary<string, EvidenceValidationResult> validationByFindingId = new(StringComparer.Ordinal);
+
+        IncrementalReReviewResult reReview = new()
+        {
+            SpecialistResults =
+            [
+                new SpecialistReviewResult
+                {
+                    Findings = [new SpecialistReviewFinding { FindingId = "finding-existing", Title = "Existing" }],
+                },
+            ],
+        };
+
+        Mock<ISpecialistFindingsSubstantiationService> substantiationService = new();
+
+        SpecialistFindingsSubstantiationResult? substantiation = await ClosedLoopReReviewPublishIntegrator.IntegrateAsync(
+            reReview,
+            allFindings,
+            validationResults,
+            validationByFindingId,
+            substantiationService.Object,
+            CancellationToken.None);
+
+        substantiation.Should().BeNull();
+        substantiationService.Verify(
+            service => service.SubstantiateAsync(It.IsAny<IReadOnlyList<SpecialistReviewFinding>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        allFindings.Should().HaveCount(1);
     }
 }

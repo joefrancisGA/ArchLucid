@@ -14,6 +14,7 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
         ServiceCollection services = new();
         services.AddArchitectureIntelligence();
         services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
         await using ServiceProvider provider = services.BuildServiceProvider();
         IClosedLoopArchitectureReasoningOrchestrator orchestrator =
             provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
@@ -50,6 +51,7 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
         ServiceCollection services = new();
         services.AddArchitectureIntelligence();
         services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
         await using ServiceProvider provider = services.BuildServiceProvider();
         IClosedLoopArchitectureReasoningOrchestrator orchestrator =
             provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();

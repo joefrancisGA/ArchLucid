@@ -7,7 +7,7 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 /// </summary>
 public static class ClosedLoopReReviewPublishIntegrator
 {
-    public static async Task IntegrateAsync(
+    public static async Task<SpecialistFindingsSubstantiationResult?> IntegrateAsync(
         IncrementalReReviewResult reReview,
         List<SpecialistReviewFinding> allFindings,
         List<EvidenceValidationResult> validationResults,
@@ -24,7 +24,7 @@ public static class ClosedLoopReReviewPublishIntegrator
         List<SpecialistReviewFinding> incrementalFindings = SelectNewIncrementalFindings(reReview, allFindings);
 
         if (incrementalFindings.Count == 0)
-            return;
+            return null;
 
         SpecialistFindingsSubstantiationResult substantiation = await substantiationService
             .SubstantiateAsync(incrementalFindings, cancellationToken)
@@ -36,6 +36,8 @@ public static class ClosedLoopReReviewPublishIntegrator
             allFindings,
             validationResults,
             validationByFindingId);
+
+        return substantiation;
     }
 
     public static void IntegrateFromSubstantiation(

@@ -1,4 +1,7 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -99,6 +102,21 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IArchitectureIntelligenceProductRunSourceContextLoader,
             ArchitectureIntelligenceProductRunSourceContextLoader>();
         services.AddScoped<IArtifactRoundTripService, ArtifactRoundTripService>();
+        services.AddScoped<ClosedLoopArchitectureReasoningPostStageHooks>(static sp =>
+        {
+            IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater = null;
+            if (sp.GetService<IRunRepository>() is not null
+                && sp.GetService<IFindingsSnapshotRepository>() is not null)
+            {
+                authorityFindingsSnapshotUpdater = sp.GetRequiredService<IAuthorityFindingsSnapshotUpdater>();
+            }
+
+            return new ClosedLoopArchitectureReasoningPostStageHooks(
+                sp.GetRequiredService<ISpecialistFindingsSubstantiationService>(),
+                sp.GetRequiredService<IArchitectureIntelligenceProductPublishService>(),
+                sp.GetService<IScopeContextProvider>(),
+                authorityFindingsSnapshotUpdater);
+        });
         services.AddScoped<IClosedLoopArchitectureReasoningOrchestrator, ClosedLoopArchitectureReasoningOrchestrator>();
         services.AddScoped<IGoldenArchitectureTestRunner, GoldenArchitectureTestRunner>();
         services.AddScoped<IAuthorityClosedLoopStrengtheningPass, AuthorityClosedLoopStrengtheningPass>();
