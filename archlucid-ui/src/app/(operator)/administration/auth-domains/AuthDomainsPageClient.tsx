@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Fingerprint } from "lucide-react";
+import { useMemo } from "react";
 
 import { AuthDomainsActionConfirmDialog } from "@/app/(operator)/administration/auth-domains/AuthDomainsActionConfirmDialog";
 import { useAuthDomainsPage } from "@/app/(operator)/administration/auth-domains/use-auth-domains-page";
@@ -52,6 +53,11 @@ import { DESIGN_TOKENS, OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LAYOUT, OPERAT
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SETTINGS_AUTH_DOMAINS_PATH } from "@/lib/settings-admin-route-paths";
 import { cn } from "@/lib/utils";
+import { AuthDomainsContinueLastViewedRow } from "./AuthDomainsContinueLastViewedRow";
+import {
+  resolveContinueLastAuthDomain,
+  writeAuthDomainLastViewedId,
+} from "@/lib/resolve-continue-last-auth-domain";
 
 export function AuthDomainsPageClient() {
   const {
@@ -99,6 +105,19 @@ export function AuthDomainsPageClient() {
     handleAddRecoveryAdmin,
     scrollToJourneySection,
   } = useAuthDomainsPage();
+
+  const continueLastDomain = useMemo(() => resolveContinueLastAuthDomain(domains), [domains]);
+
+  function openDomain(normalizedDomain: string): void {
+    writeAuthDomainLastViewedId(normalizedDomain);
+    setSelectedDomain(normalizedDomain);
+    window.setTimeout(() => {
+      document
+        .querySelector(`[data-auth-domain="${CSS.escape(normalizedDomain)}"]`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      document.querySelector<HTMLButtonElement>('[data-testid="auth-domains-check-dns"]')?.focus();
+    }, 0);
+  }
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="auth-domains-page">
@@ -310,6 +329,9 @@ export function AuthDomainsPageClient() {
                 testId="auth-domains-empty-state"
               />
             ) : null}
+            {continueLastDomain !== null ? (
+              <AuthDomainsContinueLastViewedRow target={continueLastDomain} onOpen={openDomain} />
+            ) : null}
             <ul className="space-y-2">
               {domains.map((row) => (
                 <li key={row.normalizedDomain}>
@@ -320,10 +342,12 @@ export function AuthDomainsPageClient() {
                       selectedDomain === row.normalizedDomain ? "border-teal-700 bg-al-surface-raised" : "border-neutral-200",
                     )}
                     onClick={() => {
+                      writeAuthDomainLastViewedId(row.normalizedDomain);
                       setSelectedDomain(row.normalizedDomain);
                       setDnsInstruction(null);
                     }}
                     data-testid={`auth-domain-row-${row.normalizedDomain}`}
+                    data-auth-domain={row.normalizedDomain}
                   >
                     <div className="font-medium text-al-text-primary">{row.displayDomain}</div>
                     <div

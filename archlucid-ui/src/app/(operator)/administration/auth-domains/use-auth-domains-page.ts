@@ -39,6 +39,7 @@ import {
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { whyDisabledNeedsRole, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
+import { writeAuthDomainLastViewedId } from "@/lib/resolve-continue-last-auth-domain";
 
 type RefreshOptions = {
   readonly surfaceError?: boolean;
@@ -256,6 +257,7 @@ export function useAuthDomainsPage(): UseAuthDomainsPageModel {
       setNewDomain("");
       setNewDomainTouched(false);
       setSelectedDomain(response.domain.normalizedDomain);
+      writeAuthDomainLastViewedId(response.domain.normalizedDomain);
       setStatusMessage(`Domain ${response.domain.displayDomain} added. Verify DNS ownership before enforcement.`);
       await refreshDomains();
     } catch {
@@ -277,6 +279,7 @@ export function useAuthDomainsPage(): UseAuthDomainsPageModel {
 
     try {
       const response = await action(selectedDomain);
+      writeAuthDomainLastViewedId(selectedDomain);
 
       if (response.dnsVerificationInstruction) {
         setDnsInstruction(response.dnsVerificationInstruction);
@@ -375,6 +378,7 @@ export function useAuthDomainsPage(): UseAuthDomainsPageModel {
         request.enforcementMode,
         request.allowEmailOtpRecovery,
       );
+      writeAuthDomainLastViewedId(selectedDomain);
       setStatusMessage(
         successMessageForAuthDomainEnforcementModeChange(selected.displayDomain, request.enforcementMode),
       );
@@ -399,6 +403,7 @@ export function useAuthDomainsPage(): UseAuthDomainsPageModel {
 
     try {
       await enableTenantAuthDomainEnforcement(selectedDomain, true);
+      writeAuthDomainLastViewedId(selectedDomain);
       setStatusMessage(successMessageForAuthDomainAction("SSO enforcement enabled", selected.displayDomain));
       await refreshDomains();
       await refreshReadiness(selectedDomain, { surfaceError: true });

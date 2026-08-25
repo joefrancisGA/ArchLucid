@@ -148,6 +148,7 @@ describe("AuthDomainsPageClient", () => {
     expect(screen.getByTestId("auth-domains-journey-step-add")).toHaveAttribute("aria-current", "step");
     expect(screen.getByTestId("auth-domains-add-readiness")).toHaveTextContent(AUTH_DOMAINS_ADD_DOMAIN_READINESS);
     expect(screen.getByTestId("auth-domains-empty-state")).toHaveTextContent(AUTH_DOMAINS_EMPTY_TITLE);
+    expect(screen.queryByTestId("auth-domains-continue-last-viewed-row")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Add your first domain" })).not.toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: "Add domain" })).toHaveLength(1);
     expect(screen.getByRole("link", { name: AUTH_DOMAINS_AUTHENTICATION_HELP_CTA })).toHaveAttribute(
@@ -193,6 +194,8 @@ describe("AuthDomainsPageClient", () => {
     expect(statusRow).not.toHaveTextContent("SsoOptional");
     expect(statusRow.querySelector("[data-verification-status='Verified']")).not.toBeNull();
     expect(statusRow.querySelector("[data-enforcement-mode='SsoOptional']")).not.toBeNull();
+    expect(screen.getByTestId("auth-domains-continue-last-viewed-row")).toHaveTextContent("example.com");
+    expect(screen.getByTestId("auth-domain-row-example.com")).toHaveAttribute("data-auth-domain", "example.com");
   });
 
   it("does not call window.confirm for enable enforcement", async () => {
