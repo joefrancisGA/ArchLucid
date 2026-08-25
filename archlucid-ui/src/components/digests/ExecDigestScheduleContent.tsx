@@ -14,6 +14,7 @@ import {
   OperatorRecipientSubscriptionsHelperLink,
 } from "@/components/advisory/OperatorRecipientChipField";
 import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,10 @@ import {
   normalizeIanaTimeZoneForSelect,
   toStoredIanaTimeZoneId,
 } from "@/lib/iana-time-zone-select";
+import {
+  resolveExecDigestScheduleEmphasizedStepId,
+  resolveExecDigestScheduleSteps,
+} from "@/lib/exec-digest-schedule-checklist";
 import { cn } from "@/lib/utils";
 
 import {
@@ -113,6 +118,19 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
     onEnableDelivery,
     onPauseDelivery,
   } = useExecDigestSchedule(props);
+
+  const scheduleChecklistInput =
+    form !== null && status !== null
+      ? {
+          recipientsConfigured: recipientCount > 0,
+          scheduleConfigured: formValid,
+          deliveryEnabled: status.kind === "active",
+        }
+      : null;
+  const scheduleSteps =
+    scheduleChecklistInput !== null ? resolveExecDigestScheduleSteps(scheduleChecklistInput) : [];
+  const scheduleEmphasizedStepId =
+    scheduleChecklistInput !== null ? resolveExecDigestScheduleEmphasizedStepId(scheduleChecklistInput) : "recipients";
 
   return (
     <div className="w-full space-y-4" data-testid="exec-digest-schedule-content">
@@ -359,6 +377,14 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                   {liveScheduleSummary}
                 </p>
               </div>
+              {canMutate && scheduleSteps.length > 0 ? (
+                <IntegrationConnectChecklist
+                  title="Schedule checklist"
+                  steps={scheduleSteps}
+                  emphasizedStepId={scheduleEmphasizedStepId}
+                  testIdPrefix="exec-digest-schedule"
+                />
+              ) : null}
 
               <OperatorRecipientChipField
                 idPrefix="exec-digest"
