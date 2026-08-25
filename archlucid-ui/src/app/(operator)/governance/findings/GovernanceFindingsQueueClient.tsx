@@ -26,6 +26,8 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyboardTriageCoach";
 import { AssignedToMeContinueOldestFindingStrip } from "@/components/usability/AssignedToMeContinueOldestFindingStrip";
 import { FindingsTriageFirstFindingStrip } from "@/components/usability/FindingsTriageFirstFindingStrip";
+import { GovernanceFindingsContinueLastViewedRow } from "@/app/(operator)/governance/findings/GovernanceFindingsContinueLastViewedRow";
+import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-last-governance-finding";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { ArchitecturePosturePillarOverview } from "@/components/governance/posture/ArchitecturePosturePillarOverview";
@@ -304,6 +306,10 @@ export default function GovernanceFindingsQueueClient({
       href: governanceFindingInspectHref(row.runId, row.findingId),
     };
   }, [displayedRows, isAssignedToMe]);
+  const continueLastFinding = useMemo(
+    () => resolveContinueLastGovernanceFinding(displayedRows),
+    [displayedRows],
+  );
   const assignedToMeOldestFindingTarget = useMemo(() => {
     if (!isAssignedToMe) {
       return null;
@@ -632,6 +638,9 @@ export default function GovernanceFindingsQueueClient({
                 reviewId={scopedRunId}
                 reviewTitle={scopedRunContextQuery.data?.displayTitle ?? null}
               />
+            ) : null}
+            {continueLastFinding !== null ? (
+              <GovernanceFindingsContinueLastViewedRow target={continueLastFinding} />
             ) : null}
             {assignedToMeOldestFindingTarget !== null ? (
               <AssignedToMeContinueOldestFindingStrip
