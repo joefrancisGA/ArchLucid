@@ -214,8 +214,17 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
             taskRepository ?? Mock.Of<IAgentTaskRepository>(),
             knowledgeModelAccess,
             new IncrementalReReviewService(),
-            new SpecialistReviewService(),
+            new AsyncSpecialistReviewServiceAdapter(new SpecialistReviewService()),
             stageOutcomesRepository ?? Mock.Of<IRunStageOutcomesRepository>(),
             auditService ?? Mock.Of<IAuditService>());
+    }
+
+    private sealed class AsyncSpecialistReviewServiceAdapter(SpecialistReviewService inner) : IAsyncSpecialistReviewService
+    {
+        public Task<SpecialistReviewResult> ReviewAsync(
+            ArchitectureKnowledgeModel model,
+            IReadOnlyList<QualityDimension>? dimensions = null,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult(inner.Review(model, dimensions));
     }
 }

@@ -32,10 +32,10 @@ public sealed class ClarificationAnswerReReviewCoordinatorTests
     result.Should().BeNull();
   }
 
-  private static ClarificationAnswerReReviewCoordinator CreateSut(
+    private static ClarificationAnswerReReviewCoordinator CreateSut(
       IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
       IIncrementalReReviewService? incrementalReReview,
-      ISpecialistReviewService? specialistReview,
+      IAsyncSpecialistReviewService? specialistReview,
       IAuthorityFindingsSnapshotUpdater? findingsUpdater,
       IRunStageOutcomesRepository? stageOutcomes,
       IAuditService? audit)
@@ -43,7 +43,7 @@ public sealed class ClarificationAnswerReReviewCoordinatorTests
     return new ClarificationAnswerReReviewCoordinator(
         knowledgeModelAccess,
         incrementalReReview ?? new IncrementalReReviewService(),
-        specialistReview ?? Mock.Of<ISpecialistReviewService>(),
+        specialistReview ?? Mock.Of<IAsyncSpecialistReviewService>(),
         findingsUpdater,
         stageOutcomes ?? Mock.Of<IRunStageOutcomesRepository>(),
         audit ?? Mock.Of<IAuditService>());

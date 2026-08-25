@@ -24,7 +24,7 @@ public interface IClarificationAnswerReReviewCoordinator
 public sealed class ClarificationAnswerReReviewCoordinator(
     IArchitectureKnowledgeModelAccess? architectureKnowledgeModelAccess,
     IIncrementalReReviewService incrementalReReviewService,
-    ISpecialistReviewService specialistReviewService,
+    IAsyncSpecialistReviewService specialistReviewService,
     IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IAuditService auditService) : IClarificationAnswerReReviewCoordinator
@@ -37,7 +37,7 @@ public sealed class ClarificationAnswerReReviewCoordinator(
     private readonly IIncrementalReReviewService _incrementalReReviewService =
         incrementalReReviewService ?? throw new ArgumentNullException(nameof(incrementalReReviewService));
 
-    private readonly ISpecialistReviewService _specialistReviewService =
+    private readonly IAsyncSpecialistReviewService _specialistReviewService =
         specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
 
     private readonly IAuthorityFindingsSnapshotUpdater? _authorityFindingsSnapshotUpdater =
@@ -82,10 +82,11 @@ public sealed class ClarificationAnswerReReviewCoordinator(
             .RecordStageStartedAsync(runId, StageName, startedUtc, cancellationToken)
             .ConfigureAwait(false);
 
-        IncrementalReReviewResult result = _incrementalReReviewService.ReReview(
+        IncrementalReReviewResult result = await _incrementalReReviewService.ReReviewAsync(
             model,
             reReviewScope,
-            _specialistReviewService);
+            _specialistReviewService,
+            cancellationToken).ConfigureAwait(false);
 
         List<SpecialistReviewFinding> incrementalFindings = result.SpecialistResults
             .SelectMany(specialistResult => specialistResult.Findings)

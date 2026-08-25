@@ -47,7 +47,7 @@ public sealed class RecommendationImproveLoopCoordinator(
     IArchitectureModelDiffApplier diffApplier,
     IChangeImpactAnalyzer changeImpactAnalyzer,
     IIncrementalReReviewService incrementalReReviewService,
-    ISpecialistReviewService specialistReviewService,
+    IAsyncSpecialistReviewService specialistReviewService,
     IAuthorityFindingsSnapshotUpdater? findingsSnapshotUpdater) : IRecommendationImproveLoopCoordinator
 {
     private readonly IScopeContextProvider _scopeContextProvider =
@@ -64,7 +64,7 @@ public sealed class RecommendationImproveLoopCoordinator(
     private readonly IIncrementalReReviewService _incrementalReReviewService =
         incrementalReReviewService ?? throw new ArgumentNullException(nameof(incrementalReReviewService));
 
-    private readonly ISpecialistReviewService _specialistReviewService =
+    private readonly IAsyncSpecialistReviewService _specialistReviewService =
         specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
 
     private readonly IAuthorityFindingsSnapshotUpdater? _findingsSnapshotUpdater = findingsSnapshotUpdater;
@@ -113,10 +113,11 @@ public sealed class RecommendationImproveLoopCoordinator(
             Trigger = impact.RequiresFullReReview ? ReReviewTrigger.MajorTopologyChange : null,
         };
 
-        IncrementalReReviewResult reReview = _incrementalReReviewService.ReReview(
+        IncrementalReReviewResult reReview = await _incrementalReReviewService.ReReviewAsync(
             diff.AfterModel,
             scopeForReReview,
-            _specialistReviewService);
+            _specialistReviewService,
+            cancellationToken).ConfigureAwait(false);
 
         List<SpecialistReviewFinding> incrementalFindings = reReview.SpecialistResults
             .SelectMany(result => result.Findings)

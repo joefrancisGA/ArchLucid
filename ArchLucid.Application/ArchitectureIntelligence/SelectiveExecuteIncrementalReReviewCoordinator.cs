@@ -16,7 +16,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
     IAgentTaskRepository agentTaskRepository,
     IArchitectureKnowledgeModelAccess? architectureKnowledgeModelAccess,
     IIncrementalReReviewService incrementalReReviewService,
-    ISpecialistReviewService specialistReviewService,
+    IAsyncSpecialistReviewService specialistReviewService,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IAuditService auditService,
     IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater = null) : ISelectiveExecuteIncrementalReReviewCoordinator
@@ -35,7 +35,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
     private readonly IIncrementalReReviewService _incrementalReReviewService =
         incrementalReReviewService ?? throw new ArgumentNullException(nameof(incrementalReReviewService));
 
-    private readonly ISpecialistReviewService _specialistReviewService =
+    private readonly IAsyncSpecialistReviewService _specialistReviewService =
         specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
 
     private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
@@ -107,10 +107,11 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
                 .ConfigureAwait(false);
         }
 
-        IncrementalReReviewResult result = _incrementalReReviewService.ReReview(
+        IncrementalReReviewResult result = await _incrementalReReviewService.ReReviewAsync(
             model,
             reReviewScope,
-            _specialistReviewService);
+            _specialistReviewService,
+            cancellationToken).ConfigureAwait(false);
 
         List<SpecialistReviewFinding> incrementalFindings = result.SpecialistResults
             .SelectMany(specialistResult => specialistResult.Findings)

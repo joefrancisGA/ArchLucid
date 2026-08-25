@@ -8,4 +8,10 @@ public interface IIncrementalReReviewService
         ArchitectureKnowledgeModel model,
         ReReviewScope scope,
         ISpecialistReviewService specialistService);
+
+    Task<IncrementalReReviewResult> ReReviewAsync(
+        ArchitectureKnowledgeModel model,
+        ReReviewScope scope,
+        IAsyncSpecialistReviewService specialistService,
+        CancellationToken cancellationToken = default);
 }

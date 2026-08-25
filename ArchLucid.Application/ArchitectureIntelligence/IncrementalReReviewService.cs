@@ -48,6 +48,49 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
         };
     }
 
+    public async Task<IncrementalReReviewResult> ReReviewAsync(
+        ArchitectureKnowledgeModel model,
+        ReReviewScope scope,
+        IAsyncSpecialistReviewService specialistService,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(specialistService);
+
+        List<GlobalInvariantCheckResult> globalInvariantResults = [];
+        bool fullReReviewTriggered = scope.FullReReview || scope.Trigger.HasValue;
+        List<SpecialistReviewResult> specialistResults = [];
+        string? partialScopeDisclaimer = null;
+
+        if (fullReReviewTriggered)
+        {
+            specialistResults.Add(await specialistService.ReviewAsync(model, cancellationToken: cancellationToken)
+                .ConfigureAwait(false));
+        }
+        else if (scope.AffectedElementIds.Count > 0)
+        {
+            ArchitectureKnowledgeModel scopedModel = BuildScopedModel(model, scope.AffectedElementIds);
+            specialistResults.Add(await specialistService.ReviewAsync(scopedModel, cancellationToken: cancellationToken)
+                .ConfigureAwait(false));
+            partialScopeDisclaimer = PartialScopeDisclaimer;
+        }
+
+        if (scope.IncludeGlobalInvariantChecks)
+        {
+            globalInvariantResults = RunGlobalInvariantChecks(model);
+        }
+
+        return new IncrementalReReviewResult
+        {
+            Scope = scope,
+            SpecialistResults = specialistResults,
+            GlobalInvariantResults = globalInvariantResults,
+            FullReReviewTriggered = fullReReviewTriggered,
+            PartialScopeDisclaimer = partialScopeDisclaimer,
+        };
+    }
+
     private static ArchitectureKnowledgeModel BuildScopedModel(
         ArchitectureKnowledgeModel model,
         IReadOnlyList<string> affectedElementIds)

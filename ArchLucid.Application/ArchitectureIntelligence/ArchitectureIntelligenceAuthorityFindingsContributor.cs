@@ -19,12 +19,12 @@ public interface IArchitectureIntelligenceAuthorityFindingsContributor
 
 public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
-    ISpecialistReviewService specialistReviewService,
+    IAsyncSpecialistReviewService specialistReviewService,
     IAdversarialReviewService adversarialReviewService) : IArchitectureIntelligenceAuthorityFindingsContributor
 {
     private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
-    private readonly ISpecialistReviewService _specialistReviewService =
+    private readonly IAsyncSpecialistReviewService _specialistReviewService =
         specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
 
     private readonly IAdversarialReviewService _adversarialReviewService =
@@ -48,7 +48,9 @@ public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
         if (model is null)
             return [];
 
-        SpecialistReviewResult review = _specialistReviewService.Review(model);
+        SpecialistReviewResult review = await _specialistReviewService
+            .ReviewAsync(model, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
         List<SpecialistReviewFinding> specialistFindings = review.Findings;
 
         if (specialistFindings.Count == 0)
