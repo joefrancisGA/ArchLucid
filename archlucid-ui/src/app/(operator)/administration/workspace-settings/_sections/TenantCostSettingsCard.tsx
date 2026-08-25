@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 
 import { BaselineFieldMessage } from "@/components/forms/BaselineFieldMessage";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { MutatingInTenantChip } from "@/components/MutatingInTenantChip";
 import { Button } from "@/components/ui/button";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
@@ -34,6 +35,10 @@ import {
   TENANT_COST_SETTINGS_SAVE_READINESS_MESSAGE,
 } from "@/lib/tenant-settings-page-copy";
 import { validateTenantCostSettingsFields } from "@/lib/tenant-cost-settings-validation";
+import {
+  resolveTenantCostSettingsSaveEmphasizedStepId,
+  resolveTenantCostSettingsSaveSteps,
+} from "@/lib/tenant-cost-settings-save-checklist";
 import type { TenantCostSettingsPutRequest, TenantCostSettingsResponse } from "@/types/tenant-cost-settings";
 
 type TenantCostSettingsCardProps = {
@@ -261,6 +266,13 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
     ? "These values are used to estimate review savings and sponsor ROI when actual cost evidence is unavailable."
     : "These values are used to estimate review savings and sponsor ROI when actual cost evidence is unavailable. Showing platform defaults until you save.";
 
+  const saveChecklistInput = {
+    fieldsValid: fieldValidation.valid,
+    saveComplete: saveConfirmation !== null,
+  };
+  const saveSteps = resolveTenantCostSettingsSaveSteps(saveChecklistInput);
+  const saveEmphasizedStepId = resolveTenantCostSettingsSaveEmphasizedStepId(saveChecklistInput);
+
   if (demoMode) {
     return (
       <Card>
@@ -302,6 +314,15 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading cost settings…</p>
         ) : (
           <form onSubmit={(e) => void onSave(e)} className="space-y-4">
+            {canEdit ? (
+              <IntegrationConnectChecklist
+                title="Save checklist"
+                steps={saveSteps}
+                emphasizedStepId={saveEmphasizedStepId}
+                testIdPrefix="tenant-cost-settings"
+              />
+            ) : null}
+
             {saveConfirmation !== null ? (
               <OperatorSuccessCallout
                 message={saveConfirmation}
