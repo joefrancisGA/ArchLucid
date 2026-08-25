@@ -33,6 +33,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     private readonly ITechnologyLedgerRepository? _technologyLedgerRepository;
     private readonly IScopeContextProvider? _scopeContextProvider;
     private readonly IAuthorityFindingsSnapshotUpdater? _authorityFindingsSnapshotUpdater;
+    private readonly ISpecialistFindingsSubstantiationService _specialistFindingsSubstantiationService;
 
     public ClosedLoopArchitectureReasoningOrchestrator(
         IImmutableSourceStore sourceStore,
@@ -51,6 +52,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         IArchitectureIntelligenceProductPublishService productPublishService,
         IReviewResultCache reviewResultCache,
         IArchitectureIntelligenceReviewTierBudgetGuard tierBudgetGuard,
+        ISpecialistFindingsSubstantiationService specialistFindingsSubstantiationService,
         IArchitectureIntelligencePersistence? persistence = null,
         IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
         ITechnologyLedgerRepository? technologyLedgerRepository = null,
@@ -73,6 +75,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         _productPublishService = productPublishService ?? throw new ArgumentNullException(nameof(productPublishService));
         _reviewResultCache = reviewResultCache ?? throw new ArgumentNullException(nameof(reviewResultCache));
         _tierBudgetGuard = tierBudgetGuard ?? throw new ArgumentNullException(nameof(tierBudgetGuard));
+        _specialistFindingsSubstantiationService = specialistFindingsSubstantiationService
+            ?? throw new ArgumentNullException(nameof(specialistFindingsSubstantiationService));
         _persistence = persistence;
         _knowledgeModelAccess = knowledgeModelAccess;
         _technologyLedgerRepository = technologyLedgerRepository;
@@ -269,6 +273,14 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                     model,
                     applied.Scope,
                     _specialistReviewService,
+                    cancellationToken).ConfigureAwait(false);
+
+                await ClosedLoopReReviewPublishIntegrator.IntegrateAsync(
+                    reReview,
+                    allFindings,
+                    validationResults,
+                    validationByFindingId,
+                    _specialistFindingsSubstantiationService,
                     cancellationToken).ConfigureAwait(false);
 
                 await TryMergeClosedLoopReReviewAsync(request, reReview, cancellationToken).ConfigureAwait(false);
