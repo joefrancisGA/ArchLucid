@@ -197,6 +197,27 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_api_key_with_tenant_claim_rejects_x_workspace_id_header()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+            AuthServiceCollectionExtensions.ApiKeySchemeName));
+        context.Request.Headers["x-workspace-id"] = Guid.NewGuid().ToString("D");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_unauthenticated_request_invokes_next()
     {
         DefaultHttpContext context = CreateContext();

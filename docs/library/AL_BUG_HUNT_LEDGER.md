@@ -1207,10 +1207,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
+- **last-hunt:** 2026-08-25
 - **last-bug:** 2026-08-24 — duplicate x-*-id headers bypassed header-only scope escalation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1224,6 +1224,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `x-workspace-id` header steered scope without a bound claim — **hit 2026-08-24:** middleware only blocked tenant header escalation; regression in `ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_bearer`
 - [x] (proven) `x-project-id` header steered scope without a bound claim — **hit 2026-08-24:** SCIM bearer omitted from header-only escalation guard; regression in `ValidateHeaderOnlyScopeEscalation_rejects_project_header_without_claim_for_scim_bearer`
 - [x] (proven) Duplicate `x-*-id` headers bypassed header-only scope escalation guard — **hit 2026-08-24:** `StringValues.ToString()` comma-joined duplicate headers so `Guid.TryParse` failed and steering was ignored; now first non-empty segment is parsed; regressions in `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_bearer` and `InvokeAsync_bearer_without_tenant_claim_rejects_duplicate_x_tenant_id_headers`
+- [x] (valid-no-repro) Saml2 bearer omitted from workspace header-only escalation guard — `RequiresBoundScopeClaimsForHeaders` includes `Saml2`; regression in `ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_saml2`
+- [x] (valid-no-repro) Duplicate `x-workspace-id` headers bypass workspace header-only escalation — `TryParseHeaderGuid` iterates header segments for all dimensions; regression in `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_workspace_headers_without_claim_for_saml2`
+- [x] (valid-no-repro) Production-like guard accepts workspace/project scope resolved from `x-*-id` headers — `ScopeResolutionGuard.IsUntrusted` rejects any `ScopeSource.Header` dimension; regressions in `RequiresTrustedScopeRejection_true_when_workspace_from_header` and `RequiresTrustedScopeRejection_true_when_project_from_header`
+- [x] (valid-no-repro) ApiKey-authenticated principal with bound `tenant_id` claim still accepts hostile `x-workspace-id` — generic `ValidateHeaderOnlyDimensionEscalation` branch rejects any unbound dimension; regression in `InvokeAsync_api_key_with_tenant_claim_rejects_x_workspace_id_header`
 
 ---
 

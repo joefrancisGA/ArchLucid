@@ -74,6 +74,34 @@ public sealed class ScopeResolutionGuardTests
     }
 
     [Fact]
+    public void RequiresTrustedScopeRejection_true_when_workspace_from_header()
+    {
+        Guid workspace = Guid.NewGuid();
+
+        ScopeResolution resolution = ScopeResolution.Create(
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = workspace, ProjectId = Guid.NewGuid() },
+            new ScopeDimensionResolution(Guid.NewGuid(), ScopeSource.Claim),
+            new ScopeDimensionResolution(workspace, ScopeSource.Header),
+            new ScopeDimensionResolution(Guid.NewGuid(), ScopeSource.Claim));
+
+        ScopeResolutionGuard.RequiresTrustedScopeRejection(resolution).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RequiresTrustedScopeRejection_true_when_project_from_header()
+    {
+        Guid project = Guid.NewGuid();
+
+        ScopeResolution resolution = ScopeResolution.Create(
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = project },
+            new ScopeDimensionResolution(Guid.NewGuid(), ScopeSource.Claim),
+            new ScopeDimensionResolution(Guid.NewGuid(), ScopeSource.Claim),
+            new ScopeDimensionResolution(project, ScopeSource.Header));
+
+        ScopeResolutionGuard.RequiresTrustedScopeRejection(resolution).Should().BeTrue();
+    }
+
+    [Fact]
     public void RequiresTrustedScopeRejection_true_when_claim_uses_development_default_guid()
     {
         ScopeResolution resolution = ScopeResolution.Create(

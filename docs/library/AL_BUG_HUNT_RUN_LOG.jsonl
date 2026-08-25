@@ -243,3 +243,4 @@
 {"at":"2026-08-24T23:53:14.3593376Z","zoneId":"technology-ledger-merge","outcome":"hit"}
 {"at":"2026-08-24T23:57:42.1668113Z","zoneId":"llm-wallet","outcome":"hit"}
 {"at":"2026-08-25T00:06:42.0541994Z","zoneId":"worker-host","outcome":"seed-only"}
+{"at":"2026-08-25T00:31:42.0108572Z","zoneId":"scope-binding-middleware","outcome":"seed-only"}
