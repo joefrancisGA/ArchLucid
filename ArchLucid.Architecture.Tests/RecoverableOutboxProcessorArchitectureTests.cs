@@ -4,6 +4,7 @@ using ArchLucid.Host.Core.Coordination;
 using ArchLucid.Host.Core.Coordination.Cosmos;
 using ArchLucid.Host.Core.Coordination.Export;
 using ArchLucid.Host.Core.Coordination.Projection;
+using ArchLucid.Host.Core.Coordination.Retrieval;
 using ArchLucid.Host.Core.Hosted;
 
 using FluentAssertions;
@@ -21,6 +22,7 @@ public sealed class RecoverableOutboxProcessorArchitectureTests
         (typeof(RunExportBlobPushOutboxProcessor), typeof(RecoverableOutboxProcessorBase<,,>)),
         (typeof(PostCommitProjectionOutboxProcessor), typeof(RecoverableOutboxProcessorBase<,,>)),
         (typeof(AuthorityPipelineWorkProcessor), typeof(RecoverableOutboxProcessorBase<,,>)),
+        (typeof(RetrievalIndexingOutboxProcessor), typeof(RecoverableOutboxProcessorBase<,,>)),
     ];
 
     private static readonly (Type HostedServiceType, Type ExpectedBase)[] MigratedHostedServices =
@@ -101,6 +103,5 @@ public sealed class RecoverableOutboxProcessorArchitectureTests
     }
 
     private static bool IsExplicitlyExemptOutboxProcessor(Type type) =>
-        type.FullName is "ArchLucid.Host.Core.Coordination.Retrieval.RetrievalIndexingOutboxProcessor"
-            or "ArchLucid.Persistence.IntegrationOutbox.IntegrationEventOutboxProcessor";
+        type.FullName is "ArchLucid.Host.Core.Coordination.Integration.IntegrationEventOutboxProcessor";
 }

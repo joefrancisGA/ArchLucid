@@ -1,14 +1,12 @@
 using System.Diagnostics;
 
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Host.Core.Configuration;
-using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Host.Core.Coordination;
 using ArchLucid.Persistence.Coordination.Retrieval;
-using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Indexing;
@@ -25,72 +23,58 @@ public sealed class RetrievalIndexingOutboxProcessor(
     IServiceScopeFactory scopeFactory,
     IOptions<RetrievalIndexingOutboxProcessorOptions> processorOptions,
     TimeProvider timeProvider,
-    ILogger<RetrievalIndexingOutboxProcessor> logger) : IRetrievalIndexingOutboxProcessor
+    ILogger<RetrievalIndexingOutboxProcessor> logger)
+    : RecoverableOutboxProcessorBase<
+            RetrievalIndexingOutboxEntry,
+            IRetrievalIndexingOutboxRepository,
+            RetrievalIndexingOutboxProcessorOptions>(
+        scopeFactory,
+        processorOptions,
+        timeProvider,
+        logger),
+        IRetrievalIndexingOutboxProcessor
 {
-    private const int MaxBatch = 25;
+    protected override int GetMaxConcurrentBatchEntries(RetrievalIndexingOutboxProcessorOptions opts) =>
+        opts.MaxConcurrentBatchEntries;
 
-    private readonly ILogger<RetrievalIndexingOutboxProcessor> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
-
-    private readonly IOptions<RetrievalIndexingOutboxProcessorOptions> _processorOptions =
-        processorOptions ?? throw new ArgumentNullException(nameof(processorOptions));
-
-    private readonly IServiceScopeFactory _scopeFactory =
-        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
-
-    private readonly TimeProvider _timeProvider =
-        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-
-    /// <inheritdoc />
-    public async Task<int> ProcessPendingBatchAsync(CancellationToken ct)
+    protected override void LogProcessingFailure(Exception fault, RetrievalIndexingOutboxEntry entry)
     {
-        RetrievalIndexingOutboxProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
-        int maxConcurrent = Math.Clamp(opts.MaxConcurrentBatchEntries, 1, MaxBatch);
-
-        using IServiceScope dequeueScope = _scopeFactory.CreateScope();
-        IRetrievalIndexingOutboxRepository outbox =
-            dequeueScope.ServiceProvider.GetRequiredService<IRetrievalIndexingOutboxRepository>();
-
-        IReadOnlyList<RetrievalIndexingOutboxEntry> batch =
-            await outbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, ct).ConfigureAwait(false);
-
-        await BoundedBatchParallelism.ForEachAsync(
-            batch,
-            maxConcurrent,
-            (entry, token) => ProcessEntryWithIsolationAsync(entry, opts, token),
-            ct).ConfigureAwait(false);
-
-        return batch.Count;
+        if (Logger.IsEnabled(LogLevel.Warning))
+        {
+            Logger.LogWarning(
+                fault,
+                "Retrieval outbox processing failed for outbox {OutboxId}, run {RunId}.",
+                entry.OutboxId,
+                entry.RunId);
+        }
     }
 
-    private async Task ProcessEntryWithIsolationAsync(
+    protected override Task OnDeadLetterAsync(
+        IServiceScope scope,
         RetrievalIndexingOutboxEntry entry,
+        string summary,
         RetrievalIndexingOutboxProcessorOptions opts,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
-        using IServiceScope scope = _scopeFactory.CreateScope();
-        IRetrievalIndexingOutboxRepository outbox =
-            scope.ServiceProvider.GetRequiredService<IRetrievalIndexingOutboxRepository>();
+        if (Logger.IsEnabled(LogLevel.Error))
+        {
+            Logger.LogError(
+                "Retrieval indexing outbox dead-lettered outbox {OutboxId}, run {RunId}, after exhausting retries ({Max}). Summary={Summary}",
+                entry.OutboxId,
+                entry.RunId,
+                opts.MaxAttemptsBeforeDeadLetter,
+                summary);
+        }
 
-        try
-        {
-            await ProcessEntryAsync(scope, outbox, entry, ct).ConfigureAwait(false);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            await OnProcessingFailedAsync(outbox, entry, ex, opts, ct).ConfigureAwait(false);
-        }
+        return Task.CompletedTask;
     }
 
-    private async Task ProcessEntryAsync(
+    protected override async Task ProcessEntryAsync(
         IServiceScope scope,
         IRetrievalIndexingOutboxRepository outbox,
         RetrievalIndexingOutboxEntry entry,
-        CancellationToken ct)
+        RetrievalIndexingOutboxProcessorOptions opts,
+        CancellationToken cancellationToken)
     {
         IAuthorityQueryService query = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
         IArtifactQueryService artifactQuery = scope.ServiceProvider.GetRequiredService<IArtifactQueryService>();
@@ -118,7 +102,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
 
         using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
 
-        RunDetailDto? detail = await query.GetRunDetailForRetrievalIndexingAsync(scopeContext, entry.RunId, ct)
+        RunDetailDto? detail = await query.GetRunDetailForRetrievalIndexingAsync(scopeContext, entry.RunId, cancellationToken)
             .ConfigureAwait(false);
 
         if (detail?.GoldenManifest is null ||
@@ -126,10 +110,10 @@ public sealed class RetrievalIndexingOutboxProcessor(
             detail.FindingsSnapshot is null ||
             detail.AuthorityTrace is null)
         {
-            _logger.LogWarning(
+            Logger.LogWarning(
                 "Skipping retrieval indexing for run {RunId}: incomplete run detail.",
                 entry.RunId);
-            await outbox.MarkProcessedAsync(entry.OutboxId, ct).ConfigureAwait(false);
+            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
 
             return;
         }
@@ -154,7 +138,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
         if (manifest.ManifestId != Guid.Empty)
         {
             indexingArtifacts = await artifactQuery
-                .GetArtifactsByManifestIdAsync(scopeContext, manifest.ManifestId, ct)
+                .GetArtifactsByManifestIdAsync(scopeContext, manifest.ManifestId, cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -167,89 +151,24 @@ public sealed class RetrievalIndexingOutboxProcessor(
             graph,
             findings,
             graphSnapshot,
-            ct).ConfigureAwait(false);
+            cancellationToken).ConfigureAwait(false);
 
-        await outbox.MarkProcessedAsync(entry.OutboxId, ct).ConfigureAwait(false);
+        await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task OnProcessingFailedAsync(
-        IRetrievalIndexingOutboxRepository outbox,
-        RetrievalIndexingOutboxEntry entry,
-        Exception fault,
-        RetrievalIndexingOutboxProcessorOptions opts,
-        CancellationToken ct)
-    {
-        if (_logger.IsEnabled(LogLevel.Warning))
-
-            _logger.LogWarning(
-                fault,
-                "Retrieval outbox processing failed for outbox {OutboxId}, run {RunId}.",
-                entry.OutboxId,
-                entry.RunId);
-
-        string summary = AuthorityPipelineWorkErrorSummary.From(fault);
-
-        if (RetriesExhaustedAfterThisFailure(entry, opts))
-        {
-            await outbox.RecordDeadLetterAsync(entry.OutboxId, summary, ct).ConfigureAwait(false);
-
-            if (_logger.IsEnabled(LogLevel.Error))
-
-                _logger.LogError(
-                    "Retrieval indexing outbox dead-lettered outbox {OutboxId}, run {RunId}, after exhausting retries ({Max}). Summary={Summary}",
-                    entry.OutboxId,
-                    entry.RunId,
-                    opts.MaxAttemptsBeforeDeadLetter,
-                    summary);
-
-            return;
-        }
-
-        DateTime utcNow = _timeProvider.UtcNowDateTime();
-        TimeSpan delay = RetryDelayAfterFailure(entry, opts);
-        DateTime nextAttemptUtc = utcNow.Add(delay);
-
-        await outbox.RecordBackoffAfterProcessingFailureAsync(entry.OutboxId, nextAttemptUtc, summary, ct)
-            .ConfigureAwait(false);
-    }
-
-    private static bool RetriesExhaustedAfterThisFailure(
-        RetrievalIndexingOutboxEntry entry,
-        RetrievalIndexingOutboxProcessorOptions opts)
-    {
-        int max = opts.MaxAttemptsBeforeDeadLetter <= 1 ? 1 : opts.MaxAttemptsBeforeDeadLetter;
-        long attemptAfterPersist = entry.AttemptCount + 1L;
-
-        return attemptAfterPersist >= max;
-    }
-
-    private static TimeSpan RetryDelayAfterFailure(
-        RetrievalIndexingOutboxEntry entry,
-        RetrievalIndexingOutboxProcessorOptions opts)
-    {
-        int floor = opts.RetryBackoffBaseSeconds < 1 ? 1 : opts.RetryBackoffBaseSeconds;
-        int cap = opts.RetryBackoffMaxSeconds < floor ? floor : opts.RetryBackoffMaxSeconds;
-        double scaled = floor * Math.Pow(2, entry.AttemptCount);
-        double clamped = scaled > cap ? cap : scaled;
-        double secondsRounded = clamped <= 1 ? 1 : Math.Ceiling(clamped);
-
-        return TimeSpan.FromSeconds(secondsRounded);
-    }
-
-    private static RetrievalIndexingOutboxProcessorOptions VerifiedOptions(
+    protected override RetrievalIndexingOutboxProcessorOptions VerifyOptions(
         RetrievalIndexingOutboxProcessorOptions configured)
     {
-        if (configured is null)
-            throw new ArgumentNullException(nameof(configured));
+        ArgumentNullException.ThrowIfNull(configured);
 
-        int lease = ClampInt(configured.LeaseDurationSeconds, 300, 7200);
-        int maxAttempts = ClampInt(configured.MaxAttemptsBeforeDeadLetter, 1, 999);
-        int baseSecs = ClampInt(configured.RetryBackoffBaseSeconds, 1, 86_400);
-        int maxSecs = ClampInt(configured.RetryBackoffMaxSeconds, 1, 86_400 * 7);
-        int maxConcurrent = ClampInt(configured.MaxConcurrentBatchEntries, 1, MaxBatch);
-
-        if (maxSecs < baseSecs)
-            maxSecs = baseSecs;
+        (int lease, int maxAttempts, int baseSecs, int maxSecs, int maxConcurrent) =
+            OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry(
+                configured.LeaseDurationSeconds,
+                configured.MaxAttemptsBeforeDeadLetter,
+                configured.RetryBackoffBaseSeconds,
+                configured.RetryBackoffMaxSeconds,
+                configured.MaxConcurrentBatchEntries,
+                MaxBatchSize);
 
         return new RetrievalIndexingOutboxProcessorOptions
         {
@@ -259,10 +178,5 @@ public sealed class RetrievalIndexingOutboxProcessor(
             RetryBackoffMaxSeconds = maxSecs,
             MaxConcurrentBatchEntries = maxConcurrent,
         };
-    }
-
-    private static int ClampInt(int value, int minInclusive, int maxInclusive)
-    {
-        return value < minInclusive ? minInclusive : value > maxInclusive ? maxInclusive : value;
     }
 }
