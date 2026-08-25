@@ -62,6 +62,7 @@ import { GraphArchitectureNoteBanner } from "@/app/(operator)/insights/evidence-
 import { GraphEvidenceTrailGuidanceDisclosure } from "@/app/(operator)/insights/evidence-graph/_sections/GraphEvidenceTrailGuidanceDisclosure";
 import { GraphFetchStatusAlerts } from "@/app/(operator)/insights/evidence-graph/_sections/GraphFetchStatusAlerts";
 import { GraphPickReviewBeforeCanvasStrip } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPickReviewBeforeCanvasStrip";
+import { EvidenceGraphNextReviewFooterClient } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceGraphNextReviewFooterClient";
 import { GraphIdlePlaceholder } from "@/app/(operator)/insights/evidence-graph/_sections/GraphIdlePlaceholder";
 import { GraphPageBuyerChrome } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageBuyerChrome";
 import { GraphPageHeader } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageHeader";
@@ -816,6 +817,7 @@ export function GraphPageContent() {
         </>
       ) : null}
       {buyerPolishedShell ? <GraphPageBuyerChrome /> : null}
+      {runId.trim().length > 0 ? <EvidenceGraphNextReviewFooterClient runId={runId} /> : null}
       </div>
     </OperatorPageContainer>
   );

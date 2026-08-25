@@ -31,6 +31,10 @@ vi.mock("@/components/AskRunIdPicker", () => ({
   AskRunIdPicker: () => <div data-testid="ask-run-id-picker-stub" />,
 }));
 
+vi.mock("./EvidenceGraphNextReviewFooterClient", () => ({
+  EvidenceGraphNextReviewFooterClient: () => <div data-testid="evidence-graph-next-review-footer-stub" />,
+}));
+
 vi.mock("@/lib/graph-api", () => ({
   getArchitectureGraph: vi.fn(),
   getDecisionSubgraph: vi.fn(),
