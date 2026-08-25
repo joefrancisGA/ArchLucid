@@ -43,6 +43,8 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
 
     private static void RegisterCoreServices(IServiceCollection services)
     {
+        services.AddOptions<ArchitectureIntelligencePipelineOptions>();
+
         services.AddScoped<IArchitectureIntelligenceLlmGateway, ArchitectureIntelligenceLlmGateway>();
         services.AddScoped<IArchitectureIntelligenceReviewRouter, ArchitectureIntelligenceReviewRouter>();
 

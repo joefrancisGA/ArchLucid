@@ -2,6 +2,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using Moq;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 
@@ -61,13 +62,15 @@ public sealed class AdversarialReviewRouterServiceTests
         bool clientAvailable,
         bool hasChallenges)
     {
-        OptionsWrapper<ArchitectureIntelligencePipelineOptions> options = new(new ArchitectureIntelligencePipelineOptions
-        {
-            UseLlmReview = useLlmReview,
-        });
+        Mock<IOptionsMonitor<ArchitectureIntelligencePipelineOptions>> options = new();
+        options.SetupGet(monitor => monitor.CurrentValue)
+            .Returns(new ArchitectureIntelligencePipelineOptions
+            {
+                UseLlmReview = useLlmReview,
+            });
 
         FixedAdversarialGateway gateway = new(clientAvailable, hasChallenges);
-        ArchitectureIntelligenceReviewRouter router = new(options, gateway);
+        ArchitectureIntelligenceReviewRouter router = new(options.Object, gateway);
 
         return new AdversarialReviewRouterService(router, gateway, new AdversarialReviewService());
     }

@@ -2,6 +2,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using Moq;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 
@@ -77,13 +78,15 @@ public sealed class SpecialistReviewRouterServiceTests
         bool clientAvailable,
         bool llmReturnsFindings)
     {
-        OptionsWrapper<ArchitectureIntelligencePipelineOptions> options = new(new ArchitectureIntelligencePipelineOptions
-        {
-            UseLlmReview = useLlmReview,
-        });
+        Mock<IOptionsMonitor<ArchitectureIntelligencePipelineOptions>> options = new();
+        options.SetupGet(monitor => monitor.CurrentValue)
+            .Returns(new ArchitectureIntelligencePipelineOptions
+            {
+                UseLlmReview = useLlmReview,
+            });
 
         FixedSpecialistGateway gateway = new(clientAvailable, llmReturnsFindings);
-        ArchitectureIntelligenceReviewRouter router = new(options, gateway);
+        ArchitectureIntelligenceReviewRouter router = new(options.Object, gateway);
 
         return new SpecialistReviewRouterService(router, gateway, new SpecialistReviewService());
     }
