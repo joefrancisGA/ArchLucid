@@ -193,18 +193,21 @@ public sealed class DapperArchitectureIntelligencePersistence : IArchitectureInt
                     ElementsJson = @ElementsJson,
                     DeclaredPrioritiesJson = @DeclaredPrioritiesJson,
                     FramingAnswersJson = @FramingAnswersJson,
+                    IsProvisionalSynthesis = @IsProvisionalSynthesis,
                     UpdatedUtc = @UpdatedUtc
             WHEN NOT MATCHED THEN
                 INSERT
                 (
                     ModelId, TenantId, RunId, SchemaVersion,
                     ElementsJson, DeclaredPrioritiesJson, FramingAnswersJson,
+                    IsProvisionalSynthesis,
                     CreatedUtc, UpdatedUtc
                 )
                 VALUES
                 (
                     @ModelId, @TenantId, @RunId, @SchemaVersion,
                     @ElementsJson, @DeclaredPrioritiesJson, @FramingAnswersJson,
+                    @IsProvisionalSynthesis,
                     @CreatedUtc, @UpdatedUtc
                 );
             """;
@@ -221,6 +224,7 @@ public sealed class DapperArchitectureIntelligencePersistence : IArchitectureInt
                 ElementsJson = JsonSerializer.Serialize(model.Elements, JsonOptions),
                 DeclaredPrioritiesJson = JsonSerializer.Serialize(model.DeclaredPriorities, JsonOptions),
                 FramingAnswersJson = JsonSerializer.Serialize(model.FramingAnswers, JsonOptions),
+                IsProvisionalSynthesis = model.IsProvisionalSynthesis,
                 CreatedUtc = model.CreatedUtc == default ? updatedUtc : model.CreatedUtc,
                 UpdatedUtc = updatedUtc,
             },
@@ -248,6 +252,7 @@ public sealed class DapperArchitectureIntelligencePersistence : IArchitectureInt
                 ElementsJson,
                 DeclaredPrioritiesJson,
                 FramingAnswersJson,
+                IsProvisionalSynthesis,
                 CreatedUtc,
                 UpdatedUtc
             FROM dbo.ArchitectureKnowledgeModels
@@ -393,6 +398,7 @@ public sealed class DapperArchitectureIntelligencePersistence : IArchitectureInt
             Elements = elements,
             DeclaredPriorities = priorities,
             FramingAnswers = framingAnswers,
+            IsProvisionalSynthesis = row.IsProvisionalSynthesis,
         };
     }
 
@@ -523,6 +529,12 @@ public sealed class DapperArchitectureIntelligencePersistence : IArchitectureInt
         }
 
         public DateTime UpdatedUtc
+        {
+            get;
+            init;
+        }
+
+        public bool IsProvisionalSynthesis
         {
             get;
             init;

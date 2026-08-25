@@ -196,6 +196,7 @@ public sealed class InMemoryArchitectureIntelligencePersistence : IArchitectureI
             }).ToList(),
             DeclaredPriorities = model.DeclaredPriorities.ToList(),
             FramingAnswers = new Dictionary<string, string>(model.FramingAnswers),
+            IsProvisionalSynthesis = model.IsProvisionalSynthesis,
         };
     }
 
