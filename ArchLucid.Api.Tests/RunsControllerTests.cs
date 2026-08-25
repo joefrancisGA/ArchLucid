@@ -5,8 +5,11 @@ using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Planning;
+using ArchLucid.Application.Operations;
+using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Query;
+using ArchLucid.Contracts.Operations;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
@@ -29,6 +32,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
+
+using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace ArchLucid.Api.Tests;
 
@@ -456,6 +461,26 @@ public sealed class RunsControllerTests
         Microsoft.AspNetCore.Mvc.ProblemDetails problem =
             bad.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
+    public void GetDraftRequestAsyncResult_failed_operation_returns_422_not_400_validation()
+    {
+        InMemoryAdvisoryDraftOperationStore store = new();
+        AdvisoryDraftOperationRecord record = store.CreatePending(Scope);
+        string opaqueOperationId = OperationIdCodec.ForDraft(record.OperationId);
+        store.MarkFailed(opaqueOperationId, "LLM timeout");
+
+        RunsController controller = CreateController();
+
+        IActionResult action = controller.GetDraftRequestAsyncResult(record.OperationId, store);
+
+        ObjectResult problem = action.Should().BeOfType<ObjectResult>().Subject;
+        problem.StatusCode.Should().Be(StatusCodes.Status422UnprocessableEntity);
+
+        MvcProblemDetails details = problem.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        details.Type.Should().Be(ProblemTypes.BusinessRuleViolation);
+        details.Detail.Should().Be("LLM timeout");
     }
 
     private static RunsController CreateController(
