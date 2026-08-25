@@ -1,9 +1,6 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Persistence.Ports;
-<<<<<<< HEAD
-=======
 using ArchLucid.Core.Scoping;
->>>>>>> origin/cursor/refactor-batch-11-20-214a
 using ArchLucid.Persistence.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
