@@ -75,9 +75,9 @@ function buildManifestLinks(manifestIds: readonly string[]): DevTestingQuickJump
   return manifestIds.slice(0, DEV_TESTING_QUICK_JUMP_MAX_ITEMS).map((manifestId) => ({ manifestId }));
 }
 
-async function loadPlanIds(): Promise<string[]> {
+async function loadPlanIds(signal?: AbortSignal): Promise<string[]> {
   try {
-    const response = await fetchLearningPlans(DEV_TESTING_QUICK_JUMP_MAX_ITEMS);
+    const response = await fetchLearningPlans(DEV_TESTING_QUICK_JUMP_MAX_ITEMS, { signal });
 
     return uniqueNonEmptyIds(response.plans.map((plan) => plan.planId));
   } catch {
@@ -176,8 +176,12 @@ export function buildEmptyDevTestingQuickJumpSnapshot(runIds: readonly string[])
 /** Loads a capped snapshot of workspace entity ids for the dev quick-jump panel. */
 export async function loadDevTestingQuickJumpSnapshot(runIds: readonly string[]): Promise<DevTestingQuickJumpSnapshot> {
   const normalizedRunIds = uniqueNonEmptyIds(runIds);
+  const quickJumpSignal =
+    typeof AbortSignal !== "undefined" && "timeout" in AbortSignal
+      ? AbortSignal.timeout(5_000)
+      : undefined;
   const [planIds, approvalRequestIds, manifestIds] = await Promise.all([
-    loadPlanIds(),
+    loadPlanIds(quickJumpSignal),
     loadApprovalRequestIds(normalizedRunIds),
     resolveManifestIdsFromRuns(normalizedRunIds),
   ]);

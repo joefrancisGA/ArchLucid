@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -8,7 +9,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ArchitectureDraftDetailBreadcrumb } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBreadcrumb";
 import { ArchitectureDraftDetailBuyerChrome } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBuyerChrome";
 import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
-import { ArchitectureDraftAiRefinePanel } from "@/components/architecture/ArchitectureDraftAiRefinePanel";
 import { ArchitectureDraftDeleteControl } from "@/components/architecture/ArchitectureDraftDeleteControl";
 import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
@@ -21,8 +21,6 @@ import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architec
 import { ArchitectureDraftNextDraftFooter } from "@/components/architecture/ArchitectureDraftNextDraftFooter";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
-import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
-import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
@@ -100,6 +98,33 @@ import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
+
+const ArchitectureDraftAiRefinePanel = dynamic(
+  async () => {
+    const module = await import("@/components/architecture/ArchitectureDraftAiRefinePanel");
+
+    return module.ArchitectureDraftAiRefinePanel;
+  },
+  { loading: () => null },
+);
+
+const DraftIntakeReasoningPanel = dynamic(
+  async () => {
+    const module = await import("@/components/draft-intake/DraftIntakeReasoningPanel");
+
+    return module.DraftIntakeReasoningPanel;
+  },
+  { loading: () => null },
+);
+
+const DraftIntakeAdvancedSection = dynamic(
+  async () => {
+    const module = await import("@/components/draft-intake/DraftIntakeAdvancedSection");
+
+    return module.DraftIntakeAdvancedSection;
+  },
+  { loading: () => null },
+);
 
 type ArchitectureDraftWorkspaceProps = {
   readonly architectureId: string;

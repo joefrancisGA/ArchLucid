@@ -82,9 +82,12 @@ export async function fetchLearningThemes(maxThemes?: number): Promise<LearningT
 }
 
 /** Lists improvement plans for the current scope (newest first). */
-export async function fetchLearningPlans(maxPlans?: number): Promise<LearningPlansListResponse> {
+export async function fetchLearningPlans(
+  maxPlans?: number,
+  options?: { readonly signal?: AbortSignal },
+): Promise<LearningPlansListResponse> {
   const q = learningMaxQuery("maxPlans", maxPlans);
-  return apiGet<LearningPlansListResponse>(`/${ApiV1Routes.learning}/plans${q}`);
+  return apiGet<LearningPlansListResponse>(`/${ApiV1Routes.learning}/plans${q}`, options);
 }
 
 /** Loads one improvement plan with steps, link counts, and optional parent theme. */
