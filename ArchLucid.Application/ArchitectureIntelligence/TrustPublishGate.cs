@@ -41,10 +41,8 @@ public sealed class TrustPublishGate : ITrustPublishGate
             .Distinct(StringComparer.Ordinal)
             .ToList();
 
-        // Publish is blocked when every finding was stripped by integrity or a hard violation remains.
-        bool publishBlocked = blockingViolations.Count > 0
-            && publishableFindings.Count == 0
-            && findings.Count > 0;
+        // Hard must-not-fail violations block product publish even when other findings remain publishable.
+        bool publishBlocked = blockingViolations.Count > 0;
 
         return new TrustPublishDecision
         {

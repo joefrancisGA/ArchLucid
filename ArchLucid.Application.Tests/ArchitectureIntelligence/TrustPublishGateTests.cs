@@ -68,6 +68,34 @@ public sealed class TrustPublishGateTests
         decision.BlockReasons.Should().NotBeEmpty();
     }
 
+    [Fact]
+    public void Decide_blocks_publish_when_hard_violation_remains_with_publishable_findings()
+    {
+        SpecialistReviewFinding publishable = CreateFinding("ok", "Integrity ok");
+
+        TrustPublishDecision decision = _gate.Decide(
+            [publishable],
+            [],
+            [
+                new EvidenceValidationResult
+                {
+                    FindingId = "ok",
+                    OverallPassedIntegrity = true,
+                },
+            ],
+            [
+                new MustNotFailViolation
+                {
+                    Class = MustNotFailClass.UnlabeledCloudSpecificRecommendation,
+                    Message = "Hard policy violation.",
+                    Blocked = true,
+                },
+            ]);
+
+        decision.PublishableFindings.Should().ContainSingle();
+        decision.PublishBlocked.Should().BeTrue();
+    }
+
     private static SpecialistReviewFinding CreateFinding(string id, string title)
     {
         return new SpecialistReviewFinding
