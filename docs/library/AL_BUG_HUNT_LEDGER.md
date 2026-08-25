@@ -1956,13 +1956,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 6
-- **bugs-found:** 9
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — bulk outbox dead-letter retry ignored caller tenant scope; unrecognized replay mode ran destructive rebuild; invalid run id returned 400 on graph/pin reads
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — pilot execute logged FirstRealValueRunStarted audit before run validation
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1971,6 +1971,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Invalid run id on authority graph/pin reads returned 400 while sibling `GetRun` returned 404 — `RunQueryController.GetInteractiveGraphSnapshot`, `RunsController.PinRun` (2026-08-24)
 - [x] Authority read returns artifacts for a run in another workspace — fixed ComparisonsController scoped load (2026-08-17)
 - [x] (valid-no-repro) Controller accepts a scope header that overrides the authenticated tenant — `ScopeIdentityBindingMiddleware` + `ScopeIdentityBindingIntegrationTests` (TB-072/TB-925) reject mismatched headers on Authority/Admin routes; `HttpScopeContextProvider` prefers claims over headers
+- [x] (proven) Pilot execute with `X-ArchLucid-Pilot-Try-Real-Mode` logged `FirstRealValueRunStarted` before `ExecuteRunAsync` — **hit 2026-08-25:** missing run returned 404 but pilot audit already persisted; fixed by moving pilot instrumentation after successful execute (`ExecuteRun_with_pilot_try_real_header_does_not_log_started_audit_when_run_not_found`)
 
 ---
 
