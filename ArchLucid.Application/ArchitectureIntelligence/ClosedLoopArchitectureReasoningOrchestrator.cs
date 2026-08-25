@@ -275,15 +275,13 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                     _specialistReviewService,
                     cancellationToken).ConfigureAwait(false);
 
-                await ClosedLoopReReviewPublishIntegrator.IntegrateAsync(
+                await IntegrateClosedLoopReReviewFindingsAsync(
+                    request,
                     reReview,
                     allFindings,
                     validationResults,
                     validationByFindingId,
-                    _specialistFindingsSubstantiationService,
                     cancellationToken).ConfigureAwait(false);
-
-                await TryMergeClosedLoopReReviewAsync(request, reReview, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -357,26 +355,39 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         return result;
     }
 
-    private async Task TryMergeClosedLoopReReviewAsync(
+    private async Task IntegrateClosedLoopReReviewFindingsAsync(
         ClosedLoopReasoningRequest request,
         IncrementalReReviewResult reReview,
+        List<SpecialistReviewFinding> allFindings,
+        List<EvidenceValidationResult> validationResults,
+        Dictionary<string, EvidenceValidationResult> validationByFindingId,
         CancellationToken cancellationToken)
     {
+        List<SpecialistReviewFinding> incrementalFindings =
+            ClosedLoopReReviewPublishIntegrator.SelectNewIncrementalFindings(reReview, allFindings);
+
+        if (incrementalFindings.Count == 0)
+            return;
+
+        SpecialistFindingsSubstantiationResult substantiation = await _specialistFindingsSubstantiationService
+            .SubstantiateAsync(incrementalFindings, cancellationToken)
+            .ConfigureAwait(false);
+
+        ClosedLoopReReviewPublishIntegrator.IntegrateFromSubstantiation(
+            incrementalFindings,
+            substantiation,
+            allFindings,
+            validationResults,
+            validationByFindingId);
+
         if (_authorityFindingsSnapshotUpdater is null
             || _scopeContextProvider is null
             || !Guid.TryParse(request.RunId, out Guid runId))
             return;
 
-        List<SpecialistReviewFinding> incrementalFindings = reReview.SpecialistResults
-            .SelectMany(static result => result.Findings)
-            .ToList();
-
-        if (incrementalFindings.Count == 0)
-            return;
-
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<string> mergedFindingIds = await _authorityFindingsSnapshotUpdater
-            .MergeSpecialistFindingsAsync(scope, runId, incrementalFindings, cancellationToken)
+            .MergeSubstantiatedFindingsAsync(scope, runId, substantiation, cancellationToken)
             .ConfigureAwait(false);
 
         reReview.MergedFindingIds = mergedFindingIds;

@@ -16,6 +16,12 @@ public interface IAuthorityFindingsSnapshotUpdater
         Guid runId,
         IReadOnlyList<SpecialistReviewFinding> specialistFindings,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<string>> MergeSubstantiatedFindingsAsync(
+        ScopeContext scope,
+        Guid runId,
+        SpecialistFindingsSubstantiationResult substantiation,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class AuthorityFindingsSnapshotUpdater(
@@ -48,6 +54,23 @@ public sealed class AuthorityFindingsSnapshotUpdater(
         if (specialistFindings.Count == 0)
             return [];
 
+        SpecialistFindingsSubstantiationResult substantiation = await _specialistFindingsSubstantiationService
+            .SubstantiateAsync(specialistFindings, cancellationToken)
+            .ConfigureAwait(false);
+
+        return await MergeSubstantiatedFindingsAsync(scope, runId, substantiation, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<string>> MergeSubstantiatedFindingsAsync(
+        ScopeContext scope,
+        Guid runId,
+        SpecialistFindingsSubstantiationResult substantiation,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(substantiation);
+
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
         if (run?.FindingsSnapshotId is not Guid snapshotId)
@@ -58,10 +81,6 @@ public sealed class AuthorityFindingsSnapshotUpdater(
 
         if (snapshot is null)
             return [];
-
-        SpecialistFindingsSubstantiationResult substantiation = await _specialistFindingsSubstantiationService
-            .SubstantiateAsync(specialistFindings, cancellationToken)
-            .ConfigureAwait(false);
 
         List<Finding> mapped = ArchitectureIntelligenceProductBridge.ToFindings(substantiation.SubstantiatedFindings);
         mapped.AddRange(ArchitectureIntelligenceProductBridge.ToHypothesisLaneFindings(substantiation.Challenges));
