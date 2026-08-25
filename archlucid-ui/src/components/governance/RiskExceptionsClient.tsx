@@ -54,6 +54,7 @@ import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { RiskExceptionsTriageFirstExpiringStrip } from "@/components/governance/RiskExceptionsTriageFirstExpiringStrip";
 import { RiskExceptionsPickReviewBeforeRenewStrip } from "@/components/governance/RiskExceptionsPickReviewBeforeRenewStrip";
+import { RiskExceptionsNextReviewFooterClient } from "@/components/governance/RiskExceptionsNextReviewFooterClient";
 import { RiskExceptionsContinueLastViewedRow } from "@/components/governance/RiskExceptionsContinueLastViewedRow";
 import { resolveRiskExceptionsTriageFirstExpiring } from "@/lib/governance/resolve-risk-exceptions-triage-first-expiring";
 import {
@@ -515,6 +516,8 @@ export default function RiskExceptionsClient() {
           </>
         ) : null}
       </div>
+
+      {scopedRunFilterActive ? <RiskExceptionsNextReviewFooterClient runId={scopedRunId} /> : null}
 
       <ConfirmationDialog
         open={pendingRevoke !== null}
