@@ -64,7 +64,15 @@ public sealed class RecommendationImproveLoopResponseMapperTests
     [Fact]
     public void ToEvidenceResponse_returns_null_when_improve_loop_missing()
     {
-        RecommendationImproveLoopResponseMapper.ToEvidenceResponse(null).Should().BeNull();
+        RecommendationImproveLoopResponseMapper
+            .ToEvidenceResponse((RecommendationImproveLoopResult?)null)
+            .Should()
+            .BeNull();
+        RecommendationImproveLoopResponseMapper
+            .ToEvidenceResponse((RecommendationImproveLoopEvidenceRecord?)null)
+            .Should()
+            .BeNull();
+
     }
 
     [Fact]

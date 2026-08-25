@@ -75,6 +75,14 @@ paths = [
   '''(?:^|/)archlucid-ui/src/lib/architecture-creation-question-definition\.ts$''',
 ]
 
+# gitleaks scans every reachable blob (ci.yml fetch-depth: 0), including other-branch test fixtures
+# that assign this domain key. It is not an API secret.
+[[allowlists]]
+description = "Universal L0 intake question key l0.actor.additional-kinds (domain identifier, not an API secret); generic-api-key false positive in git history"
+regexes = [
+  "l0.actor.additional-kinds",
+]
+
 [[allowlists]]
 description = "Report Problem context Vitest: synthetic commitSha / build fingerprint fixtures, not API secrets (generic-api-key false positive in git history)"
 paths = [
