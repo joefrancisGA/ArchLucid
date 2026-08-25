@@ -2,11 +2,34 @@ import { describe, expect, it } from "vitest";
 
 import {
   OPERATOR_NOT_REFRESHED_LABEL,
+  operatorFreshnessMetadataClockValue,
   operatorFreshnessMetadataLabel,
   operatorFreshnessMetadataWithClockLabel,
+  operatorLastRefreshedClockLabel,
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
+
+describe("operatorLastRefreshedClockLabel", () => {
+  it("formats single-digit hours without a leading zero", () => {
+    const refreshedAt = new Date("2026-01-15T18:07:26.000Z");
+    const label = operatorLastRefreshedClockLabel(refreshedAt);
+
+    expect(label).not.toBeNull();
+    expect(label).toMatch(/6:07:26/);
+    expect(label).not.toMatch(/06:07:26/);
+  });
+});
+
+describe("operatorFreshnessMetadataClockValue", () => {
+  it("keeps single-digit hours without a leading zero in the visible clock", () => {
+    const refreshedAt = new Date("2026-01-15T18:07:26.000Z");
+    const label = operatorFreshnessMetadataClockValue(refreshedAt);
+
+    expect(label).toMatch(/6:07:26/);
+    expect(label).not.toMatch(/06:07:26/);
+  });
+});
 
 describe("operatorLastRefreshedLabel", () => {
   it("reports not-refreshed for null and undefined", () => {
