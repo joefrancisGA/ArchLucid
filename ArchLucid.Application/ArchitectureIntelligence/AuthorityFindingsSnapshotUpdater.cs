@@ -1,3 +1,4 @@
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Persistence.Ports;
@@ -65,5 +66,20 @@ public sealed class AuthorityFindingsSnapshotUpdater(
         FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(snapshot, mapped, _clock);
 
         await _findingsSnapshotRepository.SaveAsync(snapshot, cancellationToken).ConfigureAwait(false);
+
+        if (string.IsNullOrWhiteSpace(run.GovernanceScopeJson))
+            return;
+
+        List<Finding> rollupFindings = snapshot.Findings?.ToList() ?? [];
+        string updatedScopeJson = PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes(
+            run.GovernanceScopeJson,
+            rollupFindings,
+            snapshot);
+
+        if (string.Equals(updatedScopeJson, run.GovernanceScopeJson, StringComparison.Ordinal))
+            return;
+
+        run.GovernanceScopeJson = updatedScopeJson;
+        await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
     }
 }
