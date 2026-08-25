@@ -159,50 +159,8 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
     }
 
     /// <remarks>Truncates opt-in span payloads so exporters stay predictable.</remarks>
-    internal static string TruncateForSensitiveTelemetrySnapshot(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-
-            return string.Empty;
-
-        if (text.Length <= ArchLucidInstrumentation.SensitiveGenAiTelemetrySnapshotMaxChars)
-
-            return text;
-
-        return text.Substring(0, ArchLucidInstrumentation.SensitiveGenAiTelemetrySnapshotMaxChars) + "…truncated";
-    }
-
-    private void CheckTokenEstimationDiscrepancy(string systemPrompt, string userPrompt, int actualInputTokens)
-    {
-        if (_logger == null || actualInputTokens <= 0)
-            return;
-
-        int estimatedInputTokens = ArchLucid.Retrieval.Chunking.TokenAwareContextBudget.EstimateTokenCount(systemPrompt + "\n" + userPrompt);
-        if (estimatedInputTokens <= 0)
-            return;
-
-        double diffRatio = Math.Abs((double)actualInputTokens - estimatedInputTokens) / estimatedInputTokens;
-        if (diffRatio > 0.15)
-        {
-            string? runId = null;
-            string? agentType = null;
-            Activity? current = Activity.Current;
-            while (current != null)
-            {
-                runId ??= current.GetTagItem("archlucid.run_id") as string;
-                agentType ??= current.GetTagItem("archlucid.agent.type_enum") as string;
-                if (runId != null && agentType != null) break;
-                current = current.Parent;
-            }
-
-            _logger.LogWarning(
-                "LLM token estimation discrepancy > 15%. Estimated: {Estimated}, Actual: {Actual}, RunId: {RunId}, AgentType: {AgentType}",
-                estimatedInputTokens,
-                actualInputTokens,
-                runId ?? "unknown",
-                agentType ?? "unknown");
-        }
-    }
+    internal static string TruncateForSensitiveTelemetrySnapshot(string text) =>
+        AzureOpenAiLlmCompletionTelemetry.TruncateForSensitiveTelemetrySnapshot(text);
 
     /// <inheritdoc />
     public LlmProviderDescriptor Descriptor
@@ -245,13 +203,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
         bool completionSucceededForTelemetry = false;
         long latencyStartTicks = Stopwatch.GetTimestamp();
 
-        using Activity? llmActivity = ArchLucidInstrumentation.AgentLlmCompletion.StartActivity(
-            "gen_ai.chat.completion.stream",
-            ActivityKind.Client);
-
-        llmActivity?.SetTag("gen_ai.system", "azure_openai");
-        llmActivity?.SetTag("gen_ai.operation.name", "chat");
-        llmActivity?.SetTag("gen_ai.request.model", _deploymentName);
+        using Activity? llmActivity = AzureOpenAiLlmCompletionTelemetry.StartStreamActivity(_deploymentName);
 
         try
         {
@@ -274,12 +226,9 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
             if (!completionSucceededForTelemetry)
                 LastModelMetadata.Value = null;
 
-            double latencyMs = Stopwatch.GetElapsedTime(latencyStartTicks).TotalMilliseconds;
-            ApplyGenAiLatencyTag(llmActivity, latencyMs);
-
-            ArchLucidInstrumentation.RecordLlmGenAiOperationDurationMilliseconds(
-                "chat",
-                latencyMs,
+            AzureOpenAiLlmCompletionTelemetry.RecordStreamFinally(
+                llmActivity,
+                latencyStartTicks,
                 completionSucceededForTelemetry);
         }
     }
@@ -333,7 +282,11 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
                 if (inTok > 0 || outTok > 0 || reasoningTok > 0 || cachedTok > 0)
                 {
                     LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok, cachedTok);
-                    CheckTokenEstimationDiscrepancy(systemPrompt, userPrompt, inTok);
+                    AzureOpenAiLlmCompletionTelemetry.CheckTokenEstimationDiscrepancy(
+                        _logger,
+                        systemPrompt,
+                        userPrompt,
+                        inTok);
                 }
             }
 
@@ -372,22 +325,15 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
             new UserChatMessage(userPrompt)
         ];
 
-        using Activity? llmActivity = ArchLucidInstrumentation.AgentLlmCompletion.StartActivity(
-            "gen_ai.chat.completion",
-            ActivityKind.Client);
+        using Activity? llmActivity = AzureOpenAiLlmCompletionTelemetry.StartCompleteActivity(_deploymentName);
 
         long latencyStartTicks = Stopwatch.GetTimestamp();
 
-        llmActivity?.SetTag("gen_ai.system", "azure_openai");
-        llmActivity?.SetTag("gen_ai.operation.name", "chat");
-        llmActivity?.SetTag("gen_ai.request.model", _deploymentName);
-
-        if (_llmTelemetryOptions?.CurrentValue.CapturePromptResponseOnSpans == true && llmActivity is not null)
-        {
-            llmActivity.SetTag("gen_ai.prompt.system", TruncateForSensitiveTelemetrySnapshot(systemPrompt));
-
-            llmActivity.SetTag("gen_ai.prompt.user", TruncateForSensitiveTelemetrySnapshot(userPrompt));
-        }
+        AzureOpenAiLlmCompletionTelemetry.TagPromptsIfEnabled(
+            llmActivity,
+            systemPrompt,
+            userPrompt,
+            _llmTelemetryOptions);
 
         ChatCompletion completion;
 
@@ -418,22 +364,14 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
                 if (inTok > 0 || outTok > 0 || reasoningTok > 0 || cachedTok > 0)
                 {
                     LlmCompletionTokenUsageAmbient.Record(inTok, outTok, reasoningTok, cachedTok);
-                    CheckTokenEstimationDiscrepancy(systemPrompt, userPrompt, inTok);
+                    AzureOpenAiLlmCompletionTelemetry.CheckTokenEstimationDiscrepancy(
+                        _logger,
+                        systemPrompt,
+                        userPrompt,
+                        inTok);
                 }
 
-                if (llmActivity is not null)
-                {
-                    llmActivity.SetTag("gen_ai.usage.input_tokens", usage.InputTokenCount);
-                    llmActivity.SetTag("gen_ai.usage.output_tokens", usage.OutputTokenCount);
-                    llmActivity.SetTag("gen_ai.usage.total_tokens", usage.TotalTokenCount);
-
-                    if (reasoningTok > 0)
-
-                        llmActivity.SetTag("gen_ai.usage.reasoning_tokens", reasoningTok);
-
-                    if (cachedTok > 0)
-                        llmActivity.SetTag("gen_ai.usage.cached_input_tokens", cachedTok);
-                }
+                AzureOpenAiLlmCompletionTelemetry.TagUsage(llmActivity, usage);
             }
 
             IReadOnlyList<ChatMessageContentPart> parts = completion.Content;
@@ -451,16 +389,11 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
             string? modelId = completion.Model;
             LastModelMetadata.Value = (_deploymentName, string.IsNullOrWhiteSpace(modelId) ? null : modelId.Trim());
 
-            if (llmActivity is not null)
-            {
-                if (!string.IsNullOrWhiteSpace(modelId))
-
-                    llmActivity.SetTag("gen_ai.response.model", modelId.Trim());
-
-                if (_llmTelemetryOptions?.CurrentValue.CapturePromptResponseOnSpans == true)
-
-                    llmActivity.SetTag("gen_ai.completion", TruncateForSensitiveTelemetrySnapshot(text));
-            }
+            AzureOpenAiLlmCompletionTelemetry.TagCompletionResponse(
+                llmActivity,
+                modelId,
+                text,
+                _llmTelemetryOptions);
 
             ArchLucidInstrumentation.RecordLlmCompletionCallForCurrentRunBatch();
 
@@ -477,24 +410,12 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
         }
         finally
         {
-            double latencyMs = Stopwatch.GetElapsedTime(latencyStartTicks).TotalMilliseconds;
-
-            ApplyGenAiLatencyTag(llmActivity, latencyMs);
-
-            ArchLucidInstrumentation.RecordLlmGenAiOperationDurationMilliseconds(
-                "chat",
-                latencyMs,
+            AzureOpenAiLlmCompletionTelemetry.RecordCompleteFinally(
+                llmActivity,
+                latencyStartTicks,
                 completionSucceededForTelemetry);
         }
 
-    }
-
-    private static void ApplyGenAiLatencyTag(Activity? llmActivity, double latencyMilliseconds)
-    {
-        if (llmActivity is null)
-            return;
-
-        llmActivity.SetTag("gen_ai.completion.latency_ms", latencyMilliseconds);
     }
 
     private async Task<ChatCompletion> CompleteChatCoreAsync(
