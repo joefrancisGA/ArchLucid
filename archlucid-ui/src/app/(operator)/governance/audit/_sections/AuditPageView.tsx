@@ -51,6 +51,7 @@ import { AuditPageBreadcrumb } from "./AuditPageBreadcrumb";
 import { AuditPageBuyerChrome } from "./AuditPageBuyerChrome";
 import { AuditPageHeader } from "./AuditPageHeader";
 import { AuditResultsSection } from "./AuditResultsSection";
+import { AuditPickReviewBeforeSearchStrip } from "./AuditPickReviewBeforeSearchStrip";
 import { AuditSaveViewCoach } from "./AuditSaveViewCoach";
 import { AuditSearchSection } from "./AuditSearchSection";
 import type { AuditPageViewProps } from "./audit-page-view-props";
@@ -230,6 +231,14 @@ export function AuditPageView(props: AuditPageViewProps) {
             filtersActive={props.auditFiltersActive}
             showSavedViews={!buyerPolishedShell && props.canMutateEnterpriseShell}
           />
+          {props.runId.trim().length === 0 ? (
+            <AuditPickReviewBeforeSearchStrip
+              selectedReviewId={props.runId}
+              onSelectReview={(reviewId) => {
+                props.setRunId(reviewId);
+              }}
+            />
+          ) : null}
           <AuditSearchSection
             buyerPolishedShell={buyerPolishedShell}
             buyerOmitSearchFiltersChrome={buyerOmitSearchFiltersChrome}
