@@ -1,5 +1,7 @@
 import { AlertsInboxAlertCard } from "@/components/alerts/AlertsInboxAlertCard";
+import { AlertsTriageFirstOpenAlertStrip } from "@/components/alerts/AlertsTriageFirstOpenAlertStrip";
 import { AlertsInboxListStates } from "@/components/alerts/AlertsInboxListStates";
+import { resolveAlertsInboxTriageFirstAlert } from "@/lib/resolve-alerts-inbox-triage-first-alert";
 import { AlertsInboxPagination } from "@/components/alerts/AlertsInboxPagination";
 import { AlertsInboxVirtualizedAlertList } from "@/components/alerts/AlertsInboxVirtualizedAlertList";
 import { shouldVirtualizeAlertsInboxList } from "@/components/alerts/alerts-inbox-virtualization";
@@ -39,6 +41,7 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
     !loading &&
     failure === null &&
     (visibleAlerts.length > 0 || canGoPrevious || hasMore);
+  const triageFirstAlert = resolveAlertsInboxTriageFirstAlert(visibleAlerts);
 
   return (
     <div className="grid gap-3">
@@ -50,6 +53,14 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
         emptyFilteredProps={emptyFilteredProps}
         workspaceScopeEmptyTeaching={controller.workspaceScopeEmptyTeaching}
       />
+
+      {triageFirstAlert !== null ? (
+        <AlertsTriageFirstOpenAlertStrip
+          target={triageFirstAlert}
+          canAcknowledge={canMutateAlertInbox}
+          onAcknowledge={queuePendingAction}
+        />
+      ) : null}
 
       {visibleAlerts.length > 0
         ? shouldVirtualizeAlertsInboxList(visibleAlerts.length)
