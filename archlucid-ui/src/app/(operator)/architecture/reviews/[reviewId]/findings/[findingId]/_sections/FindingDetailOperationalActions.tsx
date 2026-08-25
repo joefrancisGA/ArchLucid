@@ -4,7 +4,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
+import { FindingMergeConflictResolvePanel } from "@/components/findings/FindingMergeConflictResolvePanel";
 import { Button } from "@/components/ui/button";
+import { classifyInspectPayloadJobView } from "@/lib/findings/finding-inspect-job-view";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -51,6 +53,9 @@ export function FindingDetailOperationalActions(props: FindingDetailOperationalA
           compact
         />
       </div>
+      {classifyInspectPayloadJobView(props.payload) === "resolve-contradictions" ? (
+        <FindingMergeConflictResolvePanel runId={props.runId} findingId={props.findingId} />
+      ) : null}
     </section>
   );
 }

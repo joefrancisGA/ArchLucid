@@ -65,6 +65,7 @@ import { buildAdvisoryScanSummary } from "@/lib/advisory-scan-summary";
 import { getImprovementPlan } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { showSuccess } from "@/lib/toast";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isExperimentalAdvisoryPanelsEnabled } from "@/lib/feature-flags";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -273,12 +274,21 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
       setFailure(null);
 
       try {
-        await applyRecommendationAction(
+        const actionResult = await applyRecommendationAction(
           pendingDisposition.recommendationId,
           pendingDisposition.action,
           comment,
           rationale,
         );
+
+        if (actionResult.improveLoop?.mergedFindingIds?.length) {
+          showSuccess(
+            `Improve loop merged ${actionResult.improveLoop.mergedFindingIds.length} finding(s) into the review snapshot.`,
+          );
+        } else if (actionResult.improveLoop?.fullReReviewTriggered) {
+          showSuccess("Improve loop triggered a full architecture re-review.");
+        }
+
         const rid = runId.trim();
 
         if (rid.length > 0) {
