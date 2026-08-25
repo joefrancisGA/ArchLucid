@@ -135,7 +135,7 @@ export function StandardsRulesTable(props: StandardsRulesTableProps) {
             const hasEvidence = standardsRuleHasEvidence(row);
 
             return (
-              <EnterpriseTableRow key={row.ruleKey}>
+              <EnterpriseTableRow key={row.ruleKey} data-standards-rule-key={row.ruleKey}>
                 <EnterpriseTableCell className={DESIGN_TOKENS.table.rowLabel}>{row.ruleName}</EnterpriseTableCell>
                 <EnterpriseTableCell>{row.standardFramework}</EnterpriseTableCell>
                 <EnterpriseTableCell>{row.category}</EnterpriseTableCell>
