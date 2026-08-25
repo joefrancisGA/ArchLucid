@@ -445,6 +445,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPilotCloseoutRepository, DapperPilotCloseoutRepository>();
         SqlMarketingRepositoryRegistrar.Register(services);
         SqlItsmRepositoryRegistrar.Register(services);
+        SqlIdentityRepositoryRegistrar.Register(services);
         services.AddScoped<ITenantHostedExtractorConfigurationRepository, SqlTenantHostedExtractorConfigurationRepository>();
         services.AddScoped<ITenantAwsConnectionRepository, SqlTenantAwsConnectionRepository>();
         services.AddScoped<ITenantGcpConnectionRepository, SqlTenantGcpConnectionRepository>();
@@ -486,20 +487,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
             sp.GetRequiredService<ILogger<AgentTraceOrphanBlobCleanupService>>()));
         services.AddScoped<IArchitectureProjectRepository, DapperArchitectureProjectRepository>();
         services.AddScoped<IArchitectureProjectRetentionPurgeService, SqlArchitectureProjectRetentionPurgeService>();
-        services.AddScoped<IScimTenantTokenRepository, DapperScimTenantTokenRepository>();
-        services.AddScoped<IPlatformUserRepository, DapperPlatformUserRepository>();
-        services.AddScoped<IAuthenticationIdentityRepository, DapperAuthenticationIdentityRepository>();
-        services.AddScoped<IWorkspaceMembershipRepository, DapperWorkspaceMembershipRepository>();
-        services.AddScoped<IIdentityMigrationReviewRepository, DapperIdentityMigrationReviewRepository>();
-        services.AddScoped<ILegacyPlatformIdentityMigrationSource, SqlLegacyPlatformIdentityMigrationSource>();
-        services.AddScoped<IEmailOtpChallengeRepository, DapperEmailOtpChallengeRepository>();
-        services.AddScoped<ISelfServiceTrialAbuseRepository, DapperSelfServiceTrialAbuseRepository>();
         services.AddScoped<ISchemaVersionsJournalReader, DapperSchemaVersionsJournalReader>();
-        services.AddScoped<ITenantSignInEmailDomainRecoveryAdminRepository, DapperTenantSignInEmailDomainRecoveryAdminRepository>();
-        services.AddScoped<IPlatformTenantAuthRecoveryGrantRepository, DapperPlatformTenantAuthRecoveryGrantRepository>();
-        services.AddScoped<IAuthenticationIdentityLinkProposalRepository, DapperAuthenticationIdentityLinkProposalRepository>();
         services.AddScoped<IAdminNotificationsRepository, DapperAdminNotificationsRepository>();
-        services.AddScoped<IScimGroupRepository, DapperScimGroupRepository>();
         services.AddScoped<IRoiBulletinAggregateReader, SqlRoiBulletinAggregateReader>();
         services.AddScoped<ITenantCustomerSuccessRepository, SqlTenantCustomerSuccessRepository>();
         services.AddScoped<ICorePilotTeamChecklistRepository, SqlCorePilotTeamChecklistRepository>();
@@ -518,8 +507,6 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ICloudInventoryExtractorPackageRepository, SqlCloudInventoryExtractorPackageRepository>();
         services.AddScoped<ITenantNotificationChannelPreferencesRepository, DapperTenantNotificationChannelPreferencesRepository>();
         services.AddScoped<IOperatorSavedViewRepository, DapperOperatorSavedViewRepository>();
-        services.AddScoped<IUserSettingsRepository, DapperUserSettingsRepository>();
-        services.AddScoped<IUserInvitationRepository, DapperUserInvitationRepository>();
         services.AddScoped<ISupportProblemReportRepository, DapperSupportProblemReportRepository>();
         services.AddScoped<IDraftRequestRepository, DapperDraftRequestRepository>();
         services.AddScoped<ITenantTeamsIncomingWebhookConnectionRepository, DapperTenantTeamsIncomingWebhookConnectionRepository>();
@@ -536,7 +523,6 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantErasureCommandService, TenantErasureCommandService>();
         services.AddScoped<ITenantSuspendCommandService, TenantSuspendCommandService>();
         services.AddScoped<IBillingLedger, SqlBillingLedger>();
-        services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();
         services.AddScoped<ILlmTenantBudgetRepository, SqlLlmTenantBudgetRepository>();
         services.AddScoped<IAiUsageEventRepository, Persistence.AiUsage.SqlAiUsageEventRepository>();
