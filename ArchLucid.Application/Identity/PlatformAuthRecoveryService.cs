@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Identity;
 
@@ -183,23 +181,20 @@ public sealed class PlatformAuthRecoveryService(
             },
             cancellationToken).ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PlatformTenantAuthRecoveryGranted,
-                ActorUserId = operatorActorId,
-                ActorUserName = operatorActorId,
-                TenantId = request.TenantId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        grantId = stored.GrantId,
-                        normalizedDomain = stored.NormalizedDomain,
-                        expiresUtc = stored.ExpiresUtc,
-                        evidenceReference = evidence
-                    })
-            },
-            cancellationToken).ConfigureAwait(false);
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
+                AuditEventTypes.PlatformTenantAuthRecoveryGranted,
+                operatorActorId,
+                new
+                {
+                    grantId = stored.GrantId,
+                    normalizedDomain = stored.NormalizedDomain,
+                    expiresUtc = stored.ExpiresUtc,
+                    evidenceReference = evidence
+                },
+                cancellationToken,
+                request.TenantId)
+            .ConfigureAwait(false);
 
         IReadOnlyList<TenantSignInEmailDomainRecoveryAdminRecord> recoveryRows =
             await _recoveryAdmins.ListByDomainAsync(request.TenantId, request.NormalizedDomain, cancellationToken)
@@ -234,16 +229,14 @@ public sealed class PlatformAuthRecoveryService(
         PlatformTenantAuthRecoveryGrantRecord? grant =
             await _grants.GetByIdAsync(grantId, cancellationToken).ConfigureAwait(false);
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PlatformTenantAuthRecoveryRevoked,
-                ActorUserId = operatorActorId,
-                ActorUserName = operatorActorId,
-                TenantId = grant?.TenantId ?? Guid.Empty,
-                DataJson = JsonSerializer.Serialize(new { grantId })
-            },
-            cancellationToken).ConfigureAwait(false);
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
+                AuditEventTypes.PlatformTenantAuthRecoveryRevoked,
+                operatorActorId,
+                new { grantId },
+                cancellationToken,
+                grant?.TenantId)
+            .ConfigureAwait(false);
 
         return true;
     }
@@ -289,22 +282,19 @@ public sealed class PlatformRecoveryNotificationService(IAuditService auditServi
         IReadOnlyList<string> recoveryAdminEmails,
         CancellationToken cancellationToken)
     {
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PlatformTenantAuthRecoveryTenantNotified,
-                ActorUserId = "platform",
-                ActorUserName = "platform",
-                TenantId = tenantId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        normalizedDomain,
-                        expiresUtc,
-                        recipientCount = recoveryAdminEmails.Count
-                    })
-            },
-            cancellationToken).ConfigureAwait(false);
+        await AuthAuditEmitter.LogIdentityEventAsync(
+                _auditService,
+                AuditEventTypes.PlatformTenantAuthRecoveryTenantNotified,
+                "platform",
+                new
+                {
+                    normalizedDomain,
+                    expiresUtc,
+                    recipientCount = recoveryAdminEmails.Count
+                },
+                cancellationToken,
+                tenantId)
+            .ConfigureAwait(false);
 
         return true;
     }
