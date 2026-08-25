@@ -609,10 +609,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-25
 - **last-bug:** 2026-08-24 — overage reconciliation delta consume dropped when remaining balance insufficient (no re-queue)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -629,7 +629,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `LlmTenantWalletService.ConsumeInternalAsync` when optimistic retries exhaust — re-queue on exhaustion already shipped; regression in `ConsumeInternalAsync_requeues_settlement_when_optimistic_retries_exhausted`
 - [x] (invalid) `WalletController` balance read after concurrent consume — `GetAsync` calls `GetWalletAsync` → repository directly; no app-level cache; controller exposes GET/PUT only (no POST consume endpoint)
 - [x] (proven) Overage reconciliation delta consume dropped when remaining balance insufficient — **hit 2026-08-24:** `ReconcileOverageInternalAsync` called `ConsumeInternalAsync` for positive delta; `InsufficientFunds` returned silently without re-queue; fixed via `TryConsumeWithRetryAsync` + full reconcile re-queue; regression in `ReconcileOverageInternalAsync_requeues_settlement_when_delta_consume_insufficient_funds`
-- [ ] (hunt-ready) `ConsumeInternalAsync` plain settlement re-queue on insufficient funds — when async settlement debit hits `InsufficientFunds` (not reconcile delta), debit is dropped without re-queue unlike concurrency exhaustion; input: settlement worker consumes more than post-authorize balance after parallel spend.
+- [x] (invalid) `ConsumeInternalAsync` plain settlement re-queue on insufficient funds — **dry 2026-08-25:** `TryConsumeWithRetryAsync` returns false on `InsufficientFunds`; `ConsumeInternalAsync` re-queues via shared `!consumed` path (same as concurrency exhaustion); regression in `ConsumeInternalAsync_requeues_settlement_when_consume_hits_insufficient_funds`
 
 ---
 
