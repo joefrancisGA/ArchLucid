@@ -214,4 +214,42 @@ public sealed class ArchitectureKnowledgeModelAccessTests
     run.GraphSnapshotId.Should().BeNull();
     runs.Verify(r => r.UpdateAsync(run, It.IsAny<CancellationToken>()), Times.Once);
   }
+
+  [Fact]
+  public async Task SaveForRunAsync_skips_CurrentModelId_update_when_run_is_not_architecture_head()
+  {
+    Guid runId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+    Guid architectureId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+    Guid headRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+    Mock<IArchitectureIntelligencePersistence> persistence = new();
+    Mock<IRunRepository> runs = new();
+    RunRecord run = new() { RunId = runId, ArchitectureId = architectureId };
+    runs
+      .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(run);
+    runs
+      .Setup(r => r.GetLatestRunIdForArchitectureAsync(TestScope, architectureId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(headRunId);
+
+    Mock<IArchitectureIdentityRepository> identities = new();
+
+    ArchitectureKnowledgeModelAccess access = new(
+      persistence.Object,
+      runs.Object,
+      identities.Object);
+
+    await access.SaveForRunAsync(
+      TestScope,
+      runId,
+      new ArchitectureKnowledgeModel { TenantId = TestScope.TenantId.ToString("D") });
+
+    identities.Verify(
+      i => i.UpdateCurrentModelAsync(
+        It.IsAny<ScopeContext>(),
+        It.IsAny<Guid>(),
+        It.IsAny<string>(),
+        It.IsAny<CancellationToken>()),
+      Times.Never);
+  }
 }
