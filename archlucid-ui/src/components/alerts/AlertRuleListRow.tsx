@@ -40,6 +40,7 @@ export function AlertRuleListRow(props: AlertRuleListRowProps): ReactElement {
     <EnterpriseTableRow
       aria-label={`Alert rule ${props.rule.name}`}
       data-testid={`alert-rule-row-${props.rule.ruleId}`}
+      data-alert-rule-id={props.rule.ruleId}
     >
       <EnterpriseTableCell>
         <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>

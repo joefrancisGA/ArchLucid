@@ -9,6 +9,7 @@ import { IntegrationConnectChecklist } from "@/components/integrations/Integrati
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { AlertRuleListRow } from "@/components/alerts/AlertRuleListRow";
+import { AlertRulesContinueLastViewedRow } from "@/components/alerts/AlertRulesContinueLastViewedRow";
 import { AlertRuleLivePreviewPanel } from "@/components/alerts/AlertRuleLivePreviewPanel";
 import { AlertRuleNotificationReadinessPanel } from "@/components/alerts/AlertRuleNotificationReadinessPanel";
 import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateModal";
@@ -100,6 +101,10 @@ import {
 import { whyDisabledEnterpriseMutationControl, whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import type { AlertRule } from "@/types/alerts";
+import {
+  resolveContinueLastAlertRule,
+  writeAlertRuleLastViewedId,
+} from "@/lib/resolve-continue-last-alert-rule";
 
 function AlertRulesListLoadingSkeleton(): React.JSX.Element {
   return (
@@ -135,10 +140,28 @@ export function AlertRulesContent() {
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const items = rulesQuery.items;
+  const continueLastRule = useMemo(() => resolveContinueLastAlertRule(items), [items]);
   const routingSubscriptions = routingQuery.items;
   const loading = rulesQuery.loading;
   const failure = rulesQuery.failure ?? mutationFailure;
   const [simulateForRule, setSimulateForRule] = useState<AlertRule | null>(null);
+
+  function rememberRule(ruleId: string): void {
+    writeAlertRuleLastViewedId(ruleId);
+  }
+
+  function openRule(ruleId: string): void {
+    rememberRule(ruleId);
+    const match = items.find((rule) => rule.ruleId === ruleId);
+
+    if (match !== undefined) {
+      setSimulateForRule(match);
+    }
+
+    document
+      .querySelector(`[data-alert-rule-id="${ruleId}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   // Server render has no storage; project id is adopted after mount to avoid a hydration mismatch.
   const [sessionProjectId, setSessionProjectId] = useState<string | undefined>(undefined);
@@ -357,6 +380,10 @@ export function AlertRulesContent() {
                 {ALERT_RULES_LIST_HEADING}
               </h2>
 
+              {continueLastRule !== null ? (
+                <AlertRulesContinueLastViewedRow target={continueLastRule} onOpen={openRule} />
+              ) : null}
+
               <EnterpriseTable ariaLabel="Alert rules">
                 <EnterpriseTableHead>
                   <EnterpriseTableHeadRow>
@@ -375,7 +402,10 @@ export function AlertRulesContent() {
                       key={rule.ruleId}
                       rule={rule}
                       routingSubscriptions={routingSubscriptions}
-                      onSimulate={setSimulateForRule}
+                      onSimulate={(selected) => {
+                        rememberRule(selected.ruleId);
+                        setSimulateForRule(selected);
+                      }}
                     />
                   ))}
                 </EnterpriseTableBody>
