@@ -53,6 +53,10 @@ vi.mock("@/components/AskRunIdPicker", () => ({
   AskRunIdPicker: (props: { value: string }) => <div data-testid="ask-run-id-picker">{props.value}</div>,
 }));
 
+vi.mock("./RoiSummaryNextReviewFooterClient", () => ({
+  RoiSummaryNextReviewFooterClient: () => <div data-testid="roi-summary-next-review-footer-stub" />,
+}));
+
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: { href: string; children: ReactNode; [key: string]: unknown }) => (
     <a href={href} {...rest}>

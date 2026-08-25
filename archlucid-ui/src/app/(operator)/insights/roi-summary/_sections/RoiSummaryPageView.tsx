@@ -57,6 +57,7 @@ import {
 import { RoiSummaryBuyerChrome } from "./RoiSummaryBuyerChrome";
 import { RoiSummaryHeroStrip } from "./RoiSummaryHeroStrip";
 import { RoiSummaryLoadedHourlyCostField } from "./RoiSummaryLoadedHourlyCostField";
+import { RoiSummaryNextReviewFooterClient } from "./RoiSummaryNextReviewFooterClient";
 import { RoiSummaryPickReviewBeforeSummarizingStrip } from "./RoiSummaryPickReviewBeforeSummarizingStrip";
 import type { RoiSummaryPageViewModel } from "./roi-summary-page-view-model";
 
@@ -315,6 +316,10 @@ export function RoiSummaryPageView(props: Props) {
         </p>
 
           <RoiSummaryBuyerChrome />
+
+          {selectedReviewId.trim().length > 0 ? (
+            <RoiSummaryNextReviewFooterClient runId={selectedReviewId.trim()} />
+          ) : null}
         </div>
       </DocumentLayout>
     </OperatorPageContainer>
