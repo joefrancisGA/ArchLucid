@@ -130,4 +130,56 @@ public sealed class ContinueFromRunOrchestratorTests
 
         persisted.Elements.Count.Should().Be(persistedElementCount);
     }
+
+    [Fact]
+    public async Task RunAsync_continue_appends_new_source_texts_to_existing_model()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningResult first = await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-continue-sources",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "arch.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API without authentication.",
+                },
+            ],
+            DeclaredPriorities = ["Security"],
+        });
+
+        int elementCountBeforeContinue = first.Model.Elements.Count;
+
+        ClosedLoopReasoningResult continued = await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-continue-sources",
+            RunId = first.RunId,
+            ContinueFromExistingRun = true,
+            FramingAnswers = new Dictionary<string, string>
+            {
+                ["business-outcome"] = "Secure claims intake",
+            },
+            DeclaredPriorities = ["Security"],
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "billing.md",
+                    ContentType = "text/markdown",
+                    Content = "Billing worker is unowned and processes PCI cardholder data.",
+                },
+            ],
+        });
+
+        continued.Model.Elements.Count.Should().BeGreaterThan(elementCountBeforeContinue);
+    }
 }
