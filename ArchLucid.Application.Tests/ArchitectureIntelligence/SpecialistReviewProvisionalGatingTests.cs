@@ -35,6 +35,34 @@ public sealed class SpecialistReviewProvisionalGatingTests
     }
 
     [Fact]
+    public void ApplyWhileFramingIncomplete_clones_provenance_when_downgrading()
+    {
+        ClaimProvenance provenance = new() { SourceArtifactId = "artifact-1" };
+        SpecialistReviewFinding failFinding = new()
+        {
+            FindingId = "finding-1",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint exposure",
+            Rationale = "No authentication on public API.",
+            Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Severity = "High",
+            Provenance = provenance,
+        };
+
+        SpecialistReviewResult review = new()
+        {
+            Dimension = QualityDimension.Security,
+            Findings = [failFinding],
+        };
+
+        SpecialistReviewProvisionalGating.ApplyWhileFramingIncomplete([review]);
+
+        review.Findings[0].Provenance.SourceArtifactId = "mutated";
+        provenance.SourceArtifactId.Should().Be("artifact-1");
+    }
+
+    [Fact]
     public void ApplyWhileFramingIncomplete_preserves_non_constraint_pass_and_indeterminate()
     {
         SpecialistReviewResult review = new()

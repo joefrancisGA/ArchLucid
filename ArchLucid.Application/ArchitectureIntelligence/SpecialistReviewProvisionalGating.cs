@@ -67,7 +67,7 @@ public static class SpecialistReviewProvisionalGating
             Conclusion = ReviewConclusion.Indeterminate,
             EvidenceCondition = finding.EvidenceCondition,
             GovernanceDisposition = finding.GovernanceDisposition,
-            Provenance = finding.Provenance,
+            Provenance = ArchitectureKnowledgeModelCloner.CloneProvenance(finding.Provenance),
             Confidence = finding.Confidence,
             EvidenceArtifactIds = finding.EvidenceArtifactIds.ToList(),
             Severity = finding.Severity,
