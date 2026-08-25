@@ -301,6 +301,41 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         }
 
         if (_persistence is not null)
-            await _persistence.SaveModelAsync(model, cancellationToken).ConfigureAwait(false);
+        {
+            ArchitectureKnowledgeModel modelToSave = ArchitectureKnowledgeModelCloner.Clone(model);
+            await _persistence.SaveModelAsync(modelToSave, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private static List<SpecialistReviewFinding> BuildPublishGateFindings(
+        AdversarialReviewResult adversarial,
+        List<SpecialistReviewFinding> allFindings,
+        SpecialistFindingsSubstantiationResult? reReviewSubstantiation)
+    {
+        List<SpecialistReviewFinding> gateFindings = adversarial.SubstantiatedFindings.Count > 0
+            ? adversarial.SubstantiatedFindings.ToList()
+            : allFindings.ToList();
+
+        if (reReviewSubstantiation is null)
+            return gateFindings;
+
+        HashSet<string> existingFindingIds = gateFindings
+            .Select(finding => finding.FindingId)
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (SpecialistReviewFinding finding in reReviewSubstantiation.SubstantiatedFindings)
+        {
+            if (string.IsNullOrWhiteSpace(finding.FindingId)
+                || existingFindingIds.Contains(finding.FindingId))
+            {
+                continue;
+            }
+
+            gateFindings.Add(finding);
+            existingFindingIds.Add(finding.FindingId);
+        }
+
+        return gateFindings;
     }
 }

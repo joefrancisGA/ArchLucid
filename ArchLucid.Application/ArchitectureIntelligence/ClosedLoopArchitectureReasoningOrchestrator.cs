@@ -100,7 +100,12 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
         if (!request.ContinueFromExistingRun)
         {
-            cacheManifest = ReviewCacheManifestBuilder.Build(request);
+            ArchitectureKnowledgeModel? baselineKnowledgeModel = null;
+
+            if (!string.IsNullOrWhiteSpace(request.RunId))
+                baselineKnowledgeModel = await TryLoadExistingModelAsync(tenantId, runId, cancellationToken);
+
+            cacheManifest = ReviewCacheManifestBuilder.Build(request, baselineKnowledgeModel);
 
             if (_reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
                 && cached is not null)
@@ -282,9 +287,10 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
             }
         }
 
-        List<SpecialistReviewFinding> gateFindings = adversarial.SubstantiatedFindings.Count > 0
-            ? adversarial.SubstantiatedFindings.ToList()
-            : allFindings;
+        List<SpecialistReviewFinding> gateFindings = BuildPublishGateFindings(
+            adversarial,
+            allFindings,
+            reReviewSubstantiation);
 
         List<MustNotFailViolation> mustNotFailViolations = _mustNotFailEnforcer
             .Evaluate(
