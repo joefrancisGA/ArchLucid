@@ -288,6 +288,37 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task ConsumeInternalAsync_requeues_settlement_when_consume_hits_insufficient_funds()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        Guid correlationId = Guid.NewGuid();
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            50m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            CancellationToken.None);
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
+
+        bool authorized = await service.TryAuthorizeOverageSpendAsync(tenantId, 40m, CancellationToken.None);
+        authorized.Should().BeTrue();
+
+        await service.ConsumeInternalAsync(tenantId, 15m, correlationId, CancellationToken.None);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem item).Should().BeTrue();
+        item.TenantId.Should().Be(tenantId);
+        item.AmountUsd.Should().Be(15m);
+        item.CorrelationId.Should().Be(correlationId);
+        item.AuthorizedUsd.Should().Be(0m);
+    }
+
+    [SkippableFact]
     public async Task ReconcileOverageInternalAsync_requeues_settlement_when_credit_retries_exhausted()
     {
         Guid tenantId = Guid.NewGuid();
