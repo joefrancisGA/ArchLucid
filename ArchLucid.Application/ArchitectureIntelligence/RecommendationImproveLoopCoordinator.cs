@@ -1,6 +1,8 @@
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -69,7 +71,8 @@ public sealed class RecommendationImproveLoopCoordinator(
     ISpecialistFindingsSubstantiationService specialistFindingsSubstantiationService,
     IMustNotFailEnforcer mustNotFailEnforcer,
     ITrustPublishGate trustPublishGate,
-    IAuthorityFindingsSnapshotUpdater? findingsSnapshotUpdater) : IRecommendationImproveLoopCoordinator
+    IAuthorityFindingsSnapshotUpdater? findingsSnapshotUpdater,
+    ITechnologyLedgerRepository? technologyLedgerRepository = null) : IRecommendationImproveLoopCoordinator
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -99,6 +102,8 @@ public sealed class RecommendationImproveLoopCoordinator(
         trustPublishGate ?? throw new ArgumentNullException(nameof(trustPublishGate));
 
     private readonly IAuthorityFindingsSnapshotUpdater? _findingsSnapshotUpdater = findingsSnapshotUpdater;
+
+    private readonly ITechnologyLedgerRepository? _technologyLedgerRepository = technologyLedgerRepository;
 
     public async Task<RecommendationImproveLoopResult?> TryApplyAsync(
         RecommendationRecord recommendation,
@@ -169,7 +174,7 @@ public sealed class RecommendationImproveLoopCoordinator(
             .Evaluate(
                 substantiation.SubstantiatedFindings,
                 [architectureRecommendation],
-                null)
+                await TryLoadLedgerEntriesAsync(scope, runId, cancellationToken))
             .ToList();
 
         TrustPublishDecision publishDecision = _trustPublishGate.Decide(
@@ -213,5 +218,29 @@ public sealed class RecommendationImproveLoopCoordinator(
             PartialScopeDisclaimer = reReview.PartialScopeDisclaimer,
             MergedFindingIds = mergedFindingIds,
         };
+    }
+
+    private async Task<IReadOnlyList<TechnologyLedgerEntry>?> TryLoadLedgerEntriesAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        if (_technologyLedgerRepository is null)
+            return null;
+
+        try
+        {
+            return await _technologyLedgerRepository
+                .GetByRunIdAsync(scope, runId.ToString("D"), cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 }

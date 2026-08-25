@@ -1,6 +1,8 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -136,5 +138,122 @@ public sealed class RecommendationImproveLoopCoordinatorTests
                 It.IsAny<IAsyncSpecialistReviewService>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task TryApplyAsync_blocks_publish_when_recommendation_cites_off_ledger_technology()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        ArchitectureKnowledgeModel before = new()
+        {
+            ModelId = "before-model",
+            Elements = [new ArchitectureModelElement { ElementId = "svc-1", Name = "API" }],
+        };
+        ArchitectureKnowledgeModel after = new()
+        {
+            ModelId = "after-model",
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "svc-1", Name = "API" },
+                new ArchitectureModelElement { ElementId = "rec-el", Name = "Add auth" },
+            ],
+        };
+
+        ArchitectureModelDiff appliedDiff = new()
+        {
+            RecommendationId = "rec-1",
+            Entries =
+            [
+                new ArchitectureModelDiffEntry
+                {
+                    ElementId = "rec-el",
+                    ChangeKind = "Added",
+                    Description = "Proposed recommendation",
+                },
+            ],
+            BeforeModel = before,
+            AfterModel = after,
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(access => access.GetForRunAsync(TestScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(before);
+
+        Mock<IArchitectureModelDiffApplier> diffApplier = new();
+        diffApplier
+            .Setup(applier => applier.ApplyRecommendation(before, It.IsAny<ArchitectureRecommendation>()))
+            .Returns(appliedDiff);
+
+        Mock<IChangeImpactAnalyzer> changeImpactAnalyzer = new();
+        changeImpactAnalyzer
+            .Setup(analyzer => analyzer.Analyze(appliedDiff, It.IsAny<ArchitectureRecommendation>()))
+            .Returns(new ChangeImpactResult
+            {
+                RecommendationId = "rec-1",
+                RequiresFullReReview = false,
+                ImpactedItems = [new ChangeImpactItem { ElementId = "rec-el", ImpactKind = "Recommendation" }],
+            });
+
+        Mock<IIncrementalReReviewService> reReviewService = new();
+        reReviewService
+            .Setup(service => service.ReReviewAsync(
+                after,
+                It.IsAny<ReReviewScope>(),
+                It.IsAny<IAsyncSpecialistReviewService>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IncrementalReReviewResult());
+
+        Mock<ISpecialistFindingsSubstantiationService> substantiationService = new();
+        substantiationService
+            .Setup(service => service.SubstantiateAsync(It.IsAny<IReadOnlyList<SpecialistReviewFinding>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SpecialistFindingsSubstantiationResult());
+
+        Mock<ArchLucid.Persistence.Data.Repositories.ITechnologyLedgerRepository> ledgerRepository = new();
+        ledgerRepository
+            .Setup(repository => repository.GetByRunIdAsync(TestScope, runId.ToString("D"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new TechnologyLedgerEntry
+                {
+                    RunId = runId.ToString("D"),
+                    Role = TechnologyLedgerRole.CloudPlatform,
+                    TechnologyName = "Amazon Web Services",
+                    ProviderFamily = CloudProvider.Aws,
+                    Status = TechnologyLedgerStatus.Chosen,
+                    Source = TechnologyLedgerSource.User,
+                },
+            ]);
+
+        RecommendationImproveLoopCoordinator sut = new(
+            scopeProvider.Object,
+            knowledgeModelAccess.Object,
+            diffApplier.Object,
+            changeImpactAnalyzer.Object,
+            reReviewService.Object,
+            Mock.Of<IAsyncSpecialistReviewService>(),
+            substantiationService.Object,
+            new MustNotFailEnforcer(),
+            new TrustPublishGate(),
+            findingsSnapshotUpdater: null,
+            technologyLedgerRepository: ledgerRepository.Object);
+
+        RecommendationImproveLoopResult? result = await sut.TryApplyAsync(new RecommendationRecord
+        {
+            RecommendationId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            RunId = runId,
+            Title = "Use managed identity",
+            SuggestedAction = "Deploy on Azure App Service with managed identity.",
+            PriorityScore = 80,
+        });
+
+        result.Should().NotBeNull();
+        result!.PublishBlocked.Should().BeTrue();
+        result.PublishBlockReasons.Should().NotBeEmpty();
+        knowledgeModelAccess.Verify(
+            access => access.SaveForRunAsync(TestScope, runId, after, It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }
