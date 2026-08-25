@@ -1723,11 +1723,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 6
-- **bugs-found:** 9
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1744,8 +1744,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureFindingJsonConverter.ReadSeverity` downgrades unknown severity strings to `Info` — **hit 2026-08-24:** labels like `"blocker"` silently became `Info` while `EvalCorpusFindingSeverityJsonConverter` throws; fixed to throw on unknown labels (`ArchitectureFindingJsonConverterTests`).
 - [x] (proven) CLI agent-result bridge maps one-based contract `AgentType` ordinals onto zero-based generated ordinals — **hit 2026-08-24:** `AgentType.Topology` (`1`) became generated `Cost` (`1`) and emitted `"agentType":"Cost"`; fixed by bridging generated agent results by enum name (`SubmitAgentResultAsync_writes_contract_agent_type_name`).
 - [ ] (hunt-ready) Global API enum conversion still permits out-of-range numeric `StructuralExecutionMode`, `FindingEnforcementTier`, `FindingHumanReviewStatus`, and `FindingTreatment`; unlike protected sibling enums, these types have no defined-value converter, so ordinal `99` may reach downstream switches.
-- [ ] (hunt-ready) `FindingJsonConverter` reads `humanReviewStatus` only when the token is a string; persisted JSON with numeric `1` leaves the default `NotRequired`, silently downgrading pending review state on round trip.
-- [ ] (hunt-ready) `AgentResultClaimListJsonConverter` flattens structured claim text but ignores an entry-level `evidenceRefs` array, so `{"detail":"Subnet missing","evidenceRefs":["pol-123"]}` loses its evidence linkage.
+- [x] (proven) `AgentResultClaimListJsonConverter` flattens structured claim text but ignores an entry-level `evidenceRefs` array, so `{"detail":"Subnet missing","evidenceRefs":["pol-123"]}` loses its evidence linkage — **hit 2026-08-25:** structured claim objects dropped claim-level refs at parse time; fixed with `AgentResultJsonConverter.MergeClaimEvidenceRefs`; regression in `Deserialize_merges_structured_claim_evidence_refs_into_result_evidence_refs`.
+- [x] (invalid) `FindingJsonConverter` reads `humanReviewStatus` only when the token is a string; persisted JSON with numeric `1` leaves the default `NotRequired`, silently downgrading pending review state on round trip — locus is `ArchLucid.Core/Findings/Serialization/FindingJsonConverter.cs`, outside zone `paths` (`ArchLucid.Contracts/` only).
 
 ---
 
