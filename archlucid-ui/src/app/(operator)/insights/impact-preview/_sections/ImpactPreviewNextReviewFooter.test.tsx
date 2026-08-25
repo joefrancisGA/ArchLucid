@@ -6,7 +6,7 @@ import { ImpactPreviewNextReviewFooter, impactPreviewNextReviewHref } from "./Im
 describe("ImpactPreviewNextReviewFooter", () => {
   it("builds the next review impact preview href from run id", () => {
     expect(impactPreviewNextReviewHref("run-2")).toBe("/insights/impact-preview?runId=run-2");
-    expect(impactPreviewNextReviewHref("run 2")).toBe("/insights/impact-preview?runId=run%202");
+    expect(impactPreviewNextReviewHref("run 2")).toBe("/insights/impact-preview?runId=run+2");
   });
 
   it("renders next review impact preview link", () => {
