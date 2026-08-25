@@ -1,8 +1,11 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Pilots;
 
 using FluentAssertions;
 
@@ -36,5 +39,40 @@ public sealed class BuyerProofPackCommitGuardTests
 
         ok.Should().BeFalse();
         error.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void TryValidateDeltasJson_when_pascal_case_property_names_fails()
+    {
+        PilotRunDeltasResponse response = new()
+        {
+            IsDemoTenant = false,
+            ProofPackageCompleteness = new ProofPackageCompletenessResponse { RunInCommittedStatus = true },
+        };
+
+        string pascalJson = JsonSerializer.Serialize(response);
+
+        bool ok = BuyerProofPackCommitGuard.TryValidateDeltasJson(pascalJson, out _, out string? error);
+
+        ok.Should().BeFalse();
+        error.Should().Contain("proofPackageCompleteness");
+    }
+
+    [Fact]
+    public void TryValidateDeltasJson_when_camel_case_contract_json_passes()
+    {
+        PilotRunDeltasResponse response = new()
+        {
+            IsDemoTenant = false,
+            ProofPackageCompleteness = new ProofPackageCompletenessResponse { RunInCommittedStatus = true },
+        };
+
+        string camelJson = JsonSerializer.Serialize(response, ContractJson.CamelCaseIgnoreNullCompact);
+
+        bool ok = BuyerProofPackCommitGuard.TryValidateDeltasJson(camelJson, out bool demoWarning, out string? error);
+
+        ok.Should().BeTrue();
+        demoWarning.Should().BeFalse();
+        error.Should().BeNull();
     }
 }

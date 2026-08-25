@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.Roi;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -33,6 +34,7 @@ public sealed class BuyerProofPackBuilder(
     IPilotRunDeltaComputer pilotRunDeltaComputer,
     ValueReportBuilder valueReportBuilder,
     IScopeContextProvider scopeContextProvider,
+    RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
     IPilotBaselineRepository pilotBaselineRepository) : IBuyerProofPackBuilder
 {
     private const string PackFormatVersion = "1.0";
@@ -59,6 +61,9 @@ public sealed class BuyerProofPackBuilder(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly RoiCostEvidenceCollectionResolver _roiCostEvidenceCollectionResolver =
+        roiCostEvidenceCollectionResolver ?? throw new ArgumentNullException(nameof(roiCostEvidenceCollectionResolver));
 
     private readonly IPilotBaselineRepository _pilotBaselineRepository =
         pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
@@ -93,15 +98,21 @@ public sealed class BuyerProofPackBuilder(
         PilotBaselineRecord? scorecardBaselines =
             await _pilotBaselineRepository.GetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
+        DateTime? extractorCollectionTimestampUtc =
+            await _roiCostEvidenceCollectionResolver.TryResolveLatestCollectionTimestampUtcAsync(
+                scope,
+                detail.Run.RunId,
+                cancellationToken).ConfigureAwait(false);
+
         PilotRunDeltasResponse deltasResponse = PilotRunDeltasResponseMapper.ToResponseWithProofPackage(
             detail.Run,
             detail.Manifest,
             deltas,
             snapshot,
-            extractorCollectionTimestampUtc: null,
+            extractorCollectionTimestampUtc,
             scorecardBaselines);
 
-        string deltasJson = JsonSerializer.Serialize(deltasResponse);
+        string deltasJson = JsonSerializer.Serialize(deltasResponse, ContractJson.CamelCaseIgnoreNullCompact);
 
         if (!BuyerProofPackCommitGuard.TryValidateDeltasJson(deltasJson, out bool demoWarning, out _))
             return null;

@@ -116,6 +116,38 @@ public sealed class RoiSourceCrossSurfaceConsistencyTests
     }
 
     [Fact]
+    public void Buyer_proof_pack_deltas_json_uses_camel_case_and_matches_api_roi_freshness_disposition()
+    {
+        ValueReportSnapshot staleSnapshot = CreateSnapshot(
+            tenantBaselineReviewCycleHours: 40m,
+            reviewProvenance: ReviewCycleBaselineProvenance.TenantSuppliedAtSignup,
+            tenantManualPrepHours: 12m);
+
+        ArchitectureRun run = BuildCommittedRun();
+        PilotRunDeltas staleDeltas = BuildPilotDeltas() with { EstimatedUsdSavings = 5000m };
+        DateTime staleExtractorUtc = UtcNow.AddDays(-45);
+
+        PilotRunDeltasResponse apiResponse = PilotRunDeltasResponseMapper.ToResponseWithProofPackage(
+            run,
+            BuildManifest(),
+            staleDeltas,
+            staleSnapshot,
+            extractorCollectionTimestampUtc: staleExtractorUtc,
+            scorecardBaselines: null,
+            freshnessEvaluationUtc: UtcNow);
+
+        string buyerProofPackJson = JsonSerializer.Serialize(apiResponse, ContractJson.CamelCaseIgnoreNullCompact);
+
+        BuyerProofPackCommitGuard.TryValidateDeltasJson(buyerProofPackJson, out _, out string? guardError).Should().BeTrue(guardError);
+
+        using JsonDocument doc = JsonDocument.Parse(buyerProofPackJson);
+        string zipDisposition = doc.RootElement.GetProperty("roiSourceFreshnessDisposition").GetString()!;
+
+        zipDisposition.Should().Be(apiResponse.RoiSourceFreshnessDisposition);
+        zipDisposition.Should().Be("HOLD");
+    }
+
+    [Fact]
     public void Proof_packet_json_round_trip_preserves_roi_source_kinds_and_freshness_disposition()
     {
         ValueReportSnapshot snapshot = CreateSnapshot(

@@ -129,6 +129,27 @@ public sealed class PilotProofPackageCompletenessMapperTests
     }
 
     [Fact]
+    public void Build_WhenManifestCreatedUtcDefaultButDeltasCommittedUtcResolved_MarksTimestampResolved()
+    {
+        (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =
+            StrongBaselineFixture();
+        DateTime completedUtc = new(2026, 4, 1, 14, 30, 0, DateTimeKind.Utc);
+        run.CompletedUtc = completedUtc;
+        manifest.Metadata.CreatedUtc = default;
+        deltas = deltas with
+        {
+            ManifestCommittedUtc = completedUtc,
+            TimeToCommittedManifest = completedUtc - run.CreatedUtc,
+        };
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
+
+        ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
+
+        c.CommittedManifestTimestampResolved.Should().BeTrue();
+        c.TimeToCommittedManifestResolved.Should().BeTrue();
+    }
+
+    [Fact]
     public void Build_UnresolvedPilotStrictSignals_FlagsEvidenceUnsatisfied()
     {
         (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =

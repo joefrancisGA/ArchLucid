@@ -32,7 +32,8 @@ public static class PilotProofPackageCompletenessMapper
         FirstValueEvidenceCompletenessLevel evidenceLevel = FirstValueEvidenceCompletenessClassifier.Classify(gate);
 
         bool committedTimestampResolved =
-            manifest is not null && manifest.Metadata.CreatedUtc != default;
+            manifest is not null
+            && (deltas.ManifestCommittedUtc is not null || manifest.Metadata.CreatedUtc != default);
 
         SponsorProofReadinessClassification sponsorReadiness = SponsorProofReadinessClassifier.Classify(deltas, gate);
         PilotRoiBaselineInputsStatusResponse roiBaselineInputs =
