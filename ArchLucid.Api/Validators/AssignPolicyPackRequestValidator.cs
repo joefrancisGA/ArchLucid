@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Validators;
 ///     FluentValidation rules for <see cref="AssignPolicyPackRequest" /> (<c>POST …/policy-packs/{id}/assign</c>).
 /// </summary>
 /// <remarks>
-///     Complements domain checks in <see cref="Services.IPolicyPacksAppService.TryAssignAsync" /> (version row existence →
+///     Complements domain checks in <see cref="ArchLucid.Application.Governance.PolicyPacks.IPolicyPacksAppService.TryAssignAsync" /> (version row existence →
 ///     404):
 ///     this validator only guards shape and known <see cref="GovernanceScopeLevel" /> values before the app service runs.
 /// </remarks>
