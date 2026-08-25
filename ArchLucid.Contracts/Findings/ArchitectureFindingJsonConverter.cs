@@ -49,8 +49,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         }
 
         if (root.TryGetProperty("enforcementTier", out JsonElement enforcementTier) &&
-            enforcementTier.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(enforcementTier.GetString(), ignoreCase: true, out FindingEnforcementTier tier))
+            TryReadEnforcementTier(enforcementTier, out FindingEnforcementTier tier))
         {
             finding.EnforcementTier = tier;
         }
@@ -146,6 +145,34 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         WriteOptionalStringProperty(writer, "whyThisIsNotGeneric", value.WhyThisIsNotGeneric);
         WriteOptionalStringProperty(writer, "principalArchitectValue", value.PrincipalArchitectValue);
         WriteOptionalStringProperty(writer, "decisionConsequence", value.DecisionConsequence);
+    }
+
+    /// <summary>
+    ///     Accepts enum names and defined integer ordinals. Numeric <c>1</c> is Advisory;
+    ///     out-of-range ordinals throw so they cannot collapse to the PolicyViolation default.
+    /// </summary>
+    private static bool TryReadEnforcementTier(JsonElement element, out FindingEnforcementTier tier)
+    {
+        tier = default;
+
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+
+            if (!Enum.IsDefined(typeof(FindingEnforcementTier), numeric))
+                throw new JsonException($"Unknown finding enforcement tier value '{numeric}'.");
+
+            tier = (FindingEnforcementTier)numeric;
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(element.GetString(), ignoreCase: true, out FindingEnforcementTier parsed))
+        {
+            tier = parsed;
+            return true;
+        }
+
+        return false;
     }
 
     private static string? ReadOptionalStringProperty(JsonElement root, string propertyName)
