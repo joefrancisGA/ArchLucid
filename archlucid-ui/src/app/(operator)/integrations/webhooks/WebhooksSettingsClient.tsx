@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Controller, FormProvider, useWatch } from "react-hook-form";
 
@@ -88,10 +89,15 @@ import {
   webhookOutboundEventCatalog,
 } from "@/lib/webhook-settings-form-schema";
 import { summarizeMaskedWebhookSubscription, formatWebhookSubscriptionLastDeliveryLabel } from "@/lib/webhook-subscription-metadata";
+import {
+  resolveContinueLastWebhookSubscription,
+  writeWebhookSubscriptionLastViewedId,
+} from "@/lib/resolve-continue-last-webhook-subscription";
 
 import { AlertRoutingSubscriptionDisableDialog } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 
 import { formatCustomerApiFailure, useWebhooksSettings } from "./use-webhooks-settings";
+import { WebhooksContinueLastViewedRow } from "./WebhooksContinueLastViewedRow";
 
 /** Integration hub for outbound HTTPS webhook subscriptions. */
 export function WebhooksSettingsClient() {
@@ -149,6 +155,18 @@ export function WebhooksSettingsClient() {
     eventsConfigured: (watchedFormValues?.eventTypes?.length ?? 0) > 0,
     subscriptionEnabled: activeSubscriptionCount > 0,
   });
+  const continueLastSubscription = useMemo(
+    () => resolveContinueLastWebhookSubscription(webhookRows),
+    [webhookRows],
+  );
+
+  function openSubscription(subscriptionId: string): void {
+    writeWebhookSubscriptionLastViewedId(subscriptionId);
+    document
+      .querySelector(`[data-webhook-subscription-id="${subscriptionId}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    document.querySelector<HTMLButtonElement>(`[data-testid="webhook-test-${subscriptionId}"]`)?.focus();
+  }
 
   return (
     <OperatorPageContainer
@@ -242,6 +260,13 @@ export function WebhooksSettingsClient() {
             ) : webhookRows.length === 0 ? (
               <EnterpriseCompactEmptyState {...WEBHOOKS_SUBSCRIPTIONS_EMPTY_COMPACT} />
             ) : (
+              <>
+              {continueLastSubscription !== null ? (
+                <WebhooksContinueLastViewedRow
+                  target={continueLastSubscription}
+                  onOpen={openSubscription}
+                />
+              ) : null}
               <EnterpriseTable ariaLabel="Webhook subscriptions" data-testid="webhooks-subscriptions-table">
                 <EnterpriseTableHead>
                   <EnterpriseTableHeadRow>
@@ -265,6 +290,7 @@ export function WebhooksSettingsClient() {
                       <EnterpriseTableRow
                         key={row.routingSubscriptionId}
                         data-testid={`webhook-subscription-${row.routingSubscriptionId}`}
+                        data-webhook-subscription-id={row.routingSubscriptionId}
                       >
                         <EnterpriseTableCell>
                           <span className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{row.name}</span>
@@ -352,6 +378,7 @@ export function WebhooksSettingsClient() {
                   })}
                 </EnterpriseTableBody>
               </EnterpriseTable>
+              </>
             )}
           </section>
 

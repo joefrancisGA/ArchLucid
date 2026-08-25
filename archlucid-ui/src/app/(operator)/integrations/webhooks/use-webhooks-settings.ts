@@ -39,6 +39,7 @@ import {
   presentWebhookConnectionTestRequestFailure,
   presentWebhookConnectionTestToasts,
 } from "@/lib/webhook-subscription-connection-test";
+import { writeWebhookSubscriptionLastViewedId } from "@/lib/resolve-continue-last-webhook-subscription";
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
 
 type WebhookEnableTarget = {
@@ -223,6 +224,7 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
       return;
     }
 
+    writeWebhookSubscriptionLastViewedId(routingSubscriptionId);
     const generation = scopeGenerationRef.current;
     setTestingId(routingSubscriptionId);
 
@@ -282,6 +284,7 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
 
     setEnableBusy(true);
     setEnableErrorMessage(null);
+    writeWebhookSubscriptionLastViewedId(pendingEnable.routingSubscriptionId);
 
     try {
       await executeToggle(pendingEnable.routingSubscriptionId);

@@ -449,6 +449,8 @@ describe("WebhooksIntegrationPage", () => {
     expect(within(card).getByText("listener.example/…")).toBeInTheDocument();
     expect(within(card).queryByText(/secret\/path/i)).toBeNull();
     expect(within(card).getByText(/Stored — copy is not shown/i)).toBeInTheDocument();
+    expect(card).toHaveAttribute("data-webhook-subscription-id", subscriptionId);
+    expect(screen.getByTestId("webhooks-continue-last-viewed-row")).toHaveTextContent("Hook");
   });
 
   it("shows test pending, success, and failure feedback for saved subscriptions", async () => {
