@@ -69,6 +69,25 @@ describe("resolveOperatorBillingCurrentPlan", () => {
     expect(view.supportingLine).toContain("Acme");
   });
 
+  it("returns paid plan when isTrialUsage is false despite stale Active trial status", () => {
+    const view = resolveOperatorBillingCurrentPlan({
+      isDemoMode: false,
+      isFrictionlessTrial: false,
+      trialStatus: "Active",
+      trialDaysRemaining: 12,
+      workspaceLabel: "Acme",
+      aiBudgetRemainingPercent: 40,
+      isTrialUsage: false,
+      commercialTier: "Team",
+    });
+
+    expect(view.planKind).toBe("paid-plan");
+    expect(view.headline).toBe("Team");
+    expect(view.hasPaidPlan).toBe(true);
+    expect(view.supportingLine).toContain("Team");
+    expect(view.supportingLine).not.toContain("remaining in trial");
+  });
+
   it("returns unknown copy while subscription data is pending", () => {
     const view = resolveOperatorBillingCurrentPlan({
       isDemoMode: false,

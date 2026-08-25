@@ -91,7 +91,7 @@ export function resolveOperatorBillingCurrentPlan(
     };
   }
 
-  if (isActiveTenantTrialStatus(input.trialStatus)) {
+  if (isActiveTenantTrialStatus(input.trialStatus) && input.isTrialUsage !== false) {
     const daysLine =
       typeof input.trialDaysRemaining === "number" && input.trialDaysRemaining >= 0
         ? `${input.trialDaysRemaining} day${input.trialDaysRemaining === 1 ? "" : "s"} remaining in trial.`
