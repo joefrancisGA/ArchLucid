@@ -74,11 +74,22 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturerTests
             .Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PolicyPack { PolicyPackId = packId, Name = "Enterprise Baseline", TenantId = tenantId }]);
 
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .Setup(v => v.GetByPackAndVersionAsync(packId, "1.2.0", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackVersion
+            {
+                PolicyPackId = packId,
+                Version = "1.2.0",
+                ContentJson = """{"complianceRuleKeys":["sec-base-010","net-base-001"]}""",
+            });
+
         CommittedEffectiveGovernanceSnapshotCapturer sut = new(
             scopeProvider.Object,
             resolver.Object,
             assignments.Object,
-            packs.Object);
+            packs.Object,
+            versions.Object);
 
         ManifestDocument manifest = new()
         {
@@ -96,10 +107,13 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturerTests
         manifest.EffectiveGovernanceAtCommit.ComplianceRuleKeys.Should().BeEquivalentTo(["net-base-001", "sec-base-010"]);
         manifest.EffectiveGovernanceAtCommit.ConflictCount.Should().Be(1);
         manifest.EffectiveGovernanceAtCommit.HasEffectivePolicy.Should().BeTrue();
-        manifest.EffectiveGovernanceAtCommit.PackAssignments.Should().ContainSingle(row =>
-            row.PolicyPackId == packId &&
-            row.PolicyPackVersion == "1.2.0" &&
-            row.ScopeLevel == GovernanceScopeLevel.Project);
+        CommittedGovernancePackAssignmentSnapshot assignmentRow =
+            manifest.EffectiveGovernanceAtCommit!.PackAssignments.Should().ContainSingle(row =>
+                row.PolicyPackId == packId &&
+                row.PolicyPackVersion == "1.2.0" &&
+                row.ScopeLevel == GovernanceScopeLevel.Project).Subject;
+
+        assignmentRow.ComplianceRuleKeys.Should().BeEquivalentTo(["net-base-001", "sec-base-010"]);
     }
 
     [SkippableFact]
@@ -138,7 +152,8 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturerTests
             scopeProvider.Object,
             resolver.Object,
             assignments.Object,
-            Mock.Of<IPolicyPackRepository>());
+            Mock.Of<IPolicyPackRepository>(),
+            Mock.Of<IPolicyPackVersionRepository>());
 
         ManifestDocument manifest = new()
         {

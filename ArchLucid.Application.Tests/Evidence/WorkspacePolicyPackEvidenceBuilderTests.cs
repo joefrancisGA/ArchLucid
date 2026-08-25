@@ -86,6 +86,7 @@ public sealed class WorkspacePolicyPackEvidenceBuilderTests
             resolver.Object,
             assignments.Object,
             packs.Object,
+            Mock.Of<IPolicyPackVersionRepository>(),
             scopeProvider.Object);
 
         ArchitectureRequest request = new()

@@ -57,7 +57,8 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturerPreloadTests
             scopeProvider.Object,
             resolver.Object,
             assignments.Object,
-            packs.Object);
+            packs.Object,
+            Mock.Of<IPolicyPackVersionRepository>());
 
         ManifestDocument manifest = new() { RuleSetId = "rs", RuleSetVersion = "1", RuleSetHash = "hash" };
 

@@ -18,6 +18,7 @@ public sealed class WorkspacePolicyPackEvidenceBuilder(
     IEffectiveGovernanceResolver effectiveGovernanceResolver,
     IPolicyPackAssignmentRepository policyPackAssignmentRepository,
     IPolicyPackRepository policyPackRepository,
+    IPolicyPackVersionRepository policyPackVersionRepository,
     IScopeContextProvider scopeContextProvider) : IEvidenceBuilder
 {
     private readonly DefaultEvidenceBuilder _innerBuilder =
@@ -34,6 +35,9 @@ public sealed class WorkspacePolicyPackEvidenceBuilder(
 
     private readonly IPolicyPackRepository _policyPackRepository =
         policyPackRepository ?? throw new ArgumentNullException(nameof(policyPackRepository));
+
+    private readonly IPolicyPackVersionRepository _policyPackVersionRepository =
+        policyPackVersionRepository ?? throw new ArgumentNullException(nameof(policyPackVersionRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -53,7 +57,8 @@ public sealed class WorkspacePolicyPackEvidenceBuilder(
             _policyPackAssignmentRepository,
             _policyPackRepository,
             preloadedScopePolicyPackAssignments: null,
-            cancellationToken);
+            cancellationToken,
+            _policyPackVersionRepository);
 
         foreach (CommittedGovernancePackAssignmentSnapshot assignment in resolution.PackAssignments)
         {

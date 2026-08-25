@@ -71,7 +71,8 @@ public sealed class EffectiveGovernanceSnapshotBuilder
         IPolicyPackAssignmentRepository policyPackAssignmentRepository,
         IPolicyPackRepository policyPackRepository,
         IReadOnlyList<PolicyPackAssignment>? preloadedScopePolicyPackAssignments,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IPolicyPackVersionRepository? policyPackVersionRepository = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
@@ -145,12 +146,20 @@ public sealed class EffectiveGovernanceSnapshotBuilder
             }
 
             evaluatedPackIds.Add(assignment.PolicyPackId);
+            List<string> packComplianceRuleKeys = policyPackVersionRepository is null
+                ? []
+                : await PolicyPackAssignmentComplianceRuleKeysResolver.ResolveForAssignmentAsync(
+                    policyPackVersionRepository,
+                    assignment,
+                    cancellationToken);
+
             packRows.Add(
                 new CommittedGovernancePackAssignmentSnapshot
                 {
                     PolicyPackId = assignment.PolicyPackId,
                     PolicyPackVersion = assignment.PolicyPackVersion,
-                    ScopeLevel = GovernanceScopeLevel.TryNormalize(assignment.ScopeLevel) ?? GovernanceScopeLevel.Project
+                    ScopeLevel = GovernanceScopeLevel.TryNormalize(assignment.ScopeLevel) ?? GovernanceScopeLevel.Project,
+                    ComplianceRuleKeys = packComplianceRuleKeys,
                 });
 
             coverageRows.Add(
