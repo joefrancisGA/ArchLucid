@@ -65,6 +65,7 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
 
         services.AddScoped<IArchitectureOntologyService, ArchitectureOntologyService>();
         services.AddScoped<IArchitectureKnowledgeModelAccess, ArchitectureKnowledgeModelAccess>();
+        services.AddScoped<IKnowledgeModelGraphReprojector, KnowledgeModelGraphReprojector>();
         services.AddScoped<IExtractionFidelityBenchmark, ExtractionFidelityBenchmark>();
         services.AddScoped<IArchitectureIntelligenceBenchmark, ArchitectureIntelligenceBenchmark>();
         services.AddScoped<IProgressiveInterviewService, ProgressiveInterviewService>();

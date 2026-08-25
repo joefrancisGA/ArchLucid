@@ -9,7 +9,8 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 public sealed class ArchitectureKnowledgeModelAccess(
     IArchitectureIntelligencePersistence? persistence,
     IRunRepository runRepository,
-    IArchitectureIdentityRepository? architectureIdentityRepository = null) : IArchitectureKnowledgeModelAccess
+    IArchitectureIdentityRepository? architectureIdentityRepository = null,
+    IKnowledgeModelGraphReprojector? knowledgeModelGraphReprojector = null) : IArchitectureKnowledgeModelAccess
 {
     private readonly IArchitectureIntelligencePersistence? _persistence = persistence;
 
@@ -18,6 +19,9 @@ public sealed class ArchitectureKnowledgeModelAccess(
 
     private readonly IArchitectureIdentityRepository? _architectureIdentityRepository =
         architectureIdentityRepository;
+
+    private readonly IKnowledgeModelGraphReprojector? _knowledgeModelGraphReprojector =
+        knowledgeModelGraphReprojector;
 
     public async Task<ArchitectureKnowledgeModel?> GetForRunAsync(
         ScopeContext scope,
@@ -121,6 +125,13 @@ public sealed class ArchitectureKnowledgeModelAccess(
 
             await _architectureIdentityRepository
                 .UpdateCurrentModelAsync(scope, architectureId, nextModelId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        if (_knowledgeModelGraphReprojector is not null)
+        {
+            await _knowledgeModelGraphReprojector
+                .TryReprojectForRunAsync(scope, runId, model, cancellationToken)
                 .ConfigureAwait(false);
         }
     }
