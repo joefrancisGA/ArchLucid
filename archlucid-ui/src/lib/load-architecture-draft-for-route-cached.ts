@@ -10,8 +10,40 @@ import type { DraftRequestResponse } from "@/types/draft-intake";
  */
 export const loadArchitectureDraftForRouteCached = cache(
   async (architectureId: string): Promise<DraftRequestResponse> => {
-    const scopeHeaders = await getServerResolvedScopeHeaders();
+    const startedMs = performance.now();
+    console.warn(
+      JSON.stringify({
+        component: "archlucid-ui-draft-metadata",
+        event: "metadata_draft_fetch_started",
+        architectureId,
+      }),
+    );
 
-    return getDraftRequest(architectureId, { scopeHeaders });
+    try {
+      const scopeHeaders = await getServerResolvedScopeHeaders();
+      const draft = await getDraftRequest(architectureId, { scopeHeaders });
+      console.warn(
+        JSON.stringify({
+          component: "archlucid-ui-draft-metadata",
+          event: "metadata_draft_fetch_completed",
+          architectureId,
+          durationMs: Math.round(performance.now() - startedMs),
+        }),
+      );
+
+      return draft;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(
+        JSON.stringify({
+          component: "archlucid-ui-draft-metadata",
+          event: "metadata_draft_fetch_failed",
+          architectureId,
+          durationMs: Math.round(performance.now() - startedMs),
+          message,
+        }),
+      );
+      throw err;
+    }
   },
 );

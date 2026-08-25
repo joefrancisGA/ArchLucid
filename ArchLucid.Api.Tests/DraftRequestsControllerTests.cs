@@ -109,11 +109,32 @@ public sealed class DraftRequestsControllerTests
             .ReturnsAsync((DraftRequestResponse?)null);
 
         DraftRequestsController sut = BuildSut();
+        sut.ControllerContext.HttpContext.TraceIdentifier = "corr-draft-missing";
 
         IActionResult result = await sut.GetDraft(DraftId, CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetDraft_Found_ReturnsOk()
+    {
+        DraftRequestResponse draft = new() { DraftId = DraftId, Status = DraftRequestStatus.Drafting };
+        _service
+            .Setup(static s => s.GetAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(draft);
+
+        DraftRequestsController sut = BuildSut();
+        sut.ControllerContext.HttpContext.TraceIdentifier = "corr-draft-found";
+
+        IActionResult result = await sut.GetDraft(DraftId, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(draft);
     }
 
     [Fact]

@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -97,7 +98,22 @@ public sealed class DraftRequestsController(
     public async Task<IActionResult> GetDraft(Guid draftId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        DraftGetHangDiagnostics.Log(
+            "controller_get_draft_entered",
+            ("correlationId", HttpContext.TraceIdentifier),
+            ("draftId", draftId),
+            ("tenantId", scope.TenantId));
+
+        long startedMs = Environment.TickCount64;
         DraftRequestResponse? draft = await _draftRequestService.GetAsync(scope, draftId, cancellationToken);
+
+        DraftGetHangDiagnostics.Log(
+            "controller_get_draft_completed",
+            ("correlationId", HttpContext.TraceIdentifier),
+            ("draftId", draftId),
+            ("durationMs", Environment.TickCount64 - startedMs),
+            ("found", draft is not null));
 
         if (draft is null)
             return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);

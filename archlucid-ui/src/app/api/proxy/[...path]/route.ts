@@ -24,6 +24,7 @@ import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 import { formatProxyUpstreamUnreachableDetail, isProxyUpstreamTimeoutFailure } from "@/lib/proxy-upstream-unreachable-detail";
 import { fetchWithWarmupRetry } from "@/lib/warmup-retry";
+import { shouldTraceProxyInteractiveReadHang } from "@/lib/proxy/should-trace-proxy-interactive-read-hang";
 import { normalizeProxyPathForTelemetry } from "@/lib/telemetry/normalize-proxy-path-for-telemetry";
 import {
   applyServerTimingHeader,
@@ -222,8 +223,10 @@ async function forward(
   const search = request.nextUrl.search;
   const targetUrl = `${base}/${path}${search}`;
   const pathForLog = path.length > 0 ? path : "_";
-  const traceLearningPlansList =
-    method === "GET" && normalizedTailPath === "v1/learning/plans";
+  const traceInteractiveReadHang = shouldTraceProxyInteractiveReadHang(
+    method,
+    normalizedTailPath,
+  );
 
   const headers = upstreamHeaders;
 
@@ -290,7 +293,7 @@ async function forward(
 
   const upstreamFetchStartedAtMs = performance.now();
 
-  if (traceLearningPlansList) {
+  if (traceInteractiveReadHang) {
     logProxyDiagnostic("upstream_fetch_started", {
       method,
       path: pathForLog,
@@ -330,7 +333,7 @@ async function forward(
       causeMessage: message,
     });
 
-    if (traceLearningPlansList) {
+    if (traceInteractiveReadHang) {
       logProxyDiagnostic("upstream_fetch_timed_out", {
         method,
         path: pathForLog,
@@ -375,7 +378,7 @@ async function forward(
     });
   }
 
-  if (traceLearningPlansList) {
+  if (traceInteractiveReadHang) {
     logProxyDiagnostic("upstream_fetch_completed", {
       method,
       path: pathForLog,

@@ -1,4 +1,7 @@
+using System.Diagnostics;
+
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Data.Repositories;
@@ -18,7 +21,7 @@ public sealed class CachingDraftRequestRepository(
         hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
 
     /// <inheritdoc />
-    public Task<DraftRequestResponse?> GetAsync(
+    public async Task<DraftRequestResponse?> GetAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
@@ -32,10 +35,29 @@ public sealed class CachingDraftRequestRepository(
             ProjectId = projectId,
         };
 
-        return _hotPathReadCache.GetOrCreateAsync(
+        DraftGetHangDiagnostics.Log("cache_get_draft_started", ("draftId", draftId));
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        int factoryInvoked = 0;
+
+        DraftRequestResponse? result = await _hotPathReadCache.GetOrCreateAsync(
             HotPathCacheKeys.DraftRequest(scope, draftId),
-            innerCt => _inner.GetAsync(tenantId, workspaceId, projectId, draftId, innerCt),
+            async innerCt =>
+            {
+                Interlocked.Exchange(ref factoryInvoked, 1);
+                DraftGetHangDiagnostics.Log("cache_get_draft_factory_entered", ("draftId", draftId));
+
+                return await _inner.GetAsync(tenantId, workspaceId, projectId, draftId, innerCt);
+            },
             cancellationToken);
+
+        DraftGetHangDiagnostics.Log(
+            "cache_get_draft_completed",
+            ("draftId", draftId),
+            ("durationMs", stopwatch.ElapsedMilliseconds),
+            ("factoryInvoked", factoryInvoked == 1),
+            ("found", result is not null));
+
+        return result;
     }
 
     /// <inheritdoc />

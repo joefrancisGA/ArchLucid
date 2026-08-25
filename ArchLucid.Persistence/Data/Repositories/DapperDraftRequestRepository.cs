@@ -1,8 +1,10 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -33,6 +35,11 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
     {
         PersistenceTenantScope.RequireEntityTenant(tenantId);
 
+        DraftGetHangDiagnostics.Log(
+            "sql_get_draft_started",
+            ("draftId", draftId),
+            ("tenantId", tenantId));
+
         const string sql = """
                            SELECT
                                DraftId,
@@ -54,7 +61,15 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
                              AND ProjectId = @ProjectId;
                            """;
 
+        Stopwatch connectionStopwatch = Stopwatch.StartNew();
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        DraftGetHangDiagnostics.Log(
+            "sql_get_draft_connection_open",
+            ("draftId", draftId),
+            ("connectionMs", connectionStopwatch.ElapsedMilliseconds));
+
+        Stopwatch queryStopwatch = Stopwatch.StartNew();
         DraftRequestRow? row = await connection.QuerySingleOrDefaultAsync<DraftRequestRow>(
             new CommandDefinition(
                 sql,
@@ -62,15 +77,27 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
                 cancellationToken: cancellationToken,
                 commandTimeout: InteractiveDraftCommandTimeoutSeconds));
 
+        DraftGetHangDiagnostics.Log(
+            "sql_get_draft_query_completed",
+            ("draftId", draftId),
+            ("queryMs", queryStopwatch.ElapsedMilliseconds),
+            ("rowFound", row is not null),
+            ("readModelPresent", row is not null && !string.IsNullOrWhiteSpace(row.ReadModelJson)));
+
         if (row is null)
             return null;
 
         if (TryDeserializeReadModel(row, out DraftRequestResponse? snapshot))
+        {
+            DraftGetHangDiagnostics.Log("sql_get_draft_using_read_model", ("draftId", draftId));
             return snapshot;
+        }
 
+        DraftGetHangDiagnostics.Log("sql_get_draft_mapping_document", ("draftId", draftId));
         DraftRequestResponse mapped = MapRow(row);
         await TryHealReadModelAsync(connection, draftId, tenantId, workspaceId, projectId, mapped, cancellationToken);
 
+        DraftGetHangDiagnostics.Log("sql_get_draft_heal_completed", ("draftId", draftId));
         return mapped;
     }
 
