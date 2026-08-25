@@ -267,28 +267,13 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("test-actor");
 
-        return new ArchitectureRunCreateOrchestrator(
+        return ArchitectureRunCreateOrchestratorTestSupport.CreateOrchestrator(
             coordination,
             Mock.Of<IArchitectureRequestRepository>(),
             runRepository,
             scope.Object,
             evidenceBundleRepository,
-            Mock.Of<IAgentTaskRepository>(),
-            Mock.Of<IArchitectureRunIdempotencyRepository>(),
-            actor.Object,
-            Mock.Of<IBaselineMutationAuditService>(),
-            Mock.Of<IAuditService>(),
-            unitOfWorkFactory ?? ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            Mock.Of<IUsageMeteringService>(),
-            new InProcessCreateRunIdempotencyLock(),
-            Options.Create(new ArchitectureRunCreateOptions()),
-            new DisabledAsyncAuthorityPipelineModeResolver(),
-            Mock.Of<IRunStateTransitionService>(),
-            TimeProvider.System,
-            new DefaultRequestContentSafetyPrecheck(),
-            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
-            WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
-            Mock.Of<IArchitectureIdentityService>(),
-            NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
+            actorContext: actor.Object,
+            unitOfWorkFactory: unitOfWorkFactory ?? ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
     }
 }
