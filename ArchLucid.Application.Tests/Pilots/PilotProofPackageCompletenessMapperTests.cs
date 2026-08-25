@@ -146,6 +146,52 @@ public sealed class PilotProofPackageCompletenessMapperTests
         gate.SoftGaps.Should().Contain(g => g.Contains("PilotStrict agent-output signals **not attested**", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void Build_WhenManifestCreatedUtcDefaultButDeltasCarryCompletedUtc_ResolvesCommittedTimestamp()
+    {
+        ArchitectureRun run = new()
+        {
+            RunId = "run-proof",
+            RequestId = "req-proof",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+            CompletedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            RealModeFellBackToSimulator = false,
+        };
+
+        GoldenManifest manifest = new()
+        {
+            RunId = "run-proof",
+            SystemName = "Sys",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = default },
+            Governance = new ManifestGovernance(),
+        };
+
+        PilotRunDeltas deltas = new()
+        {
+            RunCreatedUtc = run.CreatedUtc,
+            ManifestCommittedUtc = run.CompletedUtc,
+            TimeToCommittedManifest = run.CompletedUtc - run.CreatedUtc,
+            FindingsBySeverity = [new KeyValuePair<string, int>("Error", 1)],
+            AuditRowCount = 4,
+            AuditRowCountTruncated = false,
+            LlmCallCount = 2,
+            LlmCallCountResolved = true,
+            TopFindingId = "f-1",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = new(),
+            IsDemoTenant = false,
+        };
+
+        ValueReportSnapshot snap = SnapshotWith(ReviewCycleBaselineProvenance.TenantSuppliedAtSignup);
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
+
+        ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
+
+        c.CommittedManifestTimestampResolved.Should().BeTrue();
+        c.TimeToCommittedManifestResolved.Should().BeTrue();
+    }
+
     private static (ArchitectureRun Run, GoldenManifest Manifest, PilotRunDeltas Deltas, PilotBuyerSafeEvidenceGateResult Gate, ValueReportSnapshot Snap)
         StrongBaselineFixture()
     {

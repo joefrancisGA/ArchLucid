@@ -57,6 +57,40 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
     }
 
     [Fact]
+    public void Resolve_when_agent_results_empty_uses_sponsor_narrative_findings_from_deltas()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);
+        PilotRunDeltas deltas = BuildDeltas() with
+        {
+            SponsorNarrativeFindings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "f-snapshot",
+                    Severity = FindingSeverity.Error,
+                    Category = "Security",
+                    Message = "Rotate storage account keys from snapshot",
+                    EvidenceRefs = ["trace:trace-1"],
+                    EvaluationConfidenceScore = 82,
+                    ConfidenceLevel = FindingConfidenceLevel.High,
+                },
+            ],
+        };
+        ProofPackageCompletenessResponse proof = BuildProof();
+        PilotBuyerSafeEvidenceGateResult gate = BuildGate();
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            proof,
+            gate);
+
+        result.DecisionDeltaSummary.Should().Contain("Error");
+        result.DecisionDeltaSummary.Should().Contain("Rotate storage account keys from snapshot");
+        result.NoveltyConfidence.Should().NotBe(SponsorNoveltyConfidence.NotAssessed);
+    }
+
+    [Fact]
     public void Markdown_formatter_emits_required_section_headings()
     {
         SponsorDecisionDeltaNoveltyResult result = new(

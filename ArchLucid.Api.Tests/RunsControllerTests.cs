@@ -1,14 +1,19 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Operations;
 using ArchLucid.Application.Planning;
+using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Query;
+using ArchLucid.Contracts.Operations;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Feedback;
@@ -27,6 +32,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
+
+using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace ArchLucid.Api.Tests;
 
@@ -74,6 +81,40 @@ public sealed class RunsControllerTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task DraftRequest_returns_bad_request_when_description_exceeds_chat_intake_max_length()
+    {
+        Mock<IArchitectureRequestDraftService> draftService = new();
+        RunsController controller = CreateController(draftService: draftService.Object);
+
+        DraftArchitectureRequestInput input = new() { FreeTextDescription = new string('x', 50_001) };
+
+        IActionResult action = await controller.DraftRequest(input, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        draftService.Verify(
+            s => s.DraftAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task DraftRequestAsync_returns_bad_request_when_description_exceeds_chat_intake_max_length()
+    {
+        Mock<IAdvisoryDraftOperationAcceptor> acceptor = new();
+        RunsController controller = CreateController();
+
+        DraftArchitectureRequestInput input = new() { FreeTextDescription = new string('x', 50_001) };
+
+        IActionResult action = await controller.DraftRequestAsync(input, acceptor.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        acceptor.Verify(
+            a => a.AcceptAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -389,6 +430,36 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ExecuteRun_with_pilot_try_real_header_does_not_log_started_audit_when_run_not_found()
+    {
+        Mock<IRunLifecycleCommandService> commands = new();
+        commands
+            .Setup(s => s.ExecuteRunAsync("missing-run", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new RunNotFoundException("missing-run"));
+
+        Mock<IAuditService> audit = new();
+        RunsController controller = CreateController(
+            runLifecycleCommandService: commands.Object,
+            auditService: audit.Object);
+        controller.ControllerContext.HttpContext.Request.Headers[PilotTryRealModeHeaders.PilotTryRealMode] = "1";
+
+        IActionResult action = await controller.ExecuteRun("missing-run", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.FirstRealValueRunStarted),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.FirstRealValueRunCompleted),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PinRun_returns_not_found_for_invalid_run_id_like_GetRun()
     {
         RunsController controller = CreateController();
@@ -399,6 +470,53 @@ public sealed class RunsControllerTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    [Fact]
+    public async Task ReplayRun_unknown_execution_mode_returns_400_like_async_replay()
+    {
+        Mock<IRunLifecycleCommandService> commands = new();
+        commands
+            .Setup(s => s.ReplayRunAsync(
+                "run-1",
+                "DestroyEverything",
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ArgumentException("Unknown execution mode 'DestroyEverything'."));
+
+        RunsController controller = CreateController(runLifecycleCommandService: commands.Object);
+
+        IActionResult action = await controller.ReplayRun(
+            "run-1",
+            new ReplayRunRequest { ExecutionMode = "DestroyEverything" },
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            bad.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
+    public void GetDraftRequestAsyncResult_failed_operation_returns_422_not_400_validation()
+    {
+        InMemoryAdvisoryDraftOperationStore store = new();
+        AdvisoryDraftOperationRecord record = store.CreatePending(Scope);
+        string opaqueOperationId = OperationIdCodec.ForDraft(record.OperationId);
+        store.MarkFailed(opaqueOperationId, "LLM timeout");
+
+        RunsController controller = CreateController();
+
+        IActionResult action = controller.GetDraftRequestAsyncResult(record.OperationId, store);
+
+        ObjectResult problem = action.Should().BeOfType<ObjectResult>().Subject;
+        problem.StatusCode.Should().Be(StatusCodes.Status422UnprocessableEntity);
+
+        MvcProblemDetails details = problem.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        details.Type.Should().Be(ProblemTypes.BusinessRuleViolation);
+        details.Detail.Should().Be("LLM timeout");
+    }
+
     private static RunsController CreateController(
         IArchitectureApplicationService? architectureApplicationService = null,
         IArchitectureRequestDraftService? draftService = null,
@@ -406,7 +524,8 @@ public sealed class RunsControllerTests
         IClarificationAnswerRephraseService? clarificationRephraseService = null,
         IStructuredBriefSuggestionExplainService? explainService = null,
         IRunLifecycleCommandService? runLifecycleCommandService = null,
-        IRunRepository? runRepository = null)
+        IRunRepository? runRepository = null,
+        IAuditService? auditService = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -431,7 +550,7 @@ public sealed class RunsControllerTests
             validator.Object,
             scopeProvider.Object,
             actor.Object,
-            Mock.Of<IAuditService>(),
+            auditService ?? Mock.Of<IAuditService>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IFindingFeedbackRepository>(),
             runRepository ?? Mock.Of<IRunRepository>(),

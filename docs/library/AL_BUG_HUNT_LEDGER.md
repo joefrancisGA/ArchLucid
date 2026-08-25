@@ -1510,11 +1510,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — snapshot muted severity buckets; unresolved PilotStrict pass; scorecard ready-for-commit counted as committed; buyer proof summary omitted governed coverage
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — ReadyForCommit runs with manifest version counted as committed in value report and recent-deltas panel
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1528,6 +1528,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Unresolved PilotStrict trace query reported satisfied sponsor evidence — **hit 2026-08-24:** `PilotProofPackageCompletenessMapper` treated `AgentOutputPilotStrictSignalsResolved=false` as pass; fixed with explicit resolved check plus gate soft-gap (`Build_UnresolvedPilotStrictSignals_FlagsEvidenceUnsatisfied`).
 - [x] (proven) `PilotScorecardBuilder` counted `ReadyForCommit` runs with manifest ids as committed — **hit 2026-08-24:** predicate used manifest version/id only; fixed to require `LegacyRunStatus == Committed` (`PilotScorecardBuilderTests.BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted`).
 - [x] (proven) Buyer proof `artifact-and-proof-summary.md` omitted governed-finding coverage — **hit 2026-08-24:** `BuyerProofPackArtifactSummaryBuilder` ignored `governedFindingCoverage` in deltas JSON (`BuyerProofPackArtifactSummaryBuilderTests.Build_WhenGovernedFindingCoveragePresent_EmitsGovernedCoverageSection`).
+- [x] (proven) `PilotValueReportService` and `RecentPilotRunDeltasService` counted `ReadyForCommit` runs with manifest versions as committed — **hit 2026-08-25:** `IsCommittedSummary` / `IsCommitted` treated `CurrentManifestVersion` as sufficient; aligned with scorecard fix to require `Status == Committed` (`BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted`, `GetRecentDeltasAsync_ExcludesReadyForCommitRunWithManifestVersion`).
 
 ---
 
@@ -1960,13 +1961,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 6
-- **bugs-found:** 9
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — bulk outbox dead-letter retry ignored caller tenant scope; unrecognized replay mode ran destructive rebuild; invalid run id returned 400 on graph/pin reads
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — draft intake endpoints omitted chat-intake max text length guard; advisory draft async result returned 400 for background failure
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1975,6 +1976,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Invalid run id on authority graph/pin reads returned 400 while sibling `GetRun` returned 404 — `RunQueryController.GetInteractiveGraphSnapshot`, `RunsController.PinRun` (2026-08-24)
 - [x] Authority read returns artifacts for a run in another workspace — fixed ComparisonsController scoped load (2026-08-17)
 - [x] (valid-no-repro) Controller accepts a scope header that overrides the authenticated tenant — `ScopeIdentityBindingMiddleware` + `ScopeIdentityBindingIntegrationTests` (TB-072/TB-925) reject mismatched headers on Authority/Admin routes; `HttpScopeContextProvider` prefers claims over headers
+- [x] (proven) `RunsController.GetDraftRequestAsyncResult` mapped `OperationState.Failed` to HTTP 400 `ValidationFailed` — background advisory-draft failure is an operational outcome, not bad client input; fixed 2026-08-25 to return 422 `BusinessRuleViolation` (`RunsControllerTests.GetDraftRequestAsyncResult_failed_operation_returns_422_not_400_validation`)
+- [x] (proven) `DraftRequest` / `DraftRequestAsync` omitted `MaximumChatIntakeTextLength` guard present on sibling `ChatIntake` — **hit 2026-08-25:** 50_001+ char paste reached LLM parse on draft routes while chat-intake returned 400 (`RunsControllerTests.DraftRequest_returns_bad_request_when_description_exceeds_chat_intake_max_length`, `DraftRequestAsync_returns_bad_request_when_description_exceeds_chat_intake_max_length`).
 
 ---
 

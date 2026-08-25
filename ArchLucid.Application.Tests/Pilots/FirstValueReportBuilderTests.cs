@@ -43,6 +43,63 @@ public sealed class FirstValueReportBuilderTests
     }
 
     [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenFindingsOnlyInSnapshot_SponsorNarrativeMatchesDeltas()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        detail.Results =
+        [
+            new AgentResult
+            {
+                TaskId = "t1",
+                RunId = "r1",
+                AgentType = AgentType.Topology,
+                Findings = [],
+            },
+        ];
+
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity = [new KeyValuePair<string, int>("Error", 1)],
+            SponsorNarrativeFindings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "f-snapshot",
+                    Severity = FindingSeverity.Error,
+                    Category = "Security",
+                    Message = "Rotate storage account keys from snapshot",
+                },
+            ],
+            AuditRowCount = 0,
+            LlmCallCount = 2,
+            TopFindingId = "f-snapshot",
+            TopFindingSeverity = "Error",
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("| Top findings |");
+        md.Should().Contain("Rotate storage account keys from snapshot");
+        md.Should().Contain("## Decision delta (recommended changes)");
+        md.Should().Contain("Rotate storage account keys from snapshot");
+        md.Should().NotContain("No active findings recorded in this package.");
+    }
+
+    [SkippableFact]
     public async Task BuildMarkdownAsync_WhenCommitted_RendersComputedDeltasAndManifest()
     {
         ArchitectureRunDetail detail = BuildCommittedDetail();

@@ -41,7 +41,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine($"| ROI claim gate | {roiClaimGate.DispositionLeadLine} |");
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");
         sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
-        sb.AppendLine($"| Top findings | {FormatSponsorTopFindings(detail)} |");
+        sb.AppendLine($"| Top findings | {FormatSponsorTopFindings(detail, deltas)} |");
         sb.AppendLine($"| Deferred buyer requirements | {FormatSponsorDeferredBuyerRequirements()} |");
         sb.AppendLine($"| Recommended next action | {FormatSponsorNextAction(disposition, proof, deltas, run)} |");
         sb.AppendLine();
@@ -93,12 +93,10 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         return $"**{proof.RoiEvidenceConfidence}** — {label}; {fallback}.{inputsSummary}";
     }
 
-    private static string FormatSponsorTopFindings(ArchitectureRunDetail detail)
+    private static string FormatSponsorTopFindings(ArchitectureRunDetail detail, PilotRunDeltas deltas)
     {
-        List<ArchitectureFinding> topFindings = detail.Results
-            .SelectMany(static r => r.Findings)
+        List<ArchitectureFinding> topFindings = PilotSponsorMaterialFindingsResolver.Resolve(detail, deltas)
             .Select(static (Finding, Index) => new { Finding, Index })
-            .Where(static f => !f.Finding.IsMuted)
             .OrderByDescending(static f => f.Finding.Severity)
             .ThenBy(static f => f.Index)
             .Take(3)

@@ -70,6 +70,44 @@ public sealed class PilotValueReportServiceTests
     }
 
     [SkippableFact]
+    public async Task BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted()
+    {
+        DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = new(2026, 4, 20, 0, 0, 0, DateTimeKind.Utc);
+        TenantRecord tenant = Tenant(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+
+        RunSummary readyForCommit = new()
+        {
+            RunId = RunA,
+            RequestId = "req-ready",
+            Status = nameof(ArchitectureRunStatus.ReadyForCommit),
+            CreatedUtc = from.AddDays(1),
+            CompletedUtc = from.AddDays(1),
+            CurrentManifestVersion = "v1",
+            SystemName = "sys",
+        };
+        RunSummary committed = Summary(RunB, from.AddDays(2), committed: true);
+
+        Mock<IRunDetailQueryService> runs = new();
+        runs.SetupSequence(r => r.ListRunSummariesKeysetAsync(null, 100, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([readyForCommit, committed], false, null));
+
+        runs.Setup(r => r.GetRunDetailForRoiAsync(RunB, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Detail(RunB, from.AddDays(2), from.AddDays(2).AddMinutes(30), findings: []));
+
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.GetExportAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, from, to, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        PilotValueReportService sut = CreateSut(tenant, runs.Object, audit.Object, GovEmpty().Object);
+
+        PilotValueReport? report = await sut.BuildAsync(from, to, CancellationToken.None);
+
+        report.Should().NotBeNull();
+        report.TotalRunsCommitted.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task BuildAsync_counts_committed_runs_in_range_and_aggregates_findings()
     {
         DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);

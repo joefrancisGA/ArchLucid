@@ -47,6 +47,11 @@ public sealed partial class RunsController
                 $"FreeTextDescription must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
+        if (input.FreeTextDescription.Trim().Length > MaximumChatIntakeTextLength)
+            return this.BadRequestProblem(
+                $"FreeTextDescription must not exceed {MaximumChatIntakeTextLength} characters.",
+                ProblemTypes.ValidationFailed);
+
         DraftArchitectureRequestResponse response = await architectureRequestDraftService.DraftAsync(input, cancellationToken);
         return Ok(response);
     }
@@ -74,6 +79,11 @@ public sealed partial class RunsController
                 $"FreeTextDescription must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
+        if (input.FreeTextDescription.Trim().Length > MaximumChatIntakeTextLength)
+            return this.BadRequestProblem(
+                $"FreeTextDescription must not exceed {MaximumChatIntakeTextLength} characters.",
+                ProblemTypes.ValidationFailed);
+
         string operationId = await advisoryDraftOperationAcceptor.AcceptAsync(
             input,
             scopeContextProvider.GetCurrentScope(),
@@ -88,6 +98,7 @@ public sealed partial class RunsController
     [ProducesResponseType(typeof(DraftArchitectureRequestResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public IActionResult GetDraftRequestAsyncResult(
         [FromRoute] Guid operationId,
         [FromServices] IAdvisoryDraftOperationStore advisoryDraftOperationStore)
@@ -114,9 +125,9 @@ public sealed partial class RunsController
 
         if (record.State == OperationState.Failed)
         {
-            return this.BadRequestProblem(
+            return this.UnprocessableEntityProblem(
                 record.ErrorMessage ?? "Structured brief suggestion failed.",
-                ProblemTypes.ValidationFailed);
+                ProblemTypes.BusinessRuleViolation);
         }
 
         if (record.State == OperationState.Canceled)

@@ -110,6 +110,9 @@ public sealed class ArchitectureRunOrchestrationAuditTests
     {
         IRequestContentSafetyPrecheck precheck = requestContentSafetyPrecheck ?? BuildAllowAllPrecheck();
 
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventsOptions = new();
+        integrationEventsOptions.Setup(o => o.CurrentValue).Returns(new IntegrationEventsOptions());
+
         return new ArchitectureRunExecuteOrchestrator(
             runRepository,
             scopeContextProvider,
@@ -131,7 +134,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
                 new RunStateTransitionService(),
                 Mock.Of<IIntegrationEventOutboxRepository>(),
                 Mock.Of<IIntegrationEventPublisher>(),
-                CreateIntegrationEventsOptionsMonitor(),
+                integrationEventsOptions.Object,
                 NullLogger<ArchitectureRunExecutePostExecuteHooks>.Instance),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
