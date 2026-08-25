@@ -1,7 +1,9 @@
 using System.Reflection;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Governance.PolicyPacks;
+using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -25,8 +27,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Host.Composition.Tests.Startup;
 
 /// <summary>
-///     Pins host-composition refactors #10 and #39: agent, pipeline, and alerts bounded-context modules
-///     plus scheduling/outbox registrars own their DI registrations instead of mega
+///     Pins host-composition refactors #10, #39, and #42: agent, pipeline, and alerts bounded-context modules
+///     plus scheduling/outbox and pipeline registrars own their DI registrations instead of mega
 ///     <see cref="ServiceCollectionExtensions" /> partials.
 /// </summary>
 [Trait("Suite", "Core")]
@@ -113,6 +115,95 @@ public sealed class CompositionModulesRegistrationDisciplineTests
 
         services.Should().Contain(static d => d.ServiceType == typeof(IAlertService));
         services.Should().Contain(static d => d.ServiceType == typeof(IPolicyPackWorkflowFacade));
+    }
+
+    [Fact]
+    public void PipelineCompositionModule_does_not_define_legacy_private_register_methods()
+    {
+        MethodInfo[] methods = typeof(PipelineCompositionModule)
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Static);
+
+        string[] resurrected =
+        [
+            "RegisterRunReplayManifestAndDiffs",
+            "RegisterContextIngestionAndKnowledgeGraph",
+        ];
+
+        IEnumerable<string> found = methods
+            .Select(m => m.Name)
+            .Where(name => resurrected.Contains(name, StringComparer.Ordinal));
+
+        found.Should().BeEmpty(
+            "refactor #42 moved run-replay/manifest and context-ingestion registrations into pipeline registrars; "
+            + "reintroducing private Register* methods on PipelineCompositionModule would resurrect the mega-module pattern");
+    }
+
+    [Theory]
+    [InlineData(typeof(DraftIntakeCompositionRegistrar))]
+    [InlineData(typeof(AuthorityCommitPipelineCompositionRegistrar))]
+    [InlineData(typeof(RunLifecycleOrchestrationCompositionRegistrar))]
+    [InlineData(typeof(SponsorRoiCompositionRegistrar))]
+    [InlineData(typeof(ContextIngestionCompositionRegistrar))]
+    public void Pipeline_registrar_exposes_Register_in_Startup_Modules_namespace(Type registrarType)
+    {
+        registrarType.Namespace.Should().Be("ArchLucid.Host.Composition.Startup.Modules");
+
+        MethodInfo? register = registrarType.GetMethod(
+            "Register",
+            BindingFlags.Public | BindingFlags.Static,
+            binder: null,
+            [typeof(IServiceCollection), typeof(IConfiguration)],
+            modifiers: null);
+
+        register.Should().NotBeNull(
+            $"{registrarType.Name} must expose public static Register(IServiceCollection, IConfiguration)");
+        register!.ReturnType.Should().Be(typeof(void));
+    }
+
+    [Fact]
+    public void AuthorityCommitPipelineCompositionRegistrar_registers_commit_orchestrator()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        AuthorityCommitPipelineCompositionRegistrar.Register(services, configuration);
+
+        services.Should().Contain(static d =>
+            d.ServiceType == typeof(IArchitectureRunCommitOrchestrator) &&
+            d.ImplementationType == typeof(AuthorityDrivenArchitectureRunCommitOrchestrator));
+    }
+
+    [Fact]
+    public void DraftIntakeCompositionRegistrar_registers_draft_request_service()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        DraftIntakeCompositionRegistrar.Register(services, configuration);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(IDraftRequestService));
+    }
+
+    [Fact]
+    public void ContextIngestionCompositionRegistrar_registers_context_ingestion_service()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        ContextIngestionCompositionRegistrar.Register(services, configuration);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(IContextIngestionService));
+    }
+
+    [Fact]
+    public void SponsorRoiCompositionRegistrar_registers_sponsor_roi_summary_service()
+    {
+        IConfiguration configuration = CreateModuleTestConfiguration();
+        ServiceCollection services = [];
+
+        SponsorRoiCompositionRegistrar.Register(services, configuration);
+
+        services.Should().Contain(static d => d.ServiceType == typeof(ISponsorRoiSummaryService));
     }
 
     [Theory]
