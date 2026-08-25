@@ -212,8 +212,46 @@ public sealed class ArchitectureKnowledgeModelAccessTests
     model!.ModelId.Should().Be("run-model");
   }
 
-  [Fact]
-  public void AddArchitectureIntelligence_registers_IArchitectureKnowledgeModelAccess()
+    [Fact]
+    public async Task GetForRunAsync_returns_cloned_model_not_shared_persistence_instance()
+    {
+        Guid runId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        string tenantId = TestScope.TenantId.ToString("D");
+        ArchitectureKnowledgeModel stored = new()
+        {
+            ModelId = "stored-model",
+            TenantId = tenantId,
+            RunId = runId.ToString("D"),
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "svc-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "API",
+                },
+            ],
+        };
+
+        Mock<IArchitectureIntelligencePersistence> persistence = new();
+        persistence
+            .Setup(p => p.GetModelByRunIdAsync(tenantId, runId.ToString("D"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(stored);
+
+        Mock<IRunRepository> runs = new();
+
+        ArchitectureKnowledgeModelAccess access = new(persistence.Object, runs.Object);
+
+        ArchitectureKnowledgeModel? loaded = await access.GetForRunAsync(TestScope, runId);
+
+        loaded.Should().NotBeSameAs(stored);
+        loaded!.Elements[0].Name = "mutated";
+
+        stored.Elements[0].Name.Should().Be("API");
+    }
+
+    [Fact]
+    public void AddArchitectureIntelligence_registers_IArchitectureKnowledgeModelAccess()
   {
     ServiceCollection services = new();
     services.AddArchitectureIntelligence();

@@ -49,7 +49,7 @@ public sealed class ArchitectureKnowledgeModelAccess(
                     .ConfigureAwait(false);
 
                 if (pinned is not null)
-                    return pinned;
+                    return ArchitectureKnowledgeModelCloner.Clone(pinned);
             }
         }
 
@@ -57,7 +57,7 @@ public sealed class ArchitectureKnowledgeModelAccess(
             .ConfigureAwait(false);
 
         if (runScoped is not null)
-            return runScoped;
+            return ArchitectureKnowledgeModelCloner.Clone(runScoped);
 
         if (_runRepository is not null
             && run is not null
@@ -163,7 +163,9 @@ public sealed class ArchitectureKnowledgeModelAccess(
 
         return await _persistence!
             .GetModelAsync(tenantId, identity.CurrentModelId, cancellationToken)
-            .ConfigureAwait(false);
+            .ConfigureAwait(false) is ArchitectureKnowledgeModel loaded
+            ? ArchitectureKnowledgeModelCloner.Clone(loaded)
+            : null;
     }
 
     private async Task<ArchitectureKnowledgeModel?> LoadByRunIdFallbackAsync(
