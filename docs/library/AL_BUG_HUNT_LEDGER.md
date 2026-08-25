@@ -1510,11 +1510,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — snapshot muted severity buckets; unresolved PilotStrict pass; scorecard ready-for-commit counted as committed; buyer proof summary omitted governed coverage
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — value report counted ReadyForCommit runs with manifest ids as committed
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1528,6 +1528,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Unresolved PilotStrict trace query reported satisfied sponsor evidence — **hit 2026-08-24:** `PilotProofPackageCompletenessMapper` treated `AgentOutputPilotStrictSignalsResolved=false` as pass; fixed with explicit resolved check plus gate soft-gap (`Build_UnresolvedPilotStrictSignals_FlagsEvidenceUnsatisfied`).
 - [x] (proven) `PilotScorecardBuilder` counted `ReadyForCommit` runs with manifest ids as committed — **hit 2026-08-24:** predicate used manifest version/id only; fixed to require `LegacyRunStatus == Committed` (`PilotScorecardBuilderTests.BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted`).
 - [x] (proven) Buyer proof `artifact-and-proof-summary.md` omitted governed-finding coverage — **hit 2026-08-24:** `BuyerProofPackArtifactSummaryBuilder` ignored `governedFindingCoverage` in deltas JSON (`BuyerProofPackArtifactSummaryBuilderTests.Build_WhenGovernedFindingCoveragePresent_EmitsGovernedCoverageSection`).
+- [x] (proven) `PilotValueReportService.IsCommittedSummary` ORed `Status == Committed` with non-empty `CurrentManifestVersion` — **hit 2026-08-25:** ReadyForCommit runs with manifest version inflated `TotalRunsCommitted` and timeline (`PilotValueReportServiceTests.BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted`).
+- [ ] (hunt-ready) `RecentPilotRunDeltasService.IsCommitted` keys on manifest version instead of run status (same predicate shape as pre-fix scorecard/value report).
 
 ---
 
