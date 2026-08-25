@@ -212,28 +212,13 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
     {
         IBaselineMutationAuditService audit = Mock.Of<IBaselineMutationAuditService>();
 
-        return new ArchitectureRunCreateOrchestrator(
+        return ArchitectureRunCreateOrchestratorTestSupport.CreateOrchestrator(
             coordination,
-            Mock.Of<IArchitectureRequestRepository>(),
-            runRepository,
-            scopeContextProvider,
-            evidenceBundleRepository,
-            taskRepository,
-            architectureRunIdempotencyRepository,
-            actorContext,
-            audit,
-            Mock.Of<IAuditService>(),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            Mock.Of<IUsageMeteringService>(),
-            new InProcessCreateRunIdempotencyLock(),
-            Options.Create(new ArchitectureRunCreateOptions()),
-            new DisabledAsyncAuthorityPipelineModeResolver(),
-            Mock.Of<IRunStateTransitionService>(),
-            TimeProvider.System,
-            new DefaultRequestContentSafetyPrecheck(),
-            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
-            WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
-            Mock.Of<IArchitectureIdentityService>(),
-            NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
+            runRepository: runRepository,
+            scopeContextProvider: scopeContextProvider,
+            evidenceBundleRepository: evidenceBundleRepository,
+            taskRepository: taskRepository,
+            architectureRunIdempotencyRepository: architectureRunIdempotencyRepository,
+            actorContext: actorContext);
     }
 }

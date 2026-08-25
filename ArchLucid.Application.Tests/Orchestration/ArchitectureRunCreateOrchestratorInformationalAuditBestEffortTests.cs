@@ -121,29 +121,18 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             CloudProvider = CloudProvider.Azure,
         };
 
-        ArchitectureRunCreateOrchestrator sut = new(
+        ArchitectureRunCreateOrchestrator sut = ArchitectureRunCreateOrchestratorTestSupport.CreateOrchestrator(
             coordination.Object,
-            requestRepo.Object,
-            runRepo.Object,
-            scopeProvider.Object,
-            evidenceRepo.Object,
-            taskRepo.Object,
-            idempotencyRepo.Object,
-            actorContext.Object,
-            baselineAudit.Object,
-            auditService.Object,
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            metering.Object,
-            new InProcessCreateRunIdempotencyLock(),
-            Options.Create(new ArchitectureRunCreateOptions()),
-            new DisabledAsyncAuthorityPipelineModeResolver(),
-            Mock.Of<IRunStateTransitionService>(),
-            TimeProvider.System,
-            new DefaultRequestContentSafetyPrecheck(),
-            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
-            Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
-            Mock.Of<IArchitectureIdentityService>(),
-            NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
+            requestRepository: requestRepo.Object,
+            runRepository: runRepo.Object,
+            scopeContextProvider: scopeProvider.Object,
+            evidenceBundleRepository: evidenceRepo.Object,
+            taskRepository: taskRepo.Object,
+            architectureRunIdempotencyRepository: idempotencyRepo.Object,
+            actorContext: actorContext.Object,
+            baselineMutationAudit: baselineAudit.Object,
+            auditService: auditService.Object,
+            usageMetering: metering.Object);
 
         CreateRunResult result = await sut.CreateRunAsync(request, null, CancellationToken.None);
 
