@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,10 @@ import {
   ALERT_TUNING_RANKING_FACTORS_HEADING,
   formatAlertTuningScoreAxisLines,
 } from "@/lib/alert-tuning-score-labels";
+import {
+  resolveAlertTuningRecommendEmphasizedStepId,
+  resolveAlertTuningRecommendSteps,
+} from "@/lib/alert-tuning-recommend-checklist";
 import {
   alertToolingChangeConfigurationHeadingOperator,
   alertToolingConfigureSectionSubline,
@@ -220,6 +225,19 @@ export function AlertTuningContent() {
   }
 
   const recommendedLabel = result?.recommendedCandidate?.candidate.label;
+  const signalChosen =
+    ruleKind === "Simple" ? ruleType.trim().length > 0 : tunedMetricComposite.trim().length > 0;
+  const windowSet =
+    (Number.isFinite(recentRunCount) && recentRunCount >= 1) || runSlug.trim().length > 0;
+  const recommendComplete = result !== null;
+  const recommendChecklistInput = {
+    signalChosen,
+    windowSet,
+    recommendComplete,
+  };
+  const recommendSteps = resolveAlertTuningRecommendSteps(recommendChecklistInput);
+  const recommendEmphasizedStepId =
+    resolveAlertTuningRecommendEmphasizedStepId(recommendChecklistInput);
 
   return (
     <div>
@@ -285,7 +303,13 @@ export function AlertTuningContent() {
           <p className={cn("mb-2.5 mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {alertToolingConfigureSectionSubline}
           </p>
-      <div className="mb-6 grid max-w-3xl gap-3">
+          <IntegrationConnectChecklist
+            title="Recommend checklist"
+            steps={recommendSteps}
+            emphasizedStepId={recommendEmphasizedStepId}
+            testIdPrefix="alert-tuning-recommend"
+          />
+          <div className="mb-6 mt-4 grid max-w-3xl gap-3">
         <div>
           <Label htmlFor="alert-tuning-rule-kind">Rule kind</Label>
           <select

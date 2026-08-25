@@ -78,6 +78,7 @@ describe("AlertTuningContent TB-1593", () => {
     expect(screen.getAllByText(/Unwanted alert penalty: 0\.15/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Overall ranking score: 0\.64/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("All candidates (highest overall ranking first)")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-tuning-recommend-setup-step-recommend")).toHaveTextContent("Done");
 
     expect(screen.queryByText(/Coverage:/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Noise penalty:/)).not.toBeInTheDocument();
@@ -95,6 +96,11 @@ describe("AlertTuningContent TB-1590", () => {
     render(<AlertTuningContent />);
 
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-tuning-recommend-setup-progress")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-tuning-recommend-setup-step-recommend")).toHaveAttribute(
+      "data-emphasized",
+      "true",
+    );
     expect(screen.getByTestId("alert-tuning-recommend-submit")).toHaveTextContent("Recommend threshold");
   });
 
