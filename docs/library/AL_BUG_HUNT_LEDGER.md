@@ -2004,13 +2004,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -2020,6 +2020,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.SimulateBulk` — pack id from another tenant scope → dry-run evaluates foreign pack content (only `IsDeleted` checked, not tenant/workspace/project vs `scope`) (2026-08-23)
 - [x] (proven) `PolicyPacksController.Publish` omitted tenant/workspace/project scope check before `PublishVersionAsync` — cross-tenant publish returned 200 (ledger hit 2026-08-18; controller guard added 2026-08-24).
 - [x] (proven) `PolicyPacksController.Assign` omitted pack scope check — foreign pack id with existing version created assignment rows in caller tenant scope (2026-08-24).
+- [x] (proven) `PolicyPacksController.DuplicatePack` / `DeletePack` omitted workspace/project scope check — same-tenant foreign workspace pack id duplicated or soft-deleted via `TryDuplicatePackAsync` / `TrySoftDeletePackAsync` (tenant-only guard) — **hit 2026-08-25:** `PolicyPackWorkflowFacade` now applies `IsPackVisibleInScope` before mutate; regression in `PolicyPackWorkflowFacadeTests` and `PolicyPacksControllerDuplicateDeleteScopeTests`.
 
 ---
 
