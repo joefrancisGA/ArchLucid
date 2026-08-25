@@ -10,6 +10,7 @@ import { PolicyPackContentJsonEditor } from "@/components/policy/PolicyPackConte
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { InlineHelp } from "@/components/InlineHelp";
 import { GovernanceDryRunModal } from "@/components/governance/GovernanceDryRunModal";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,10 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  resolvePolicyPackAssignEmphasizedStepId,
+  resolvePolicyPackAssignSteps,
+} from "@/lib/policy-pack-assign-checklist";
 import { PACK_TYPES, VERTICAL_POLICY_PACK_IMPORTS } from "./policy-packs-page-constants";
 import { PolicyPacksPickReviewBeforeAssigningStrip } from "./PolicyPacksPickReviewBeforeAssigningStrip";
 
@@ -91,6 +96,13 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
 
   const scopedReviewId = pickedReviewId.trim();
   const scopedReviewFilterActive = scopedReviewId.length > 0;
+  const assignChecklistInput = {
+    reviewPicked: scopedReviewFilterActive,
+    packSelected: selectedPackId.trim().length > 0,
+    versionConfigured: assignVersion.trim().length > 0,
+  };
+  const assignChecklistSteps = resolvePolicyPackAssignSteps(assignChecklistInput);
+  const assignChecklistEmphasizedStepId = resolvePolicyPackAssignEmphasizedStepId(assignChecklistInput);
 
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
 
@@ -299,7 +311,13 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
           )}
           {scopedReviewFilterActive ? (
             <>
-              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              <IntegrationConnectChecklist
+                title="Assign policy pack checklist"
+                steps={assignChecklistSteps}
+                emphasizedStepId={assignChecklistEmphasizedStepId}
+                testIdPrefix="policy-pack-assign"
+              />
+              <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 Assignment must reference an existing version string for that pack (e.g. the one you published).
               </p>
               <PolicyPackChangeImpactNotice findingCount={0} />
