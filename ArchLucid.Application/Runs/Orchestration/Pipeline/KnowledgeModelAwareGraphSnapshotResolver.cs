@@ -34,6 +34,24 @@ public static class KnowledgeModelAwareGraphSnapshotResolver
 
         if (knowledgeModel is not null && HasProjectableElements(knowledgeModel))
         {
+            if (priorCommittedContext is not null
+                && GraphSnapshotCanonicalFingerprint.AreEquivalentForReuse(
+                    priorCommittedContext,
+                    contextSnapshot,
+                    priorKnowledgeModel,
+                    knowledgeModel))
+            {
+                GraphSnapshot? priorGraph = await graphSnapshotRepository
+                    .GetLatestByContextSnapshotIdAsync(scope, priorCommittedContext.SnapshotId, ct);
+
+                if (priorGraph is not null)
+                {
+                    GraphSnapshot cloned = GraphSnapshotCloner.CloneForNewRun(priorGraph, contextSnapshot, runId);
+
+                    return new GraphSnapshotResolutionResult(cloned, "cloned_knowledge_model_fingerprint_match");
+                }
+            }
+
             GraphSnapshot contextGraph = await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
             GraphSnapshot modelGraph = knowledgeModelGraphProjector.Project(knowledgeModel, contextSnapshot, runId);
             GraphSnapshot merged = MergeGraphSnapshots(contextGraph, modelGraph);
