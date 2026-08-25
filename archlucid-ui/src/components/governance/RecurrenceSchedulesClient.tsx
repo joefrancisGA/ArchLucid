@@ -17,6 +17,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OperatorInventoryRowMoreActions } from "@/components/operator/OperatorInventoryRowMoreActions";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
+import { RecurrenceSchedulesContinueLastViewedRow } from "@/components/governance/RecurrenceSchedulesContinueLastViewedRow";
 import { RecurrenceScheduleCreatePanel } from "@/components/governance/RecurrenceScheduleCreatePanel";
 import { RecurrenceScheduleWorkspaceActiveReviewStrip } from "@/components/governance/RecurrenceScheduleWorkspaceActiveReviewStrip";
 import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
@@ -40,6 +41,10 @@ import {
   updateArchitectureReviewRecurrenceSchedule,
   type ArchitectureReviewRecurrenceSchedule,
 } from "@/lib/api/governance-stickiness-api";
+import {
+  resolveContinueLastRecurrenceSchedule,
+  writeRecurrenceScheduleLastViewedId,
+} from "@/lib/resolve-continue-last-recurrence-schedule";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reversibleControlLabel, reversibleControlStateLabel } from "@/lib/reversible-control-verbs";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
@@ -256,6 +261,7 @@ export default function RecurrenceSchedulesClient() {
       return;
     }
 
+    rememberSchedule(schedule.scheduleId);
     await executeToggleEnabled(schedule, true);
   }
 
@@ -280,7 +286,25 @@ export default function RecurrenceSchedulesClient() {
     }
   }
 
+  function rememberSchedule(scheduleId: string): void {
+    writeRecurrenceScheduleLastViewedId(scheduleId);
+  }
+
+  function openSchedule(scheduleId: string): void {
+    rememberSchedule(scheduleId);
+    const match = schedules.find((schedule) => schedule.scheduleId === scheduleId);
+
+    if (match !== undefined) {
+      beginEdit(match);
+    }
+
+    document
+      .querySelector(`[data-recurrence-schedule-id="${scheduleId}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   function beginEdit(schedule: ArchitectureReviewRecurrenceSchedule): void {
+    rememberSchedule(schedule.scheduleId);
     setEditingId(schedule.scheduleId);
     setEditorState({
       name: schedule.name,
@@ -331,6 +355,10 @@ export default function RecurrenceSchedulesClient() {
   ] as const;
 
   const isEmpty = schedules.length === 0;
+  const continueLastSchedule = useMemo(
+    () => resolveContinueLastRecurrenceSchedule(schedules),
+    [schedules],
+  );
   const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
   const mutationDisabledHintId = "recurrence-schedules-mutate-disabled-hint";
 
@@ -466,6 +494,13 @@ export default function RecurrenceSchedulesClient() {
               />
             </>
           ) : (
+            <>
+            {continueLastSchedule !== null ? (
+              <RecurrenceSchedulesContinueLastViewedRow
+                target={continueLastSchedule}
+                onOpen={openSchedule}
+              />
+            ) : null}
             <EnterpriseTable ariaLabel="Architecture review recurrence schedules">
               <EnterpriseTableHead>
                 <EnterpriseTableHeadRow>
@@ -487,7 +522,10 @@ export default function RecurrenceSchedulesClient() {
                   const isEditing = editingId === schedule.scheduleId;
 
                   return (
-                    <EnterpriseTableRow key={schedule.scheduleId}>
+                    <EnterpriseTableRow
+                      key={schedule.scheduleId}
+                      data-recurrence-schedule-id={schedule.scheduleId}
+                    >
                       <EnterpriseTableCell>{schedule.name}</EnterpriseTableCell>
                       <EnterpriseTableCell>
                         <Link
@@ -585,7 +623,14 @@ export default function RecurrenceSchedulesClient() {
                             primaryActions={
                               <>
                                 <Button asChild size="sm" variant="outline">
-                                  <Link href={`/architecture/reviews/${schedule.sourceRunId}`}>View</Link>
+                                  <Link
+                                    href={`/architecture/reviews/${schedule.sourceRunId}`}
+                                    onClick={() => {
+                                      rememberSchedule(schedule.scheduleId);
+                                    }}
+                                  >
+                                    View
+                                  </Link>
                                 </Button>
                                 <Button
                                   type="button"
@@ -631,6 +676,7 @@ export default function RecurrenceSchedulesClient() {
                 })}
               </EnterpriseTableBody>
             </EnterpriseTable>
+            </>
           )}
       </div>
 
@@ -655,6 +701,7 @@ export default function RecurrenceSchedulesClient() {
             return;
           }
 
+          rememberSchedule(pendingDisable.scheduleId);
           void executeToggleEnabled(pendingDisable, false)
             .then(() => {
               setPendingDisable(null);
