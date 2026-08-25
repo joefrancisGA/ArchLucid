@@ -8,6 +8,7 @@ import {
   normalizeScopeUnderstandingBullets,
   reconcileScopeUnderstandingBullets,
   scopeBulletText,
+  scopeConfirmedSummaryMessage,
   validateScopeUnderstandingItem,
   SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
   SCOPE_ITEM_DUPLICATE_MESSAGE,
@@ -313,5 +314,15 @@ describe("normalizeScopeUnderstandingBullets", () => {
 
     expect(normalized).toHaveLength(1);
     expect(normalized[0]?.value).toBe("Tenant isolation boundary");
+  });
+});
+
+describe("scopeConfirmedSummaryMessage", () => {
+  it("uses singular copy for one saved line", () => {
+    expect(scopeConfirmedSummaryMessage(1)).toBe("1 scope line saved to the intake brief.");
+  });
+
+  it("uses plural copy for multiple saved lines", () => {
+    expect(scopeConfirmedSummaryMessage(3)).toBe("3 scope lines saved to the intake brief.");
   });
 });

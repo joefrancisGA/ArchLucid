@@ -13,8 +13,14 @@ import {
   SCOPE_UNDERSTANDING_ADD_PLACEHOLDER,
   SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT,
   SCOPE_UNDERSTANDING_CONFIRM_LABEL,
+  SCOPE_UNDERSTANDING_CONFIRMED_STATUS_LABEL,
+  SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL,
   SCOPE_UNDERSTANDING_HEADING,
   SCOPE_UNDERSTANDING_HELPER,
+  SCOPE_UNDERSTANDING_READY_HINT,
+  SCOPE_UNDERSTANDING_SAVING_HINT,
+  SCOPE_UNDERSTANDING_STALE_HINT,
+  scopeConfirmedSummaryMessage,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 
@@ -239,10 +245,15 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL }));
 
     expect(screen.getByTestId("architecture-scope-understanding-ready")).toBeInTheDocument();
+    expect(screen.getByText(SCOPE_UNDERSTANDING_CONFIRMED_STATUS_LABEL)).toBeInTheDocument();
+    expect(screen.getByText(scopeConfirmedSummaryMessage(1))).toBeInTheDocument();
+    expect(screen.getByText(SCOPE_UNDERSTANDING_READY_HINT)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL })).not.toBeInTheDocument();
     expect(onGateChange).toHaveBeenCalledWith(true);
   });
 
-  it("keeps the ready line visible while draft persistence is in flight", () => {
+  it("shows a saving status while draft persistence is in flight after confirm", () => {
     render(
       <ArchitectureScopeUnderstandingCheckPanel
         input={{ architectureName: "Vertex" }}
@@ -253,7 +264,10 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL }));
 
     expect(screen.getByTestId("architecture-scope-understanding-ready")).toBeInTheDocument();
-    expect(screen.queryByTestId("architecture-scope-understanding-saving")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-scope-understanding-saving")).toHaveTextContent(
+      SCOPE_UNDERSTANDING_SAVING_HINT,
+    );
+    expect(screen.getByText("Saving")).toBeInTheDocument();
   });
 
   it("shows a save error after scope is confirmed when draft persistence failed", () => {
@@ -269,6 +283,7 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     expect(screen.getByTestId("architecture-scope-understanding-save-error")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-scope-understanding-saving")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-scope-understanding-ready")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL })).toBeInTheDocument();
   });
 
   it("reopens the gate when the form changes after scope was confirmed", () => {
@@ -291,7 +306,29 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     );
 
     expect(screen.queryByTestId("architecture-scope-understanding-ready")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-scope-understanding-stale")).toHaveTextContent(
+      SCOPE_UNDERSTANDING_STALE_HINT,
+    );
     expect(onGateChange).toHaveBeenLastCalledWith(false);
     expect(screen.getByLabelText(scopeBulletBehavior("system").label)).toHaveValue("Vertex 2");
+    expect(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL })).toBeEnabled();
+  });
+
+  it("reopens editing when the operator chooses Edit scope", () => {
+    const onGateChange = vi.fn();
+
+    render(
+      <ArchitectureScopeUnderstandingCheckPanel
+        input={{ architectureName: "Vertex" }}
+        onGateChange={onGateChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL }));
+    fireEvent.click(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL }));
+
+    expect(screen.queryByTestId("architecture-scope-understanding-ready")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL })).toBeEnabled();
+    expect(onGateChange).toHaveBeenLastCalledWith(false);
   });
 });

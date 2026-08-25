@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useMemo, useRef, useState, type Dispatch, type MouseEvent, type SetStateAction } from "react";
 
 import { ArchitectureScopeUnderstandingRow } from "@/components/architecture/ArchitectureScopeUnderstandingRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StatusTag } from "@/components/ui/status-tag";
 import type { ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import {
   deriveScopeUnderstandingBullets,
@@ -20,16 +21,23 @@ import {
   SCOPE_UNDERSTANDING_ADD_LABEL,
   SCOPE_UNDERSTANDING_ADD_PLACEHOLDER,
   canConfirmScopeUnderstanding,
+  scopeBriefLines,
+  scopeConfirmedSummaryMessage,
   SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT,
   SCOPE_UNDERSTANDING_CONFIRM_LABEL,
+  SCOPE_UNDERSTANDING_CONFIRMED_STATUS_LABEL,
+  SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL,
   SCOPE_UNDERSTANDING_HEADING,
   SCOPE_UNDERSTANDING_HELPER,
   SCOPE_UNDERSTANDING_READY_HINT,
   SCOPE_UNDERSTANDING_SAVE_ERROR_HINT,
+  SCOPE_UNDERSTANDING_SAVING_HINT,
+  SCOPE_UNDERSTANDING_STALE_HINT,
   type DeriveScopeUnderstandingBulletsInput,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureScopeUnderstandingCheckPanelProps = {
@@ -41,6 +49,9 @@ export type ArchitectureScopeUnderstandingCheckPanelProps = {
   readonly readyHint?: string;
   /** Draft persistence on architecture draft surfaces — suppresses the ready line while save is in flight. */
   readonly draftSaveState?: ArchitectureDraftSaveState;
+  /** Same-page anchor for the next workflow step after scope is confirmed (e.g. start review CTA). */
+  readonly nextStepAnchorId?: string;
+  readonly nextStepAnchorLabel?: string;
   readonly onBulletsChange?: Dispatch<SetStateAction<ScopeUnderstandingBullet[]>>;
   readonly onGateChange?: (gateOpen: boolean) => void;
 };
@@ -57,6 +68,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
   const [newBulletText, setNewBulletText] = useState("");
   const [confirmed, setConfirmed] = useState(false);
+  const [scopeStale, setScopeStale] = useState(false);
   // Monotonic so a remove-then-add cycle cannot reuse an id that is still on screen.
   const operatorRowCounterRef = useRef(0);
   const reconciledInferredRef = useRef(inferredBullets);
@@ -80,6 +92,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
     // Scope confirmed against older form values is stale, so the operator re-confirms what changed.
     if (confirmed) {
       setConfirmed(false);
+      setScopeStale(true);
       onGateChange?.(false);
     }
   }, [inferredBullets, confirmed, dismissedIds, onGateChange]);
@@ -87,6 +100,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
   const applyBullets = (nextBullets: ScopeUnderstandingBullet[]) => {
     setBullets(nextBullets);
     setConfirmed(false);
+    setScopeStale(false);
     props.onBulletsChange?.(nextBullets);
     props.onGateChange?.(false);
   };
@@ -121,8 +135,15 @@ export function ArchitectureScopeUnderstandingCheckPanel(
 
     setBullets(normalized);
     setConfirmed(true);
+    setScopeStale(false);
     props.onBulletsChange?.(normalized);
     props.onGateChange?.(true);
+  };
+
+  const handleEditScope = () => {
+    setConfirmed(false);
+    setScopeStale(false);
+    props.onGateChange?.(false);
   };
 
   const addValidation = useMemo(
@@ -135,6 +156,9 @@ export function ArchitectureScopeUnderstandingCheckPanel(
     () => canConfirmScopeUnderstanding(bullets, props.input),
     [bullets, props.input],
   );
+  const confirmedBriefLineCount = useMemo(() => scopeBriefLines(bullets).length, [bullets]);
+  const scopePersistenceInFlight =
+    props.draftSaveState === "saving" || props.draftSaveState === "unsaved";
   const canAddBullet = editingAllowed && addValidation.status === "valid";
   const addErrorMessage =
     editingAllowed && addValidation.status === "invalid" ? addValidation.message : null;
@@ -165,6 +189,18 @@ export function ArchitectureScopeUnderstandingCheckPanel(
     }
 
     return "architecture-scope-understanding-add-effect";
+  };
+
+  const handleNextStepJump = (event: MouseEvent<HTMLAnchorElement>) => {
+    const anchorId = props.nextStepAnchorId?.trim() ?? "";
+
+    if (anchorId.length === 0) {
+      return;
+    }
+
+    event.preventDefault();
+    scheduleScrollDeepLinkTargetIntoView(anchorId);
+    document.getElementById(anchorId)?.focus({ preventScroll: true });
   };
 
   return (
@@ -277,37 +313,105 @@ export function ArchitectureScopeUnderstandingCheckPanel(
         </p>
       ) : null}
 
-      <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          variant="primary"
-          size="sm"
-          disabled={props.disabled === true || confirmed || !canConfirmScope}
-          data-testid="architecture-scope-understanding-confirm"
-          onClick={handleConfirm}
+      {!confirmed && scopeStale ? (
+        <div
+          className={cn(DESIGN_TOKENS.callout.warnShell, "items-start")}
+          role="status"
+          data-testid="architecture-scope-understanding-stale"
         >
-          {SCOPE_UNDERSTANDING_CONFIRM_LABEL}
-        </Button>
-      </div>
+          <StatusTag kind="needs-attention" label="Re-confirm scope" />
+          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {SCOPE_UNDERSTANDING_STALE_HINT}
+          </p>
+        </div>
+      ) : null}
 
       {confirmed ? (
         props.draftSaveState === "error" ? (
-          <p
-            className={cn("m-0 text-red-800 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}
+          <div
+            className={cn(DESIGN_TOKENS.callout.blockedShell, "items-start")}
             role="alert"
             data-testid="architecture-scope-understanding-save-error"
           >
-            {SCOPE_UNDERSTANDING_SAVE_ERROR_HINT}
-          </p>
+            <StatusTag kind="blocked" label="Save failed" />
+            <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {SCOPE_UNDERSTANDING_SAVE_ERROR_HINT}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={props.disabled === true}
+              data-testid="architecture-scope-understanding-edit-scope"
+              onClick={handleEditScope}
+            >
+              {SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL}
+            </Button>
+          </div>
         ) : (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          <div
+            className={cn(DESIGN_TOKENS.callout.success, "space-y-2")}
+            role="status"
+            aria-live="polite"
             data-testid="architecture-scope-understanding-ready"
           >
-            {props.readyHint ?? SCOPE_UNDERSTANDING_READY_HINT}
-          </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusTag kind="ready" label={SCOPE_UNDERSTANDING_CONFIRMED_STATUS_LABEL} />
+              {scopePersistenceInFlight ? <StatusTag kind="in-progress" label="Saving" /> : null}
+            </div>
+            <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {scopeConfirmedSummaryMessage(confirmedBriefLineCount)}
+            </p>
+            {scopePersistenceInFlight ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="architecture-scope-understanding-saving"
+              >
+                {SCOPE_UNDERSTANDING_SAVING_HINT}
+              </p>
+            ) : (
+              <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+                {props.readyHint ?? SCOPE_UNDERSTANDING_READY_HINT}
+              </p>
+            )}
+            {props.nextStepAnchorId !== undefined && props.nextStepAnchorId.trim().length > 0 ? (
+              <a
+                href={`#${props.nextStepAnchorId}`}
+                className={OPERATOR_LINK.nav}
+                data-testid="architecture-scope-understanding-next-step"
+                onClick={handleNextStepJump}
+              >
+                {props.nextStepAnchorLabel ?? "Continue"}
+              </a>
+            ) : null}
+            <div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={props.disabled === true}
+                data-testid="architecture-scope-understanding-edit-scope"
+                onClick={handleEditScope}
+              >
+                {SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL}
+              </Button>
+            </div>
+          </div>
         )
-      ) : null}
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            disabled={props.disabled === true || !canConfirmScope}
+            data-testid="architecture-scope-understanding-confirm"
+            onClick={handleConfirm}
+          >
+            {SCOPE_UNDERSTANDING_CONFIRM_LABEL}
+          </Button>
+        </div>
+      )}
     </section>
   );
 }

@@ -65,16 +65,29 @@ export const SCOPE_UNDERSTANDING_READ_ONLY_HINT = scopeReadOnlyHint(
   SCOPE_CONTEXT_SOURCE_DEFAULT_LABEL,
 );
 export const SCOPE_UNDERSTANDING_CONFIRM_LABEL = "Confirm scope";
+export const SCOPE_UNDERSTANDING_CONFIRMED_STATUS_LABEL = "Scope confirmed";
+export const SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL = "Edit scope";
 /** Shown near Confirm scope when only placeholder guidance is present (TB-2005). */
 export const SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT =
   "Add at least one in-scope item from the brief above before confirming scope.";
 export const SCOPE_UNDERSTANDING_SECTION_HEADER = "Operator-confirmed in-scope understanding";
 /** Ready line for surfaces where confirming scope is the last step before the review starts. */
-export const SCOPE_UNDERSTANDING_READY_HINT = "Scope confirmed — you can start the review.";
+export const SCOPE_UNDERSTANDING_READY_HINT = "You can start the review.";
 export const SCOPE_UNDERSTANDING_SAVE_ERROR_HINT =
   "Scope is confirmed locally, but the draft could not be saved. Fix the errors above, then save again.";
+export const SCOPE_UNDERSTANDING_SAVING_HINT = "Saving scope to draft…";
+export const SCOPE_UNDERSTANDING_STALE_HINT =
+  "Scope changed — re-confirm before starting a review.";
+export const SCOPE_UNDERSTANDING_JUMP_TO_START_REVIEW_LABEL = "Jump to start review";
 /** Ready line for wizards that confirm scope on an earlier step. */
-export const SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT = "Scope confirmed — you can continue.";
+export const SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT = "You can continue.";
+
+/** Quantifies what confirmation saved so the operator sees a concrete result. */
+export function scopeConfirmedSummaryMessage(lineCount: number): string {
+  const noun = lineCount === 1 ? "line" : "lines";
+
+  return `${lineCount} scope ${noun} saved to the intake brief.`;
+}
 
 /** Preview length for the read-only context row. Display-only: the excerpt is never merged into the brief. */
 export const SCOPE_CONTEXT_PREVIEW_MAX_LENGTH = 180;

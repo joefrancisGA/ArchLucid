@@ -82,6 +82,7 @@ import {
 } from "@/lib/architecture/architecture-draft-intake-mode";
 import {
   mergeScopeBulletsIntoBrief,
+  SCOPE_UNDERSTANDING_JUMP_TO_START_REVIEW_LABEL,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
@@ -754,6 +755,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           input={scopeUnderstandingInput}
           disabled={handoffEditorLocked || exitPending || reviewStartProgress.isPending}
           draftSaveState={saveState}
+          nextStepAnchorId="architecture-start-review-action"
+          nextStepAnchorLabel={SCOPE_UNDERSTANDING_JUMP_TO_START_REVIEW_LABEL}
           onBulletsChange={setScopeBullets}
           onGateChange={setScopeGateOpen}
         />
@@ -836,6 +839,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
               type="button"
               variant="primary"
               size="sm"
+              id="architecture-start-review-action"
               disabled={!canStartReview}
               isLoading={reviewStartProgress.isPending}
               idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
