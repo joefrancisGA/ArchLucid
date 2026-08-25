@@ -17,12 +17,13 @@ Ship the redesign incrementally: **canonical routes** plus **legacy aliases** so
 - **`RunSubmitted`** audit on successful submit (not pilot-only).
 - **`InvalidOperationException`** on finalize maps to **`BusinessRuleViolation`**, not export failures.
 
-### Review trail & manifest reads (`AuthorityQueryController`)
+### Review trail & manifest reads (`AuthorityReadsController`)
 
-- **`GET /v1/runs/{runId}/review-trail`** → same payload as `…/pipeline-timeline`.
-- **`GET /v1/runs/{runId}/review-trail/rationale`** and **`…/provenance`** duplicate legacy authority routes.
+- **`GET /v1/runs/{runId}/review-trail`** → audit timeline (legacy: `authority/reviews/…/pipeline-timeline`).
+- **`GET /v1/runs/{runId}/review-trail/rationale`** and **`…/provenance`** consolidate legacy authority routes.
 - **`GET /v1/runs/{runId}/manifest`** returns golden manifest JSON; emits **`ManifestViewed`** when present.
-- Audits: **`ReviewTrailAccessed`** (timeline), **`ProvenanceAccessed`** (graph).
+- **`GET /v1/runs/{runId}/review-trail/export`** ZIP export (legacy: `architecture/review/…/traceability-bundle.zip`).
+- Legacy **`AuthorityQueryController`** routes marked **`[Obsolete]`** and delegate to shared **`AuthorityRunReadHandlers`**.
 
 ### Internal / operator diagnostics
 
@@ -49,7 +50,7 @@ Ship the redesign incrementally: **canonical routes** plus **legacy aliases** so
 | Approach | Trade-off |
 |----------|-----------|
 | **Hard-remove legacy routes** | Breaks existing integrations; deferred until clients migrate. |
-| **Full merge of `RunQueryController` + `AuthorityQueryController`** | Large refactor risk; instead aligned routes and shared paging/envelopes first. |
+| **Full merge of `RunQueryController` + `AuthorityQueryController`** | Large refactor risk; **partial merge shipped (2026-08-24):** `AuthorityReadsController` + `AuthorityRunReadHandlers` for `/v1/runs/*` review-trail/manifest/list/detail; findings alias on `RunQueryController`; legacy authority routes `[Obsolete]`. |
 | **DB-backed idempotency for governance POSTs** | Stronger dedupe guarantees; not implemented here — header is **required** and hashed into audit payload for traceability. |
 
 ## Operational considerations

@@ -27,10 +27,6 @@
 
 6. **Tighten governance API boundaries** — Move orchestration out of `PolicyPacksController.cs` (~925 lines); clarify workflow facade over 58 governance services. **Impact:** High · **Effort:** High · **Paths:** `ArchLucid.Api/Controllers/Governance/`, `ArchLucid.Application/Governance/`
 
-9. **Merge API query controllers / retire legacy routes** — Consolidate `RunQueryController` and `AuthorityQueryController` overlapping reads; sunset legacy aliases. **Impact:** Medium · **Effort:** Medium · **Note:** `docs/architecture/api/REST_API_REDESIGN_IMPLEMENTATION_NOTES.md`
-
-10. **Merge API query controllers / retire legacy routes** — Consolidate `RunQueryController` and `AuthorityQueryController` overlapping reads; sunset legacy aliases. **Impact:** Medium · **Effort:** Medium · **Note:** `docs/architecture/api/REST_API_REDESIGN_IMPLEMENTATION_NOTES.md`
-
 ## Completed (2026-08-24 pass)
 
 | # | Item | Notes |
@@ -39,6 +35,7 @@
 | 5 | TanStack Query migration | `MIGRATION_BACKLOG` cleared; guard tests pass |
 | 7 | Terraform posture module | `infra/modules/posture/` |
 | 8 | OpenAPI TS split | `api-types/schemas.generated.ts` + `paths.generated.ts` |
+| 9 | Merge API query controllers / retire legacy routes | `AuthorityReadsController` + `AuthorityRunReadHandlers`; `/v1/runs/*` canonical reads; legacy `[Obsolete]` |
 | 10 | Reduce configuration sprawl | Pilot overlay, slim base appsettings, deprecated key catalog tags |
 | 11 | Duplicate sponsor services | Removed unused `SponsorSummaryService` |
 | 12 | DemoSeed registry | `DemoSeedScenarioRegistry` |

@@ -99,6 +99,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IDocumentTextExtractionService, DocumentTextExtractionService>();
         services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
+        services.AddScoped<Support.AuthorityRunReadHandlers>();
         services.AddHostedAzureExtractorIntegrationServices(configuration);
         services.AddHostedAwsExtractorIntegrationServices(configuration);
         services.AddHostedGcpExtractorIntegrationServices(configuration);

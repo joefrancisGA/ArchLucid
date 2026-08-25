@@ -205,6 +205,7 @@ public sealed class RunQueryController(
 
     /// <summary>Keyset list of relational finding metadata for <paramref name="runId" />.</summary>
     [HttpGet("review/{runId}/findings")]
+    [HttpGet("/v{version:apiVersion}/runs/{runId}/findings")]
     [ProducesResponseType(typeof(RunFindingsListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -587,20 +588,44 @@ public sealed class RunQueryController(
     /// <summary>
     ///     Lists runs visible in the current scope. Without <paramref name="cursor" />, uses offset pagination via
     ///     <paramref name="limit" /> and <paramref name="offset" />; with <paramref name="cursor" />, uses keyset
-    ///     continuation.
+    ///     continuation. Product clients may prefer <c>GET /v1/runs</c> (<see cref="AuthorityReadsController.ListRuns" />).
     /// </summary>
     [HttpGet("reviews")]
-    [HttpGet("runs")]
     [ProducesResponseType(typeof(CursorPagedResponse<RunListItemResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
-    public async Task<IActionResult> ListRuns(
+    public Task<IActionResult> ListRuns(
         [FromQuery] string? cursor = null,
         [FromQuery] int? limit = null,
         [FromQuery] int offset = 0,
         [FromQuery] int take = RunPagination.DefaultTake,
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        ListRunsCore(cursor, limit, offset, take, page, pageSize, cancellationToken);
+
+    /// <summary>Legacy alias for <see cref="ListRuns" />.</summary>
+    [Obsolete("Prefer GET /v1/architecture/reviews or GET /v1/runs. Retained for backward compatibility.")]
+    [HttpGet("runs")]
+    [ProducesResponseType(typeof(CursorPagedResponse<RunListItemResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    public Task<IActionResult> ListRunsLegacyAlias(
+        [FromQuery] string? cursor = null,
+        [FromQuery] int? limit = null,
+        [FromQuery] int offset = 0,
+        [FromQuery] int take = RunPagination.DefaultTake,
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken cancellationToken = default) =>
+        ListRunsCore(cursor, limit, offset, take, page, pageSize, cancellationToken);
+
+    private async Task<IActionResult> ListRunsCore(
+        string? cursor,
+        int? limit,
+        int offset,
+        int take,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(cursor))
         {
@@ -706,14 +731,30 @@ public sealed class RunQueryController(
     }
 
     /// <summary>ZIP bundle: run summary, audit slice for the run, and decision traces (size-capped).</summary>
-    [HttpGet("review/{runId}/traceability-bundle.zip")]
     [HttpGet("review/{runId}/review-trail/export")]
     [Produces("application/zip")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
-    public async Task<IActionResult> GetTraceabilityBundleZip(
+    public Task<IActionResult> GetTraceabilityBundleZip(
         [FromRoute] string runId,
+        CancellationToken cancellationToken) =>
+        GetTraceabilityBundleZipCore(runId, cancellationToken);
+
+    /// <summary>Legacy alias; prefer <c>GET /v1/runs/{runId}/review-trail/export</c>.</summary>
+    [Obsolete("Prefer GET /v1/runs/{runId}/review-trail/export. Retained for backward compatibility.")]
+    [HttpGet("review/{runId}/traceability-bundle.zip")]
+    [Produces("application/zip")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    public Task<IActionResult> GetTraceabilityBundleZipLegacyAlias(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken) =>
+        GetTraceabilityBundleZipCore(runId, cancellationToken);
+
+    private async Task<IActionResult> GetTraceabilityBundleZipCore(
+        string runId,
         CancellationToken cancellationToken)
     {
         const long maxZipBytes = 1_500_000L;

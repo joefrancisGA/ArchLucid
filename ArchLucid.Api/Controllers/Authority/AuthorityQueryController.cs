@@ -1,10 +1,9 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
-using ArchLucid.Application.Audit;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
-using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Runs;
@@ -14,13 +13,11 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.DevTesting;
-using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
-using ArchLucid.Provenance.Analysis;
 
 using Asp.Versioning;
 
@@ -47,13 +44,10 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class AuthorityQueryController(
     IAuthorityQueryService queryService,
+    AuthorityRunReadHandlers readHandlers,
     IAuthorityRunDetailOperatorEnricher runDetailOperatorEnricher,
-    IRunRationaleService runRationaleService,
     IRunRetrievalGroundingService runRetrievalGroundingService,
-    IRunPipelineAuditTimelineService pipelineAuditTimeline,
     IScopeContextProvider scopeProvider,
-    IProvenanceGraphAccessService provenanceGraphAccess,
-    IAuditService auditService,
     IActorContext actorContext,
     IRunOperatorGovernanceDispositionService runOperatorGovernanceDispositionService,
     IConfiguration configuration,
@@ -136,7 +130,7 @@ public sealed class AuthorityQueryController(
                 ? RunCursorCodec.Encode(keysetPage.Items[^1].CreatedUtc, keysetPage.Items[^1].RunId)
                 : null;
 
-        IReadOnlyList<RunSummaryResponse> mapped = keysetPage.Items.Select(ToRunSummaryResponse).ToList();
+        IReadOnlyList<RunSummaryResponse> mapped = keysetPage.Items.Select(AuthorityRunReadHandlers.ToRunSummaryResponse).ToList();
 
         return Ok(
             new CursorPagedResponse<RunSummaryResponse>
@@ -147,9 +141,9 @@ public sealed class AuthorityQueryController(
 
     /// <summary>
     ///     Lists runs across all authority project slugs in the current tenant/workspace/project scope (newest first).
-    ///     Prefer this for Reviews hub inventory: create stores <c>SystemName</c> as the run project slug, so
-    ///     <c>GET .../projects/default/reviews</c> alone hides finalized packages under other slugs.
+    ///     Prefer <c>GET /v1/runs</c> (<see cref="AuthorityReadsController.ListRuns" />).
     /// </summary>
+    [Obsolete("Prefer GET /v1/runs. Retained for backward compatibility.")]
     [HttpGet("reviews")]
     [ProducesResponseType(typeof(CursorPagedResponse<RunSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -187,17 +181,15 @@ public sealed class AuthorityQueryController(
                 ? RunPagination.ClampTake(pageSize)
                 : RunPagination.ClampTake(take);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-
         (IReadOnlyList<RunSummaryDto> Items, bool HasMore) keysetPage =
-            await queryService.ListRunsInScopeKeysetAsync(scope, cu, rid, effectiveTake, ct);
+            await readHandlers.ListRunsInScopeKeysetAsync(cu, rid, effectiveTake, ct);
 
         string? nextCursor =
             keysetPage is { HasMore: true, Items.Count: > 0 }
                 ? RunCursorCodec.Encode(keysetPage.Items[^1].CreatedUtc, keysetPage.Items[^1].RunId)
                 : null;
 
-        IReadOnlyList<RunSummaryResponse> mapped = keysetPage.Items.Select(ToRunSummaryResponse).ToList();
+        IReadOnlyList<RunSummaryResponse> mapped = keysetPage.Items.Select(AuthorityRunReadHandlers.ToRunSummaryResponse).ToList();
 
         return Ok(
             new CursorPagedResponse<RunSummaryResponse>
@@ -219,13 +211,12 @@ public sealed class AuthorityQueryController(
         RunSummaryDto? result = await queryService.GetRunSummaryAsync(scope, runId, ct);
         return result is null
             ? this.NotFoundProblem($"Run summary '{runId}' was not found.", ProblemTypes.RunNotFound)
-            : Ok(ToRunSummaryResponse(result));
+            : Ok(AuthorityRunReadHandlers.ToRunSummaryResponse(result));
     }
 
     /// <summary>Loads full run detail including hydrated snapshots and golden manifest when available.</summary>
-    /// <param name="runId">Run to load.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="RunDetailDto" /> JSON, or 404 when missing or out of scope.</returns>
+    /// <remarks>Prefer <c>GET /v1/runs/{runId}</c> (<see cref="AuthorityReadsController.GetRunDetail" />).</remarks>
+    [Obsolete("Prefer GET /v1/runs/{runId}. Retained for backward compatibility.")]
     [HttpGet("reviews/{runId:guid}")]
     [ProducesResponseType(typeof(RunDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -235,24 +226,11 @@ public sealed class AuthorityQueryController(
         Guid runId,
         CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? result = await queryService.GetRunDetailAsync(scope, runId, ct);
+        RunDetailDto? result = await readHandlers.GetRunDetailAsync(runId, ct);
 
-        if (result is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        result.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
-            result.Run.RealModeFellBackToSimulator,
-            _effectiveAgentExecutionModeAccessor.GetEffectiveMode());
-
-        await runDetailOperatorEnricher
-            .EnrichAsync(result, _effectiveAgentExecutionModeAccessor.GetEffectiveMode(), ct)
-            .ConfigureAwait(false);
-
-        int findingCount = result.FindingsSnapshot?.Findings?.Count ?? 0;
-        FindingsListAccessTelemetry.LogFindingSnapshotExpose(_logger, scope, runId, nameof(GetRunDetail), findingCount);
-
-        return Ok(result);
+        return result is null
+            ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
+            : Ok(result);
     }
 
     /// <summary>Buyer-proof run detail — whitelisted fields only; no embedded snapshots (TB-283).</summary>
@@ -367,37 +345,29 @@ public sealed class AuthorityQueryController(
 
     /// <summary>
     ///     Audit events associated with this run, oldest-first (pipeline / lifecycle visibility for operators).
+    ///     Prefer <c>GET /v1/runs/{runId}/review-trail</c> (<see cref="AuthorityReadsController.GetReviewTrail" />).
     /// </summary>
+    [Obsolete("Prefer GET /v1/runs/{runId}/review-trail. Retained for backward compatibility.")]
     [HttpGet("reviews/{runId:guid}/pipeline-timeline")]
     [HttpGet("reviews/{runId:guid}/review-trail")]
     [ProducesResponseType(typeof(IReadOnlyList<RunPipelineTimelineItemResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunPipelineTimeline(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        IReadOnlyList<RunPipelineTimelineItemDto>? items =
-            await pipelineAuditTimeline.GetTimelineAsync(scope, runId, ct);
+        IReadOnlyList<RunPipelineTimelineItemResponse>? items =
+            await readHandlers.TryGetPipelineTimelineAsync(runId, ct);
 
         if (items is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        IReadOnlyList<RunPipelineTimelineItemResponse> body = items
-            .Select(i => new RunPipelineTimelineItemResponse
-            {
-                EventId = i.EventId,
-                OccurredUtc = i.OccurredUtc,
-                EventType = i.EventType,
-                ActorUserName = i.ActorUserName,
-                CorrelationId = i.CorrelationId
-            })
-            .ToList();
+        await readHandlers.LogRunScopedAuditAsync(AuditEventTypes.ReviewTrailAccessed, runId, null, ct);
 
-        await LogRunScopedAuditAsync(AuditEventTypes.ReviewTrailAccessed, runId, null, ct);
-
-        return Ok(body);
+        return Ok(items);
     }
 
     /// <summary>Unified decision rationale (authority or coordinator) for operator triage.</summary>
+    /// <remarks>Prefer <c>GET /v1/runs/{runId}/review-trail/rationale</c>.</remarks>
+    [Obsolete("Prefer GET /v1/runs/{runId}/review-trail/rationale. Retained for backward compatibility.")]
     [HttpGet("reviews/{runId:guid}/rationale")]
     [HttpGet("reviews/{runId:guid}/review-trail/rationale")]
     [ProducesResponseType(typeof(RunRationale), StatusCodes.Status200OK)]
@@ -406,8 +376,7 @@ public sealed class AuthorityQueryController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetRunRationale(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunRationale? rationale = await runRationaleService.GetRunRationaleAsync(scope, runId, ct);
+        RunRationale? rationale = await readHandlers.GetRunRationaleAsync(runId, ct);
 
         return rationale is null
             ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
@@ -460,7 +429,11 @@ public sealed class AuthorityQueryController(
     ///     Returns a structural provenance graph (nodes + edges) linking graph, findings, rules, decisions, manifest, and
     ///     artifacts.
     /// </summary>
-    /// <remarks>Requires a completed authority pipeline; coordinator-only runs return 422.</remarks>
+    /// <remarks>
+    ///     Requires a completed authority pipeline; coordinator-only runs return 422. Prefer
+    ///     <c>GET /v1/runs/{runId}/review-trail/provenance</c>.
+    /// </remarks>
+    [Obsolete("Prefer GET /v1/runs/{runId}/review-trail/provenance. Retained for backward compatibility.")]
     [HttpGet("reviews/{runId:guid}/provenance")]
     [HttpGet("reviews/{runId:guid}/review-trail/provenance")]
     [ProducesResponseType(typeof(DecisionProvenanceGraph), StatusCodes.Status200OK)]
@@ -468,46 +441,26 @@ public sealed class AuthorityQueryController(
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> GetRunProvenance(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
+        (DecisionProvenanceGraph? graph, RunDetailDto? detail, string? unprocessableDetail) =
+            await readHandlers.TryGetProvenanceGraphAsync(runId, ct);
 
-        if (detail is null)
+        if (detail is null && graph is null && unprocessableDetail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        if (detail.GoldenManifest is null ||
-            detail.GraphSnapshot is null ||
-            detail.FindingsSnapshot is null ||
-            detail.AuthorityTrace is null)
-            return this.UnprocessableEntityProblem(
-                "Provenance requires golden manifest, graph snapshot, findings snapshot, and authority decision trace. " +
-                "Coordinator-only or in-progress runs do not satisfy this contract.");
-
-        DecisionProvenanceGraph? graph = await provenanceGraphAccess.ResolveGraphAsync(scope, detail, ct);
+        if (unprocessableDetail is not null)
+            return this.UnprocessableEntityProblem(unprocessableDetail);
 
         if (graph is null)
-            return this.UnprocessableEntityProblem(
-                "Provenance graph could not be resolved for this run.");
+            return this.UnprocessableEntityProblem("Provenance graph could not be resolved for this run.");
 
-        int provenanceFindingCount = detail.FindingsSnapshot.Findings?.Count ?? 0;
-        FindingsListAccessTelemetry.LogFindingSnapshotExpose(
-            _logger,
-            scope,
-            runId,
-            nameof(GetRunProvenance),
-            provenanceFindingCount);
-
-        ProvenanceCompletenessResult completeness = ProvenanceCompletenessAnalyzer.Analyze(graph);
-
-        ArchLucidInstrumentation.ProvenanceCompleteness.Record(
-            completeness.CoverageRatio,
-            new KeyValuePair<string, object?>("surface", "authority_query"));
-
-        await LogRunScopedAuditAsync(AuditEventTypes.ProvenanceAccessed, runId, null, ct);
+        await readHandlers.LogRunScopedAuditAsync(AuditEventTypes.ProvenanceAccessed, runId, null, ct);
 
         return Ok(graph);
     }
 
     /// <summary>Returns the hydrated sealed review record JSON for the review when finalized.</summary>
+    /// <remarks>Prefer <c>GET /v1/runs/{runId}/manifest</c> (<see cref="AuthorityReadsController.GetRunManifest" />).</remarks>
+    [Obsolete("Prefer GET /v1/runs/{runId}/manifest. Retained for backward compatibility.")]
     [HttpGet("reviews/{runId:guid}/signed-review-record")]
     [ProducesResponseType(typeof(ManifestDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -515,8 +468,7 @@ public sealed class AuthorityQueryController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetRunGoldenManifest(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
+        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
@@ -526,60 +478,12 @@ public sealed class AuthorityQueryController(
                 $"Golden manifest for run '{runId}' was not found.",
                 ProblemTypes.ManifestNotFound);
 
-        await LogRunScopedAuditAsync(
+        await readHandlers.LogRunScopedAuditAsync(
             AuditEventTypes.ManifestViewed,
             runId,
             detail.GoldenManifest.ManifestId,
             ct);
 
         return Ok(detail.GoldenManifest);
-    }
-
-    private async Task LogRunScopedAuditAsync(string eventType, Guid runId, Guid? manifestId, CancellationToken ct)
-    {
-        string actor = actorContext.GetActor();
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = eventType,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runId,
-                ManifestId = manifestId
-            },
-            ct);
-    }
-
-    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x)
-    {
-        return new RunSummaryResponse
-        {
-            RunId = x.RunId,
-            ProjectId = x.ProjectId,
-            Description = x.Description,
-            DisplayName = string.IsNullOrWhiteSpace(x.Description) ? null : x.Description.Trim(),
-            IsDemoWelcomeRun = x.IsDemoWelcomeRun,
-            IsSample = x.IsSample,
-            IsPinned = x.IsPinned,
-            CreatedUtc = x.CreatedUtc,
-            HasContextSnapshot = x.HasContextSnapshot,
-            HasGraphSnapshot = x.HasGraphSnapshot,
-            HasFindingsSnapshot = x.HasFindingsSnapshot,
-            HasGoldenManifest = x.HasGoldenManifest,
-            GoldenManifestId = x.GoldenManifestId,
-            HasDecisionTrace = x.HasDecisionTrace,
-            HasArtifactBundle = x.HasArtifactBundle,
-            HasWarnings = x.HasWarnings,
-            HasGovernanceWarnings = x.HasGovernanceWarnings,
-            RunDegradedExecution = x.RunDegradedExecution,
-            DegradedExecutionAgents = x.DegradedExecutionAgents,
-            PackageOrigin = x.PackageOrigin,
-            StructuralExecutionMode = x.StructuralExecutionMode,
-        };
     }
 }
