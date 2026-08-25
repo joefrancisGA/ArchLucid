@@ -72,10 +72,7 @@ public sealed class TrialLifecycleEmailDispatcher(
         string html = await _templateRenderer.RenderHtmlAsync(plan.TemplateId, plan.Model, cancellationToken).ConfigureAwait(false);
         string text = await _templateRenderer.RenderTextAsync(plan.TemplateId, plan.Model, cancellationToken).ConfigureAwait(false);
 
-        SentEmailLedgerEntry ledgerEntry = new(plan.IdempotencyKey, envelope.TenantId, plan.TemplateId, _emailProvider.ProviderName, null);
-        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
-
-        if (!reserved)
+        if (await _sentEmailLedger.IsRecordedAsync(envelope.TenantId, plan.IdempotencyKey, cancellationToken).ConfigureAwait(false))
             return;
 
         EmailMessage message = new()
@@ -94,10 +91,13 @@ public sealed class TrialLifecycleEmailDispatcher(
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Error))
-                _logger.LogError(ex, "Trial lifecycle email send failed after idempotency reservation for tenant {TenantId}, template {TemplateId}.",
+                _logger.LogError(ex, "Trial lifecycle email send failed for tenant {TenantId}, template {TemplateId}.",
                     envelope.TenantId, plan.TemplateId);
             throw;
         }
+
+        SentEmailLedgerEntry ledgerEntry = new(plan.IdempotencyKey, envelope.TenantId, plan.TemplateId, _emailProvider.ProviderName, null);
+        await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
     }
 
     private static bool PassesTriggerGate(TrialLifecycleEmailTrigger trigger, TenantRecord tenant, DateTimeOffset utcNow)
