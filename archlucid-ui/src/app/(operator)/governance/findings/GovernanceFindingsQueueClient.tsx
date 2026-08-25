@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { AlertsFindingsVocabularyRail } from "@/components/AlertsFindingsVocabularyRail";
 import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
@@ -30,6 +31,7 @@ import { GovernanceFindingsContinueLastViewedRow } from "@/app/(operator)/govern
 import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-last-governance-finding";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
+import { FindingsQueuePickReviewBeforeTriageStrip } from "@/components/governance/findings/FindingsQueuePickReviewBeforeTriageStrip";
 import { ArchitecturePosturePillarOverview } from "@/components/governance/posture/ArchitecturePosturePillarOverview";
 import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governance/findings/GovernanceFindingsQueueActiveFilterChips";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
@@ -217,6 +219,8 @@ export default function GovernanceFindingsQueueClient({
   }, [mode, setRegisterFilter]);
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const scopedRunFilterActive = scopedRunId !== null && scopedRunId.trim().length > 0;
   const workspaceScopeTeaching =
     !isAssignedToMe && !scopedRunFilterActive
@@ -280,6 +284,22 @@ export default function GovernanceFindingsQueueClient({
         ? BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD
         : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
   const navHref = isAssignedToMe ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH;
+
+  const onPickReviewForTriage = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+      router.replace(`${navHref}?${params.toString()}`, { scroll: false });
+    },
+    [navHref, router, searchParams],
+  );
+
   const currentJobId: GovernanceJobId = isAssignedToMe ? "assigned-to-me-findings" : "triage-findings";
   const loadFailedPreset = isAssignedToMe
     ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_LOAD_FAILED_COMPACT
@@ -554,6 +574,11 @@ export default function GovernanceFindingsQueueClient({
               Compare with prior review (finding lifecycle)
             </Link>
           </p>
+        ) : !isAssignedToMe ? (
+          <FindingsQueuePickReviewBeforeTriageStrip
+            selectedReviewId=""
+            onSelectReview={onPickReviewForTriage}
+          />
         ) : null}
 
         {jobViewFilterActive ? (
