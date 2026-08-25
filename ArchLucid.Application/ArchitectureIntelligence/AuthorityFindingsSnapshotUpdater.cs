@@ -20,6 +20,7 @@ public interface IAuthorityFindingsSnapshotUpdater
 public sealed class AuthorityFindingsSnapshotUpdater(
     IRunRepository runRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
+    IAsyncAdversarialReviewService adversarialReviewService,
     TimeProvider timeProvider) : IAuthorityFindingsSnapshotUpdater
 {
     private readonly IRunRepository _runRepository =
@@ -27,6 +28,9 @@ public sealed class AuthorityFindingsSnapshotUpdater(
 
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+
+    private readonly IAsyncAdversarialReviewService _adversarialReviewService =
+        adversarialReviewService ?? throw new ArgumentNullException(nameof(adversarialReviewService));
 
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
@@ -53,7 +57,11 @@ public sealed class AuthorityFindingsSnapshotUpdater(
         if (snapshot is null)
             return;
 
-        List<Finding> mapped = ArchitectureIntelligenceProductBridge.ToFindings(specialistFindings);
+        AdversarialReviewResult adversarial = await _adversarialReviewService
+            .ReviewAsync(specialistFindings, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        List<Finding> mapped = ArchitectureIntelligenceProductBridge.ToFindings(adversarial.SubstantiatedFindings);
         FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(snapshot, mapped, _clock);
 
         await _findingsSnapshotRepository.SaveAsync(snapshot, cancellationToken).ConfigureAwait(false);
