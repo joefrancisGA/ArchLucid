@@ -31,8 +31,10 @@ import {
   IMPROVEMENT_PLANNING_THEME_FILTER_NO_MATCH_TITLE,
   planningPageSubtitle,
 } from "@/lib/planning-page-copy";
+import { resolveContinueLastPlanningPlan } from "@/lib/resolve-continue-last-planning-plan";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { PlanningBuyerChrome } from "./PlanningBuyerChrome";
+import { PlanningContinueLastPlanRow } from "./PlanningContinueLastPlanRow";
 import { PlanningPageEmptyState } from "./PlanningPageEmptyState";
 import { PlanningLoadFailurePanel } from "./PlanningLoadFailurePanel";
 import { PlanningPageHeader } from "./PlanningPageHeader";
@@ -46,6 +48,7 @@ type Props = {
 export function PlanningPageView(props: Props) {
   const m = props.model;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const continueLastPlan = resolveContinueLastPlanningPlan(m.sortedPlans);
   const showTablesSkeleton = m.refreshing && m.summary !== null && !m.empty;
   const showThemeFilterNoMatch =
     m.selectedThemeId !== null &&
@@ -77,6 +80,8 @@ export function PlanningPageView(props: Props) {
       />
 
       <PlanningBuyerChrome />
+
+      {continueLastPlan !== null && !m.empty ? <PlanningContinueLastPlanRow plan={continueLastPlan} /> : null}
 
       {!buyerPolishedShell ? <PlanningReviewsVocabularyRail currentSurfaceId="improvement-planning" /> : null}
       {!buyerPolishedShell ? (
