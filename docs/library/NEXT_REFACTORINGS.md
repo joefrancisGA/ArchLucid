@@ -3,7 +3,7 @@
 
 # Next refactorings
 
-**Last updated:** 2026-08-24.
+**Last updated:** 2026-08-25.
 
 **Where to start:** [START_HERE.md — What to open first](../START_HERE.md) (Mermaid + table).
 
@@ -16,10 +16,9 @@
 | Unify Data and Persistence (`ArchLucid.Persistence.*` merge) | Done — see `PERSISTENCE_CONSOLIDATION_PLAN.md` |
 | Connection factory alignment | Done (2026-05-08) — unused `SqlConnectionFactory` removed |
 | Dual pipeline coordinator closure | Done — ADR 0030 + `DualPipelineRegistrationDisciplineTests` |
+| Decompose authority commit orchestrator | Done (2026-08-25) — `AuthorityCommit*Stage` handlers under `ArchLucid.Application/Runs/Orchestration/Commit/`; orchestrator ~283 lines |
 
 ## Active items (remaining)
-
-1. **Decompose authority commit orchestrator** — Split `AuthorityDrivenArchitectureRunCommitOrchestrator.cs` (~910 lines) and `AuthorityPipelineStagesExecutor.cs` into focused stages (governance, decision materialization, manifest reuse, audit, persistence). **Impact:** High · **Effort:** High · **Paths:** `ArchLucid.Application/Runs/Orchestration/`
 
 3. **Consolidate identity/auth bounded module** — Shared rate-limit, audit, and validation primitives across OTP, SSO, identity linking, and trial bootstrap in `ArchLucid.Application/Identity/`. **Impact:** High · **Effort:** High
 

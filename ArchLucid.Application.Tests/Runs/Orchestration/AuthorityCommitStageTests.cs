@@ -1,22 +1,11 @@
-using ArchLucid.Application.Common;
-using ArchLucid.Application.Decisions;
-using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
-using ArchLucid.Application.Runs.Finalization;
-using ArchLucid.Application.Runs.Orchestration;
-using ArchLucid.Application.Runs.Sample;
-using ArchLucid.Contracts.Governance;
+using ArchLucid.Application.Runs.Orchestration.Commit;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Merge;
-using ArchLucid.KnowledgeGraph.Interfaces;
-using ArchLucid.Persistence.Data.Infrastructure;
-using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -27,18 +16,17 @@ using Moq;
 
 using ContractManifestMetadata = ArchLucid.Contracts.Manifest.ManifestMetadata;
 using DecisionManifestMetadata = ArchLucid.Core.Manifest.Sections.ManifestMetadata;
-using Dm = ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Application.Tests.Runs.Orchestration;
 
 /// <summary>
-///     Targets integrity-sensitive branches in <see cref="AuthorityDrivenArchitectureRunCommitOrchestrator" /> that are
-///     expensive to reach via full commit orchestration tests but must not be weakened by mutations (governance gate +
-///     manifest version alignment).
+///     Targets integrity-sensitive branches in <see cref="AuthorityCommitGovernanceStage" /> and
+///     <see cref="AuthorityCommitDecisionMaterializationStage" /> that are expensive to reach via full commit
+///     orchestration tests but must not be weakened by mutations.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
-public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests
+public sealed class AuthorityCommitGovernanceStageTests
 {
     private static readonly ScopeContext TestScope = new()
     {
@@ -48,7 +36,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
     };
 
     [SkippableFact]
-    public async Task EvaluatePreCommitGovernanceGateOrThrowAsync_when_blocked_audits_and_throws()
+    public async Task EvaluateOrThrowAsync_when_blocked_audits_and_throws()
     {
         Guid runGuid = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         string runId = runGuid.ToString("N");
@@ -73,10 +61,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
+        AuthorityCommitGovernanceStage sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
 
         Func<Task> act = async () =>
-            await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, wireJson, null, null, CancellationToken.None);
+            await sut.EvaluateOrThrowAsync(runId, actor, wireJson, null, null, CancellationToken.None);
 
         (await act.Should().ThrowAsync<PreCommitGovernanceBlockedException>())
             .Which.Result.Reason.Should().Be("policy");
@@ -91,7 +79,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
     }
 
     [SkippableFact]
-    public async Task EvaluatePreCommitGovernanceGateOrThrowAsync_when_blocked_with_justification_audits_bypass_and_does_not_throw()
+    public async Task EvaluateOrThrowAsync_when_blocked_with_justification_audits_bypass_and_does_not_throw()
     {
         Guid runGuid = Guid.Parse("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
         string runId = runGuid.ToString("N");
@@ -116,9 +104,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
+        AuthorityCommitGovernanceStage sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
 
-        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, wireJson, "INC123 emergency release", null, CancellationToken.None);
+        await sut.EvaluateOrThrowAsync(runId, actor, wireJson, "INC123 emergency release", null, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -135,7 +123,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
     }
 
     [SkippableFact]
-    public async Task EvaluatePreCommitGovernanceGateOrThrowAsync_when_warn_only_audits_and_does_not_throw()
+    public async Task EvaluateOrThrowAsync_when_warn_only_audits_and_does_not_throw()
     {
         Guid runGuid = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
         string runId = runGuid.ToString("N");
@@ -159,9 +147,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
+        AuthorityCommitGovernanceStage sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
 
-        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, wireJson, null, null, CancellationToken.None);
+        await sut.EvaluateOrThrowAsync(runId, actor, wireJson, null, null, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -177,7 +165,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
     }
 
     [SkippableFact]
-    public async Task EvaluatePreCommitGovernanceGateOrThrowAsync_when_allowed_skips_governance_audit_events()
+    public async Task EvaluateOrThrowAsync_when_allowed_skips_governance_audit_events()
     {
         Guid runGuid = Guid.Parse("cccccccccccccccccccccccccccccccc");
         string runId = runGuid.ToString("N");
@@ -191,9 +179,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
+        AuthorityCommitGovernanceStage sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
 
-        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, "actor", "{}", null, null, CancellationToken.None);
+        await sut.EvaluateOrThrowAsync(runId, "actor", "{}", null, null, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
@@ -201,7 +189,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
     }
 
     [SkippableFact]
-    public async Task EvaluatePreCommitGovernanceGateOrThrowAsync_WarnOnly_takes_precedence_over_blocked_flag()
+    public async Task EvaluateOrThrowAsync_WarnOnly_takes_precedence_over_blocked_flag()
     {
         Guid runGuid = Guid.Parse("dddddddddddddddddddddddddddddddd");
         string runId = runGuid.ToString("N");
@@ -222,9 +210,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
+        AuthorityCommitGovernanceStage sut = CreateSut(gate.Object, audit.Object, scopeProvider.Object);
 
-        await sut.EvaluatePreCommitGovernanceGateOrThrowAsync(runId, "actor", "{}", null, null, CancellationToken.None);
+        await sut.EvaluateOrThrowAsync(runId, "actor", "{}", null, null, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -238,6 +226,23 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
             Times.Never);
     }
 
+    private static AuthorityCommitGovernanceStage CreateSut(
+        IPreCommitGovernanceGate gate,
+        IAuditService audit,
+        IScopeContextProvider scopeProvider) =>
+        new(
+            gate,
+            Mock.Of<IPreCommitGovernanceBlockExplainer>(),
+            scopeProvider,
+            audit,
+            Options.Create(new ExplainGovernanceBlocksOptions()),
+            Mock.Of<ILogger<AuthorityCommitGovernanceStage>>());
+}
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class AuthorityCommitDecisionMaterializationStageTests
+{
     [SkippableFact]
     public void AlignAuthorityVersionToContract_copies_contract_manifest_version_onto_model()
     {
@@ -250,7 +255,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
             Metadata = new ContractManifestMetadata { ManifestVersion = "v9-contract" },
         };
 
-        AuthorityDrivenArchitectureRunCommitOrchestrator.AlignAuthorityVersionToContract(model, contract);
+        AuthorityCommitDecisionMaterializationStage.AlignAuthorityVersionToContract(model, contract);
 
         model.Metadata.Version.Should().Be("v9-contract");
     }
@@ -267,7 +272,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
             Metadata = new ContractManifestMetadata { ManifestVersion = "   " },
         };
 
-        AuthorityDrivenArchitectureRunCommitOrchestrator.AlignAuthorityVersionToContract(model, contract);
+        AuthorityCommitDecisionMaterializationStage.AlignAuthorityVersionToContract(model, contract);
 
         model.Metadata.Version.Should().Be("stable");
     }
@@ -280,7 +285,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
             Metadata = new ContractManifestMetadata { ManifestVersion = "v1" },
         };
 
-        Action act = () => AuthorityDrivenArchitectureRunCommitOrchestrator.AlignAuthorityVersionToContract(null!, contract);
+        Action act = () => AuthorityCommitDecisionMaterializationStage.AlignAuthorityVersionToContract(null!, contract);
 
         act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("manifestModel");
     }
@@ -290,62 +295,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
     {
         ManifestDocument model = new();
 
-        Action act = () => AuthorityDrivenArchitectureRunCommitOrchestrator.AlignAuthorityVersionToContract(model, null!);
+        Action act = () => AuthorityCommitDecisionMaterializationStage.AlignAuthorityVersionToContract(model, null!);
 
         act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("contract");
-    }
-
-    private static AuthorityDrivenArchitectureRunCommitOrchestrator CreateSut(
-        IPreCommitGovernanceGate gate,
-        IAuditService audit,
-        IScopeContextProvider scopeProvider)
-    {
-        Mock<IBaselineMutationAuditService> baselineAudit = new();
-        baselineAudit
-            .Setup(b => b.RecordAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string?>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        Mock<IRunRepository> runRepository = new();
-        Mock<IActorContext> actor = new();
-        actor.Setup(a => a.GetActor()).Returns("unit-test-actor");
-
-        return new AuthorityDrivenArchitectureRunCommitOrchestrator(
-            runRepository.Object,
-            scopeProvider,
-            Mock.Of<IAgentTaskRepository>(),
-            Mock.Of<IArchitectureRequestRepository>(),
-            Mock.Of<IAgentEvidencePackageRepository>(),
-            Mock.Of<IAgentResultRepository>(),
-            Mock.Of<IGraphSnapshotRepository>(),
-            Mock.Of<IFindingsSnapshotRepository>(),
-            Mock.Of<IDecisionEngine>(),
-            Mock.Of<ICommitPipelineManifestReuseService>(),
-            Mock.Of<IDecisionTraceRepository>(),
-            Mock.Of<IGoldenManifestRepository>(),
-            Mock.Of<IAuthorityCommitProjectionBuilder>(),
-            Mock.Of<IManifestFinalizationService>(),
-            gate,
-            Mock.Of<IPreCommitGovernanceBlockExplainer>(),
-            Mock.Of<ICommitOutputIntegrityService>(),
-            Mock.Of<IPolicyPackAssignmentRepository>(),
-            actor.Object,
-            baselineAudit.Object,
-            audit,
-            Mock.Of<ITrialFunnelCommitHook>(),
-            Mock.Of<IFirstSessionLifecycleHook>(),
-            new PostCommitProjectionEnqueuer(Mock.Of<ArchLucid.Persistence.Coordination.Projection.IPostCommitProjectionOutboxRepository>()),
-            Mock.Of<IRunTelemetryRepository>(),
-            new RunStateTransitionService(),
-            Options.Create(new ArchLucid.Core.Configuration.GenerateIacStubsOptions()),
-            Options.Create(new ArchLucid.Core.Configuration.RerankFindingsOptions()),
-            Options.Create(new ArchLucid.Core.Configuration.ExplainGovernanceBlocksOptions()),
-            Mock.Of<ArchLucid.Contracts.Abstractions.Integrations.IAzureDevOpsCommitStatusPublisher>(),
-            Mock.Of<IGraphMergeRuntimeInvariantReporter>(),
-            Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 }
