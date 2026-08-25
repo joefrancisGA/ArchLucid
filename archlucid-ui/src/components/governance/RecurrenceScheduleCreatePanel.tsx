@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { normalizeRunIdForRecurrenceApi } from "@/components/runs/RunDetailRecurrenceScheduleCard";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceScheduleFormFields } from "@/components/governance/RecurrenceScheduleFormFields";
@@ -9,6 +10,10 @@ import { Button } from "@/components/ui/button";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { createArchitectureReviewRecurrenceSchedule } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  resolveRecurrenceScheduleCreateEmphasizedStepId,
+  resolveRecurrenceScheduleCreateSteps,
+} from "@/lib/recurrence-schedule-create-checklist";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_CRON = "0 8 * * 1";
@@ -33,6 +38,19 @@ export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePan
   const [cronExpression, setCronExpression] = useState(initialCronExpression?.trim() || DEFAULT_CRON);
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [scheduleSaved, setScheduleSaved] = useState(false);
+  const reviewConfigured = normalizeRunIdForRecurrenceApi(sourceRunId) !== null;
+  const cadenceConfigured = name.trim().length > 0 && cronExpression.trim().length > 0;
+  const recurrenceCreateSteps = resolveRecurrenceScheduleCreateSteps({
+    reviewConfigured,
+    cadenceConfigured,
+    scheduleSaved,
+  });
+  const recurrenceCreateEmphasizedStepId = resolveRecurrenceScheduleCreateEmphasizedStepId({
+    reviewConfigured,
+    cadenceConfigured,
+    scheduleSaved,
+  });
 
   async function submitCreate(isEnabled: boolean): Promise<void> {
     if (!canMutate) {
@@ -67,6 +85,7 @@ export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePan
       setSourceRunId("");
       setName(DEFAULT_NAME);
       setCronExpression(DEFAULT_CRON);
+      setScheduleSaved(true);
       await onCreated();
     } catch (error: unknown) {
       setErrorMessage(error instanceof Error ? error.message : "Failed to create recurrence schedule.");
@@ -87,6 +106,13 @@ export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePan
       <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Choose a finalized review, then define the cadence for automated follow-up reviews.
       </p>
+
+      <IntegrationConnectChecklist
+        title="Schedule checklist"
+        steps={recurrenceCreateSteps}
+        emphasizedStepId={recurrenceCreateEmphasizedStepId}
+        testIdPrefix="recurrence-schedule-create"
+      />
 
       <div className="mt-4 space-y-4">
         <RecurrenceScheduleFormFields
