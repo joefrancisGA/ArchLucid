@@ -50,7 +50,7 @@ public sealed class SqlRunRepository(
 
         if (connection is not null)
         {
-            if (ShouldConsumeTrialRunAllowance(run))
+            if (RunRepositoryCore.ShouldConsumeTrialRunAllowanceOnCreate(run))
                 await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction).ConfigureAwait(false);
 
             byte[] stamp = await connection.QuerySingleAsync<byte[]>(
@@ -65,7 +65,7 @@ public sealed class SqlRunRepository(
 
         try
         {
-            if (ShouldConsumeTrialRunAllowance(run))
+            if (RunRepositoryCore.ShouldConsumeTrialRunAllowanceOnCreate(run))
                 await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, owned, tran).ConfigureAwait(false);
 
             byte[] ownedStamp =
@@ -340,7 +340,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
+        RunRepositoryCore.ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
         // NOLOCK: same dashboard-grade tolerance as unpaged lists.
@@ -405,7 +405,7 @@ public sealed class SqlRunRepository(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
+        RunRepositoryCore.ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
         // NOLOCK: keyset continuation for picker/dashboard lists (same tolerance as ListRecentInScopeAsync).
@@ -589,8 +589,7 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(scope);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
-        if (string.IsNullOrWhiteSpace(architectureRequestId))
-            throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
+        RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -610,8 +609,7 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(scope);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
-        if (string.IsNullOrWhiteSpace(architectureRequestId))
-            throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
+        RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -633,8 +631,7 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(scope);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
-        if (string.IsNullOrWhiteSpace(systemName))
-            throw new ArgumentException("System name is required.", nameof(systemName));
+        RunRepositoryCore.RequireSystemName(systemName);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -653,10 +650,7 @@ public sealed class SqlRunRepository(
         int batchSize,
         CancellationToken ct)
     {
-        if (batchSize < 1)
-            throw new ArgumentOutOfRangeException(nameof(batchSize), batchSize, "Batch size must be at least 1.");
-
-        int safeBatch = Math.Clamp(batchSize, 1, 10_000);
+        int safeBatch = RunRepositoryCore.ClampPurgeBatchSize(batchSize);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -683,10 +677,7 @@ public sealed class SqlRunRepository(
         int batchSize,
         CancellationToken ct)
     {
-        if (batchSize < 1)
-            throw new ArgumentOutOfRangeException(nameof(batchSize), batchSize, "Batch size must be at least 1.");
-
-        int safeBatch = Math.Clamp(batchSize, 1, 10_000);
+        int safeBatch = RunRepositoryCore.ClampPurgeBatchSize(batchSize);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -705,13 +696,6 @@ public sealed class SqlRunRepository(
         List<ArchivedRunScopeRow> list = rows.AsList();
 
         return new RunSamplePurgeBatchResult { Deleted = list };
-    }
-
-    private static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)
-    {
-        if (cursorCreatedUtc.HasValue != cursorRunId.HasValue)
-            throw new ArgumentException(
-                "Run keyset cursor requires both CreatedUtc and RunId together, or both omitted for the first page.");
     }
 
     private static async Task EnsureCommittedRunHeaderAnchorsUnchangedAsync(
@@ -787,14 +771,7 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(scope);
         PersistenceTenantScope.RequireScopedTenant(scope);
 
-        if (runId == Guid.Empty)
-            throw new ArgumentException("Run id is required.", nameof(runId));
-
-        if (string.IsNullOrWhiteSpace(decision))
-            throw new ArgumentException("Decision is required.", nameof(decision));
-
-        if (string.IsNullOrWhiteSpace(actorUserId))
-            throw new ArgumentException("Actor user id is required.", nameof(actorUserId));
+        RunRepositoryCore.ValidateOperatorGovernanceDispositionArgs(runId, decision, actorUserId);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
@@ -811,13 +788,5 @@ public sealed class SqlRunRepository(
                 cancellationToken: ct)).ConfigureAwait(false);
 
         return rows > 0;
-    }
-
-    private static bool ShouldConsumeTrialRunAllowance(RunRecord run)
-    {
-        return TrialRunQuota.ShouldConsumeAllowanceOnCreate(
-            run.IsSample,
-            run.IsDemoWelcomeRun,
-            run.ArchitectureRequestId);
     }
 }

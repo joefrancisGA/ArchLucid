@@ -40,7 +40,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         _ = connection;
         _ = transaction;
 
-        if (TrialRunQuota.ShouldConsumeAllowanceOnCreate(run.IsSample, run.IsDemoWelcomeRun, run.ArchitectureRequestId))
+        if (RunRepositoryCore.ShouldConsumeTrialRunAllowanceOnCreate(run))
             await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction);
 
         if (_store.Count >= MaxEntries && !_store.ContainsKey(run.RunId))
@@ -59,7 +59,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ct.ThrowIfCancellationRequested();
 
-        if (!_store.TryGetValue(runId, out RunRecord? r) || !MatchesScope(r, scope) || r.ArchivedUtc.HasValue)
+        if (!_store.TryGetValue(runId, out RunRecord? r) || !RunRepositoryCore.IsActiveInScope(r, scope))
             return Task.FromResult<RunRecord?>(null);
 
         return Task.FromResult<RunRecord?>(r);
@@ -69,7 +69,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ct.ThrowIfCancellationRequested();
 
-        if (!_store.TryGetValue(runId, out RunRecord? r) || !MatchesScope(r, scope))
+        if (!_store.TryGetValue(runId, out RunRecord? r) || !RunRepositoryCore.MatchesScope(r, scope))
             return Task.FromResult<RunRecord?>(null);
 
         return Task.FromResult<RunRecord?>(r);
@@ -80,7 +80,6 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         ct.ThrowIfCancellationRequested();
 
         if (!_store.TryGetValue(runId, out RunRecord? r) || r.ArchivedUtc.HasValue)
-
             return Task.FromResult<RunRecord?>(null);
 
         return Task.FromResult<RunRecord?>(r);
@@ -94,32 +93,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ct.ThrowIfCancellationRequested();
 
-        RunRecord? best = null;
-
-        foreach (RunRecord candidate in _store.Values)
-        {
-            if (!MatchesScope(candidate, scope))
-                continue;
-
-            if (candidate.ArchivedUtc.HasValue)
-                continue;
-
-            if (!AuthorityProjectSlugMatches(candidate.ProjectId, authorityProjectSlug))
-                continue;
-
-            if (!candidate.GraphSnapshotId.HasValue)
-                continue;
-
-            if (candidate.CreatedUtc > asOfUtc)
-                continue;
-
-            if (best is null
-                || candidate.CreatedUtc > best.CreatedUtc
-                || (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId.CompareTo(best.RunId) > 0))
-                best = candidate;
-        }
-
-        return Task.FromResult(best);
+        return Task.FromResult(
+            RunRepositoryCore.SelectLatestWithGraphAtOrBefore(_store.Values, scope, authorityProjectSlug, asOfUtc));
     }
 
     /// <inheritdoc />
@@ -132,39 +107,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(projectId);
 
-        Guid? bestRunId = null;
-        DateTime? bestUtc = null;
-
-        foreach (RunRecord candidate in _store.Values)
-        {
-            if (!MatchesScope(candidate, scope))
-                continue;
-
-            if (candidate.ArchivedUtc.HasValue)
-                continue;
-
-            if (!AuthorityProjectSlugMatches(candidate.ProjectId, projectId))
-                continue;
-
-            if (!candidate.GoldenManifestId.HasValue)
-                continue;
-
-            if (!IsCommittedRun(candidate))
-                continue;
-
-            // In-memory has no GoldenManifests join; CompletedUtc is the commit-time stand-in.
-            DateTime orderUtc = candidate.CompletedUtc ?? candidate.CreatedUtc;
-
-            if (bestUtc is not null
-                && (orderUtc < bestUtc.Value
-                    || (orderUtc == bestUtc.Value && candidate.RunId.CompareTo(bestRunId!.Value) <= 0)))
-                continue;
-
-            bestUtc = orderUtc;
-            bestRunId = candidate.RunId;
-        }
-
-        return Task.FromResult(bestRunId);
+        return Task.FromResult(
+            RunRepositoryCore.SelectLatestCommittedRunIdByManifestCreatedUtc(_store.Values, scope, projectId));
     }
 
     /// <inheritdoc />
@@ -179,50 +123,16 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(projectId);
 
-        RunRecord? best = null;
-
-        foreach (RunRecord candidate in _store.Values)
-        {
-            if (!MatchesScope(candidate, scope))
-                continue;
-
-            if (candidate.ArchivedUtc.HasValue)
-                continue;
-
-            if (!AuthorityProjectSlugMatches(candidate.ProjectId, projectId))
-                continue;
-
-            if (candidate.RunId == currentRunId)
-                continue;
-
-            if (!candidate.GoldenManifestId.HasValue)
-                continue;
-
-            if (!IsCommittedRun(candidate))
-                continue;
-
-            if (candidate.CreatedUtc > currentCreatedUtc)
-                continue;
-
-            if (candidate.CreatedUtc == currentCreatedUtc && candidate.RunId >= currentRunId)
-                continue;
-
-            if (best is not null)
-            {
-                if (candidate.CreatedUtc < best.CreatedUtc)
-                    continue;
-
-                if (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId <= best.RunId)
-                    continue;
-            }
-
-            best = candidate;
-        }
-
-        return Task.FromResult(best?.RunId);
+        return Task.FromResult(
+            RunRepositoryCore.SelectPriorCommittedRunIdBeforeCurrent(
+                _store.Values,
+                scope,
+                projectId,
+                currentRunId,
+                currentCreatedUtc));
     }
 
-  public Task<Guid?> GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync(
+    public Task<Guid?> GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync(
         ScopeContext scope,
         Guid architectureId,
         Guid currentRunId,
@@ -232,50 +142,13 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         ct.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(scope);
 
-        if (architectureId == Guid.Empty)
-            return Task.FromResult<Guid?>(null);
-
-        RunRecord? best = null;
-
-        foreach (RunRecord candidate in _store.Values)
-        {
-            if (!MatchesScope(candidate, scope))
-                continue;
-
-            if (candidate.ArchivedUtc.HasValue)
-                continue;
-
-            if (candidate.ArchitectureId != architectureId)
-                continue;
-
-            if (candidate.RunId == currentRunId)
-                continue;
-
-            if (!candidate.GoldenManifestId.HasValue)
-                continue;
-
-            if (!IsCommittedRun(candidate))
-                continue;
-
-            if (candidate.CreatedUtc > currentCreatedUtc)
-                continue;
-
-            if (candidate.CreatedUtc == currentCreatedUtc && candidate.RunId >= currentRunId)
-                continue;
-
-            if (best is not null)
-            {
-                if (candidate.CreatedUtc < best.CreatedUtc)
-                    continue;
-
-                if (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId <= best.RunId)
-                    continue;
-            }
-
-            best = candidate;
-        }
-
-        return Task.FromResult(best?.RunId);
+        return Task.FromResult(
+            RunRepositoryCore.SelectPriorCommittedRunIdForArchitectureBeforeCurrent(
+                _store.Values,
+                scope,
+                architectureId,
+                currentRunId,
+                currentCreatedUtc));
     }
 
     public Task<Guid?> GetCommittedRunIdByGoldenManifestIdAsync(
@@ -288,33 +161,13 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         ct.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(scope);
 
-        if (architectureId == Guid.Empty || goldenManifestId == Guid.Empty)
-            return Task.FromResult<Guid?>(null);
-
-        foreach (RunRecord candidate in _store.Values)
-        {
-            if (!MatchesScope(candidate, scope))
-                continue;
-
-            if (candidate.ArchivedUtc.HasValue)
-                continue;
-
-            if (candidate.ArchitectureId != architectureId)
-                continue;
-
-            if (candidate.GoldenManifestId != goldenManifestId)
-                continue;
-
-            if (candidate.RunId == excludeRunId)
-                continue;
-
-            if (!IsCommittedRun(candidate))
-                continue;
-
-            return Task.FromResult<Guid?>(candidate.RunId);
-        }
-
-        return Task.FromResult<Guid?>(null);
+        return Task.FromResult(
+            RunRepositoryCore.SelectCommittedRunIdByGoldenManifestId(
+                _store.Values,
+                scope,
+                architectureId,
+                goldenManifestId,
+                excludeRunId));
     }
 
     public Task ClearGraphSnapshotForArchitectureAsync(
@@ -330,10 +183,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
         foreach (RunRecord candidate in _store.Values)
         {
-            if (!MatchesScope(candidate, scope))
-                continue;
-
-            if (candidate.ArchivedUtc.HasValue)
+            if (!RunRepositoryCore.IsActiveInScope(candidate, scope))
                 continue;
 
             if (candidate.ArchitectureId != architectureId)
@@ -345,17 +195,6 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.CompletedTask;
     }
 
-    private static bool IsCommittedRun(RunRecord run)
-    {
-        if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
-            return true;
-
-        return run.GoldenManifestId.HasValue;
-    }
-
     public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take,
         CancellationToken ct)
     {
@@ -363,9 +202,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         int n = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
         List<RunRecord> list = _store.Values
             .Where(r =>
-                MatchesScope(r, scope) &&
-                !r.ArchivedUtc.HasValue &&
-                MatchesProjectListFilter(r, projectId))
+                RunRepositoryCore.IsActiveInScope(r, scope) &&
+                RunRepositoryCore.MatchesProjectListFilter(r, projectId))
             .OrderByDescending(r => r.CreatedUtc)
             .Take(n)
             .ToList();
@@ -381,16 +219,15 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
+        RunRepositoryCore.ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
 
         int safeTake = RunPagination.ClampTake(take);
         int fetch = safeTake + 1;
 
         List<RunRecord> filtered = _store.Values
             .Where(r =>
-                MatchesScope(r, scope) &&
-                !r.ArchivedUtc.HasValue &&
-                MatchesProjectListFilter(r, projectId))
+                RunRepositoryCore.IsActiveInScope(r, scope) &&
+                RunRepositoryCore.MatchesProjectListFilter(r, projectId))
             .Where(r =>
                 !cursorRunId.HasValue ||
                 (r.RunId != cursorRunId.Value
@@ -401,13 +238,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             .Take(fetch)
             .ToList();
 
-        bool hasMore = filtered.Count > safeTake;
-
-        if (hasMore)
-
-            filtered.RemoveAt(filtered.Count - 1);
-
-        return Task.FromResult(new RunListPage(filtered, hasMore));
+        return Task.FromResult(RunListPageAssembler.FromProbedRows(filtered, safeTake));
     }
 
     /// <inheritdoc />
@@ -418,9 +249,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         int n = Math.Clamp(take <= 0 ? 200 : take, 1, 200);
 
         List<RunRecord> list = _store.Values
-            .Where(r =>
-                MatchesScope(r, scope) &&
-                !r.ArchivedUtc.HasValue)
+            .Where(r => RunRepositoryCore.IsActiveInScope(r, scope))
             .OrderByDescending(r => r.CreatedUtc)
             .Take(n)
             .ToList();
@@ -438,15 +267,13 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
-        ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
+        RunRepositoryCore.ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
 
         int safeTake = RunPagination.ClampTake(take);
         int fetch = safeTake + 1;
 
         List<RunRecord> filtered = _store.Values
-            .Where(r =>
-                MatchesScope(r, scope) &&
-                !r.ArchivedUtc.HasValue)
+            .Where(r => RunRepositoryCore.IsActiveInScope(r, scope))
             .Where(r =>
                 !cursorRunId.HasValue ||
                 (r.RunId != cursorRunId.Value
@@ -457,13 +284,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             .Take(fetch)
             .ToList();
 
-        bool hasMore = filtered.Count > safeTake;
-
-        if (hasMore)
-
-            filtered.RemoveAt(filtered.Count - 1);
-
-        return Task.FromResult(new RunListPage(filtered, hasMore));
+        return Task.FromResult(RunListPageAssembler.FromProbedRows(filtered, safeTake));
     }
 
     /// <inheritdoc />
@@ -481,21 +302,13 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         int fetch = safeLimit + 1;
 
         List<RunRecord> filtered = _store.Values
-            .Where(r =>
-                MatchesScope(r, scope) &&
-                !r.ArchivedUtc.HasValue)
+            .Where(r => RunRepositoryCore.IsActiveInScope(r, scope))
             .OrderByDescending(r => r.CreatedUtc)
             .Skip(safeOffset)
             .Take(fetch)
             .ToList();
 
-        bool hasMore = filtered.Count > safeLimit;
-
-        if (hasMore)
-
-            filtered.RemoveAt(filtered.Count - 1);
-
-        return Task.FromResult(new RunListPage(filtered, hasMore));
+        return Task.FromResult(RunListPageAssembler.FromProbedRows(filtered, safeLimit));
     }
 
     public Task UpdateAsync(
@@ -510,7 +323,6 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         _ = transaction;
 
         if (!_store.TryGetValue(run.RunId, out RunRecord? existing))
-
             throw new InvalidOperationException(
                 string.Format(CultureInfo.InvariantCulture, "Run '{0:D}' was not found for update.", run.RunId));
 
@@ -519,7 +331,6 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         if (run.RowVersion is not null &&
             existing.RowVersion is not null &&
             !existing.RowVersion.AsSpan().SequenceEqual(run.RowVersion))
-
             throw new RunConcurrencyConflictException(run.RunId);
 
         run.RowVersion = NextFakeRowVersion();
@@ -556,18 +367,10 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         {
             RunRecord r = kv.Value;
 
-            if (r.ArchivedUtc.HasValue || r.CreatedUtc >= cutoff)
+            if (!RunRepositoryCore.IsEligibleForCreatedBeforeArchive(r, cutoff, scope))
                 continue;
 
-            if (scope is not null
-                && (r.TenantId != scope.TenantId
-                    || r.WorkspaceId != scope.WorkspaceId
-                    || r.ScopeProjectId != scope.ProjectId))
-            {
-                continue;
-            }
-
-            archived.Add(new ArchivedRunScopeRow { RunId = r.RunId, TenantId = r.TenantId, WorkspaceId = r.WorkspaceId, ScopeProjectId = r.ScopeProjectId });
+            archived.Add(RunRepositoryCore.ToArchivedRunScopeRow(r));
 
             r.ArchivedUtc = stamp;
             _store[kv.Key] = r;
@@ -584,47 +387,30 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         if (runIds.Count == 0)
             return Task.FromResult(new RunArchiveByIdsResult());
 
-        List<Guid> distinctOrdered = [];
-        HashSet<Guid> seen = [];
-
-        distinctOrdered.AddRange(runIds.Where(seen.Add));
-
+        List<Guid> distinctOrdered = RunArchiveByIdsOutcome.DistinctInRequestOrder(runIds);
         DateTime stamp = TimeProvider.System.UtcNowDateTime();
         List<ArchivedRunScopeRow> archived = [];
-        List<RunArchiveByIdFailure> failed = [];
+        List<Guid> alreadyArchivedRunIds = [];
 
         foreach (Guid id in distinctOrdered)
         {
             if (!_store.TryGetValue(id, out RunRecord? run))
-            {
-                failed.Add(new RunArchiveByIdFailure(id, "Run not found."));
                 continue;
-            }
 
             if (run.ArchivedUtc.HasValue)
             {
-                failed.Add(new RunArchiveByIdFailure(id, "Run already archived."));
+                alreadyArchivedRunIds.Add(id);
                 continue;
             }
 
-            archived.Add(new ArchivedRunScopeRow
-            {
-                RunId = run.RunId,
-                TenantId = run.TenantId,
-                WorkspaceId = run.WorkspaceId,
-                ScopeProjectId = run.ScopeProjectId
-            });
+            archived.Add(RunRepositoryCore.ToArchivedRunScopeRow(run));
 
             run.ArchivedUtc = stamp;
             _store[id] = run;
         }
 
-        return Task.FromResult(new RunArchiveByIdsResult
-        {
-            SucceededRunIds = archived.Select(static r => r.RunId).ToList(),
-            ArchivedRuns = archived,
-            Failed = failed
-        });
+        return Task.FromResult(
+            RunArchiveByIdsOutcome.Assemble(distinctOrdered, archived, alreadyArchivedRunIds, new RunArchiveChildCascadeCounts()));
     }
 
     /// <inheritdoc />
@@ -636,20 +422,16 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(architectureRequestId))
-            throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
-
-        string key = architectureRequestId.Trim();
+        string key = RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId);
 
         List<RunRecord> matches =
         [
             .. _store.Values.Where(r =>
-                MatchesScope(r, scope) &&
-                !r.ArchivedUtc.HasValue &&
+                RunRepositoryCore.IsActiveInScope(r, scope) &&
                 string.Equals(r.ArchitectureRequestId, key, StringComparison.OrdinalIgnoreCase)),
         ];
 
-        return Task.FromResult(matches.Count(r => LegacyRunStatusIsNonTerminal(r.LegacyRunStatus)));
+        return Task.FromResult(matches.Count(r => RunRepositoryCore.LegacyRunStatusIsNonTerminal(r.LegacyRunStatus)));
     }
 
     /// <inheritdoc />
@@ -661,13 +443,10 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(architectureRequestId))
-            throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
-
-        string key = architectureRequestId.Trim();
+        string key = RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId);
 
         bool exists = _store.Values.Any(r =>
-            MatchesScope(r, scope) &&
+            RunRepositoryCore.MatchesScope(r, scope) &&
             string.Equals(r.ArchitectureRequestId, key, StringComparison.OrdinalIgnoreCase));
 
         return Task.FromResult(exists);
@@ -682,13 +461,10 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(systemName))
-            throw new ArgumentException("System name is required.", nameof(systemName));
-
-        string normalizedName = systemName.Trim().ToUpperInvariant();
+        string normalizedName = RunRepositoryCore.RequireSystemName(systemName).ToUpperInvariant();
 
         bool exists = _store.Values.Any(r =>
-            MatchesWorkspace(r, scope) &&
+            RunRepositoryCore.MatchesWorkspace(r, scope) &&
             !r.ArchivedUtc.HasValue &&
             string.Equals(r.ProjectId.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase));
 
@@ -703,11 +479,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ct.ThrowIfCancellationRequested();
 
-        if (batchSize < 1)
-            throw new ArgumentOutOfRangeException(nameof(batchSize), batchSize, "Batch size must be at least 1.");
-
         DateTime cutoff = createdBeforeUtc.UtcDateTime;
-        int cap = Math.Clamp(batchSize, 1, 10_000);
+        int cap = RunRepositoryCore.ClampPurgeBatchSize(batchSize);
         List<ArchivedRunScopeRow> removed = [];
 
         foreach (KeyValuePair<Guid, RunRecord> kv in _store.OrderBy(static p => p.Value.CreatedUtc).ToArray())
@@ -717,24 +490,10 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
             RunRecord r = kv.Value;
 
-            if (r.CreatedUtc >= cutoff)
+            if (!RunRepositoryCore.IsEligibleForStaleUncommittedPurge(r, cutoff))
                 continue;
 
-            if (r.IsDemoWelcomeRun || r.IsPublicShowcase)
-                continue;
-
-            if (!string.IsNullOrWhiteSpace(r.LegacyRunStatus) &&
-                string.Equals(r.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            removed.Add(new ArchivedRunScopeRow
-            {
-                RunId = r.RunId,
-                TenantId = r.TenantId,
-                WorkspaceId = r.WorkspaceId,
-                ScopeProjectId = r.ScopeProjectId
-            });
-
+            removed.Add(RunRepositoryCore.ToArchivedRunScopeRow(r));
             _store.TryRemove(kv.Key, out _);
         }
 
@@ -750,11 +509,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ct.ThrowIfCancellationRequested();
 
-        if (batchSize < 1)
-            throw new ArgumentOutOfRangeException(nameof(batchSize), batchSize, "Batch size must be at least 1.");
-
         DateTime? cutoff = createdBeforeUtc?.UtcDateTime;
-        int cap = Math.Clamp(batchSize, 1, 10_000);
+        int cap = RunRepositoryCore.ClampPurgeBatchSize(batchSize);
         List<ArchivedRunScopeRow> removed = [];
 
         foreach (KeyValuePair<Guid, RunRecord> kv in _store.OrderBy(static p => p.Value.CreatedUtc).ToArray())
@@ -764,89 +520,14 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
             RunRecord r = kv.Value;
 
-            if (!r.IsSample)
+            if (!RunRepositoryCore.IsEligibleForSamplePurge(r, tenantId, cutoff))
                 continue;
 
-            if (tenantId.HasValue && r.TenantId != tenantId.Value)
-                continue;
-
-            if (cutoff.HasValue && r.CreatedUtc >= cutoff.Value)
-                continue;
-
-            removed.Add(new ArchivedRunScopeRow
-            {
-                RunId = r.RunId,
-                TenantId = r.TenantId,
-                WorkspaceId = r.WorkspaceId,
-                ScopeProjectId = r.ScopeProjectId
-            });
-
+            removed.Add(RunRepositoryCore.ToArchivedRunScopeRow(r));
             _store.TryRemove(kv.Key, out _);
         }
 
         return Task.FromResult(new RunSamplePurgeBatchResult { Deleted = removed });
-    }
-
-    private static bool LegacyRunStatusIsNonTerminal(string? legacyRunStatus)
-    {
-        // Null/empty statuses are treated as active — safer than falsely releasing lifecycle while status is uninitialized.
-
-        if (string.IsNullOrWhiteSpace(legacyRunStatus))
-            return true;
-
-        if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.Failed), StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        return !string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected), StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)
-    {
-        if (cursorCreatedUtc.HasValue != cursorRunId.HasValue)
-            throw new ArgumentException(
-                "Run keyset cursor requires both CreatedUtc and RunId together, or both omitted for the first page.");
-    }
-
-    private static bool MatchesScope(RunRecord r, ScopeContext scope)
-    {
-        return r.TenantId == scope.TenantId &&
-               r.WorkspaceId == scope.WorkspaceId &&
-               r.ScopeProjectId == scope.ProjectId;
-    }
-
-    private static bool AuthorityProjectSlugMatches(string? storedProjectId, string authorityProjectSlug)
-    {
-        if (string.IsNullOrWhiteSpace(storedProjectId))
-            return false;
-
-        return string.Equals(
-            storedProjectId.Trim(),
-            authorityProjectSlug.Trim(),
-            StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool MatchesProjectListFilter(RunRecord run, string projectSlug)
-    {
-        if (AuthorityProjectSlugMatches(run.ProjectId, projectSlug))
-            return true;
-
-        if (Guid.TryParse(projectSlug, out Guid scopeProjectId) && run.ScopeProjectId == scopeProjectId)
-            return true;
-
-        return false;
-    }
-
-    private static bool MatchesWorkspace(RunRecord r, ScopeContext scope) =>
-        r.TenantId == scope.TenantId && r.WorkspaceId == scope.WorkspaceId;
-
-    private byte[] NextFakeRowVersion()
-    {
-        long v = Interlocked.Increment(ref _fakeRowVersion);
-
-        return BitConverter.GetBytes(v);
     }
 
     public Task<bool> TrySetOperatorGovernanceDispositionAsync(
@@ -860,7 +541,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ct.ThrowIfCancellationRequested();
 
-        if (!_store.TryGetValue(runId, out RunRecord? run) || !MatchesScope(run, scope) || run.ArchivedUtc.HasValue)
+        if (!_store.TryGetValue(runId, out RunRecord? run) || !RunRepositoryCore.IsActiveInScope(run, scope))
             return Task.FromResult(false);
 
         run.OperatorGovernanceDecision = decision.Trim();
@@ -869,5 +550,12 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         run.OperatorGovernanceDecisionByUserId = actorUserId.Trim();
 
         return Task.FromResult(true);
+    }
+
+    private byte[] NextFakeRowVersion()
+    {
+        long v = Interlocked.Increment(ref _fakeRowVersion);
+
+        return BitConverter.GetBytes(v);
     }
 }
