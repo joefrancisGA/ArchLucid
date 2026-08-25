@@ -51,6 +51,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Composition.AzureOpenAI;
 using ArchLucid.Host.Composition.Caching;
+using ArchLucid.Host.Composition.Startup.Modules;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Http;
@@ -218,7 +219,7 @@ public static partial class ServiceCollectionExtensions
 
             services.AddKeyedSingleton<CircuitBreakerGate>(
                 OpenAiCircuitBreakerKeys.Embedding,
-                (sp, _) => CreateOpenAiCircuitBreakerGate(sp, OpenAiCircuitBreakerKeys.Embedding));
+                (sp, _) => AgentCompositionModule.CreateOpenAiCircuitBreakerGate(sp, OpenAiCircuitBreakerKeys.Embedding));
 
             services.AddSingleton<IOpenAiEmbeddingClient>(sp =>
             {

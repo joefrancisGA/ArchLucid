@@ -20,6 +20,7 @@ using ArchLucid.Core.Http;
 using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Composition.Services;
+using ArchLucid.Host.Composition.Startup.Modules;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Hosted;
@@ -89,7 +90,6 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Application.Authority.IAuthorityCommittedManifestChainWriter,
             Application.Authority.AuthorityCommittedManifestChainWriter>();
         services.AddSingleton<Application.Findings.IReasoningSummaryBuilder, Application.Findings.ReasoningSummaryBuilder>();
-        RegisterAzureOpenAiCircuitBreakerOptions(services, configuration);
         services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));
         services.Configure<ApiDeprecationOptions>(configuration.GetSection(ApiDeprecationOptions.SectionName));
         services.Configure<DataArchivalOptions>(configuration.GetSection(DataArchivalOptions.SectionName));
@@ -139,16 +139,13 @@ public static partial class ServiceCollectionExtensions
         RegisterDigestDelivery(services, configuration);
         RegisterIntegrationEventPublishing(services, configuration);
         RegisterTrialLifecycleAuditEmailPublishing(services);
-        RegisterAlerts(services);
+        AlertsCompositionModule.Register(services, configuration);
         RegisterBackgroundJobs(services, configuration, hostingRole);
-        RegisterRunExportAndArchitectureAnalysis(services, configuration);
-        RegisterComparisonReplayAndDrift(services, configuration);
-        RegisterRunReplayManifestAndDiffs(services, configuration);
-        RegisterContextIngestionAndKnowledgeGraph(services, configuration);
+        PipelineCompositionModule.Register(services, configuration);
         RegisterDecisioningEngines(services, configuration);
         RegisterAuthorityDecisionEngineAndRepositories(services, configuration);
         RegisterArtifactSynthesis(services);
-        RegisterAgentExecution(services, configuration);
+        AgentCompositionModule.Register(services, configuration);
         RegisterRetrieval(services, configuration);
         RegisterGovernance(services, configuration);
         services.AddArchitectureIntelligence();

@@ -1,3 +1,5 @@
+// Application pipeline bounded-context composition registrations.
+
 using ArchLucid.Application.OperatorHome;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
@@ -63,7 +65,6 @@ using ArchLucid.Application.Trust;
 using ArchLucid.Core.Connectors.Publishing;
 using ArchLucid.Application.Value;
 using ArchLucid.ContextIngestion.Canonicalization;
-
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Contracts;
@@ -95,13 +96,11 @@ using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Services;
 using ArchLucid.Persistence.Coordination.Caching;
-
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-
 using ContextConnector = ArchLucid.ContextIngestion.Interfaces.IContextConnector;
 using ContextIngestionService = ArchLucid.Contracts.Persistence.Ports.IContextIngestionService;
 using GraphBuilder = ArchLucid.KnowledgeGraph.Interfaces.IGraphBuilder;
@@ -109,11 +108,26 @@ using KnowledgeGraphLimitsOptions = ArchLucid.KnowledgeGraph.Configuration.Knowl
 using KnowledgeGraphProjectionCacheOptions = ArchLucid.KnowledgeGraph.Configuration.KnowledgeGraphProjectionCacheOptions;
 using KnowledgeGraphService = ArchLucid.Core.Persistence.Ports.IKnowledgeGraphService;
 
-namespace ArchLucid.Host.Composition.Startup;
+namespace ArchLucid.Host.Composition.Startup.Modules;
 
-public static partial class ServiceCollectionExtensions
+/// <summary>
+/// Run orchestration, export, replay, and context-ingestion pipeline DI registrations.
+/// </summary>
+public static class PipelineCompositionModule
 {
-    private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection services, IConfiguration configuration)
+
+    /// <summary>
+    /// Registers application pipeline services: run export, replay, comparison, and context ingestion.
+    /// </summary>
+    public static void Register(IServiceCollection services, IConfiguration configuration)
+    {
+        RegisterRunExportAndArchitectureAnalysis(services, configuration);
+        RegisterComparisonReplayAndDrift(services, configuration);
+        RegisterRunReplayManifestAndDiffs(services, configuration);
+        RegisterContextIngestionAndKnowledgeGraph(services, configuration);
+    }
+
+private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection services, IConfiguration configuration)
     {
         ArchLucidOptions exportStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
