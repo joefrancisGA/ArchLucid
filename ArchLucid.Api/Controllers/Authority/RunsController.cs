@@ -61,6 +61,7 @@ public sealed partial class RunsController(
     IArchitectureApplicationService architectureApplicationService,
     IArchitectureRequestDraftService architectureRequestDraftService,
     IArchitectureOverviewRewriteService architectureOverviewRewriteService,
+    IClarificationAnswerRephraseService clarificationAnswerRephraseService,
     IStructuredBriefSuggestionExplainService structuredBriefSuggestionExplainService,
     IChatIntakeParserService chatIntakeParserService,
     IConnectorIntakeParserService connectorIntakeParserService,

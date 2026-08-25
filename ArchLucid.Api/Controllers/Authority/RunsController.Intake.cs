@@ -71,6 +71,47 @@ public sealed partial class RunsController
         return Ok(response);
     }
 
+    [HttpPost("request/draft/clarification-answers/rephrase")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Clarification rephrase is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(typeof(RephraseClarificationAnswersResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RephraseClarificationAnswers(
+        [FromBody] RephraseClarificationAnswersInput? input,
+        CancellationToken cancellationToken)
+    {
+        if (input is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (input.Items.Count == 0)
+            return this.BadRequestProblem("At least one clarification item is required.", ProblemTypes.ValidationFailed);
+
+        foreach (ClarificationAnswerRephraseItem item in input.Items)
+        {
+            if (string.IsNullOrWhiteSpace(item.QuestionKey))
+                return this.BadRequestProblem("Each item must include QuestionKey.", ProblemTypes.ValidationFailed);
+
+            if (string.IsNullOrWhiteSpace(item.QuestionPrompt) || item.QuestionPrompt.Trim().Length < 10)
+            {
+                return this.BadRequestProblem(
+                    "Each item must include QuestionPrompt with at least 10 characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            if (string.IsNullOrWhiteSpace(item.ExtractedAnswer) || item.ExtractedAnswer.Trim().Length < 3)
+            {
+                return this.BadRequestProblem(
+                    "Each item must include ExtractedAnswer with at least 3 characters.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        RephraseClarificationAnswersResponse response =
+            await clarificationAnswerRephraseService.RephraseAsync(input, cancellationToken);
+
+        return Ok(response);
+    }
+
     [HttpPost("request/draft/suggestion/explain")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Explain endpoint is advisory-only and does not persist domain mutations.")]

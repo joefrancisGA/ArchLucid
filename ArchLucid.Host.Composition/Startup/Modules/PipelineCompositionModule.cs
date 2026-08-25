@@ -466,6 +466,7 @@ private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection 
         services.AddScoped<IBriefAssumptionEvidenceContradictionPass, BriefAssumptionEvidenceContradictionPass>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
         services.AddScoped<IArchitectureOverviewRewriteService, ArchitectureOverviewRewriteService>();
+        services.AddScoped<IClarificationAnswerRephraseService, ClarificationAnswerRephraseService>();
         services.AddScoped<IStructuredBriefSuggestionExplainService, StructuredBriefSuggestionExplainService>();
         services.AddScoped<IArchitectureKnowledgeModelIntakeBuilder, ArchitectureKnowledgeModelIntakeBuilder>();
         services.AddScoped<IArchitectureSynthesisKernel, ArchitectureSynthesisKernel>();

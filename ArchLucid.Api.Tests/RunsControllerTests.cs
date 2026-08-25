@@ -147,6 +147,46 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task RephraseClarificationAnswers_returns_rephrased_answers_when_valid()
+    {
+        Mock<IClarificationAnswerRephraseService> rephraseService = new();
+        rephraseService
+            .Setup(s => s.RephraseAsync(It.IsAny<RephraseClarificationAnswersInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RephraseClarificationAnswersResponse
+            {
+                RephrasedAnswers = new Dictionary<string, string>
+                {
+                    ["l0.actor.additional-kinds"] =
+                        "Yes — partner integrations and service accounts also call the API.",
+                },
+            });
+
+        RunsController controller = CreateController(clarificationRephraseService: rephraseService.Object);
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "l0.actor.additional-kinds",
+                    QuestionPrompt =
+                        "Are there other kinds of users (human or machine) that interact with this system besides those already identified?",
+                    ExtractedAnswer = "Partner integrations and service accounts also call the API.",
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        RephraseClarificationAnswersResponse response =
+            ok.Value.Should().BeOfType<RephraseClarificationAnswersResponse>().Subject;
+
+        response.RephrasedAnswers["l0.actor.additional-kinds"].Should().Contain("service accounts");
+    }
+
+    [Fact]
     public async Task ChatIntake_returns_bad_request_when_raw_text_missing()
     {
         RunsController controller = CreateController();
@@ -362,6 +402,7 @@ public sealed class RunsControllerTests
         IArchitectureApplicationService? architectureApplicationService = null,
         IArchitectureRequestDraftService? draftService = null,
         IArchitectureOverviewRewriteService? overviewRewriteService = null,
+        IClarificationAnswerRephraseService? clarificationRephraseService = null,
         IStructuredBriefSuggestionExplainService? explainService = null,
         IArchitectureRunCommandService? runCommandService = null,
         IRunRepository? runRepository = null)
@@ -382,6 +423,7 @@ public sealed class RunsControllerTests
             architectureApplicationService ?? Mock.Of<IArchitectureApplicationService>(),
             draftService ?? Mock.Of<IArchitectureRequestDraftService>(),
             overviewRewriteService ?? Mock.Of<IArchitectureOverviewRewriteService>(),
+            clarificationRephraseService ?? Mock.Of<IClarificationAnswerRephraseService>(),
             explainService ?? Mock.Of<IStructuredBriefSuggestionExplainService>(),
             Mock.Of<IChatIntakeParserService>(),
             Mock.Of<IConnectorIntakeParserService>(),

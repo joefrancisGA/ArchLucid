@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import {
+  buildClarificationRephraseItems,
+  mergeRephrasedClarificationAnswers,
+  rephraseClarificationAnswersFromExtractedText,
+} from "@/lib/api/clarification-answer-rephrase-api";
+import { ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS } from "@/lib/architecture/architecture-creation-question-definition";
 import { buildArchitectureIntakeInferenceCorpus } from "@/lib/evidence-readable-text";
 import {
   UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS,
@@ -12,6 +18,7 @@ type UseInferredUniversalIntakeAnswersInput = {
   readonly evidenceFiles: readonly File[];
   readonly answers: Readonly<Record<string, string>>;
   readonly onAnswersChange: (answers: Readonly<Record<string, string>>) => void;
+  readonly blocksLlmRephrase?: boolean;
 };
 
 type UseInferredUniversalIntakeAnswersResult = {
@@ -55,9 +62,39 @@ export function useInferredUniversalIntakeAnswers(
           input.evidenceFiles.length > 0 || input.briefText.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS;
 
         const inferredAnswers = inferUniversalIntakeAnswersFromCorpus(corpus);
+        let answersToApply = inferredAnswers;
+
+        if (
+          input.blocksLlmRephrase !== true
+          && Object.keys(inferredAnswers).length > 0
+        ) {
+          const rephraseItems = buildClarificationRephraseItems({
+            inferredAnswers,
+            questions: ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS,
+          });
+
+          if (rephraseItems.length > 0) {
+            try {
+              const rephrased = await rephraseClarificationAnswersFromExtractedText({ items: rephraseItems });
+
+              if (!cancelled) {
+                answersToApply = mergeRephrasedClarificationAnswers({
+                  currentAnswers: answersRef.current,
+                  inferredAnswers,
+                  rephrasedAnswers: rephrased.rephrasedAnswers,
+                  lockedQuestionKeys: lockedQuestionKeysRef.current,
+                });
+              }
+            }
+            catch {
+              // Keep deterministic extracted answers when the advisory rephrase endpoint is unavailable.
+            }
+          }
+        }
+
         const { mergedAnswers, newlyInferredQuestionKeys } = mergeInferredUniversalIntakeAnswers({
           currentAnswers: answersRef.current,
-          inferredAnswers,
+          inferredAnswers: answersToApply,
           lockedQuestionKeys: lockedQuestionKeysRef.current,
         });
 
@@ -94,7 +131,7 @@ export function useInferredUniversalIntakeAnswers(
     return () => {
       cancelled = true;
     };
-  }, [input.briefText, input.evidenceFiles]);
+  }, [input.briefText, input.blocksLlmRephrase, input.evidenceFiles]);
 
   const markQuestionEdited = useCallback((questionKey: string) => {
     lockedQuestionKeysRef.current.add(questionKey);

@@ -195,6 +195,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       evidenceFiles,
       answers: l0Answers,
       onAnswersChange: setL0Answers,
+      blocksLlmRephrase: blocksLlmExecution,
     });
   const [clientValidationMessage, setClientValidationMessage] = useState<string | null>(null);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
