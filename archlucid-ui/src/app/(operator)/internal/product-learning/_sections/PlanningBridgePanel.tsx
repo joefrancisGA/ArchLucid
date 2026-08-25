@@ -6,6 +6,7 @@ import { useCallback, useState } from "react";
 
 import type { components } from "@/lib/api-types.generated";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import { buildProductLearningPlanningMaterializeUrl } from "./planning-materialize-url";
 import {
@@ -36,7 +37,13 @@ export function PlanningBridgePanel(props: Props) {
 
     try {
       const url = buildProductLearningPlanningMaterializeUrl(props.since, maxPlans);
-      const res = await fetch(url, { method: "POST", credentials: "include" });
+      const res = await fetch(
+        url,
+        mergeRegistrationScopeForProxy({
+          method: "POST",
+          credentials: "include",
+        }),
+      );
 
       if (!res.ok) {
         const body = await res.text();
