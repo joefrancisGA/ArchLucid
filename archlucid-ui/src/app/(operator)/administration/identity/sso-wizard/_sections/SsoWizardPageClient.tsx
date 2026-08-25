@@ -4,7 +4,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
@@ -56,6 +58,10 @@ import { useTenantIdentityProviderConfigurationQuery } from "@/hooks/use-tenant-
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
 import { WIZARD_SESSION_IDS } from "@/lib/wizard-session-persistence";
+import {
+  resolveSsoWizardCompleteSetupEmphasizedStepId,
+  resolveSsoWizardCompleteSetupSteps,
+} from "@/lib/sso-wizard-complete-setup-checklist";
 
 import { SsoWizardExistingConfigSummary } from "./SsoWizardExistingConfigSummary";
 import { SsoWizardFooter } from "./SsoWizardFooter";
@@ -146,6 +152,17 @@ export function SsoWizardPageClient() {
     busy,
     onBeforeStepChange: clearNavigationMessages,
   });
+  const setupChecklistInput = useMemo(
+    () => ({
+      idpAndProtocolComplete: completedSteps.includes(0) && completedSteps.includes(1),
+      providerConfigured: completedSteps.includes(2) && completedSteps.includes(3),
+      verifiedAndReady: completedSteps.includes(4) || canActivate,
+    }),
+    [canActivate, completedSteps],
+  );
+  const setupChecklistSteps = resolveSsoWizardCompleteSetupSteps(setupChecklistInput);
+  const setupChecklistEmphasizedStepId =
+    resolveSsoWizardCompleteSetupEmphasizedStepId(setupChecklistInput);
   const existingConfigQuery = useTenantIdentityProviderConfigurationQuery();
   const existingConfigLoading = existingConfigQuery.isPending;
   const existingConfigLoadError =
@@ -405,6 +422,15 @@ export function SsoWizardPageClient() {
         completedSteps={completedSteps}
         onStepSelect={handleStepSelect}
       />
+
+      {!configurationSaved ? (
+        <IntegrationConnectChecklist
+          title="Complete setup checklist"
+          steps={setupChecklistSteps}
+          emphasizedStepId={setupChecklistEmphasizedStepId}
+          testIdPrefix="sso-wizard-complete-setup"
+        />
+      ) : null}
 
       {error !== null ? (
         <OperatorMutationInlineError message={error} testId="sso-wizard-mutation-inline-error" />
