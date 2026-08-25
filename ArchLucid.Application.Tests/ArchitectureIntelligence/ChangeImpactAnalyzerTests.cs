@@ -287,4 +287,46 @@ public sealed class ChangeImpactAnalyzerTests
             item.ElementId == "checkout-cache"
             && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void Analyze_diff_path_ignores_preexisting_topology_elements_not_in_delta()
+    {
+        ArchitectureKnowledgeModel before = new()
+        {
+            ModelId = "model-topology-existing",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "tb-existing",
+                    Kind = ArchitectureElementKind.TrustBoundary,
+                    Name = "Legacy perimeter",
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "comp-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Billing worker",
+                },
+            ],
+        };
+
+        ArchitectureRecommendation recommendation = new()
+        {
+            RecommendationId = "rec-owner",
+            Problem = "Billing worker has no owner",
+            Evidence = "Runbook gap.",
+            AffectedRequirementOrQualityAttribute = "Operations",
+            ConsequenceOfInaction = "Incidents remain unowned.",
+            ProposedChange = "Assign an owner and on-call for the billing worker.",
+            ValidationMethod = "Review.",
+        };
+
+        ArchitectureModelDiff diff = _applier.ApplyRecommendation(before, recommendation);
+        ChangeImpactResult impact = _analyzer.Analyze(diff, recommendation);
+
+        impact.RequiresFullReReview.Should().BeFalse();
+        impact.ImpactedItems.Should().NotContain(item => item.ElementId == "tb-existing");
+    }
 }

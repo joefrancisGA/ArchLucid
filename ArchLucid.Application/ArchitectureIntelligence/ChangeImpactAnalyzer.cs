@@ -52,25 +52,28 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
             }
         }
 
-        foreach (ArchitectureModelElement element in model.Elements)
+        if (diffEntries is null)
         {
-            if (!IsPotentiallyImpacted(element, recommendation))
+            foreach (ArchitectureModelElement element in model.Elements)
             {
-                continue;
-            }
+                if (!IsPotentiallyImpacted(element, recommendation))
+                {
+                    continue;
+                }
 
-            if (!visitedElementIds.Add(element.ElementId))
-            {
-                continue;
-            }
+                if (!visitedElementIds.Add(element.ElementId))
+                {
+                    continue;
+                }
 
-            impactedItems.Add(new ChangeImpactItem
-            {
-                ElementId = element.ElementId,
-                ImpactKind = element.Kind.ToString(),
-                Description = $"Recommendation may affect {element.Name}.",
-                Category = ChangeImpactCategoryMapper.FromElementKind(element.Kind),
-            });
+                impactedItems.Add(new ChangeImpactItem
+                {
+                    ElementId = element.ElementId,
+                    ImpactKind = element.Kind.ToString(),
+                    Description = $"Recommendation may affect {element.Name}.",
+                    Category = ChangeImpactCategoryMapper.FromElementKind(element.Kind),
+                });
+            }
         }
 
         bool relatedExpansionAddedElements;
@@ -164,6 +167,15 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                 or ArchitectureElementKind.DataFlow))
         {
             return true;
+        }
+
+        if (diffEntries is not null)
+        {
+            return recommendation.ProposedChange.Contains("trust boundary", StringComparison.OrdinalIgnoreCase)
+                || recommendation.ProposedChange.Contains("deployment", StringComparison.OrdinalIgnoreCase)
+                || recommendation.ProposedChange.Contains("compliance", StringComparison.OrdinalIgnoreCase)
+                || recommendation.ProposedChange.Contains("jurisdiction", StringComparison.OrdinalIgnoreCase)
+                || recommendation.ProposedChange.Contains("data classification", StringComparison.OrdinalIgnoreCase);
         }
 
         return model.Elements.Any(element =>
