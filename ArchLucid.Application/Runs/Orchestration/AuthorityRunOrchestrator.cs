@@ -1,5 +1,7 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Core.Agents;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
