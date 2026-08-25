@@ -27,6 +27,7 @@ import { DecisionRegisterLoadFailure } from "./_sections/DecisionRegisterLoadFai
 import { DecisionRegisterLoadingSkeleton } from "./_sections/DecisionRegisterLoadingSkeleton";
 
 import { DecisionRegisterDecisionCard } from "./DecisionRegisterDecisionCard";
+import { DecisionRegisterContinueLastViewedRow } from "./DecisionRegisterContinueLastViewedRow";
 import { DecisionRegisterViewEmptyShell } from "./DecisionRegisterViewEmptyShell";
 import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
 import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
@@ -50,6 +51,7 @@ import {
   type DecisionRegisterDatePreset,
 } from "./decision-register-date-range";
 import { deriveDecisionRegisterSummary } from "./decision-register-summary";
+import { resolveContinueLastDecisionRegisterEntry } from "@/lib/resolve-continue-last-decision-register-entry";
 
 const defaultDateRange = resolveDecisionRegisterDateRange(DEFAULT_DECISION_REGISTER_DATE_PRESET);
 
@@ -132,6 +134,10 @@ export default function DecisionRegisterClient() {
   const loadingFiltered = filteredQuery.isPending;
 
   const summary = useMemo(() => deriveDecisionRegisterSummary(workspaceDecisions), [workspaceDecisions]);
+  const continueLastDecision = useMemo(
+    () => resolveContinueLastDecisionRegisterEntry(workspaceDecisions),
+    [workspaceDecisions],
+  );
   const collapseAdvancedFilters = workspaceDecisions.length === 0;
   const loading = loadingWorkspace || loadingFiltered;
   const hasWorkspaceDecisions = workspaceDecisions.length > 0;
@@ -201,6 +207,10 @@ export default function DecisionRegisterClient() {
         onDatePresetChange={applyDatePreset}
         onClearFilters={resetFilters}
       />
+
+      {!loading && !loadError && continueLastDecision !== null ? (
+        <DecisionRegisterContinueLastViewedRow decision={continueLastDecision} />
+      ) : null}
 
       {loading ? <DecisionRegisterLoadingSkeleton /> : null}
 
