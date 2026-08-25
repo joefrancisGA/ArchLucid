@@ -91,6 +91,9 @@ describe("CompositeAlertRulesContent", () => {
     expect(listRow.textContent).not.toMatch(/GreaterThanOrEqual/i);
     expect(listRow.textContent).not.toMatch(/Enabled:\s*true/i);
     expect(listRow.textContent).not.toMatch(/RuleAndRun/i);
+    expect(listRow).toHaveAttribute("data-composite-alert-rule-id", "composite-1");
+    expect(screen.getByTestId("composite-alert-rules-continue-last-viewed-row")).toBeInTheDocument();
+    expect(screen.getByTestId("composite-alert-rules-continue-last-viewed-open")).toBeInTheDocument();
   });
 
   it("renders operator selects without engineering enum suffixes", async () => {

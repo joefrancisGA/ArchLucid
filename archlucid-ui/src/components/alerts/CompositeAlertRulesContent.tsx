@@ -7,6 +7,7 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { CompositeAlertRulesContinueLastViewedRow } from "@/components/alerts/CompositeAlertRulesContinueLastViewedRow";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
@@ -64,6 +65,10 @@ import {
 import { COMPOSITE_RULES_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import {
+  resolveContinueLastCompositeAlertRule,
+  writeCompositeAlertRuleLastViewedId,
+} from "@/lib/resolve-continue-last-composite-alert-rule";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
@@ -117,6 +122,7 @@ export function CompositeAlertRulesContent() {
   const reportTabLoadedRef = useRef(refreshContext?.reportTabLoaded);
   reportTabLoadedRef.current = refreshContext?.reportTabLoaded;
   const items = compositeRulesQuery.items;
+  const continueLastRule = useMemo(() => resolveContinueLastCompositeAlertRule(items), [items]);
   const loading = compositeRulesQuery.loading;
   const [mutationFailure, setMutationFailure] = useState<ApiLoadFailureState | null>(null);
   const failure = compositeRulesQuery.failure ?? mutationFailure;
@@ -198,7 +204,7 @@ export function CompositeAlertRulesContent() {
     setCreateBusy(true);
 
     try {
-      await createCompositeAlertRule({
+      const created = await createCompositeAlertRule({
         name: name.trim(),
         severity,
         operator: joinOperator,
@@ -211,6 +217,7 @@ export function CompositeAlertRulesContent() {
           { metricType: m2, operator: o2, thresholdValue: v2 },
         ],
       });
+      writeCompositeAlertRuleLastViewedId(created.compositeRuleId);
       await compositeRulesQuery.refresh();
       setShowCreateConfirmation(false);
       setSubmitAttempted(false);
@@ -230,6 +237,17 @@ export function CompositeAlertRulesContent() {
     }
 
     setShowCreateConfirmation(true);
+  }
+
+  function rememberRule(ruleId: string): void {
+    writeCompositeAlertRuleLastViewedId(ruleId);
+  }
+
+  function openRule(ruleId: string): void {
+    rememberRule(ruleId);
+    document
+      .querySelector(`[data-composite-alert-rule-id="${ruleId}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   const isEmpty = items.length === 0;
@@ -312,6 +330,10 @@ export function CompositeAlertRulesContent() {
             </div>
           ) : null}
 
+          {continueLastRule !== null && items.length > 0 ? (
+            <CompositeAlertRulesContinueLastViewedRow target={continueLastRule} onOpen={openRule} />
+          ) : null}
+
           <div className="grid gap-3.5">
             {loading && items.length === 0 ? (
               <CompositeAlertRulesListLoadingSkeleton />
@@ -366,9 +388,13 @@ export function CompositeAlertRulesContent() {
               items.map((r: CompositeAlertRule) => (
                 <article
                   key={r.compositeRuleId}
-                  className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
+                  className="cursor-pointer rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
                   aria-label={`Composite alert rule ${r.name}`}
                   data-testid={`composite-alert-rule-row-${r.compositeRuleId}`}
+                  data-composite-alert-rule-id={r.compositeRuleId}
+                  onClick={() => {
+                    rememberRule(r.compositeRuleId);
+                  }}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <strong>{r.name}</strong>
