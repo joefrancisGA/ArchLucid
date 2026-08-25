@@ -1341,13 +1341,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 5
-- **bugs-found:** 7
+- **hunts:** 6
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1359,6 +1359,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `JiraStatusHumanReviewMap` / `ServiceNowStateHumanReviewMap` invalid enum values silently fall through to built-in defaults — **hit 2026-08-24:** `TryConfiguredHumanReview` returned false on parse failure so `Map*ToHumanReview` applied default Done/Closed mappings (`ItsmInboundWebhookSyncServiceTests.Jira_invalid_configured_human_review_map_emits_unknown_status_audit_not_default_mapping`).
 - [x] (proven) Tenant-scoped ITSM webhook routes with `Guid.Empty` skipped tenant credential lookup and used deployment-wide secrets — **hit 2026-08-24:** `ResolveInboundSecretAsync` treated `Guid.Empty` like unscoped; controller now returns HTTP 400 (`InboundWebhookPipelineOrderIntegrationTests.Jira_tenant_scoped_route_with_empty_guid_returns_400`).
 - [x] (proven) `RouteTenantScopeBindingFilter` forbade anonymous `[AllowUnscopedRoute]` ITSM tenant webhook actions — **hit 2026-08-24:** filter compared route `{tenantId}` to empty ambient scope and returned HTTP 403 before controller dispatch; skip unscoped/anonymous endpoints.
+- [x] (proven) ServiceNow inbound webhook ignored `incident_state` when `state` was whitespace — **hit 2026-08-25:** `TryReadServiceNowKeys` only fell back on null `state`, so payloads like `"state":" "` with `"incident_state":"6"` were rejected instead of mapping resolved (`ItsmInboundWebhookSyncServiceTests.ServiceNow_inbound_uses_incident_state_when_state_is_whitespace`).
 
 ---
 

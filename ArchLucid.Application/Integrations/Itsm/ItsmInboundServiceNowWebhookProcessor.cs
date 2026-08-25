@@ -319,7 +319,7 @@ public sealed class ItsmInboundServiceNowWebhookProcessor(
         if (root.TryGetProperty("state", out JsonElement st))
             state = st.ValueKind == JsonValueKind.String ? st.GetString() : st.GetRawText();
 
-        if (state is null && root.TryGetProperty("incident_state", out JsonElement ist))
+        if (string.IsNullOrWhiteSpace(state) && root.TryGetProperty("incident_state", out JsonElement ist))
             state = ist.ValueKind == JsonValueKind.String ? ist.GetString() : ist.GetRawText();
 
         return !string.IsNullOrWhiteSpace(externalKey);
