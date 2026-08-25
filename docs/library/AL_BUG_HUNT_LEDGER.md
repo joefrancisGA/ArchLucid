@@ -1134,11 +1134,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 3
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — Real mode + ManagedIdentity rejected ApiKey-less Azure OpenAI at worker startup validation and options bind
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — Simulator mode skipped `MaxCompletionTokens` range check in `ValidateOrThrow`, deferring failure to `AzureOpenAiOptions` `ValidateOnStart` at `Build()`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1152,8 +1152,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Real mode with `AzureOpenAI:AuthenticationMode=ManagedIdentity` fails worker startup — **hit 2026-08-24:** `AgentExecutionRules` required ApiKey despite MI; `AzureOpenAiOptionsValidator` rejected partial credentials without ApiKey; fixed via `AzureOpenAiConfigurationProbe.IsCompletionStackConfigured` and MI-aware options validation; regression in `Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`
 - [x] (valid-no-repro) Real mode startup with `AZURE_OPENAI_*` shell env aliases — `AzureOpenAiEnvironmentConfigurationBridge.Apply` runs before `ValidateOrThrow`; regression in `Worker_host_starts_when_real_mode_uses_azure_openai_environment_aliases`
 - [x] (valid-no-repro) Production InMemory storage and Prometheus without scrape credentials — `ValidateOrThrow` rejects via `CollectEphemeralStorageDisallowedInProductionLike` and `ObservabilityRules.CollectPrometheus`; regressions in `Worker_host_fails_fast_when_production_uses_in_memory_storage` and `Worker_host_fails_fast_when_prometheus_enabled_without_scrape_credentials`
-- [ ] (hunt-ready) `WorkerProcessHostingRoleConfiguration.ValidateOrThrow` before `Build()` vs `AzureOpenAiOptions` `ValidateOnStart` at `Build()` — when `AgentExecution:Mode=Simulator` and `AzureOpenAI:MaxCompletionTokens=-1` with partial Azure keys, `CollectErrors` passes but options validation fails at service build; input: invalid token cap with endpoint/deployment/key set.
-- [ ] (hunt-ready) `ConfigurationValidationHostedService` at `StartAsync` — uses `CriticalConfigurationValidator` after `ValidateOrThrow` succeeded; hunt config that passes `ArchLucidConfigurationRules.CollectErrors` but fails the narrower hosted validator when the host starts.
+- [x] (proven) Simulator mode `MaxCompletionTokens` bypassed pre-Build validation — **hit 2026-08-25:** `AgentExecutionRules.Collect` only range-checked `AzureOpenAI:MaxCompletionTokens` in Real mode, so Simulator with `-1` passed `ValidateOrThrow` but failed `AzureOpenAiOptionsValidator` at `Build()`; moved token cap validation before the Real-mode early return; regressions `CollectErrors_rejects_negative_max_completion_tokens_in_simulator_mode`, `Worker_host_fails_fast_when_simulator_has_negative_max_completion_tokens`
+- [x] (invalid) `ConfigurationValidationHostedService` can fail after `ValidateOrThrow` passed — `CriticalConfigurationValidator` checks connection string, Real-mode Azure OpenAI, and production demo flags only; all three are also enforced by `ArchLucidConfigurationRules.CollectErrors`, so a passing pre-Build validation cannot fail the narrower hosted validator on the same configuration snapshot
 
 ---
 

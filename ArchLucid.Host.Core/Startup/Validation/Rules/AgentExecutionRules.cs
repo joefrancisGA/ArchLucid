@@ -42,6 +42,13 @@ internal static class AgentExecutionRules
 
             errors.Add("AgentExecution:Mode must be either 'Simulator' or 'Real'.");
 
+        int maxCompletionTokens = configuration.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
+
+        if (maxCompletionTokens is < 0 or > 262_144)
+
+            errors.Add(
+                "AzureOpenAI:MaxCompletionTokens must be between 1 and 262144 inclusive, or 0 / omitted to use the built-in default (4096).");
+
         if (!string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
             return;
 
@@ -66,11 +73,5 @@ internal static class AgentExecutionRules
                 "AzureOpenAI:AuthenticationMode=ManagedIdentity (or the matching AzureOpenAI:Endpoint, " +
                 "AzureOpenAI:DeploymentName, and AzureOpenAI:ApiKey / AuthenticationMode configuration keys).");
 
-        int maxCompletionTokens = configuration.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
-
-        if (maxCompletionTokens is < 0 or > 262_144)
-
-            errors.Add(
-                "AzureOpenAI:MaxCompletionTokens must be between 1 and 262144 inclusive, or 0 / omitted to use the built-in default (4096).");
     }
 }

@@ -289,3 +289,5 @@
 {"at":"2026-08-25T23:17:28.7130078Z","zoneId":"notifications-pipeline","outcome":"hit"}
 {"at":"2026-08-25T23:21:30.2353159Z","zoneId":"run-execute-ownership","outcome":"dry"}
 {"at":"2026-08-25T23:32:39.3885523Z","zoneId":"email-otp-auth","outcome":"hit"}
+{"at":"2026-08-25T23:39:18.5991945Z","zoneId":"tenant-data-export","outcome":"hit"}
+{"at":"2026-08-25T23:43:12.4859551Z","zoneId":"worker-host","outcome":"hit"}

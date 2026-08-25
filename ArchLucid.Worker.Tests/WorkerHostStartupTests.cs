@@ -189,6 +189,57 @@ public sealed class WorkerHostStartupTests
     }
 
     [Fact]
+    public void Worker_host_fails_fast_when_simulator_has_negative_max_completion_tokens()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                    builder.UseSetting("AgentExecution:Mode", "Simulator");
+                    builder.UseSetting("AzureOpenAI:MaxCompletionTokens", "-1");
+                });
+
+            Action act = () => _ = factory.Services;
+
+            act.Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage("*ArchLucid configuration is invalid*")
+                .WithMessage("*MaxCompletionTokens*");
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
+    public void CollectErrors_rejects_negative_max_completion_tokens_in_simulator_mode()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["AgentExecution:Mode"] = "Simulator",
+            ["AzureOpenAI:MaxCompletionTokens"] = "-1",
+            ["ArchLucidAuth:Authority"] = "https://mock.example.com/",
+            ["ArchLucidAuth:Audience"] = "mock",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns("Development");
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .ContainSingle(e => e.Contains("MaxCompletionTokens", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void CollectErrors_rejects_transactional_outbox_with_in_memory_storage()
     {
         Dictionary<string, string?> data = new()
