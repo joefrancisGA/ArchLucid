@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ApiRequestError } from "@/lib/api-request-error";
 import type { DraftRequestResponse } from "@/types/draft-intake";
 
 const routerPush = vi.fn();
@@ -14,10 +15,6 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/api/draft-intake-api", () => ({
   getDraftRequest: (...args: unknown[]) => getDraftRequest(...args),
   reopenDraftRequest: (...args: unknown[]) => reopenDraftRequest(...args),
-}));
-
-vi.mock("@/lib/toast", () => ({
-  showError: vi.fn(),
 }));
 
 import { ArchitectureDraftResumeControl } from "./ArchitectureDraftResumeControl";
@@ -113,5 +110,80 @@ describe("ArchitectureDraftResumeControl", () => {
     await waitFor(() => {
       expect(routerPush).toHaveBeenCalledWith("/architecture/architectures/arch-001");
     });
+  });
+
+  it("shows an inline error instead of a toast when opening the draft fails", async () => {
+    getDraftRequest.mockRejectedValue(
+      new ApiRequestError("Draft not found in this tenant.", {
+        problem: { title: "Not Found", detail: "Draft not found in this tenant.", type: "about:blank" },
+        correlationId: "corr-resume-001",
+        httpStatus: 404,
+      }),
+    );
+
+    render(
+      <ArchitectureDraftResumeControl
+        architectureId="arch-001"
+        label="Continue draft"
+        source="architectures-new"
+        variant="primary"
+        testId="architecture-creation-resume-draft-continue-arch-001"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue draft" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-creation-resume-draft-continue-arch-001-inline-error")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-creation-resume-draft-continue-arch-001-inline-error")).toHaveTextContent(
+      "Could not open this architecture.",
+    );
+    expect(screen.getByTestId("architecture-creation-resume-draft-continue-arch-001-inline-error")).toHaveTextContent(
+      "Draft not found in this tenant.",
+    );
+    expect(screen.getByTestId("architecture-creation-resume-draft-continue-arch-001-inline-error")).toHaveTextContent(
+      "Correlation ID: corr-resume-001",
+    );
+    expect(routerPush).not.toHaveBeenCalled();
+  });
+
+  it("shows an inline error when unlock fails", async () => {
+    getDraftRequest.mockResolvedValue(draft("Admitted"));
+    reopenDraftRequest.mockRejectedValue(
+      new ApiRequestError("Unlock is not allowed for this draft.", {
+        problem: { title: "Conflict", detail: "Unlock is not allowed for this draft.", type: "about:blank" },
+        correlationId: "corr-unlock-001",
+        httpStatus: 409,
+      }),
+    );
+
+    render(
+      <ArchitectureDraftResumeControl
+        architectureId="arch-001"
+        label="Continue draft"
+        source="architectures-new"
+        variant="primary"
+        testId="architecture-creation-resume-draft-continue-arch-001"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue draft" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-intake-mode-dialog-unlock")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-draft-intake-mode-dialog-unlock"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-creation-resume-draft-continue-arch-001-inline-error")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-creation-resume-draft-continue-arch-001-inline-error")).toHaveTextContent(
+      "Could not unlock this architecture.",
+    );
+    expect(screen.queryByTestId("architecture-draft-intake-mode-dialog")).not.toBeInTheDocument();
   });
 });

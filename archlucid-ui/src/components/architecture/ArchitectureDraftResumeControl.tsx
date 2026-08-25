@@ -4,9 +4,10 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { ArchitectureDraftIntakeModeDialog } from "@/components/architecture/ArchitectureDraftIntakeModeDialog";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Button } from "@/components/ui/button";
 import { getDraftRequest, reopenDraftRequest } from "@/lib/api/draft-intake-api";
-import { isApiRequestError } from "@/lib/api-request-error";
+import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
 import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
 import {
   architectureDraftAllowsBriefUnlock,
@@ -19,7 +20,6 @@ import {
   type ArchitectureDraftResumeSource,
 } from "@/lib/architecture/architecture-draft-resume-telemetry";
 import { architectureDraftPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
-import { showError } from "@/lib/toast";
 import type { DraftRequestStatus } from "@/types/draft-intake";
 
 type ArchitectureDraftResumeControlProps = {
@@ -39,6 +39,7 @@ export function ArchitectureDraftResumeControl(
   const [dialogOpen, setDialogOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<DraftRequestStatus | null>(null);
+  const [inlineError, setInlineError] = useState<string | null>(null);
 
   const openDraft = useCallback(() => {
     router.push(architectureDraftPath(props.architectureId));
@@ -50,6 +51,7 @@ export function ArchitectureDraftResumeControl(
     }
 
     trackArchitectureDraftResumeClick(props.source, props.architectureId);
+    setInlineError(null);
     setBusy(true);
 
     try {
@@ -75,9 +77,8 @@ export function ArchitectureDraftResumeControl(
 
       openDraft();
     } catch (error) {
-      showError(
-        "Could not open this architecture",
-        isApiRequestError(error) ? error.message : undefined,
+      setInlineError(
+        formatVerboseApiFailureMessage(error, "Could not open this architecture."),
       );
     } finally {
       setBusy(false);
@@ -94,6 +95,7 @@ export function ArchitectureDraftResumeControl(
       return;
     }
 
+    setInlineError(null);
     setBusy(true);
 
     try {
@@ -101,31 +103,44 @@ export function ArchitectureDraftResumeControl(
       setDialogOpen(false);
       openDraft();
     } catch (error) {
-      showError(
-        "Could not unlock this architecture",
-        isApiRequestError(error) ? error.message : undefined,
+      setDialogOpen(false);
+      setInlineError(
+        formatVerboseApiFailureMessage(error, "Could not unlock this architecture."),
       );
     } finally {
       setBusy(false);
     }
   }, [openDraft, props.architectureId, status]);
 
+  const inlineErrorTestId = props.testId
+    ? `${props.testId}-inline-error`
+    : "architecture-draft-resume-inline-error";
+
   return (
     <>
-      <Button
-        type="button"
-        variant={props.variant ?? "outline"}
-        size="sm"
-        disabled={busy}
-        aria-label={props.ariaLabel}
-        title={props.title}
-        onClick={() => {
-          void handleClick();
-        }}
-        data-testid={props.testId}
-      >
-        {props.label}
-      </Button>
+      <div className="space-y-2">
+        <Button
+          type="button"
+          variant={props.variant ?? "outline"}
+          size="sm"
+          disabled={busy}
+          aria-label={props.ariaLabel}
+          title={props.title}
+          onClick={() => {
+            void handleClick();
+          }}
+          data-testid={props.testId}
+        >
+          {props.label}
+        </Button>
+        {inlineError !== null ? (
+          <OperatorMutationInlineError
+            message={inlineError}
+            testId={inlineErrorTestId}
+            recoveryScenario="api-problem"
+          />
+        ) : null}
+      </div>
       <ArchitectureDraftIntakeModeDialog
         open={dialogOpen}
         status={status}
