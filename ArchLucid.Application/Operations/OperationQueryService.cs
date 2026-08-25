@@ -1,4 +1,5 @@
 using ArchLucid.Application.Jobs;
+using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Contracts.Operations;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -12,7 +13,8 @@ public sealed class OperationQueryService(
   IBackgroundJobTenantAccessVerifier tenantAccessVerifier,
   IRunRepository runRepository,
   IAgentTaskRepository agentTaskRepository,
-  IOperationCancellationRegistry cancellationRegistry) : IOperationQueryService
+  IOperationCancellationRegistry cancellationRegistry,
+  IAdvisoryDraftOperationStore advisoryDraftOperationStore) : IOperationQueryService
 {
   private readonly IBackgroundJobInfoReader _jobInfoReader =
     jobInfoReader ?? throw new ArgumentNullException(nameof(jobInfoReader));
@@ -29,6 +31,9 @@ public sealed class OperationQueryService(
   private readonly IOperationCancellationRegistry _cancellationRegistry =
     cancellationRegistry ?? throw new ArgumentNullException(nameof(cancellationRegistry));
 
+  private readonly IAdvisoryDraftOperationStore _advisoryDraftOperationStore =
+    advisoryDraftOperationStore ?? throw new ArgumentNullException(nameof(advisoryDraftOperationStore));
+
   public async Task<OperationDetail?> GetAsync(
     string operationId,
     ScopeContext scope,
@@ -44,8 +49,28 @@ public sealed class OperationQueryService(
     {
       OperationIdKind.Job => await GetJobOperationAsync(operationId, payload, scope, cancellationToken),
       OperationIdKind.Run => await GetRunOperationAsync(operationId, payload, scope, cancellationToken),
+      OperationIdKind.Draft => GetDraftOperation(operationId, scope, cancellationToken),
       _ => null
     };
+  }
+
+  private OperationDetail? GetDraftOperation(
+    string operationId,
+    ScopeContext scope,
+    CancellationToken cancellationToken)
+  {
+    cancellationToken.ThrowIfCancellationRequested();
+
+    if (!_advisoryDraftOperationStore.TryGet(operationId, scope, out AdvisoryDraftOperationRecord? record)
+        || record is null)
+    {
+      return null;
+    }
+
+    return AdvisoryDraftOperationProjector.Project(
+      operationId,
+      record,
+      _cancellationRegistry.IsCancelRequested(scope, operationId));
   }
 
   private async Task<OperationDetail?> GetJobOperationAsync(

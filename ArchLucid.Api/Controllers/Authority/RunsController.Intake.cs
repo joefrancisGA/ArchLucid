@@ -1,11 +1,17 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Operations;
+using ArchLucid.Application.Planning.AdvisoryDraft;
+using ArchLucid.Contracts.Operations;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
@@ -43,6 +49,89 @@ public sealed partial class RunsController
 
         DraftArchitectureRequestResponse response = await architectureRequestDraftService.DraftAsync(input, cancellationToken);
         return Ok(response);
+    }
+
+    [HttpPost("request/draft/async")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [AsyncRequired]
+    [MutatingAuditExcluded("Async draft endpoint is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [EnableRateLimiting("expensive")]
+    public async Task<IActionResult> DraftRequestAsync(
+        [FromBody] DraftArchitectureRequestInput? input,
+        [FromServices] IAdvisoryDraftOperationAcceptor advisoryDraftOperationAcceptor,
+        CancellationToken cancellationToken)
+    {
+        if (input is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(input.FreeTextDescription))
+            return this.BadRequestProblem("FreeTextDescription is required.", ProblemTypes.ValidationFailed);
+
+        if (input.FreeTextDescription.Trim().Length < MinimumIntakeTextLength)
+            return this.BadRequestProblem(
+                $"FreeTextDescription must be at least {MinimumIntakeTextLength} characters.",
+                ProblemTypes.ValidationFailed);
+
+        string operationId = await advisoryDraftOperationAcceptor.AcceptAsync(
+            input,
+            scopeContextProvider.GetCurrentScope(),
+            cancellationToken);
+
+        Response.Headers.Location = $"/v1/operations/{operationId}";
+        return StatusCode(StatusCodes.Status202Accepted);
+    }
+
+    [HttpGet("request/draft/async/{operationId:guid}/result")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(DraftArchitectureRequestResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public IActionResult GetDraftRequestAsyncResult(
+        [FromRoute] Guid operationId,
+        [FromServices] IAdvisoryDraftOperationStore advisoryDraftOperationStore)
+    {
+        string opaqueOperationId = OperationIdCodec.ForDraft(operationId);
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        if (!advisoryDraftOperationStore.TryGet(opaqueOperationId, scope, out AdvisoryDraftOperationRecord? record)
+            || record is null)
+        {
+            return this.NotFoundProblem(
+                "Advisory draft operation was not found for this workspace.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        if (record.State == OperationState.Running
+            || record.State == OperationState.Pending
+            || record.State == OperationState.CancelRequested)
+        {
+            return this.ConflictProblem(
+                "Structured brief suggestions are still in progress.",
+                ProblemTypes.Conflict);
+        }
+
+        if (record.State == OperationState.Failed)
+        {
+            return this.BadRequestProblem(
+                record.ErrorMessage ?? "Structured brief suggestion failed.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (record.State == OperationState.Canceled)
+        {
+            return this.ConflictProblem("Structured brief suggestion was canceled.", ProblemTypes.Conflict);
+        }
+
+        if (record.Result is null)
+        {
+            return this.NotFoundProblem(
+                "Structured brief suggestion result is not available.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(record.Result);
     }
 
     [HttpPost("request/draft/overview-rewrite")]

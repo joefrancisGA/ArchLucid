@@ -39,6 +39,7 @@ using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Planning;
+using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Reports;
@@ -469,6 +470,10 @@ private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection 
         services.AddScoped<IArchitectureRequestDraftSemanticUniquePass, ArchitectureRequestDraftSemanticUniquePass>();
         services.AddScoped<IBriefAssumptionEvidenceContradictionPass, BriefAssumptionEvidenceContradictionPass>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
+        services.AddSingleton<IAdvisoryDraftOperationStore, InMemoryAdvisoryDraftOperationStore>();
+        services.AddSingleton<AdvisoryDraftOperationQueue>();
+        services.AddScoped<IAdvisoryDraftOperationAcceptor, AdvisoryDraftOperationAcceptor>();
+        services.AddHostedService<AdvisoryDraftOperationHostedService>();
         services.AddScoped<IArchitectureOverviewRewriteService, ArchitectureOverviewRewriteService>();
         services.AddScoped<IClarificationAnswerRephraseService, ClarificationAnswerRephraseService>();
         services.AddScoped<IStructuredBriefSuggestionExplainService, StructuredBriefSuggestionExplainService>();

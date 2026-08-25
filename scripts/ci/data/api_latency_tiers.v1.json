@@ -109,10 +109,29 @@
       "requiresAccepted202": true,
       "requiresAsyncRequiredAttribute": true,
       "notes": "Background consulting export enqueue"
+    },
+    {
+      "id": "architecture-request-draft",
+      "method": "POST",
+      "pathTemplate": "/v1/architecture/request/draft",
+      "tier": "C",
+      "syncAllowedForSimulator": true,
+      "asyncSiblingId": "architecture-request-draft-async",
+      "notes": "Structured-brief suggest; browser UI uses async sibling"
+    },
+    {
+      "id": "architecture-request-draft-async",
+      "method": "POST",
+      "pathTemplate": "/v1/architecture/request/draft/async",
+      "tier": "C",
+      "requiresAccepted202": true,
+      "requiresAsyncRequiredAttribute": true,
+      "notes": "Async structured-brief suggest accept"
     }
   ],
   "tierCSyncPathAllowlist": [
     "POST /v1/architecture/request",
+    "POST /v1/architecture/request/draft",
     "POST /v1/architecture/review/{runId}/execute",
     "POST /v1/architecture/review/{runId}/execute/selective",
     "POST /v1/architecture/review/{runId}/replay"

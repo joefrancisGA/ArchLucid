@@ -1,6 +1,7 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Jobs;
+using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Contracts.Operations;
 using ArchLucid.Core.Scoping;
 
@@ -12,7 +13,8 @@ public sealed class OperationCancelService(
     OperationRunCancellationMarker runCancellationMarker,
     IBackgroundJobInfoReader jobInfoReader,
     IBackgroundJobCancellationWriter jobCancellationWriter,
-    IBackgroundJobTenantAccessVerifier tenantAccessVerifier) : IOperationCancelService
+    IBackgroundJobTenantAccessVerifier tenantAccessVerifier,
+    IAdvisoryDraftOperationStore advisoryDraftOperationStore) : IOperationCancelService
 {
     private readonly IOperationQueryService _operationQueryService =
         operationQueryService ?? throw new ArgumentNullException(nameof(operationQueryService));
@@ -31,6 +33,9 @@ public sealed class OperationCancelService(
 
     private readonly IBackgroundJobTenantAccessVerifier _tenantAccessVerifier =
         tenantAccessVerifier ?? throw new ArgumentNullException(nameof(tenantAccessVerifier));
+
+    private readonly IAdvisoryDraftOperationStore _advisoryDraftOperationStore =
+        advisoryDraftOperationStore ?? throw new ArgumentNullException(nameof(advisoryDraftOperationStore));
 
     public async Task<OperationDetail> RequestCancelAsync(
         string operationId,
@@ -57,6 +62,9 @@ public sealed class OperationCancelService(
 
             if (kind == OperationIdKind.Job)
                 await TryMarkBackgroundJobCanceledAsync(payload, scope, cancellationToken);
+
+            if (kind == OperationIdKind.Draft)
+                _advisoryDraftOperationStore.MarkCanceled(operationId);
         }
 
         OperationDetail? updated = await _operationQueryService.GetAsync(operationId, scope, cancellationToken);

@@ -3,5 +3,6 @@ namespace ArchLucid.Application.Operations;
 public enum OperationIdKind
 {
   Job,
-  Run
+  Run,
+  Draft
 }

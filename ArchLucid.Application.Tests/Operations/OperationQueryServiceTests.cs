@@ -1,5 +1,6 @@
 using ArchLucid.Application.Jobs;
 using ArchLucid.Application.Operations;
+using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Operations;
@@ -261,6 +262,7 @@ public sealed class OperationQueryServiceTests
             access.Object,
             runRepo.Object,
             taskRepo.Object,
-            cancellation.Object);
+            cancellation.Object,
+            new InMemoryAdvisoryDraftOperationStore());
     }
 }

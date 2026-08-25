@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Llm;
 
@@ -56,7 +57,8 @@ public sealed class ArchitectureRequestDraftService(
 
     public async Task<DraftArchitectureRequestResponse> DraftAsync(
         DraftArchitectureRequestInput input,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IArchitectureRequestDraftProgress? progress = null)
     {
         ArgumentNullException.ThrowIfNull(input);
 
@@ -66,9 +68,13 @@ public sealed class ArchitectureRequestDraftService(
         if (string.IsNullOrWhiteSpace(input.FreeTextDescription))
             throw new ArgumentException("FreeTextDescription is required.", nameof(input));
 
+        progress?.ReportStep(AdvisoryDraftOperationSteps.ReadingOverview, 1, AdvisoryDraftOperationSteps.TotalSteps);
+
         string userPrompt = BuildDraftUserPrompt(input);
 
         long extractionStartTicks = Stopwatch.GetTimestamp();
+
+        progress?.ReportStep(AdvisoryDraftOperationSteps.Extracting, 2, AdvisoryDraftOperationSteps.TotalSteps);
 
         string responseJson = await _completionClient.CompleteJsonAsync(
             DraftSystemPrompt,
@@ -91,6 +97,8 @@ public sealed class ArchitectureRequestDraftService(
         string[] existingAssumptions = ArchitectureRequestDraftSemanticUniquePass.NormalizeExact(input.CurrentAssumptions);
 
         long postProcessStartTicks = Stopwatch.GetTimestamp();
+
+        progress?.ReportStep(AdvisoryDraftOperationSteps.PostProcessing, 3, AdvisoryDraftOperationSteps.TotalSteps);
 
         Task<string[]> filteredConstraintsTask = _semanticUniquePass.FilterDuplicatesAsync(
             ArchitectureRequestDraftListKind.Constraints,
@@ -119,6 +127,8 @@ public sealed class ArchitectureRequestDraftService(
 
         double postProcessMs = Stopwatch.GetElapsedTime(postProcessStartTicks).TotalMilliseconds;
         double totalMs = Stopwatch.GetElapsedTime(totalStartTicks).TotalMilliseconds;
+
+        progress?.ReportStep(AdvisoryDraftOperationSteps.Completing, 4, AdvisoryDraftOperationSteps.TotalSteps);
 
         LogDraftTiming(
             overviewLength,

@@ -1,6 +1,7 @@
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Application.Operations;
+using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Contracts.Operations;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -103,6 +104,7 @@ public sealed class OperationCancelServiceTests
             new OperationRunCancellationMarker(runs.Object),
             jobs.Object,
             cancelWriter.Object,
-            access.Object);
+            access.Object,
+            new InMemoryAdvisoryDraftOperationStore());
     }
 }

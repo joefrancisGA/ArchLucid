@@ -27,4 +27,15 @@ public sealed class OperationIdCodecTests
         kind.Should().Be(OperationIdKind.Run);
         payload.Should().Be(runId.ToString("D"));
     }
+
+    [Fact]
+    public void ForDraft_round_trips()
+    {
+        Guid draftId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        string operationId = OperationIdCodec.ForDraft(draftId);
+
+        OperationIdCodec.TryParse(operationId, out OperationIdKind kind, out string payload).Should().BeTrue();
+        kind.Should().Be(OperationIdKind.Draft);
+        payload.Should().Be(draftId.ToString("D"));
+    }
 }

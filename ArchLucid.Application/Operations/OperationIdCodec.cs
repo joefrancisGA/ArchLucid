@@ -7,6 +7,8 @@ public static class OperationIdCodec
 
   public const string RunPrefix = "run:";
 
+  public const string DraftPrefix = "draft:";
+
   public static string ForJob(string jobId)
   {
     ArgumentException.ThrowIfNullOrWhiteSpace(jobId);
@@ -15,6 +17,8 @@ public static class OperationIdCodec
   }
 
   public static string ForRun(Guid runId) => RunPrefix + runId.ToString("D");
+
+  public static string ForDraft(Guid operationId) => DraftPrefix + operationId.ToString("D");
 
   public static bool TryParse(string operationId, out OperationIdKind kind, out string payload)
   {
@@ -44,6 +48,18 @@ public static class OperationIdCodec
         return false;
 
       kind = OperationIdKind.Run;
+
+      return true;
+    }
+
+    if (operationId.StartsWith(DraftPrefix, StringComparison.Ordinal))
+    {
+      payload = operationId[DraftPrefix.Length..];
+
+      if (string.IsNullOrWhiteSpace(payload))
+        return false;
+
+      kind = OperationIdKind.Draft;
 
       return true;
     }

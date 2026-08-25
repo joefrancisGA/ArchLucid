@@ -4,6 +4,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 
+import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 import { StructuredBriefSuggestionExplainPanel } from "@/components/architecture/StructuredBriefSuggestionExplainPanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
@@ -14,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { StructuredBriefSuggestionKind } from "@/lib/api/structured-brief-suggestion-explain-api";
 import { draftArchitectureRequest, ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
+import { draftArchitectureRequestWithPoll } from "@/lib/api/architecture-request-draft-async-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
@@ -33,6 +35,10 @@ import {
   hasArchitectureContextForFailureModeSuggestion,
   resolveFailureModeSuggestion,
 } from "@/lib/architecture/architecture-draft-structured-brief-suggestions";
+import {
+  estimateStructuredBriefSuggestDuration,
+  formatStructuredBriefSuggestDurationBand,
+} from "@/lib/architecture/structured-brief-suggest-duration-estimate";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_CALLOUT_WARN_CLASS } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT,
@@ -403,6 +409,7 @@ export function ArchitectureDraftStructuredBriefFields(
   props: ArchitectureDraftStructuredBriefFieldsProps,
 ): React.JSX.Element {
   const [suggestBusy, setSuggestBusy] = useState(false);
+  const [suggestStageLabel, setSuggestStageLabel] = useState<string | null>(null);
   const [suggestEmpty, setSuggestEmpty] = useState(false);
   const [suggestAddedCount, setSuggestAddedCount] = useState<number | null>(null);
   const [suggestError, setSuggestError] = useState<{
@@ -443,6 +450,9 @@ export function ArchitectureDraftStructuredBriefFields(
     && !suggestBusy
     && !failureModeSuggestBusy;
 
+  const suggestDurationBand = estimateStructuredBriefSuggestDuration(overviewTrimmedLength);
+  const suggestDurationHint = formatStructuredBriefSuggestDurationBand(suggestDurationBand);
+
   const updateBrief = (partial: Partial<ArchitectureDraftStructuredBriefState>) => {
     props.onStructuredBriefChange((current) => ({ ...current, ...partial }));
   };
@@ -470,12 +480,14 @@ export function ArchitectureDraftStructuredBriefFields(
 
     if (
       freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
-      || !canSuggestFromOverview
+      || props.disabled === true
+      || props.blocksLlmExecution === true
     ) {
       return;
     }
 
     setSuggestBusy(true);
+    setSuggestStageLabel("Queued");
     setSuggestError(null);
     setSuggestEmpty(false);
     setSuggestAddedCount(null);
@@ -483,12 +495,19 @@ export function ArchitectureDraftStructuredBriefFields(
     setFailureModeSuggestEmpty(false);
 
     try {
-      const response = await draftArchitectureRequest({
-        freeTextDescription,
-        currentConstraints: [...brief.confirmedConstraints, ...brief.suggestedConstraints],
-        currentAssumptions: [...brief.confirmedAssumptions, ...brief.suggestedAssumptions],
-        confirmedAssumptions: brief.confirmedAssumptions,
-      });
+      const { response } = await draftArchitectureRequestWithPoll(
+        {
+          freeTextDescription,
+          currentConstraints: [...brief.confirmedConstraints, ...brief.suggestedConstraints],
+          currentAssumptions: [...brief.confirmedAssumptions, ...brief.suggestedAssumptions],
+          confirmedAssumptions: brief.confirmedAssumptions,
+        },
+        {
+          onUpdate: (operation) => {
+            setSuggestStageLabel(operation.stepLabel);
+          },
+        },
+      );
       const applied = applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse({
         brief,
         sourceText: freeTextDescription,
@@ -530,15 +549,16 @@ export function ArchitectureDraftStructuredBriefFields(
       }
     } finally {
       setSuggestBusy(false);
+      setSuggestStageLabel(null);
     }
-  }, [brief, canSuggestFromOverview, props]);
+  }, [brief, props]);
 
   const suggestFromOverviewMutation = useMutation({
     mutationFn: runSuggestFromOverview,
   });
 
-  async function onSuggestFromOverview(): Promise<void> {
-    await suggestFromOverviewMutation.mutateAsync();
+  function onSuggestFromOverview(): void {
+    suggestFromOverviewMutation.mutate();
   }
 
   useEffect(() => {
@@ -608,9 +628,7 @@ export function ArchitectureDraftStructuredBriefFields(
             variant="secondary"
             size="sm"
             disabled={!canSuggestFromOverview}
-            onClick={() => {
-              void onSuggestFromOverview();
-            }}
+            onClick={onSuggestFromOverview}
             data-testid="architecture-draft-suggest-structured-brief"
           >
             {suggestBusy ? "Suggesting…" : "Suggest from overview"}
@@ -619,6 +637,22 @@ export function ArchitectureDraftStructuredBriefFields(
             Suggestions stay unconfirmed until you add or confirm them.
           </p>
         </div>
+        {canSuggestFromOverview && !suggestBusy ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+            role="status"
+            data-testid="architecture-draft-suggest-structured-brief-duration-hint"
+          >
+            {suggestDurationHint}
+          </p>
+        ) : null}
+        <LongOperationWaitNotice
+          active={suggestBusy}
+          operationLabel="Structured brief suggestions"
+          stageLabel={suggestStageLabel ?? "Structured brief suggestions"}
+          testId="architecture-draft-suggest-structured-brief-wait"
+          showTimeoutRecovery={false}
+        />
         {!canSuggestFromOverview && props.blocksLlmExecution === true ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
