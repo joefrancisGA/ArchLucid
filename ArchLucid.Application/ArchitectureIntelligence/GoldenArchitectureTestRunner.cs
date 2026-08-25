@@ -35,9 +35,7 @@ public sealed class GoldenArchitectureTestRunner : IGoldenArchitectureTestRunner
             ? result.ModelDiffs[0].BeforeModel
             : result.Model;
 
-        ArchitectureKnowledgeModel afterModel = result.ModelDiffs.Count > 0
-            ? result.ModelDiffs[0].AfterModel
-            : result.Model;
+        ArchitectureKnowledgeModel afterModel = result.Model;
 
         List<SpecialistReviewFinding> afterFindings = result.ReReview?.SpecialistResults
             .SelectMany(review => review.Findings)
