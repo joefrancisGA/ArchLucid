@@ -26,12 +26,14 @@ import {
 } from "@/lib/pattern-library-filters";
 import type { PatternLibraryFiltersState } from "@/lib/pattern-library-types";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { resolveContinueLastPatternLibraryRecord } from "@/lib/resolve-continue-last-pattern-library-record";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
 import { cn } from "@/lib/utils";
 
 import { PatternLibraryBuyerChrome } from "./PatternLibraryBuyerChrome";
 import { PatternLibraryCatalogSkeleton } from "./PatternLibraryCatalogSkeleton";
+import { PatternLibraryContinueLastViewedRow } from "./PatternLibraryContinueLastViewedRow";
 import { PatternLibraryFiltersPanel } from "./PatternLibraryFiltersPanel";
 import { PatternLibraryLoadFailurePanel } from "./PatternLibraryLoadFailurePanel";
 import { PatternLibraryPageHeader } from "./PatternLibraryPageHeader";
@@ -70,6 +72,10 @@ export function PatternLibraryPageClient(): React.JSX.Element {
     [eligiblePatternKeys, useSampleCatalog, usingLiveAggregate],
   );
   const filteredRecords = useMemo(() => filterPatternLibraryRecords(allRecords, filters), [allRecords, filters]);
+  const continueLastPattern = useMemo(
+    () => resolveContinueLastPatternLibraryRecord(allRecords),
+    [allRecords],
+  );
   const summary = useMemo(() => derivePatternLibrarySummary(allRecords), [allRecords]);
   const headerRefreshing = isPending || isFetching;
   const loadFailure = isError && error !== null ? toPatternLibraryLoadFailure(error) : null;
@@ -111,6 +117,9 @@ export function PatternLibraryPageClient(): React.JSX.Element {
       {!isPending && loadFailure === null ? (
         <>
           <PatternLibrarySummaryRow summary={summary} />
+          {continueLastPattern !== null ? (
+            <PatternLibraryContinueLastViewedRow record={continueLastPattern} />
+          ) : null}
           <PatternLibraryFiltersPanel filters={filters} onChange={setFilters} />
 
           {filteredRecords.length === 0 ? (
