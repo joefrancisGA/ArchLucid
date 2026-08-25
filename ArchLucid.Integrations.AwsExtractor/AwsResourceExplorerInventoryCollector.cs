@@ -17,6 +17,7 @@ internal static class AwsResourceExplorerInventoryCollector
 
         List<AwsInventoryResourceEntry> resources = [];
         string? nextToken = null;
+        string queryString = AwsResourceExplorerQueryString.ResolveForRegion(regionSystemName);
 
         do
         {
@@ -24,7 +25,7 @@ internal static class AwsResourceExplorerInventoryCollector
                 .SearchAsync(
                     new SearchRequest
                     {
-                        QueryString = "arn:aws:*",
+                        QueryString = queryString,
                         MaxResults = MaxResultsPerSearch,
                         NextToken = nextToken
                     },
