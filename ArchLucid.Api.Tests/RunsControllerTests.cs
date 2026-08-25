@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
@@ -397,6 +398,33 @@ public sealed class RunsControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ReplayRun_unknown_execution_mode_returns_400_like_async_replay()
+    {
+        Mock<IRunLifecycleCommandService> commands = new();
+        commands
+            .Setup(s => s.ReplayRunAsync(
+                "run-1",
+                "DestroyEverything",
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ArgumentException("Unknown execution mode 'DestroyEverything'."));
+
+        RunsController controller = CreateController(runLifecycleCommandService: commands.Object);
+
+        IActionResult action = await controller.ReplayRun(
+            "run-1",
+            new ReplayRunRequest { ExecutionMode = "DestroyEverything" },
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            bad.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
     private static RunsController CreateController(
