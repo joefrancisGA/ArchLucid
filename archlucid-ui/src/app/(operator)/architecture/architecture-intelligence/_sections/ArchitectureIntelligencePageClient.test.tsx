@@ -268,6 +268,81 @@ describe("ArchitectureIntelligencePageClient", () => {
     );
   });
 
+  it("shows loaded intake context after golden fixture on deep-linked review", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "ffffffff-ffff-ffff-ffff-ffffffffffff";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return {
+            ok: true,
+            json: async () => ({
+              runId: "ffffffff-ffff-ffff-ffff-ffffffffffff",
+              sourceTexts: [],
+            }),
+            text: async () => "",
+          };
+        }
+
+        if (method === "GET" && url.includes("/architecture-intelligence/golden-fixture")) {
+          return {
+            ok: true,
+            json: async () => ({
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Golden fixture architecture description.",
+                },
+              ],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
+        "no architecture intake",
+      );
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Load golden fixture" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Golden fixture architecture description.",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
+      "Loaded product intake",
+    );
+    expect(screen.getByTestId("architecture-intelligence-inbound-context")).not.toHaveTextContent(
+      "Scoped to run",
+    );
+    expect(screen.getByTestId("architecture-intelligence-analyze-review-button")).toBeInTheDocument();
+  });
+
   it("clears reasoning results when inbound runId switches to another review", async () => {
     let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 

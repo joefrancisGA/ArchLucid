@@ -501,7 +501,7 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
       setHydratedSourceTexts(sources);
       setArchitectureDescription(primaryDescriptionFromSources(sources));
       setPrioritiesRaw((fixture.declaredPriorities ?? []).join(", "));
-      setProductContextStatus("idle");
+      setProductContextStatus(sources.length > 0 ? "loaded" : "empty");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
