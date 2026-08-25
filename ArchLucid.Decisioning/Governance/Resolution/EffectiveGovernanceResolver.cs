@@ -41,8 +41,7 @@ public sealed class EffectiveGovernanceResolver(
     /// <remarks>
     ///     Pipeline: (1) list assignments, (2) filter enabled + <see cref="AppliesToScope" />, (3) load pack/version and
     ///     deserialize JSON
-    ///     (skip bad rows), (4) merge each facet via <see cref="ResolveGuidIdList" />, <see cref="ResolveStringKeyList" />,
-    ///     <see cref="ResolveDictionary" />.
+    ///     (skip bad rows), (4) merge each facet via <see cref="EffectiveGovernanceFacetMerger" />.
     ///     Appends human-readable counts to <see cref="EffectiveGovernanceResolutionResult.Notes" />.
     /// </remarks>
     public async Task<ArchLucid.Contracts.Governance.Resolution.EffectiveGovernanceResolutionResult> ResolveAsync(
@@ -66,7 +65,7 @@ public sealed class EffectiveGovernanceResolver(
                 .Where(x => focusedPilotMode || x.IsEnabled)
                 .ToList();
 
-            List<ResolvedPackRow> resolvedPacks = [];
+            List<EffectiveGovernanceFacetMerger.ResolvedPackRow> resolvedPacks = [];
             List<string> skippedNotes = [];
 
             if (focusedPilotMode)
@@ -176,7 +175,7 @@ public sealed class EffectiveGovernanceResolver(
 
                     ArchLucidInstrumentation.GovernancePackContentDeserializeCacheHits.Add(1);
 
-                resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));
+                resolvedPacks.Add(new EffectiveGovernanceFacetMerger.ResolvedPackRow(assignment, pack, version, content));
             }
 
             EffectiveGovernanceResolutionResult result = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
@@ -184,53 +183,7 @@ public sealed class EffectiveGovernanceResolver(
             foreach (string note in skippedNotes)
                 result.Notes.Add(note);
 
-            ResolveGuidIdList(
-                result,
-                GovernanceConstants.ItemTypes.ComplianceRule,
-                resolvedPacks,
-                x => x.Content.ComplianceRuleIds,
-                (content, ids) => content.ComplianceRuleIds = ids);
-
-            ResolveStringKeyList(
-                result,
-                GovernanceConstants.ItemTypes.ComplianceRuleKey,
-                resolvedPacks,
-                x => x.Content.ComplianceRuleKeys,
-                (content, keys) => content.ComplianceRuleKeys = keys);
-
-            ResolveGuidIdList(
-                result,
-                GovernanceConstants.ItemTypes.AlertRule,
-                resolvedPacks,
-                x => x.Content.AlertRuleIds,
-                (content, ids) => content.AlertRuleIds = ids);
-
-            ResolveGuidIdList(
-                result,
-                GovernanceConstants.ItemTypes.CompositeAlertRule,
-                resolvedPacks,
-                x => x.Content.CompositeAlertRuleIds,
-                (content, ids) => content.CompositeAlertRuleIds = ids);
-
-            ResolveDictionary(
-                result,
-                GovernanceConstants.ItemTypes.AdvisoryDefault,
-                resolvedPacks,
-                x => x.Content.AdvisoryDefaults,
-                (content, dict) => content.AdvisoryDefaults = dict);
-
-            ResolveDictionary(
-                result,
-                GovernanceConstants.ItemTypes.Metadata,
-                resolvedPacks,
-                x => x.Content.Metadata,
-                (content, dict) => content.Metadata = dict);
-
-            ResolveElicitationQuestionList(result, resolvedPacks);
-
-            result.Notes.Add(string.Format(GovernanceConstants.Notes.ResolvedAssignmentCount, resolvedPacks.Count));
-            result.Notes.Add(string.Format(GovernanceConstants.Notes.ProducedDecisionCount, result.Decisions.Count));
-            result.Notes.Add(string.Format(GovernanceConstants.Notes.DetectedConflictCount, result.Conflicts.Count));
+            EffectiveGovernanceFacetMerger.Merge(result, resolvedPacks);
 
             return result;
         }
@@ -275,7 +228,7 @@ public sealed class EffectiveGovernanceResolver(
     /// <remarks>
     ///     <strong>Why tier &gt; pin:</strong> an unpinned project assignment (3000) still beats a pinned tenant assignment
     ///     (1100), so scope always wins over pin.
-    ///     Exposed as <c>internal</c> for unit tests. Used by <see cref="OrderCandidates" />.
+    ///     Exposed as <c>internal</c> for unit tests. Used by <see cref="EffectiveGovernanceFacetMerger" />.
     /// </remarks>
     internal static int GetPrecedenceRank(PolicyPackAssignment assignment)
     {
@@ -289,318 +242,4 @@ public sealed class EffectiveGovernanceResolver(
 
         return assignment.IsPinned ? tier + GovernanceConstants.PrecedenceTiers.PinnedBoost : tier;
     }
-
-    /// <summary>Projects a <see cref="ResolvedPackRow" /> into a <see cref="GovernanceResolutionCandidate" /> for UI/API.</summary>
-    /// <remarks>Called from resolve-* helpers when building candidate lists per item key.</remarks>
-    private static GovernanceResolutionCandidate ToCandidate(ResolvedPackRow row, string valueJson)
-    {
-        PolicyPackAssignment a = row.Assignment;
-        return new GovernanceResolutionCandidate
-        {
-            PolicyPackId = row.Pack.PolicyPackId,
-            PolicyPackName = row.Pack.Name,
-            Version = row.Version.Version,
-            ScopeLevel = a.ScopeLevel,
-            PrecedenceRank = GetPrecedenceRank(a),
-            ValueJson = valueJson,
-            AssignmentId = a.AssignmentId,
-            AssignedUtc = a.AssignedUtc
-        };
-    }
-
-    /// <summary>
-    ///     Deterministic ordering: higher <see cref="GovernanceResolutionCandidate.PrecedenceRank" />, then newer
-    ///     <see cref="GovernanceResolutionCandidate.AssignedUtc" />, then
-    ///     <see cref="GovernanceResolutionCandidate.AssignmentId" />.
-    /// </summary>
-    /// <remarks>Shared by all merge strategies so ties never depend on enumeration order.</remarks>
-    private static List<GovernanceResolutionCandidate> OrderCandidates(
-        IEnumerable<GovernanceResolutionCandidate> candidates)
-    {
-        return candidates
-            .OrderByDescending(c => c.PrecedenceRank)
-            .ThenByDescending(c => c.AssignedUtc)
-            .ThenByDescending(c => c.AssignmentId)
-            .ToList();
-    }
-
-    /// <summary>Builds operator-facing text explaining why the first candidate in an ordered list won.</summary>
-    /// <remarks>Called when appending <see cref="GovernanceResolutionDecision.ResolutionReason" />.</remarks>
-    private static string BuildResolutionReason(List<GovernanceResolutionCandidate> ordered)
-    {
-        if (ordered.Count == 0)
-            return GovernanceConstants.ResolutionReasons.NoCandidates;
-
-        if (ordered.Count == 1)
-            return GovernanceConstants.ResolutionReasons.SingleCandidate;
-
-        GovernanceResolutionCandidate winner = ordered[0];
-        GovernanceResolutionCandidate second = ordered[1];
-
-        if (winner.PrecedenceRank != second.PrecedenceRank)
-            return GovernanceConstants.ResolutionReasons.HigherScopeTier;
-
-        return winner.AssignedUtc != second.AssignedUtc
-            ? GovernanceConstants.ResolutionReasons.SameTierNewerAssignment
-            : GovernanceConstants.ResolutionReasons.SameTierTieBreak;
-    }
-
-    /// <summary>
-    ///     Merges a list-valued facet keyed by <see cref="Guid" /> (e.g. compliance / alert rule ids): union of distinct ids,
-    ///     winner per id.
-    /// </summary>
-    /// <remarks>
-    ///     Emits <see cref="GovernanceConflictRecord" /> with <c>DuplicateDefinition</c> when multiple packs mention the same
-    ///     id.
-    ///     Invoked from <see cref="ResolveAsync" /> for ComplianceRule, AlertRule, and CompositeAlertRule facets.
-    /// </remarks>
-    private static void ResolveGuidIdList(
-        EffectiveGovernanceResolutionResult result,
-        string itemType,
-        List<ResolvedPackRow> packs,
-        Func<ResolvedPackRow, List<Guid>?> selector,
-        Action<PolicyPackContentDocument, List<Guid>> setter)
-    {
-        List<Guid> allIds = packs
-            .SelectMany(x => selector(x) ?? [])
-            .Distinct()
-            .ToList();
-
-        List<Guid> effective = [];
-
-        foreach (Guid id in allIds)
-        {
-            string raw = id.ToString("D");
-            List<GovernanceResolutionCandidate> candidates = OrderCandidates(
-                packs
-                    .Where(x => (selector(x) ?? []).Contains(id))
-                    .Select(x => ToCandidate(x, raw)));
-
-            if (candidates.Count == 0)
-                continue;
-
-            candidates[0].WasSelected = true;
-            effective.Add(id);
-
-            GovernanceFacetResolutionRecorder.RecordWinnerWithDuplicateConflict(
-                result,
-                itemType,
-                raw,
-                candidates,
-                BuildResolutionReason(candidates),
-                string.Format(GovernanceConstants.Notes.DuplicateDefinitionItem, itemType));
-        }
-
-        setter(result.EffectiveContent, effective);
-    }
-
-    /// <summary>
-    ///     Merges string list facets (e.g. <see cref="PolicyPackContentDocument.ComplianceRuleKeys" />) with
-    ///     case-insensitive key equality.
-    /// </summary>
-    /// <remarks>
-    ///     Stores JSON-encoded <see cref="GovernanceResolutionCandidate.ValueJson" /> for keys so UI can show quoted strings
-    ///     consistently.
-    ///     <c>DuplicateDefinition</c> conflicts when the same key appears in multiple packs.
-    /// </remarks>
-    private static void ResolveStringKeyList(
-        EffectiveGovernanceResolutionResult result,
-        string itemType,
-        List<ResolvedPackRow> packs,
-        Func<ResolvedPackRow, List<string>?> selector,
-        Action<PolicyPackContentDocument, List<string>> setter)
-    {
-        List<string> allKeys = packs
-            .SelectMany(x => selector(x) ?? [])
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        List<string> effective = [];
-
-        foreach (string key in allKeys)
-        {
-            List<GovernanceResolutionCandidate> candidates = OrderCandidates(
-                packs
-                    .Where(x => (selector(x) ?? []).Contains(key, StringComparer.OrdinalIgnoreCase))
-                    .Select(x =>
-                    {
-                        List<string> list = selector(x) ?? [];
-                        string v = list.First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
-                        return ToCandidate(x, JsonSerializer.Serialize(v, PolicyPackJsonSerializerOptions.Default));
-                    }));
-
-            if (candidates.Count == 0)
-                continue;
-
-            candidates[0].WasSelected = true;
-            string canonical = packs
-                .SelectMany(x => selector(x) ?? [])
-                .First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
-            effective.Add(canonical);
-
-            GovernanceFacetResolutionRecorder.RecordWinnerWithDuplicateConflict(
-                result,
-                itemType,
-                canonical,
-                candidates,
-                BuildResolutionReason(candidates),
-                string.Format(GovernanceConstants.Notes.DuplicateDefinitionKey, itemType));
-        }
-
-        setter(result.EffectiveContent, effective);
-    }
-
-    /// <summary>
-    ///     Merges dictionary facets (<see cref="PolicyPackContentDocument.AdvisoryDefaults" />,
-    ///     <see cref="PolicyPackContentDocument.Metadata" />):
-    ///     last-winner per key by precedence; <c>ValueConflict</c> when values differ across packs.
-    /// </summary>
-    /// <remarks>
-    ///     Unlike id lists, duplicate keys with identical values do not produce a value conflict—only
-    ///     <see cref="GovernanceResolutionDecision" /> entries.
-    /// </remarks>
-    private static void ResolveDictionary(
-        EffectiveGovernanceResolutionResult result,
-        string itemType,
-        List<ResolvedPackRow> packs,
-        Func<ResolvedPackRow, Dictionary<string, string>?> selector,
-        Action<PolicyPackContentDocument, Dictionary<string, string>> setter)
-    {
-        List<string> keys = packs
-            .SelectMany(x => (selector(x) ?? []).Keys)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-#pragma warning disable IDE0028 // Simplify collection initialization
-        Dictionary<string, string> effective = new(StringComparer.OrdinalIgnoreCase);
-#pragma warning restore IDE0028 // Simplify collection initialization
-
-        foreach (string key in keys)
-        {
-            List<GovernanceResolutionCandidate> candidates = OrderCandidates(
-                packs
-                    .Where(x =>
-                        (selector(x) ?? []).Keys.Any(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase)))
-                    .Select(x =>
-                    {
-                        Dictionary<string, string> dict = selector(x) ?? [];
-                        string actualKey =
-                            dict.Keys.First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
-                        string val = dict[actualKey];
-                        return ToCandidate(x, val);
-                    }));
-
-            if (candidates.Count == 0)
-                continue;
-
-            candidates[0].WasSelected = true;
-            string canonicalKey = packs
-                .SelectMany(x => (selector(x) ?? []).Keys)
-                .First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
-            effective[canonicalKey] = candidates[0].ValueJson;
-
-            GovernanceFacetResolutionRecorder.RecordWinner(
-                result,
-                itemType,
-                canonicalKey,
-                candidates,
-                BuildResolutionReason(candidates));
-
-            GovernanceFacetResolutionRecorder.RecordValueConflict(
-                result,
-                itemType,
-                canonicalKey,
-                candidates,
-                string.Format(GovernanceConstants.Notes.ValueConflict, itemType, canonicalKey));
-        }
-
-        setter(result.EffectiveContent, effective);
-    }
-
-    /// <summary>
-    ///     Merges <see cref="PolicyPackContentDocument.ElicitationQuestions" /> by <see cref="ElicitationQuestion.QuestionKey" />
-    ///     with the same precedence rules as other list facets.
-    /// </summary>
-    private static void ResolveElicitationQuestionList(
-        EffectiveGovernanceResolutionResult result,
-        List<ResolvedPackRow> packs)
-    {
-        List<string> allKeys = packs
-            .SelectMany(static row => row.Content.ElicitationQuestions)
-            .Select(static question => question.QuestionKey)
-            .Where(static key => !string.IsNullOrWhiteSpace(key))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        List<ElicitationQuestion> effective = [];
-
-        foreach (string key in allKeys)
-        {
-            List<GovernanceResolutionCandidate> candidates = OrderCandidates(
-                packs
-                    .Where(row => row.Content.ElicitationQuestions.Exists(question =>
-                        string.Equals(question.QuestionKey, key, StringComparison.OrdinalIgnoreCase)))
-                    .Select(row =>
-                    {
-                        ElicitationQuestion question = row.Content.ElicitationQuestions.First(q =>
-                            string.Equals(q.QuestionKey, key, StringComparison.OrdinalIgnoreCase));
-
-                        string valueJson = JsonSerializer.Serialize(question, PolicyPackJsonSerializerOptions.Default);
-
-                        return ToCandidate(row, valueJson);
-                    }));
-
-            if (candidates.Count == 0)
-                continue;
-
-            candidates[0].WasSelected = true;
-
-            ElicitationQuestion? winningQuestion = JsonSerializer.Deserialize<ElicitationQuestion>(
-                candidates[0].ValueJson,
-                PolicyPackJsonSerializerOptions.Default);
-
-            if (winningQuestion is null)
-                continue;
-
-            effective.Add(winningQuestion);
-
-            string canonicalKey = packs
-                .SelectMany(static row => row.Content.ElicitationQuestions)
-                .Select(static question => question.QuestionKey)
-                .First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
-
-            GovernanceFacetResolutionRecorder.RecordWinnerWithDuplicateConflict(
-                result,
-                GovernanceConstants.ItemTypes.ElicitationQuestion,
-                canonicalKey,
-                candidates,
-                BuildResolutionReason(candidates),
-                string.Format(
-                    GovernanceConstants.Notes.DuplicateDefinitionKey,
-                    GovernanceConstants.ItemTypes.ElicitationQuestion));
-
-            GovernanceFacetResolutionRecorder.RecordValueConflict(
-                result,
-                GovernanceConstants.ItemTypes.ElicitationQuestion,
-                canonicalKey,
-                candidates,
-                string.Format(
-                    GovernanceConstants.Notes.ValueConflict,
-                    GovernanceConstants.ItemTypes.ElicitationQuestion,
-                    canonicalKey));
-        }
-
-        result.EffectiveContent.ElicitationQuestions = effective;
-    }
-
-    /// <summary>
-    ///     One materialized pack contribution: assignment + pack + version + parsed <see cref="PolicyPackContentDocument" />.
-    /// </summary>
-    /// <remarks>Internal to <see cref="ResolveAsync" />; keeps merge helpers strongly typed.</remarks>
-    private sealed record ResolvedPackRow(
-        PolicyPackAssignment Assignment,
-        PolicyPack Pack,
-        PolicyPackVersion Version,
-        PolicyPackContentDocument Content);
 }
-
