@@ -443,13 +443,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPilotReportCardMetricsReader, DapperPilotReportCardMetricsReader>();
         services.AddScoped<IPilotBaselineRepository, DapperPilotBaselineRepository>();
         services.AddScoped<IPilotCloseoutRepository, DapperPilotCloseoutRepository>();
-        services.AddScoped<IMarketingPricingQuoteRequestRepository, SqlMarketingPricingQuoteRequestRepository>();
-        services.AddScoped<IMarketingPricingQuoteRequestAgingReader, SqlMarketingPricingQuoteRequestAgingReader>();
-        services.AddScoped<IMarketingPricingQuoteRequestFollowUpRepository, SqlMarketingPricingQuoteRequestFollowUpRepository>();
-        services.AddScoped<IMarketingEarlyAccessRequestRepository, SqlMarketingEarlyAccessRequestRepository>();
-        services.AddScoped<ITenantMarketingAttributionRepository, SqlTenantMarketingAttributionRepository>();
-        services.AddScoped<IFirstTenantFunnelEventStore, SqlFirstTenantFunnelEventStore>();
-        services.AddScoped<IFirstTenantFunnelArchivalBatchStore, SqlFirstTenantFunnelArchivalBatchStore>();
+        SqlMarketingRepositoryRegistrar.Register(services);
         SqlItsmRepositoryRegistrar.Register(services);
         services.AddScoped<ITenantHostedExtractorConfigurationRepository, SqlTenantHostedExtractorConfigurationRepository>();
         services.AddScoped<ITenantAwsConnectionRepository, SqlTenantAwsConnectionRepository>();
