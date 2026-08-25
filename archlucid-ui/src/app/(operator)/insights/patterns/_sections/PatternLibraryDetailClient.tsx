@@ -32,6 +32,8 @@ import { PatternLibraryDetailSkeleton } from "./PatternLibraryDetailSkeleton";
 import { PatternLibraryLoadFailurePanel } from "./PatternLibraryLoadFailurePanel";
 import { Button } from "@/components/ui/button";
 import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
+import { PatternLibraryDetailNextPatternFooter } from "./PatternLibraryDetailNextPatternFooter";
+import { resolveNextPatternLibraryRecord } from "@/lib/resolve-next-pattern-library-record";
 
 type PatternLibraryDetailClientProps = {
   readonly patternKey: string;
@@ -79,6 +81,14 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
 
     return derivePatternLibrarySummary(records);
   }, [eligiblePatternKeys, useSampleCatalog, usingLiveAggregate]);
+  const nextPattern = useMemo(() => {
+    const records = resolvePatternLibraryRecords(
+      usingLiveAggregate ? eligiblePatternKeys : [],
+      useSampleCatalog,
+    );
+
+    return resolveNextPatternLibraryRecord(records, props.patternKey);
+  }, [eligiblePatternKeys, props.patternKey, useSampleCatalog, usingLiveAggregate]);
   const headerRefreshing = isPending || isFetching;
   const loadFailure = isError && error !== null ? toPatternLibraryLoadFailure(error) : null;
 
@@ -257,6 +267,7 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
               ) : null}
             </div>
           </section>
+          {nextPattern !== null ? <PatternLibraryDetailNextPatternFooter target={nextPattern} /> : null}
         </>
       ) : null}
     </OperatorPageContainer>
