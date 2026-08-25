@@ -101,6 +101,8 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IDocumentTextExtractionService, DocumentTextExtractionService>();
         services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
         services.AddScoped<Support.AuthorityRunReadHandlers>();
+        services.AddScoped<Services.Authority.IRunGraphQueryService, Services.Authority.RunGraphQueryService>();
+        services.AddScoped<Services.Authority.IRunProvenanceQueryService, Services.Authority.RunProvenanceQueryService>();
         services.AddHostedAzureExtractorIntegrationServices(configuration);
         services.AddHostedAwsExtractorIntegrationServices(configuration);
         services.AddHostedGcpExtractorIntegrationServices(configuration);

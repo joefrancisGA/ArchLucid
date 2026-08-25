@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Findings;
 
-namespace ArchLucid.Api.Support;
+namespace ArchLucid.Application.Runs.Query;
 
 /// <summary>
 ///     Projects a keyset page of finding metadata plus ITSM/governance tracking into the run findings list contract.
@@ -10,35 +10,22 @@ public static class RunFindingsListResponseBuilder
     private const string PriorityOrder = "priority";
     private const string SortOrderOrder = "sortOrder";
 
-    /// <summary>Order-by token echoed in the response body and in the conditional-GET fingerprint.</summary>
-    public static string OrderToken(bool orderByPriority)
-    {
-        return orderByPriority ? PriorityOrder : SortOrderOrder;
-    }
+    public static string OrderToken(bool orderByPriority) =>
+        orderByPriority ? PriorityOrder : SortOrderOrder;
 
-    /// <summary>True when the caller requested priority ordering (case-insensitive query token).</summary>
-    public static bool IsPriorityOrder(string? orderBy)
-    {
-        return string.Equals(orderBy, PriorityOrder, StringComparison.OrdinalIgnoreCase);
-    }
+    public static bool IsPriorityOrder(string? orderBy) =>
+        string.Equals(orderBy, PriorityOrder, StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>
-    ///     Request-shape fingerprint combined with the run row version to form the findings-page ETag; every input that
-    ///     changes the page contents must appear here or clients could be served a stale 304.
-    /// </summary>
     public static string BuildRequestFingerprint(
         Guid snapshotId,
         bool orderByPriority,
         int take,
         int? cursorSortOrder,
         int? cursorPriorityRank,
-        Guid? cursorFindingRecordId)
-    {
-        return $"findings:{snapshotId:N}|order={OrderToken(orderByPriority)}|take={take}"
-            + $"|cs={cursorSortOrder}|cp={cursorPriorityRank}|cf={cursorFindingRecordId}";
-    }
+        Guid? cursorFindingRecordId) =>
+        $"findings:{snapshotId:N}|order={OrderToken(orderByPriority)}|take={take}"
+        + $"|cs={cursorSortOrder}|cp={cursorPriorityRank}|cf={cursorFindingRecordId}";
 
-    /// <summary>Distinct trimmed finding ids on the page, used to batch the external-tracking lookup.</summary>
     public static string[] CollectFindingIds(FindingRecordMetadataPage page)
     {
         ArgumentNullException.ThrowIfNull(page);
@@ -51,7 +38,6 @@ public static class RunFindingsListResponseBuilder
             .ToArray();
     }
 
-    /// <summary>Builds the response body, including keyset continuation cursors when more rows remain.</summary>
     public static RunFindingsListResponse Build(
         string runId,
         bool orderByPriority,

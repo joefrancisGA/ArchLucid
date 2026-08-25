@@ -1,42 +1,21 @@
-﻿using System.Globalization;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.Http;
-using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Graph;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Api.Support;
-using ArchLucid.Application;
-using ArchLucid.Application.Http;
-using ArchLucid.Application.Architecture;
-using ArchLucid.Application.Explanation;
-using ArchLucid.Application.Findings;
-using ArchLucid.Application.Reporting;
+using ArchLucid.Api.Services.Authority;
+using ArchLucid.Application.Runs.Query;
 using ArchLucid.Application.Traceability;
-using ArchLucid.Application.Agents;
-using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
-using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Pagination;
-using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Data.Infrastructure;
-using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -59,29 +38,10 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class RunQueryController(
-    IRunDetailQueryService runDetailQueryService,
-    IRunRoiEstimator runRoiEstimator,
-    IArchitectureRunProvenanceService architectureRunProvenanceService,
-    IRunRepository authorityRunRepository,
-    IDecisionNodeRepository decisionNodeRepository,
-    IAgentEvidencePackageRepository agentEvidencePackageRepository,
-    IAgentExecutionTraceRepository agentExecutionTraceRepository,
-    IAgentToolInvocationRecordRepository agentToolInvocationRecordRepository,
-    IFindingEvidenceChainService findingEvidenceChainService,
-    IFindingInspectReadRepository findingInspectReadRepository,
-    IFindingTrustLabelMapper findingTrustLabelMapper,
-    IReasoningSummaryBuilder reasoningSummaryBuilder,
-    IScopeContextProvider scopeContextProvider,
-    ITraceabilityBundleExportApplicationService traceabilityBundleExport,
-    IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
-    ILlmCostEstimator llmCostEstimator,
-    IAuthorityQueryService authorityQueryService,
-    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
-    IAuditService auditService,
-    ExportFormatterService exportFormatter,
-    IFindingsSnapshotRepository findingsSnapshotRepository,
-    IRunStageOutcomesRepository runStageOutcomesRepository,
-    RunFindingExternalTrackingEnrichmentService runFindingExternalTrackingEnrichmentService) : ControllerBase
+    IRunGraphQueryService runGraphQueryService,
+    IRunFindingsQueryService runFindingsQueryService,
+    IRunProvenanceQueryService runProvenanceQueryService,
+    ITraceabilityBundleExportApplicationService traceabilityBundleExport) : ControllerBase
 {
     /// <summary>
     ///     Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId" />.
@@ -94,69 +54,14 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        RunGraphDetailQueryResult result = await runGraphQueryService.GetRunDetailAsync(runId, cancellationToken);
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        Persistence.Models.RunRecord? runHeader =
-            await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
-
-        if (runHeader is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        if (ConditionalGetNegotiation.TryFromRowVersion(runHeader.RowVersion, out string runEtag))
+        return result.Outcome switch
         {
-            IActionResult? notModified = this.TryConditionalNotModified(runEtag);
-
-            if (notModified is not null)
-                return notModified;
-        }
-
-        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runId, cancellationToken);
-
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        if (!string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion) && detail.Manifest is null)
-            return this.NotFoundProblem(
-                $"Manifest referenced by run '{runId}' could not be found.",
-                ProblemTypes.ResourceNotFound);
-
-        RunDetailsResponse response = RunResponseMapper.ToRunDetailsResponse(
-            detail.Run,
-            detail.Tasks,
-            detail.Results,
-            detail.Manifest,
-            detail.DecisionTraces);
-
-        response.AuthorityPipelineComplete = detail.AuthorityPipelineComplete;
-        response.AgentTaskLoopComplete = detail.AgentTaskLoopComplete;
-
-        response.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
-            detail.Run,
-            effectiveAgentExecutionModeAccessor.GetEffectiveMode());
-
-        if (detail.IsCommitted)
-        {
-            response.TrustEvidenceCard = await trustEvidenceCardBuilder.BuildAsync(
-                detail,
-                effectiveAgentExecutionModeAccessor.GetEffectiveMode(),
-                cancellationToken);
-        }
-
-        ScopeContext appendScope = scopeContextProvider.GetCurrentScope();
-        await RunAgentExecutionLlmCostEstimateAppender.AppendAsync(
-            response,
-            runId,
-            appendScope,
-            agentExecutionTraceRepository,
-            llmCostEstimator,
-            cancellationToken);
-
-        if (!ConditionalGetNegotiation.TryFromRowVersion(runHeader.RowVersion, out runEtag))
-            runEtag = ConditionalGetNegotiation.FromRowVersionWithFingerprint(null, $"run-detail:{runId}");
-
-        return this.OkWithConditionalEtag(response, runEtag);
+            RunGraphQueryOutcome.Success => this.OkWithConditionalEtag(result.Response!, result.Etag!),
+            RunGraphQueryOutcome.ManifestNotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound),
+            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
+        };
     }
 
     /// <summary>Directional analyst-hour estimate for packaging work implied by this run (configured multipliers).</summary>
@@ -167,14 +72,11 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runId, cancellationToken);
+        RunRoiEstimateQueryResult result = await runGraphQueryService.GetRunRoiEstimateAsync(runId, cancellationToken);
 
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        RunRoiScorecardDto estimate = runRoiEstimator.Estimate(detail);
-
-        return Ok(estimate);
+        return result.Outcome == RunGraphQueryOutcome.Success
+            ? Ok(result.Estimate)
+            : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound);
     }
 
     /// <summary>Authority pipeline stage start/end outcomes for operator run investigation (TB-250).</summary>
@@ -185,22 +87,15 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+        RunStageTimelineQueryResult result =
+            await runGraphQueryService.GetRunStageTimelineAsync(runId, cancellationToken);
 
-        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        Persistence.Models.RunRecord? run = await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
-
-        if (run is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        IReadOnlyList<StageTimelineSummary> timeline =
-            await runStageOutcomesRepository.ListByRunIdAsync(runGuid, cancellationToken);
-
-        return Ok(timeline);
+        return result.Outcome switch
+        {
+            RunGraphQueryOutcome.Success => Ok(result.Timeline),
+            RunGraphQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
+            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
+        };
     }
 
     /// <summary>Keyset list of relational finding metadata for <paramref name="runId" />.</summary>
@@ -218,61 +113,24 @@ public sealed class RunQueryController(
         [FromQuery] Guid? cursorFindingRecordId,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
-
-        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        Persistence.Models.RunRecord? run = await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
-
-        if (run?.FindingsSnapshotId is not Guid snapshotId)
-            return this.NotFoundProblem($"Run '{runId}' has no findings snapshot.", ProblemTypes.ResourceNotFound);
-
-        bool orderByPriority = RunFindingsListResponseBuilder.IsPriorityOrder(orderBy);
-        int pageTake = take ?? FindingPagination.DefaultTake;
-        string findingsFingerprint = RunFindingsListResponseBuilder.BuildRequestFingerprint(
-            snapshotId,
-            orderByPriority,
-            pageTake,
+        RunFindingsListQueryResult result = await runFindingsQueryService.ListRunFindingsAsync(
+            runId,
+            orderBy,
+            take,
             cursorSortOrder,
             cursorPriorityRank,
-            cursorFindingRecordId);
-        string findingsEtag = ConditionalGetNegotiation.FromRowVersionWithFingerprint(run.RowVersion, findingsFingerprint);
-
-        IActionResult? findingsNotModified = this.TryConditionalNotModified(findingsEtag);
-
-        if (findingsNotModified is not null)
-            return findingsNotModified;
-
-        FindingRecordMetadataPage page = await findingsSnapshotRepository.ListFindingRecordsKeysetAsync(
-            scope,
-            snapshotId,
-            cursorSortOrder,
             cursorFindingRecordId,
-            cursorPriorityRank,
-            severity: null,
-            category: null,
-            findingType: null,
-            pageTake,
-            orderByPriority,
             cancellationToken);
 
-        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> trackingByFindingId =
-            await runFindingExternalTrackingEnrichmentService.LoadForFindingsAsync(
-                scope.TenantId,
-                snapshotId,
-                RunFindingsListResponseBuilder.CollectFindingIds(page),
-                cancellationToken);
+        if (result.Outcome == RunFindingsQueryOutcome.BadRequest)
+            return this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed);
 
-        RunFindingsListResponse body = RunFindingsListResponseBuilder.Build(
-            runId,
-            orderByPriority,
-            page,
-            trackingByFindingId);
+        if (result.Outcome != RunFindingsQueryOutcome.Success)
+            return this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
 
-        return this.OkWithConditionalEtag(body, findingsEtag);
+        IActionResult? findingsNotModified = this.TryConditionalNotModified(result.Etag!);
+
+        return findingsNotModified ?? this.OkWithConditionalEtag(result.Response!, result.Etag!);
     }
 
     /// <summary>
@@ -285,67 +143,18 @@ public sealed class RunQueryController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExportRunFindingsCsv(
         [FromRoute] string runId,
+        [FromServices] IAuditService auditService,
         CancellationToken cancellationToken)
     {
-        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runId, cancellationToken);
+        RunFindingsCsvExportQueryResult result =
+            await runFindingsQueryService.ExportRunFindingsCsvAsync(runId, cancellationToken);
 
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        if (!string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion) && detail.Manifest is null)
-            return this.NotFoundProblem(
-                $"Manifest referenced by run '{runId}' could not be found.",
-                ProblemTypes.ResourceNotFound);
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        Guid? findingsSnapshotId = null;
-
-        if (AuthorityRunIdentifier.TryParse(runId, out Guid runGuidForSnapshot))
+        return result.Outcome switch
         {
-            Persistence.Models.RunRecord? runRecord =
-                await authorityRunRepository.GetByIdAsync(scope, runGuidForSnapshot, cancellationToken);
-
-            findingsSnapshotId = runRecord?.FindingsSnapshotId;
-        }
-
-        IReadOnlyList<string> findingIds = ArchitectureRunFindingsCsvFormatter.CollectFindingIds(detail);
-
-        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> trackingByFindingId =
-            await runFindingExternalTrackingEnrichmentService.LoadForFindingsAsync(
-                scope.TenantId,
-                findingsSnapshotId,
-                findingIds,
-                cancellationToken);
-
-        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, trackingByFindingId);
-        int findingCount = ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail);
-
-        Guid? auditRunId = AuthorityRunIdentifier.TryParse(runId, out Guid runGuidForAudit) ? runGuidForAudit : null;
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.FindingsListAccessed,
-                RunId = auditRunId,
-                DataJson = JsonSerializer.Serialize(
-                    new { format = "csv", findingCount },
-                    AuditJsonSerializationOptions.Instance),
-            },
-            cancellationToken);
-
-        DateTime utcStamp = TimeProvider.System.GetUtcNow().UtcDateTime;
-        string timeSegment = exportFormatter.FormatAttachmentSegmentUtc(utcStamp);
-        string safeRunStem = auditRunId.HasValue
-            ? runGuidForAudit.ToString("N", CultureInfo.InvariantCulture)
-            : AuthorityRunIdentifier.SanitizeForFileStem(runId);
-
-        string downloadName =
-            $"architecture-run-{safeRunStem}-findings-{timeSegment}.csv";
-
-        return File(
-            Encoding.UTF8.GetBytes(csv),
-            "text/csv; charset=utf-8",
-            downloadName);
+            RunFindingsQueryOutcome.ManifestNotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound),
+            RunFindingsQueryOutcome.NotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound),
+            _ => await ExportFindingsCsvSuccessAsync(result, auditService, cancellationToken)
+        };
     }
 
     /// <summary>Knowledge-graph snapshot packaged for interactive Cytoscape.js renders.</summary>
@@ -358,41 +167,24 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-            return this.BadRequestProblem("Run id is required.", ProblemTypes.ValidationFailed);
+        RunInteractiveGraphQueryResult result =
+            await runGraphQueryService.GetInteractiveGraphSnapshotAsync(runId, cancellationToken);
 
-        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        return await GetCytoscapeGraphSnapshotAsync(runGuid, cancellationToken);
-    }
-
-    private async Task<IActionResult> GetCytoscapeGraphSnapshotAsync(Guid runGuid, CancellationToken cancellationToken)
-    {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
-
-        if (detail?.GraphSnapshot is null)
-            return this.NotFoundProblem(
-                $"Interactive graph snapshot for run '{runGuid:D}' was not found.",
-                ProblemTypes.RunNotFound);
-
-        return Ok(GraphSnapshotCytoscapeMapper.ToInteractiveResponse(detail.GraphSnapshot));
+        return result.Outcome switch
+        {
+            RunGraphQueryOutcome.Success => Ok(result.Response),
+            RunGraphQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
+            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
+        };
     }
 
     /// <summary>Aggregates ROI telemetry across all runs in the current scope.</summary>
     [HttpGet("telemetry/roi")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetRoiTelemetry(
-        [FromServices] IDbConnectionFactory db,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetRoiTelemetry(CancellationToken cancellationToken)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        RunRoiTelemetryAggregate aggregate =
-            await RunRoiTelemetryAggregateQuery.ReadAsync(db, scope, cancellationToken);
-
-        return Ok(aggregate);
+        RunRoiTelemetryQueryResult result = await runGraphQueryService.GetRoiTelemetryAsync(cancellationToken);
+        return Ok(result.Aggregate);
     }
 
     /// <summary>
@@ -406,15 +198,14 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        ArchitectureRunProvenanceGraph? graph = await architectureRunProvenanceService
-            .GetProvenanceAsync(runId, cancellationToken);
+        ArchitectureRunProvenanceGraph? graph =
+            await runProvenanceQueryService.GetProvenanceAsync(runId, cancellationToken);
 
-        if (graph is null)
-            return this.NotFoundProblem(
+        return graph is null
+            ? this.NotFoundProblem(
                 $"Run '{runId}' was not found, or its manifest reference is broken.",
-                ProblemTypes.RunNotFound);
-
-        return Ok(graph);
+                ProblemTypes.RunNotFound)
+            : Ok(graph);
     }
 
     /// <summary>
@@ -435,27 +226,17 @@ public sealed class RunQueryController(
         if (string.IsNullOrWhiteSpace(runId) || string.IsNullOrWhiteSpace(nodeId))
             return this.BadRequestProblem("Run id and node id are required.", ProblemTypes.ValidationFailed);
 
-        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+        if (!await runProvenanceQueryService.AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        const string detail =
-            "ArchLucid does not provide per-node provenance explanations. "
-            + "Use GET /v1/explain/runs/{runId}/aggregate for the supported run-level RunExplanationSummary "
-            + "(Standard commercial tier and ReadAuthority scope, same as other routes under /v1/explain). "
-            + "Alternatively, GET /v1/explain/runs/{runId}/explain returns the granular ExplanationResult when licensed.";
-
-        IReadOnlyDictionary<string, object?> hints = new Dictionary<string, object?>(
-            StringComparer.Ordinal)
-        {
-            ["aggregateExplanationPathTemplate"] = "/v1/explain/runs/{runId}/aggregate",
-            ["granularExplanationPathTemplate"] = "/v1/explain/runs/{runId}/explain",
-        };
+        ProvenanceNodeExplanationQueryResult unsupported =
+            runProvenanceQueryService.GetProvenanceNodeExplanationNotSupported();
 
         return this.NotImplementedProblem(
-            detail,
+            unsupported.Detail,
             ProblemTypes.ProvenanceNodeExplanationNotSupported,
             "Provenance node explanation not supported",
-            hints);
+            unsupported.Hints);
     }
 
     /// <summary>
@@ -469,17 +250,12 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        RunDecisionsQueryResult result =
+            await runProvenanceQueryService.GetRunDecisionsAsync(runId, cancellationToken);
 
-        IReadOnlyList<DecisionNodeRecord> decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
-
-        if (decisions.Count == 0)
-            return this.NotFoundProblem(
-                $"No decisions found for run '{runId}'. Decisions are available after the run has been committed.",
-                ProblemTypes.ResourceNotFound);
-
-        return Ok(new DecisionNodeResponse { Decisions = decisions.ToList() });
+        return result.Outcome == RunGraphQueryOutcome.Success
+            ? Ok(result.Response)
+            : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
     }
 
     /// <summary>
@@ -492,13 +268,12 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        RunEvidenceQueryResult result =
+            await runProvenanceQueryService.GetRunEvidenceAsync(runId, cancellationToken);
 
-        AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
-        return evidence is null
-            ? this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound)
-            : Ok(new AgentEvidencePackageResponse { Evidence = evidence });
+        return result.Outcome == RunGraphQueryOutcome.Success
+            ? Ok(result.Response)
+            : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
     }
 
     /// <summary>
@@ -514,41 +289,15 @@ public sealed class RunQueryController(
         [FromQuery] int pageSize = 50,
         CancellationToken cancellationToken = default)
     {
-        if (pageNumber < 1) // lgtm[cs/user-controlled-bypass] rejects invalid paging before any data access.
-            return this.BadRequestProblem("pageNumber must be at least 1.", ProblemTypes.ValidationFailed);
+        RunTracesQueryResult result =
+            await runProvenanceQueryService.GetRunTracesAsync(runId, pageNumber, pageSize, cancellationToken);
 
-        if (pageSize is < 1 or > PagingParameters.MaxPageSize)
-            return this.BadRequestProblem(
-                $"pageSize must be between 1 and {PagingParameters.MaxPageSize}.",
-                ProblemTypes.ValidationFailed);
-
-        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        PagingParameters paging = new()
+        return result.Outcome switch
         {
-            PageNumber = pageNumber,
-            PageSize = pageSize
+            RunGraphQueryOutcome.Success => Ok(result.Response),
+            RunGraphQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
+            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
         };
-        (int skip, int take) = paging.Normalize();
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        (IReadOnlyList<AgentExecutionTraceSummary> summaries, int totalCount) =
-            await agentExecutionTraceRepository.GetPagedSummariesByRunIdAsync(
-                scope,
-                runId,
-                skip,
-                take,
-                cancellationToken);
-
-        return Ok(new AgentExecutionTraceResponse
-        {
-            Traces = summaries.ToList(),
-            TotalCount = totalCount,
-            PageNumber = paging.PageNumber,
-            PageSize = paging.PageSize
-        });
     }
 
     /// <summary>
@@ -562,27 +311,12 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
     {
-        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        RunToolInvocationForensicsQueryResult result =
+            await runProvenanceQueryService.GetRunToolInvocationForensicsAsync(runId, cancellationToken);
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        IReadOnlyList<AgentExecutionTrace> traces =
-            await agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
-
-        IReadOnlyList<AgentToolInvocationRecord> structured = [];
-
-        if (scope.TenantId != Guid.Empty && Guid.TryParse(runId, out Guid runGuid))
-        {
-            structured = await agentToolInvocationRecordRepository
-                .ListByRunAsync(scope.TenantId, runGuid, cancellationToken)
-                .ConfigureAwait(false);
-        }
-
-        RunToolInvocationForensicsResponse body =
-            RunToolInvocationForensicsBuilder.Build(runId, traces, structured);
-
-        return Ok(body);
+        return result.Outcome == RunGraphQueryOutcome.Success
+            ? Ok(result.Response)
+            : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound);
     }
 
     /// <summary>
@@ -627,35 +361,16 @@ public sealed class RunQueryController(
         int pageSize,
         CancellationToken cancellationToken)
     {
-        if (!string.IsNullOrWhiteSpace(cursor))
-        {
-            int effectiveTake = RunPagination.ClampTake(take);
+        RunListQueryResult result = await runGraphQueryService.ListRunsAsync(
+            cursor,
+            limit,
+            offset,
+            take,
+            page,
+            pageSize,
+            cancellationToken);
 
-            (IReadOnlyList<RunSummary> keysetSummaries, bool keysetHasMore, string? nextCursor) =
-                await runDetailQueryService.ListRunSummariesKeysetAsync(cursor, effectiveTake, cancellationToken);
-
-            string listFingerprint = $"keyset|cursor={cursor}|take={effectiveTake}";
-            string listEtag = RunListPageMapper.BuildEtag(keysetSummaries, listFingerprint);
-            CursorPagedResponse<RunListItemResponse> keysetBody =
-                RunListPageMapper.MapPage(keysetSummaries, keysetHasMore, nextCursor, effectiveTake);
-
-            return this.OkWithConditionalEtag(keysetBody, listEtag);
-        }
-
-        int effectiveLimit = RunPagination.ClampLimit(limit ?? pageSize);
-        int effectiveOffset = offset > 0
-            ? RunPagination.NormalizeOffset(offset)
-            : PaginationDefaults.ToSkip(page, effectiveLimit);
-
-        (IReadOnlyList<RunSummary> offsetSummaries, bool offsetHasMore) =
-            await runDetailQueryService.ListRunSummariesOffsetAsync(effectiveOffset, effectiveLimit, cancellationToken);
-
-        string offsetFingerprint = $"offset|offset={effectiveOffset}|limit={effectiveLimit}";
-        string offsetEtag = RunListPageMapper.BuildEtag(offsetSummaries, offsetFingerprint);
-        CursorPagedResponse<RunListItemResponse> offsetBody =
-            RunListPageMapper.MapPage(offsetSummaries, offsetHasMore, nextCursor: null, effectiveLimit);
-
-        return this.OkWithConditionalEtag(offsetBody, offsetEtag);
+        return this.OkWithConditionalEtag(result.Body, result.Etag);
     }
 
     /// <summary>
@@ -669,15 +384,12 @@ public sealed class RunQueryController(
         [FromRoute] string findingId,
         CancellationToken cancellationToken)
     {
-        FindingEvidenceChainResponse? chain =
-            await findingEvidenceChainService.BuildAsync(runId, findingId, cancellationToken);
+        FindingEvidenceChainQueryResult result =
+            await runFindingsQueryService.GetFindingEvidenceChainAsync(runId, findingId, cancellationToken);
 
-        if (chain is null)
-            return this.NotFoundProblem(
-                $"Evidence chain is not available for run '{runId}' and finding '{findingId}'.",
-                ProblemTypes.ResourceNotFound);
-
-        return Ok(chain);
+        return result.Outcome == RunFindingsQueryOutcome.Success
+            ? Ok(result.Chain)
+            : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
     }
 
     /// <summary>
@@ -693,41 +405,18 @@ public sealed class RunQueryController(
         [FromQuery] bool includeTypedPayload = true,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-            return this.BadRequestProblem("Run id is required.", ProblemTypes.ValidationFailed);
+        FindingInspectQueryResult result = await runFindingsQueryService.GetFindingInspectForRunAsync(
+            runId,
+            findingId,
+            includeTypedPayload,
+            cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(findingId))
-            return this.BadRequestProblem("Finding id is required.", ProblemTypes.ValidationFailed);
-
-        if (findingId.Trim().Length > 64)
-            return this.BadRequestProblem("Finding id exceeds maximum length (64).", ProblemTypes.ValidationFailed);
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        FindingInspectReadOptions options = includeTypedPayload
-            ? FindingInspectReadOptions.Full
-            : FindingInspectReadOptions.MetadataOnly;
-
-        FindingInspectResponse? body =
-            await findingInspectReadRepository.GetInspectAsync(scope, findingId.Trim(), cancellationToken, options);
-
-        if (body is null)
+        return result.Outcome switch
         {
-            return this.NotFoundProblem(
-                $"Finding '{findingId.Trim()}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound);
-        }
-
-        if (!AuthorityRunIdentifier.Matches(runId.Trim(), body.RunId))
-        {
-            return this.NotFoundProblem(
-                $"Finding '{findingId.Trim()}' was not found for run '{runId.Trim()}'.",
-                ProblemTypes.ResourceNotFound);
-        }
-
-        return Ok(
-            FindingInspectTrustLabelEnricher.Enrich(
-                body.WithReasoningSummaryFromBuilder(reasoningSummaryBuilder),
-                findingTrustLabelMapper));
+            RunFindingsQueryOutcome.Success => Ok(result.Response),
+            RunFindingsQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
+            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound)
+        };
     }
 
     /// <summary>ZIP bundle: run summary, audit slice for the run, and decision traces (size-capped).</summary>
@@ -783,13 +472,25 @@ public sealed class RunQueryController(
         };
     }
 
-    private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
+    private async Task<IActionResult> ExportFindingsCsvSuccessAsync(
+        RunFindingsCsvExportQueryResult result,
+        IAuditService auditService,
+        CancellationToken cancellationToken)
     {
-        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
-            return false;
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.FindingsListAccessed,
+                RunId = result.AuditRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new { format = "csv", findingCount = result.FindingCount },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        return await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is not null;
+        return File(
+            result.CsvBytes!,
+            "text/csv; charset=utf-8",
+            result.DownloadName!);
     }
 }
