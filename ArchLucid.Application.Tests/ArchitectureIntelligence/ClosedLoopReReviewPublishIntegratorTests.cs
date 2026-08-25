@@ -65,6 +65,38 @@ public sealed class ClosedLoopReReviewPublishIntegratorTests
     }
 
     [Fact]
+    public void IntegrateFromSubstantiation_skips_unsubstantiated_incremental_findings()
+    {
+        SpecialistReviewFinding unsubstantiated = new() { FindingId = "finding-weak", Title = "Weak" };
+        List<SpecialistReviewFinding> allFindings = [];
+        List<EvidenceValidationResult> validationResults = [];
+        Dictionary<string, EvidenceValidationResult> validationByFindingId = new(StringComparer.Ordinal);
+
+        SpecialistFindingsSubstantiationResult substantiation = new()
+        {
+            SubstantiatedFindings = [],
+            ValidationResults =
+            [
+                new EvidenceValidationResult
+                {
+                    FindingId = "finding-weak",
+                    OverallPassedIntegrity = false,
+                },
+            ],
+        };
+
+        ClosedLoopReReviewPublishIntegrator.IntegrateFromSubstantiation(
+            [unsubstantiated],
+            substantiation,
+            allFindings,
+            validationResults,
+            validationByFindingId);
+
+        allFindings.Should().BeEmpty();
+        validationResults.Should().ContainSingle(result => result.FindingId == "finding-weak");
+    }
+
+    [Fact]
     public async Task IntegrateAsync_returns_null_when_no_incremental_findings()
     {
         List<SpecialistReviewFinding> allFindings = [new() { FindingId = "finding-existing", Title = "Existing" }];

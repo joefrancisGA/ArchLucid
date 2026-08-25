@@ -56,7 +56,17 @@ public static class ClosedLoopReReviewPublishIntegrator
         if (incrementalFindings.Count == 0)
             return;
 
-        allFindings.AddRange(incrementalFindings);
+        HashSet<string> knownFindingIds = allFindings
+            .Select(static finding => finding.FindingId)
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .ToHashSet(StringComparer.Ordinal);
+
+        List<SpecialistReviewFinding> publishableFindings = substantiation.SubstantiatedFindings
+            .Where(finding => !string.IsNullOrWhiteSpace(finding.FindingId))
+            .Where(finding => !knownFindingIds.Contains(finding.FindingId))
+            .ToList();
+
+        allFindings.AddRange(publishableFindings);
 
         foreach (EvidenceValidationResult validation in substantiation.ValidationResults)
         {
@@ -64,7 +74,7 @@ public static class ClosedLoopReReviewPublishIntegrator
             validationByFindingId[validation.FindingId] = validation;
         }
 
-        foreach (SpecialistReviewFinding finding in incrementalFindings)
+        foreach (SpecialistReviewFinding finding in publishableFindings)
         {
             if (!validationByFindingId.TryGetValue(finding.FindingId, out EvidenceValidationResult? validation))
                 continue;
