@@ -10,6 +10,7 @@ export type IntegrationConnectChecklistStep = {
 
 export type IntegrationConnectChecklistProps = {
   readonly title: string;
+  readonly description?: string;
   readonly steps: readonly IntegrationConnectChecklistStep[];
   readonly emphasizedStepId: string;
   readonly testIdPrefix: string;
@@ -20,6 +21,9 @@ export function IntegrationConnectChecklist(props: IntegrationConnectChecklistPr
   return (
     <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
       <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{props.title}</h2>
+      {props.description !== undefined ? (
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.description}</p>
+      ) : null}
       <ol
         className={cn("m-0 mt-3 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}
         aria-label={`${props.title} progress`}

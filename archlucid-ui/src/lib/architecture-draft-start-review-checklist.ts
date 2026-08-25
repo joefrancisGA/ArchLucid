@@ -1,5 +1,10 @@
 import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 
+export const ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE = "Draft readiness checklist" as const;
+
+export const ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_DESCRIPTION =
+  "These three steps prepare this draft on this page. Your overall first review progress (7 steps) is tracked in the banner above." as const;
+
 export function resolveArchitectureDraftStartReviewSteps(input: {
   readonly nameAndScopeConfigured: boolean;
   readonly qualityReadinessConfigured: boolean;

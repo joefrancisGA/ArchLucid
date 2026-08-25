@@ -32,6 +32,10 @@ import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStar
 import { Card, CardContent } from "@/components/ui/card";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import {
+  ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_DESCRIPTION,
+  ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE,
+} from "@/lib/architecture-draft-start-review-checklist";
 import { useArchitectureDraftStartReview } from "@/hooks/use-architecture-draft-start-review";
 import { useArchitectureDraftWorkspace } from "@/hooks/use-architecture-draft-workspace";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
@@ -534,7 +538,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       ) : null}
 
       <IntegrationConnectChecklist
-        title="Start-review checklist"
+        title={ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE}
+        description={ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_DESCRIPTION}
         steps={draftStartReviewSteps}
         emphasizedStepId={draftStartReviewEmphasizedStepId}
         testIdPrefix="architecture-draft-start-review"
