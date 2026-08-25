@@ -75,9 +75,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             Enum.TryParse(eclEl.GetString(), ignoreCase: true, out FindingConfidenceLevel ecl))
             finding.ConfidenceLevel = ecl;
 
-        if (root.TryGetProperty("humanReviewStatus", out JsonElement hrsEl) &&
-            Enum.TryParse(hrsEl.GetString(), true, out FindingHumanReviewStatus hrs))
-            finding.HumanReviewStatus = hrs;
+        finding.HumanReviewStatus = ReadHumanReviewStatus(root, "humanReviewStatus");
 
         if (root.TryGetProperty("projectedImpactUsd", out JsonElement impactEl) &&
             impactEl.ValueKind == JsonValueKind.Number &&
@@ -320,6 +318,33 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             "high" => FindingSeverity.Error,
             _ => throw new JsonException($"Unknown finding severity value '{raw}'."),
         };
+    }
+
+    private static FindingHumanReviewStatus ReadHumanReviewStatus(JsonElement root, string propertyName)
+    {
+        if (!root.TryGetProperty(propertyName, out JsonElement statusElement))
+            return FindingHumanReviewStatus.NotRequired;
+
+        if (statusElement.ValueKind == JsonValueKind.Number && statusElement.TryGetInt32(out int numeric))
+        {
+            if (!Enum.IsDefined(typeof(FindingHumanReviewStatus), numeric))
+                throw new JsonException($"Unknown finding human review status value '{numeric}'.");
+
+            return (FindingHumanReviewStatus)numeric;
+        }
+
+        if (statusElement.ValueKind != JsonValueKind.String)
+            throw new JsonException("Expected string or number for finding human review status.");
+
+        string? raw = statusElement.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return FindingHumanReviewStatus.NotRequired;
+
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingHumanReviewStatus parsed))
+            return parsed;
+
+        throw new JsonException($"Unknown finding human review status value '{raw}'.");
     }
 }
 
