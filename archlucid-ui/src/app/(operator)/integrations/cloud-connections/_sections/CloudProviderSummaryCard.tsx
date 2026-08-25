@@ -21,6 +21,7 @@ export type CloudProviderSummaryCardProps = {
   readonly lastValidation: string;
   readonly evidenceCollected: string;
   readonly maturityLabel?: string | null;
+  readonly onOpen?: (provider: CloudProviderId) => void;
 };
 
 const PROVIDER_TITLES: Readonly<Record<CloudProviderId, string>> = {
@@ -36,13 +37,13 @@ const PROVIDER_OVERVIEW: Readonly<Record<CloudProviderId, string>> = {
 };
 
 export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
-  const { provider, status, lastValidation, evidenceCollected, maturityLabel } = props;
+  const { provider, status, lastValidation, evidenceCollected, maturityLabel, onOpen } = props;
   const detailHref = cloudProviderDetailPath(provider);
   const configured = isCloudProviderSummaryConfigured(status);
   const primaryCtaLabel = resolveCloudProviderSummaryPrimaryCtaLabel(status);
 
   return (
-    <Card data-testid={`cloud-connection-card-${provider}`} className="flex h-full flex-col">
+    <Card data-testid={`cloud-connection-card-${provider}`} data-cloud-provider-id={provider} className="flex h-full flex-col">
       <CardHeader className="pb-2">
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
           {PROVIDER_TITLES[provider]}
@@ -97,7 +98,14 @@ export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
           asChild
           data-testid={`cloud-connection-card-${provider}-primary-cta`}
         >
-          <Link href={detailHref}>{primaryCtaLabel}</Link>
+          <Link
+            href={detailHref}
+            onClick={() => {
+              onOpen?.(provider);
+            }}
+          >
+            {primaryCtaLabel}
+          </Link>
         </Button>
       </CardFooter>
     </Card>

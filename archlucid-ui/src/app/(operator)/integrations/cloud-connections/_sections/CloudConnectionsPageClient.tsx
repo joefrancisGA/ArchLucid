@@ -46,6 +46,7 @@ import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstIn
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { CloudConnectionsContinueLastViewedRow } from "./CloudConnectionsContinueLastViewedRow";
 import { CloudConnectionsHubVocabularyDisclosure } from "./CloudConnectionsHubVocabularyDisclosure";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
 import { isCloudProviderSummaryConfigured } from "./is-cloud-provider-summary-configured";
@@ -53,6 +54,10 @@ import {
   resolveCloudConnectionsConnectSteps,
   resolveCloudConnectionsEmphasizedStepId,
 } from "@/lib/cloud-connections-connect-checklist";
+import {
+  resolveContinueLastCloudProvider,
+  writeCloudProviderLastViewedId,
+} from "@/lib/resolve-continue-last-cloud-provider";
 
 function formatTimestamp(value: string | null | undefined): string {
   if (value === null || value === undefined || value.trim().length === 0) {
@@ -96,7 +101,11 @@ const CLOUD_PROVIDER_COUNT = CLOUD_PROVIDER_NEUTRAL_ORDER.length;
 export function CloudConnectionsPageClient() {
   const [platformScope, setPlatformScope] = useState(() => resolveLandingCloudPlatformScope());
   const [isLoading, setIsLoading] = useState(true);
-  const [hasSuccessfulPull, setHasSuccessfulPull] = useState(false);
+  const [successfulPullByProvider, setSuccessfulPullByProvider] = useState<Record<CloudProviderId, boolean>>({
+    azure: false,
+    aws: false,
+    gcp: false,
+  });
   const [providerSummaries, setProviderSummaries] = useState<Record<CloudProviderId, ProviderSummaryState>>({
     azure: DEFAULT_PROVIDER_SUMMARY,
     aws: DEFAULT_PROVIDER_SUMMARY,
@@ -145,7 +154,11 @@ export function CloudConnectionsPageClient() {
 
     if (azureOutcome.status === "fulfilled") {
       const azureConnections = azureOutcome.value;
+      const azureIndicatesPull = azureConnections.some((connection) =>
+        cloudConnectionIndicatesSuccessfulPull(connection),
+      );
 
+      setSuccessfulPullByProvider((previous) => ({ ...previous, azure: azureIndicatesPull }));
       setProviderSummaries((previous) => ({
         ...previous,
         azure:
@@ -165,7 +178,7 @@ export function CloudConnectionsPageClient() {
         cloudConnectionIndicatesSuccessfulPull(connection),
       );
 
-      setHasSuccessfulPull((previous) => previous || awsIndicatesPull);
+      setSuccessfulPullByProvider((previous) => ({ ...previous, aws: awsIndicatesPull }));
       setProviderSummaries((previous) => ({
         ...previous,
         aws:
@@ -187,7 +200,7 @@ export function CloudConnectionsPageClient() {
         cloudConnectionIndicatesSuccessfulPull(connection),
       );
 
-      setHasSuccessfulPull((previous) => previous || gcpIndicatesPull);
+      setSuccessfulPullByProvider((previous) => ({ ...previous, gcp: gcpIndicatesPull }));
       setProviderSummaries((previous) => ({
         ...previous,
         gcp:
@@ -253,6 +266,20 @@ export function CloudConnectionsPageClient() {
   );
 
   const visibleProviders = useMemo(() => visibleCloudProviders(platformScope), [platformScope]);
+
+  const hasSuccessfulPull = useMemo(
+    () => CLOUD_PROVIDER_NEUTRAL_ORDER.some((provider) => successfulPullByProvider[provider]),
+    [successfulPullByProvider],
+  );
+
+  const continueLastProvider = useMemo(
+    () =>
+      resolveContinueLastCloudProvider({
+        visibleProviders,
+        successfulPullByProvider,
+      }),
+    [successfulPullByProvider, visibleProviders],
+  );
 
   const connectedProviderCount = useMemo(
     () =>
@@ -354,6 +381,10 @@ export function CloudConnectionsPageClient() {
           />
         ) : null}
 
+        {showConnectionContent && continueLastProvider !== null ? (
+          <CloudConnectionsContinueLastViewedRow target={continueLastProvider} />
+        ) : null}
+
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
           {visibleProviders.map((providerId: CloudProviderId) => {
             const summary = providerSummaries[providerId];
@@ -365,6 +396,7 @@ export function CloudConnectionsPageClient() {
                 status={summary.status}
                 lastValidation={summary.lastValidation}
                 evidenceCollected={summary.evidenceCollected}
+                onOpen={writeCloudProviderLastViewedId}
               />
             );
           })}

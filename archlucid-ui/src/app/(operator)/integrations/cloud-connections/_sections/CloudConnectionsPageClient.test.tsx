@@ -79,6 +79,7 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.queryByTestId("extract-upload-cloud-connections-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByTestId("cloud-connections-hub-vocabulary-disclosure")).toBeInTheDocument();
     expect(screen.queryByTestId("cloud-first-inventory-coach")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("cloud-connections-continue-last-viewed-row")).not.toBeInTheDocument();
 
     for (const provider of ["aws", "azure", "gcp"] as const) {
       const card = screen.getByTestId(`cloud-connection-card-${provider}`);
@@ -192,6 +193,11 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.queryByTestId("cloud-connection-card-aws-not-connected")).not.toBeInTheDocument();
     expect(awsCard).toHaveTextContent("Last validation");
     expect(awsCard).toHaveTextContent("Evidence collected");
+    expect(screen.getByTestId("cloud-connections-continue-last-viewed-row")).toHaveTextContent("AWS");
+    expect(screen.getByTestId("cloud-connections-continue-last-viewed-open")).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections/aws",
+    );
     expect(screen.getByTestId("cloud-connection-card-azure-primary-cta")).toHaveTextContent("Configure");
     expect(screen.getByTestId("cloud-connection-card-azure-not-connected")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveAttribute("data-phase", "post-pull");
