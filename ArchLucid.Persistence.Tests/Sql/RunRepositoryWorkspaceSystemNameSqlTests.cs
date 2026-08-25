@@ -68,7 +68,7 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
             scope,
             "claims api",
-            CancellationToken.None);
+            ct: CancellationToken.None);
 
         exists.Should().BeTrue("workspace collision lookup must ignore leading/trailing whitespace on stored project slugs.");
     }
@@ -107,7 +107,7 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
             scopeB,
             "Payments Hub",
-            CancellationToken.None);
+            ct: CancellationToken.None);
 
         exists.Should().BeFalse("another tenant's active run must not block workspace system-name checks.");
     }
