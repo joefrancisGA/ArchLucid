@@ -63,15 +63,6 @@ public static class EndToEndReplayComparisonPdfExportFormatter
 
                         column.Item().Text($"Export diffs: {report.ExportDiffs.Count}");
 
-                        if (report.CompareQualityDelta is not null)
-                        {
-                            foreach (CompareQualityDeltaExportFormatter.CompareQualityDeltaExportRow row in
-                                     CompareQualityDeltaExportFormatter.BuildRows(report.CompareQualityDelta))
-                            {
-                                column.Item().Text($"{row.Label}: before {row.Before}, after {row.After}");
-                            }
-                        }
-
                         column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                         column.Item().PaddingTop(5).Text("Interpretation Notes").Bold();
                     }

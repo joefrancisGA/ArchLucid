@@ -1454,11 +1454,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 4
-- **bugs-found:** 5
+- **hunts:** 5
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1470,6 +1470,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CompletionStateDiffers` false when both runs completed at different times — **hit 2026-08-23:** `BuildRunDiff` only set the flag for null-vs-non-null `CompletedUtc`; export showed "Completion State Differs: No" while `ChangedFields` listed `CompletedUtc`
 - [x] (proven) Compare quality delta populated on report but omitted from markdown/HTML/DOCX/PDF exports — **hit 2026-08-24:** `AddCompareQualityDeltaAsync` set `CompareQualityDelta` but export formatters never surfaced the stratified counts
 - [x] (proven) Manifest diff skipped when `CurrentManifestVersion` asymmetric — **hit 2026-08-24:** `BuildAsync` gated `IManifestDiffService.Compare` on both runs having non-empty version metadata even when both manifest bodies were loaded
+- [x] (proven) Detailed comparison exports duplicate Compare Quality Delta section — **hit 2026-08-25:** refactor #21 moved delta into `MarkdownEndToEndReplayComparisonSummaryFormatter` but markdown/HTML/DOCX/PDF detailed formatters still appended `CompareQualityDeltaExportFormatter` again (`CompareQualityDeltaExportTests.GenerateMarkdown_detailed_profile_includes_compare_quality_delta_once_with_default_summary_formatter`)
 
 ---
 

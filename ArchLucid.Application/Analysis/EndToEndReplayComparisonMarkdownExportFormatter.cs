@@ -32,8 +32,6 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             AppendAgentResultDiff(sb, report);
             AppendManifestDiff(sb, report);
             AppendExportDiffs(sb, report);
-            if (report.CompareQualityDelta is not null)
-                CompareQualityDeltaExportFormatter.AppendMarkdown(sb, report.CompareQualityDelta);
         }
 
         AppendList(sb, "Interpretation Notes", report.InterpretationNotes);

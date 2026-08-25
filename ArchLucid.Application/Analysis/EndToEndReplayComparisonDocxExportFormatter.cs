@@ -105,19 +105,6 @@ public static class EndToEndReplayComparisonDocxExportFormatter
                         AddSpacer(body);
                     }
                 }
-
-                if (report.CompareQualityDelta is not null)
-                {
-                    AddHeading(body, "Compare Quality Delta", 2);
-
-                    foreach (CompareQualityDeltaExportFormatter.CompareQualityDeltaExportRow row in
-                             CompareQualityDeltaExportFormatter.BuildRows(report.CompareQualityDelta))
-                    {
-                        AddBullet(body, $"{row.Label}: before {row.Before}, after {row.After}");
-                    }
-
-                    AddSpacer(body);
-                }
             }
 
             AddHeading(body, "Interpretation Notes", 2);
