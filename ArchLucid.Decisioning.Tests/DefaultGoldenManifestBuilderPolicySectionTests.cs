@@ -135,6 +135,6 @@ public sealed class DefaultGoldenManifestBuilderPolicySectionTests
         });
         DecisionRuleSet ruleSet = await new InMemoryDecisionRuleProvider().GetRuleSetAsync(CancellationToken.None);
 
-        return new DefaultGoldenManifestBuilder().Build(runId, ctxId, graph, snapshot, trace, ruleSet);
+        return DefaultGoldenManifestBuilderTestFactory.Create().Build(runId, ctxId, graph, snapshot, trace, ruleSet);
     }
 }

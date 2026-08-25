@@ -1,9 +1,5 @@
-using System.Globalization;
-
-using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Findings;
-using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest;
 using ArchLucid.Core.Manifest;
@@ -12,14 +8,18 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
-using Cm = ArchLucid.Contracts.Manifest;
-
 namespace ArchLucid.Decisioning.Manifest.Builders;
 
 public class DefaultGoldenManifestBuilder(
     TopologyManifestSectionPopulator topologySectionPopulator,
     SecurityManifestSectionPopulator securitySectionPopulator,
-    CostManifestSectionPopulator costSectionPopulator) : IGoldenManifestBuilder
+    CostManifestSectionPopulator costSectionPopulator,
+    RequirementsManifestSectionPopulator requirementsSectionPopulator,
+    ComplianceManifestSectionPopulator complianceSectionPopulator,
+    PolicyManifestSectionPopulator policySectionPopulator,
+    CoverageManifestSectionPopulator coverageSectionPopulator,
+    ConstraintsManifestSectionPopulator constraintsSectionPopulator,
+    ProvenanceManifestSectionPopulator provenanceSectionPopulator) : IGoldenManifestBuilder
 {
     private readonly TopologyManifestSectionPopulator _topologySectionPopulator =
         topologySectionPopulator ?? throw new ArgumentNullException(nameof(topologySectionPopulator));
@@ -29,6 +29,24 @@ public class DefaultGoldenManifestBuilder(
 
     private readonly CostManifestSectionPopulator _costSectionPopulator =
         costSectionPopulator ?? throw new ArgumentNullException(nameof(costSectionPopulator));
+
+    private readonly RequirementsManifestSectionPopulator _requirementsSectionPopulator =
+        requirementsSectionPopulator ?? throw new ArgumentNullException(nameof(requirementsSectionPopulator));
+
+    private readonly ComplianceManifestSectionPopulator _complianceSectionPopulator =
+        complianceSectionPopulator ?? throw new ArgumentNullException(nameof(complianceSectionPopulator));
+
+    private readonly PolicyManifestSectionPopulator _policySectionPopulator =
+        policySectionPopulator ?? throw new ArgumentNullException(nameof(policySectionPopulator));
+
+    private readonly CoverageManifestSectionPopulator _coverageSectionPopulator =
+        coverageSectionPopulator ?? throw new ArgumentNullException(nameof(coverageSectionPopulator));
+
+    private readonly ConstraintsManifestSectionPopulator _constraintsSectionPopulator =
+        constraintsSectionPopulator ?? throw new ArgumentNullException(nameof(constraintsSectionPopulator));
+
+    private readonly ProvenanceManifestSectionPopulator _provenanceSectionPopulator =
+        provenanceSectionPopulator ?? throw new ArgumentNullException(nameof(provenanceSectionPopulator));
 
     public ManifestDocument Build(
         Guid runId,
@@ -64,24 +82,20 @@ public class DefaultGoldenManifestBuilder(
         FindingsSnapshotTypeIndex findingsByType = new(findingsSnapshot);
         FindingsSnapshotIdIndex findingsById = new(findingsSnapshot);
 
-        PopulateRequirements(manifest, findingsByType);
-        PopulateRequirementTraceabilityDecisions(manifest, findingsByType);
+        _requirementsSectionPopulator.Populate(manifest, findingsByType);
         _topologySectionPopulator.PopulateFromGraph(manifest, graphSnapshot);
         _topologySectionPopulator.Populate(manifest, findingsByType);
         _securitySectionPopulator.Populate(manifest, findingsByType);
-        PopulateCompliance(manifest, findingsByType);
+        _complianceSectionPopulator.Populate(manifest, findingsByType);
         _costSectionPopulator.Populate(manifest, findingsByType);
-        PopulatePolicyApplicability(manifest, findingsByType);
-        PopulatePolicySection(manifest, findingsByType);
-        PopulateCoverageWarnings(manifest, findingsByType);
-        PopulateConstraints(manifest, findingsById, audit);
-        PopulateProvenance(manifest, findingsSnapshot, audit);
+        _policySectionPopulator.Populate(manifest, findingsByType);
+        _coverageSectionPopulator.Populate(manifest, findingsByType);
+        _constraintsSectionPopulator.Populate(manifest, findingsById, audit);
+        _provenanceSectionPopulator.Populate(manifest, findingsSnapshot, audit);
 
         manifest.Metadata.Status = manifest.UnresolvedIssues.Items.Count == 0
             ? "Resolved"
             : "NeedsAttention";
-
-        AppendManifestHonestyWarnings(manifest, findingsSnapshot);
 
         NormalizeManifestOrdering(manifest);
 
@@ -206,459 +220,4 @@ public class DefaultGoldenManifestBuilder(
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
-
-    private static void PopulateRequirements(ManifestDocument manifest, FindingsSnapshotTypeIndex findingsByType)
-    {
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementFinding))
-        {
-            RequirementFindingPayload? payload = FindingPayloadConverter.ToRequirementPayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "Requirements");
-
-                continue;
-            }
-
-            RequirementCoverageItem item = new()
-            {
-                RequirementName = payload.RequirementName,
-                RequirementText = payload.RequirementText,
-                IsMandatory = payload.IsMandatory,
-                CoverageStatus = "Covered",
-                SupportingFindingIds = [finding.FindingId]
-            };
-
-            manifest.Requirements.Covered.Add(item);
-
-            ResolvedArchitectureDecision requirementDecision = new()
-            {
-                Category = "Requirement",
-                Title = payload.RequirementName,
-                SelectedOption = "Accepted",
-                Rationale = payload.RequirementText,
-                SupportingFindingIds = [finding.FindingId]
-            };
-            ManifestDecisionConfidenceProjector.ApplyTo(requirementDecision, finding);
-            manifest.Decisions.Add(requirementDecision);
-        }
-    }
-
-    private static void PopulateRequirementTraceabilityDecisions(
-        ManifestDocument manifest,
-        FindingsSnapshotTypeIndex findingsByType)
-    {
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementGap))
-        {
-            TopologyGapFindingPayload? payload = FindingPayloadConverter.ToTopologyGapPayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "RequirementGap");
-
-                continue;
-            }
-
-            AddRequirementManifestDecision(
-                manifest,
-                finding,
-                payload.Description,
-                payload.Impact,
-                "RemediationRequired");
-        }
-
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementCoverageFinding))
-        {
-            if (IsRequirementCrossRunDiffFinding(finding))
-                continue;
-
-            RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "RequirementCoverageDecision");
-
-                continue;
-            }
-
-            AddRequirementManifestDecision(
-                manifest,
-                finding,
-                finding.Rationale,
-                payload.UncoveredRequirements.Count == 0
-                    ? finding.Rationale
-                    : string.Join(", ", payload.UncoveredRequirements),
-                "CloseCoverageGap");
-        }
-
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementExpectationFinding))
-        {
-            RequirementExpectationFindingPayload? payload =
-                FindingPayloadConverter.ToRequirementExpectationPayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "RequirementExpectationDecision");
-
-                continue;
-            }
-
-            AddRequirementManifestDecision(
-                manifest,
-                finding,
-                finding.Rationale,
-                payload.MissingThemes.Count == 0
-                    ? finding.Rationale
-                    : string.Join(", ", payload.MissingThemes),
-                "AddMissingThemes");
-        }
-    }
-
-    private static void AddRequirementManifestDecision(
-        ManifestDocument manifest,
-        Finding finding,
-        string rationale,
-        string impact,
-        string selectedOption)
-    {
-        manifest.UnresolvedIssues.Items.Add(new ManifestIssue
-        {
-            IssueType = finding.FindingType,
-            Title = finding.Title,
-            Description = impact,
-            Severity = finding.Severity.ToString(),
-            SupportingFindingIds = [finding.FindingId]
-        });
-
-        ResolvedArchitectureDecision decision = new()
-        {
-            Category = "Requirement",
-            Title = finding.Title,
-            SelectedOption = selectedOption,
-            Rationale = rationale,
-            SupportingFindingIds = [finding.FindingId]
-        };
-        ManifestDecisionConfidenceProjector.ApplyTo(decision, finding);
-        manifest.Decisions.Add(decision);
-    }
-
-    private static void PopulateCompliance(
-        ManifestDocument manifest,
-        FindingsSnapshotTypeIndex findingsByType)
-    {
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.ComplianceFinding))
-        {
-            ComplianceFindingPayload? payload = FindingPayloadConverter.ToCompliancePayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "Compliance");
-
-                continue;
-            }
-
-            manifest.Compliance.Controls.Add(new CompliancePostureItem
-            {
-                ControlId = payload.ControlId, ControlName = payload.ControlName, AppliesToCategory = payload.AppliesToCategory, Status = "Gap"
-            });
-
-            if (payload.AffectedResources.Count > 0)
-
-                manifest.Compliance.Gaps.Add(
-                    $"{payload.ControlName}: {string.Join(", ", payload.AffectedResources)}");
-
-            manifest.UnresolvedIssues.Items.Add(new ManifestIssue
-            {
-                IssueType = "ComplianceGap",
-                Title = finding.Title,
-                Description = finding.Rationale,
-                Severity = finding.Severity.ToString(),
-                SupportingFindingIds = [finding.FindingId]
-            });
-        }
-    }
-
-    private static void PopulatePolicyApplicability(ManifestDocument manifest, FindingsSnapshotTypeIndex findingsByType)
-    {
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.PolicyApplicabilityFinding))
-        {
-            PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "PolicyApplicability");
-
-                continue;
-            }
-
-            if (finding.Severity == FindingSeverity.Warning)
-            {
-                manifest.Warnings.Add($"{payload.PolicyName}: {finding.Title}");
-                manifest.UnresolvedIssues.Items.Add(new ManifestIssue
-                {
-                    IssueType = "PolicyApplicabilityGap",
-                    Title = finding.Title,
-                    Description = finding.Rationale,
-                    Severity = finding.Severity.ToString(),
-                    SupportingFindingIds = [finding.FindingId]
-                });
-            }
-            else if (finding.Severity == FindingSeverity.Info)
-
-                manifest.Assumptions.Add(
-                    $"Policy '{payload.PolicyName}' applies to {payload.ApplicableTopologyResourceCount} topology resource(s) (APPLIES_TO in knowledge graph).");
-        }
-    }
-
-    private static void PopulatePolicySection(ManifestDocument manifest, FindingsSnapshotTypeIndex findingsByType)
-    {
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.PolicyApplicabilityFinding))
-        {
-            PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "Policy");
-
-                continue;
-            }
-
-            string pack = string.IsNullOrWhiteSpace(payload.PolicyReference) ? "Inferred" : payload.PolicyReference!;
-            string controlId = string.IsNullOrWhiteSpace(payload.PolicyReference)
-                ? payload.PolicyName
-                : payload.PolicyReference!;
-
-            if (finding.Severity == FindingSeverity.Info)
-
-                manifest.Policy.SatisfiedControls.Add(new PolicyControlItem
-                {
-                    ControlId = controlId,
-                    ControlName = payload.PolicyName,
-                    PolicyPack = pack,
-                    Description =
-                        $"{payload.ApplicableTopologyResourceCount} topology resource(s) in APPLIES_TO scope."
-                });
-
-            else if (finding.Severity == FindingSeverity.Warning)
-
-                manifest.Policy.Violations.Add(new PolicyControlItem
-                {
-                    ControlId = controlId,
-                    ControlName = payload.PolicyName,
-                    PolicyPack = pack,
-                    Description = string.IsNullOrWhiteSpace(finding.Rationale) ? finding.Title : finding.Rationale
-                });
-        }
-
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.PolicyCoverageFinding))
-        {
-            PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "PolicyCoverage");
-
-                continue;
-            }
-
-            if (payload.UncoveredResources.Count == 0)
-            {
-                manifest.Policy.Violations.Add(new PolicyControlItem
-                {
-                    ControlId = "policy-coverage",
-                    ControlName = "Policy topology coverage",
-                    PolicyPack = "Governance",
-                    Description = string.IsNullOrWhiteSpace(finding.Rationale) ? finding.Title : finding.Rationale
-                });
-
-                continue;
-            }
-
-            foreach (string resource in payload.UncoveredResources)
-
-                manifest.Policy.Violations.Add(new PolicyControlItem
-                {
-                    ControlId = "policy-coverage", ControlName = $"Uncovered: {resource}", PolicyPack = "Governance", Description = finding.Title
-                });
-        }
-    }
-
-    private static void PopulateCoverageWarnings(
-        ManifestDocument manifest,
-        FindingsSnapshotTypeIndex findingsByType)
-    {
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.TopologyCoverageFinding))
-        {
-            TopologyCoverageFindingPayload? payload = FindingPayloadConverter.ToTopologyCoveragePayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "TopologyCoverage");
-
-                continue;
-            }
-
-            if (payload.MissingCategories.Count == 0)
-                continue;
-
-            foreach (string category in payload.MissingCategories)
-                manifest.Topology.Gaps.Add($"Missing topology category: {category}");
-
-            manifest.UnresolvedIssues.Items.Add(new ManifestIssue
-            {
-                IssueType = "TopologyCoverage",
-                Title = finding.Title,
-                Description = string.Join(", ", payload.MissingCategories),
-                Severity = finding.Severity.ToString(),
-                SupportingFindingIds = [finding.FindingId]
-            });
-        }
-
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.SecurityCoverageFinding))
-        {
-            SecurityCoverageFindingPayload? payload = FindingPayloadConverter.ToSecurityCoveragePayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "SecurityCoverage");
-
-                continue;
-            }
-
-            foreach (string resource in payload.UnprotectedResources)
-                manifest.Security.Gaps.Add($"{resource} is not protected");
-
-            manifest.UnresolvedIssues.Items.Add(new ManifestIssue
-            {
-                IssueType = "SecurityCoverage",
-                Title = finding.Title,
-                Description = string.Join(", ", payload.UnprotectedResources),
-                Severity = finding.Severity.ToString(),
-                SupportingFindingIds = [finding.FindingId]
-            });
-        }
-
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.PolicyCoverageFinding))
-        {
-            PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "PolicyCoverageWarnings");
-
-                continue;
-            }
-
-            manifest.UnresolvedIssues.Items.Add(new ManifestIssue
-            {
-                IssueType = "PolicyCoverage",
-                Title = finding.Title,
-                Description = payload.UncoveredResources.Count == 0
-                    ? finding.Rationale
-                    : string.Join(", ", payload.UncoveredResources),
-                Severity = finding.Severity.ToString(),
-                SupportingFindingIds = [finding.FindingId]
-            });
-        }
-
-        foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementCoverageFinding))
-        {
-            if (IsRequirementCrossRunDiffFinding(finding))
-                continue;
-
-            RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
-
-            if (payload is null)
-            {
-                WarnSkippedFindingPayload(manifest, finding, "RequirementCoverage");
-
-                continue;
-            }
-
-            foreach (string req in payload.UncoveredRequirements)
-
-                manifest.Requirements.Uncovered.Add(new RequirementCoverageItem
-                {
-                    RequirementName = req,
-                    RequirementText = req,
-                    IsMandatory = true,
-                    CoverageStatus = "Uncovered",
-                    SupportingFindingIds = [finding.FindingId]
-                });
-        }
-    }
-
-    private static void PopulateConstraints(
-        ManifestDocument manifest,
-        FindingsSnapshotIdIndex findingsById,
-        RuleAuditTracePayload trace)
-    {
-        foreach (string findingId in trace.AcceptedFindingIds)
-        {
-            if (!findingsById.TryGet(findingId, out Finding? finding) || finding is null)
-                continue;
-
-            if (finding.Severity is FindingSeverity.Critical or FindingSeverity.Error)
-
-                manifest.Constraints.MandatoryConstraints.Add(finding.Title);
-
-            else if (finding.Severity is FindingSeverity.Info or FindingSeverity.Warning)
-
-                manifest.Constraints.Preferences.Add(finding.Title);
-        }
-    }
-
-    private static void PopulateProvenance(
-        ManifestDocument manifest,
-        FindingsSnapshot findingsSnapshot,
-        RuleAuditTracePayload trace)
-    {
-        manifest.Provenance.SourceFindingIds = findingsSnapshot.Findings
-            .Select(f => f.FindingId)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        manifest.Provenance.SourceGraphNodeIds = findingsSnapshot.Findings
-            .SelectMany(f => f.RelatedNodeIds)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        manifest.Provenance.AppliedRuleIds = trace.AppliedRuleIds
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-    }
-
-    private static void AppendManifestHonestyWarnings(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
-    {
-        if (findingsSnapshot.EvaluationConfidenceEnrichmentSkipped)
-
-            manifest.Warnings.Add(
-                "Evaluation confidence enrichment was skipped for this host profile; finding evaluation scores may be absent.");
-
-        if (findingsSnapshot.EngineFailures.Count == 0)
-            return;
-
-        manifest.Warnings.Add(
-            "Degraded finding coverage: one or more finding engines failed during snapshot generation; review findings may be incomplete.");
-
-        manifest.Warnings.Add(
-            $"Finding engines: {findingsSnapshot.EngineFailures.Count} failed during snapshot generation; findings may be incomplete.");
-
-        foreach (FindingEngineFailure failure in findingsSnapshot.EngineFailures)
-
-            manifest.Warnings.Add(
-                $"Finding engine failure [{failure.EngineType}/{failure.Category}]: {failure.ExceptionType} — {failure.ErrorMessage}");
-    }
-
-    private static void WarnSkippedFindingPayload(ManifestDocument manifest, Finding finding, string section)
-    {
-        manifest.Warnings.Add(
-            $"Manifest section '{section}' skipped finding '{finding.FindingId}' ({finding.Title}): typed payload could not be resolved.");
-    }
-
-    private static bool IsRequirementCrossRunDiffFinding(Finding finding)
-    {
-        return string.Equals(finding.EngineType, "requirement-cross-run-diff", StringComparison.OrdinalIgnoreCase);
-    }
 }
-

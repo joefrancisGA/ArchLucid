@@ -51,7 +51,7 @@ public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
         });
         DecisionRuleSet ruleSet = await new InMemoryDecisionRuleProvider().GetRuleSetAsync(CancellationToken.None);
 
-        ManifestDocument manifest = new DefaultGoldenManifestBuilder().Build(
+        ManifestDocument manifest = DefaultGoldenManifestBuilderTestFactory.Create().Build(
             runId,
             ctxId,
             graph,
