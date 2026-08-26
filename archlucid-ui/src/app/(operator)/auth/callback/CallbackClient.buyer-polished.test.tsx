@@ -85,9 +85,7 @@ describe("CallbackClient buyer-polished shell", () => {
       `#${AUTH_CALLBACK_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("auth-callback-breadcrumb")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: AUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(screen.getByRole("heading", { level: 2, name: AUTH_CALLBACK_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const orientation = screen.getByTestId("auth-callback-orientation-bottom");

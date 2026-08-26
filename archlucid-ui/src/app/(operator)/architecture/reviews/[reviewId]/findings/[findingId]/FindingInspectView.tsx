@@ -52,6 +52,7 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { FindingEvidenceTraceBuyerChrome } from "./FindingEvidenceTraceBuyerChrome";
 import { FindingEvidenceTraceBreadcrumb } from "./FindingEvidenceTraceBreadcrumb";
 import { evidenceTracePageSubtitle } from "./evidence-trace-page-copy";
+import { EVIDENCE_TRACE_CLAIM_DISCIPLINE } from "@/lib/evidence-trace-evidence-copy";
 
 import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeverityConstraintNote";
 import { FindingJobViewLaneCallout } from "@/components/findings/FindingJobViewLaneCallout";
@@ -256,6 +257,8 @@ export function FindingInspectView({
                 </>
               )
             }
+            claimDiscipline={EVIDENCE_TRACE_CLAIM_DISCIPLINE}
+            claimDisciplineTestId="finding-eru-claim-discipline"
             subtitleClassName="max-w-3xl leading-relaxed"
             actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
           >

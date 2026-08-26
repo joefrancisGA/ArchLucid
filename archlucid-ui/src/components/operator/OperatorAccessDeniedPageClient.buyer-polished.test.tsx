@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { CurrentPrincipal } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
-  ACCESS_DENIED_CLAIM_DISCIPLINE_HEADING,
+  ACCESS_DENIED_CLAIM_DISCIPLINE,
   ACCESS_DENIED_FOLLOW_UPS_TITLE,
 } from "@/lib/access-denied-evidence-copy";
 import {
@@ -72,9 +72,10 @@ describe("OperatorAccessDeniedPageClient buyer-polished shell", () => {
       `#${ACCESS_DENIED_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("access-denied-breadcrumb")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: ACCESS_DENIED_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("access-denied-claim-discipline").textContent).toContain(
+      ACCESS_DENIED_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.queryByRole("heading", { level: 2, name: /What this/i })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: ACCESS_DENIED_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const orientation = screen.getByTestId("access-denied-orientation-top");

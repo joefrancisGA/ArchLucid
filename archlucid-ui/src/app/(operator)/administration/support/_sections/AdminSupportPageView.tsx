@@ -15,6 +15,7 @@ import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } fr
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { formatRelativeTime } from "@/lib/relative-time";
+import { SUPPORT_WORKSPACE_CLAIM_DISCIPLINE } from "@/lib/support-workspace-evidence-copy";
 import {
   ARCHLUCID_SUPPORT_EMAIL,
   SUPPORT_BUNDLE_EXCLUDED_ITEMS,
@@ -111,6 +112,8 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
           titleTestId="admin-support-title"
           breadcrumb={buyerPolishedShell ? <AdminSupportBreadcrumb /> : undefined}
           subtitle={adminSupportPageSubtitle(buyerPolishedShell)}
+          claimDiscipline={SUPPORT_WORKSPACE_CLAIM_DISCIPLINE}
+          claimDisciplineTestId="support-workspace-claim-discipline"
         />
 
         <AdminSupportBuyerChrome />

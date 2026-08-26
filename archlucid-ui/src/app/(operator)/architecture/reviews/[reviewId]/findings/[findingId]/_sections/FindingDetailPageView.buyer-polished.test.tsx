@@ -131,7 +131,7 @@ describe("FindingDetailPageView buyer-polished shell (RRF)", () => {
     );
     expect(screen.getByTestId("finding-detail-breadcrumb")).toBeInTheDocument();
     expect(screen.getByText(FINDING_DETAIL_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: FINDING_DETAIL_CLAIM_HEADING })).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(screen.getByTestId("finding-detail-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("finding-detail-wayfinding")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();

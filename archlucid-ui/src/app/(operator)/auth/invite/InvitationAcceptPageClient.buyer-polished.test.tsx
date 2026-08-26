@@ -56,9 +56,7 @@ describe("InvitationAcceptPageClient buyer-polished shell", () => {
       `#${AUTH_INVITE_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("auth-invite-breadcrumb")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: AUTH_INVITE_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(screen.getByRole("heading", { level: 2, name: AUTH_INVITE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByTestId("cold-invite-users-invite-vocabulary")).toBeNull();
 

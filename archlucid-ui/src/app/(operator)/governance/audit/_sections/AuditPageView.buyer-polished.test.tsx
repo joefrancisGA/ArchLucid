@@ -111,9 +111,7 @@ describe("AuditPageView buyer-polished shell", () => {
       `#${GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("audit-page-breadcrumb")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: AUDIT_TRAIL_CLAIM_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(screen.getByRole("heading", { level: 2, name: AUDIT_TRAIL_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("governance-audit-primary-content")).toBeInTheDocument();
     expect(screen.queryByTestId("audit-evidence-trail-vocabulary")).toBeNull();

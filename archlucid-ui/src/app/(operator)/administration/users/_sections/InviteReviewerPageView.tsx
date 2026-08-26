@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { InviteReviewerBuyerChrome } from "./InviteReviewerBuyerChrome";
 import { InviteReviewerBreadcrumb } from "./InviteReviewerBreadcrumb";
 import { inviteReviewerPageSubtitle } from "./invite-reviewer-page-copy";
+import { INVITE_REVIEWER_CLAIM_DISCIPLINE } from "@/lib/invite-reviewer-evidence-copy";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
 import { InviteReviewerReaderCapabilitiesSummary } from "./InviteReviewerReaderCapabilitiesSummary";
@@ -116,6 +117,8 @@ function InviteReviewerPageHeader(props: { readonly buyerPolishedShell: boolean 
         title={INVITE_REVIEWER_PAGE_TITLE}
         headingLevel="h1"
         subtitle={inviteReviewerPageSubtitle(props.buyerPolishedShell)}
+        claimDiscipline={INVITE_REVIEWER_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="invite-reviewer-claim-discipline"
         breadcrumb={props.buyerPolishedShell ? <InviteReviewerBreadcrumb /> : undefined}
         actions={
           <div className="flex flex-wrap items-center gap-2">

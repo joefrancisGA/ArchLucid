@@ -7,6 +7,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ARCHITECTURE_INTELLIGENCE_PAGE_TITLE } from "@/lib/architecture/architecture-intelligence-page-copy";
+import { ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE } from "@/lib/architecture/architecture-intelligence-evidence-copy";
 
 export type ArchitectureIntelligencePageHeaderProps = {
   readonly subtitle: string;
@@ -23,6 +24,8 @@ export function ArchitectureIntelligencePageHeader(
       title={ARCHITECTURE_INTELLIGENCE_PAGE_TITLE}
       titleTestId="architecture-intelligence-page-title"
       subtitle={props.subtitle}
+      claimDiscipline={ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="architecture-intelligence-claim-discipline"
       actions={
         <div
           className="flex flex-wrap items-center gap-2"

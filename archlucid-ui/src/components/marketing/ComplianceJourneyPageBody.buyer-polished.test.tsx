@@ -20,9 +20,7 @@ describe("ComplianceJourneyPageBody buyer-polished shell", () => {
       `#${COMPLIANCE_JOURNEY_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("compliance-journey-breadcrumb")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(screen.getByRole("heading", { level: 2, name: COMPLIANCE_JOURNEY_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const orientation = screen.getByTestId("compliance-journey-orientation-top");

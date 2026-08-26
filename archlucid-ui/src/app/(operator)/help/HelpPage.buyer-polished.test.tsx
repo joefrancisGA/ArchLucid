@@ -53,9 +53,7 @@ describe("HelpPageView buyer-polished shell (HEL)", () => {
     );
     expect(screen.getByTestId("help-hub-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("help-hub-orientation-top")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: HELP_HUB_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(screen.getByRole("heading", { level: 2, name: HELP_HUB_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-hub-primary-content")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Using ArchLucid" })).toBeInTheDocument();

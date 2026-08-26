@@ -25,6 +25,7 @@ import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice"
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import { Button } from "@/components/ui/button";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
@@ -40,6 +41,7 @@ import {
 } from "@/lib/architecture/architecture-draft-intake-mode";
 import { GuidedIntakeAlreadySubmittedCallout } from "@/app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE } from "@/lib/architectures-draft-evidence-copy";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reviewDetailPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
@@ -261,6 +263,13 @@ return (
               workspaceLead
             )}
           </p>
+          {isDetailDraft && buyerPolishedShell ? (
+            <PageHeaderClaimDiscipline
+              text={ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE}
+              testId="architecture-draft-detail-claim-discipline"
+              className="mt-2 text-left"
+            />
+          ) : null}
           {linkedReviewId !== null ? (
             <Link
               href={reviewDetailPath(linkedReviewId)}

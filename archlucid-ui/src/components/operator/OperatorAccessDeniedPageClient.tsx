@@ -8,6 +8,7 @@ import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthor
 import { AccessDeniedBreadcrumb } from "@/components/operator/AccessDeniedBreadcrumb";
 import { AccessDeniedClaimOrientationStrip } from "@/components/operator/AccessDeniedClaimOrientationStrip";
 import { OperatorJwtBearerRoleMappingCallout } from "@/components/operator/OperatorJwtBearerRoleMappingCallout";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +22,7 @@ import {
   resolveAccessDeniedSupplementMessage,
   resolveAdministratorContactHref,
 } from "@/lib/access-denied-context";
+import { ACCESS_DENIED_CLAIM_DISCIPLINE } from "@/lib/access-denied-evidence-copy";
 import {
   ACCESS_DENIED_PRIMARY_CONTENT_ID,
   ACCESS_DENIED_SKIP_LINK_LABEL,
@@ -89,6 +91,12 @@ export function OperatorAccessDeniedPageClient() {
             </h1>
 
             <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{ACCESS_DENIED_BODY}</p>
+
+            <PageHeaderClaimDiscipline
+              text={ACCESS_DENIED_CLAIM_DISCIPLINE}
+              testId="access-denied-claim-discipline"
+              className="mt-3 text-left"
+            />
 
             {supplementMessage !== null ? (
               <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="operator-access-denied-supplement">

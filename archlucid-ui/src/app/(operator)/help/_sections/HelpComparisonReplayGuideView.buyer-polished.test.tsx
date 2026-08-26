@@ -54,9 +54,7 @@ describe("HelpComparisonReplayGuideView buyer-polished shell", () => {
 
     expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).not.toBeInTheDocument();
 
-    expect(
-      screen.getByRole("heading", { level: 2, name: COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(screen.getByTestId("comparison-replay-help-sources")).toBeInTheDocument();
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();

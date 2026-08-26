@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { ROI_SUMMARY_PAGE_SUBTITLE } from "@/lib/roi-summary-sponsor-presentation";
 import {
-  ROI_SUMMARY_CLAIM_DISCIPLINE_HEADING,
+  ROI_SUMMARY_CLAIM_DISCIPLINE,
   ROI_SUMMARY_FOLLOW_UPS_TITLE,
 } from "@/lib/roi-summary-evidence-copy";
 import {
@@ -135,9 +135,11 @@ describe("RoiSummaryPageView buyer-polished shell", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "Related value reports" })).not.toBeInTheDocument();
 
-    expect(
-      screen.getByRole("heading", { level: 2, name: ROI_SUMMARY_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
+    expect(screen.getByTestId("roi-summary-claim-discipline").textContent).toContain(
+      ROI_SUMMARY_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.queryByRole("heading", { level: 2, name: /What this/i })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: ROI_SUMMARY_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     expect(screen.queryByTestId("roi-sponsor-export-vocabulary")).toBeNull();

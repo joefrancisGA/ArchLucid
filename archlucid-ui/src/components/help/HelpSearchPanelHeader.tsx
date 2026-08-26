@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import { ContextualHelpDrawerBreadcrumb } from "@/components/help/ContextualHelpDrawerBreadcrumb";
 import { DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { HELP_SEARCH_PANEL_TITLE } from "@/lib/help/help-search-panel-catalog";
+import { CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE } from "@/lib/contextual-help-drawer-evidence-copy";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type HelpSearchPanelHeaderProps = {
@@ -23,6 +25,11 @@ export function HelpSearchPanelHeader(props: HelpSearchPanelHeaderProps): React.
       <DialogDescription className={cn("text-left", OPERATOR_TYPOGRAPHY.body)} data-testid="help-search-panel-subtitle">
         {props.subtitle}
       </DialogDescription>
+      <PageHeaderClaimDiscipline
+        text={CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE}
+        testId="contextual-help-drawer-claim-discipline"
+        className="text-left"
+      />
     </DialogHeader>
   );
 }

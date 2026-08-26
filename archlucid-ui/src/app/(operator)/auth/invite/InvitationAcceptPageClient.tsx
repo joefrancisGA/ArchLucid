@@ -13,6 +13,8 @@ import {
   AUTH_INVITE_PAGE_LEAD,
   AUTH_INVITE_PAGE_TITLE,
 } from "@/lib/auth/auth-invite-page-copy";
+import { AUTH_INVITE_CLAIM_DISCIPLINE } from "@/lib/auth-invite-evidence-copy";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { clearInvitationToken, storeInvitationToken } from "@/lib/auth/email-otp-session";
 import {
   mapInvitationStatusToRecoveryContext,
@@ -87,6 +89,11 @@ export function InvitationAcceptPageClient() {
       <div className="max-w-[560px]" data-testid="invitation-accept-page">
         <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_INVITE_PAGE_TITLE}</h1>
         <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{AUTH_INVITE_PAGE_LEAD}</p>
+        <PageHeaderClaimDiscipline
+          text={AUTH_INVITE_CLAIM_DISCIPLINE}
+          testId="auth-invite-claim-discipline"
+          className="mt-3 text-left"
+        />
 
         {recoveryContext ? (
           <>

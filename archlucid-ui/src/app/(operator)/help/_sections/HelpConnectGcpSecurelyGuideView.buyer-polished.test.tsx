@@ -57,9 +57,7 @@ describe("HelpConnectGcpSecurelyGuideView buyer-polished shell", () => {
     expect(breadcrumb).toHaveTextContent(CLOUD_CONNECTIONS_HELP_PAGE_TITLE);
     expect(breadcrumb).toHaveTextContent(entry.title);
 
-    expect(
-      screen.getByRole("heading", { level: 2, name: CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(screen.getByTestId("connect-gcp-securely-help-sources")).toBeInTheDocument();
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();

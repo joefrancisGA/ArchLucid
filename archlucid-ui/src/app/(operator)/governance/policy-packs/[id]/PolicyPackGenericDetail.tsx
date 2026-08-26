@@ -25,6 +25,7 @@ import {
   reviewsNewWithPackHref,
 } from "@/lib/policy/policy-packs-deep-link";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy/policy-pack-detail-resolver";
+import { POLICY_PACK_DETAIL_CLAIM_DISCIPLINE } from "@/lib/policy/policy-pack-detail-evidence-copy";
 import { resolveResponsibleAiPolicyRuleRows } from "@/lib/policy/responsible-ai-policy-pack-rules";
 import type { PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
@@ -110,6 +111,8 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
         navHref={policyPacksHubHref}
         title={packName}
         subtitle={description}
+        claimDiscipline={POLICY_PACK_DETAIL_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="policy-pack-detail-claim-discipline"
         titleTestId="policy-pack-detail-title"
         breadcrumb={
           <GovernancePolicyPackBreadcrumb

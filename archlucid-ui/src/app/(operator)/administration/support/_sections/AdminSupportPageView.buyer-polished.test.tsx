@@ -54,9 +54,7 @@ describe("AdminSupportPageView buyer-polished shell", () => {
     );
     expect(screen.getByTestId("admin-support-breadcrumb")).toBeInTheDocument();
     expect(screen.getByText(ADMIN_SUPPORT_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: SUPPORT_WORKSPACE_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(screen.getByRole("heading", { level: 2, name: SUPPORT_WORKSPACE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByTestId("report-problem-support-workspace-vocabulary")).toBeNull();
     expect(screen.queryByTestId("admin-support-guidance")).toBeNull();

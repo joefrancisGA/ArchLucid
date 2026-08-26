@@ -8,6 +8,7 @@ import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCi
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { findingDetailLeadSentence } from "@/lib/findings/finding-display-from-inspect";
@@ -124,6 +125,8 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
           title={pageTitle}
           headingLevel="h1"
           breadcrumb={<p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>Finding detail</p>}
+          claimDiscipline={FINDING_DETAIL_CLAIM_DISCIPLINE}
+          claimDisciplineTestId="finding-detail-claim-discipline"
         >
           {policyProvenanceModel !== null &&
           (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (

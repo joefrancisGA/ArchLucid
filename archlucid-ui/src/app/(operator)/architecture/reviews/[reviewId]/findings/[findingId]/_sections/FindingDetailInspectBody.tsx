@@ -11,6 +11,7 @@ import { FindingExplainabilityTracePanel } from "@/components/findings/FindingEx
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
@@ -93,6 +94,8 @@ export function FindingDetailInspectBody({ presentation }: Props) {
                   />
                 }
                 subtitle={findingDetailPageSubtitle(buyerPolishedShell, buyerHeroSubtitle)}
+                claimDiscipline={FINDING_DETAIL_CLAIM_DISCIPLINE}
+                claimDisciplineTestId="finding-detail-claim-discipline"
                 subtitleClassName="max-w-2xl leading-relaxed"
               >
                 {severityRationale.length > 0 ? (

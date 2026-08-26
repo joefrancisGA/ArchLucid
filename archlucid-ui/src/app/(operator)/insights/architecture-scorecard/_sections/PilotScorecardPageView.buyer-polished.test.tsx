@@ -142,9 +142,7 @@ describe("PilotScorecardPageView buyer-polished shell", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "Related value reports" })).not.toBeInTheDocument();
 
-    expect(
-      screen.getByRole("heading", { level: 2, name: ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(
       screen.getByRole("heading", { level: 2, name: ARCHITECTURE_SCORECARD_FOLLOW_UPS_TITLE }),
     ).toBeInTheDocument();

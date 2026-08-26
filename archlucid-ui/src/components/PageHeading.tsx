@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { HELP_TOPIC_PAGE_ICON, isHelpTopicHref } from "@/lib/help/help-topic-page-icon";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 
@@ -39,6 +40,12 @@ export type PageHeadingProps = {
   navHref: string;
   title: string;
   description?: ReactNode;
+  /**
+   * Folded claim-discipline negation — replaces mid-page "What this … is not" hero cards.
+   */
+  claimDiscipline?: string;
+  /** Stable Playwright anchor for {@link claimDiscipline}. */
+  claimDisciplineTestId?: string;
   /** Optional hierarchy label rendered above the title (for example help topic grouping). */
   eyebrow?: string;
   metadata?: ReactNode;
@@ -65,6 +72,8 @@ export function PageHeading({
   navHref,
   title,
   description,
+  claimDiscipline,
+  claimDisciplineTestId,
   eyebrow,
   metadata,
   icon,
@@ -131,6 +140,10 @@ export function PageHeading({
             >
               {description}
             </div>
+          ) : null}
+
+          {claimDiscipline !== undefined && claimDiscipline.length > 0 ? (
+            <PageHeaderClaimDiscipline text={claimDiscipline} testId={claimDisciplineTestId} />
           ) : null}
 
           {metadata !== undefined && metadata !== null ? (

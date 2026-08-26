@@ -81,9 +81,7 @@ describe("HelpContactSupportGuideView buyer-polished shell", () => {
     expect(breadcrumb).toHaveTextContent(HELP_TOPIC_BREADCRUMB_HUB_LABEL);
     expect(breadcrumb).toHaveTextContent(entry.title);
 
-    expect(
-      screen.getByRole("heading", { level: 2, name: CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(screen.getByTestId("contact-support-help-sources")).toBeInTheDocument();
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();

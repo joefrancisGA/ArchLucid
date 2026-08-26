@@ -29,6 +29,7 @@ import {
   PILOT_OUTCOMES_PRIMARY_CONTENT_ID,
   PILOT_OUTCOMES_SKIP_LINK_LABEL,
 } from "@/lib/pilot-outcomes-page-copy";
+import { PILOT_OUTCOMES_CLAIM_DISCIPLINE } from "@/lib/pilot-outcomes-evidence-copy";
 import { buildPilotOutcomesSponsorNarrative } from "@/lib/pilot-outcomes-sponsor-report";
 import {
   buildPilotOutcomesEmptyDiagnostics,
@@ -139,6 +140,8 @@ export function PilotValueReportPageView(props: Props) {
                 </>
               ) : null
             }
+            claimDiscipline={PILOT_OUTCOMES_CLAIM_DISCIPLINE}
+            claimDisciplineTestId="pilot-outcomes-claim-discipline"
             actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
           />
 
