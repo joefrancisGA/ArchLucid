@@ -73,6 +73,9 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
         string idempotencyKey =
             $"finding-remediation-assignment:{tenantId:N}:{runHex}:{trimmedFindingId}:{mailbox.ToLowerInvariant()}";
 
+        if (await _sentEmailLedger.IsRecordedAsync(tenantId, idempotencyKey, cancellationToken).ConfigureAwait(false))
+            return true;
+
         FindingRemediationAssignmentEmailModel model = new()
         {
             ProductName = productName,

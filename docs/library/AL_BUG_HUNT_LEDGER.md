@@ -1863,11 +1863,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 9
-- **bugs-found:** 16
+- **hunts:** 10
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — trial lifecycle email reserved ledger before provider send, blocking retry after transient failure
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — finding remediation assignment email resent on idempotent retry
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1895,6 +1895,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Trial lifecycle email reserved ledger before provider send — **hit 2026-08-25:** `TrialLifecycleEmailDispatcher` called `TryRecordSentAsync` before `SendAsync`; a transient send failure left the ledger reserved and blocked Service Bus retry; fixed with `IsRecordedAsync` skip + record-after-send (`TrialLifecycleEmailDispatcherTests.DispatchAsync_send_failure_does_not_block_retry`).
 - [x] (valid-no-repro) Marketing and support notifiers swallow send failures without surfacing to callers — `MarketingEarlyAccessSalesNotifier` and `SupportProblemReportNotifier` log and return after durable capture (`AppendAsync` / `InsertAsync`); callers are fire-and-forget notification side-effects with provider idempotency keys, not ledger-guarded multi-recipient dispatch.
 - [x] (invalid) Digest webhook delivery omits digest attempt persistence on channel failure — `DigestDeliveryDispatcher` (caller) creates and updates `DigestDeliveryAttempt` rows for every channel including Slack webhook; channel delegates delivery only (`DigestDeliveryDispatcherTests.DeliverAsync_WhenChannelFails_AuditsFailureWithoutThrowing`).
+- [x] (proven) `FindingRemediationAssignmentEmailDispatcher` resent assignment mail on idempotent retry — **hit 2026-08-26:** dispatcher skipped `IsRecordedAsync` before send, so safe retries duplicated mail and returned `false`; fixed with ledger short-circuit before render (`FindingRemediationAssignmentEmailDispatcherTests.TryDispatchAsync_skips_duplicate_send_when_ledger_already_recorded`).
+- [ ] (candidate) `DigestSubscriptionsController.Create` persists whitespace-padded destinations without trimming — `" user@example.com "` may be stored and passed to digest email delivery
+- [ ] (candidate) Advisory digest email subscriptions route through `FakeEmailSender` only — `DigestEmailDeliveryChannel` never uses `IEmailProvider` / ACS in production composition
+- [ ] (candidate) `DigestSubscriptionsController.Create` accepts unknown channel types — invalid `channelType` persists until dispatch fails each scan
+- [ ] (candidate) `RecurrenceCompletionNotificationService` records `emailSent: false` on replay when ledger already recorded all recipients
 
 ## Zone: artifact-synthesis
 

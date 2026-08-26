@@ -78,4 +78,65 @@ public sealed class FindingRemediationAssignmentEmailDispatcherTests
         secondAttempt.Should().BeTrue("transient send failures must not permanently suppress remediation notifications");
         sendAttempts.Should().Be(2);
     }
+
+    [Fact]
+    public async Task TryDispatchAsync_skips_duplicate_send_when_ledger_already_recorded()
+    {
+        InMemorySentEmailLedger ledger = new();
+        int sendAttempts = 0;
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                sendAttempts++;
+                return Task.CompletedTask;
+            });
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>assigned</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("assigned");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        FindingRemediationAssignmentEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<FindingRemediationAssignmentEmailDispatcher>.Instance);
+
+        Guid tenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        const string findingId = "finding-duplicate";
+
+        bool firstAttempt = await sut.TryDispatchAsync(
+            tenantId,
+            runId,
+            findingId,
+            "Open ingress",
+            "assignee@example.test",
+            remediationDueUtc: null,
+            cancellationToken: CancellationToken.None);
+
+        bool secondAttempt = await sut.TryDispatchAsync(
+            tenantId,
+            runId,
+            findingId,
+            "Open ingress",
+            "assignee@example.test",
+            remediationDueUtc: null,
+            cancellationToken: CancellationToken.None);
+
+        firstAttempt.Should().BeTrue();
+        secondAttempt.Should().BeTrue("idempotent retries must not resend assignment mail");
+        sendAttempts.Should().Be(1);
+        renderer.Verify(
+            r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }
