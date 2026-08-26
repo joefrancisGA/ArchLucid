@@ -1986,11 +1986,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 7
-- **bugs-found:** 9
+- **hunts:** 8
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — async value report poll failed across separate Api replica composition roots
+- **last-bug:** 2026-08-26 — Combined durable omitted BackgroundJobQueueProcessorHostedService
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2014,6 +2014,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Combined role omitted Service Bus integration event consumer — **hit 2026-08-25:** `RegisterIntegrationEventConsumer` returned before wiring handlers/consumer when role was `Combined`; fixed to match Worker (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Combined_role_registers_ServiceBus_integration_event_consumer`).
 - [x] (valid-no-repro) `servicebus-integration-events` container offload drops `ServiceBusIntegrationEventsArchLucidJob` — `RegisterArchLucidJobRunners` always registers the job; only `AzureServiceBusIntegrationEventConsumer` is gated by offload (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Worker_offloads_servicebus_integration_events_registers_job_not_consumer`, 2026-08-26).
 - [x] (proven) Per-process `AddDistributedMemoryCache` broke async value report poll across Api replicas — **hit 2026-08-26:** `SponsorRoiCompositionRegistrar` registered per-process `IDistributedCache` when no shared Redis/hot-path cache was configured, so load-balanced replicas could not see enqueue state; fixed with `IValueReportJobPollStateCache` (registered `IDistributedCache` → dedicated Redis → process-shared fallback) and `ServiceCollectionExtensionsRegistrationTests.AddArchLucidApplicationServices_value_report_async_job_poll_works_across_separate_api_replica_roots`.
+- [x] (proven) Combined durable background jobs omit queue processor — **hit 2026-08-26:** `RegisterBackgroundJobs` registered `BackgroundJobQueueProcessorHostedService` only for `Worker` when `BackgroundJobs:Mode=Durable`; Combined hosts enqueued to SQL/queue but never drained; fixed with Combined branch + `BackgroundJobRepositoryCancellationWriter`; regression in `AddArchLucidApplicationServices_Combined_durable_registers_BackgroundJobQueueProcessorHostedService` and `AddArchLucidApplicationServices_Api_durable_does_not_register_BackgroundJobQueueProcessorHostedService`.
+- [ ] (candidate) `DraftIntakeCompositionRegistrar` registers `AdvisoryDraftOperationHostedService` without hosting-role gate — split Api/Worker deployments may both process advisory-draft async operations.
+- [ ] (candidate) `RunLifecycleOrchestrationCompositionRegistrar` registers `ArchitectureRunAsyncOperationHostedService` without hosting-role gate — Api-only host may compete with Worker for async run dequeue.
+- [ ] (candidate) `RegisterDurableBackgroundJobInfrastructure` registers `BackgroundJobStuckRunningWatchdogHostedService` for Api durable enqueue-only hosts — watchdog may alert without local processor to remediate.
 
 ---
 
