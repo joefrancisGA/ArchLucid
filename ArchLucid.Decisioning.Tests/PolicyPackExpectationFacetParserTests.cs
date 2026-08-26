@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Governance.PolicyPacks;
@@ -69,5 +71,54 @@ public sealed class PolicyPackExpectationFacetParserTests
             AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostBreachSeverity] = "Urgent" },
         };
         PolicyPackExpectationFacetParser.Parse(invalid).BreachSeverity.Should().BeNull();
+    }
+
+    [Fact]
+    public void Parse_bundled_finops_cost_optimization_requires_budget_cap()
+    {
+        string? repoRoot = TryFindRepoRoot();
+
+        repoRoot.Should().NotBeNull();
+
+        string path = Path.Combine(
+            repoRoot!,
+            "ArchLucid.Application",
+            "Governance",
+            "DefaultPolicyPacks",
+            "Bundled",
+            "cost-optimization.json");
+
+        string json = File.ReadAllText(path);
+        PolicyPackContentDocument? document = JsonSerializer.Deserialize<PolicyPackContentDocument>(
+            json,
+            ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackJsonSerializerOptions.Default);
+
+        document.Should().NotBeNull();
+
+        PolicyPackExpectationFacet facet = PolicyPackExpectationFacetParser.Parse(document);
+
+        facet.RequireBudgetCap.Should().BeTrue();
+    }
+
+    private static string? TryFindRepoRoot()
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+
+        while (directory is not null)
+        {
+            string bundled = Path.Combine(
+                directory.FullName,
+                "ArchLucid.Application",
+                "Governance",
+                "DefaultPolicyPacks",
+                "Bundled");
+
+            if (Directory.Exists(bundled))
+                return directory.FullName;
+
+            directory = directory.Parent;
+        }
+
+        return null;
     }
 }

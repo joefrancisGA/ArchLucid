@@ -40,7 +40,7 @@ All rows below are seeded as **`PlatformDefault`** (Architect workspace: **Bundl
 | 4 | Azure CAF / LZ | Azure Landing Zone / Cloud Adoption Framework | `lz-caf-001` … `012` | Full curated corpus |
 | 5 | Privacy | GDPR Compliance Baseline | `gdpr-001` … | Expand per GDPR themes |
 | 6 | Compliance | SOC 2 Type II (Architecture Themes) | `soc2-001` … | Expand per TSC |
-| 7 | Cost | FinOps & Cloud Cost Optimization | `cost-opt-001` … `006` | Extractor-aligned |
+| 7 | Cost | FinOps & Cloud Cost Optimization | `cost-opt-001` … `006` | Extractor-aligned; bundled `advisoryDefaults` include `cost.requireBudgetCap=true` so assigning this pack can stamp a required budget cap for `cost-constraint` |
 | 8 | Application security | OWASP API Security Top 10 | `owasp-api-001` … | ~10 categories + depth |
 | 9 | Compliance | ISO/IEC 27001 ISMS (Architecture Slice) | `iso27001-001` … | Expand per Annex A slice |
 | 10 | Security | CIS Microsoft Azure Foundations Benchmark | `cis-az-001` … | Prefer `cis-az-l1-*` / `l2-*` ids |
