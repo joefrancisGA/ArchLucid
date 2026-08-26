@@ -191,4 +191,36 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
         result.Select(o => o.Name).Should().BeEquivalentTo(["hub-vnet/subnet-a", "hub-vnet/subnet-b"]);
         result.Select(o => o.ObjectId).Distinct().Should().HaveCount(2);
     }
+
+    [Fact]
+    public async Task ParseAsync_SameTypeNameDifferentProperties_EmitsDistinctObjectIds()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-duplicate-docs",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "docs",
+                            "properties": { "allowBlobPublicAccess": true }
+                          },
+                          {
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "docs",
+                            "properties": { "allowBlobPublicAccess": false }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(o => o.ObjectId).Distinct().Should().HaveCount(2);
+    }
 }

@@ -1125,4 +1125,45 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
         ]);
         objects[0].ObjectId.Should().NotBe(objects[1].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_DuplicateRootResourceLabelsWithoutAddress_EmitsDistinctObjectIds()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tfshow-duplicate-root-label",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_subnet",
+                                "name": "this",
+                                "mode": "managed",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "address_prefix": "10.0.1.0/24" }
+                              },
+                              {
+                                "type": "azurerm_subnet",
+                                "name": "this",
+                                "mode": "managed",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "address_prefix": "10.0.2.0/24" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().HaveCount(2);
+        objects.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
+        objects.Should().OnlyContain(static o => o.Properties.ContainsKey("terraformOccurrence"));
+    }
 }

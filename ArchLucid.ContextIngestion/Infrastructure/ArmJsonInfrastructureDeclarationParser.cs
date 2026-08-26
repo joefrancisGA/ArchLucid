@@ -90,13 +90,16 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
 
         string canonicalName = name.ToLowerInvariant();
         string canonicalResourceType = resourceType.ToLowerInvariant();
+        string resourceIdentity = InfrastructureDeclarationResourceIdentity.AppendSubtypeRegionDisambiguators(
+            $"{canonicalResourceType}|{canonicalName}",
+            properties);
 
         results.Add(new CanonicalObject
         {
             ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
                 declaration.DeclarationId,
                 objectType,
-                $"{canonicalResourceType}|{canonicalName}"),
+                resourceIdentity),
             ObjectType = objectType,
             Name = canonicalName,
             SourceType = "InfrastructureDeclaration",

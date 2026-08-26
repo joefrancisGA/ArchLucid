@@ -15,6 +15,24 @@ namespace ArchLucid.ContextIngestion.Tests;
 public sealed class TopologyHintsConnectorParentTests
 {
     [Fact]
+    public async Task NormalizeAsync_ThreeSegmentHint_SetsParentNodeIdToImmediateParent()
+    {
+        TopologyHintsConnector sut = new(
+            new TopologyHintsPayloadExtractor(),
+            new TopologyHintsPayloadNormalizer(new PolicyTopologyOverlapResolver()),
+            new SetDiffConnectorDeltaComputer());
+        RawContextPayload raw = new() { TopologyHints = ["prod/vnet/subnet-a"] };
+
+        NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);
+
+        CanonicalObject child = batch.CanonicalObjects.Single();
+        child.Properties.Should().ContainKey("parentNodeId");
+        string expectedParentId = $"obj-{TopologyHintStableObjectIds.FromHintName("prod/vnet")}";
+        child.Properties["parentNodeId"].Should().Be(expectedParentId);
+        child.ObjectId.Should().Be(TopologyHintStableObjectIds.FromHintName("prod/vnet/subnet-a"));
+    }
+
+    [Fact]
     public async Task NormalizeAsync_SlashSeparatedHint_SetsParentNodeIdToStableParent()
     {
         TopologyHintsConnector sut = new(

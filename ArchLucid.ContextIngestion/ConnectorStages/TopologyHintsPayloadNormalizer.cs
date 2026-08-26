@@ -29,14 +29,13 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
             string canonicalHint = TopologyHintStableObjectIds.CanonicalizeHintName(trimmed).ToLowerInvariant();
             Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase) { ["text"] = canonicalHint };
 
-            int slash = canonicalHint.IndexOf('/');
+            int slash = canonicalHint.LastIndexOf('/');
 
             if (slash > 0 && slash < canonicalHint.Length - 1)
             {
                 string parentName = canonicalHint[..slash];
-                string childRemainder = canonicalHint[(slash + 1)..];
 
-                if (parentName.Length > 0 && childRemainder.Length > 0)
+                if (parentName.Length > 0)
                 {
                     // parentNodeId must match GraphNodeFactory: obj-{CanonicalObject.ObjectId}
                     string parentObjId = _overlapResolver.ResolveStableObjectId(parentName);

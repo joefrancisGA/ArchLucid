@@ -34,6 +34,8 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
         List<CanonicalObject> results = [];
+        Dictionary<string, int> labelTotals = [];
+        Dictionary<string, int> labelSeen = new(StringComparer.OrdinalIgnoreCase);
 
         try
         {
@@ -50,7 +52,10 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             }
 
             if (values.TryGetProperty("root_module", out JsonElement rootModule))
-                CollectFromModule(rootModule, moduleAddress: string.Empty, declaration, results);
+            {
+                labelTotals = CountTerraformLabelOccurrences(rootModule);
+                CollectFromModule(rootModule, moduleAddress: string.Empty, declaration, results, labelTotals, labelSeen);
+            }
         }
         catch (JsonException ex)
         {
@@ -69,12 +74,14 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         JsonElement module,
         string moduleAddress,
         InfrastructureDeclarationReference declaration,
-        List<CanonicalObject> results)
+        List<CanonicalObject> results,
+        IReadOnlyDictionary<string, int> labelTotals,
+        Dictionary<string, int> labelSeen)
     {
         if (module.TryGetProperty("resources", out JsonElement resources) && resources.ValueKind == JsonValueKind.Array)
         {
             foreach (JsonElement res in resources.EnumerateArray())
-                TryAddResource(res, moduleAddress, declaration, results);
+                TryAddResource(res, moduleAddress, declaration, results, labelTotals, labelSeen);
         }
 
         if (!module.TryGetProperty("child_modules", out JsonElement children) ||
@@ -82,7 +89,67 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             return;
 
         foreach (JsonElement child in children.EnumerateArray())
-            CollectFromModule(child, ResolveModuleAddress(child), declaration, results);
+            CollectFromModule(child, ResolveModuleAddress(child), declaration, results, labelTotals, labelSeen);
+    }
+
+    private static Dictionary<string, int> CountTerraformLabelOccurrences(JsonElement rootModule)
+    {
+        Dictionary<string, int> counts = new(StringComparer.OrdinalIgnoreCase);
+        CountModuleLabelOccurrences(rootModule, moduleAddress: string.Empty, counts);
+
+        return counts;
+    }
+
+    private static void CountModuleLabelOccurrences(
+        JsonElement module,
+        string moduleAddress,
+        Dictionary<string, int> counts)
+    {
+        if (module.TryGetProperty("resources", out JsonElement resources) && resources.ValueKind == JsonValueKind.Array)
+        {
+            foreach (JsonElement res in resources.EnumerateArray())
+            {
+                if (TryGetResourceAddress(res, out _))
+                    continue;
+
+                if (!res.TryGetProperty("type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
+                    continue;
+
+                string tfType = typeEl.GetString() ?? string.Empty;
+
+                if (string.IsNullOrWhiteSpace(tfType))
+                    continue;
+
+                if (!res.TryGetProperty("name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
+                    continue;
+
+                string name = (nameEl.GetString() ?? string.Empty).Trim();
+
+                if (string.IsNullOrWhiteSpace(name))
+                    continue;
+
+                string labelKey = BuildTerraformLabelKey(moduleAddress, tfType, name);
+                counts[labelKey] = counts.GetValueOrDefault(labelKey) + 1;
+            }
+        }
+
+        if (!module.TryGetProperty("child_modules", out JsonElement children) ||
+            children.ValueKind != JsonValueKind.Array)
+            return;
+
+        foreach (JsonElement child in children.EnumerateArray())
+            CountModuleLabelOccurrences(child, ResolveModuleAddress(child), counts);
+    }
+
+    private static string BuildTerraformLabelKey(string moduleAddress, string terraformType, string label)
+    {
+        string canonicalTerraformType = terraformType.Trim().ToLowerInvariant();
+        string canonicalLabel = label.Trim().ToLowerInvariant();
+
+        if (string.IsNullOrWhiteSpace(moduleAddress))
+            return $"{canonicalTerraformType}|{canonicalLabel}";
+
+        return $"{moduleAddress}|{canonicalTerraformType}|{canonicalLabel}";
     }
 
     private static string ResolveModuleAddress(JsonElement module)
@@ -142,7 +209,9 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         JsonElement res,
         string moduleAddress,
         InfrastructureDeclarationReference declaration,
-        List<CanonicalObject> results)
+        List<CanonicalObject> results,
+        IReadOnlyDictionary<string, int> labelTotals,
+        Dictionary<string, int> labelSeen)
     {
         if (!res.TryGetProperty("type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
             return;
@@ -249,6 +318,19 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             canonicalLabel,
             canonicalAddress,
             hasExplicitResourceAddress);
+
+        if (!hasExplicitResourceAddress)
+        {
+            string labelKey = BuildTerraformLabelKey(moduleAddress, canonicalTerraformType, canonicalLabel);
+
+            if (labelTotals.TryGetValue(labelKey, out int total) && total > 1)
+            {
+                int occurrence = labelSeen.GetValueOrDefault(labelKey) + 1;
+                labelSeen[labelKey] = occurrence;
+                resourceIdentity = $"{resourceIdentity}|occurrence:{occurrence}";
+                properties["terraformOccurrence"] = occurrence.ToString(CultureInfo.InvariantCulture);
+            }
+        }
 
         results.Add(new CanonicalObject
         {

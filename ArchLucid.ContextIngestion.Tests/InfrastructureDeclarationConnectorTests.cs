@@ -2191,6 +2191,62 @@ public sealed class InfrastructureDeclarationConnectorTests
     }
 
     [Fact]
+    public async Task DeltaAsync_TerraformShowJsonDuplicateRootLabel_CountsBothResources()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([
+                new TerraformShowJsonInfrastructureDeclarationParser(
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger<TerraformShowJsonInfrastructureDeclarationParser>.Instance),
+            ]),
+            new SetDiffConnectorDeltaComputer());
+
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "state.json",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tfshow-dup-root",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_subnet",
+                                "name": "this",
+                                "mode": "managed",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "address_prefix": "10.0.1.0/24" }
+                              },
+                              {
+                                "type": "azurerm_subnet",
+                                "name": "this",
+                                "mode": "managed",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "address_prefix": "10.0.2.0/24" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        RawContextPayload raw = new()
+        {
+            InfrastructureDeclarations = [declaration],
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        firstBatch.CanonicalObjects.Should().HaveCount(2);
+
+        ContextDelta firstDelta = await connector.DeltaAsync(firstBatch, previous: null, CancellationToken.None);
+
+        firstDelta.AddedCount.Should().Be(2);
+    }
+
+    [Fact]
     public async Task DeltaAsync_JsonSameTypeNameDifferentSubtype_CountsBothResources()
     {
         InfrastructureDeclarationConnector connector = new(
