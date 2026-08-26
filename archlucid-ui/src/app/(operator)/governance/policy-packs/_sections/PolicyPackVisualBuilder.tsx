@@ -31,7 +31,7 @@ import {
 import { presentPolicyPackSimulateToast } from "@/lib/policy/policy-pack-simulate-toast";
 import { buildPolicyPacksHrefWithReviewId } from "@/lib/policy-packs-review-handoff";
 import { showSuccess } from "@/lib/toast";
-import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type PolicyPackVisualBuilderProps = {
   readonly canMutatePacks: boolean;

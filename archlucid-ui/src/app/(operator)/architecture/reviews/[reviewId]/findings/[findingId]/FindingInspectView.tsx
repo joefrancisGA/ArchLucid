@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
@@ -41,6 +42,11 @@ import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import type { StatedConstraintContext } from "@/lib/review-quality/assumption-and-severity";
 import { buildSeverityConstraintNoteForInspectPayload } from "@/lib/review-quality/finding-severity-constraint-note";
 import { classifyInspectPayloadJobView } from "@/lib/findings/finding-inspect-job-view";
+import {
+  resolveFindingInspectCompleteFromPayload,
+  resolveFindingInspectEmphasizedStepId,
+  resolveFindingInspectSteps,
+} from "@/lib/finding-inspect-checklist";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingEvidenceTraceBuyerChrome } from "./FindingEvidenceTraceBuyerChrome";
@@ -180,12 +186,37 @@ export function FindingInspectView({
       ? buildSeverityConstraintNoteForInspectPayload(payload, statedConstraintContext)
       : null;
   const findingJobView = payload !== null ? classifyInspectPayloadJobView(payload) : null;
+  const scopedRunId = runId.trim();
+  const findingInspectSteps = resolveFindingInspectSteps({
+    reviewPicked: scopedRunId.length > 0,
+    evidenceLoaded: payload !== null,
+    inspectComplete: resolveFindingInspectCompleteFromPayload({
+      evidenceCount: payload.evidence.length,
+      decisionRuleId: payload.decisionRuleId,
+      reasoningTrace: payload.reasoningTrace,
+    }),
+  });
+  const findingInspectEmphasizedStepId = resolveFindingInspectEmphasizedStepId({
+    reviewPicked: scopedRunId.length > 0,
+    evidenceLoaded: payload !== null,
+    inspectComplete: resolveFindingInspectCompleteFromPayload({
+      evidenceCount: payload.evidence.length,
+      decisionRuleId: payload.decisionRuleId,
+      reasoningTrace: payload.reasoningTrace,
+    }),
+  });
 
   return (
     <OperatorPageContainer variant="dashboard" className={cn("p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="finding-inspect-view">
       <CanonicalObjectSecondaryViewStrip
         presentation={evidenceTraceSecondaryViewPresentation}
         testId="evidence-trace-secondary-view-strip"
+      />
+      <IntegrationConnectChecklist
+        title="Evidence trace checklist"
+        steps={findingInspectSteps}
+        emphasizedStepId={findingInspectEmphasizedStepId}
+        testIdPrefix="finding-evidence-trace"
       />
       <section
         className="space-y-4"
