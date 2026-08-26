@@ -30,6 +30,8 @@ internal static class ReviewResultCacheSingleFlight
 
         while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             InFlightEntry entry = new()
             {
                 Completion = new TaskCompletionSource<ClosedLoopReasoningResult>(
@@ -45,9 +47,9 @@ internal static class ReviewResultCacheSingleFlight
 
                     return result;
                 }
-                catch (OperationCanceledException operationCanceledException)
+                catch (OperationCanceledException)
                 {
-                    entry.Completion.TrySetCanceled(operationCanceledException.CancellationToken);
+                    entry.Completion.TrySetException(new ReviewCacheSingleFlightLeaderAbortedException());
 
                     throw;
                 }
@@ -66,7 +68,14 @@ internal static class ReviewResultCacheSingleFlight
             if (!InFlight.TryGetValue(key, out InFlightEntry? existing))
                 continue;
 
-            return await existing.Completion.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                return await existing.Completion.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (ReviewCacheSingleFlightLeaderAbortedException)
+            {
+                continue;
+            }
         }
     }
 }
