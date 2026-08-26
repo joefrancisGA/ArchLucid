@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_AUDIT_LOAD_ERROR,
   GOVERNANCE_AUDIT_LOAD_ERROR_RETRY_LABEL,
   GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID,
   GOVERNANCE_AUDIT_SKIP_LINK_LABEL,
 } from "@/lib/governance-audit-page-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   BUYER_CTO_DEMO_AUDIT_DEMO_FILTER_BANNER,
@@ -76,6 +77,8 @@ export function AuditPageView(props: AuditPageViewProps) {
     props.displayEvents.length <= 10;
 
   const buyerCompactFilters = buyerPolishedShell && props.displayEvents.length === 0 && !props.searching;
+  const scopedRunId = props.runId.trim();
+  const auditClearScopeHref = GOVERNANCE_AUDIT_PATH;
   const auditFiltersBeyondRunId =
     props.eventType.trim().length > 0 ||
     props.actorUserId.trim().length > 0 ||
@@ -261,12 +264,29 @@ export function AuditPageView(props: AuditPageViewProps) {
               }}
             />
           ) : (
-            <IntegrationConnectChecklist
-              title="Search checklist"
-              steps={auditSearchSteps}
-              emphasizedStepId={auditSearchEmphasizedStepId}
-              testIdPrefix="audit-search"
-            />
+            <>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="governance-audit-run-scope-banner"
+              >
+                {"Searching audit trail for review "}
+                <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+                {" · "}
+                <Link className={OPERATOR_LINK.inline} href={auditClearScopeHref}>
+                  Clear review scope
+                </Link>
+                {" · "}
+                <Link className={OPERATOR_LINK.inline} href={reviewPackageHref}>
+                  Open review
+                </Link>
+              </p>
+              <IntegrationConnectChecklist
+                title="Search checklist"
+                steps={auditSearchSteps}
+                emphasizedStepId={auditSearchEmphasizedStepId}
+                testIdPrefix="audit-search"
+              />
+            </>
           )}
           <AuditSearchSection
             buyerPolishedShell={buyerPolishedShell}
