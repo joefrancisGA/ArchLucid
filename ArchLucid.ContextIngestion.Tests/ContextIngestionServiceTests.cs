@@ -709,6 +709,107 @@ public sealed class ContextIngestionServiceTests
             .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.Actors]);
     }
 
+    [Fact]
+    public async Task IngestAsync_ActorsJsonEnumCasing_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string actorsLowerEnum = """
+                                        [
+                                          {
+                                            "label": "ops engineer",
+                                            "kind": "human",
+                                            "trustOrigin": "internal",
+                                            "contract": "sync",
+                                            "origin": "asserted",
+                                            "confidence": 100
+                                          }
+                                        ]
+                                        """;
+
+        const string actorsPascalEnum = """
+                                          [
+                                            {
+                                              "label": "ops engineer",
+                                              "kind": "Human",
+                                              "trustOrigin": "Internal",
+                                              "contract": "Sync",
+                                              "origin": "Asserted",
+                                              "confidence": 100
+                                            }
+                                          ]
+                                          """;
+
+        const string projectId = "proj-actors-enum";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            ActorsJson = actorsLowerEnum
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            ActorsJson = actorsPascalEnum
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.Actors);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.Actors]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.Actors]);
+    }
+
+    [Fact]
+    public async Task IngestAsync_InvalidActorsJsonPadding_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string paddedInvalid = "  {not-valid-json  ";
+        const string trimmedInvalid = "{not-valid-json";
+
+        const string projectId = "proj-invalid-actors";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            ActorsJson = paddedInvalid
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            ActorsJson = trimmedInvalid
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.Actors);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.Actors]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.Actors]);
+    }
+
     private sealed class CountingConnector : IContextConnector
     {
         public string ConnectorType => "test-connector";

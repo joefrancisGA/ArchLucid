@@ -800,6 +800,68 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_MissingVsNullTfValues_ProduceSameTfProperties()
+    {
+        const string jsonMissing = """
+                                   {
+                                     "values": {
+                                       "root_module": {
+                                         "resources": [
+                                           {
+                                             "type": "azurerm_linux_web_app",
+                                             "name": "main",
+                                             "values": { "location": "eastus" }
+                                           }
+                                         ]
+                                       }
+                                     }
+                                   }
+                                   """;
+
+        const string jsonExplicitNull = """
+                                        {
+                                          "values": {
+                                            "root_module": {
+                                              "resources": [
+                                                {
+                                                  "type": "azurerm_linux_web_app",
+                                                  "name": "main",
+                                                  "values": {
+                                                    "location": "eastus",
+                                                    "client_affinity_enabled": null
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                        """;
+
+        InfrastructureDeclarationReference declMissing = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-missing",
+            Content = jsonMissing
+        };
+
+        InfrastructureDeclarationReference declNull = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-null",
+            Content = jsonExplicitNull
+        };
+
+        IReadOnlyList<CanonicalObject> missingObjects = await _sut.ParseAsync(declMissing, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> nullObjects = await _sut.ParseAsync(declNull, CancellationToken.None);
+
+        missingObjects.Should().ContainSingle();
+        nullObjects.Should().ContainSingle();
+        nullObjects[0].Properties.Should().BeEquivalentTo(missingObjects[0].Properties);
+    }
+
+    [Fact]
     public void CanParse_TrimsPaddedFormat()
     {
         _sut.CanParse(" terraform-show-json ").Should().BeTrue();
