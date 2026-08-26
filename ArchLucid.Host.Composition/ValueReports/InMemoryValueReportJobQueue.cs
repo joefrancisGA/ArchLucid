@@ -18,7 +18,7 @@ namespace ArchLucid.Host.Composition.ValueReports;
 /// </summary>
 public sealed class InMemoryValueReportJobQueue(
     IServiceScopeFactory scopeFactory,
-    IDistributedCache distributedCache,
+    IValueReportJobPollStateCache pollStateCache,
     ILogger<InMemoryValueReportJobQueue> logger) : IValueReportJobQueue
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
@@ -34,8 +34,8 @@ public sealed class InMemoryValueReportJobQueue(
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
-    private readonly IDistributedCache _distributedCache =
-        distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
+    private readonly IValueReportJobPollStateCache _pollStateCache =
+        pollStateCache ?? throw new ArgumentNullException(nameof(pollStateCache));
 
     private readonly ILogger<InMemoryValueReportJobQueue> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -161,7 +161,7 @@ public sealed class InMemoryValueReportJobQueue(
 
             byte[] payload = JsonSerializer.SerializeToUtf8Bytes(state, SerializerOptions);
 
-            _distributedCache.Set(GetCacheKey(jobId), payload, CacheEntryOptions);
+            _pollStateCache.Set(GetCacheKey(jobId), payload, CacheEntryOptions);
         }
         catch (Exception ex)
         {
@@ -174,7 +174,7 @@ public sealed class InMemoryValueReportJobQueue(
     {
         try
         {
-            byte[]? payload = _distributedCache.Get(GetCacheKey(jobId));
+            byte[]? payload = _pollStateCache.Get(GetCacheKey(jobId));
 
             if (payload is null || payload.Length == 0)
                 return null;

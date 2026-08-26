@@ -104,8 +104,7 @@ internal static class SponsorRoiCompositionRegistrar
             configuration.GetSection(ValueReportComputationOptions.SectionPath));
         services.AddScoped<ValueReportBuilder>();
 
-        if (!services.Any(static d => d.ServiceType == typeof(IDistributedCache)))
-            services.AddDistributedMemoryCache();
+        ValueReportJobPollStateCacheRegistrar.Register(services, configuration);
 
         services.AddSingleton<IValueReportJobQueue, InMemoryValueReportJobQueue>();
     }
