@@ -1601,11 +1601,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — `DeclarationSecurityBaselineClassifier.HasOpenAdminIngressHeuristic` substring-matched port `22` inside `2200`, emitting false admin-ingress findings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1618,6 +1618,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SecurityDeltaRegressionClassifier` treats negated compliant phrases as good status — **hit 2026-08-23:** substring match on `compliant` ranked `Not Compliant` and `Non Compliant` as rank 2, so Compliant→Not Compliant deltas emitted no `SecurityRegression` signal.
 - [x] (proven) `SecurityDeltaRegressionClassifier` substring tokens (`on`, `pass`, `off`) matched inside unrelated words — **hit 2026-08-24:** `Information only` ranked as compliant and `Bypass` as pass, emitting false `SecurityRegression` signals; fixed with whole-token matching.
 - [x] (proven) `NewComplianceGapCount` alert counted security improvements as compliance gaps — **hit 2026-08-25:** `AlertEvaluator` and `AlertMetricSnapshotBuilder` used `SecurityChanges.Count` instead of `SecurityDeltaRegressionClassifier`; fixing controls raised false compliance alerts; regression in `Evaluate_NewComplianceGapCount_SecurityImprovements_NotCounted` and `Build_SecurityImprovements_NotCountedAsComplianceGaps`
+- [x] (proven) `DeclarationSecurityBaselineClassifier.HasOpenAdminIngressHeuristic` substring-matched port tokens — **hit 2026-08-26:** `Contains("22")` flagged `0.0.0.0/0:2200` as SSH admin ingress; fixed with digit-bounded port matching; regression in `Classify_does_not_flag_port_2200_as_admin_ingress`
+- [ ] (hunt-ready) `DeclarationSecurityBaselineClassifier` / `DeclarationPremiseConflictClassifier.TryGetDeclarationProperty` with ARM-canonical `tf.*` keys from ingestion (`tf.publicnetworkaccess`, `tf.httpsonly`) — classifiers only read snake_case Terraform keys, so unsafe ARM-ingested properties are silently skipped.
+- [ ] (hunt-ready) `DeclarationPremiseConflictClassifier.IntentMatchesConflictKind` with negated intent phrases (`"do not disable public"`) — substring phrase list matches inside negated requirements and emits false premise-conflict signals.
+- [ ] (hunt-ready) `DeclarationPremiseConflictFindingEngine.ResolveApplicableIntentNodes` with PROTECTS/APPLIES_TO edge weight just below `GraphEdgeDecisioningThresholds.MinWeightForSemanticLink` — sub-threshold edges are dropped, graph-wide intent fallback downgrades severity from Error to Warning.
+- [ ] (hunt-ready) `PortfolioRecurrenceFindingEngine.ResolveCurrentScopeIdentities` when the current system's persisted findings snapshot is empty on first pass — recurrence scan only reads persisted snapshots, missing cross-system identities during in-flight generation.
 
 ---
 
