@@ -129,8 +129,8 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
             }
 
             return FinalizeCoalescedReviewResult(
-                await ReviewResultCacheSingleFlight.CoalesceAsync(
-                    ReviewCacheKeyBuilder.Build(cacheManifest),
+                await _reviewResultCache.CoalesceAsync(
+                    cacheManifest,
                     ct => CoalesceReviewCacheMissAsync(
                         effectiveRequest,
                         tenantId,

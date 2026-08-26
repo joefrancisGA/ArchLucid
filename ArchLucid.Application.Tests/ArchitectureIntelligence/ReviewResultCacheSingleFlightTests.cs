@@ -10,6 +10,8 @@ public sealed class ReviewResultCacheSingleFlightTests
     [Fact]
     public async Task CoalesceAsync_concurrent_leaders_invoke_work_once()
     {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "flight-hash" };
         int calls = 0;
         TaskCompletionSource startGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -18,8 +20,8 @@ public sealed class ReviewResultCacheSingleFlightTests
             {
                 await startGate.Task;
 
-                return await ReviewResultCacheSingleFlight.CoalesceAsync(
-                    "closed-loop-flight-key",
+                return await cache.CoalesceAsync(
+                    manifest,
                     async ct =>
                     {
                         Interlocked.Increment(ref calls);
@@ -42,6 +44,8 @@ public sealed class ReviewResultCacheSingleFlightTests
     [Fact]
     public async Task CoalesceAsync_leader_cancel_lets_waiters_retry_with_live_token()
     {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "cancel-flight-hash" };
         int calls = 0;
         using CancellationTokenSource leaderToken = new();
         TaskCompletionSource startGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -50,8 +54,8 @@ public sealed class ReviewResultCacheSingleFlightTests
         {
             await startGate.Task;
 
-            return await ReviewResultCacheSingleFlight.CoalesceAsync(
-                "cancel-flight-key",
+            return await cache.CoalesceAsync(
+                manifest,
                 async ct =>
                 {
                     Interlocked.Increment(ref calls);
@@ -67,8 +71,8 @@ public sealed class ReviewResultCacheSingleFlightTests
         {
             await startGate.Task;
 
-            return await ReviewResultCacheSingleFlight.CoalesceAsync(
-                "cancel-flight-key",
+            return await cache.CoalesceAsync(
+                manifest,
                 async ct =>
                 {
                     Interlocked.Increment(ref calls);
