@@ -64,7 +64,21 @@ describe("CollapsibleSection", () => {
     const summary = screen.getByText("Expected finding coverage").closest("summary");
 
     expect(summary).toHaveClass("flex");
+    expect(summary).toHaveTextContent("▸");
     expect(screen.getByRole("heading", { level: 2, name: "Expected finding coverage" })).toHaveClass("inline");
     expect(screen.getByText("Coverage preview")).toHaveClass("basis-full");
+  });
+
+  it("renders a disclosure triangle on the summary row", () => {
+    render(
+      <CollapsibleSection title="Advanced Options">
+        <p>Inner</p>
+      </CollapsibleSection>,
+    );
+
+    const summary = screen.getByText("Advanced Options").closest("summary");
+
+    expect(summary).not.toBeNull();
+    expect(summary).toHaveTextContent("▸");
   });
 });
