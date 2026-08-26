@@ -11,6 +11,12 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
+    private static readonly JsonSerializerOptions TerraformJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+    };
+
     /// <summary>Matches <see cref="ArchLucid.KnowledgeGraph.CanonicalGraphPropertyKeys.ProtectedTopologyNodeIds"/>.</summary>
     private const string ProtectedTopologyNodeIdsKey = "protectedTopologyNodeIds";
 
@@ -25,8 +31,7 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
             if (!IsAppServiceTopology(item))
                 continue;
 
-            if (!item.Properties.TryGetValue("ipSecurityRestrictions", out string? rulesJson)
-                && !item.Properties.TryGetValue("IpSecurityRestrictions", out rulesJson))
+            if (!TryGetIpSecurityRestrictionsJson(item.Properties, out string? rulesJson))
                 continue;
 
             if (string.IsNullOrWhiteSpace(rulesJson))
@@ -36,6 +41,26 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
         }
 
         return expanded;
+    }
+
+    private static bool TryGetIpSecurityRestrictionsJson(
+        IReadOnlyDictionary<string, string> properties,
+        out string? rulesJson)
+    {
+        foreach (string key in properties.Keys)
+        {
+            if (!key.Equals("ipSecurityRestrictions", StringComparison.OrdinalIgnoreCase)
+                && !key.Equals("tf.ip_security_restrictions", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            rulesJson = properties[key];
+
+            if (!string.IsNullOrWhiteSpace(rulesJson))
+                return true;
+        }
+
+        rulesJson = null;
+        return false;
     }
 
     private static bool IsAppServiceTopology(CanonicalObject item)
@@ -67,16 +92,7 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
         CanonicalObject appService,
         string rulesJson)
     {
-        List<AppServiceAccessRule>? rules;
-
-        try
-        {
-            rules = JsonSerializer.Deserialize<List<AppServiceAccessRule>>(rulesJson, JsonOptions);
-        }
-        catch (JsonException)
-        {
-            return;
-        }
+        List<AppServiceAccessRule>? rules = DeserializeAccessRules(rulesJson);
 
         if (rules is null || rules.Count == 0)
             return;
@@ -131,6 +147,23 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
                     ["vnetSubnetResourceId"] = rule.VnetSubnetResourceId ?? string.Empty,
                 },
             });
+        }
+    }
+
+    private static List<AppServiceAccessRule>? DeserializeAccessRules(string rulesJson)
+    {
+        try
+        {
+            List<AppServiceAccessRule>? rules = JsonSerializer.Deserialize<List<AppServiceAccessRule>>(rulesJson, JsonOptions);
+
+            if (rules is not null && rules.Exists(static rule => !string.IsNullOrWhiteSpace(rule.IpAddress)))
+                return rules;
+
+            return JsonSerializer.Deserialize<List<AppServiceAccessRule>>(rulesJson, TerraformJsonOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
         }
     }
 

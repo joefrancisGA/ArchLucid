@@ -47,15 +47,21 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
 
             string objectType = ResolveObjectType(resource.Type);
 
-            Dictionary<string, string> properties = new(
-                resource.Properties,
-                StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (KeyValuePair<string, string> property in resource.Properties)
+            {
+                if (string.IsNullOrWhiteSpace(property.Value))
+                    continue;
+
+                properties[property.Key] = property.Value.Trim().ToLowerInvariant();
+            }
 
             if (!string.IsNullOrWhiteSpace(resource.Subtype))
-                properties["subtype"] = resource.Subtype!;
+                properties["subtype"] = resource.Subtype!.Trim().ToLowerInvariant();
 
             if (!string.IsNullOrWhiteSpace(resource.Region))
-                properties["region"] = resource.Region!;
+                properties["region"] = resource.Region!.Trim().ToLowerInvariant();
 
             properties["resourceType"] = resource.Type.Trim().ToLowerInvariant();
 

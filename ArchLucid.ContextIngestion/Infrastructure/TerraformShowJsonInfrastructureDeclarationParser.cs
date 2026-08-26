@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using System.Text.Json;
 
 using ArchLucid.ContextIngestion.Models;
@@ -116,7 +118,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             string? p = prov.GetString();
 
             if (!string.IsNullOrWhiteSpace(p))
-                properties["providerName"] = p;
+                properties["providerName"] = p.ToLowerInvariant();
         }
 
         if (res.TryGetProperty("mode", out JsonElement mode) && mode.ValueKind == JsonValueKind.String)
@@ -124,7 +126,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             string? m = mode.GetString();
 
             if (!string.IsNullOrWhiteSpace(m))
-                properties["mode"] = m;
+                properties["mode"] = m.ToLowerInvariant();
         }
 
         if (res.TryGetProperty("values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
@@ -139,15 +141,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                string valueText = prop.Value.ValueKind switch
-                {
-                    JsonValueKind.String => prop.Value.GetString() ?? string.Empty,
-                    JsonValueKind.Number => prop.Value.GetRawText(),
-                    JsonValueKind.True => "true",
-                    JsonValueKind.False => "false",
-                    JsonValueKind.Null => string.Empty,
-                    _ => prop.Value.GetRawText()
-                };
+                string valueText = CanonicalizeTerraformValueText(prop.Value);
 
                 if (string.IsNullOrWhiteSpace(valueText))
                     continue;
@@ -171,7 +165,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 string? r = dep.GetString();
 
                 if (!string.IsNullOrWhiteSpace(r))
-                    refs.Add(r.Trim());
+                    refs.Add(r.Trim().ToLowerInvariant());
             }
 
             if (refs.Count > 0)
@@ -210,6 +204,101 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         }
 
         return new string(buffer[..w]);
+    }
+
+    private static string CanonicalizeTerraformValueText(JsonElement value)
+    {
+        return value.ValueKind switch
+        {
+            JsonValueKind.String => (value.GetString() ?? string.Empty).Trim().ToLowerInvariant(),
+            JsonValueKind.Number => CanonicalizeTerraformNumberText(value),
+            JsonValueKind.True => "true",
+            JsonValueKind.False => "false",
+            JsonValueKind.Null => string.Empty,
+            JsonValueKind.Object => SerializeCanonicalJson(value),
+            JsonValueKind.Array => SerializeCanonicalJson(value),
+            _ => value.GetRawText()
+        };
+    }
+
+    private static string SerializeCanonicalJson(JsonElement value)
+    {
+        using MemoryStream stream = new();
+        using Utf8JsonWriter writer = new(stream);
+        WriteCanonicalJsonValue(writer, value);
+        writer.Flush();
+
+        return Encoding.UTF8.GetString(stream.ToArray());
+    }
+
+    private static void WriteCanonicalJsonValue(Utf8JsonWriter writer, JsonElement value)
+    {
+        switch (value.ValueKind)
+        {
+            case JsonValueKind.String:
+                writer.WriteStringValue((value.GetString() ?? string.Empty).Trim().ToLowerInvariant());
+                break;
+
+            case JsonValueKind.Number:
+                writer.WriteRawValue(CanonicalizeTerraformNumberText(value));
+                break;
+
+            case JsonValueKind.True:
+                writer.WriteBooleanValue(true);
+                break;
+
+            case JsonValueKind.False:
+                writer.WriteBooleanValue(false);
+                break;
+
+            case JsonValueKind.Null:
+                writer.WriteNullValue();
+                break;
+
+            case JsonValueKind.Object:
+                writer.WriteStartObject();
+
+                foreach (JsonProperty property in value.EnumerateObject()
+                             .OrderBy(static property => property.Name, StringComparer.OrdinalIgnoreCase))
+                {
+                    writer.WritePropertyName(property.Name.ToLowerInvariant());
+                    WriteCanonicalJsonValue(writer, property.Value);
+                }
+
+                writer.WriteEndObject();
+                break;
+
+            case JsonValueKind.Array:
+                writer.WriteStartArray();
+
+                foreach (JsonElement item in value.EnumerateArray())
+                    WriteCanonicalJsonValue(writer, item);
+
+                writer.WriteEndArray();
+                break;
+
+            default:
+                writer.WriteRawValue(value.GetRawText());
+                break;
+        }
+    }
+
+    private static string CanonicalizeTerraformNumberText(JsonElement value)
+    {
+        if (value.TryGetDecimal(out decimal decimalValue))
+        {
+            decimal truncated = decimal.Truncate(decimalValue);
+
+            if (decimalValue == truncated)
+                return truncated.ToString(CultureInfo.InvariantCulture);
+
+            return decimalValue.ToString(CultureInfo.InvariantCulture);
+        }
+
+        if (value.TryGetInt64(out long intValue))
+            return intValue.ToString(CultureInfo.InvariantCulture);
+
+        return value.GetRawText();
     }
 
     private static void RedactTopLevelSensitiveTfValues(

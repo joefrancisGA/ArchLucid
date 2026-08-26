@@ -1,8 +1,11 @@
 using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Topology;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Persistence.Context;
+using System.Text.Json;
 
 namespace ArchLucid.ContextIngestion.Services;
 
@@ -16,6 +19,10 @@ public class ContextIngestionService(
     ICanonicalDeduplicator deduplicator,
     IContextSnapshotRepository snapshotRepository) : IContextIngestionService
 {
+    private static readonly JsonSerializerOptions ActorJsonDeserializeOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+    };
     public async Task<ContextSnapshot> IngestAsync(
         ContextIngestionRequest request,
         CancellationToken ct)
@@ -56,37 +63,46 @@ public class ContextIngestionService(
         if (request.RequiredCapabilities is { Count: > 0 })
         {
             snapshot.SourceHashes[ContextScopeMetadataKeys.RequiredCapabilities] =
-                string.Join('|', request.RequiredCapabilities.Where(static c => !string.IsNullOrWhiteSpace(c)));
+                string.Join('|', request.RequiredCapabilities
+                    .Where(static c => !string.IsNullOrWhiteSpace(c))
+                    .Select(static c => c.Trim().ToLowerInvariant()));
         }
 
         if (request.TopologyHints is { Count: > 0 })
         {
             snapshot.SourceHashes[ContextScopeMetadataKeys.TopologyHints] =
-                string.Join('|', request.TopologyHints.Where(static h => !string.IsNullOrWhiteSpace(h)));
+                string.Join('|', request.TopologyHints
+                    .Where(static h => !string.IsNullOrWhiteSpace(h))
+                    .Select(static h =>
+                        TopologyHintStableObjectIds.CanonicalizeHintName(h.Trim()).ToLowerInvariant()));
         }
 
         if (request.Constraints is { Count: > 0 })
         {
             snapshot.SourceHashes[ContextScopeMetadataKeys.Constraints] =
-                string.Join('|', request.Constraints.Where(static c => !string.IsNullOrWhiteSpace(c)));
+                string.Join('|', request.Constraints
+                    .Where(static c => !string.IsNullOrWhiteSpace(c))
+                    .Select(static c => c.Trim().ToLowerInvariant()));
         }
 
         List<string> confirmedAssumptions = request.Assumptions
             .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
-            .Select(static a => a.Trim())
+            .Select(static a => a.Trim().ToLowerInvariant())
             .ToList();
 
         if (confirmedAssumptions.Count > 0)
             snapshot.SourceHashes[ContextScopeMetadataKeys.Assumptions] = string.Join('|', confirmedAssumptions);
 
         if (!string.IsNullOrWhiteSpace(request.ActorsJson))
-            snapshot.SourceHashes[ContextScopeMetadataKeys.Actors] = request.ActorsJson;
+            snapshot.SourceHashes[ContextScopeMetadataKeys.Actors] = CanonicalizeActorsJson(request.ActorsJson);
 
         if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(request.QualityAttribute))
-            snapshot.SourceHashes[ContextScopeMetadataKeys.QualityAttribute] = request.QualityAttribute!.Trim();
+            snapshot.SourceHashes[ContextScopeMetadataKeys.QualityAttribute] =
+                request.QualityAttribute!.Trim().ToLowerInvariant();
 
         if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(request.FailureModeNote))
-            snapshot.SourceHashes[ContextScopeMetadataKeys.FailureModeNote] = request.FailureModeNote!.Trim();
+            snapshot.SourceHashes[ContextScopeMetadataKeys.FailureModeNote] =
+                request.FailureModeNote!.Trim().ToLowerInvariant();
 
         if (previous is null)
             return;
@@ -95,7 +111,7 @@ public class ContextIngestionService(
             .Where(static o => string.Equals(o.ObjectType, "TopologyResource", StringComparison.OrdinalIgnoreCase))
             .Select(static o =>
                 o.Properties.TryGetValue("category", out string? category) && !string.IsNullOrWhiteSpace(category)
-                    ? category
+                    ? category.Trim().ToLowerInvariant()
                     : "general")
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(static c => c, StringComparer.OrdinalIgnoreCase)
@@ -106,7 +122,7 @@ public class ContextIngestionService(
 
         List<string> priorRequirementNames = previous.CanonicalObjects
             .Where(static o => string.Equals(o.ObjectType, "Requirement", StringComparison.OrdinalIgnoreCase))
-            .Select(static o => o.Name)
+            .Select(static o => o.Name.Trim().ToLowerInvariant())
             .Where(static name => !string.IsNullOrWhiteSpace(name))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(static name => name, StringComparer.OrdinalIgnoreCase)
@@ -116,5 +132,33 @@ public class ContextIngestionService(
             return;
 
         snapshot.SourceHashes[ContextScopeMetadataKeys.PriorRequirementNames] = string.Join('|', priorRequirementNames);
+    }
+
+    private static string CanonicalizeActorsJson(string actorsJson)
+    {
+        try
+        {
+            List<ActorDescriptor>? actors = JsonSerializer.Deserialize<List<ActorDescriptor>>(
+                actorsJson,
+                ActorJsonDeserializeOptions);
+
+            if (actors is not { Count: > 0 })
+                return actorsJson.Trim();
+
+            List<ActorDescriptor> orderedActors = actors
+                .OrderBy(static actor => actor.Label ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(static actor => actor.Kind)
+                .ThenBy(static actor => actor.TrustOrigin)
+                .ThenBy(static actor => actor.Contract)
+                .ThenBy(static actor => actor.Origin)
+                .ThenBy(static actor => actor.Confidence)
+                .ToList();
+
+            return JsonSerializer.Serialize(orderedActors);
+        }
+        catch (JsonException)
+        {
+            return actorsJson.Trim();
+        }
     }
 }

@@ -308,6 +308,38 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_CanonicalizesDependsOnReferenceCasing()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-dep",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_storage_account",
+                                "name": "st",
+                                "values": { "name": "s" },
+                                "depends_on": ["azurerm_Resource_Group.Main"]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["terraformDependsOn"].Should().Be("azurerm_resource_group.main");
+    }
+
+    [Fact]
     public async Task ParseAsync_redacts_top_level_sensitive_tf_values()
     {
         InfrastructureDeclarationReference decl = new()
@@ -501,6 +533,332 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
 
         objects.Should().ContainSingle();
         objects[0].Properties["terraformType"].Should().Be("azurerm_virtual_network");
+    }
+
+    [Fact]
+    public async Task ParseAsync_ModeAndProviderNameCasing_AreCanonicalized()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-meta",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_resource_group",
+                                "name": "main",
+                                "provider_name": "Registry.Terraform.IO/HashiCorp/Azurerm",
+                                "mode": "Managed",
+                                "values": {}
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["providerName"].Should().Be("registry.terraform.io/hashicorp/azurerm");
+        objects[0].Properties["mode"].Should().Be("managed");
+    }
+
+    [Fact]
+    public async Task ParseAsync_TfStringValues_AreCanonicalized()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-tf",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_resource_group",
+                                "name": "main",
+                                "values": { "location": "EastUS" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["tf.location"].Should().Be("eastus");
+    }
+
+    [Fact]
+    public async Task ParseAsync_CanonicalizesComplexTfJsonCasing()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-tags",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_resource_group",
+                                "name": "main",
+                                "values": {
+                                  "tags": { "Environment": "Prod" }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["tf.tags"].Should().Be("{\"environment\":\"prod\"}");
+    }
+
+    [Fact]
+    public async Task ParseAsync_CanonicalizesEquivalentTfNumericFormats()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-capacity",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_service_plan",
+                                "name": "main",
+                                "values": { "worker_count": 1 }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["tf.worker_count"].Should().Be("1");
+    }
+
+    [Fact]
+    public async Task ParseAsync_EquivalentNumericRepresentations_ProduceSameTfProperties()
+    {
+        const string jsonInt = """
+                               {
+                                 "values": {
+                                   "root_module": {
+                                     "resources": [
+                                       {
+                                         "type": "azurerm_service_plan",
+                                         "name": "main",
+                                         "values": { "worker_count": 1 }
+                                       }
+                                     ]
+                                   }
+                                 }
+                               }
+                               """;
+
+        string jsonDecimal = jsonInt.Replace("\"worker_count\": 1", "\"worker_count\": 1.0");
+
+        InfrastructureDeclarationReference declInt = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-int",
+            Content = jsonInt
+        };
+
+        InfrastructureDeclarationReference declDecimal = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-decimal",
+            Content = jsonDecimal
+        };
+
+        IReadOnlyList<CanonicalObject> intObjects = await _sut.ParseAsync(declInt, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> decimalObjects = await _sut.ParseAsync(declDecimal, CancellationToken.None);
+
+        intObjects.Should().ContainSingle();
+        decimalObjects.Should().ContainSingle();
+        decimalObjects[0].Properties.Should().BeEquivalentTo(intObjects[0].Properties);
+    }
+
+    [Fact]
+    public async Task ParseAsync_EquivalentScientificNotation_ProduceSameTfProperties()
+    {
+        const string jsonInt = """
+                               {
+                                 "values": {
+                                   "root_module": {
+                                     "resources": [
+                                       {
+                                         "type": "azurerm_service_plan",
+                                         "name": "main",
+                                         "values": { "worker_count": 1 }
+                                       }
+                                     ]
+                                   }
+                                 }
+                               }
+                               """;
+
+        string jsonScientific = jsonInt.Replace("\"worker_count\": 1", "\"worker_count\": 1e0");
+
+        InfrastructureDeclarationReference declInt = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-int",
+            Content = jsonInt
+        };
+
+        InfrastructureDeclarationReference declScientific = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-sci",
+            Content = jsonScientific
+        };
+
+        IReadOnlyList<CanonicalObject> intObjects = await _sut.ParseAsync(declInt, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> scientificObjects = await _sut.ParseAsync(declScientific, CancellationToken.None);
+
+        intObjects.Should().ContainSingle();
+        scientificObjects.Should().ContainSingle();
+        scientificObjects[0].Properties.Should().BeEquivalentTo(intObjects[0].Properties);
+    }
+
+    [Fact]
+    public async Task ParseAsync_EquivalentBooleanRepresentations_ProduceSameTfProperties()
+    {
+        const string jsonBoolean = """
+                                   {
+                                     "values": {
+                                       "root_module": {
+                                         "resources": [
+                                           {
+                                             "type": "azurerm_linux_web_app",
+                                             "name": "main",
+                                             "values": { "https_only": true }
+                                           }
+                                         ]
+                                       }
+                                     }
+                                   }
+                                   """;
+
+        string jsonString = jsonBoolean.Replace("\"https_only\": true", "\"https_only\": \"true\"");
+
+        InfrastructureDeclarationReference declBoolean = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-bool",
+            Content = jsonBoolean
+        };
+
+        InfrastructureDeclarationReference declString = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-str",
+            Content = jsonString
+        };
+
+        IReadOnlyList<CanonicalObject> booleanObjects = await _sut.ParseAsync(declBoolean, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> stringObjects = await _sut.ParseAsync(declString, CancellationToken.None);
+
+        booleanObjects.Should().ContainSingle();
+        stringObjects.Should().ContainSingle();
+        stringObjects[0].Properties.Should().BeEquivalentTo(booleanObjects[0].Properties);
+    }
+
+    [Fact]
+    public async Task ParseAsync_MissingVsNullTfValues_ProduceSameTfProperties()
+    {
+        const string jsonMissing = """
+                                   {
+                                     "values": {
+                                       "root_module": {
+                                         "resources": [
+                                           {
+                                             "type": "azurerm_linux_web_app",
+                                             "name": "main",
+                                             "values": { "location": "eastus" }
+                                           }
+                                         ]
+                                       }
+                                     }
+                                   }
+                                   """;
+
+        const string jsonExplicitNull = """
+                                        {
+                                          "values": {
+                                            "root_module": {
+                                              "resources": [
+                                                {
+                                                  "type": "azurerm_linux_web_app",
+                                                  "name": "main",
+                                                  "values": {
+                                                    "location": "eastus",
+                                                    "client_affinity_enabled": null
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                        """;
+
+        InfrastructureDeclarationReference declMissing = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-missing",
+            Content = jsonMissing
+        };
+
+        InfrastructureDeclarationReference declNull = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-null",
+            Content = jsonExplicitNull
+        };
+
+        IReadOnlyList<CanonicalObject> missingObjects = await _sut.ParseAsync(declMissing, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> nullObjects = await _sut.ParseAsync(declNull, CancellationToken.None);
+
+        missingObjects.Should().ContainSingle();
+        nullObjects.Should().ContainSingle();
+        nullObjects[0].Properties.Should().BeEquivalentTo(missingObjects[0].Properties);
     }
 
     [Fact]
