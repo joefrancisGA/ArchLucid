@@ -5,7 +5,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftStructuredBriefFields } from "@/components/architecture/ArchitectureDraftStructuredBriefFields";
 import { architectureCreationDefaultActorSet } from "@/lib/architecture/architecture-creation-init";
-import { draftArchitectureRequestWithPoll } from "@/lib/api/architecture-request-draft-async-api";
+import { draftArchitectureRequestWithPoll, resumeDraftArchitectureRequestWithPoll } from "@/lib/api/architecture-request-draft-async-api";
 import { explainStructuredBriefSuggestion } from "@/lib/api/structured-brief-suggestion-explain-api";
 import { ApiRequestError } from "@/lib/api-request-error";
 import { clearStructuredBriefSuggestionExplainCache } from "@/lib/architecture/structured-brief-suggestion-explain-cache";
@@ -14,7 +14,9 @@ import {
   emptyArchitectureDraftStructuredBrief,
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
-import { GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_SECTION, GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY } from "@/lib/guided-intake-copy";
+import { GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_SECTION, GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY, GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_IN_PROGRESS_HINT, GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_VIEW_IN_PROGRESS_BUTTON } from "@/lib/guided-intake-copy";
+import { trackAdvisoryDraftInFlight } from "@/lib/operations/advisory-draft-in-flight";
+import { resetInFlightOperationsForTests } from "@/lib/operations/in-flight-operations-store";
 
 vi.mock("@/lib/api/architecture-request-draft-api", () => ({
   ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS: 20,
@@ -23,6 +25,7 @@ vi.mock("@/lib/api/architecture-request-draft-api", () => ({
 
 vi.mock("@/lib/api/architecture-request-draft-async-api", () => ({
   draftArchitectureRequestWithPoll: vi.fn(),
+  resumeDraftArchitectureRequestWithPoll: vi.fn(),
 }));
 
 vi.mock("@/lib/api/structured-brief-suggestion-explain-api", () => ({
@@ -31,6 +34,7 @@ vi.mock("@/lib/api/structured-brief-suggestion-explain-api", () => ({
 }));
 
 const mockedDraftArchitectureRequestWithPoll = vi.mocked(draftArchitectureRequestWithPoll);
+const mockedResumeDraftArchitectureRequestWithPoll = vi.mocked(resumeDraftArchitectureRequestWithPoll);
 const mockedExplainStructuredBriefSuggestion = vi.mocked(explainStructuredBriefSuggestion);
 
 const draftSuggestPollOptionsMatcher = expect.objectContaining({
@@ -84,6 +88,7 @@ function mockDraftSuggestResponse(response: {
 function StructuredBriefHarness(props: {
   readonly initialBrief?: ArchitectureDraftStructuredBriefState;
   readonly freeTextIntent: string;
+  readonly architectureId?: string;
   readonly blocksLlmExecution?: boolean;
   readonly disabled?: boolean;
 }): React.JSX.Element {
@@ -95,6 +100,7 @@ function StructuredBriefHarness(props: {
     <ArchitectureDraftStructuredBriefFields
       structuredBrief={structuredBrief}
       freeTextIntent={props.freeTextIntent}
+      architectureId={props.architectureId}
       blocksLlmExecution={props.blocksLlmExecution}
       disabled={props.disabled}
       onStructuredBriefChange={setStructuredBrief}
@@ -107,6 +113,9 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     clearStructuredBriefSuggestionExplainCache();
     mockedExplainStructuredBriefSuggestion.mockReset();
     mockedDraftArchitectureRequestWithPoll.mockReset();
+    mockedResumeDraftArchitectureRequestWithPoll.mockReset();
+    resetInFlightOperationsForTests();
+    window.sessionStorage.clear();
   });
 
   it("shows suggested items after a successful suggest call", async () => {
@@ -626,5 +635,73 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     await waitFor(() => {
       expect(screen.getByText("Monthly AI budget exhausted.")).toBeInTheDocument();
     });
+  });
+
+  it("points queued suggest work at the header In progress list", async () => {
+    let resolvePoll: (value: Awaited<ReturnType<typeof draftArchitectureRequestWithPoll>>) => void =
+      () => undefined;
+
+    mockedDraftArchitectureRequestWithPoll.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolvePoll = resolve;
+        }),
+    );
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    expect(
+      await screen.findByTestId("architecture-draft-suggest-structured-brief-in-progress-hint"),
+    ).toHaveTextContent(GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_IN_PROGRESS_HINT);
+    expect(screen.getByTestId("architecture-draft-suggest-structured-brief-view-in-progress")).toHaveTextContent(
+      GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_VIEW_IN_PROGRESS_BUTTON,
+    );
+
+    await act(async () => {
+      resolvePoll({
+        response: {
+          suggestedConstraints: [],
+          suggestedAssumptions: [],
+          suggestedCapabilities: [],
+          topologyHints: [],
+          securityBaselineHints: [],
+        },
+        operation: succeededDraftSuggestOperation,
+      });
+    });
+  });
+
+  it("resumes a queued suggest operation when returning to the draft", async () => {
+    trackAdvisoryDraftInFlight({
+      operationId: succeededDraftSuggestOperation.operationId,
+      architectureId: "arch-001",
+    });
+    mockedResumeDraftArchitectureRequestWithPoll.mockResolvedValue({
+      response: {
+        suggestedConstraints: ["EU data residency"],
+        suggestedAssumptions: [],
+        suggestedCapabilities: [],
+        topologyHints: [],
+        securityBaselineHints: [],
+      },
+      operation: succeededDraftSuggestOperation,
+    });
+
+    render(
+      <StructuredBriefHarness
+        architectureId="arch-001"
+        freeTextIntent={"Tenant migration platform with private networking and EU residency goals."}
+      />,
+    );
+
+    expect(await screen.findByText("EU data residency")).toBeInTheDocument();
+    expect(mockedResumeDraftArchitectureRequestWithPoll).toHaveBeenCalledWith(
+      succeededDraftSuggestOperation.operationId,
+      expect.objectContaining({ architectureId: "arch-001" }),
+    );
   });
 });

@@ -8,6 +8,7 @@ import {
   BUYER_VOCABULARY_LEAKAGE_SURFACES,
   INTERNAL_CONCEPT_LEAKAGE_SURFACES,
 } from "@/lib/internal-concept-leakage-surfaces";
+import { ADVISORY_DRAFT_IN_FLIGHT_SURFACES } from "@/lib/operations/advisory-draft-in-flight-inventory";
 import { REVIEW_PIPELINE_IN_FLIGHT_SURFACES } from "@/lib/operations/review-pipeline-in-flight-inventory";
 import { SECTION_LOAD_FAILURE_RECOVERY_SURFACES } from "@/lib/section-load-failure-recovery-inventory";
 import { OPERATOR_INLINE_LINK_AFFORDANCE_BASELINE } from "@/lib/operator/operator-inline-link-affordance-baseline";
@@ -110,6 +111,12 @@ export const GUARDED_PATH_INVENTORIES: readonly InventoryPathSource[] = [
     module: "lib/operations/review-pipeline-in-flight-inventory.ts",
     base: "src",
     paths: sourceRootPaths(REVIEW_PIPELINE_IN_FLIGHT_SURFACES),
+  },
+  {
+    id: "ADVISORY_DRAFT_IN_FLIGHT_SURFACES",
+    module: "lib/operations/advisory-draft-in-flight-inventory.ts",
+    base: "src",
+    paths: sourceRootPaths(ADVISORY_DRAFT_IN_FLIGHT_SURFACES),
   },
   {
     id: "DURABLE_ACTION_OUTCOME_GUARDED_SURFACES",

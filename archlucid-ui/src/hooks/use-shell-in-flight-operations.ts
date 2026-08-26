@@ -14,6 +14,7 @@ import {
   subscribeInFlightOperations,
   type TrackedInFlightOperation,
 } from "@/lib/operations/in-flight-operations-store";
+import { advisoryDraftDetailHref } from "@/lib/operations/advisory-draft-in-flight";
 import { resolveOperationDetailHref } from "@/lib/operations/operation-location";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { markReviewPipelineCompletionNotified } from "@/lib/review-pipeline-completion-notify-dedupe";
@@ -31,6 +32,14 @@ function pathnameMatchesOperation(pathname: string, operation: TrackedInFlightOp
     const runSegment = `/architecture/reviews/${encodeURIComponent(operation.runId)}`;
 
     if (pathname === runSegment || pathname.startsWith(`${runSegment}/`)) {
+      return true;
+    }
+  }
+
+  if (operation.architectureId !== null) {
+    const draftHref = advisoryDraftDetailHref(operation.architectureId);
+
+    if (pathname === draftHref || pathname.startsWith(`${draftHref}/`)) {
       return true;
     }
   }
@@ -185,6 +194,11 @@ export function useShellInFlightOperations(): readonly TrackedInFlightOperation[
                 href,
               };
             notifyTerminalIfElsewhere(pathnameRef.current, latest);
+
+            // Keep succeeded Suggest from overview rows until the draft applies the result.
+            if (detail.state === "Succeeded" && latest.retainUntilConsumed) {
+              continue;
+            }
 
             window.setTimeout(() => {
               removeInFlightOperation(operationId);

@@ -15,6 +15,13 @@ export type TrackedInFlightOperation = {
   readonly stepLabel: string;
   readonly state: OperationState;
   readonly runId: string | null;
+  /** Architecture draft id for Suggest from overview rows (`new` until deferred create). */
+  readonly architectureId: string | null;
+  /**
+   * When true, the shell keeps a terminal Succeeded row until the draft page applies the result.
+   * Leaving the page would otherwise drop the only handle to suggestions the server already finished.
+   */
+  readonly retainUntilConsumed: boolean;
   /** Prevents duplicate terminal toasts when pollers remount. */
   readonly terminalToastShown: boolean;
 };
@@ -90,6 +97,8 @@ export type TrackInFlightOperationInput = {
   readonly stepLabel?: string;
   readonly state?: OperationState;
   readonly runId?: string | null;
+  readonly architectureId?: string | null;
+  readonly retainUntilConsumed?: boolean;
   readonly startedAtMs?: number;
 };
 
@@ -102,6 +111,7 @@ export function trackInFlightOperation(input: TrackInFlightOperationInput): void
   }
 
   const existingIndex = tracked.findIndex((row) => row.operationId === operationId);
+  const existing = existingIndex >= 0 ? tracked[existingIndex] : undefined;
   const next: TrackedInFlightOperation = {
     operationId,
     title: input.title,
@@ -110,7 +120,9 @@ export function trackInFlightOperation(input: TrackInFlightOperationInput): void
     stepLabel: input.stepLabel ?? "Queued",
     state: input.state ?? "Pending",
     runId: input.runId ?? null,
-    terminalToastShown: existingIndex >= 0 ? tracked[existingIndex]!.terminalToastShown : false,
+    architectureId: input.architectureId ?? existing?.architectureId ?? null,
+    retainUntilConsumed: input.retainUntilConsumed ?? existing?.retainUntilConsumed ?? false,
+    terminalToastShown: existing?.terminalToastShown ?? false,
   };
 
   if (existingIndex >= 0) {
@@ -136,6 +148,8 @@ export type PatchInFlightOperationInput = {
   readonly state?: OperationState;
   readonly runId?: string | null;
   readonly href?: string;
+  readonly architectureId?: string | null;
+  readonly retainUntilConsumed?: boolean;
   readonly terminalToastShown?: boolean;
 };
 
@@ -158,6 +172,9 @@ export function patchInFlightOperation(
       state: patch.state ?? previous.state,
       runId: patch.runId !== undefined ? patch.runId : previous.runId,
       href: patch.href ?? previous.href,
+      architectureId:
+        patch.architectureId !== undefined ? patch.architectureId : previous.architectureId,
+      retainUntilConsumed: patch.retainUntilConsumed ?? previous.retainUntilConsumed,
       terminalToastShown: patch.terminalToastShown ?? previous.terminalToastShown,
     },
     ...tracked.slice(index + 1),

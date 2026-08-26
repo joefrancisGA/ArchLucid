@@ -80,6 +80,16 @@ describe("in-flight-operations-store", () => {
     expect(getInFlightOperations()[0]?.stepLabel).toBe("Agents running");
     expect(getInFlightOperations()[0]?.state).toBe("Running");
 
+    trackInFlightOperation({
+      operationId: "run:1",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/1",
+      retainUntilConsumed: true,
+    });
+
+    expect(getInFlightOperations()[0]?.retainUntilConsumed).toBe(true);
+    expect(getInFlightOperations()[0]?.architectureId).toBeNull();
+
     removeInFlightOperation("run:1");
     expect(getInFlightOperations()).toHaveLength(0);
   });

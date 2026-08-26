@@ -1,6 +1,7 @@
 import { apiGet, apiPostAcceptedWithLocation } from "@/lib/api/http";
 import { getOperation } from "@/lib/api/operations-api";
 import { ApiRequestError } from "@/lib/api-request-error";
+import { trackAdvisoryDraftInFlight } from "@/lib/operations/advisory-draft-in-flight";
 import { parseOperationIdFromLocation } from "@/lib/operations/operation-location";
 import {
   isTerminalOperationState,
@@ -92,6 +93,8 @@ export type PollAdvisoryDraftOperationOptions = {
   readonly signal?: AbortSignal;
   readonly onUpdate?: (operation: OperationDetail) => void;
   readonly pollIntervalMs?: number;
+  /** Draft being edited — used to deep-link In progress rows back to this architecture. */
+  readonly architectureId?: string;
 };
 
 /** Polls GET /v1/operations/{id} until the advisory draft operation reaches a terminal state. */
@@ -122,16 +125,15 @@ function buildDraftSuggestFailureMessage(operation: OperationDetail): string {
 }
 
 /**
- * Tier C structured-brief suggest: accept immediately, poll with named stages, then fetch result.
+ * Polls an already-accepted Suggest from overview operation, then fetches the suggestion result.
  */
-export async function draftArchitectureRequestWithPoll(
-  input: DraftArchitectureRequestInput,
+export async function resumeDraftArchitectureRequestWithPoll(
+  operationId: string,
   options?: PollAdvisoryDraftOperationOptions,
 ): Promise<{
   readonly response: DraftArchitectureRequestResponse;
   readonly operation: OperationDetail;
 }> {
-  const operationId = await acceptDraftArchitectureRequestAsync(input);
   const terminalOperation = await pollAdvisoryDraftOperationUntilTerminal(operationId, options);
 
   if (terminalOperation.state !== "Succeeded") {
@@ -145,4 +147,23 @@ export async function draftArchitectureRequestWithPoll(
   const response = await getDraftArchitectureRequestAsyncResult(operationId);
 
   return { response, operation: terminalOperation };
+}
+
+/**
+ * Tier C structured-brief suggest: accept immediately, poll with named stages, then fetch result.
+ */
+export async function draftArchitectureRequestWithPoll(
+  input: DraftArchitectureRequestInput,
+  options?: PollAdvisoryDraftOperationOptions,
+): Promise<{
+  readonly response: DraftArchitectureRequestResponse;
+  readonly operation: OperationDetail;
+}> {
+  const operationId = await acceptDraftArchitectureRequestAsync(input);
+  trackAdvisoryDraftInFlight({
+    operationId,
+    architectureId: options?.architectureId,
+  });
+
+  return resumeDraftArchitectureRequestWithPoll(operationId, options);
 }

@@ -69,6 +69,8 @@ function parsePersistedRow(raw: unknown, nowMs: number): TrackedInFlightOperatio
     stepLabel: readOptionalString(raw.stepLabel) ?? "Queued",
     state: normalizeOperationState(raw.state),
     runId: readOptionalString(raw.runId),
+    architectureId: readOptionalString(raw.architectureId),
+    retainUntilConsumed: raw.retainUntilConsumed === true,
     terminalToastShown: raw.terminalToastShown === true,
   };
 }

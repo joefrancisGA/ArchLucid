@@ -123,6 +123,11 @@ export const GUIDED_INTAKE_EXPLAIN_SUGGESTION_RETRY_BUTTON = "Retry";
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY =
   "No new suggestions were returned. Add constraints and assumptions manually, or refine the architecture overview and try again.";
 
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_IN_PROGRESS_HINT =
+  "This request is listed under In progress in the header. You can leave this page — work already accepted on the server is not canceled.";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_VIEW_IN_PROGRESS_BUTTON = "View in-progress list";
+
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT =
   'This draft is locked while a linked review is open. Choose "Edit draft anyway" above to suggest structured brief items.';
 

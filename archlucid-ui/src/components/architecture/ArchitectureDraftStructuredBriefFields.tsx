@@ -40,9 +40,12 @@ import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_IN_PROGRESS_HINT,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_VIEW_IN_PROGRESS_BUTTON,
   guidedIntakeStructuredBriefSuggestDisabledHint,
   guidedIntakeStructuredBriefSuggestSuccess,
 } from "@/lib/guided-intake-copy";
+import { requestOpenShellInFlightOperations } from "@/lib/operations/open-shell-in-flight-event";
 import { cn } from "@/lib/utils";
 
 type ArchitectureDraftStructuredBriefFieldsProps = {
@@ -55,6 +58,7 @@ type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly markReviewReadinessInvalid?: boolean;
   readonly onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>;
   readonly onBriefConfirmOrDeny?: () => void;
+  readonly architectureId?: string;
   readonly suggestFromOverviewNonce?: number;
 };
 
@@ -71,6 +75,7 @@ export function ArchitectureDraftStructuredBriefFields(
     businessOutcome: props.businessOutcome,
     disabled: props.disabled,
     blocksLlmExecution: props.blocksLlmExecution,
+    architectureId: props.architectureId,
     suggestFromOverviewNonce: props.suggestFromOverviewNonce,
     onStructuredBriefChange: (nextBrief) => {
       props.onStructuredBriefChange(nextBrief);
@@ -135,6 +140,27 @@ export function ArchitectureDraftStructuredBriefFields(
           testId="architecture-draft-suggest-structured-brief-wait"
           showTimeoutRecovery={false}
         />
+        {suggestions.suggestBusy ? (
+          <div
+            className="flex flex-wrap items-center gap-3"
+            data-testid="architecture-draft-suggest-structured-brief-in-progress-hint"
+          >
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+              {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_IN_PROGRESS_HINT}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                requestOpenShellInFlightOperations();
+              }}
+              data-testid="architecture-draft-suggest-structured-brief-view-in-progress"
+            >
+              {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_VIEW_IN_PROGRESS_BUTTON}
+            </Button>
+          </div>
+        ) : null}
         {!suggestions.canSuggestFromOverview && props.blocksLlmExecution === true ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
