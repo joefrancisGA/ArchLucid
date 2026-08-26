@@ -170,7 +170,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
 
             if (refs.Count > 0)
             {
-                string joined = string.Join('|', refs);
+                string joined = string.Join('|', refs.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
 
                 properties["terraformDependsOn"] = joined.Length > 2000 ? joined[..2000] : joined;
             }

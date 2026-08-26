@@ -340,6 +340,54 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_CanonicalizesDependsOnReferenceOrder()
+    {
+        const string baseJson = """
+                                {
+                                  "values": {
+                                    "root_module": {
+                                      "resources": [
+                                        {
+                                          "type": "azurerm_storage_account",
+                                          "name": "st",
+                                          "values": { "name": "s" },
+                                          "depends_on": ["azurerm_resource_group.main", "azurerm_virtual_network.hub"]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                                """;
+
+        InfrastructureDeclarationReference firstOrder = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-dep-order",
+            Content = baseJson,
+        };
+
+        InfrastructureDeclarationReference reversedOrder = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-dep-order",
+            Content = baseJson.Replace(
+                """["azurerm_resource_group.main", "azurerm_virtual_network.hub"]""",
+                """["azurerm_virtual_network.hub", "azurerm_resource_group.main"]"""),
+        };
+
+        IReadOnlyList<CanonicalObject> firstObjects = await _sut.ParseAsync(firstOrder, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> reversedObjects = await _sut.ParseAsync(reversedOrder, CancellationToken.None);
+
+        firstObjects.Should().ContainSingle();
+        reversedObjects.Should().ContainSingle();
+        reversedObjects[0].Properties["terraformDependsOn"]
+            .Should()
+            .Be(firstObjects[0].Properties["terraformDependsOn"]);
+    }
+
+    [Fact]
     public async Task ParseAsync_redacts_top_level_sensitive_tf_values()
     {
         InfrastructureDeclarationReference decl = new()
