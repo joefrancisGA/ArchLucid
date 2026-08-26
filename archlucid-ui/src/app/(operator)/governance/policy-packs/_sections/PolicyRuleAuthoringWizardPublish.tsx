@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import type { components } from "@/lib/openapi-schemas";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -38,12 +40,8 @@ export type PolicyRuleAuthoringWizardPublishProps = {
   readonly recentRuns: readonly RecentRunOption[];
   readonly runsLoadError: string | null;
   readonly simulateBusy: boolean;
-  readonly simulateFailure: {
-    readonly problem: unknown;
-    readonly message: string;
-    readonly correlationId?: string | null;
-  } | null;
-  readonly simulateResult: unknown;
+  readonly simulateFailure: ApiLoadFailureState | null;
+  readonly simulateResult: components["schemas"]["PolicyPackGovernanceDryRunResult"] | null;
   readonly blockOnCritical: boolean;
   readonly onBlockOnCriticalChange: (value: boolean) => void;
   readonly allowPublishWithoutTest: boolean;

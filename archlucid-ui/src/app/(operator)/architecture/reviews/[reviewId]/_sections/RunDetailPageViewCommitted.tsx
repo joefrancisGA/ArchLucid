@@ -27,9 +27,9 @@ import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefi
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
   RunDetailBelowFoldDeferredSkeleton,
-  RunDetailDecisionDeltaSkeleton,
   RunDetailMidDeferredSkeleton,
 } from "./RunDetailDeferredSkeleton";
+import { RunDetailDecisionDeltaSkeleton } from "./RunDetailDecisionDeltaSkeleton";
 import { RunDetailDecisionDeltaDeferred } from "./RunDetailDecisionDeltaDeferred";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";

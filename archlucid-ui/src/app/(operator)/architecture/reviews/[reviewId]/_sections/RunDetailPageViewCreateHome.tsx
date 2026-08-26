@@ -10,8 +10,8 @@ import {
   RunDetailGovernanceDecisionSectionDeferred,
   RunDetailReviewPackageDoThisNextResolvedDeferred,
   RunDetailSubmittedArchitectureSectionDeferred,
-  RunDetailWorkspaceDisclosureControls,
 } from "./run-detail-page-view-deferred-chunks";
+import { RunDetailWorkspaceDisclosureControls } from "./RunDetailWorkspaceShell";
 import { ReviewPackageAfterFinalizeNextStepsStrip } from "./ReviewPackageAfterFinalizeNextStepsStrip";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import { RunDetailExplanationSkeleton, RunDetailMidDeferredSkeleton } from "./RunDetailDeferredSkeleton";

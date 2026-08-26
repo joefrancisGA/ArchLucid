@@ -1,5 +1,6 @@
 "use client";
 
+import { type Dispatch, type SetStateAction } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,7 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-co
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reviewDetailPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
+import type { ReviewStartStageId } from "@/lib/review-start-progress-stages";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 const ArchitectureDraftAiRefinePanel = dynamic(
@@ -89,7 +91,7 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly onLoadDraft: () => void;
   readonly draftStartReviewChecklistDescription: string;
   readonly draftStartReviewSteps: Parameters<typeof IntegrationConnectChecklist>[0]["steps"];
-  readonly draftStartReviewEmphasizedStepId: string | null;
+  readonly draftStartReviewEmphasizedStepId: string;
   readonly fields: ArchitectureDraftFieldState;
   readonly actorSet: ActorSet;
   readonly editorLocked: boolean;
@@ -106,15 +108,15 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly setScopeBullets: Parameters<typeof ArchitectureScopeUnderstandingCheckPanel>[0]["onBulletsChange"];
   readonly setScopeGateOpen: Parameters<typeof ArchitectureScopeUnderstandingCheckPanel>[0]["onGateChange"];
   readonly setActorSuggestionsUnresolved: (value: boolean) => void;
-  readonly actorSuggestionGateRequestId: string | null;
-  readonly setFields: (fields: ArchitectureDraftFieldState) => void;
-  readonly setActorSet: (actorSet: ActorSet) => void;
+  readonly actorSuggestionGateRequestId: number;
+  readonly setFields: Dispatch<SetStateAction<ArchitectureDraftFieldState>>;
+  readonly setActorSet: Dispatch<SetStateAction<ActorSet>>;
   readonly refinementDraftId: string | null;
   readonly exitPending: boolean;
   readonly reviewStartProgress: {
     readonly isPending: boolean;
     readonly loadingLabel: string;
-    readonly stageId: string | null;
+    readonly stageId: ReviewStartStageId | null;
     readonly stages: Parameters<typeof ReviewStartStagedProgress>[0]["stages"];
     readonly waitCopy: { readonly detail: string };
     readonly stalled: boolean;
@@ -122,7 +124,7 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly canStartReview: boolean;
   readonly handleStartReview: () => void | Promise<void>;
   readonly handleAcknowledgeHandoff: () => void;
-  readonly saveDraft: () => void | Promise<void>;
+  readonly saveDraft: () => Promise<boolean>;
   readonly setExitPending: (pending: boolean) => void;
   readonly hasPersistedDraft: boolean;
   readonly qualityAttributesEncouragementOpen: boolean;
