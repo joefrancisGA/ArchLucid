@@ -12,6 +12,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Integration;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Core.Persistence.Ports;
@@ -316,6 +317,7 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
             new AuthorityPipelineFindingsStage(
                 findingsOrch.Object,
                 snapshotConfidence.Object,
+                NoOpInsightDensityLlmJudge.Instance,
                 stagePersistence,
                 audit.Object,
                 Mock.Of<IIntegrationEventOutboxRepository>(),

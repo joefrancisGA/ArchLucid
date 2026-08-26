@@ -80,6 +80,21 @@ public static partial class ArchLucidInstrumentation
             "Findings snapshots built with partial engine failures (at least one engine failed, at least one succeeded).");
 
     
+    /// <summary>Insight-density LLM judge completions issued (label: <c>path</c>=engine|architecture).</summary>
+    public static readonly Counter<long> InsightDensityJudgeCompletionsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_insight_density_judge_completions_total",
+            description: "Insight-density Premium judge completions (label: path).");
+
+    /// <summary>
+    ///     Promoted findings skipped because the per-snapshot judge cap was reached (label: <c>path</c>).
+    /// </summary>
+    public static readonly Counter<long> InsightDensityJudgeSkippedByCapTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_insight_density_judge_skipped_by_cap_total",
+            description: "Insight-density judge candidates skipped by MaxJudgedFindingsPerSnapshot (label: path).");
+
+    
     /// <summary>Findings produced across completed runs (label: <c>severity</c>).</summary>
     public static readonly Counter<long> FindingsProducedTotal =
         AppMeter.CreateCounter<long>(

@@ -41,6 +41,17 @@ Per-key **When required** / host-role hints in the table below do **not** replac
 |-----|---------|---------|
 | `ArchLucid:Testing:SimulateLlmBudgetExhausted` | `false` | When `true` and the host is **not** Production, monthly LLM dollar budget enforcement treats the tenant as hard-capped before real usage is evaluated — use to demo budget-exhaustion UX without SQL manipulation. Ignored in Production. See [`LLM_COST_ESTIMATION.md`](../runbooks/LLM_COST_ESTIMATION.md). |
 
+## Insight-density gate (TB-382)
+
+Premium-tier judge calls are metered and capped. Each judged finding is one Reasoning deployment completion.
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `ArchLucid:Findings:InsightDensityGate:DemotionThreshold` | `50` | Scores below this demote agent architecture findings lacking anchors/evidence. Typed engine findings remain protected (`typed-engine-protected`). |
+| `ArchLucid:Findings:InsightDensityGate:EnableLlmJudge` | `false` | Enables Premium judge for **agent architecture** findings (Critic path). |
+| `ArchLucid:Findings:InsightDensityGate:EnableLlmJudgeForEngineFindings` | `false` | When `true` with `EnableLlmJudge`, also judges deterministic engine findings after snapshot build (authority pipeline). |
+| `ArchLucid:Findings:InsightDensityGate:MaxJudgedFindingsPerSnapshot` | `12` | Hard per-snapshot ceiling on judge completions — cost guard for large finding sets. |
+
 ## Tenant data residency (administrator)
 
 Buyer-facing residency messaging lives in **[Data handling](/help/data-handling)** and the Procurement FAQ — not here. Platform operators configure regional allowlists and blob service URIs at provision time:

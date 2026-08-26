@@ -37,5 +37,25 @@ public sealed class InsightDensityGateOptions
     {
         get;
         set;
-    }
+    } = false;
+
+    /// <summary>
+    ///     Hard ceiling on Premium-tier judge completions per findings snapshot. Prevents unbounded cost when many
+    ///     findings are promoted.
+    /// </summary>
+    public int MaxJudgedFindingsPerSnapshot
+    {
+        get;
+        set;
+    } = 12;
+
+    /// <summary>
+    ///     When true with <see cref="EnableLlmJudge" /> and a Premium deployment, deterministic engine findings may
+    ///     receive So What enrichment. Default false — engine path is opt-in separately from agent architecture findings.
+    /// </summary>
+    public bool EnableLlmJudgeForEngineFindings
+    {
+        get;
+        set;
+    } = false;
 }

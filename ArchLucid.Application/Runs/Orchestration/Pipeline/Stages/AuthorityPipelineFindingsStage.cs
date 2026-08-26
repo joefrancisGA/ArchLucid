@@ -9,6 +9,7 @@ using ArchLucid.Decisioning.Services;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Integration;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Models;
@@ -23,6 +24,7 @@ namespace ArchLucid.Application.Runs.Orchestration.Pipeline.Stages;
 public sealed class AuthorityPipelineFindingsStage(
     IFindingsOrchestrator findingsOrchestrator,
     IFindingsSnapshotEvaluationConfidenceEnricher findingsSnapshotEvaluationConfidenceEnricher,
+    IInsightDensityLlmJudge insightDensityLlmJudge,
     IAuthorityPipelineStagePersistence stagePersistence,
     IAuditService auditService,
     IIntegrationEventOutboxRepository integrationEventOutbox,
@@ -39,6 +41,9 @@ public sealed class AuthorityPipelineFindingsStage(
     private readonly IFindingsSnapshotEvaluationConfidenceEnricher _findingsSnapshotEvaluationConfidenceEnricher =
         findingsSnapshotEvaluationConfidenceEnricher ??
         throw new ArgumentNullException(nameof(findingsSnapshotEvaluationConfidenceEnricher));
+
+    private readonly IInsightDensityLlmJudge _insightDensityLlmJudge =
+        insightDensityLlmJudge ?? throw new ArgumentNullException(nameof(insightDensityLlmJudge));
 
     private readonly IAuthorityPipelineStagePersistence _stagePersistence =
         stagePersistence ?? throw new ArgumentNullException(nameof(stagePersistence));
@@ -103,6 +108,21 @@ public sealed class AuthorityPipelineFindingsStage(
                 _logger.LogWarning(
                     ex,
                     "Findings snapshot evaluation confidence enrichment failed for RunId={RunId}; snapshot persisted without enrichment.",
+                    run.RunId);
+            }
+        }
+
+        try
+        {
+            await _insightDensityLlmJudge.ApplyToFindingsAsync(findingsSnapshot.Findings, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Insight-density engine judge failed for RunId={RunId}; snapshot persisted without judge enrichment.",
                     run.RunId);
             }
         }
