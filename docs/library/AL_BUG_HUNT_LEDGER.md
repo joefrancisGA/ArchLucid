@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 17
-- **bugs-found:** 48
+- **hunts:** 18
+- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — effective governance/resolver foreign-pack leak; erasure legal-hold 404
+- **last-bug:** 2026-08-26 — governance approval lineage/rationale run scope 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2273,8 +2273,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceResolutionController.Resolve` / `EffectiveGovernanceResolver.ResolveAsync` — tenant-level assignment for workspace-authored pack merged foreign workspace `ContentJson` — **hit 2026-08-26:** `PolicyPackVisibility.IsVisibleInScope` filters `GetByIdsAsync` enrichment; regression in `EffectiveGovernanceResolverTests.ResolveAsync_excludes_foreign_workspace_pack_on_tenant_level_assignment`.
 - [x] (proven) `PolicyPacksController.GetEffectiveContent` / `GetPageBundle` / `GovernanceSetupController.GetSetupGuideBundle` — foreign-workspace pack JSON leak via `PolicyPackResolver.ResolveAsync` — **hit 2026-08-26:** same visibility filter in resolver; regression in `PolicyPackResolverTests.ResolveAsync_excludes_foreign_workspace_pack_on_tenant_level_assignment`.
 - [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — missing tenant row returned HTTP 409 instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_not_found_when_tenant_missing`.
-- [ ] (candidate) `TenantCostSettingsController.PutAsync` — both `eaDiscountPercentage` and `eaDiscountMultiplier` supplied → percentage wins silently with no 400.
-- [ ] (candidate) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — approval row with deleted/out-of-scope `RunId` returns HTTP 200 shell instead of 404 (no `RequireScopedRunAsync` preflight).
+- [x] (invalid) `TenantCostSettingsController.PutAsync` — both `eaDiscountPercentage` and `eaDiscountMultiplier` supplied → percentage wins silently with no 400 — **cheap-disproof 2026-08-26:** `TenantCostSettingsPutRequest` XML documents percentage precedence when both are set; not a validation defect.
+- [x] (proven) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — approval row with deleted/out-of-scope `RunId` returned HTTP 200 shell instead of 404 — **hit 2026-08-26:** `RequireScopedRunAsync` preflight on approval `RunId` before lineage/rationale service calls; regression in `GovernanceControllerRunHistoryScopeTests`.
+
+2026-08-26 thorough hunt #93: proved governance approval lineage/rationale run-scope 404; cheap-disproved EA discount dual-field 400 expectation.
 
 2026-08-26 thorough hunt #92: proved effective governance/resolver foreign-pack scope + erasure legal-hold 404.
 

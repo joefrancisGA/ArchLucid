@@ -99,14 +99,32 @@ public sealed partial class GovernanceController
         [FromRoute] string approvalRequestId,
         CancellationToken cancellationToken)
     {
+        GovernanceApprovalRequest? approval = await approvalRepo
+            .GetByIdAsync(approvalRequestId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (approval is null)
+        {
+            return this.NotFoundProblem(
+                $"Approval request '{approvalRequestId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         GovernanceLineageResult? result = await _governanceLineageService.GetApprovalRequestLineageAsync(
             approvalRequestId,
             cancellationToken);
 
         if (result is null)
+        {
             return this.NotFoundProblem(
                 $"Approval request '{approvalRequestId}' was not found.",
                 ProblemTypes.ResourceNotFound);
+        }
 
         return Ok(result);
     }
@@ -118,14 +136,32 @@ public sealed partial class GovernanceController
         [FromRoute] string approvalRequestId,
         CancellationToken cancellationToken)
     {
+        GovernanceApprovalRequest? approval = await approvalRepo
+            .GetByIdAsync(approvalRequestId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (approval is null)
+        {
+            return this.NotFoundProblem(
+                $"Approval request '{approvalRequestId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         GovernanceRationaleResult? result = await _governanceRationaleService.GetApprovalRequestRationaleAsync(
             approvalRequestId,
             cancellationToken);
 
         if (result is null)
+        {
             return this.NotFoundProblem(
                 $"Approval request '{approvalRequestId}' was not found.",
                 ProblemTypes.ResourceNotFound);
+        }
 
         return Ok(result);
     }

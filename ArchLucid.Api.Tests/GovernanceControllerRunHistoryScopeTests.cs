@@ -50,6 +50,70 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task GetApprovalRequestLineage_returns_not_found_when_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string runId = foreignRunId.ToString("N");
+        const string approvalRequestId = "apr-lineage-scope";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest { ApprovalRequestId = approvalRequestId, RunId = runId });
+
+        Mock<IGovernanceLineageService> lineage = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            approvalRepository: approvals.Object,
+            lineageService: lineage.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetApprovalRequestLineage(approvalRequestId, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        lineage.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetApprovalRequestRationale_returns_not_found_when_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        string runId = foreignRunId.ToString("N");
+        const string approvalRequestId = "apr-rationale-scope";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest { ApprovalRequestId = approvalRequestId, RunId = runId });
+
+        Mock<IGovernanceRationaleService> rationale = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            approvalRepository: approvals.Object,
+            rationaleService: rationale.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetApprovalRequestRationale(approvalRequestId, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        rationale.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetPromotions_returns_not_found_when_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -75,7 +139,9 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     private static GovernanceController CreateController(
         IRunRepository? runRepository = null,
         IGovernanceApprovalRequestRepository? approvalRepository = null,
-        IGovernancePromotionRecordRepository? promotionRepository = null)
+        IGovernancePromotionRecordRepository? promotionRepository = null,
+        IGovernanceLineageService? lineageService = null,
+        IGovernanceRationaleService? rationaleService = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -94,8 +160,8 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             scope.Object,
             runRepository ?? runs.Object,
             Mock.Of<IGovernanceDashboardService>(),
-            Mock.Of<IGovernanceLineageService>(),
-            Mock.Of<IGovernanceRationaleService>(),
+            lineageService ?? Mock.Of<IGovernanceLineageService>(),
+            rationaleService ?? Mock.Of<IGovernanceRationaleService>(),
             Mock.Of<IComplianceDriftTrendService>(),
             Mock.Of<IPolicyPackDryRunService>(),
             Mock.Of<IPolicyPackGovernanceDryRunService>(),
