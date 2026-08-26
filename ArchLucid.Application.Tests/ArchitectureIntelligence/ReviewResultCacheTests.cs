@@ -458,6 +458,24 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl()
+    {
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 8, 25, 12, 0, 0, TimeSpan.Zero));
+        ReviewResultCache cache = new(clock);
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-expired-pinned-tombstone" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" });
+        cache.PinStorageKey(storageKey);
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        clock.Advance(TimeSpan.FromHours(5));
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? tombstoned).Should().BeFalse();
+        tombstoned.Should().BeNull();
+    }
+
+    [Fact]
     public void InvalidateForRun_defers_removal_while_pinned_then_flushes_on_unpin()
     {
         ReviewResultCache cache = new();
