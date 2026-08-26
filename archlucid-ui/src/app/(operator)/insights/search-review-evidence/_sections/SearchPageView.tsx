@@ -11,7 +11,6 @@ import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
-import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,7 +19,6 @@ import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-prese
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
-  OPERATOR_FORM_FIELD_LABEL_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -39,8 +37,6 @@ import {
   SEARCH_PAGE_TITLE,
   SEARCH_QUERY_FIELD_LABEL,
   SEARCH_QUERY_PLACEHOLDER,
-  SEARCH_REVIEW_FILTER_LABEL,
-  SEARCH_REVIEW_FILTER_PLACEHOLDER,
   searchReviewEvidencePageSubtitle,
 } from "./search-page-copy";
 import { SearchRetrievalHitCard } from "./SearchRetrievalHitCard";
@@ -195,44 +191,6 @@ export function SearchPageView({ model }: SearchPageViewProps) {
               autoComplete="off"
             />
           </div>
-
-          <RunIdPicker
-            preferAutoPick={false}
-            committedOnly
-            label={SEARCH_REVIEW_FILTER_LABEL}
-            labelClassName={OPERATOR_FORM_FIELD_LABEL_CLASS}
-            placeholder={SEARCH_REVIEW_FILTER_PLACEHOLDER}
-            value={runId}
-            onChange={setRunId}
-            inputId="semantic-search-run-filter"
-            useBuyerFacingRunLabels={buyerShell === true}
-          />
-
-          <details
-            className={cn(
-              "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-          >
-            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-              Advanced: filter by review ID
-            </summary>
-            <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Paste a review ID when the review is not in the recent list. The filter above accepts the same
-              value.
-            </p>
-            <div className="mt-3 space-y-2">
-              <Label htmlFor="semantic-search-run-id-advanced">Review ID</Label>
-              <Input
-                id="semantic-search-run-id-advanced"
-                className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}
-                value={runId}
-                onChange={(e) => setRunId(e.target.value)}
-                placeholder="Paste review ID to narrow search"
-                autoComplete="off"
-              />
-            </div>
-          </details>
 
           <Button
             type="button"

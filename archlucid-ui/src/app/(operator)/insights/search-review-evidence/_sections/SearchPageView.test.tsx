@@ -133,5 +133,6 @@ describe("SearchPageView", () => {
     expect(screen.getByTestId("search-review-evidence-form")).toBeInTheDocument();
     expect(screen.getByTestId("search-review-evidence-run-scope-banner")).toHaveTextContent("run-search-1");
     expect(screen.getByTestId("search-review-evidence-setup-progress")).toBeInTheDocument();
+    expect(screen.queryByTestId("search-review-evidence-run-picker")).not.toBeInTheDocument();
   });
 });
