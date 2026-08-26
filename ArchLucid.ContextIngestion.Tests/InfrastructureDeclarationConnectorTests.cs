@@ -1176,6 +1176,77 @@ public sealed class InfrastructureDeclarationConnectorTests
     }
 
     [Fact]
+    public async Task DeltaAsync_SimpleTerraformNestedBlockNameCasingChange_ReportsUnchanged()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([new SimpleTerraformDeclarationParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        const string lowerBlock = """
+                                  resource "azurerm_linux_web_app" "api" {
+                                    site_config {
+                                      always_on = true
+                                    }
+                                  }
+                                  """;
+
+        const string mixedBlock = """
+                                  resource "azurerm_linux_web_app" "api" {
+                                    Site_Config {
+                                      always_on = true
+                                    }
+                                  }
+                                  """;
+
+        RawContextPayload firstRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-1",
+                    Name = "app.tf",
+                    Format = "simple-terraform",
+                    Content = lowerBlock,
+                }
+            ]
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString("D"),
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-1",
+                    Name = "app.tf",
+                    Format = "simple-terraform",
+                    Content = mixedBlock,
+                }
+            ]
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task DeltaAsync_TerraformShowJsonDependsOnCasingChange_ReportsUnchanged()
     {
         TerraformShowJsonInfrastructureDeclarationParser parser =
