@@ -61,6 +61,7 @@ public sealed partial class GovernanceController(
     IAuditService auditService,
     IPolicyPackDraftService policyPackDraftService,
     IPolicyPackGeneratorService policyPackGeneratorService,
+    ITenantRepository tenantRepository,
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
@@ -93,5 +94,8 @@ public sealed partial class GovernanceController(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
 }
