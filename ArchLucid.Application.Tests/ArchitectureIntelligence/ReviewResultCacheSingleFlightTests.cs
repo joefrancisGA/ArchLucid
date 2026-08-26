@@ -147,7 +147,6 @@ public sealed class ReviewResultCacheSingleFlightTests
         waiterResult.RunId.Should().Be("retried");
         calls.Should().Be(2);
     }
-}
 
     [Fact]
     public async Task CoalesceAsync_does_not_share_flight_across_publish_intent()
