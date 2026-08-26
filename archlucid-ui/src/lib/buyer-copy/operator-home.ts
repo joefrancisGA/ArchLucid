@@ -124,17 +124,18 @@ export function formatOperatorHomeCompactDraftStatusRow(
   draftLastEditedLabel: string | null,
 ): string {
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
-  const countLabel = safeCount === 1 ? "1 draft" : `${safeCount} drafts`;
+  const countLabel =
+    safeCount === 1 ? "1 architecture draft" : `${safeCount} architecture drafts`;
   const trimmedEditedLabel =
     draftLastEditedLabel !== null && draftLastEditedLabel.trim().length > 0
       ? draftLastEditedLabel.trim()
       : null;
 
   if (trimmedEditedLabel !== null) {
-    return `${countLabel} · ${trimmedEditedLabel} — Continue refining it before starting a review.`;
+    return `${countLabel} · ${trimmedEditedLabel} — continue refining it before starting a review.`;
   }
 
-  return `${countLabel} — Continue refining it before starting a review.`;
+  return `${countLabel} — continue refining it before starting a review.`;
 }
 
 export function formatOperatorHomePastDraftingLead(displayName: string): string {
@@ -298,7 +299,7 @@ export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
 
 /** Recent reviews outcome when only a demo/seeded or showcase sample is visible. */
 export const OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME =
-  "Showing a completed example review. Your own reviews will appear here.";
+  "Showing a completed example review. Your reviews will appear here.";
 
 export const OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA = "Learn how reviews work";
 
