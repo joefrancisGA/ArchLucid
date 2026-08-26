@@ -40,7 +40,6 @@ import { useArchitectureDraftStartReview } from "@/hooks/use-architecture-draft-
 import { useArchitectureDraftWorkspace } from "@/hooks/use-architecture-draft-workspace";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
-import { writeArchitectureCreationDraftId, replaceArchitectureCreationUrlWithoutNavigation } from "@/lib/architecture/architecture-creation-session";
 import {
   acknowledgeArchitectureDraftHandoff,
   architectureDraftSpawnedRunId,
@@ -53,7 +52,9 @@ import {
 } from "@/lib/architecture/architecture-draft-registry";
 import { type ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
-import { reviewDetailPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
+import { writeArchitectureCreationDraftId, replaceArchitectureCreationUrlWithoutNavigation } from "@/lib/architecture/architecture-creation-session";
+import { reviewDetailPath, startReviewFromArchitectureHref, ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
+import { retargetAdvisoryDraftInFlightArchitecture } from "@/lib/operations/advisory-draft-in-flight";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { getDraftRequest, reopenDraftRequest } from "@/lib/api/draft-intake-api";
@@ -196,6 +197,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       writeArchitectureCreationDraftId(draftId);
       setResolvedDraftId(draftId);
       replaceArchitectureCreationUrlWithoutNavigation(draftId);
+      retargetAdvisoryDraftInFlightArchitecture(ARCHITECTURE_NEW_DRAFT_SEGMENT, draftId);
     },
     [setResolvedDraftId],
   );
@@ -552,6 +554,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             actorSet={actorSet}
             disabled={editorLocked}
             blocksLlmExecution={blocksLlmExecution}
+            architectureId={effectiveArchitectureId}
             markReviewReadinessInvalid={linkedReviewId === null && !reviewReadiness.isValid}
             actorSuggestionGateRequestId={actorSuggestionGateRequestId}
             onActorSuggestionsUnresolvedChange={setActorSuggestionsUnresolved}

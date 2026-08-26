@@ -39,6 +39,7 @@ type ArchitectureDraftFormFieldsProps = {
   readonly onFieldsChange: Dispatch<SetStateAction<ArchitectureDraftFieldState>>;
   readonly onActorSetChange: (actorSet: ActorSet) => void;
   readonly actorSuggestionGateRequestId?: number;
+  readonly architectureId?: string;
   readonly onActorSuggestionsUnresolvedChange?: (unresolved: boolean) => void;
 };
 
@@ -166,6 +167,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         businessOutcome={props.fields.businessOutcome}
         disabled={props.disabled === true}
         blocksLlmExecution={props.blocksLlmExecution === true}
+        architectureId={props.architectureId}
         markReviewReadinessInvalid={markInvalid}
         onBriefConfirmOrDeny={() => {
           setBriefConfirmOrDenyCount((current) => current + 1);

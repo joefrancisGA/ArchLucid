@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ShellInFlightOperationsAffordance } from "@/components/shell/ShellInFlightOperationsAffordance";
@@ -9,6 +9,7 @@ import {
   resetInFlightOperationsForTests,
   trackInFlightOperation,
 } from "@/lib/operations/in-flight-operations-store";
+import { requestOpenShellInFlightOperations } from "@/lib/operations/open-shell-in-flight-event";
 import { showError } from "@/lib/toast";
 
 vi.mock("next/navigation", () => ({
@@ -153,5 +154,28 @@ describe("ShellInFlightOperationsAffordance", () => {
 
     const row = getInFlightOperations().find((item) => item.operationId === "run:demo");
     expect(row?.state).toBe("Running");
+  });
+
+  it("opens the list when another surface asks to show in-progress work", async () => {
+    trackInFlightOperation({
+      operationId: "draft:11111111-1111-1111-1111-111111111111",
+      title: "Structured brief suggestions",
+      href: "/architecture/architectures/arch-001",
+      architectureId: "arch-001",
+      retainUntilConsumed: true,
+    });
+
+    render(<ShellInFlightOperationsAffordance />);
+
+    expect(screen.queryByTestId("shell-in-flight-operations-panel")).not.toBeInTheDocument();
+
+    act(() => {
+      requestOpenShellInFlightOperations();
+    });
+
+    expect(await screen.findByTestId("shell-in-flight-operations-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("shell-in-flight-operation-row")).toHaveTextContent(
+      "Structured brief suggestions",
+    );
   });
 });

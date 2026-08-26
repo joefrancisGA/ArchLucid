@@ -70,6 +70,9 @@ export function formatOperatorHomeContinueDraftHeading(displayName: string): str
 
 export const OPERATOR_HOME_ACTIVE_REVIEWS_HEADING = "Reviews in progress";
 
+/** Home list of shell-tracked work, including queued Suggest from overview. */
+export const OPERATOR_HOME_IN_PROGRESS_HEADING = "In progress";
+
 export const OPERATOR_HOME_ACTIVE_REVIEWS_LEAD =
   "Open an in-progress review or start another governed review when your architecture is ready.";
 

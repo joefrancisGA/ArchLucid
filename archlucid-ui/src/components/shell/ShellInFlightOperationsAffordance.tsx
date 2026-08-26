@@ -12,6 +12,7 @@ import { cancelOperation } from "@/lib/api/operations-api";
 import { buildCancelAbandonInFlightClarity } from "@/lib/operations/cancel-abandon-in-flight-clarity";
 import { formatOperationElapsed } from "@/lib/operations/format-operation-elapsed";
 import { patchInFlightOperation } from "@/lib/operations/in-flight-operations-store";
+import { ARCHLUCID_OPEN_SHELL_IN_FLIGHT_EVENT } from "@/lib/operations/open-shell-in-flight-event";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError } from "@/lib/toast";
@@ -34,10 +35,16 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
       router.refresh();
     }
 
+    function onOpenRequested(): void {
+      setOpen(true);
+    }
+
     window.addEventListener("archlucid:shell-operation-terminal", onOperationTerminal);
+    window.addEventListener(ARCHLUCID_OPEN_SHELL_IN_FLIGHT_EVENT, onOpenRequested);
 
     return () => {
       window.removeEventListener("archlucid:shell-operation-terminal", onOperationTerminal);
+      window.removeEventListener(ARCHLUCID_OPEN_SHELL_IN_FLIGHT_EVENT, onOpenRequested);
     };
   }, [router]);
 

@@ -62,6 +62,7 @@ Update this table when routes change. Tiers are **product contract**, not k6 tag
 | Replay (async) | `POST /v1/architecture/review/{runId}/replay/async` | C | **202** + `Location: /v1/operations/run:{replayRunId}` | **Done** (**TB-2075** 2026-08-08) |
 | Compare | `POST` compare / insights compare | B–C | Comparison record | Sync when bounded; async if Real regenerate is long |
 | Export / DOCX / PDF jobs | Background job enqueue + `GET /v1/jobs/{jobId}` | D | `BackgroundJobInfo` state | Project into **TB-2074** operations |
+| **Structured brief Suggest from overview** | `POST /v1/architecture/request/draft/async` | C | **202** + `Location: /v1/operations/draft:{id}`; poll + `GET .../draft/async/{id}/result` | Shell **In progress** list (**TB-2077**) must register the handle on accept |
 | Outbox drains (retrieval, export blob, projections) | Worker / hosted services | D | Metrics / admin health | Not user-facing HTTP |
 | Authority SSE / run events | Existing SSE where shipped | — | Event stream | Complements operations poll (**TB-2077**) |
 | Real-mode staged Critic execute | `POST .../execute` or `.../execute/async` when `StagedCriticEnabled` | C | Phase 1 then Critic serial wall clock; metrics + operation `stepLabel` (**TB-2121**) | Async required for edge; see [STAGED_CRITIC_WALL_TIME_CONTRACT.md](./STAGED_CRITIC_WALL_TIME_CONTRACT.md) |
@@ -145,6 +146,7 @@ Client surfaces that routinely exceed ~4s should use `LongOperationWaitNotice` /
 - Do **not** invent a `/v1/runs/{id}/progress` client.
 - Tier B surfaces should use staged wait / route `loading.tsx` (**TB-2078** **Done**), not infinite silent spinners.
 - Tier C Real-mode execute/replay should poll operations (**TB-2074**) or existing job URLs; shell activity (**TB-2077**) tracks `Location` handles after async accept.
+- **Suggest from overview** is the same pattern: register `draft:{id}` in the shell In progress list on 202 so leaving the architecture draft does not hide queued work.
 - Product language: prefer *architecture review* / *export* over *job* in buyer chrome; *job* remains OK on admin/diagnostic surfaces.
 
 ---

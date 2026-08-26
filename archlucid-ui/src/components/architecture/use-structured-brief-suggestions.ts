@@ -1,10 +1,13 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS, draftArchitectureRequest } from "@/lib/api/architecture-request-draft-api";
-import { draftArchitectureRequestWithPoll } from "@/lib/api/architecture-request-draft-async-api";
+import {
+  draftArchitectureRequestWithPoll,
+  resumeDraftArchitectureRequestWithPoll,
+} from "@/lib/api/architecture-request-draft-async-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
@@ -18,10 +21,15 @@ import {
   hasArchitectureContextForFailureModeSuggestion,
   resolveFailureModeSuggestion,
 } from "@/lib/architecture/architecture-draft-structured-brief-suggestions";
+import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
 import {
   estimateStructuredBriefSuggestDuration,
   formatStructuredBriefSuggestDurationBand,
 } from "@/lib/architecture/structured-brief-suggest-duration-estimate";
+import {
+  findTrackedAdvisoryDraftForArchitecture,
+  markAdvisoryDraftInFlightConsumed,
+} from "@/lib/operations/advisory-draft-in-flight";
 
 type StructuredBriefSuggestionContextInput = Pick<
   ArchitectureDraftStructuredBriefState,
@@ -36,6 +44,7 @@ export type UseStructuredBriefSuggestionsInput = {
   readonly freeTextIntent: string;
   readonly systemName?: string;
   readonly businessOutcome?: string;
+  readonly architectureId?: string;
   readonly disabled?: boolean;
   readonly blocksLlmExecution?: boolean;
   readonly suggestFromOverviewNonce?: number;
@@ -136,42 +145,33 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
     setEvidenceContradictedAssumptions({});
   }, [input.freeTextIntent]);
 
-  const runSuggestFromOverview = useCallback(async (): Promise<void> => {
-    const freeTextDescription = buildSuggestionSourceText(input, brief, true);
+  const architectureId = input.architectureId?.trim() || ARCHITECTURE_NEW_DRAFT_SEGMENT;
+  const resumeStartedRef = useRef(false);
+  const suggestAbortRef = useRef<AbortController | null>(null);
 
-    if (
-      freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
-      || input.disabled === true
-      || input.blocksLlmExecution === true
-    ) {
-      return;
-    }
+  useEffect(() => {
+    return () => {
+      suggestAbortRef.current?.abort();
+    };
+  }, []);
 
-    setSuggestBusy(true);
-    setSuggestStageLabel("Queued");
-    setSuggestError(null);
-    setSuggestEmpty(false);
-    setSuggestAddedCount(null);
-    setFailureModeSuggestApplied(false);
-    setFailureModeSuggestEmpty(false);
-
-    try {
-      const { response } = await draftArchitectureRequestWithPoll(
-        {
-          freeTextDescription,
-          currentConstraints: [...brief.confirmedConstraints, ...brief.suggestedConstraints],
-          currentAssumptions: [...brief.confirmedAssumptions, ...brief.suggestedAssumptions],
-          confirmedAssumptions: brief.confirmedAssumptions,
-        },
-        {
-          onUpdate: (operation) => {
-            setSuggestStageLabel(operation.stepLabel);
-          },
-        },
-      );
+  const applySuggestResponse = useCallback(
+    (
+      response: {
+        readonly suggestedConstraints?: readonly string[];
+        readonly suggestedAssumptions?: readonly string[];
+        readonly suggestedCapabilities?: readonly string[];
+        readonly suggestedFailureModeNote?: string | null;
+        readonly evidenceContradictedAssumptions?: readonly {
+          readonly assumption?: string;
+          readonly evidenceNote?: string;
+        }[];
+      },
+      sourceText: string,
+    ): void => {
       const applied = applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse({
         brief,
-        sourceText: freeTextDescription,
+        sourceText,
         suggestedConstraints: response.suggestedConstraints ?? [],
         suggestedAssumptions: response.suggestedAssumptions ?? [],
         suggestedCapabilities: response.suggestedCapabilities ?? [],
@@ -194,7 +194,62 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
           });
         });
       }
+    },
+    [brief, input],
+  );
+
+  const runSuggestFromOverview = useCallback(async (): Promise<void> => {
+    const freeTextDescription = buildSuggestionSourceText(input, brief, true);
+
+    if (
+      freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
+      || input.disabled === true
+      || input.blocksLlmExecution === true
+    ) {
+      return;
+    }
+
+    setSuggestBusy(true);
+    setSuggestStageLabel("Queued");
+    setSuggestError(null);
+    setSuggestEmpty(false);
+    setSuggestAddedCount(null);
+    setFailureModeSuggestApplied(false);
+    setFailureModeSuggestEmpty(false);
+
+    suggestAbortRef.current?.abort();
+    const abortController = new AbortController();
+    suggestAbortRef.current = abortController;
+
+    try {
+      const { response, operation } = await draftArchitectureRequestWithPoll(
+        {
+          freeTextDescription,
+          currentConstraints: [...brief.confirmedConstraints, ...brief.suggestedConstraints],
+          currentAssumptions: [...brief.confirmedAssumptions, ...brief.suggestedAssumptions],
+          confirmedAssumptions: brief.confirmedAssumptions,
+        },
+        {
+          architectureId,
+          signal: abortController.signal,
+          onUpdate: (operationUpdate) => {
+            setSuggestStageLabel(operationUpdate.stepLabel);
+          },
+        },
+      );
+      applySuggestResponse(response, freeTextDescription);
+      markAdvisoryDraftInFlightConsumed(operation.operationId);
     } catch (error: unknown) {
+      if (abortController.signal.aborted) {
+        return;
+      }
+
+      const tracked = findTrackedAdvisoryDraftForArchitecture(architectureId);
+
+      if (tracked !== null) {
+        markAdvisoryDraftInFlightConsumed(tracked.operationId);
+      }
+
       if (isApiRequestError(error)) {
         setSuggestError({
           message: error.message,
@@ -212,7 +267,7 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
       setSuggestBusy(false);
       setSuggestStageLabel(null);
     }
-  }, [brief, input]);
+  }, [applySuggestResponse, architectureId, brief, input]);
 
   const suggestFromOverviewMutation = useMutation({
     mutationFn: runSuggestFromOverview,
@@ -229,6 +284,69 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
 
     suggestFromOverviewMutation.mutate();
   }, [input.suggestFromOverviewNonce, suggestFromOverviewMutation]);
+
+  // Returning to this draft should finish applying a queued Suggest from overview that kept running
+  // after the operator left the page.
+  useEffect(() => {
+    if (resumeStartedRef.current) {
+      return;
+    }
+
+    const tracked = findTrackedAdvisoryDraftForArchitecture(architectureId);
+
+    if (tracked === null) {
+      return;
+    }
+
+    resumeStartedRef.current = true;
+    const operationId = tracked.operationId;
+    const freeTextDescription = buildSuggestionSourceText(input, brief, true);
+
+    setSuggestBusy(true);
+    setSuggestStageLabel(tracked.stepLabel);
+    setSuggestError(null);
+
+    suggestAbortRef.current?.abort();
+    const abortController = new AbortController();
+    suggestAbortRef.current = abortController;
+
+    void (async () => {
+      try {
+        const { response } = await resumeDraftArchitectureRequestWithPoll(operationId, {
+          architectureId,
+          signal: abortController.signal,
+          onUpdate: (operationUpdate) => {
+            setSuggestStageLabel(operationUpdate.stepLabel);
+          },
+        });
+        applySuggestResponse(response, freeTextDescription);
+        markAdvisoryDraftInFlightConsumed(operationId);
+      } catch (error: unknown) {
+        if (abortController.signal.aborted) {
+          return;
+        }
+
+        markAdvisoryDraftInFlightConsumed(operationId);
+
+        if (isApiRequestError(error)) {
+          setSuggestError({
+            message: error.message,
+            problem: error.problem,
+            correlationId: error.correlationId,
+          });
+        } else {
+          setSuggestError({
+            message: error instanceof Error ? error.message : "Could not suggest structured brief items.",
+            problem: null,
+            correlationId: null,
+          });
+        }
+      } finally {
+        setSuggestBusy(false);
+        setSuggestStageLabel(null);
+      }
+    })();
+  }, [applySuggestResponse, architectureId, brief, input]);
 
   async function onSuggestFailureMode(): Promise<void> {
     if (!canSuggestFailureMode) {

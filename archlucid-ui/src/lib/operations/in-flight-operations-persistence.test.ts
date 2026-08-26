@@ -66,6 +66,27 @@ describe("in-flight operations persistence", () => {
     expect(getInFlightOperations()[0]?.operationId).toBe("run:abc");
   });
 
+  it("restores architectureId and retainUntilConsumed from storage", () => {
+    trackInFlightOperation({
+      operationId: "draft:11111111-1111-1111-1111-111111111111",
+      title: "Structured brief suggestions",
+      href: "/architecture/architectures/arch-001",
+      architectureId: "arch-001",
+      retainUntilConsumed: true,
+    });
+
+    const persisted = readPersistedInFlightOperations();
+    expect(persisted[0]?.architectureId).toBe("arch-001");
+    expect(persisted[0]?.retainUntilConsumed).toBe(true);
+
+    resetInFlightOperationsForTests();
+    writePersistedInFlightOperations(persisted);
+    hydrateInFlightOperationsFromStorage();
+
+    expect(getInFlightOperations()[0]?.retainUntilConsumed).toBe(true);
+    expect(getInFlightOperations()[0]?.architectureId).toBe("arch-001");
+  });
+
   it("does not duplicate an operation already tracked in memory", () => {
     trackInFlightOperation({
       operationId: "run:abc",

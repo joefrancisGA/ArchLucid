@@ -73,7 +73,7 @@ export const STRUCTURED_BRIEF_HELP_CONCEPT_ITEMS: readonly StructuredBriefHelpCo
 
 export const STRUCTURED_BRIEF_HELP_HOW_TO_READ_STEPS = [
   "Write the architecture overview first — suggestions need enough context to be useful.",
-  "Run Suggest from overview, then confirm each constraint, assumption, and capability you want review engines to treat as fact.",
+  "Run Suggest from overview. If it queues, open In progress in the header to follow the request — you can leave this page and return from that list. Then confirm each constraint, assumption, and capability you want review engines to treat as fact.",
   "Add quality attributes — numeric when measurable, qualitative when a number does not apply.",
   "Save the draft, then open Start a review when the readiness message clears.",
 ] as const;
