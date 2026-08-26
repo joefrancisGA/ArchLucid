@@ -19,6 +19,14 @@ const HELP_TOPIC_VIEW_RESOLVER_PATH = join(
   "help-topic-view-resolver.tsx",
 );
 
+const HELP_TOPIC_VIEW_RESOLVER_OPERATE_PATH = join(
+  process.cwd(),
+  "src",
+  "lib",
+  "help",
+  "help-topic-view-resolver-operate.tsx",
+);
+
 describe("help-topic-catch-all-fallthrough TB-1601", () => {
   it("maps every non-runbook registry slug to specialty or enriched dispatch", () => {
     for (const entry of listProductDocumentationEntries()) {
@@ -71,5 +79,17 @@ describe("help-topic-catch-all-fallthrough TB-1601", () => {
     expect(source).toContain("assertHelpTopicCatchAllFallthroughAllowed");
     expect(source).toContain("choose-your-next-step");
     expect(source).toContain("HelpPathChooserGuideView");
+  });
+
+  it("guards tryResolveOperateHelpTopicView catch-all in help-topic-view-resolver-operate.tsx", () => {
+    const source = readFileSync(HELP_TOPIC_VIEW_RESOLVER_OPERATE_PATH, "utf8");
+    const assertIndex = source.indexOf("assertHelpTopicCatchAllFallthroughAllowed");
+
+    expect(assertIndex).toBeGreaterThan(-1);
+
+    const afterAssert = source.slice(assertIndex);
+
+    expect(afterAssert).toContain("markdown={loaded.markdown}");
+    expect(afterAssert).not.toMatch(/assertHelpTopicCatchAllFallthroughAllowed[\s\S]*return null/);
   });
 });
