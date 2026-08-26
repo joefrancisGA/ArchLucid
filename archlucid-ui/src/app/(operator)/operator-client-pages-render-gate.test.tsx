@@ -183,7 +183,6 @@ vi.mock("./internal/product-learning/_sections/load-product-learning-page-data",
 });
 
 import { AdvisoryScansContent } from "@/components/advisory/AdvisoryScansContent";
-import { ADVISORY_SCANS_FORM_SECTION_TITLE } from "@/lib/advisory-copy";
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
@@ -213,7 +212,7 @@ describe("operator client pages — render gate", () => {
   it("Alert rules content renders without a duplicate hub page-title h2 (TB-1584)", async () => {
     renderWithOperatorQuery(<AlertRulesContent />);
     await waitFor(() => {
-      expect(screen.getByTestId("mutating-in-workspace-chip")).toBeInTheDocument();
+      expect(screen.getByTestId("alert-rules-layout")).toBeInTheDocument();
     });
     expect(screen.queryByRole("heading", { level: 2, name: "Alert rules" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 2, name: "Configured alert rules" })).not.toBeInTheDocument();
@@ -248,7 +247,9 @@ describe("operator client pages — render gate", () => {
   it("Advisory hub Scans tab content renders primary heading", () => {
     renderWithOperatorQuery(<AdvisoryScansContent />);
 
-    expect(screen.getByRole("heading", { level: 3, name: ADVISORY_SCANS_FORM_SECTION_TITLE })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Pick a review before scanning" }),
+    ).toBeInTheDocument();
   });
 
   it("Advisory hub Schedules tab content renders primary heading", () => {
