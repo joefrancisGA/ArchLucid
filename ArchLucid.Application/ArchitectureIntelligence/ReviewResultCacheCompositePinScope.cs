@@ -10,13 +10,12 @@ internal sealed class ReviewResultCacheCompositePinScope : IDisposable
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         ArgumentNullException.ThrowIfNull(storageKeys);
 
-        foreach (string storageKey in storageKeys)
+        foreach (string storageKey in storageKeys
+                     .Where(key => !string.IsNullOrWhiteSpace(key))
+                     .Distinct(StringComparer.Ordinal))
         {
-            if (string.IsNullOrWhiteSpace(storageKey))
-                continue;
-
-            _cache.PinStorageKey(storageKey);
-            _storageKeys.Add(storageKey);
+            if (_cache.PinStorageKey(storageKey))
+                _storageKeys.Add(storageKey);
         }
     }
 

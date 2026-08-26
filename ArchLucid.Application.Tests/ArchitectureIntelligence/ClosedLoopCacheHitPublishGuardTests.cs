@@ -80,6 +80,23 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
     }
 
     [Fact]
+    public void ApplyCacheHitPolicy_normalizes_hyphenated_run_id_on_assign()
+    {
+        ClosedLoopReasoningRequest request = new() { PublishToProduct = false };
+        ClosedLoopReasoningResult cached = new()
+        {
+            RunId = "cachedrun",
+            Model = new ArchitectureKnowledgeModel { RunId = "cachedrun", ModelId = "cached-model" },
+            Interview = new ProgressiveInterviewState { ModelId = "cached-model" },
+        };
+
+        ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(request, "abc-def", cached);
+
+        cached.RunId.Should().Be("abcdef");
+        cached.Model.RunId.Should().Be("abcdef");
+    }
+
+    [Fact]
     public void ApplyCacheHitPolicy_clears_published_flags_even_when_publish_was_not_requested()
     {
         ClosedLoopReasoningRequest request = new() { PublishToProduct = false };

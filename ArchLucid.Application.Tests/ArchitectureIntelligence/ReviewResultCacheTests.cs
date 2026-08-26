@@ -579,7 +579,7 @@ public sealed class ReviewResultCacheTests
         ReviewCacheDependencyManifest rejectedManifest = new() { ContentHash = "distinct-pin-overflow" };
         string rejectedKey = ReviewCacheKeyBuilder.Build(rejectedManifest);
 
-        cache.PinStorageKey(rejectedKey);
+        cache.PinStorageKey(rejectedKey).Should().BeFalse();
         cache.Set(rejectedManifest, new ClosedLoopReasoningResult { RunId = "overflow-run" });
 
         for (int index = 0; index < 150; index++)
