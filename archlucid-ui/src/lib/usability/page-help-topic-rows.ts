@@ -161,9 +161,9 @@ export const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }
   // Overview hero help — same topic the former "Learn / View workflow" links opened.
   {
     prefix: "/",
-    topic: { slug: "first-architecture-review", label: OPERATOR_NAV_LINK_LABELS.home },
+    topic: { label: OPERATOR_NAV_LINK_LABELS.home },
   },
-  { prefix: "/architecture/first-review-guide", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
+  { prefix: "/architecture/first-review-guide", topic: { label: BUYER_ONBOARDING_PAGE_TITLE } },
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: GETTING_STARTED_HELP_TOPIC_LABEL } },
   {
     prefix: "/help/accelerator-chooser",
@@ -250,7 +250,7 @@ export const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }
     topic: { slug: "users-and-roles", label: USERS_AND_ROLES_HELP_TOPIC_LABEL },
   },
   { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_LIST_LABEL } },
-  { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: ARCHITECTURES_NEW_HELP_TOPIC_LABEL } },
+  { prefix: "/architecture/architectures/new", topic: { slug: "structured-brief", label: ARCHITECTURES_NEW_HELP_TOPIC_LABEL } },
   {
     prefix: "/architecture/architecture-intelligence",
     topic: { slug: "architecture-intelligence", label: ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL },
@@ -462,11 +462,9 @@ export const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }
     topic: { slug: "admin-diagnostics", label: ADMIN_HEALTH_HELP_TOPIC_LABEL },
   },
   {
-    // Learning / product-orientation allowlist — retired how-it-works slug redirects to this anchor.
+    // Panel-only — telemetry copy is route-specific; getting-started duplicates product orientation.
     prefix: "/why-archlucid",
     topic: {
-      slug: "getting-started",
-      hashFragment: "how-archlucid-works",
       label: WHY_ARCHLUCID_HELP_TOPIC_LABEL,
     },
   },
