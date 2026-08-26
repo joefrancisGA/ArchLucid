@@ -44,4 +44,17 @@ describe("alerts-hub-tab", () => {
     expect(replaceState).toHaveBeenLastCalledWith(null, "", "/governance/alert-rules?tab=advanced-rules");
     expect(readAlertRulesHubTabFromWindowLocation()).toBe("advanced-rules");
   });
+
+  it("preserves runId when switching alert-rules hub tabs", () => {
+    window.history.replaceState({}, "", "/governance/alert-rules?tab=rules&runId=run-scope-1");
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    writeAlertRulesHubTabToUrl("notifications");
+
+    expect(replaceState).toHaveBeenCalledWith(
+      null,
+      "",
+      "/governance/alert-rules?tab=notifications&runId=run-scope-1",
+    );
+  });
 });

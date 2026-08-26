@@ -81,12 +81,13 @@ export function readAlertRulesHubTabFromWindowLocation(): AlertRulesHubTabId {
 }
 
 /** Updates `?tab=` in the address bar without a Next.js soft navigation. */
-export function writeAlertRulesHubTabToUrl(tab: AlertRulesHubTabId): void {
+export function writeAlertRulesHubTabToUrl(tab: AlertRulesHubTabId, runId?: string | null): void {
   if (typeof window === "undefined") {
     return;
   }
 
-  const href = governanceAlertRulesTabHref(tab);
+  const trimmedRunId = (runId ?? new URLSearchParams(window.location.search).get("runId") ?? "").trim();
+  const href = governanceAlertRulesTabHref(tab, trimmedRunId.length > 0 ? trimmedRunId : null);
   const url = new URL(href, window.location.origin);
 
   window.history.replaceState(null, "", `${url.pathname}${url.search}`);
