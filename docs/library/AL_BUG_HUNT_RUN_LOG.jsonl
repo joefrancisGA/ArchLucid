@@ -370,3 +370,4 @@
 {"at":"2026-08-26T09:17:04.254949Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-08-26T09:21:00.09781Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-08-26T09:24:54.2561712Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-08-26T09:31:52.3352309Z","zoneId":"application-analysis","outcome":"hit"}
