@@ -284,8 +284,10 @@ export function AskPageContent() {
       const thread = threads.find((t) => t.threadId === threadId);
 
       if (thread?.runId) {
-        setRunId(canonicalizeDemoRunId(thread.runId));
-      } else {
+        if (urlRunIdRaw.length === 0) {
+          setRunId(canonicalizeDemoRunId(thread.runId));
+        }
+      } else if (urlRunIdRaw.length === 0) {
         setRunId("");
       }
 
@@ -301,7 +303,7 @@ export function AskPageContent() {
 
       await loadMessages(threadId);
     },
-    [threads, loadMessages],
+    [threads, loadMessages, urlRunIdRaw],
   );
 
   const mergePromptLine = useCallback((line: string) => {
