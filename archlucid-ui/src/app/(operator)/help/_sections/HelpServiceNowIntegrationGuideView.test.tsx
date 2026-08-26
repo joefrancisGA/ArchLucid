@@ -7,7 +7,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpServiceNowIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpServiceNowIntegrationGuideView";
 import {
-  SERVICENOW_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
   SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID,
   SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION,
   SERVICENOW_INTEGRATION_HELP_GUIDE_HEADINGS,
@@ -37,11 +41,7 @@ describe("HelpServiceNowIntegrationGuideView", () => {
     render(<HelpServiceNowIntegrationGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-servicenow-integration-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Help & Support");
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      SERVICENOW_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-topic-registry-provenance")).not.toHaveTextContent(
       "integrations servicenow orientation",
@@ -57,17 +57,19 @@ describe("HelpServiceNowIntegrationGuideView", () => {
     );
     expect(screen.queryByTestId("help-servicenow-integration-connection-precondition-tag")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-servicenow-integration-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
-    expect(screen.getByTestId("help-servicenow-integration-claim-discipline").textContent?.toLowerCase()).not.toContain(
-      "sources package",
+    expect(screen.getByTestId("help-servicenow-integration-claim-discipline-strip")).toHaveTextContent(
+      SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE,
     );
-    expect(screen.getByTestId("help-servicenow-integration-claim-discipline").textContent?.toLowerCase()).not.toContain(
-      "not a",
-    );
-    expect(screen.getByTestId("help-servicenow-integration-claim-discipline").textContent).toContain(
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-servicenow-integration",
+      "help-servicenow-integration-claim-discipline",
       SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByRole("heading", { name: SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expectClaimDisciplineHeading(
+      screen,
+      "help-servicenow-integration",
+      SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
       SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID,
     );
     expect(screen.getByRole("link", { name: SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.label })).toBeInTheDocument();
@@ -101,7 +103,11 @@ describe("HelpServiceNowIntegrationGuideView", () => {
     expect(screen.queryByText(/Read integration readiness help →/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Open Jira integration →/)).not.toBeInTheDocument();
 
-    for (const heading of SERVICENOW_INTEGRATION_HELP_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-servicenow-integration",
+      SERVICENOW_INTEGRATION_HELP_GUIDE_HEADINGS,
+      SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID,
+    )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
   });

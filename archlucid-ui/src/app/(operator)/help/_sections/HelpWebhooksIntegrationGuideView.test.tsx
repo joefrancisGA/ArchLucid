@@ -6,6 +6,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpWebhooksIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationGuideView";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   WEBHOOKS_INTEGRATION_HELP_ALERT_RULES_HREF,
@@ -57,12 +62,20 @@ describe("HelpWebhooksIntegrationGuideView", () => {
     expect(screen.getByTestId("help-webhooks-integration-overview").textContent?.toLowerCase()).not.toContain(
       "sources package",
     );
-    expect(screen.getByTestId("help-webhooks-integration-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-webhooks-integration-claim-discipline-strip")).toHaveTextContent(
+      WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-webhooks-integration",
+      "help-webhooks-integration-claim-discipline",
       WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE.startsWith("This guide explains")).toBe(false);
-    expect(screen.getByRole("heading", { name: WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expectClaimDisciplineHeading(
+      screen,
+      "help-webhooks-integration",
+      WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
       WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID,
     );
     expect(screen.getAllByRole("link", { name: WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
@@ -111,7 +124,11 @@ describe("HelpWebhooksIntegrationGuideView", () => {
     });
     expect(alertRulesFollowUp.className).toContain("border-neutral-300");
 
-    for (const heading of WEBHOOKS_INTEGRATION_HELP_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-webhooks-integration",
+      WEBHOOKS_INTEGRATION_HELP_GUIDE_HEADINGS,
+      WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID,
+    )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
   });

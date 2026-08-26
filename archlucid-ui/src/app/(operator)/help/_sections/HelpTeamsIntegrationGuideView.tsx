@@ -3,17 +3,16 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { TeamsIntegrationHelpClaimDisciplineStrip } from "@/components/help/TeamsIntegrationHelpClaimDisciplineStrip";
 import { TeamsIntegrationHelpEvidenceOrientationStrip } from "@/components/help/TeamsIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -90,41 +89,44 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
         actions={<PageContextualHelpButton />}
       />
 
+      <TeamsIntegrationHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div
           id={TEAMS_INTEGRATION_HELP_PRIMARY_CONTENT_ID}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
-          {buyerPolishedShell ? (
-            <div data-testid="help-teams-integration-orientation-top">
-              <TeamsIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-            </div>
-          ) : null}
+          <div data-testid="help-teams-integration-orientation-top">
+            <TeamsIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          </div>
 
           <p className={readingBodyClass} data-testid="help-teams-integration-overview">
             {TEAMS_INTEGRATION_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-teams-integration-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {TEAMS_INTEGRATION_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={TEAMS_INTEGRATION_HELP_PRIMARY_ACTION.href}>
-                  {TEAMS_INTEGRATION_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-teams-integration-webhook-precondition"
-              >
-                {TEAMS_INTEGRATION_HELP_WEBHOOK_PRECONDITION}
-              </p>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-teams-integration-action-panel"
+            aria-labelledby="help-teams-integration-action-panel-heading"
+          >
+            <h2
+              id="help-teams-integration-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {TEAMS_INTEGRATION_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <Button asChild size="sm" variant="primary">
+              <Link href={TEAMS_INTEGRATION_HELP_PRIMARY_ACTION.href}>
+                {TEAMS_INTEGRATION_HELP_PRIMARY_ACTION.label}
+              </Link>
+            </Button>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-teams-integration-webhook-precondition"
+            >
+              {TEAMS_INTEGRATION_HELP_WEBHOOK_PRECONDITION}
+            </p>
+          </section>
 
           <section
             aria-labelledby="what-teams-notifications-do"
@@ -189,11 +191,6 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
             </ul>
           </section>
 
-          {!buyerPolishedShell ? (
-            <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-              <TeamsIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-            </div>
-          ) : null}
         </div>
 
         <HelpTopicTableOfContents headings={TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS} enableScrollSpy />

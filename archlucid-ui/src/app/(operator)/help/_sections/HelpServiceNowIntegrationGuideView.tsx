@@ -1,16 +1,15 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { ServiceNowIntegrationHelpClaimDisciplineStrip } from "@/components/help/ServiceNowIntegrationHelpClaimDisciplineStrip";
 import { ServiceNowIntegrationHelpEvidenceOrientationStrip } from "@/components/help/ServiceNowIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -78,36 +77,40 @@ export function HelpServiceNowIntegrationGuideView(
         actions={<PageContextualHelpButton />}
       />
 
+      <ServiceNowIntegrationHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <ServiceNowIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+
           <p className={readingBodyClass} data-testid="help-servicenow-integration-overview">
             {SERVICENOW_INTEGRATION_HELP_OVERVIEW}
           </p>
 
-          <Card
-            className="border-neutral-200 dark:border-neutral-800"
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid="help-servicenow-integration-action-panel"
+            aria-labelledby="help-servicenow-integration-action-panel-heading"
           >
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {SERVICENOW_INTEGRATION_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.href}>
-                  {SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-servicenow-integration-connection-precondition"
-              >
-                <span className="font-medium text-al-text-primary">ServiceNow connection.</span>{" "}
-                {SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION}
-              </p>
-            </CardContent>
-          </Card>
+            <h2
+              id="help-servicenow-integration-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {SERVICENOW_INTEGRATION_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <Button asChild size="sm" variant="primary">
+              <Link href={SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.href}>
+                {SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.label}
+              </Link>
+            </Button>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-servicenow-integration-connection-precondition"
+            >
+              <span className="font-medium text-al-text-primary">ServiceNow connection.</span>{" "}
+              {SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION}
+            </p>
+          </section>
 
           <section
             aria-labelledby="what-servicenow-integration-does"
@@ -154,7 +157,6 @@ export function HelpServiceNowIntegrationGuideView(
             </ol>
           </section>
 
-          <ServiceNowIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
         </div>
 
         <HelpTopicTableOfContents headings={SERVICENOW_INTEGRATION_HELP_GUIDE_HEADINGS} />

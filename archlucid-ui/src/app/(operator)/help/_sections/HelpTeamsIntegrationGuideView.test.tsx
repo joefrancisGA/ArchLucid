@@ -112,6 +112,10 @@ describe("HelpTeamsIntegrationGuideView", () => {
 
     expect(screen.getByTestId("help-teams-integration-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
 
+    expect(screen.getByTestId("help-teams-integration-claim-discipline-strip")).toHaveTextContent(
+      TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+    );
+
     expectClaimDisciplineBandContent(
       screen,
       "help-teams-integration",

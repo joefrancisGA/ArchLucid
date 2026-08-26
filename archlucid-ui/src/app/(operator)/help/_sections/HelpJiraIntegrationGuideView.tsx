@@ -1,15 +1,14 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { JiraIntegrationHelpClaimDisciplineStrip } from "@/components/help/JiraIntegrationHelpClaimDisciplineStrip";
 import { JiraIntegrationHelpEvidenceOrientationStrip } from "@/components/help/JiraIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -73,33 +72,40 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
         actions={<PageContextualHelpButton />}
       />
 
+      <JiraIntegrationHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <JiraIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+
           <p className={readingBodyClass} data-testid="help-jira-integration-overview">
             {JIRA_INTEGRATION_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-jira-integration-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {JIRA_INTEGRATION_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={JIRA_INTEGRATION_HELP_PRIMARY_ACTION.href}>
-                  {JIRA_INTEGRATION_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-jira-integration-connection-precondition"
-              >
-                <span className="font-medium text-al-text-primary">Atlassian connection.</span>{" "}
-                {JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION}
-              </p>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-jira-integration-action-panel"
+            aria-labelledby="help-jira-integration-action-panel-heading"
+          >
+            <h2
+              id="help-jira-integration-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {JIRA_INTEGRATION_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <Button asChild size="sm" variant="primary">
+              <Link href={JIRA_INTEGRATION_HELP_PRIMARY_ACTION.href}>
+                {JIRA_INTEGRATION_HELP_PRIMARY_ACTION.label}
+              </Link>
+            </Button>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-jira-integration-connection-precondition"
+            >
+              <span className="font-medium text-al-text-primary">Atlassian connection.</span>{" "}
+              {JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION}
+            </p>
+          </section>
 
           <section
             aria-labelledby="what-jira-integration-does"
@@ -152,7 +158,6 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
             </ol>
           </section>
 
-          <JiraIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
         </div>
 
         <HelpTopicTableOfContents headings={JIRA_INTEGRATION_HELP_GUIDE_HEADINGS} />

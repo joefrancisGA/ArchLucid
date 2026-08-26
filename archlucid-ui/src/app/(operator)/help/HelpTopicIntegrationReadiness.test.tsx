@@ -51,13 +51,18 @@ describe("HelpTopicIntegrationReadiness (HEI)", () => {
     expect(screen.getByTestId("help-integration-readiness-guide")).toBeInTheDocument();
     expect(screen.getByTestId("help-integration-readiness-page-title")).toHaveTextContent("Integration readiness");
 
-    const connectionStatusLink = screen.getByRole("link", {
-      name: INTEGRATION_READINESS_HELP_PRIMARY_ACTION.label,
-    });
+    const connectionStatusLink = within(screen.getByTestId("help-integration-readiness-action-panel")).getByRole(
+      "link",
+      {
+        name: INTEGRATION_READINESS_HELP_PRIMARY_ACTION.label,
+      },
+    );
 
     expect(connectionStatusLink).toHaveAttribute("href", INTEGRATION_READINESS_HELP_PRIMARY_ACTION.href);
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByText(INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE)).toBeInTheDocument();
+    expect(screen.getByTestId("help-integration-readiness-claim-discipline-strip")).toHaveTextContent(
+      INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE,
+    );
     expect(screen.getByTestId("integration-readiness-help-sources")).toBeInTheDocument();
     expect(screen.getByTestId(INTEGRATION_READINESS_HELP_RELATED_TEST_ID)).toBeInTheDocument();
 

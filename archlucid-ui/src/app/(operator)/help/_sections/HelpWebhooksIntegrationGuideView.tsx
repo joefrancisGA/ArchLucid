@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpWebhooksIntegrationHeaderActions } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationHeaderActions";
+import { WebhooksIntegrationHelpClaimDisciplineStrip } from "@/components/help/WebhooksIntegrationHelpClaimDisciplineStrip";
 import { WebhooksIntegrationHelpEvidenceOrientationStrip } from "@/components/help/WebhooksIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -75,8 +76,12 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
         actions={<HelpWebhooksIntegrationHeaderActions entry={entry} />}
       />
 
+      <WebhooksIntegrationHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <WebhooksIntegrationHelpEvidenceOrientationStrip />
+
           <p
             className={cn(readingBodyClass, OPERATOR_TYPOGRAPHY.body)}
             data-testid="help-webhooks-integration-overview"
@@ -158,7 +163,6 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
             </ol>
           </section>
 
-          <WebhooksIntegrationHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={WEBHOOKS_INTEGRATION_HELP_GUIDE_HEADINGS} />

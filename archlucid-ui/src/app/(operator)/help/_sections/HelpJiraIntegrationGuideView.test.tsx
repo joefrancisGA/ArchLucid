@@ -7,6 +7,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpJiraIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpJiraIntegrationGuideView";
 import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
   JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID,
   JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION,
   JIRA_INTEGRATION_HELP_GUIDE_HEADINGS,
@@ -42,14 +47,19 @@ describe("HelpJiraIntegrationGuideView", () => {
     expect(screen.queryByTestId("help-jira-integration-connection-precondition-tag")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-jira-integration-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-jira-integration-overview").textContent?.toLowerCase()).not.toContain("ticket");
-    expect(screen.getByTestId("help-jira-integration-claim-discipline").textContent?.toLowerCase()).not.toContain(
-      "sources package",
+    expect(screen.getByTestId("help-jira-integration-claim-discipline-strip")).toHaveTextContent(
+      JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE,
     );
-    expect(screen.getByTestId("help-jira-integration-claim-discipline").textContent).toContain(
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-jira-integration",
+      "help-jira-integration-claim-discipline",
       JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByRole("heading", { name: JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expectClaimDisciplineHeading(
+      screen,
+      "help-jira-integration",
+      JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
       JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID,
     );
     expect(screen.getByRole("link", { name: JIRA_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
@@ -78,7 +88,11 @@ describe("HelpJiraIntegrationGuideView", () => {
     expect(screen.getAllByRole("link", { name: "Open ServiceNow integration" })).toHaveLength(1);
     expect(screen.queryByRole("link", { name: "Jira integration" })).not.toBeInTheDocument();
 
-    for (const heading of JIRA_INTEGRATION_HELP_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-jira-integration",
+      JIRA_INTEGRATION_HELP_GUIDE_HEADINGS,
+      JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID,
+    )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
   });

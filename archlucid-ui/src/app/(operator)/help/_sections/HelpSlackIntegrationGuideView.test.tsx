@@ -58,6 +58,9 @@ describe("HelpSlackIntegrationGuideView", () => {
     expect(screen.getByTestId("help-slack-integration-workspace-readiness")).toBeInTheDocument();
     expect(screen.getByTestId("help-slack-integration-workspace-readiness-status")).toBeInTheDocument();
     expect(screen.getByTestId("help-slack-integration-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
+    expect(screen.getByTestId("help-slack-integration-claim-discipline-strip")).toHaveTextContent(
+      SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+    );
     expectClaimDisciplineBandContent(
       screen,
       "help-slack-integration",

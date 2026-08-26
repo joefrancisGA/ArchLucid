@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { IntegrationReadinessHelpClaimDisciplineStrip } from "@/components/help/IntegrationReadinessHelpClaimDisciplineStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -92,24 +93,31 @@ export function HelpIntegrationReadinessGuideView(
         </div>
       </header>
 
+      <IntegrationReadinessHelpClaimDisciplineStrip />
+
       <div className="space-y-4" data-testid={INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_TEST_ID}>
-        <Card data-testid="help-integration-readiness-action-panel">
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Open live readiness
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
-              <Link
-                href={INTEGRATION_READINESS_HELP_PRIMARY_ACTION.href}
-                data-testid={INTEGRATION_READINESS_HELP_PRIMARY_ACTION.testId}
-              >
-                {INTEGRATION_READINESS_HELP_PRIMARY_ACTION.label}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <section
+          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+          data-testid="help-integration-readiness-action-panel"
+          aria-labelledby="help-integration-readiness-action-panel-heading"
+        >
+          <h2
+            id="help-integration-readiness-action-panel-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            Open live readiness
+          </h2>
+          <Button asChild size="sm" variant="primary">
+            <Link
+              href={INTEGRATION_READINESS_HELP_PRIMARY_ACTION.href}
+              data-testid={INTEGRATION_READINESS_HELP_PRIMARY_ACTION.testId}
+            >
+              {INTEGRATION_READINESS_HELP_PRIMARY_ACTION.label}
+            </Link>
+          </Button>
+        </section>
+
+        <IntegrationReadinessHelpEvidenceOrientationStrip />
 
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-integration-readiness-overview">
           {INTEGRATION_READINESS_HELP_OVERVIEW}
@@ -174,8 +182,6 @@ export function HelpIntegrationReadinessGuideView(
           />
         </div>
       ) : null}
-
-      <IntegrationReadinessHelpEvidenceOrientationStrip />
     </article>
   );
 }
