@@ -25,8 +25,7 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
             if (!IsAppServiceTopology(item))
                 continue;
 
-            if (!item.Properties.TryGetValue("ipSecurityRestrictions", out string? rulesJson)
-                && !item.Properties.TryGetValue("IpSecurityRestrictions", out rulesJson))
+            if (!TryGetIpSecurityRestrictionsJson(item.Properties, out string? rulesJson))
                 continue;
 
             if (string.IsNullOrWhiteSpace(rulesJson))
@@ -36,6 +35,26 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
         }
 
         return expanded;
+    }
+
+    private static bool TryGetIpSecurityRestrictionsJson(
+        IReadOnlyDictionary<string, string> properties,
+        out string? rulesJson)
+    {
+        foreach (string key in properties.Keys)
+        {
+            if (!key.Equals("ipSecurityRestrictions", StringComparison.OrdinalIgnoreCase)
+                && !key.Equals("tf.ip_security_restrictions", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            rulesJson = properties[key];
+
+            if (!string.IsNullOrWhiteSpace(rulesJson))
+                return true;
+        }
+
+        rulesJson = null;
+        return false;
     }
 
     private static bool IsAppServiceTopology(CanonicalObject item)

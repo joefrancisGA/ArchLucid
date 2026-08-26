@@ -43,4 +43,33 @@ public sealed class JsonInfrastructureDeclarationParserTests
         result.Should().ContainSingle(o => o.ObjectType == "SecurityBaseline" && o.Name == "archlucid-kv");
         result.Should().Contain(o => o.Properties["resourceType"] == "vnet" && o.Properties["region"] == "eastus");
     }
+
+    [Fact]
+    public async Task ParseAsync_RegionAndSubtypeCasing_AreCanonicalized()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "vnet",
+                            "name": "core-vnet",
+                            "region": "EastUS",
+                            "subtype": "Hub",
+                            "properties": {}
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["region"].Should().Be("eastus");
+        result[0].Properties["subtype"].Should().Be("hub");
+    }
 }

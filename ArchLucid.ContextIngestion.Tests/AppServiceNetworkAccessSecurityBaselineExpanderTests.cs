@@ -111,4 +111,33 @@ public sealed class AppServiceNetworkAccessSecurityBaselineExpanderTests
 
         baseline.Should().NotBeNull();
     }
+
+    [Fact]
+    public void Expand_terraform_tf_ip_security_restrictions_creates_security_baseline()
+    {
+        CanonicalObject appService = new()
+        {
+            ObjectType = "TopologyResource",
+            Name = "web-app",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_linux_web_app",
+                ["tf.ip_security_restrictions"] =
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand([appService]);
+
+        expanded.Should().HaveCountGreaterThan(1);
+
+        CanonicalObject? baseline = expanded.FirstOrDefault(o =>
+            o.ObjectType == "SecurityBaseline"
+            && o.Properties.TryGetValue("ruleKind", out string? kind)
+            && kind == "OpenPublicEndpoint");
+
+        baseline.Should().NotBeNull();
+    }
 }

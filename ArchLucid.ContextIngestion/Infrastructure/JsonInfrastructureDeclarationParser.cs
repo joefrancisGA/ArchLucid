@@ -52,10 +52,10 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
                 StringComparer.OrdinalIgnoreCase);
 
             if (!string.IsNullOrWhiteSpace(resource.Subtype))
-                properties["subtype"] = resource.Subtype!;
+                properties["subtype"] = resource.Subtype!.Trim().ToLowerInvariant();
 
             if (!string.IsNullOrWhiteSpace(resource.Region))
-                properties["region"] = resource.Region!;
+                properties["region"] = resource.Region!.Trim().ToLowerInvariant();
 
             properties["resourceType"] = resource.Type.Trim().ToLowerInvariant();
 
