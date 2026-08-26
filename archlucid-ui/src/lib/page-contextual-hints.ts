@@ -39,7 +39,7 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     prefix: "/insights/compare-two-reviews",
     hint: {
       id: "compare-reviews",
-      message: "Pick two finalized reviews from the lists — no need to paste IDs. Structured manifest diff loads first.",
+      message: "Pick two finalized reviews from the lists — no need to paste IDs. Structured review comparison loads first.",
       learnMoreHref: "/help/comparison-replay",
     },
   },

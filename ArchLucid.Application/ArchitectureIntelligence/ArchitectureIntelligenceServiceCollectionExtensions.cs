@@ -1,4 +1,6 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Persistence.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -25,6 +27,7 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
 
         services.TryAddSingleton<IArchitectureIntelligencePersistence, InMemoryArchitectureIntelligencePersistence>();
         services.TryAddSingleton<IImmutableSourceStore, InMemoryImmutableSourceStore>();
+        services.RemoveAll<IAuthorityFindingsSnapshotUpdater>();
 
         return services;
     }
@@ -64,7 +67,22 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IAsyncArchitectureRecommendationEngine, LlmBackedArchitectureRecommendationEngine>();
 
         services.AddScoped<IArchitectureOntologyService, ArchitectureOntologyService>();
-        services.AddScoped<IArchitectureKnowledgeModelAccess, ArchitectureKnowledgeModelAccess>();
+        services.AddScoped<IArchitectureKnowledgeModelAccess>(static sp =>
+        {
+            IArchitectureIntelligencePersistence? persistence =
+                sp.GetService<IArchitectureIntelligencePersistence>();
+            IRunRepository? runRepository = sp.GetService<IRunRepository>();
+            IArchitectureIdentityRepository? identityRepository =
+                sp.GetService<IArchitectureIdentityRepository>();
+            IKnowledgeModelGraphReprojector? reprojector =
+                runRepository is not null ? sp.GetService<IKnowledgeModelGraphReprojector>() : null;
+
+            return new ArchitectureKnowledgeModelAccess(
+                persistence,
+                runRepository,
+                identityRepository,
+                reprojector);
+        });
         services.AddScoped<IKnowledgeModelGraphReprojector, KnowledgeModelGraphReprojector>();
         services.AddScoped<IExtractionFidelityBenchmark, ExtractionFidelityBenchmark>();
         services.AddScoped<IArchitectureIntelligenceBenchmark, ArchitectureIntelligenceBenchmark>();

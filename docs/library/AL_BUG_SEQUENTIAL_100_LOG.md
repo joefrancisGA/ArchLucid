@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal bug-hunt evidence log; not buyer-facing.
+
 # /al-bug sequential run log
 
 | Attempt | Zone | Outcome | Bugs found (24h) | Dry runs (24h) |

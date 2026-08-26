@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal bug-hunt evidence log; not buyer-facing.
+
 # `/al-bug` evidence-guided reseed report
 
 Generated UTC: `2026-08-24T23:41:47.588730+00:00`

@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal bug-hunt evidence log; not buyer-facing.
+
 # `/al-bug` strategy execution — 2026-08-24
 
 ## Outcome

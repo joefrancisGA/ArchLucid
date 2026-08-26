@@ -803,7 +803,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.RetryRequested` | `Run.RetryRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteRunAsync` when load maps to `ArchitectureRunStatus.Failed`; scoped tenant/workspace/project + `RunId`) |
 | `Run.SelectiveExecuteRequested` | `Run.SelectiveExecuteRequested` | `RunsController` (`POST /v1/architecture/run/{runId}/execute/selective`) → `ArchitectureRunExecuteOrchestrator` (`ExecuteSelectiveRunAsync`; scoped tenant/workspace/project + `RunId`; payload `includeDependents`, `taskIds`, `agentTypes`) |
 | `Operation.CancelRequested` | `Operation.CancelRequested` | `OperationsController` (`POST /v1/operations/{operationId}/cancel`; TB-2076 cooperative cancel) |
-| `IncrementalReReviewCompleted` | `Run.IncrementalReReviewCompleted` | `SelectiveExecuteIncrementalReReviewCoordinator`; `ClarificationAnswerReReviewCoordinator` |
+| `Run.IncrementalReReviewCompleted` | `Run.IncrementalReReviewCompleted` | `SelectiveExecuteIncrementalReReviewCoordinator`; `ClarificationAnswerReReviewCoordinator` |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 

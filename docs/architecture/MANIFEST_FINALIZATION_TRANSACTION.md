@@ -29,7 +29,7 @@ When `IArchLucidUnitOfWork.SupportsExternalTransaction` is false, `ManifestFinal
 |-----------|----------|
 | Orchestration entry | [`AuthorityDrivenArchitectureRunCommitOrchestrator`](../../ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs) |
 | Service | [`ManifestFinalizationService`](../../ArchLucid.Application/Runs/Finalization/ManifestFinalizationService.cs) |
-| DI registration | [`ServiceCollectionExtensions.ApplicationPipeline.cs`](../../ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.ApplicationPipeline.cs) |
+| DI registration | [`PipelineCompositionModule.cs`](../../ArchLucid.Host.Composition/Startup/Modules/PipelineCompositionModule.cs) (`IManifestFinalizationService`) |
 | Audit constant | `AuditEventTypes.ManifestFinalized` |
 | Integration type | `IntegrationEventTypes.ManifestFinalizedV1` |
 | JSON Schema | [`schemas/integration-events/manifest-finalized.v1.schema.json`](../../schemas/integration-events/manifest-finalized.v1.schema.json) |
