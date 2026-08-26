@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { LayerHeader } from "@/components/LayerHeader";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -26,8 +25,7 @@ import {
   readCompareRunIdsFromSearchParams,
 } from "@/lib/compare-url-query-params";
 import { BUYER_COMPARE_PAGE_TITLE, BUYER_COMPARE_PRIMARY_ACTION_LABEL } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoGoldenManifestComparison,
@@ -77,13 +75,9 @@ import {
 export function CompareForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const workspaceRun = useWorkspaceActiveRun();
   const compareGenerationRef = useRef(0);
   const aiGenerationRef = useRef(0);
   const autoComparedFromUrlRef = useRef(false);
-  const demoComparePrefillDoneRef = useRef(false);
-  const buyerAutoSeedDoneRef = useRef(false);
-  const workspaceActivePrefillDoneRef = useRef(false);
   const initialUrlPair = readCompareRunIdsFromSearchParams(searchParams);
   const [leftRunId, setLeftRunId] = useState(initialUrlPair.prior);
   const [rightRunId, setRightRunId] = useState(initialUrlPair.later);
@@ -267,89 +261,6 @@ export function CompareForm() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (demoComparePrefillDoneRef.current) {
-      return;
-    }
-
-    if (!isStaticDemoPayloadFallbackEnabled()) {
-      return;
-    }
-
-    if (isBuyerPolishedOperatorShellEnv()) {
-      return;
-    }
-
-    const { prior: priorQ, later: laterQ } = readCompareRunIdsFromSearchParams(searchParams);
-
-    if (priorQ.length > 0 || laterQ.length > 0) {
-      return;
-    }
-
-    if (leftRunId.trim().length > 0 || rightRunId.trim().length > 0) {
-      return;
-    }
-
-    demoComparePrefillDoneRef.current = true;
-    setLeftRunId(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID);
-    setRightRunId(SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
-  }, [searchParams, leftRunId, rightRunId]);
-
-  useEffect(() => {
-    if ((!isOperatorExperienceFullShellEnv() && !isCtoDemoPackEnv()) || !isStaticDemoPayloadFallbackEnabled()) {
-      return;
-    }
-
-    if (buyerAutoSeedDoneRef.current) {
-      return;
-    }
-
-    const { prior: priorQ, later: laterQ } = readCompareRunIdsFromSearchParams(searchParams);
-
-    if (priorQ.length > 0 || laterQ.length > 0) {
-      return;
-    }
-
-    buyerAutoSeedDoneRef.current = true;
-    setLeftRunId(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID);
-    setRightRunId(SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
-    void runCompareForPair(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID, SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
-  }, [searchParams, runCompareForPair]);
-
-  useEffect(() => {
-    if (workspaceActivePrefillDoneRef.current) {
-      return;
-    }
-
-    if (isBuyerPolishedOperatorShellEnv()) {
-      return;
-    }
-
-    const { prior: priorQ, later: laterQ } = readCompareRunIdsFromSearchParams(searchParams);
-
-    if (priorQ.length > 0 || laterQ.length > 0) {
-      return;
-    }
-
-    if (leftRunId.trim().length > 0 || rightRunId.trim().length > 0) {
-      return;
-    }
-
-    if (isStaticDemoPayloadFallbackEnabled()) {
-      return;
-    }
-
-    const fromWorkspace = workspaceRun?.activeRunId?.trim() ?? "";
-
-    if (fromWorkspace.length === 0) {
-      return;
-    }
-
-    workspaceActivePrefillDoneRef.current = true;
-    setLeftRunId(fromWorkspace);
-    syncSelectionToUrl(fromWorkspace, rightRunId);
-  }, [searchParams, leftRunId, rightRunId, workspaceRun?.activeRunId, syncSelectionToUrl]);
-
-  useEffect(() => {
     const { prior: left, later: right } = readCompareRunIdsFromSearchParams(searchParams);
 
     if (left.length === 0 || right.length === 0 || autoComparedFromUrlRef.current) {
@@ -509,8 +420,9 @@ export function CompareForm() {
   };
 
   const urlComparePair = readCompareRunIdsFromSearchParams(searchParams);
-  const buyerCompareHasUrlPair =
+  const urlPairComplete =
     urlComparePair.prior.trim().length > 0 && urlComparePair.later.trim().length > 0;
+  const buyerCompareHasUrlPair = urlPairComplete;
   const hasPrefilledSelection = leftTrim.length > 0 || rightTrim.length > 0;
   const showInsufficientFinalized =
     buyerPolished &&
@@ -636,8 +548,11 @@ export function CompareForm() {
           collapseBelowResults={compareInsightFirstLayout && buyerPolished}
         />
 
-        {!compareInsightFirstLayout && showEmptyComparisonOutput ? <CompareEmptyResultsPlaceholder /> : null}
+        {!compareInsightFirstLayout && showEmptyComparisonOutput && !urlPairComplete ? (
+          <CompareEmptyResultsPlaceholder />
+        ) : null}
 
+        {urlPairComplete ? (
         <CompareResultsPanel
           showStaleInputsWarning={showStaleInputsWarning}
           lastComparedPair={lastComparedPair}
@@ -662,8 +577,10 @@ export function CompareForm() {
           buyerPolished={buyerPolished}
           resultsFirst={compareInsightFirstLayout}
         />
+        ) : null}
       </div>
 
+      {urlPairComplete ? (
       <CompareLastRequestOutcomeDetails
         pairAligned={pairAligned}
         loading={loading}
@@ -679,6 +596,7 @@ export function CompareForm() {
         legacyMalformed={legacyMalformed}
         buyerPolished={buyerPolished}
       />
+      ) : null}
 
       {buyerPolished ? (
         <CompareHowComparisonWorksSection />
