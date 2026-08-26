@@ -3,7 +3,7 @@
 
 # Insight density — Composer prompt set ID-08 through ID-11
 
-**Created:** 2026-08-26 · **Status:** ready to run (ID-08 through ID-11)
+**Created:** 2026-08-26 · **Status:** ID-08, ID-09, and ID-10 **SHIPPED on `master`.** Do **not** re-run them. Remaining policy-pack work (buyer packs other than `cis-az-*` still fail-open on declaration engines) is [`POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`](POLICY_PACK_MOAT_COMPOSER_PROMPTS.md) **PP-01**. ID-11 (advisory density labeling) may still be open.
 
 **Do not re-run ID-01 through ID-07.** They shipped on `master` (frontier-delta harness, per-engine distribution, multi-cloud generic patterns, judge coverage + cap, open-commitment / portfolio-recurrence / premise-conflict engines, tenant admin card). Treat [`INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS.md) as an archive.
 
@@ -19,14 +19,14 @@ A filter still raises **precision**, never **density**. Do **not** add a finding
 
 ID-05/06/07 generate from non-graph sources. The 2026-08-26 assessment still scores the pillar at **62** because:
 
-| Hole | Evidence | Prompt |
-|------|----------|--------|
-| Bicep and Kubernetes ingest topology but not the properties declaration engines read | `BicepInfrastructureDeclarationParser` stores only `resourceType` / `bicepSymbolicName` / `apiVersion`. `KubernetesManifestCanonicalObjectMapper` stores only `k8s.kind` / `k8s.apiVersion` / `k8s.name` / `k8s.namespace`. `DeclarationSecurityBaselineClassifier` looks up `tf.public_network_access` and ARM `publicNetworkAccess` — never `tf.publicnetworkaccess` (what `CanonicalInfrastructurePropertyBag.TryAddTfProperty` actually writes for camelCase) and never `k8s.*` | **ID-08** |
-| Policy-pack filtering (the real moat) has no system-level regression | `GoldenCorpusHarness.CreateEngines()` constructs `FileComplianceRulePackProvider` and bypasses `ComplianceRulePackGovernanceFilter` | **ID-09** |
-| Only 1 of 39 engines is policy-filtered | Declaration and security-baseline engines run identically for every tenant | **ID-10** |
-| Density scores for typed engines are computed then discarded | `typed-engine-protected` still bypasses demotion; the distribution report can be misread as a control | **ID-11** |
+| Hole | Evidence | Prompt | Status |
+|------|----------|--------|--------|
+| Bicep and Kubernetes ingest topology but not the properties declaration engines read | (historical) | **ID-08** | **SHIPPED** |
+| Policy-pack filtering (the real moat) has no system-level regression | `GoldenCorpusHarness.CreateEngines()` still constructs `FileComplianceRulePackProvider`; sibling test now exists | **ID-09** | **SHIPPED** (`PolicyFilteredGoldenCorpusTests`) |
+| Only CIS Azure keys gated declaration engines | `DeclarationSignalPolicyKeyMap` maps `cis-az-*` / `sec-base-028`; other prefixes fail-open | **ID-10** then **PP-01** | ID-10 **SHIPPED**; remaining fail-open is [`POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`](POLICY_PACK_MOAT_COMPOSER_PROMPTS.md) |
+| Density scores for typed engines are computed then discarded | `typed-engine-protected` still bypasses demotion | **ID-11** | honesty / labeling |
 
-**ID-08 is the only prompt in this set that raises density.** ID-09 guards the moat. ID-10 packages declaration findings into governance (pillar clause *package*). ID-11 stops us from mistaking advisory scores for control.
+**ID-08 is the only prompt in this set that raises density.** ID-09 guards the compliance moat. ID-10 packaged CIS Azure declaration findings. **PP-01** (separate file) is the remaining pack work. ID-11 stops us from mistaking advisory scores for control.
 
 ---
 
