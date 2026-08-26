@@ -195,10 +195,21 @@ export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT =
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER = "e.g. Platform SRE";
 
-export const GUIDED_INTAKE_OVERVIEW_REWRITE_BUTTON = "Rewrite architecture overview from the confirmed brief";
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_BUTTON = "Rewrite overview from brief";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_PAYOFF =
+  "Ground the architecture overview in confirmed brief facts — preview the diff before anything changes.";
 
 export const GUIDED_INTAKE_OVERVIEW_REWRITE_DISABLED_HINT =
-  "Confirm or deny at least one structured-brief suggestion, then rewrite the overview from those facts.";
+  "Confirm or deny at least one structured-brief suggestion below, then rewrite the overview from those facts.";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_GROUNDING_HINT =
+  "Add at least one confirmed constraint, assumption, or capability in the structured brief below before rewriting.";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_OVERVIEW_HINT =
+  "Add at least 20 characters to the architecture overview before rewriting.";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_SCROLL_TO_BRIEF_LABEL = "Jump to structured brief";
 
 export const GUIDED_INTAKE_OVERVIEW_REWRITE_PREVIEW_HEADING = "Proposed architecture overview";
 

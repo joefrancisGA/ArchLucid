@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { ArchitectureManifestUnifiedDiffView } from "@/components/compare/ArchitectureManifestUnifiedDiffView";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
@@ -17,24 +18,28 @@ import {
   structuredBriefHasRewriteGrounding,
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
-import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_OVERVIEW_REWRITE_ACCEPT_BUTTON,
   GUIDED_INTAKE_OVERVIEW_REWRITE_BUTTON,
-  GUIDED_INTAKE_OVERVIEW_REWRITE_DISABLED_HINT,
   GUIDED_INTAKE_OVERVIEW_REWRITE_DISCARD_BUTTON,
+  GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_GROUNDING_HINT,
+  GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_OVERVIEW_HINT,
+  GUIDED_INTAKE_OVERVIEW_REWRITE_PAYOFF,
   GUIDED_INTAKE_OVERVIEW_REWRITE_PREVIEW_HEADING,
   GUIDED_INTAKE_OVERVIEW_REWRITE_RESUGGEST_BUTTON,
   GUIDED_INTAKE_OVERVIEW_REWRITE_RESUGGEST_HINT,
+  GUIDED_INTAKE_OVERVIEW_REWRITE_SCROLL_TO_BRIEF_LABEL,
 } from "@/lib/guided-intake-copy";
 import { cn } from "@/lib/utils";
+
+const STRUCTURED_BRIEF_SECTION_ID = "architecture-draft-structured-brief-fields";
 
 export type ArchitectureDraftOverviewRewritePanelProps = {
   readonly currentOverview: string;
   readonly systemName?: string;
   readonly businessOutcome?: string;
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
-  readonly briefConfirmOrDenyCount: number;
   readonly disabled?: boolean;
   readonly blocksLlmExecution?: boolean;
   readonly onOverviewAccepted: (rewrittenOverview: string) => void;
@@ -42,7 +47,6 @@ export type ArchitectureDraftOverviewRewritePanelProps = {
 };
 
 export function canOfferArchitectureOverviewRewrite(input: {
-  readonly briefConfirmOrDenyCount: number;
   readonly currentOverview: string;
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
   readonly disabled?: boolean;
@@ -53,10 +57,6 @@ export function canOfferArchitectureOverviewRewrite(input: {
     return false;
   }
 
-  if (input.briefConfirmOrDenyCount < 1) {
-    return false;
-  }
-
   if (input.currentOverview.trim().length < ARCHITECTURE_OVERVIEW_REWRITE_MIN_OVERVIEW_CHARS) {
     return false;
   }
@@ -64,10 +64,30 @@ export function canOfferArchitectureOverviewRewrite(input: {
   return structuredBriefHasRewriteGrounding(input.structuredBrief);
 }
 
+function resolveOverviewRewriteDisabledHint(input: {
+  readonly currentOverview: string;
+  readonly structuredBrief: ArchitectureDraftStructuredBriefState;
+  readonly blocksLlmExecution?: boolean;
+}): string | null {
+  if (input.blocksLlmExecution === true) {
+    return null;
+  }
+
+  if (input.currentOverview.trim().length < ARCHITECTURE_OVERVIEW_REWRITE_MIN_OVERVIEW_CHARS) {
+    return GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_OVERVIEW_HINT;
+  }
+
+  if (!structuredBriefHasRewriteGrounding(input.structuredBrief)) {
+    return GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_GROUNDING_HINT;
+  }
+
+  return null;
+}
+
 /** Preview-and-accept rewrite of architecture overview from the confirmed structured brief. */
 export function ArchitectureDraftOverviewRewritePanel(
   props: ArchitectureDraftOverviewRewritePanelProps,
-): React.JSX.Element | null {
+): React.JSX.Element {
   const [rewriteBusy, setRewriteBusy] = useState(false);
   const [proposedOverview, setProposedOverview] = useState<string | null>(null);
   const [rewriteError, setRewriteError] = useState<{
@@ -79,17 +99,17 @@ export function ArchitectureDraftOverviewRewritePanel(
   const [resuggestConsumed, setResuggestConsumed] = useState(false);
 
   const canRewrite = canOfferArchitectureOverviewRewrite({
-    briefConfirmOrDenyCount: props.briefConfirmOrDenyCount,
     currentOverview: props.currentOverview,
     structuredBrief: props.structuredBrief,
     disabled: props.disabled,
     blocksLlmExecution: props.blocksLlmExecution,
     rewriteBusy,
   });
-
-  if (props.briefConfirmOrDenyCount < 1) {
-    return null;
-  }
+  const disabledHint = resolveOverviewRewriteDisabledHint({
+    currentOverview: props.currentOverview,
+    structuredBrief: props.structuredBrief,
+    blocksLlmExecution: props.blocksLlmExecution,
+  });
 
   async function onRewrite(): Promise<void> {
     if (!canRewrite) {
@@ -154,12 +174,24 @@ export function ArchitectureDraftOverviewRewritePanel(
   }
 
   return (
-    <div className="space-y-3" data-testid="architecture-draft-overview-rewrite-panel">
+    <div
+      className="space-y-3 rounded-md border border-teal-700/25 bg-al-surface-raised p-3"
+      data-testid="architecture-draft-overview-rewrite-panel"
+    >
+      <div className="space-y-1">
+        <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Rewrite from brief
+        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {GUIDED_INTAKE_OVERVIEW_REWRITE_PAYOFF}
+        </p>
+      </div>
+
       {proposedOverview === null ? (
         <div className="space-y-2">
           <Button
             type="button"
-            variant="secondary"
+            variant="primary"
             size="sm"
             className={CTA_WIDTH.content}
             disabled={!canRewrite}
@@ -170,13 +202,19 @@ export function ArchitectureDraftOverviewRewritePanel(
           >
             {rewriteBusy ? "Rewriting…" : GUIDED_INTAKE_OVERVIEW_REWRITE_BUTTON}
           </Button>
-          {!canRewrite && props.blocksLlmExecution !== true ? (
+          <AiBudgetSpendNotice action="Overview rewrite" testId="architecture-draft-overview-rewrite-budget" />
+          {disabledHint !== null ? (
             <p
-              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-500")}
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
               role="status"
               data-testid="architecture-draft-overview-rewrite-disabled-hint"
             >
-              {GUIDED_INTAKE_OVERVIEW_REWRITE_DISABLED_HINT}
+              {disabledHint}{" "}
+              {disabledHint === GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_GROUNDING_HINT ? (
+                <a href={`#${STRUCTURED_BRIEF_SECTION_ID}`} className={OPERATOR_LINK.inline}>
+                  {GUIDED_INTAKE_OVERVIEW_REWRITE_SCROLL_TO_BRIEF_LABEL}
+                </a>
+              ) : null}
             </p>
           ) : null}
           {props.blocksLlmExecution === true ? (
@@ -204,7 +242,7 @@ export function ArchitectureDraftOverviewRewritePanel(
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
-              variant="default"
+              variant="primary"
               size="sm"
               className={CTA_WIDTH.content}
               onClick={onAcceptPreview}

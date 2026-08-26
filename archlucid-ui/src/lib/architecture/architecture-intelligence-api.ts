@@ -14,9 +14,17 @@ export type ArchitectureIntelligenceFramingQuestion = {
   source?: string;
 };
 
+export type ArchitectureIntelligenceSpecialistFinding = {
+  findingId?: string;
+  title?: string;
+  severity?: string;
+  conclusion?: string;
+  rationale?: string;
+};
+
 export type ClosedLoopReasoningResult = {
   model?: { elements?: unknown[]; modelId?: string };
-  specialistReviews?: Array<{ findings?: Array<{ title?: string; severity?: string }> }>;
+  specialistReviews?: Array<{ findings?: ArchitectureIntelligenceSpecialistFinding[] }>;
   recommendations?: unknown[];
   interview?: {
     framingQuestions?: ArchitectureIntelligenceFramingQuestion[];

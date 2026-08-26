@@ -200,6 +200,8 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
         <ArchitectureIntelligenceRefineResultSummary
           result={result}
           testIdPrefix="run-detail-ai-refine"
+          linkedReviewId={runId}
+          canPublish
         />
       ) : null}
     </div>

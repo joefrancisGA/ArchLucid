@@ -109,7 +109,11 @@ export function ArchitectureDraftStructuredBriefFields(
   };
 
   return (
-    <div className="space-y-6" data-testid="architecture-draft-structured-brief-fields">
+    <div
+      id="architecture-draft-structured-brief-fields"
+      className="space-y-6"
+      data-testid="architecture-draft-structured-brief-fields"
+    >
       <div className="space-y-2">
         <p className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}>
           {GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL}

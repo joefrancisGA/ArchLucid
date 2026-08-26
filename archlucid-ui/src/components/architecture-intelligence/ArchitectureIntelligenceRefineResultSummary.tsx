@@ -1,6 +1,8 @@
 "use client";
 
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
+import { ArchitectureIntelligenceFindingsPreview } from "@/components/architecture-intelligence/ArchitectureIntelligenceFindingsPreview";
+import { ArchitectureIntelligenceRefineNextSteps } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineNextSteps";
 import { ArchitectureIntelligenceRunSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRunSummary";
 import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import type { ClosedLoopReasoningResult } from "@/lib/architecture/architecture-intelligence-api";
@@ -11,6 +13,8 @@ import { cn } from "@/lib/utils";
 export type ArchitectureIntelligenceRefineResultSummaryProps = {
   readonly result: ClosedLoopReasoningResult;
   readonly testIdPrefix?: string;
+  readonly linkedReviewId?: string | null;
+  readonly canPublish?: boolean;
 };
 
 /** Compact post-run economics, trust-gate, and product round-trip for in-place refine panels. */
@@ -51,6 +55,17 @@ export function ArchitectureIntelligenceRefineResultSummary(
       ) : null}
 
       <ArchitectureIntelligenceRunSummary result={result} testIdPrefix={prefix} />
+
+      {!result.budgetRejected ? (
+        <ArchitectureIntelligenceFindingsPreview result={result} testIdPrefix={prefix} />
+      ) : null}
+
+      <ArchitectureIntelligenceRefineNextSteps
+        result={result}
+        canPublish={props.canPublish}
+        linkedReviewId={props.linkedReviewId}
+        testIdPrefix={prefix}
+      />
 
       <ArchitectureIntelligenceProductRoundTrip
         runId={result.runId ?? undefined}

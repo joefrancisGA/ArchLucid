@@ -110,7 +110,6 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           systemName={props.fields.systemName}
           businessOutcome={props.fields.businessOutcome}
           structuredBrief={props.fields.structuredBrief}
-          briefConfirmOrDenyCount={briefConfirmOrDenyCount}
           disabled={props.disabled === true}
           blocksLlmExecution={props.blocksLlmExecution === true}
           onOverviewAccepted={(rewrittenOverview) => {

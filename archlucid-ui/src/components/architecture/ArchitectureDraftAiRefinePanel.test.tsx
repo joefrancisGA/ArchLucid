@@ -66,6 +66,18 @@ describe("ArchitectureDraftAiRefinePanel", () => {
       runId: "ai-run-1",
       model: { elements: [{ id: "1" }] },
       integrityPassedFindingIds: ["f1"],
+      specialistReviews: [
+        {
+          findings: [
+            {
+              findingId: "f1",
+              title: "Missing authentication boundary",
+              severity: "High",
+              conclusion: "Public API lacks auth controls.",
+            },
+          ],
+        },
+      ],
       publishedToProduct: false,
       budgetEstimatedCostUsd: 0.2,
       budgetRemainingUsd: 39.8,
@@ -94,7 +106,8 @@ describe("ArchitectureDraftAiRefinePanel", () => {
         reviewTier: "Standard",
       }),
     );
-    expect(screen.getByText(/Start a review when you are ready/)).toBeInTheDocument();
+    expect(screen.getByText("Missing authentication boundary")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-ai-refine-start-review")).toBeInTheDocument();
   });
 
   it("publishes into the linked review when one exists", async () => {

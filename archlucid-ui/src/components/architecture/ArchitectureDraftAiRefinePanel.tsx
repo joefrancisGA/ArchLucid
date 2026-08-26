@@ -35,8 +35,7 @@ import {
 } from "@/lib/architecture/architecture-intelligence-framing-interview";
 import type { ArchitectureIntelligenceReviewTier } from "@/lib/architecture/architecture-intelligence-review-tier";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledLlmBudgetExhausted } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 
@@ -311,6 +310,8 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
           <ArchitectureIntelligenceRefineResultSummary
             result={result}
             testIdPrefix="architecture-draft-ai-refine"
+            linkedReviewId={linkedReviewId}
+            canPublish={canPublish}
           />
           {showFramingInterview ? (
             <ArchitectureIntelligenceFramingInterviewPanel
@@ -333,19 +334,6 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
               onSkippedQuestionIdsChange={setSkippedFramingQuestionIds}
               onResubmit={requestFramingResubmit}
             />
-          ) : null}
-          {!canPublish && !result.budgetRejected ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Start a review when you are ready to capture these findings on a product run.
-            </p>
-          ) : null}
-          {canPublish && linkedReviewId !== null && result.publishedToProduct === true ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link href={reviewDetailPath(linkedReviewId)} className={OPERATOR_LINK.inline}>
-                Open linked review
-              </Link>{" "}
-              to continue from the published findings.
-            </p>
           ) : null}
         </>
       ) : null}
