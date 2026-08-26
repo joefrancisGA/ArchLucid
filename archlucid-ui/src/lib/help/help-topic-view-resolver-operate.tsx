@@ -8,6 +8,7 @@ import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/Sec
 import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
 import { HelpSubprocessorsHeaderMetadata } from "@/app/(operator)/help/_sections/HelpSubprocessorsHeaderMetadata";
 import { SECURITY_TRUST_HELP_CLAIM_HEADING_ID } from "@/lib/security-trust-help-evidence-copy";
+import { assertHelpTopicCatchAllFallthroughAllowed } from "@/lib/help/help-topic-catch-all-fallthrough";
 import type { LoadedHelpTopicContent } from "@/lib/help/help-topic-content-loader";
 
 
@@ -375,7 +376,9 @@ export function tryResolveOperateHelpTopicView(
 
   return (
     <HelpTopicMarkdownView
-      entry={loaded.entry
-
-  return null;
+      entry={loaded.entry}
+      markdown={loaded.markdown}
+      showContextualHelp
+    />
+  );
 }
