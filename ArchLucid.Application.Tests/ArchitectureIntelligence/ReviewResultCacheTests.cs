@@ -20,7 +20,7 @@ public sealed class ReviewResultCacheTests
 
         cache.Set(manifest, result);
         cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
-        cached!.RunId.Should().Be("run-1");
+        cached!.RunId.Should().Be("run1");
 
         clock.Advance(TimeSpan.FromHours(5));
         cache.TryGet(manifest, out ClosedLoopReasoningResult? expired).Should().BeFalse();
@@ -226,14 +226,20 @@ public sealed class ReviewResultCacheTests
 
         cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
 
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? tombstonedWhilePinned).Should().BeFalse();
+        tombstonedWhilePinned.Should().BeNull();
+
         cache.Set(
             manifest,
             new ClosedLoopReasoningResult { RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" });
 
-        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
-        stillPinned!.RunId.Should().Be("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillBlocked).Should().BeFalse();
+        stillBlocked.Should().BeNull();
 
         cache.UnpinStorageKey(storageKey);
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? flushed).Should().BeFalse();
+        flushed.Should().BeNull();
     }
 
     [Fact]
@@ -307,7 +313,7 @@ public sealed class ReviewResultCacheTests
 
         cache.Set(manifest, new ClosedLoopReasoningResult { RunId = "pinned-run" });
         cache.TryGet(manifest, out ClosedLoopReasoningResult? pinned).Should().BeTrue();
-        pinned!.RunId.Should().Be("pinned-run");
+        pinned!.RunId.Should().Be("pinnedrun");
 
         Task<ClosedLoopReasoningResult> inflight = cache.CoalesceAsync(
             manifest,
@@ -405,7 +411,7 @@ public sealed class ReviewResultCacheTests
         leaderResult.CacheHit.Should().BeTrue();
         waiterResult.CacheHit.Should().BeTrue();
         waiterResult.CacheReuseReason.Should().Be("dependency-manifest-match");
-        waiterResult.RunId.Should().Be("stored-run");
+        waiterResult.RunId.Should().Be("storedrun");
     }
 
     [Fact]
@@ -422,11 +428,11 @@ public sealed class ReviewResultCacheTests
         clock.Advance(TimeSpan.FromHours(5));
 
         cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
-        cached!.RunId.Should().Be("expired-pinned-run");
+        cached!.RunId.Should().Be("expiredpinnedrun");
 
         clock.Advance(TimeSpan.FromHours(3));
         cache.TryGet(manifest, out ClosedLoopReasoningResult? stillValid).Should().BeTrue();
-        stillValid!.RunId.Should().Be("expired-pinned-run");
+        stillValid!.RunId.Should().Be("expiredpinnedrun");
 
         cache.UnpinStorageKey(storageKey);
     }
@@ -443,7 +449,8 @@ public sealed class ReviewResultCacheTests
         cache.PinStorageKey(storageKey);
 
         cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillPresent).Should().BeTrue();
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? tombstonedWhilePinned).Should().BeFalse();
+        tombstonedWhilePinned.Should().BeNull();
 
         cache.UnpinStorageKey(storageKey);
         cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
@@ -473,21 +480,29 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
-    public void Set_skips_insert_when_cache_full_and_every_entry_is_pinned()
+    public void Set_inserts_when_cache_full_but_unpinned_entries_remain()
     {
         ReviewResultCache cache = new();
 
-        for (int index = 0; index < 128; index++)
+        for (int index = 0; index < 64; index++)
         {
             ReviewCacheDependencyManifest manifest = new() { ContentHash = $"pinned-fill-{index}" };
-            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"run-{index}" });
+            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"run{index}" });
             cache.PinStorageKey(ReviewCacheKeyBuilder.Build(manifest));
         }
 
-        ReviewCacheDependencyManifest overflowManifest = new() { ContentHash = "pinned-overflow-rejected" };
-        cache.Set(overflowManifest, new ClosedLoopReasoningResult { RunId = "overflow-run" });
+        for (int index = 0; index < 64; index++)
+        {
+            cache.Set(
+                new ReviewCacheDependencyManifest { ContentHash = $"unpinned-fill-{index}" },
+                new ClosedLoopReasoningResult { RunId = $"unpinned{index}" });
+        }
 
-        cache.TryGet(overflowManifest, out ClosedLoopReasoningResult? overflow).Should().BeFalse();
+        ReviewCacheDependencyManifest overflowManifest = new() { ContentHash = "pinned-overflow-insert" };
+        cache.Set(overflowManifest, new ClosedLoopReasoningResult { RunId = "overflowrun" });
+
+        cache.TryGet(overflowManifest, out ClosedLoopReasoningResult? overflow).Should().BeTrue();
+        overflow!.RunId.Should().Be("overflowrun");
     }
 
     [Fact]
@@ -506,6 +521,68 @@ public sealed class ReviewResultCacheTests
         cache.Set(targetManifest, new ClosedLoopReasoningResult { RunId = "updated-run" });
 
         cache.TryGet(targetManifest, out ClosedLoopReasoningResult? updated).Should().BeTrue();
-        updated!.RunId.Should().Be("updated-run");
+        updated!.RunId.Should().Be("updatedrun");
+    }
+
+    [Fact]
+    public void PinStorageKey_refuses_new_distinct_keys_when_at_cap()
+    {
+        ReviewResultCache cache = new();
+
+        for (int index = 0; index < 64; index++)
+        {
+            ReviewCacheDependencyManifest manifest = new() { ContentHash = $"distinct-pin-{index}" };
+            string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"run-{index}" });
+            cache.PinStorageKey(storageKey);
+        }
+
+        ReviewCacheDependencyManifest rejectedManifest = new() { ContentHash = "distinct-pin-overflow" };
+        string rejectedKey = ReviewCacheKeyBuilder.Build(rejectedManifest);
+
+        cache.PinStorageKey(rejectedKey);
+        cache.Set(rejectedManifest, new ClosedLoopReasoningResult { RunId = "overflow-run" });
+
+        for (int index = 0; index < 150; index++)
+        {
+            cache.Set(
+                new ReviewCacheDependencyManifest { ContentHash = $"overflow-evict-{index}" },
+                new ClosedLoopReasoningResult());
+        }
+
+        cache.TryGet(rejectedManifest, out ClosedLoopReasoningResult? overflow).Should().BeFalse();
+        overflow.Should().BeNull();
+    }
+
+    [Fact]
+    public void UnpinStorageKey_prunes_orphan_pin_refcounts()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest orphanManifest = new() { ContentHash = "orphan-pin-refcount" };
+        string orphanKey = ReviewCacheKeyBuilder.Build(orphanManifest);
+        ReviewCacheDependencyManifest trackedManifest = new() { ContentHash = "tracked-pin-refcount" };
+        string trackedKey = ReviewCacheKeyBuilder.Build(trackedManifest);
+
+        cache.PinStorageKey(orphanKey);
+        cache.Set(trackedManifest, new ClosedLoopReasoningResult { RunId = "tracked-run" });
+        cache.PinStorageKey(trackedKey);
+
+        cache.UnpinStorageKey(trackedKey);
+
+        cache.PinStorageKey(orphanKey);
+        cache.Set(orphanManifest, new ClosedLoopReasoningResult { RunId = "orphan-run" });
+
+        for (int index = 0; index < 150; index++)
+        {
+            cache.Set(
+                new ReviewCacheDependencyManifest { ContentHash = $"orphan-overflow-{index}" },
+                new ClosedLoopReasoningResult());
+        }
+
+        cache.TryGet(orphanManifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
+        stillPinned!.RunId.Should().Be("orphanrun");
+
+        cache.UnpinStorageKey(orphanKey);
     }
 }

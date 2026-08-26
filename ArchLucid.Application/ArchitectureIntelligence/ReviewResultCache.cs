@@ -7,6 +7,7 @@ public sealed class ReviewResultCache : IReviewResultCache
 {
     private const int MaxEntries = 128;
     private const int MaxPinnedRefcountPerKey = 64;
+    private const int MaxDistinctPinnedStorageKeys = 64;
     private const int MaxTombstonedRunIds = 64;
     private static readonly TimeSpan EntryTtl = TimeSpan.FromHours(4);
 
@@ -112,7 +113,7 @@ public sealed class ReviewResultCache : IReviewResultCache
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        string normalizedRunId = ClosedLoopRunIdComparer.Normalize(runId);
+        string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
 
         lock (_evictionLock)
         {
@@ -201,6 +202,10 @@ public sealed class ReviewResultCache : IReviewResultCache
 
         lock (_evictionLock)
         {
+            if (!_pinnedStorageKeyRefcounts.ContainsKey(storageKey)
+                && _pinnedStorageKeyRefcounts.Count >= MaxDistinctPinnedStorageKeys)
+                return;
+
             _pinnedStorageKeyRefcounts.TryGetValue(storageKey, out int count);
 
             if (count >= MaxPinnedRefcountPerKey)
@@ -251,9 +256,19 @@ public sealed class ReviewResultCache : IReviewResultCache
     {
         FlushDeferredInvalidations();
         EvictExpiredEntries();
+        PruneOrphanPinRefcounts();
 
         while (_cache.Count > MaxEntries && TryEvictOldestUnpinnedEntry())
         {
+        }
+    }
+
+    private void PruneOrphanPinRefcounts()
+    {
+        foreach (string storageKey in _pinnedStorageKeyRefcounts.Keys.ToList())
+        {
+            if (!_cache.ContainsKey(storageKey))
+                _pinnedStorageKeyRefcounts.Remove(storageKey);
         }
     }
 
@@ -359,6 +374,7 @@ public sealed class ReviewResultCache : IReviewResultCache
             return false;
 
         _cache.TryRemove(oldest.Value.Key, out _);
+        PruneOrphanPinRefcounts();
 
         return true;
     }
