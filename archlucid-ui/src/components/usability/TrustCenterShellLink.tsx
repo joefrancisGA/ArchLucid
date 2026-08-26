@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 type TrustCenterShellLinkProps = {
   readonly className?: string;
@@ -26,7 +27,7 @@ export function TrustCenterShellLink(props: TrustCenterShellLinkProps): React.JS
       )}
       data-testid="trust-center-shell-link"
     >
-      Security &amp; trust
+      {OPERATOR_NAV_LINK_LABELS.securityTrust}
     </Link>
   );
 }
