@@ -343,12 +343,14 @@ internal static class ClosedLoopReasoningResultCloner
             return jsonElement.Clone();
 
         if (payload is Dictionary<string, string> stringDictionary)
-            return new Dictionary<string, string>(stringDictionary);
+            return new Dictionary<string, string>(stringDictionary, StringComparer.Ordinal);
 
         if (payload is ICloneable cloneable)
             return cloneable.Clone();
 
-        return JsonSerializer.SerializeToElement(payload).Clone();
+        return JsonSerializer.Deserialize(
+            JsonSerializer.Serialize(payload),
+            payload.GetType());
     }
 
     private static ExplainabilityTrace CloneExplainabilityTrace(ExplainabilityTrace trace)
