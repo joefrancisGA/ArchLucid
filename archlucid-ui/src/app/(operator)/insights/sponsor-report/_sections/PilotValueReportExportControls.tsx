@@ -18,6 +18,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import { PILOT_OUTCOMES_PERIOD_PRESETS } from "@/lib/pilot-outcomes-period-presets";
+import { pilotOutcomesReportingPeriodHelper } from "@/lib/pilot-outcomes-page-copy";
 import { firstWhyDisabledCtaReason, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 import type { RefObject } from "react";
@@ -68,8 +69,7 @@ export function PilotValueReportExportControls(props: Props) {
       <div ref={periodControlsRef} className="space-y-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
         <h2 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Reporting period</h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Times shown in {m.reportingTimezoneLabel}. Period boundaries are stored in UTC; the end date is exclusive
-          when calculating the report window.
+          {pilotOutcomesReportingPeriodHelper(m.reportingTimezoneLabel)}
         </p>
 
         <div className="flex flex-wrap gap-2" role="group" aria-label="Reporting period presets">

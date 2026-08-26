@@ -170,7 +170,7 @@ export function PilotValueReportFindingsSection(props: Props) {
 
       <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="pilot-outcomes-technical-details">
         <ul className={cn("m-0 list-disc pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <li>Reporting period end timestamp is exclusive (UTC).</li>
+          <li>Reporting period end instant is exclusive in UTC (activity at exactly the end time is excluded).</li>
           <li>Recommendations generated are counted from audit events in the selected window.</li>
           <li>Review completion time reflects pipeline duration for finalized reviews in the detail sample.</li>
         </ul>

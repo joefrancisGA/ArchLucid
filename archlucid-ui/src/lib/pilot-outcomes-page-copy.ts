@@ -12,3 +12,8 @@ export const PILOT_OUTCOMES_LOAD_RETRY_LABEL = "Retry loading sponsor report" as
 export function pilotOutcomesPageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell ? BUYER_VALUE_REPORT_PAGE_SUBTITLE : SPONSOR_REPORT_PAGE_SUBTITLE;
 }
+
+/** Reporting-period helper under the Sponsor report date controls. */
+export function pilotOutcomesReportingPeriodHelper(timeZoneAbbrev: string): string {
+  return `Times shown in ${timeZoneAbbrev}. Period boundaries are stored in UTC. The start time is inclusive; the end time is exclusive (activity at exactly the end time is not included).`;
+}
