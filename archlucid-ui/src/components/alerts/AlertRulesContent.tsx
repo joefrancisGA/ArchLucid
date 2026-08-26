@@ -9,6 +9,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { AlertRulesPickReviewBeforeCreatingStrip } from "@/components/alerts/AlertRulesPickReviewBeforeCreatingStrip";
+import { AlertRulesNextReviewFooterClient } from "@/components/alerts/AlertRulesNextReviewFooterClient";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { AlertRuleListRow } from "@/components/alerts/AlertRuleListRow";
 import { AlertRulesContinueLastViewedRow } from "@/components/alerts/AlertRulesContinueLastViewedRow";
@@ -650,6 +651,8 @@ export function AlertRulesContent() {
           }
         }}
       />
+
+      {scopedRunFilterActive ? <AlertRulesNextReviewFooterClient runId={scopedRunId} /> : null}
     </div>
   );
 }
