@@ -39,7 +39,7 @@ internal static class ClosedLoopReasoningResultCloner
             PublishedFindingsSnapshotId = source.PublishedFindingsSnapshotId,
             PublishedRecommendationCount = source.PublishedRecommendationCount,
             PublishSkipReason = source.PublishSkipReason,
-            CacheHit = false,
+            CacheHit = source.CacheHit,
             CacheReuseReason = source.CacheReuseReason,
             BudgetRejected = source.BudgetRejected,
             BudgetRejectReason = source.BudgetRejectReason,
