@@ -21,7 +21,7 @@ public sealed class GraphSnapshotProjectionCacheEntrySizeEstimatorTests
 
         long size = GraphSnapshotProjectionCacheEntrySizeEstimator.EstimateCacheEntrySize(snapshot);
 
-        size.Should().BeGreaterOrEqualTo(GraphSnapshotProjectionCacheEntrySizeEstimator.MinimumEntrySize);
+        size.Should().BeGreaterThanOrEqualTo(GraphSnapshotProjectionCacheEntrySizeEstimator.MinimumEntrySize);
     }
 
     [Fact]
