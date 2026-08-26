@@ -215,6 +215,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
     {
         ArchitectureKnowledgeModel model;
         List<string> storedArtifactIds = [];
+        bool hadPersistedModelForRun = false;
 
         if (effectiveRequest.ContinueFromExistingRun
             && !string.IsNullOrWhiteSpace(runId))
@@ -228,6 +229,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
             }
 
             model = ArchitectureKnowledgeModelCloner.Clone(existing);
+            hadPersistedModelForRun = true;
 
             if (effectiveRequest.SourceTexts.Count > 0)
             {
@@ -236,6 +238,14 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         }
         else
         {
+            if (!string.IsNullOrWhiteSpace(effectiveRequest.RunId))
+            {
+                ArchitectureKnowledgeModel? existingForRun =
+                    await TryLoadExistingModelAsync(tenantId, runId, cancellationToken);
+
+                hadPersistedModelForRun = existingForRun is not null;
+            }
+
             storedArtifactIds = await StoreSourcesAsync(effectiveRequest, tenantId, cancellationToken);
             model = await BuildModelAsync(effectiveRequest, tenantId, runId, storedArtifactIds, cancellationToken);
         }
@@ -474,7 +484,8 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 cancellationToken).ConfigureAwait(false);
         }
 
-        await SaveModelAsync(runId, model, cancellationToken);
+        if (!publishDecision.PublishBlocked || !hadPersistedModelForRun)
+            await SaveModelAsync(runId, model, cancellationToken);
 
         string workspaceId = effectiveRequest.WorkspaceId ?? tenantId;
         string projectId = effectiveRequest.ProjectId ?? tenantId;
