@@ -20,6 +20,12 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
     /// <summary>Matches <see cref="ArchLucid.KnowledgeGraph.CanonicalGraphPropertyKeys.ProtectedTopologyNodeIds"/>.</summary>
     private const string ProtectedTopologyNodeIdsKey = "protectedTopologyNodeIds";
 
+    /// <summary>
+    ///     Enricher-spawned network-rule baselines use a dedicated source type so infrastructure declaration
+    ///     connector deltas compare normalized parser output only (not post-enrichment expansions).
+    /// </summary>
+    private const string ExpandedBaselineSourceType = "AppServiceNetworkRule";
+
     public static IReadOnlyList<CanonicalObject> Expand(IReadOnlyList<CanonicalObject> items)
     {
         ArgumentNullException.ThrowIfNull(items);
@@ -108,7 +114,7 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
             {
                 ObjectType = "SecurityBaseline",
                 Name = $"{appService.Name} public network access",
-                SourceType = appService.SourceType,
+                SourceType = ExpandedBaselineSourceType,
                 SourceId = appService.SourceId,
                 Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -134,7 +140,7 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
             {
                 ObjectType = "SecurityBaseline",
                 Name = $"{appService.Name} {ruleKind} {rule.Name ?? i.ToString()}",
-                SourceType = appService.SourceType,
+                SourceType = ExpandedBaselineSourceType,
                 SourceId = appService.SourceId,
                 Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {

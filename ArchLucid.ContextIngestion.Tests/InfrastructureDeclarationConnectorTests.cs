@@ -1,3 +1,4 @@
+using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Delta;
@@ -1731,4 +1732,48 @@ public sealed class InfrastructureDeclarationConnectorTests
                 ["resourceType"] = resourceType,
             },
         };
+
+    [Fact]
+    public async Task DeltaAsync_AppServiceExpandedBaselines_ReportsUnchangedOnIdenticalReIngest()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([]),
+            new SetDiffConnectorDeltaComputer());
+
+        NormalizedContextBatch normalizedBatch = new();
+        normalizedBatch.CanonicalObjects.Add(new CanonicalObject
+        {
+            ObjectType = "TopologyResource",
+            Name = "web-app",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["resourceType"] = "Microsoft.Web/sites",
+                ["ipSecurityRestrictions"] =
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        });
+
+        CompositeCanonicalEnricher enricher = new(
+        [
+            new TopologyResourceCanonicalEnricher(),
+            new SecurityBaselineCanonicalEnricher(),
+        ]);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString("D"),
+            CanonicalObjects = enricher.Enrich(normalizedBatch.CanonicalObjects).ToList(),
+        };
+
+        ContextDelta delta = await connector.DeltaAsync(normalizedBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
 }

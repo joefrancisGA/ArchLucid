@@ -1801,11 +1801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 27
-- **bugs-found:** 61
+- **hunts:** 28
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — terraform-show-json `tf.*` property key casing churned connector delta after reload
+- **last-bug:** 2026-08-26 — App Service expander baselines false-removed on infra declaration re-ingest delta
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1880,6 +1880,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SecurityBaselineSensitivityScopeExpander` joined matching topology node ids without sorting — **hit 2026-08-26:** reordering equivalent data-bearing topology resources produced different `protectedTopologyNodeIds` strings on enriched security baselines; fixed with `OrderBy` before `string.Join` (`SecurityBaselineSensitivityScopeExpanderTests.Expand_protected_topology_node_ids_are_stable_across_topology_list_order`).
 - [x] (proven) `JsonInfrastructureDeclarationParser` preserved custom `properties` key casing — **hit 2026-08-26:** `Sku` vs `sku` produced different property keys and false modified on infrastructure declaration connector delta after snapshot reload with ordinal property bags; fixed by lowercasing trimmed custom property keys (`JsonInfrastructureDeclarationParserTests.ParseAsync_CustomPropertyKeys_AreCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_JsonCustomPropertyKeyCasingChange_ReportsUnchanged`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.SanitizePropertyKey` preserved JSON value field casing in `tf.*` keys — **hit 2026-08-26:** `Location` vs `location` produced different `tf.*` property keys and false modified on infrastructure declaration connector delta after snapshot reload with ordinal property bags; fixed by lowercasing sanitized keys (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TfPropertyKeys_AreCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonTfPropertyKeyCasingChange_ReportsUnchanged`).
+- [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` copied parent `SourceType` onto expander-spawned security baselines — **hit 2026-08-26:** enriched `InfrastructureDeclaration` network-rule baselines in prior snapshots were absent from normalized connector output and reported false removed on identical re-ingest; fixed with dedicated `AppServiceNetworkRule` source type (`InfrastructureDeclarationConnectorTests.DeltaAsync_AppServiceExpandedBaselines_ReportsUnchangedOnIdenticalReIngest`).
 
 ---
 
