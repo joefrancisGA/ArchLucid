@@ -1,7 +1,7 @@
 "use client";
 
 import { getEffectivePolicyPacks } from "@/lib/api/policy-governance-api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { EffectivePolicyPackSet } from "@/types/policy-packs";
 
@@ -10,7 +10,7 @@ type UseEffectivePolicyPacksQueryOptions = {
 };
 
 export function useEffectivePolicyPacksQuery(options?: UseEffectivePolicyPacksQueryOptions) {
-  return createOperatorQueryHook<EffectivePolicyPackSet>({
+  return useOperatorQueryHook<EffectivePolicyPackSet>({
     queryKey: operatorQueryKeys.effectivePolicyPacks,
     queryFn: getEffectivePolicyPacks,
     enabled: options?.enabled ?? true,

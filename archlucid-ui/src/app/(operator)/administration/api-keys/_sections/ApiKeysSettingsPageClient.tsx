@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { ApiKeysSettingsBreadcrumb } from "./ApiKeysSettingsBreadcrumb";
 import type { components } from "@/lib/api-types.generated";
 import { buildApiKeysSummary } from "@/lib/build-api-keys-summary";
 import {

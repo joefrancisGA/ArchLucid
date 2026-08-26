@@ -3,7 +3,7 @@ import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { DIGEST_TYPE_OPTIONS } from "@/lib/digest-subscription-form";
 import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
-import type { TenantIntegrationsOperationsDto, WeeklyDigestHealthDto } from "@/types/operate-rhythm";
+import type { ConnectorSurfaceStatusDto, TenantIntegrationsOperationsDto, WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 export const DIGEST_SUBSCRIPTIONS_PAGE_TITLE = "Delivery destinations" as const;
 
@@ -95,7 +95,7 @@ export function resolveConnectorReadyForChannel(
     return null;
   }
 
-  return isConnectorReady(connector);
+  return isConnectorReady(connector as ConnectorSurfaceStatusDto);
 }
 
 export function parseDigestTypeFromMetadata(metadataJson: string): string {

@@ -1,7 +1,7 @@
 "use client";
 
 import { getFindingProvenance } from "@/lib/api/finding-provenance";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 type UseFindingProvenanceQueryOptions = {
@@ -16,7 +16,7 @@ export function useFindingProvenanceQuery(
   const trimmedRunId = runId.trim();
   const trimmedFindingId = findingId.trim();
 
-  return createOperatorQueryHook({
+  return useOperatorQueryHook({
     queryKey: operatorQueryKeys.findingProvenance(trimmedRunId, trimmedFindingId),
     queryFn: () => getFindingProvenance(trimmedRunId, trimmedFindingId),
     enabled:

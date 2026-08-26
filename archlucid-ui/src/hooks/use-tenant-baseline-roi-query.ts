@@ -1,7 +1,7 @@
 "use client";
 
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
 
@@ -37,7 +37,7 @@ type UseTenantBaselineRoiQueryOptions = {
 };
 
 export function useTenantBaselineRoiQuery(options?: UseTenantBaselineRoiQueryOptions) {
-  return createOperatorQueryHook<boolean | null>({
+  return useOperatorQueryHook<boolean | null>({
     queryKey: operatorQueryKeys.tenantBaselineRoi,
     queryFn: fetchTenantBaselineRoiGate,
     enabled: options?.enabled ?? true,

@@ -32,6 +32,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatStageDurationMs } from "@/lib/format-stage-duration";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
+import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
 import { resolvePipelineJobLabel } from "@/lib/architecture/architecture-package-origin";
 import {
   REVIEW_PIPELINE_ASSESSMENT_WATCHDOG_MESSAGE,
@@ -264,6 +265,11 @@ export function RunProgressTracker({
   const totalProgressStages = buyerAssessmentCopy ? assessmentStageCount : 4;
   const progressValue = (completedStages / totalProgressStages) * 100;
 
+  const pipelineJobLabel = useMemo(
+    () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy),
+    [activeSummary, buyerAssessmentCopy],
+  );
+
   const currentStageLabel = useMemo(
     () => resolveCurrentPipelineStageLabel(stageTimeline, activeSummary, buyerPolished),
     [activeSummary, buyerPolished, stageTimeline],
@@ -321,11 +327,6 @@ export function RunProgressTracker({
   const showNotificationOptIn =
     pollEnabled && canPromptForDesktopNotifications() && notificationPermission === "default";
   const showNotificationEnabled = pollEnabled && notificationPermission === "granted";
-  const pipelineJobLabel = useMemo(
-    () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy),
-    [activeSummary, buyerAssessmentCopy],
-  );
-
   const progressHeading = pipelineJobLabel.heading;
 
   return (

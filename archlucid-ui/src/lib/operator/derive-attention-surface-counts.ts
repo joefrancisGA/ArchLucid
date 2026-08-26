@@ -30,7 +30,7 @@ export function deriveAttentionSurfaceCounts(
   }
 
   if (input.runs !== undefined) {
-    const sections = partitionRunsIntoWorkQueueSections(input.runs);
+    const sections = partitionRunsIntoWorkQueueSections([...input.runs]);
 
     for (const section of sections) {
       switch (section.groupId) {

@@ -15,7 +15,7 @@ type OperatorQueryHookOptions<TData> = Omit<
 };
 
 /** Applies standard operator-shell cache defaults to a TanStack Query hook. */
-export function createOperatorQueryHook<TData>(
+export function useOperatorQueryHook<TData>(
   options: OperatorQueryHookOptions<TData>,
 ): UseQueryResult<TData, Error> {
   const {

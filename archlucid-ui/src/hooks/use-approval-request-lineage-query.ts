@@ -1,7 +1,7 @@
 "use client";
 
 import { getApprovalRequestLineage } from "@/lib/api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 type UseApprovalRequestLineageQueryOptions = {
@@ -14,7 +14,7 @@ export function useApprovalRequestLineageQuery(
 ) {
   const trimmed = approvalRequestId.trim();
 
-  return createOperatorQueryHook({
+  return useOperatorQueryHook({
     queryKey: operatorQueryKeys.approvalRequestLineage(trimmed),
     queryFn: () => getApprovalRequestLineage(trimmed),
     enabled: (options?.enabled ?? true) && trimmed.length > 0,

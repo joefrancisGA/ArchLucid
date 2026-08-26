@@ -1,7 +1,7 @@
 "use client";
 
 import { getFindingLlmAudit } from "@/lib/api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 type UseFindingLlmAuditQueryOptions = {
@@ -16,7 +16,7 @@ export function useFindingLlmAuditQuery(
   const trimmedRunId = runId.trim();
   const trimmedFindingId = findingId.trim();
 
-  return createOperatorQueryHook({
+  return useOperatorQueryHook({
     queryKey: operatorQueryKeys.findingLlmAudit(trimmedRunId, trimmedFindingId),
     queryFn: () => getFindingLlmAudit(trimmedRunId, trimmedFindingId),
     enabled:

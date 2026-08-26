@@ -7,7 +7,7 @@ import {
   parseCompareManifestGovernanceSnapshot,
   type CompareGovernanceDiffView,
 } from "@/lib/compare-effective-governance-diff";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
@@ -101,7 +101,7 @@ export function useCompareGovernanceDiffQuery(
   const enabled =
     (options?.enabled ?? true) && baseline.length > 0 && target.length > 0 && !sameDemoRun;
 
-  return createOperatorQueryHook<CompareGovernanceDiffQueryResult>({
+  return useOperatorQueryHook<CompareGovernanceDiffQueryResult>({
     queryKey: operatorQueryKeys.compareGovernanceDiff(baseline, target),
     queryFn: () => fetchCompareGovernanceDiff(baseline, target),
     enabled,

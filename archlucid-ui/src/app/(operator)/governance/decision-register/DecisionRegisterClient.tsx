@@ -105,8 +105,8 @@ export default function DecisionRegisterClient() {
     return parsed;
   }, [category, confidenceBasis, maxConfidence, minConfidence, recordedAfter, recordedBefore]);
 
-  const workspaceQuery = useArchitectureDecisionRegisterQuery(projectId);
-  const filteredQuery = useArchitectureDecisionRegisterQuery(projectId, filters);
+  const workspaceQuery = useArchitectureDecisionRegisterQuery(projectId ?? "");
+  const filteredQuery = useArchitectureDecisionRegisterQuery(projectId ?? "", filters);
 
   useEffect(() => {
     if (reloadToken === 0) {

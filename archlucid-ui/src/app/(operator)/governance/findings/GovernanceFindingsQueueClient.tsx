@@ -636,7 +636,7 @@ export default function GovernanceFindingsQueueClient({
             {scopedRunId !== null && scopedRunId.length > 0 ? (
               <PolicyPackAssignFromReviewStrip
                 reviewId={scopedRunId}
-                reviewTitle={scopedRunContextQuery.data?.displayTitle ?? null}
+                reviewTitle={sponsorSynopsisPackageTitle}
               />
             ) : null}
             {continueLastFinding !== null ? (

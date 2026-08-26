@@ -1,7 +1,7 @@
 "use client";
 
 import { getDraftBranchQuota } from "@/lib/api/draft-intake-api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { DraftBranchQuotaResponse } from "@/types/draft-intake";
 
@@ -15,7 +15,7 @@ export function useDraftBranchQuotaQuery(
 ) {
   const trimmed = draftId.trim();
 
-  return createOperatorQueryHook<DraftBranchQuotaResponse>({
+  return useOperatorQueryHook<DraftBranchQuotaResponse>({
     queryKey: operatorQueryKeys.draftBranchQuota(trimmed),
     queryFn: () => getDraftBranchQuota(trimmed),
     enabled: (options?.enabled ?? true) && trimmed.length > 0,

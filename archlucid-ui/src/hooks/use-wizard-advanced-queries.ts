@@ -2,7 +2,7 @@
 
 import type { AgentExecutionCostPreviewPayload } from "@/components/wizard/RunWizardCostPreviewCard";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { ModelEngineSelectionOptionsResponse } from "@/lib/model-governance-types";
 
@@ -19,7 +19,7 @@ async function fetchAgentExecutionCostPreview(
 }
 
 export function useAgentExecutionCostPreviewQuery(previewUrl: string) {
-  return createOperatorQueryHook<AgentExecutionCostPreviewPayload>({
+  return useOperatorQueryHook<AgentExecutionCostPreviewPayload>({
     queryKey: operatorQueryKeys.agentExecutionCostPreview(previewUrl),
     queryFn: () => fetchAgentExecutionCostPreview(previewUrl),
   });
@@ -48,7 +48,7 @@ async function fetchModelEngineSelectionOptions(): Promise<ModelEngineSelectionO
 }
 
 export function useModelEngineSelectionOptionsQuery() {
-  return createOperatorQueryHook<ModelEngineSelectionOptionsResponse | null>({
+  return useOperatorQueryHook<ModelEngineSelectionOptionsResponse | null>({
     queryKey: operatorQueryKeys.modelEngineSelectionOptions,
     queryFn: fetchModelEngineSelectionOptions,
   });

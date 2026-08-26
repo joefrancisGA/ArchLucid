@@ -1,6 +1,6 @@
 "use client";
 
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { QuickScanStatusResponse } from "@/lib/quick-scan/quick-scan-types";
 
@@ -18,7 +18,7 @@ async function fetchQuickScanStatus(): Promise<QuickScanStatusResponse | null> {
 }
 
 export function useQuickScanStatusQuery() {
-  return createOperatorQueryHook<QuickScanStatusResponse | null>({
+  return useOperatorQueryHook<QuickScanStatusResponse | null>({
     queryKey: operatorQueryKeys.quickScanStatus,
     queryFn: fetchQuickScanStatus,
     retry: false,

@@ -1,7 +1,7 @@
 "use client";
 
 import { getRunRetrievalGrounding } from "@/lib/api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { RunRetrievalGroundingPayload } from "@/types/agent-forensics";
 
@@ -15,7 +15,7 @@ export function useRunRetrievalGroundingQuery(
 ) {
   const trimmed = runId.trim();
 
-  return createOperatorQueryHook<RunRetrievalGroundingPayload | null>({
+  return useOperatorQueryHook<RunRetrievalGroundingPayload | null>({
     queryKey: operatorQueryKeys.runRetrievalGrounding(trimmed),
     queryFn: async () => {
       const response = await getRunRetrievalGrounding(trimmed);

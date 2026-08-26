@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchRunDetailWorkspaceContextBundle } from "@/lib/fetch-run-detail-page-bundle-client";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 type UseRunDetailWorkspaceContextBundleQueryOptions = {
@@ -14,7 +14,7 @@ export function useRunDetailWorkspaceContextBundleQuery(
 ) {
   const trimmed = runId.trim();
 
-  return createOperatorQueryHook({
+  return useOperatorQueryHook({
     queryKey: operatorQueryKeys.runDetailWorkspaceContextBundle(trimmed),
     queryFn: () => fetchRunDetailWorkspaceContextBundle(trimmed),
     enabled: (options?.enabled ?? true) && trimmed.length > 0,

@@ -14,18 +14,18 @@ import {
 export type ItsmConnectorProviderId = "jira" | "servicenow";
 
 type ItsmConnectorPageLoadResult = {
-  readonly health: { readonly failed: boolean; readonly value: ItsmIntegrationHealthResponse | null; readonly errorMessage?: string };
-  readonly settings: { readonly failed: boolean; readonly value: TenantItsmOutboundSettingsResponse | null; readonly errorMessage?: string };
-  readonly connection: { readonly failed: boolean; readonly value: TenantItsmConnectorConnectionResponse | null; readonly errorMessage?: string };
+  readonly health: { readonly failed: boolean; readonly value: ItsmIntegrationHealthResponse | null; readonly errorMessage?: string | null };
+  readonly settings: { readonly failed: boolean; readonly value: TenantItsmOutboundSettingsResponse | null; readonly errorMessage?: string | null };
+  readonly connection: { readonly failed: boolean; readonly value: TenantItsmConnectorConnectionResponse | null; readonly errorMessage?: string | null };
   readonly loadError: string | null;
 };
 
 type UseItsmConnectorPageOptions = {
   readonly providerId: ItsmConnectorProviderId;
   readonly buildPageLoadResult: (outcomes: {
-    health: PromiseSettledResult<ItsmIntegrationHealthResponse>;
-    settings: PromiseSettledResult<TenantItsmOutboundSettingsResponse | null>;
-    connection: PromiseSettledResult<TenantItsmConnectorConnectionResponse | null>;
+    readonly health: PromiseSettledResult<ItsmIntegrationHealthResponse>;
+    readonly settings: PromiseSettledResult<TenantItsmOutboundSettingsResponse | null>;
+    readonly connection: PromiseSettledResult<TenantItsmConnectorConnectionResponse | null>;
   }) => ItsmConnectorPageLoadResult;
   readonly applySettings: (loaded: TenantItsmOutboundSettingsResponse | null) => void;
   readonly onPageLoaded?: (loaded: ItsmConnectorPageLoadResult) => void;
@@ -94,5 +94,6 @@ export function useItsmConnectorPage(options: UseItsmConnectorPageOptions) {
     refresh,
     setSettings,
     setConnection,
+    setHealth,
   };
 }

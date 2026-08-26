@@ -1,7 +1,7 @@
 "use client";
 
 import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
@@ -9,6 +9,8 @@ import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
 const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
   "https://cdn.archlucid.net/scripts/Get-ArchLucidAzurePackage.ps1";
+
+export { EXTRACTOR_SCRIPT_CDN_URL };
 
 const EXTRACTOR_SCRIPT_VERSION_PATTERN = /\$scriptVersion\s*=\s*"([^"]+)"/;
 
@@ -78,7 +80,7 @@ async function fetchExtractUploadBaselineSnapshot(): Promise<ExtractUploadBaseli
 }
 
 export function useExtractUploadBaselineQuery() {
-  return createOperatorQueryHook<ExtractUploadBaselineSnapshot>({
+  return useOperatorQueryHook<ExtractUploadBaselineSnapshot>({
     queryKey: operatorQueryKeys.extractUploadBaselineArtifacts,
     queryFn: fetchExtractUploadBaselineSnapshot,
   });

@@ -12,6 +12,7 @@ import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/Operato
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
+import { CompareComparisonDimensionsPreview } from "./CompareComparisonDimensionsPreview";
 import { COMPARE_PAGE_SHORTCUTS } from "@/lib/compare-page-shortcuts";
 import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
 import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";

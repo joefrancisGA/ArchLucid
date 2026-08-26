@@ -119,8 +119,8 @@ export function PreFinalizeChecklistPanel({
   }
 
   return (
-    <Card className={OPERATOR_CARD}>
-      <CardHeader className="space-y-1">
+    <Card>
+      <CardHeader className={OPERATOR_CARD.header}>
         <div className="flex flex-wrap items-center gap-2">
           <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Pre-finalize checklist</h3>
           {checklist ? (
@@ -134,7 +134,7 @@ export function PreFinalizeChecklistPanel({
           Human approval gates and advisory checks before sealing the {REVIEW_PACKAGE_LABEL.toLowerCase()}.
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className={OPERATOR_CARD.content}>
         {loading ? <OperatorLoadingNotice>Loading pre-finalize checklist…</OperatorLoadingNotice> : null}
         {loadError ? (
           <OperatorApiProblem problem={null} fallbackMessage={loadError} variant="warning" />

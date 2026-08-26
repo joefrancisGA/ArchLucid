@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { previewRecurrenceScheduleRuns } from "@/lib/api/governance-stickiness-api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 export type RecurrenceScheduleRunsPreviewResult = {
@@ -45,7 +45,7 @@ export function useRecurrenceScheduleRunsPreviewQuery(
     };
   }, [debounceMs, trimmed]);
 
-  return createOperatorQueryHook<RecurrenceScheduleRunsPreviewResult>({
+  return useOperatorQueryHook<RecurrenceScheduleRunsPreviewResult>({
     queryKey: operatorQueryKeys.recurrenceScheduleRunsPreview(debouncedCron, count),
     queryFn: async () => {
       const response = await previewRecurrenceScheduleRuns({

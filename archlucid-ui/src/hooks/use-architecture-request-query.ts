@@ -1,7 +1,7 @@
 "use client";
 
 import { getArchitectureRequest } from "@/lib/api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 type UseArchitectureRequestQueryOptions = {
@@ -14,7 +14,7 @@ export function useArchitectureRequestQuery(
 ) {
   const trimmed = requestId.trim();
 
-  return createOperatorQueryHook({
+  return useOperatorQueryHook({
     queryKey: operatorQueryKeys.architectureRequest(trimmed),
     queryFn: () => getArchitectureRequest(trimmed),
     enabled: (options?.enabled ?? true) && trimmed.length > 0,

@@ -7,7 +7,7 @@ import {
   listRunsInScopePaged,
   shouldListReviewsAcrossProjectSlugs,
 } from "@/lib/api/architecture-runs";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 /** Aligns with run-detail workspace lookback when recent-deltas max is 25. */
@@ -42,7 +42,7 @@ export function usePriorSameRequestCompareFallbackQuery(
 ) {
   const trimmed = runId.trim();
 
-  return createOperatorQueryHook<PriorSameRequestCompareFallbackResult>({
+  return useOperatorQueryHook<PriorSameRequestCompareFallbackResult>({
     queryKey: operatorQueryKeys.priorSameRequestCompareFallback(trimmed),
     queryFn: () => fetchPriorSameRequestCompareFallback(trimmed),
     enabled: (options?.enabled ?? true) && trimmed.length > 0,

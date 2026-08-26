@@ -1,7 +1,7 @@
 "use client";
 
 import { getGovernanceDashboard } from "@/lib/api/policy-governance-api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";
 
@@ -18,7 +18,7 @@ export function useGovernanceDashboardQuery(options?: UseGovernanceDashboardQuer
   const maxDecisions = options?.maxDecisions ?? 20;
   const maxChanges = options?.maxChanges ?? 20;
 
-  return createOperatorQueryHook<GovernanceDashboardSummary>({
+  return useOperatorQueryHook<GovernanceDashboardSummary>({
     queryKey: operatorQueryKeys.governanceDashboard(maxPending, maxDecisions, maxChanges),
     queryFn: () => getGovernanceDashboard(maxPending, maxDecisions, maxChanges),
     enabled: options?.enabled ?? true,

@@ -2,7 +2,7 @@
 
 import { getPolicyPackVersion, listPolicyPacks, listPolicyPackWorkspaceSelection } from "@/lib/api";
 import { parsePolicyPackContentDocument } from "@/lib/policy/policy-pack-impact-preview";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type {
   PolicyPack,
@@ -55,7 +55,7 @@ export function usePolicyPackDetailPageQuery(
 ) {
   const trimmed = policyPackId.trim();
 
-  return createOperatorQueryHook<PolicyPackDetailPageQueryResult>({
+  return useOperatorQueryHook<PolicyPackDetailPageQueryResult>({
     queryKey: operatorQueryKeys.policyPackDetailPage(trimmed),
     queryFn: () => fetchPolicyPackDetailPage(trimmed),
     enabled: (options?.enabled ?? true) && trimmed.length > 0,

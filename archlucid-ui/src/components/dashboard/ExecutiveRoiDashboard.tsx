@@ -55,7 +55,7 @@ export function SponsorRoiDashboard() {
     );
   }
 
-  if (data === null) {
+  if (data === null || data === undefined) {
     return (
       <section
         aria-labelledby="exec-roi-dashboard-heading"
@@ -68,6 +68,8 @@ export function SponsorRoiDashboard() {
       </section>
     );
   }
+
+  const roiData = data;
 
   return (
     <section
@@ -84,19 +86,19 @@ export function SponsorRoiDashboard() {
         <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
           <div className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Time saved</div>
           <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {formatTimeSavedHours(data.timeSavedHours)}
+            {formatTimeSavedHours(roiData.timeSavedHours)}
           </div>
         </div>
         <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
           <div className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Decisions automated</div>
           <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {formatCount(data.decisionsAutomated)}
+            {formatCount(roiData.decisionsAutomated)}
           </div>
         </div>
         <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
           <div className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Compliance risks mitigated</div>
           <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {formatCount(data.complianceRisksMitigated)}
+            {formatCount(roiData.complianceRisksMitigated)}
           </div>
         </div>
       </div>

@@ -4,8 +4,11 @@ import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import type { RunsByProjectPagedParams } from "@/lib/query/runs-by-project-paged-params";
 import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 
+import type { PagedResponse } from "@/types/pagination";
+import type { RunSummary } from "@/types/authority";
+
 /** Raw fetch for TanStack Query `queryFn` (TB-562). */
-export async function fetchRunsByProjectPaged(params: RunsByProjectPagedParams): Promise<unknown> {
+export async function fetchRunsByProjectPaged(params: RunsByProjectPagedParams): Promise<PagedResponse<RunSummary>> {
   return listRunsByProjectPaged(params.projectId, params.page, params.pageSize);
 }
 
@@ -13,7 +16,7 @@ export async function fetchRunsByProjectPaged(params: RunsByProjectPagedParams):
 export async function fetchRunsByProjectPagedCached(
   params: RunsByProjectPagedParams,
   options?: { force?: boolean },
-): Promise<unknown> {
+): Promise<PagedResponse<RunSummary>> {
   const queryClient = getOperatorQueryClient();
   const queryKey = operatorQueryKeys.runsByProjectPaged(params);
 

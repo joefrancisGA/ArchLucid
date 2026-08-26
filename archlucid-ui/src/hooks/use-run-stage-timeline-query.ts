@@ -1,7 +1,7 @@
 "use client";
 
 import { getRunStageTimeline } from "@/lib/api/architecture-runs";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 
@@ -15,7 +15,7 @@ export function useRunStageTimelineQuery(runId: string, options?: UseRunStageTim
   const trimmed = runId.trim();
   const pollSession = options?.pollSession ?? 0;
 
-  return createOperatorQueryHook<StageTimelineSummary>({
+  return useOperatorQueryHook<StageTimelineSummary[]>({
     queryKey: [...operatorQueryKeys.runStageTimeline(trimmed), { pollSession }] as const,
     queryFn: () => getRunStageTimeline(trimmed),
     enabled: (options?.enabled ?? true) && trimmed.length > 0,

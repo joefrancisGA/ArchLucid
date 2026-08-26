@@ -13,7 +13,7 @@ import {
 } from "@/lib/compare-finding-lifecycle";
 import { coerceCompareQualityDeltaCounts, type CompareQualityDeltaCounts } from "@/lib/review-quality/compare-quality-delta";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 export type CompareFindingCorrelationQueryData = {
@@ -80,7 +80,7 @@ export function useCompareFindingCorrelationQuery(
   const target = targetRunId?.trim() ?? "";
   const enabled = isComparePairEnabled(baselineRunId, targetRunId);
 
-  return createOperatorQueryHook<CompareFindingCorrelationQueryData>({
+  return useOperatorQueryHook<CompareFindingCorrelationQueryData>({
     queryKey: operatorQueryKeys.compareRunsEndToEnd(baseline, target),
     queryFn: () => fetchCompareFindingCorrelation(baseline, target),
     enabled,

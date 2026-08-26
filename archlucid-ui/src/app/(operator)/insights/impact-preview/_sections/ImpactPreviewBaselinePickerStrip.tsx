@@ -23,17 +23,17 @@ export function ImpactPreviewBaselinePickerStrip(
 ): React.JSX.Element | null {
   const workspaceRun = useWorkspaceActiveRun();
 
-  if (props.baselineOptions.length === 0) {
-    return null;
-  }
-
   const latestFinalizedRunId = props.baselineOptions[0]?.runId ?? null;
-  const workspaceRunId = workspaceRun.runId.trim();
+  const workspaceRunId = (workspaceRun?.activeRunId?.trim() ?? "");
   const workspaceBaselineAvailable =
     workspaceRunId.length > 0 && props.baselineOptions.some((option) => option.runId === workspaceRunId);
   const pickerValue = props.selectedBaselineId ?? (workspaceBaselineAvailable ? workspaceRunId : "");
 
   useEffect(() => {
+    if (props.baselineOptions.length === 0) {
+      return;
+    }
+
     if (props.selectedBaselineId !== null) {
       return;
     }
@@ -49,11 +49,16 @@ export function ImpactPreviewBaselinePickerStrip(
     }
   }, [
     latestFinalizedRunId,
+    props.baselineOptions.length,
     props.onSelectBaseline,
     props.selectedBaselineId,
     workspaceBaselineAvailable,
     workspaceRunId,
   ]);
+
+  if (props.baselineOptions.length === 0) {
+    return null;
+  }
 
   return (
     <section

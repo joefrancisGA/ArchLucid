@@ -13,7 +13,7 @@ import {
   type WhyArchLucidPageState,
 } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
 import { toSectionError } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-helpers";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 async function fetchWhyArchLucidPageBundle(): Promise<WhyArchLucidPageState> {
@@ -106,7 +106,7 @@ type UseWhyArchLucidPageQueryOptions = {
 export function useWhyArchLucidPageQuery(options?: UseWhyArchLucidPageQueryOptions) {
   const reloadNonce = options?.reloadNonce ?? 0;
 
-  return createOperatorQueryHook<WhyArchLucidPageState>({
+  return useOperatorQueryHook<WhyArchLucidPageState>({
     queryKey: operatorQueryKeys.whyArchLucidPageBundle(reloadNonce),
     queryFn: fetchWhyArchLucidPageBundle,
     enabled: options?.enabled ?? true,

@@ -1,7 +1,7 @@
 "use client";
 
 import type { PolicyPackRuleTemplate } from "@/lib/policy/policy-pack-visual-builder";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 async function fetchPolicyPackRuleTemplates(): Promise<PolicyPackRuleTemplate[]> {
@@ -21,7 +21,7 @@ type UsePolicyPackRuleTemplatesQueryOptions = {
 };
 
 export function usePolicyPackRuleTemplatesQuery(options?: UsePolicyPackRuleTemplatesQueryOptions) {
-  return createOperatorQueryHook<PolicyPackRuleTemplate[]>({
+  return useOperatorQueryHook<PolicyPackRuleTemplate[]>({
     queryKey: operatorQueryKeys.policyPackRuleTemplates,
     queryFn: fetchPolicyPackRuleTemplates,
     enabled: options?.enabled ?? true,

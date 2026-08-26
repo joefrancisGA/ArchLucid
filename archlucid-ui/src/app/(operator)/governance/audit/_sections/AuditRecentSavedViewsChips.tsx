@@ -30,13 +30,13 @@ export function AuditRecentSavedViewsChips(props: AuditRecentSavedViewsChipsProp
 
   const loadRecentView = useCallback(
     (entry: AuditRecentSavedViewEntry) => {
-      const view = savedViews.find((candidate) => candidate.viewId === entry.viewId);
+      const view = savedViews.find((candidate) => candidate.id === entry.viewId);
 
       if (view === undefined) {
         return;
       }
 
-      recordAuditRecentSavedView({ viewId: view.viewId, name: view.name });
+      recordAuditRecentSavedView({ viewId: view.id, name: view.name });
       setRecentViews(readAuditRecentSavedViews());
       void props.onLoadView(view);
     },
@@ -53,7 +53,7 @@ export function AuditRecentSavedViewsChips(props: AuditRecentSavedViewsChipsProp
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Recent saved views</p>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           data-testid="audit-recent-saved-views-clear"
           onClick={() => {
@@ -88,7 +88,7 @@ export function wrapAuditSavedViewLoad(
   onLoadView: (view: OperatorSavedView) => void | Promise<void>,
 ): (view: OperatorSavedView) => void | Promise<void> {
   return (view) => {
-    recordAuditRecentSavedView({ viewId: view.viewId, name: view.name });
+    recordAuditRecentSavedView({ viewId: view.id, name: view.name });
     return onLoadView(view);
   };
 }

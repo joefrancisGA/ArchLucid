@@ -14,8 +14,8 @@ export type ServiceNowPageLoadSliceResult<T> = {
 
 export type ServiceNowPageLoadResult = {
   readonly health: ServiceNowPageLoadSliceResult<ItsmIntegrationHealthResponse>;
-  readonly settings: ServiceNowPageLoadSliceResult<TenantItsmOutboundSettingsResponse>;
-  readonly connection: ServiceNowPageLoadSliceResult<TenantItsmConnectorConnectionResponse>;
+  readonly settings: ServiceNowPageLoadSliceResult<TenantItsmOutboundSettingsResponse | null>;
+  readonly connection: ServiceNowPageLoadSliceResult<TenantItsmConnectorConnectionResponse | null>;
   readonly failedSliceLabels: readonly string[];
   readonly loadError: string | null;
 };
@@ -55,8 +55,8 @@ export function settleServiceNowPageLoadSlice<T>(
 
 export function buildServiceNowPageLoadResult(args: {
   readonly health: PromiseSettledResult<ItsmIntegrationHealthResponse>;
-  readonly settings: PromiseSettledResult<TenantItsmOutboundSettingsResponse>;
-  readonly connection: PromiseSettledResult<TenantItsmConnectorConnectionResponse>;
+  readonly settings: PromiseSettledResult<TenantItsmOutboundSettingsResponse | null>;
+  readonly connection: PromiseSettledResult<TenantItsmConnectorConnectionResponse | null>;
 }): ServiceNowPageLoadResult {
   const health = settleServiceNowPageLoadSlice(args.health, "health");
   const settings = settleServiceNowPageLoadSlice(args.settings, "settings");

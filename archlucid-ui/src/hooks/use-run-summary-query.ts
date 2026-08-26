@@ -1,7 +1,7 @@
 "use client";
 
 import { getRunSummary } from "@/lib/api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { RunSummary } from "@/types/authority";
 
@@ -12,7 +12,7 @@ type UseRunSummaryQueryOptions = {
 export function useRunSummaryQuery(runId: string, options?: UseRunSummaryQueryOptions) {
   const trimmed = runId.trim();
 
-  return createOperatorQueryHook<RunSummary>({
+  return useOperatorQueryHook<RunSummary>({
     queryKey: operatorQueryKeys.runSummary(trimmed),
     queryFn: () => getRunSummary(trimmed),
     enabled: (options?.enabled ?? true) && trimmed.length > 0,

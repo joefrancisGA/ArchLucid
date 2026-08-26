@@ -1,7 +1,7 @@
 "use client";
 
 import { listDigestDeliveryAttemptsBatch } from "@/lib/api/advisory-digests-api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { DigestDeliveryAttempt } from "@/types/digest-subscriptions";
 
@@ -37,7 +37,7 @@ export function useDigestDeliveryAttemptsBatchQuery(
 ) {
   const digestIdsKey = digestIds.join(",");
 
-  return createOperatorQueryHook<DigestDeliveryAttemptsBatchResult>({
+  return useOperatorQueryHook<DigestDeliveryAttemptsBatchResult>({
     queryKey: operatorQueryKeys.digestDeliveryAttemptsBatch(digestIdsKey),
     queryFn: () => fetchDigestDeliveryAttemptsBatch(digestIds),
     enabled: (options?.enabled ?? true) && digestIds.length > 0,

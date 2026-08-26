@@ -51,7 +51,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
     [sourceContextQuery.data?.sourceTexts],
   );
   const architectureDescription = useMemo(
-    () => primaryDescriptionFromSources(sourceContextQuery.data?.sourceTexts ?? []),
+    () => primaryDescriptionFromSources([...(sourceContextQuery.data?.sourceTexts ?? [])]),
     [sourceContextQuery.data?.sourceTexts],
   );
   const priorities = useMemo(

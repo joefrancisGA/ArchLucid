@@ -227,14 +227,14 @@ export function GovernanceWorkflowPageContent() {
       return;
     }
 
-    const workspaceRunId = workspaceRun.runId.trim();
+    const workspaceRunId = (workspaceRun?.activeRunId?.trim() ?? "");
 
     if (workspaceRunId.length === 0 || queryRunId.trim().length > 0) {
       return;
     }
 
     setQueryRunId(workspaceRunId);
-  }, [queryRunId, searchParams, workspaceRun.runId]);
+  }, [queryRunId, searchParams, workspaceRun?.activeRunId]);
 
   useEffect(() => {
     const fromQuery = searchParams.get("runId")?.trim() ?? "";

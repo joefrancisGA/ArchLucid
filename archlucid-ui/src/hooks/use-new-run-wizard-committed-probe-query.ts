@@ -1,7 +1,7 @@
 "use client";
 
 import { listRunsByProjectPaged } from "@/lib/api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 export type NewRunWizardCommittedProbeResult = {
@@ -13,7 +13,7 @@ type UseNewRunWizardCommittedProbeQueryOptions = {
 };
 
 export function useNewRunWizardCommittedProbeQuery(options?: UseNewRunWizardCommittedProbeQueryOptions) {
-  return createOperatorQueryHook<NewRunWizardCommittedProbeResult>({
+  return useOperatorQueryHook<NewRunWizardCommittedProbeResult>({
     queryKey: operatorQueryKeys.newRunWizardCommittedProbe,
     queryFn: async () => {
       const page = await listRunsByProjectPaged("default", 1, 50);

@@ -101,7 +101,7 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
     enabled: inboundRunId.length > 0,
   });
   const hydratedDescriptionFromQuery = useMemo(
-    () => primaryDescriptionFromSources(sourceContextQuery.data?.sourceTexts ?? []),
+    () => primaryDescriptionFromSources([...(sourceContextQuery.data?.sourceTexts ?? [])]),
     [sourceContextQuery.data?.sourceTexts],
   );
   const hydratedPrioritiesFromQuery = useMemo(

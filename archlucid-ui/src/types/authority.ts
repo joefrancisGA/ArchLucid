@@ -31,6 +31,8 @@ type RunSummaryWireExtensions = {
   otelTraceId?: string | null;
   /** List/detail merge: finalization timestamp when the API returns it for ordering committed runs. */
   completedUtc?: string | null;
+  /** Pipeline dead-letter flag when list endpoints return stall metadata. */
+  isDeadLettered?: boolean | null;
 };
 
 /**

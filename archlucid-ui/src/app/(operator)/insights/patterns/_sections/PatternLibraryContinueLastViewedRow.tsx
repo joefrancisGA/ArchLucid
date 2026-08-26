@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PatternLibraryRecord } from "@/lib/pattern-library-types";
+import { patternLibraryDetailPath } from "@/lib/pattern-library-route";
 import { cn } from "@/lib/utils";
 
 export type PatternLibraryContinueLastViewedRowProps = {
@@ -15,7 +16,7 @@ export type PatternLibraryContinueLastViewedRowProps = {
 export function PatternLibraryContinueLastViewedRow(
   props: PatternLibraryContinueLastViewedRowProps,
 ): React.JSX.Element {
-  const href = props.record.detailHref;
+  const href = patternLibraryDetailPath(props.record.patternKey);
 
   return (
     <section

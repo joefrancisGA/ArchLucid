@@ -16,7 +16,7 @@ export type ScorecardReviewPickerStripProps = {
 /** Compact review picker before scorecard metrics render. */
 export function ScorecardReviewPickerStrip(props: ScorecardReviewPickerStripProps): React.JSX.Element {
   const workspaceRun = useWorkspaceActiveRun();
-  const workspaceRunId = workspaceRun.runId.trim();
+  const workspaceRunId = (workspaceRun?.activeRunId?.trim() ?? "");
   const pickerValue = props.selectedReviewId ?? (workspaceRunId.length > 0 ? workspaceRunId : "");
 
   useEffect(() => {

@@ -27,14 +27,14 @@ export type ReviewInPipelineBannerProps = {
 /** TB-2385: compact in-pipeline honesty on non-activity review tabs. */
 export function ReviewInPipelineBanner(props: ReviewInPipelineBannerProps): ReactElement | null {
   const navigateTab = useReviewDetailTabNavigation();
+  const buyerLabelsActive = isBuyerVocabularyPassActive();
+  const stageLabel = resolveCurrentPipelineStageLabel([], props.initialSummary, buyerLabelsActive);
+  const waitDetail = useReviewPipelineElapsedWaitCopy(stageLabel, true);
 
   if (!shouldShowReviewInPipelineBanner(props.initialSummary)) {
     return null;
   }
 
-  const buyerLabelsActive = isBuyerVocabularyPassActive();
-  const stageLabel = resolveCurrentPipelineStageLabel([], props.initialSummary, buyerLabelsActive);
-  const waitDetail = useReviewPipelineElapsedWaitCopy(stageLabel, true);
   const executionMode = props.initialSummary?.structuralExecutionMode ?? null;
   const safetyMessage =
     shouldShowReviewPipelineBackgroundSafety(executionMode)

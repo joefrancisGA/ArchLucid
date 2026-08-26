@@ -9,6 +9,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { recordSearchRecentQuery, readSearchRecentQueries, clearSearchRecentQueries } from "@/lib/search-recent-queries";
 import type { RetrievalHit } from "./retrieval-hit";
+import type { SearchPageViewModel } from "./search-page-view-model";
 import { SearchPageView } from "./SearchPageView";
 
 type SearchPageClientProps = {

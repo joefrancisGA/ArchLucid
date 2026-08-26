@@ -93,17 +93,17 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
   const defaultQuestionKey = props.questionOptions[0]?.questionKey ?? "";
   const suppressQuestionAnswerOverride = props.suppressQuestionAnswerOverride === true;
 
-  if (!branchAllowed) {
-    return null;
-  }
-
   const availableOverrideKinds = useMemo(() => {
+    if (!branchAllowed) {
+      return OVERRIDE_KIND_OPTIONS;
+    }
+
     if (!suppressQuestionAnswerOverride) {
       return OVERRIDE_KIND_OPTIONS;
     }
 
     return OVERRIDE_KIND_OPTIONS.filter((option) => option.value !== "QuestionAnswer");
-  }, [suppressQuestionAnswerOverride]);
+  }, [branchAllowed, suppressQuestionAnswerOverride]);
 
   const [overrideKind, setOverrideKind] = useState<DraftBranchOverrideKind>(() =>
     resolveInitialOverrideKind(suppressQuestionAnswerOverride),
@@ -129,11 +129,15 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
   const quotaAllowsBranch = quota?.canBranch !== false;
 
   useEffect(() => {
+    if (!branchAllowed) {
+      return;
+    }
+
     if (suppressQuestionAnswerOverride && overrideKind === "QuestionAnswer") {
       setOverrideKind("BusinessOutcome");
       setOverrideValue(props.outcome);
     }
-  }, [overrideKind, props.outcome, suppressQuestionAnswerOverride]);
+  }, [branchAllowed, overrideKind, props.outcome, suppressQuestionAnswerOverride]);
 
   const selectedKindMeta = useMemo(
     () =>
@@ -144,6 +148,10 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
   );
 
   const canBranch = useMemo(() => {
+    if (!branchAllowed) {
+      return false;
+    }
+
     const trimmedValue = overrideValue.trim();
 
     if (trimmedValue.length === 0) {
@@ -155,7 +163,11 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
     }
 
     return true;
-  }, [overrideKey, overrideKind, overrideValue]);
+  }, [branchAllowed, overrideKey, overrideKind, overrideValue]);
+
+  if (!branchAllowed) {
+    return null;
+  }
 
   function seedOverrideValue(kind: DraftBranchOverrideKind): string {
     if (kind === "BusinessOutcome") {

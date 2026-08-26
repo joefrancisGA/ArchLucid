@@ -111,6 +111,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     lastCheckedAt,
     refresh,
     setSettings,
+    setHealth,
   } = useItsmConnectorPage({
     providerId: "servicenow",
     buildPageLoadResult: buildServiceNowPageLoadResult,
@@ -121,19 +122,19 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
           id: "health",
           label: "ServiceNow health",
           failed: loaded.health.failed,
-          errorMessage: loaded.health.errorMessage,
+          errorMessage: loaded.health.errorMessage ?? null,
         },
         {
           id: "settings",
           label: "ServiceNow settings",
           failed: loaded.settings.failed,
-          errorMessage: loaded.settings.errorMessage,
+          errorMessage: loaded.settings.errorMessage ?? null,
         },
         {
           id: "connection",
           label: "ServiceNow connection",
           failed: loaded.connection.failed,
-          errorMessage: loaded.connection.errorMessage,
+          errorMessage: loaded.connection.errorMessage ?? null,
         },
       ]);
     },

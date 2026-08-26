@@ -125,6 +125,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     lastCheckedAt,
     refresh,
     setSettings,
+    setHealth,
   } = useItsmConnectorPage({
     providerId: "jira",
     buildPageLoadResult: buildJiraPageLoadResult,

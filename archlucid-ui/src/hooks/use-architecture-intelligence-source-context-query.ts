@@ -4,7 +4,7 @@ import {
   fetchArchitectureIntelligenceProductSourceContext,
   type ClosedLoopReasoningSourceText,
 } from "@/lib/architecture/architecture-intelligence-api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 export type ArchitectureIntelligenceSourceContext = {
@@ -23,7 +23,7 @@ export function useArchitectureIntelligenceSourceContextQuery(
 ) {
   const trimmed = runId.trim();
 
-  return createOperatorQueryHook<ArchitectureIntelligenceSourceContext>({
+  return useOperatorQueryHook<ArchitectureIntelligenceSourceContext>({
     queryKey: operatorQueryKeys.architectureIntelligenceSourceContext(trimmed),
     queryFn: async () => {
       const context = await fetchArchitectureIntelligenceProductSourceContext(trimmed);

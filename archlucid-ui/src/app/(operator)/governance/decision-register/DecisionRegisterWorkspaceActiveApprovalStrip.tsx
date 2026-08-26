@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 /** Empty-register CTA routing operators to submit approval for the workspace active review. */
 export function DecisionRegisterWorkspaceActiveApprovalStrip(): React.JSX.Element | null {
   const workspaceRun = useWorkspaceActiveRun();
-  const runId = workspaceRun.runId.trim();
+  const runId = (workspaceRun?.activeRunId?.trim() ?? "");
 
   if (runId.length === 0) {
     return null;

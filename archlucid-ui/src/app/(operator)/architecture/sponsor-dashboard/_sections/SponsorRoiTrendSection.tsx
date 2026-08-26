@@ -101,10 +101,14 @@ export function SponsorRoiTrendSection({
   const loading = historyQuery.isPending;
   const error = historyQuery.isError;
 
-  const points = useMemo(
-    () => filterHistoryPointsByRange(allPoints, timeRange),
-    [allPoints, timeRange],
-  );
+  const points = useMemo(() => {
+    const withSnapshotUtc = allPoints.filter(
+      (point): point is HistoryPoint & { snapshotUtc: string } =>
+        typeof point.snapshotUtc === "string" && point.snapshotUtc.length > 0,
+    );
+
+    return filterHistoryPointsByRange(withSnapshotUtc, timeRange);
+  }, [allPoints, timeRange]);
 
   const maxCritical = Math.max(...points.map((point) => normalizedTrendPoint(point).criticalSecurityFindings), 1);
   const showMixedModeFootnote = chartIncludesMixedMode(points);

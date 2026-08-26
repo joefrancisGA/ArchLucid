@@ -25,9 +25,11 @@ export function resolveNextRunsListRow(
     return null;
   }
 
+  const displayName = nextRun.displayName?.trim() ?? "";
+
   return {
     runId: nextRun.runId,
-    reviewTitle: nextRun.title.trim().length > 0 ? nextRun.title : nextRun.runId,
+    reviewTitle: displayName.length > 0 ? displayName : nextRun.runId,
     href: `/architecture/reviews/${encodeURIComponent(nextRun.runId)}`,
   };
 }

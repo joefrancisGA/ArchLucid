@@ -20,7 +20,7 @@ export function SponsorReportFinalizedReviewPickerStrip(
   props: SponsorReportFinalizedReviewPickerStripProps,
 ): React.JSX.Element | null {
   const workspaceRun = useWorkspaceActiveRun();
-  const workspaceRunId = workspaceRun.runId.trim();
+  const workspaceRunId = (workspaceRun?.activeRunId?.trim() ?? "");
   const [selectedReviewId, setSelectedReviewId] = useState(workspaceRunId);
 
   useEffect(() => {

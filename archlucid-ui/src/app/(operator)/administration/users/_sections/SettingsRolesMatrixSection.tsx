@@ -528,7 +528,7 @@ export function SettingsRolesMatrixSection(_props: SettingsRolesMatrixSectionPro
                         <div className="flex min-h-[4.5rem] flex-col items-center justify-start gap-1">
                           {/* Descriptions live in the summary cards above; a hover-only tooltip here was
                               unreachable by keyboard. `title` only reveals names clipped by line-clamp. */}
-                          <span className="line-clamp-2 text-center" title={displayName}>
+                          <span className="line-clamp-2 text-center">
                             {displayName}
                           </span>
                           <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>

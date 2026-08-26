@@ -1,3 +1,4 @@
+import { SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF } from "@/lib/showcase-static-demo";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { GOVERNANCE_POLICY_PACKS_PATH, governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";

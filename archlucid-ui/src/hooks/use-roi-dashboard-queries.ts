@@ -2,7 +2,7 @@
 
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 
@@ -25,7 +25,7 @@ async function fetchArchitectureTelemetryRoi(): Promise<ArchitectureTelemetryRoi
 }
 
 export function useArchitectureTelemetryRoiQuery() {
-  return createOperatorQueryHook<ArchitectureTelemetryRoi>({
+  return useOperatorQueryHook<ArchitectureTelemetryRoi>({
     queryKey: operatorQueryKeys.architectureTelemetryRoi,
     queryFn: fetchArchitectureTelemetryRoi,
   });
@@ -53,7 +53,7 @@ async function fetchSponsorRoiAggregates(): Promise<SponsorRoiAggregates> {
 }
 
 export function useSponsorRoiAggregatesQuery() {
-  return createOperatorQueryHook<SponsorRoiAggregates>({
+  return useOperatorQueryHook<SponsorRoiAggregates>({
     queryKey: operatorQueryKeys.sponsorRoiAggregates,
     queryFn: fetchSponsorRoiAggregates,
   });

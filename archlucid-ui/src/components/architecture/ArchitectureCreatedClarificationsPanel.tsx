@@ -71,6 +71,7 @@ export function ArchitectureCreatedClarificationsPanel(
   const visibleClarificationGaps = props.model.clarificationGaps.filter(
     (item) => !props.dismissedClarificationGapIds.has(item.id),
   );
+  const clarificationQuestions = props.clarificationQuestions ?? [];
   const hasVisibleWorkQueue =
     visibleClarificationGaps.length > 0 ||
     props.model.evidenceGaps.length > 0 ||
@@ -82,7 +83,6 @@ export function ArchitectureCreatedClarificationsPanel(
     !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !showIntakeOpenQuestions;
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
-  const clarificationQuestions = props.clarificationQuestions ?? [];
 
   return (
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">

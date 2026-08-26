@@ -4,7 +4,7 @@ import {
   getArchitectureDecisionRegister,
   type ArchitectureDecisionRegisterFilters,
 } from "@/lib/api/governance-stickiness-api";
-import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
+import { useOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type {
   ArchitectureDecisionRegisterEntry,
@@ -34,7 +34,7 @@ export function useArchitectureDecisionRegisterQuery(
   const trimmedProjectId = projectId.trim();
   const filtersKey = filtersCacheKey(filters);
 
-  return createOperatorQueryHook<ArchitectureDecisionRegisterResult>({
+  return useOperatorQueryHook<ArchitectureDecisionRegisterResult>({
     queryKey: operatorQueryKeys.architectureDecisionRegister(trimmedProjectId, filtersKey),
     queryFn: async () => {
       const response = await getArchitectureDecisionRegister(trimmedProjectId, filters);
