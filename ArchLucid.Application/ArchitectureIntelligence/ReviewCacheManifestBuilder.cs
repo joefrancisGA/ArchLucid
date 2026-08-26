@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -8,13 +9,14 @@ public static class ReviewCacheManifestBuilder
 {
     public static ReviewCacheDependencyManifest Build(
         ClosedLoopReasoningRequest request,
-        ArchitectureKnowledgeModel? baselineKnowledgeModel = null)
+        ArchitectureKnowledgeModel? baselineKnowledgeModel = null,
+        IReadOnlyList<TechnologyLedgerEntry>? technologyLedgerEntries = null)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         return new ReviewCacheDependencyManifest
         {
-            ContentHash = HashContent(request, baselineKnowledgeModel),
+            ContentHash = HashContent(request, baselineKnowledgeModel, technologyLedgerEntries),
             PromptVersion = ArchitectureIntelligenceCacheVersions.PromptVersion,
             ModelVersion = ArchitectureIntelligenceCacheVersions.ModelVersion,
             PolicyPackVersion = ArchitectureIntelligenceCacheVersions.PolicyPackVersion,
@@ -28,7 +30,8 @@ public static class ReviewCacheManifestBuilder
 
     private static string HashContent(
         ClosedLoopReasoningRequest request,
-        ArchitectureKnowledgeModel? baselineKnowledgeModel)
+        ArchitectureKnowledgeModel? baselineKnowledgeModel,
+        IReadOnlyList<TechnologyLedgerEntry>? technologyLedgerEntries)
     {
         StringBuilder builder = new();
         builder.Append("continue=").Append(request.ContinueFromExistingRun ? '1' : '0').Append('|');
@@ -40,6 +43,13 @@ public static class ReviewCacheManifestBuilder
         {
             builder.Append("modelfp=")
                 .Append(ReviewCacheModelFingerprint.Compute(baselineKnowledgeModel))
+                .Append('|');
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.RunId) && technologyLedgerEntries is not null)
+        {
+            builder.Append("ledgerfp=")
+                .Append(ReviewCacheLedgerFingerprint.Compute(technologyLedgerEntries))
                 .Append('|');
         }
 

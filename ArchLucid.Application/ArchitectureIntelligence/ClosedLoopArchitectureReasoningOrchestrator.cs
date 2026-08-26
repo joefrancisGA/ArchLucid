@@ -103,11 +103,18 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         if (!effectiveRequest.ContinueFromExistingRun)
         {
             ArchitectureKnowledgeModel? baselineKnowledgeModel = null;
+            IReadOnlyList<TechnologyLedgerEntry>? baselineLedgerEntries = null;
 
             if (!string.IsNullOrWhiteSpace(effectiveRequest.RunId))
+            {
                 baselineKnowledgeModel = await TryLoadExistingModelAsync(tenantId, runId, cancellationToken);
+                baselineLedgerEntries = await TryLoadLedgerEntriesAsync(runId, cancellationToken);
+            }
 
-            cacheManifest = ReviewCacheManifestBuilder.Build(effectiveRequest, baselineKnowledgeModel);
+            cacheManifest = ReviewCacheManifestBuilder.Build(
+                effectiveRequest,
+                baselineKnowledgeModel,
+                baselineLedgerEntries);
 
             if (_reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
                 && cached is not null)
@@ -437,8 +444,11 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
             if (!string.IsNullOrWhiteSpace(effectiveRequest.RunId))
             {
+                IReadOnlyList<TechnologyLedgerEntry>? postSaveLedgerEntries =
+                    await TryLoadLedgerEntriesAsync(runId, cancellationToken);
+
                 ReviewCacheDependencyManifest postSaveManifest =
-                    ReviewCacheManifestBuilder.Build(effectiveRequest, model);
+                    ReviewCacheManifestBuilder.Build(effectiveRequest, model, postSaveLedgerEntries);
 
                 if (!string.Equals(
                         postSaveManifest.ContentHash,
