@@ -335,6 +335,55 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
         persisted!.Elements[0].Name.Should().Be(originalName);
     }
 
+    [Fact]
+    public async Task RunAsync_skips_product_publish_when_publish_blocked()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        services.RemoveAll<ITrustPublishGate>();
+        services.AddSingleton<ITrustPublishGate, AlwaysBlockedTrustPublishGate>();
+        services.RemoveAll<IArchitectureIntelligenceProductPublishService>();
+        Mock<IArchitectureIntelligenceProductPublishService> publishService = new();
+        services.AddSingleton(publishService.Object);
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-skip-publish",
+            RunId = Guid.NewGuid().ToString("N"),
+            PublishToProduct = true,
+            DeclaredPriorities = ["Security"],
+            FramingAnswers = CreateCompleteFramingAnswers(),
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = """
+                        Public API exposes customer records without authentication.
+                        Billing worker is an unowned component.
+                        """,
+                },
+            ],
+        });
+
+        publishService.Verify(
+            service => service.PublishAsync(
+                It.IsAny<ClosedLoopReasoningResult>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static Dictionary<string, string> CreateCompleteFramingAnswers()
     {
         return new Dictionary<string, string>

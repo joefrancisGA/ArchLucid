@@ -16,6 +16,8 @@ public sealed class ClosedLoopLiveResultPublishMetadataTests
         services.AddArchitectureIntelligence();
         services.AddArchitectureIntelligenceInMemoryPersistence();
         services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        services.RemoveAll<ITrustPublishGate>();
+        services.AddSingleton<ITrustPublishGate, NeverBlockedTrustPublishGate>();
         services.RemoveAll<IArchitectureIntelligenceProductPublishService>();
         services.AddSingleton<IArchitectureIntelligenceProductPublishService>(new StubProductPublishService());
         await using ServiceProvider provider = services.BuildServiceProvider();
