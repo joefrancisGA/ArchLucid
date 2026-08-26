@@ -40,6 +40,7 @@ import { PatternLibraryFiltersPanel } from "./PatternLibraryFiltersPanel";
 import { PatternLibraryLoadFailurePanel } from "./PatternLibraryLoadFailurePanel";
 import { PatternLibraryPageHeader } from "./PatternLibraryPageHeader";
 import { PatternLibraryPickReviewBeforeBrowsingStrip } from "./PatternLibraryPickReviewBeforeBrowsingStrip";
+import { PatternLibraryNextReviewFooterClient } from "./PatternLibraryNextReviewFooterClient";
 import { PatternLibraryPatternCard } from "./PatternLibraryPatternCard";
 import { PatternLibrarySummaryRow } from "./PatternLibrarySummaryRow";
 
@@ -203,6 +204,8 @@ export function PatternLibraryPageClient(): React.JSX.Element {
               Open Getting started
             </Link>
           </p>
+
+          <PatternLibraryNextReviewFooterClient runId={scopedRunId} />
             </>
           ) : null}
         </>
