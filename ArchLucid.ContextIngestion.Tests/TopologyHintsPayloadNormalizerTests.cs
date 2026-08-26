@@ -17,6 +17,17 @@ public sealed class TopologyHintsPayloadNormalizerTests
     private readonly PlainTextContextDocumentParser _documentParser = new();
 
     [Fact]
+    public async Task NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject()
+    {
+        NormalizedContextBatch batch = await _sut.NormalizeAsync(
+            new TopologyHintsPayload { TopologyHints = ["prod/vnet", " prod/vnet "] },
+            CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle();
+        batch.CanonicalObjects[0].Properties["text"].Should().Be("prod/vnet");
+    }
+
+    [Fact]
     public async Task NormalizeAsync_LongHint_UsesTruncatedDisplayName()
     {
         string longHint = new('a', 81);

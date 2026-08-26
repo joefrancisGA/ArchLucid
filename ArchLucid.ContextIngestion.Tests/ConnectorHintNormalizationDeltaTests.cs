@@ -244,6 +244,19 @@ public sealed class ConnectorHintNormalizationDeltaTests
     }
 
     [Fact]
+    public async Task TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject()
+    {
+        TopologyHintsConnector connector = CreateTopologyConnector();
+
+        NormalizedContextBatch batch = await connector.NormalizeAsync(
+            new RawContextPayload { TopologyHints = ["prod/vnet", " prod/vnet "] },
+            CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle();
+        batch.CanonicalObjects[0].Properties["text"].Should().Be("prod/vnet");
+    }
+
+    [Fact]
     public async Task JsonInfrastructureDeclarationParser_ResourceTypeCasing_IsCanonicalized()
     {
         JsonInfrastructureDeclarationParser parser = new(NullLogger<JsonInfrastructureDeclarationParser>.Instance);

@@ -19,6 +19,7 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
         _ = ct;
 
         NormalizedContextBatch batch = new();
+        HashSet<string> seenHints = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string hint in payload.TopologyHints)
         {
@@ -28,6 +29,10 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
                 continue;
 
             string canonicalHint = TopologyHintStableObjectIds.CanonicalizeHintName(trimmed).ToLowerInvariant();
+
+            if (!seenHints.Add(canonicalHint))
+                continue;
+
             Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase) { ["text"] = canonicalHint };
 
             int slash = canonicalHint.LastIndexOf('/');
