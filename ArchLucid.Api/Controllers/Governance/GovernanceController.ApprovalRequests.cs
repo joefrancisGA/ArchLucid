@@ -93,6 +93,17 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        GovernanceApprovalRequest? approval = await approvalRepo
+            .GetByIdAsync(approvalRequestId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (approval is null)
+        {
+            return this.NotFoundProblem(
+                $"Approval request '{approvalRequestId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
 
@@ -146,6 +157,17 @@ public sealed partial class GovernanceController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        GovernanceApprovalRequest? approval = await approvalRepo
+            .GetByIdAsync(approvalRequestId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (approval is null)
+        {
+            return this.NotFoundProblem(
+                $"Approval request '{approvalRequestId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
@@ -233,6 +255,24 @@ public sealed partial class GovernanceController
 
             try
             {
+                GovernanceApprovalRequest? approval = await approvalRepo
+                    .GetByIdAsync(approvalRequestId, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (approval is null)
+                {
+                    results.Add(
+                        new GovernanceBatchReviewItemResult
+                        {
+                            ApprovalRequestId = approvalRequestId,
+                            Succeeded = false,
+                            ErrorCode = ProblemTypes.ResourceNotFound,
+                            Message = $"Approval request '{approvalRequestId}' was not found.",
+                        });
+
+                    continue;
+                }
+
                 if (approve)
 
                     _ = await workflowService.ApproveAsync(

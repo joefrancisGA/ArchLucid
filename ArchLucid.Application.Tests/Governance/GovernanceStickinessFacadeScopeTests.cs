@@ -398,6 +398,33 @@ public sealed class GovernanceStickinessFacadeScopeTests
             .WithMessage("*not found in the current scope*");
     }
 
+    [Fact]
+    public async Task RecordBulkDispositionAsync_throws_when_all_finding_ids_are_out_of_scope()
+    {
+        Mock<IFindingInspectReadRepository> inspect = new();
+        inspect
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions>()))
+            .ReturnsAsync((FindingInspectResponse?)null);
+
+        GovernanceStickinessFacade sut = CreateSut(findingInspect: inspect.Object);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["foreign-finding-1", "foreign-finding-2"],
+            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+            Rationale = "bulk",
+        };
+
+        Func<Task> act = () => sut.RecordBulkDispositionAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*None of the provided findings were found in the current scope*");
+    }
+
     private static GovernanceStickinessFacade CreateSut(
         IArchitectureRiskRegisterService? riskRegister = null,
         IFindingInspectReadRepository? findingInspect = null,

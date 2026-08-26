@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Api.Models;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
@@ -114,6 +115,33 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task Approve_returns_not_found_when_approval_request_is_out_of_scope()
+    {
+        const string approvalRequestId = "apr-approve-scope";
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GovernanceApprovalRequest?)null);
+
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            approvalRepository: approvals.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Approve(
+            approvalRequestId,
+            new ApproveGovernanceRequest { ReviewComment = "ok" },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetPromotions_returns_not_found_when_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -141,7 +169,8 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IGovernanceApprovalRequestRepository? approvalRepository = null,
         IGovernancePromotionRecordRepository? promotionRepository = null,
         IGovernanceLineageService? lineageService = null,
-        IGovernanceRationaleService? rationaleService = null)
+        IGovernanceRationaleService? rationaleService = null,
+        IGovernanceWorkflowService? workflowService = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -152,7 +181,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             .ReturnsAsync(new RunRecord { RunId = Guid.NewGuid() });
 
         return new GovernanceController(
-            Mock.Of<IGovernanceWorkflowService>(),
+            workflowService ?? Mock.Of<IGovernanceWorkflowService>(),
             approvalRepository ?? Mock.Of<IGovernanceApprovalRequestRepository>(),
             promotionRepository ?? Mock.Of<IGovernancePromotionRecordRepository>(),
             Mock.Of<IGovernanceEnvironmentActivationRepository>(),

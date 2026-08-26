@@ -36,7 +36,8 @@ public sealed class GovernanceStickinessControllerTests
         Mock<IFindingDispositionService>? dispositionService = null,
         Mock<IArchitectureRiskRegisterService>? riskRegister = null,
         Mock<IArchitectureReviewRecurrenceScheduleRepository>? recurrenceRepo = null,
-        Mock<IArchitectureReviewRecurrenceNextRunCalculator>? recurrenceCalculator = null)
+        Mock<IArchitectureReviewRecurrenceNextRunCalculator>? recurrenceCalculator = null,
+        Mock<IRiskExceptionService>? riskExceptions = null)
     {
         Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -49,8 +50,8 @@ public sealed class GovernanceStickinessControllerTests
             .Setup(d => d.ListHistoryAsync(Scope, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
 
-        Mock<IRiskExceptionService> riskExceptions = new();
-        riskExceptions
+        Mock<IRiskExceptionService> riskExceptionService = riskExceptions ?? new Mock<IRiskExceptionService>();
+        riskExceptionService
             .Setup(r => r.ListActiveAsync(Scope.TenantId, Scope.ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<RiskExceptionRecord>());
 
@@ -132,7 +133,7 @@ public sealed class GovernanceStickinessControllerTests
                     scope.Object,
                     actor.Object,
                     dispositions.Object,
-                    riskExceptions.Object,
+                    riskExceptionService.Object,
                     riskRegisterService.Object,
                     decisionRegister.Object,
                     recurrenceRepository.Object,
@@ -377,6 +378,61 @@ public sealed class GovernanceStickinessControllerTests
         };
 
         IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RenewRiskException_returns_not_found_when_exception_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(s => s.GetByIdAsync(Scope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RiskExceptionRecord
+            {
+                RiskExceptionId = exceptionId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = foreignWorkspaceId,
+                ProjectId = Scope.ProjectId,
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "rationale",
+                Status = RiskExceptionStatus.Active,
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+                CreatedByUserId = "creator",
+            });
+
+        GovernanceStickinessController controller = BuildSut(riskExceptions: riskExceptions);
+
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.RenewRiskException(exceptionId, request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_all_findings_are_out_of_scope()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["foreign-finding-1", "foreign-finding-2"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk"
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);

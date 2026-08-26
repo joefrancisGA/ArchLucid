@@ -61,6 +61,13 @@ public sealed partial class GovernanceStickinessFacade
             }
         }
 
+        if (updated.Count == 0)
+        {
+            throw new ArgumentException(
+                "None of the provided findings were found in the current scope.",
+                nameof(request.FindingIds));
+        }
+
         return new RecordBulkFindingDispositionResponse
         {
             ProcessedCount = updated.Count,

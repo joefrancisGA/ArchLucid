@@ -94,7 +94,7 @@ public sealed partial class GovernanceStickinessController
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
         }
     }
 

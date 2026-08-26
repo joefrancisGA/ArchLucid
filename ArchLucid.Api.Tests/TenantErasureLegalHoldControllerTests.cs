@@ -140,6 +140,28 @@ public sealed class TenantErasureLegalHoldControllerTests
     }
 
     [Fact]
+    public async Task ApproveErasureAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantErasureLegalHoldController controller = CreateController(
+            Mock.Of<ITenantErasureCommandService>(),
+            tenants.Object,
+            scopeProvider.Object);
+
+        IActionResult action = await controller.ApproveErasureAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
     public async Task ApproveErasureAsync_returns_conflict_when_command_fails()
     {
         Mock<ITenantErasureCommandService> commands = new();
@@ -157,7 +179,7 @@ public sealed class TenantErasureLegalHoldControllerTests
 
         TenantErasureLegalHoldController controller = CreateController(
             commands.Object,
-            Mock.Of<ITenantRepository>(),
+            TenantExists(),
             scopeProvider.Object);
 
         IActionResult action = await controller.ApproveErasureAsync(CancellationToken.None);
@@ -184,7 +206,7 @@ public sealed class TenantErasureLegalHoldControllerTests
 
         TenantErasureLegalHoldController controller = CreateController(
             commands.Object,
-            Mock.Of<ITenantRepository>(),
+            TenantExists(),
             scopeProvider.Object);
 
         IActionResult action = await controller.ApproveErasureAsync(CancellationToken.None);

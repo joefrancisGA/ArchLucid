@@ -88,10 +88,20 @@ public sealed class TenantErasureLegalHoldController(
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [EnableRateLimiting("expensive")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ApproveErasureAsync(CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+        {
+            return this.NotFoundProblem(
+                "Tenant was not found for the current scope.",
+                ProblemTypes.ResourceNotFound);
+        }
+
         ClaimsPrincipal user = User;
         string userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown";
         string userName = user.Identity?.Name ?? "unknown";
@@ -106,7 +116,7 @@ public sealed class TenantErasureLegalHoldController(
 
         if (!ok)
             return this.ConflictProblem(
-                "Erasure could not be approved (tenant missing, not in erasure quarantine, or already approved).",
+                "Erasure could not be approved (not in erasure quarantine, or already approved).",
                 ProblemTypes.Conflict);
 
         return NoContent();

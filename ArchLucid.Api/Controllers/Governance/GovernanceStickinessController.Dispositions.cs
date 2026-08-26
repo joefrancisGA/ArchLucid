@@ -75,8 +75,16 @@ public sealed partial class GovernanceStickinessController
         if (request.FindingIds is null || request.FindingIds.Count == 0)
             return this.BadRequestProblem("At least one FindingId must be provided.", ProblemTypes.ValidationFailed);
 
-        RecordBulkFindingDispositionResponse response =
-            await _facade.RecordBulkDispositionAsync(request, cancellationToken);
+        RecordBulkFindingDispositionResponse response;
+
+        try
+        {
+            response = await _facade.RecordBulkDispositionAsync(request, cancellationToken);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
 
         return Ok(response);
     }

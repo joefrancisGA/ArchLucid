@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 18
-- **bugs-found:** 49
+- **hunts:** 19
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — governance approval lineage/rationale run scope 404
+- **last-bug:** 2026-08-26 — governance approve/batch 404; renew risk-exception 404; bulk disposition all-fail 400; erasure approve 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2275,6 +2275,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — missing tenant row returned HTTP 409 instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_not_found_when_tenant_missing`.
 - [x] (invalid) `TenantCostSettingsController.PutAsync` — both `eaDiscountPercentage` and `eaDiscountMultiplier` supplied → percentage wins silently with no 400 — **cheap-disproof 2026-08-26:** `TenantCostSettingsPutRequest` XML documents percentage precedence when both are set; not a validation defect.
 - [x] (proven) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — approval row with deleted/out-of-scope `RunId` returned HTTP 200 shell instead of 404 — **hit 2026-08-26:** `RequireScopedRunAsync` preflight on approval `RunId` before lineage/rationale service calls; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController.Approve` / `Reject` — foreign-workspace `approvalRequestId` returned HTTP 400 instead of 404 — **hit 2026-08-26:** `approvalRepo.GetByIdAsync` preflight before workflow review; regression in `GovernanceControllerRunHistoryScopeTests.Approve_returns_not_found_when_approval_request_is_out_of_scope`.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — out-of-scope approval id returned per-item `BadRequest` instead of `ResourceNotFound` — **hit 2026-08-26:** scoped approval preflight in batch loop maps missing id to `ProblemTypes.ResourceNotFound`.
+- [x] (proven) `GovernanceStickinessController.RenewRiskException` — foreign-workspace `riskExceptionId` returned HTTP 400 instead of 404 — **hit 2026-08-26:** map `InvalidOperationException` to `ProblemTypes.ResourceNotFound` (aligned with `RevokeRiskException`); regression in `GovernanceStickinessControllerTests.RenewRiskException_returns_not_found_when_exception_is_out_of_scope`.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessFacade.RecordBulkDispositionAsync` — all out-of-scope `FindingIds` returned HTTP 200 `{ processedCount: 0 }` instead of 400 — **hit 2026-08-26:** throw when zero findings processed; controller maps `ArgumentException` to 400; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
+- [x] (proven) `TenantErasureLegalHoldController.ApproveErasureAsync` — missing tenant row returned HTTP 409 instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantErasureLegalHoldControllerTests.ApproveErasureAsync_returns_not_found_when_tenant_missing`.
+- [x] (invalid) `GovernanceController.Reject` — foreign-workspace `approvalRequestId` 404 parity — **cheap-disproof 2026-08-26:** same `approvalRepo.GetByIdAsync` preflight added with approve in hunt #94.
+- [ ] (candidate) `TenantWorkspacesController` soft-delete restore — foreign-workspace project id within tenant may return 404 vs 400 parity gap on sibling endpoints.
+
+2026-08-26 seed hunt #94: proved governance approve/batch 404, renew risk-exception 404, bulk disposition all-fail 400, erasure approve 404.
 
 2026-08-26 thorough hunt #93: proved governance approval lineage/rationale run-scope 404; cheap-disproved EA discount dual-field 400 expectation.
 
