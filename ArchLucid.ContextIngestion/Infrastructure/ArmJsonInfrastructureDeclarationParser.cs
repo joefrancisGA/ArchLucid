@@ -143,6 +143,12 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             if (CanonicalInfrastructurePropertyBag.CountTfProperties(properties) >= CanonicalInfrastructurePropertyBag.MaxTfPropertyCount)
                 break;
 
+            if (property.Value.ValueKind is JsonValueKind.Array or JsonValueKind.Object)
+            {
+                CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(properties, property.Name, property.Value);
+                continue;
+            }
+
             if (property.Value.ValueKind is not (JsonValueKind.String or JsonValueKind.True or JsonValueKind.False or JsonValueKind.Number))
                 continue;
 

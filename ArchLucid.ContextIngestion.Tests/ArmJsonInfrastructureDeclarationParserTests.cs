@@ -1,3 +1,4 @@
+using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
 
@@ -251,5 +252,51 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
 
         result.Should().ContainSingle(o => o.Name == "docs" && o.ObjectType == "TopologyResource");
         result[0].Properties["tf.allowblobpublicaccess"].Should().Be("true");
+    }
+
+    [Fact]
+    public async Task ParseAsync_WebSiteWithIpSecurityRestrictions_PreservesRulesForNetworkExpander()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-appservice-network",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Web/sites",
+                            "name": "web-app",
+                            "properties": {
+                              "ipSecurityRestrictions": [
+                                {
+                                  "name": "AllowAll",
+                                  "ipAddress": "0.0.0.0/0",
+                                  "action": "Allow"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> parsed = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        parsed.Should().ContainSingle(o => o.Name == "web-app");
+
+        IReadOnlyList<CanonicalObject> expanded =
+            AppServiceNetworkAccessSecurityBaselineExpander.Expand(parsed);
+
+        expanded.Should().HaveCountGreaterThan(1);
+
+        CanonicalObject? baseline = expanded.FirstOrDefault(o =>
+            o.ObjectType == "SecurityBaseline"
+            && o.Properties.TryGetValue("ruleKind", out string? kind)
+            && kind == "OpenPublicEndpoint");
+
+        baseline.Should().NotBeNull();
     }
 }

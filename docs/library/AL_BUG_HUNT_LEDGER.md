@@ -1824,11 +1824,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 52
-- **bugs-found:** 103
+- **hunts:** 53
+- **bugs-found:** 104
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — duplicate topology hints emitted twice in one normalize batch
+- **last-bug:** 2026-08-26 — arm-json array properties dropped before network expander
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1946,12 +1946,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser` read `resources`/`type`/`name`/`properties` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Resources`/`Type`/`Name`/`Properties` returned zero resources; fixed with case-insensitive JSON property reads (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` read `values`/`root_module`/`resources`/`type`/`name` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Values`/`Root_Module`/`Resources`/`Type`/`Name` returned zero resources; fixed with case-insensitive JSON property reads (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` kept padded `type` whitespace in `terraformType` and resource `Name` — **hit 2026-08-26:** `" azurerm_virtual_network "` vs `azurerm_virtual_network` false-modified infrastructure declaration deltas and misaligned occurrence keys; fixed by trimming `type` in `TryAddResource` and `CountModuleLabelOccurrences` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TrimsPaddedResourceType`).
-- [ ] (candidate) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` drops JSON array `properties` (e.g. `ipSecurityRestrictions`) so `AppServiceNetworkAccessSecurityBaselineExpander` never sees network rules from arm-json declarations — expander tests inject properties directly; parser path untested.
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` dropped JSON array `properties` — **hit 2026-08-26:** `ipSecurityRestrictions` arrays were skipped so `AppServiceNetworkAccessSecurityBaselineExpander` never saw open-internet rules from arm-json declarations; fixed by serializing array/object values via `TryAddTfJsonProperty` and normalizing expander key lookup (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_WebSiteWithIpSecurityRestrictions_PreservesRulesForNetworkExpander`).
 - [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser.RedactTopLevelSensitiveTfValues` redacts only top-level `sensitive_values` keys — nested sensitive markers may leak into serialized `tf.*` object blobs.
 - [ ] (candidate) `KubernetesYamlInfrastructureDeclarationParser` has no YAML-path tests for `kind: List` multi-item manifests (JSON List path covered).
-- [ ] (hunt-ready) `TopologyHintsPayloadNormalizer` does not dedupe duplicate hints within one batch (unlike `PolicyReferencePayloadNormalizer`) — identical canonical hints emit duplicate `CanonicalObject` rows and inflate connector `AddedCount`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+
+2026-08-26 thorough hunt #53: proved arm-json array property serialization gap for App Service network rules.
 
 2026-08-26 thorough hunt #52: proved topology-hints within-batch dedupe gap.
 

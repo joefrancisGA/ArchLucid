@@ -147,6 +147,37 @@ public static class CanonicalInfrastructurePropertyBag
         return true;
     }
 
+    public static bool TryAddTfJsonProperty(
+        Dictionary<string, string> properties,
+        string rawKey,
+        JsonElement value)
+    {
+        ArgumentNullException.ThrowIfNull(properties);
+
+        if (CountTfProperties(properties) >= MaxTfPropertyCount)
+            return false;
+
+        if (ShouldRedactKey(rawKey))
+            return TryAddTfProperty(properties, rawKey, "[REDACTED]");
+
+        string serialized = value.GetRawText().Trim();
+
+        if (string.IsNullOrWhiteSpace(serialized))
+            return false;
+
+        string sanitizedKey = SanitizePropertyKey(rawKey).ToLowerInvariant();
+
+        if (string.IsNullOrEmpty(sanitizedKey))
+            return false;
+
+        if (serialized.Length > MaxPropertyValueLength)
+            serialized = serialized[..MaxPropertyValueLength];
+
+        properties[$"tf.{sanitizedKey}"] = serialized;
+
+        return true;
+    }
+
     public static int CountTfProperties(IReadOnlyDictionary<string, string> properties)
     {
         ArgumentNullException.ThrowIfNull(properties);

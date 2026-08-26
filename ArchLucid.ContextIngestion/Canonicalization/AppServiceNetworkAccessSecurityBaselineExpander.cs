@@ -57,8 +57,7 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
     {
         foreach (string key in properties.Keys)
         {
-            if (!key.Equals("ipSecurityRestrictions", StringComparison.OrdinalIgnoreCase)
-                && !key.Equals("tf.ip_security_restrictions", StringComparison.OrdinalIgnoreCase))
+            if (!IsIpSecurityRestrictionsPropertyKey(key))
                 continue;
 
             rulesJson = properties[key];
@@ -69,6 +68,17 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
 
         rulesJson = null;
         return false;
+    }
+
+    private static bool IsIpSecurityRestrictionsPropertyKey(string key)
+    {
+        string normalized = key.StartsWith("tf.", StringComparison.OrdinalIgnoreCase)
+            ? key[3..]
+            : key;
+
+        normalized = normalized.Replace("_", string.Empty, StringComparison.Ordinal);
+
+        return normalized.Equals("ipsecurityrestrictions", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsAppServiceTopology(CanonicalObject item)
