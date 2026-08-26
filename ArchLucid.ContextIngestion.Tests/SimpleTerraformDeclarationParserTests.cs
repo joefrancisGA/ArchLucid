@@ -312,4 +312,24 @@ public sealed class SimpleTerraformDeclarationParserTests
         reversedObjects.Should().ContainSingle();
         reversedObjects[0].Properties.Should().BeEquivalentTo(firstObjects[0].Properties);
     }
+
+    [Fact]
+    public async Task ParseAsync_StripsTrailingCommentsFromScalarAssignments()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "rg.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_resource_group" "main" {
+                        location = "eastus" # primary region
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.location"].Should().Be("eastus");
+    }
 }

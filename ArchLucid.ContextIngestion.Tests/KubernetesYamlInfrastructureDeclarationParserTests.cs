@@ -121,4 +121,34 @@ public sealed class KubernetesYamlInfrastructureDeclarationParserTests
         result.Should().ContainSingle(o => o.Name == "prod/api" && o.ObjectType == "TopologyResource");
         result.Should().ContainSingle(o => o.Name == "prod/db" && o.ObjectType == "SecurityBaseline");
     }
+
+    [Fact]
+    public async Task ParseAsync_BareArrayDocument_MapsMultipleItems()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "bundle.yaml",
+            Format = "kubernetes-yaml",
+            DeclarationId = "decl-k8s-yaml-array",
+            Content = """
+                      ---
+                      - apiVersion: apps/v1
+                        kind: Deployment
+                        metadata:
+                          name: api
+                          namespace: prod
+                      - apiVersion: v1
+                        kind: Service
+                        metadata:
+                          name: api
+                          namespace: prod
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(o => o.Name == "prod/api" && o.Properties["k8s.kind"] == "deployment");
+        result.Should().ContainSingle(o => o.Name == "prod/api" && o.Properties["k8s.kind"] == "service");
+    }
 }

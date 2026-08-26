@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 59
-- **bugs-found:** 125
+- **hunts:** 60
+- **bugs-found:** 127
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — K8s YAML padded separator and arm-json deployment-wrapper child recursion
+- **last-bug:** 2026-08-26 — simple-terraform scalar comment stripping and K8s YAML bare-array documents
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1978,6 +1978,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` returned before recursing `Microsoft.Resources/deployments` children — **hit 2026-08-26:** subnet resources nested under deployment wrappers were dropped; fixed by recursing deployment children with parent vnet context (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_NestedDeploymentWrapper_MapsChildSubnetResources`).
 - [x] (proven) `ContextIngestionService.ApplyScopeMetadata` joined duplicate scope list entries — **hit 2026-08-26:** `["prod/vnet","prod/vnet"]` churned topology-hints scope metadata hashes; fixed with `Distinct` before join (`ContextIngestionServiceTests.IngestAsync_TopologyHintsDuplicateEntries_ProducesStableScopeMetadata`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` / `CanonicalInfrastructureJsonValue` preserved order-dependent duplicate casing keys — **hit 2026-08-26:** `Environment`/`environment` property order changed `tf.environment`; fixed with lowercase-key grouping and ordinal-first property selection (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_DuplicateCasingPropertyKeys_Order_ProducesEquivalentTfProperties`).
+- [x] (proven) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` captured trailing `#` comments in top-level scalar values — **hit 2026-08-26:** `location = "eastus" # primary` false-modified infra declaration deltas despite ledger claim; fixed by `StripTrailingHclComment` before `UnquoteScalar` (`SimpleTerraformDeclarationParserTests.ParseAsync_StripsTrailingCommentsFromScalarAssignments`).
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.MapDocuments` skipped root `JsonValueKind.Array` documents — **hit 2026-08-26:** kubernetes-yaml bare-array documents (`---` + sequence of manifests) returned zero resources; fixed by expanding array documents before resource mapping (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_BareArrayDocument_MapsMultipleItems`).
+- [x] (valid-no-repro) `PolicyReferencePayloadExtractor` duplicates request and document topology hints — overlap resolver `HashSet` + sorted join makes duplicate hints benign for policy-reference connector delta; optional hygiene test only.
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser.CanonicalizeTerraformValueText` dead code — live path uses `CanonicalInfrastructureJsonValue.CanonicalizeText`; orphan methods are hygiene-only deletion candidate.
+
+2026-08-26 seed hunt #60: reseeded scalar HCL comment stripping (ledger drift), K8s YAML bare-array documents, policy duplicate hints, terraform-show-json dead serializer; proved two functional gaps.
 
 2026-08-26 seed hunt #59: reseeded K8s YAML separator drift, K8s JSON root array, ARM deployment-wrapper children, scope-metadata duplicate lists, and canonical JSON duplicate casing keys; proved all five rows.
 
