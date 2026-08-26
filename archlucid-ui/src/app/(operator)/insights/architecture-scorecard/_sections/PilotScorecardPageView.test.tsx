@@ -147,6 +147,7 @@ describe("PilotScorecardPageView", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
     expect(screen.getByTestId("review-scorecard-summary-row")).toBeInTheDocument();
+    expect(screen.getByTestId("scorecard-scoring-setup-progress")).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-summary-estimated-review-time-savings")).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-summary-reviews-finalized")).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-summary-resolve-outcomes")).toBeInTheDocument();

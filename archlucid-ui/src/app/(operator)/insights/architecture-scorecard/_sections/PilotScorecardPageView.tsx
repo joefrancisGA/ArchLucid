@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
 
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { ArchitectureScorecardBreadcrumb } from "@/components/insights/ArchitectureScorecardBreadcrumb";
@@ -49,6 +50,10 @@ import {
 } from "@/lib/review-scorecard-empty-state";
 import { resolveReviewScorecardDisplayData } from "@/lib/review-scorecard-sample-data";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import {
+  resolveScorecardScoringEmphasizedStepId,
+  resolveScorecardScoringSteps,
+} from "@/lib/scorecard-scoring-checklist";
 
 import { ArchitectureScorecardBuyerChrome } from "./ArchitectureScorecardBuyerChrome";
 import { ReviewScorecardEmptyState } from "./ReviewScorecardEmptyState";
@@ -186,6 +191,16 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   const showScorecardReviewPicker =
     displayData !== null && !scorecardEmpty && !sampleMode && !scopedRunFilterActive;
   const showScorecardMetrics = displayData !== null && !scorecardEmpty && (sampleMode || scopedRunFilterActive);
+  const scorecardScoringChecklistSteps = resolveScorecardScoringSteps({
+    reviewPicked: scopedRunFilterActive,
+    metricsReviewed: showScorecardMetrics,
+    exportReady: showScorecardMetrics,
+  });
+  const scorecardScoringChecklistEmphasizedStepId = resolveScorecardScoringEmphasizedStepId({
+    reviewPicked: scopedRunFilterActive,
+    metricsReviewed: showScorecardMetrics,
+    exportReady: showScorecardMetrics,
+  });
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4" data-testid="review-scorecard-page">
@@ -343,6 +358,15 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             Open review
           </Link>
         </p>
+      ) : null}
+
+      {scopedRunFilterActive && !sampleMode ? (
+        <IntegrationConnectChecklist
+          title="Scoring checklist"
+          steps={scorecardScoringChecklistSteps}
+          emphasizedStepId={scorecardScoringChecklistEmphasizedStepId}
+          testIdPrefix="scorecard-scoring"
+        />
       ) : null}
 
       {showScorecardReviewPicker ? (
