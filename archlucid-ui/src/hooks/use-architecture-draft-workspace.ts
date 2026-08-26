@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import {
+  actorSetFromDraftDocument,
   applyArchitectureCreationDraftToFormState,
   architectureCreationDefaultActorSet,
 } from "@/lib/architecture/architecture-creation-init";
@@ -61,11 +62,7 @@ export function useArchitectureDraftWorkspace(options: UseArchitectureDraftWorks
     const formState = applyArchitectureCreationDraftToFormState(loaded);
     setDraft(loaded);
     setFields(formState);
-    setActorSet(
-      loaded.document.actorSet.actors.length > 0
-        ? loaded.document.actorSet
-        : architectureCreationDefaultActorSet(),
-    );
+    setActorSet(actorSetFromDraftDocument(loaded));
 
     return formState;
   }, []);

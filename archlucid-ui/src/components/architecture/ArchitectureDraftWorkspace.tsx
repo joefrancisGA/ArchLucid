@@ -52,7 +52,7 @@ import {
 } from "@/lib/architecture/architecture-draft-registry";
 import { type ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
-import { writeArchitectureCreationDraftId, replaceArchitectureCreationUrlWithoutNavigation } from "@/lib/architecture/architecture-creation-session";
+import { actorSetFromDraftDocument } from "@/lib/architecture/architecture-creation-init";
 import { reviewDetailPath, startReviewFromArchitectureHref, ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
 import { retargetAdvisoryDraftInFlightArchitecture } from "@/lib/operations/advisory-draft-in-flight";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -74,7 +74,7 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-co
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
-import type { DraftRequestResponse } from "@/types/draft-intake";
+import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 const ArchitectureDraftAiRefinePanel = dynamic(
   async () => {
@@ -113,11 +113,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
   const acceptServerBaselineRef = useRef<
-    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string) => void
+    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string, actorSet: ActorSet) => void
   >(() => undefined);
   const onDraftHydratedRef = useRef<(loaded: DraftRequestResponse, formState: ArchitectureDraftFieldState) => void>(
     (loaded, formState) => {
-      acceptServerBaselineRef.current(formState, loaded.updatedUtc);
+      acceptServerBaselineRef.current(formState, loaded.updatedUtc, actorSetFromDraftDocument(loaded));
     },
   );
   const {
@@ -205,7 +205,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const handleDraftLoaded = useCallback(
     (loaded: DraftRequestResponse) => {
       const formState = applyLoadedDraftToForm(loaded);
-      acceptServerBaselineRef.current(formState, loaded.updatedUtc);
+      acceptServerBaselineRef.current(
+        formState,
+        loaded.updatedUtc,
+        actorSetFromDraftDocument(loaded),
+      );
     },
     [applyLoadedDraftToForm],
   );
@@ -320,7 +324,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         }
 
         const formState = applyLoadedDraftToForm(loaded);
-        acceptServerBaselineRef.current(formState, loaded.updatedUtc);
+        acceptServerBaselineRef.current(
+        formState,
+        loaded.updatedUtc,
+        actorSetFromDraftDocument(loaded),
+      );
         upsertArchitectureDraftRegistryEntry(
           buildArchitectureDraftRegistryEntry(loaded, {
             linkedReviewId: nextSpawnedRunId,

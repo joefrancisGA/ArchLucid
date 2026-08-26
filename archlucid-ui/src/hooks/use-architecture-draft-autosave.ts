@@ -13,7 +13,7 @@ import {
   hasArchitectureDraftSaveableContent,
   validateArchitectureDraftIntegrity,
 } from "@/lib/architecture/architecture-draft-readiness";
-import { applyArchitectureCreationDraftToFormState } from "@/lib/architecture/architecture-creation-init";
+import { applyArchitectureCreationDraftToFormState, actorSetFromDraftDocument } from "@/lib/architecture/architecture-creation-init";
 import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
@@ -51,6 +51,7 @@ type UseArchitectureDraftAutosaveResult = {
   readonly acceptServerBaseline: (
     fields: ArchitectureDraftFieldState,
     serverUpdatedUtc: string,
+    actorSet: ActorSet,
   ) => void;
   readonly hasPersistedDraft: boolean;
 };
@@ -62,6 +63,10 @@ function fieldsAreEqual(left: ArchitectureDraftFieldState, right: ArchitectureDr
     left.systemName === right.systemName &&
     JSON.stringify(left.structuredBrief) === JSON.stringify(right.structuredBrief)
   );
+}
+
+function actorSetsAreEqual(left: ActorSet, right: ActorSet): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 function fieldsFromDraftDocument(draft: DraftRequestResponse): ArchitectureDraftFieldState {
@@ -95,6 +100,7 @@ export function useArchitectureDraftAutosave(
   // Bumped whenever persistedFieldsRef changes so dirty detection re-runs after save/load.
   const [baselineRevision, setBaselineRevision] = useState(0);
   const persistedFieldsRef = useRef<ArchitectureDraftFieldState>(args.fields);
+  const persistedActorSetRef = useRef<ActorSet>(args.actorSet);
   const fieldsRef = useRef(args.fields);
   const actorSetRef = useRef(args.actorSet);
   const serverUpdatedUtcRef = useRef<string | null>(null);
@@ -114,19 +120,22 @@ export function useArchitectureDraftAutosave(
   const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
   const hasUnsavedChanges = useMemo(
-    () => !fieldsAreEqual(args.fields, persistedFieldsRef.current),
-    [args.fields, baselineRevision],
+    () =>
+      !fieldsAreEqual(args.fields, persistedFieldsRef.current) ||
+      !actorSetsAreEqual(args.actorSet, persistedActorSetRef.current),
+    [args.fields, args.actorSet, baselineRevision],
   );
 
-  const writePersistedBaseline = useCallback((fields: ArchitectureDraftFieldState) => {
+  const writePersistedBaseline = useCallback((fields: ArchitectureDraftFieldState, actorSet: ActorSet) => {
     persistedFieldsRef.current = fields;
+    persistedActorSetRef.current = actorSet;
     setBaselineRevision((current) => current + 1);
   }, []);
 
   const acceptServerBaseline = useCallback(
-    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string) => {
+    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string, actorSet: ActorSet) => {
       serverUpdatedUtcRef.current = serverUpdatedUtc;
-      writePersistedBaseline(fields);
+      writePersistedBaseline(fields, actorSet);
       setLastSavedUtc(null);
       setConflictMessage(null);
       setSaveState("idle");
@@ -228,7 +237,7 @@ export function useArchitectureDraftAutosave(
           return false;
         }
 
-        writePersistedBaseline(fieldsFromDraftDocument(patched));
+        writePersistedBaseline(fieldsFromDraftDocument(patched), actorSetFromDraftDocument(patched));
         serverUpdatedUtcRef.current = patched.updatedUtc;
         setLastSavedUtc(patched.updatedUtc);
         upsertArchitectureDraftRegistryEntry(buildArchitectureDraftRegistryEntry(patched));
@@ -322,7 +331,7 @@ export function useArchitectureDraftAutosave(
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [args.fields, enabled, hasUnsavedChanges, markDirty, persistDraft]);
+  }, [args.fields, args.actorSet, enabled, hasUnsavedChanges, markDirty, persistDraft]);
 
   useEffect(() => {
     function handleOnline() {
@@ -342,7 +351,7 @@ export function useArchitectureDraftAutosave(
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, [args.fields, hasUnsavedChanges, persistDraft]);
+  }, [args.fields, args.actorSet, hasUnsavedChanges, persistDraft]);
 
   return {
     saveState,

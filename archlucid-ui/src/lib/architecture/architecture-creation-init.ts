@@ -27,7 +27,7 @@ import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-work
 import { buildDefaultActorSet, createDraftRequest, getDraftRequest } from "@/lib/api/draft-intake-api";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
 import { CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE } from "@/lib/review-start-progress-copy";
-import type { DraftRequestResponse } from "@/types/draft-intake";
+import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 export type ArchitectureCreationInitResult = {
   readonly draftId: string | null;
@@ -157,4 +157,11 @@ export function applyArchitectureCreationDraftToFormState(draft: DraftRequestRes
 
 export function architectureCreationDefaultActorSet(): ReturnType<typeof buildDefaultActorSet> {
   return buildDefaultActorSet();
+}
+
+/** Hydrates actor scope from a saved draft, matching the architecture draft workspace default. */
+export function actorSetFromDraftDocument(draft: DraftRequestResponse): ActorSet {
+  return draft.document.actorSet.actors.length > 0
+    ? draft.document.actorSet
+    : architectureCreationDefaultActorSet();
 }
