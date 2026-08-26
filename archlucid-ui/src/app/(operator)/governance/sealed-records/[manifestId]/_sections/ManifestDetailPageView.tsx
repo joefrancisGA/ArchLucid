@@ -59,7 +59,6 @@ import type { ManifestDetailSectionTabId } from "@/lib/manifest-detail-section-t
 import { ManifestDetailBuyerChrome } from "./ManifestDetailBuyerChrome";
 import { ManifestDetailNextRecordFooterClient } from "./ManifestDetailNextRecordFooterClient";
 import { SignedRecordsListNextReviewFooterClient } from "@/app/(operator)/governance/sealed-records/_sections/SignedRecordsListNextReviewFooterClient";
-import { SignedRecordsListNextReviewFooterClient } from "@/app/(operator)/governance/sealed-records/_sections/SignedRecordsListNextReviewFooterClient";
 import { ManifestDetailSectionTabs } from "./ManifestDetailSectionTabs";
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
 
