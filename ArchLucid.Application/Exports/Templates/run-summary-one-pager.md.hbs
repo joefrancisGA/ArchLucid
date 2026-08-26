@@ -10,7 +10,22 @@
 > **Trial notice:** {{ActiveTrialExportNotice}}
 {{/if}}
 
-## Findings by severity
+## Deterministic findings (sealed)
+
+{{#if HasSealedSnapshot}}
+Sealed snapshot `{{FindingsSnapshotId}}` — {{SealedFindingCount}} finding(s) on the authority pipeline stream. Finalize gate, ITSM `FindingId`, and golden corpus use this record.
+{{else}}
+No sealed findings snapshot on this run yet — deterministic engines have not produced a sealed record.
+{{/if}}
+
+## Agent findings (advisory)
+
+{{#if SimulatorRehearsalTitle}}
+
+> **{{SimulatorRehearsalTitle}}** {{SimulatorRehearsalBody}}
+{{/if}}
+
+### Findings by severity
 
 | Severity | Count |
 |----------|------:|
@@ -19,11 +34,11 @@
 | Medium | {{MediumCount}} |
 | Low | {{LowCount}} |
 
-## Sponsor report
+### Sponsor report
 
 {{SponsorReport}}
 
-## Top findings
+### Top findings
 
 {{#each TopFindingTitles}}
 - {{this}}
@@ -31,4 +46,4 @@
 
 ---
 
-_This Sponsor report was generated with AI assistance from review findings and severity counts. Review before sharing with sponsors._
+_This Sponsor report was generated with AI assistance from agent-stream findings and severity counts. Review before sharing with sponsors._
