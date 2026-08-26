@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import { MessageSquareText, Search } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraphViewport";
@@ -59,6 +61,7 @@ import {
 import type { ProvenancePageWorkspaceProps } from "./provenance-page-workspace-types";
 import { FILTER_OPTIONS, SEARCH_THRESHOLD, useProvenancePageWorkspace } from "./use-provenance-page-workspace";
 import { ProvenanceNextReviewFooterClient } from "./ProvenanceNextReviewFooterClient";
+import { ProvenancePickReviewBeforeInspectingStrip } from "./ProvenancePickReviewBeforeInspectingStrip";
 
 export type { ProvenancePageWorkspaceProps, ProvenanceReviewContext } from "./provenance-page-workspace-types";
 
@@ -79,6 +82,7 @@ function formatUtc(iso: string): string {
 }
 
 export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): React.JSX.Element {
+  const router = useRouter();
   const {
     runId,
     provenanceTraceId,
@@ -123,6 +127,21 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
     showTables,
     evidenceGraphHref,
   } = useProvenancePageWorkspace(props);
+  const scopedRunId = runId.trim();
+  const hasScopedRun = scopedRunId.length > 0;
+
+  const onPickReviewForInspecting = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      router.push(`/architecture/reviews/${encodeURIComponent(trimmed)}/provenance`);
+    },
+    [router],
+  );
 
   return (
     <OperatorPageContainer variant="dashboard" className="print:w-full" data-testid="provenance-page-workspace">
@@ -131,6 +150,11 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           <ProvenanceSectionNav sections={sections} placement="inline-top" />
 
           {dataOrigin === "sample" ? <OperatorDemoStaticBanner emphasizeSampleData /> : null}
+
+          <ProvenancePickReviewBeforeInspectingStrip
+            selectedReviewId={scopedRunId}
+            onSelectReview={onPickReviewForInspecting}
+          />
 
           <header className="space-y-2">
             <ProvenanceWayfinding reviewPackageHref={reviewHref} />
@@ -203,6 +227,8 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
             </section>
           ) : null}
 
+          {hasScopedRun ? (
+            <>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <ProvenanceViewModeSwitcher
               options={VIEW_MODE_OPTIONS}
@@ -702,12 +728,14 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
               )}
             </section>
           ) : null}
+            </>
+          ) : null}
         </article>
 
         <ProvenanceSectionNav sections={sections} placement="sidebar" />
       </div>
 
-      <ProvenanceNextReviewFooterClient runId={runId} />
+      {hasScopedRun ? <ProvenanceNextReviewFooterClient runId={runId} /> : null}
 
       <style>{`
         .prov-node-row--flash {
