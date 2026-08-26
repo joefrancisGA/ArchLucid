@@ -1,10 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import { usePolicyPackRuleTemplatesQuery } from "@/hooks/use-policy-pack-rule-templates-query";
@@ -26,14 +29,17 @@ import {
   visualBuilderStateToContentJson,
 } from "@/lib/policy/policy-pack-visual-builder";
 import { presentPolicyPackSimulateToast } from "@/lib/policy/policy-pack-simulate-toast";
+import { buildPolicyPacksHrefWithReviewId } from "@/lib/policy-packs-review-handoff";
 import { showSuccess } from "@/lib/toast";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type PolicyPackVisualBuilderProps = {
   readonly canMutatePacks: boolean;
   readonly policyContentJson: string;
   readonly onPolicyContentJsonSync: (json: string) => void;
   readonly selectedPackId: string;
+  readonly scopedReviewId?: string;
+  readonly onPickReview?: (reviewId: string) => void;
 };
 
 const FIELD_OPTIONS: VisualConditionField[] = [
@@ -77,11 +83,15 @@ function updateGroupChildren(
 
 export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
   const { canMutatePacks, policyContentJson, onPolicyContentJsonSync, selectedPackId } = props;
+  const scopedReviewId = (props.scopedReviewId ?? "").trim();
+  const scopedReviewFilterActive = scopedReviewId.length > 0;
+  const requiresReviewPick = props.onPickReview !== undefined;
+  const validateClearScopeHref = buildPolicyPacksHrefWithReviewId("");
   const [builderState, setBuilderState] = useState<VisualBuilderState>(() => createEmptyVisualBuilderState());
   const [jsonPreview, setJsonPreview] = useState<string>(policyContentJson);
   const [roundTripWarning, setRoundTripWarning] = useState<string | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
-  const [simulateRunId, setSimulateRunId] = useState<string>("");
+  const effectiveSimulateRunId = scopedReviewFilterActive ? scopedReviewId : "";
   const templatesQuery = usePolicyPackRuleTemplatesQuery();
   const templates = templatesQuery.data ?? [];
   const templatesError = templatesQuery.isError
@@ -168,10 +178,10 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
   }
 
   async function runSimulate(): Promise<void> {
-    const trimmedRun = simulateRunId.trim();
+    const trimmedRun = effectiveSimulateRunId.trim();
 
     if (trimmedRun.length === 0) {
-      setSimulateFailure(uiFailureFromMessage("Enter a run id to validate this policy content."));
+      setSimulateFailure(uiFailureFromMessage("Pick a finalized review to validate this policy content."));
       return;
     }
 
@@ -413,14 +423,66 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
       </div>
 
       <div className="flex flex-wrap items-end gap-3 border-t border-border pt-3">
-        <label className={OPERATOR_TYPOGRAPHY.body}>
-          Review ID for validate
-          <Input
-            className={cn("mt-1 w-72 font-mono", OPERATOR_TYPOGRAPHY.micro)}
-            value={simulateRunId}
-            onChange={(event) => setSimulateRunId(event.target.value)}
-          />
-        </label>
+        <div className="space-y-2">
+          {!scopedReviewFilterActive && requiresReviewPick ? (
+            <>
+              <Label htmlFor="visual-builder-run-picker">Finalized review</Label>
+              <div className="min-w-[16rem] max-w-xl">
+                <AskRunIdPicker
+                  value=""
+                  onChange={(value) => {
+                    if (value.trim().length > 0) {
+                      props.onPickReview?.(value.trim());
+                    }
+                  }}
+                  selectedThreadId=""
+                  committedOnly
+                  preferAutoPick={false}
+                  autoSelectSyntheticSample={false}
+                  label="Review package"
+                  fieldId="visual-builder-run-picker"
+                  hideFieldHelper
+                />
+              </div>
+            </>
+          ) : scopedReviewFilterActive ? (
+            <p
+              className={cn("m-0 text-muted-foreground", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="visual-builder-run-scope-banner"
+            >
+              {"Validating policy content for review "}
+              <span className="font-mono text-al-text-primary">{scopedReviewId}</span>
+              {" · "}
+              <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={validateClearScopeHref}>
+                Clear review scope
+              </Link>
+              {" · "}
+              <Link
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
+                href={`/architecture/reviews/${encodeURIComponent(scopedReviewId)}`}
+              >
+                Open review
+              </Link>
+            </p>
+          ) : (
+            <>
+              <Label htmlFor="visual-builder-run-picker">Finalized review</Label>
+              <div className="min-w-[16rem] max-w-xl">
+                <AskRunIdPicker
+                  value={scopedReviewId}
+                  onChange={() => undefined}
+                  selectedThreadId=""
+                  committedOnly
+                  preferAutoPick={false}
+                  autoSelectSyntheticSample={false}
+                  label="Review package"
+                  fieldId="visual-builder-run-picker"
+                  hideFieldHelper
+                />
+              </div>
+            </>
+          )}
+        </div>
         <Button type="button" variant="primary" size="sm" disabled={!canMutatePacks || simulateBusy} onClick={() => void runSimulate()}>
           Validate
         </Button>
