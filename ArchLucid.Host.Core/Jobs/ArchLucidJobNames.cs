@@ -20,6 +20,8 @@ public static class ArchLucidJobNames
 
     public const string ExecDigestWeekly = "exec-digest-weekly";
 
+    public const string SponsorDigestWeekly = "sponsor-digest-weekly";
+
     public const string WeeklySponsorReport = "weekly-sponsor-report";
 
     /// <summary>Weekly sponsor summary email dispatch (offload slug <c>weekly-sponsor-summary</c>).</summary>

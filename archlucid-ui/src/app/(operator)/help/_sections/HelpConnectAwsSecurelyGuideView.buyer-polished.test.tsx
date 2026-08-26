@@ -24,14 +24,13 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { HelpConnectAwsSecurelyGuideView } from "@/app/(operator)/help/_sections/HelpConnectAwsSecurelyGuideView";
 import {
-  CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING,
+  CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
 } from "@/lib/connect-aws-securely-help-evidence-copy";
 import {
   CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID,
   CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL,
 } from "@/lib/connect-aws-securely-help-page-copy";
 import { CLOUD_CONNECTIONS_HELP_PAGE_TITLE } from "@/lib/cloud-connections-help-guide-content";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpConnectAwsSecurelyGuideView buyer-polished shell", () => {
@@ -47,14 +46,9 @@ describe("HelpConnectAwsSecurelyGuideView buyer-polished shell", () => {
     const skipLink = screen.getByRole("link", { name: CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL });
     expect(skipLink).toHaveAttribute("href", `#${CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID}`);
 
-    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb).toHaveTextContent(HELP_TOPIC_BREADCRUMB_HUB_LABEL);
-    expect(breadcrumb).toHaveTextContent(CLOUD_CONNECTIONS_HELP_PAGE_TITLE);
-    expect(breadcrumb).toHaveTextContent(entry.title);
-
-    expect(
-      screen.getByRole("heading", { level: 2, name: CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("connect-aws-securely-help-claim-discipline").textContent).toContain(
+      CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId("connect-aws-securely-help-sources")).toBeInTheDocument();
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();

@@ -72,6 +72,7 @@ import {
   RISK_EXCEPTIONS_EXPIRING_WARNING,
   RISK_EXCEPTIONS_PAGE_TITLE,
 } from "@/lib/risk-exceptions-page";
+import { RISK_EXCEPTIONS_CLAIM_DISCIPLINE } from "@/lib/risk-exceptions-evidence-copy";
 
 import {
   formatRiskExceptionExpiresAtUtc,
@@ -285,6 +286,8 @@ export default function RiskExceptionsClient() {
         navHref={GOVERNANCE_EXCEPTIONS_PATH}
         title={pageTitle}
         subtitle={pageSubtitle}
+        claimDiscipline={RISK_EXCEPTIONS_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="risk-exceptions-claim-discipline"
         breadcrumb={buyerPolishedShell ? <RiskExceptionsBreadcrumb /> : undefined}
         actions={<PageContextualHelpButton />}
       />

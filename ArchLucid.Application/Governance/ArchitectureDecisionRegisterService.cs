@@ -10,13 +10,14 @@ public sealed class ArchitectureDecisionRegisterService(IArchitectureDecisionReg
 
     public async Task<ArchitectureDecisionRegisterResponse> GetRegisterAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         int maxRows,
         ArchitectureDecisionRegisterQueryOptions? filters,
         CancellationToken cancellationToken = default)
     {
         IReadOnlyList<ArchitectureDecisionRegisterEntry> decisions =
-            await _reader.ListAsync(tenantId, projectId, maxRows, filters, cancellationToken);
+            await _reader.ListAsync(tenantId, workspaceId, projectId, maxRows, filters, cancellationToken);
 
         return new ArchitectureDecisionRegisterResponse { Decisions = decisions };
     }

@@ -4,9 +4,12 @@ using System.Text.Json;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -36,13 +39,19 @@ public sealed class PolicyPackDryRunService(
     IPilotRunDeltaComputer pilotRunDeltaComputer,
     IPromptRedactor promptRedactor,
     IAuditService auditService,
+    IScopeContextProvider scopeContextProvider,
+    IPolicyPackRepository policyPackRepository,
     ILogger<PolicyPackDryRunService> logger) : IPolicyPackDryRunService
 {
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly ILogger<PolicyPackDryRunService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer = pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
+    private readonly IPolicyPackRepository _policyPackRepository =
+        policyPackRepository ?? throw new ArgumentNullException(nameof(policyPackRepository));
     private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc/>
     public async Task<PolicyPackDryRunResponse> EvaluateAsync(Guid policyPackId, IReadOnlyDictionary<string, string> proposedThresholds,
@@ -54,6 +63,9 @@ public sealed class PolicyPackDryRunService(
             throw new ArgumentNullException(nameof(proposedThresholds));
         if (evaluateAgainstRunIds is null)
             throw new ArgumentNullException(nameof(evaluateAgainstRunIds));
+
+        await EnsurePolicyPackInScopeAsync(policyPackId, cancellationToken);
+
         int clampedPageSize = ClampPageSize(pageSize);
         List<string> cleanedRunIds = evaluateAgainstRunIds.Where(id => !string.IsNullOrWhiteSpace(id)).Select(id => id.Trim())
             .Take(IPolicyPackDryRunService.MaxEvaluatedRuns).ToList();
@@ -244,5 +256,20 @@ public sealed class PolicyPackDryRunService(
         AuditEvent auditEvent = new() { EventType = AuditEventTypes.GovernanceDryRunRequested, DataJson = dataJson };
         await DurableAuditLogRetry.TryLogAsync(ct => _auditService.LogAsync(auditEvent, ct), _logger, $"GovernanceDryRunRequested:{policyPackId:D}",
             cancellationToken);
+    }
+
+    private async Task EnsurePolicyPackInScopeAsync(Guid policyPackId, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        PolicyPack? pack = await _policyPackRepository.GetByIdAsync(policyPackId, cancellationToken);
+
+        if (pack is null
+            || pack.IsDeleted
+            || pack.TenantId != scope.TenantId
+            || pack.WorkspaceId != scope.WorkspaceId
+            || pack.ProjectId != scope.ProjectId)
+        {
+            throw new PolicyPackNotFoundException(policyPackId);
+        }
     }
 }

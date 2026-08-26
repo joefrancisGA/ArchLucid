@@ -1,5 +1,9 @@
-import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
-import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
+import {
+  EvidenceOrientationClaimAndSourcesStrip,
+} from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import {
+  EVIDENCE_SOURCES_STYLE,
+} from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   SESSION_EXPIRED_FOLLOW_UPS_TITLE,
   SESSION_EXPIRED_SOURCES,

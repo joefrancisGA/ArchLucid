@@ -8,17 +8,27 @@ internal static class ClosedLoopFramingAnswersNormalizer
     {
         ArgumentNullException.ThrowIfNull(framingAnswers);
 
-        Dictionary<string, string> normalized = new(StringComparer.Ordinal);
+        List<KeyValuePair<string, string>> pairs = [];
 
         foreach (KeyValuePair<string, string> pair in framingAnswers)
         {
             if (string.IsNullOrWhiteSpace(pair.Key))
                 continue;
 
-            string key = pair.Key.Trim();
-            string value = pair.Value?.Trim() ?? string.Empty;
+            pairs.Add(new KeyValuePair<string, string>(pair.Key.Trim(), pair.Value?.Trim() ?? string.Empty));
+        }
 
-            normalized[key] = value;
+        Dictionary<string, string> normalized = new(StringComparer.Ordinal);
+
+        foreach (IGrouping<string, KeyValuePair<string, string>> group in pairs
+                     .GroupBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            KeyValuePair<string, string> canonical = group
+                .OrderBy(pair => pair.Key, StringComparer.Ordinal)
+                .First();
+
+            normalized[canonical.Key] = canonical.Value;
         }
 
         return normalized;

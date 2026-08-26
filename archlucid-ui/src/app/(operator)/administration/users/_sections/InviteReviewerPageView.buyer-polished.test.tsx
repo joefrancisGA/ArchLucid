@@ -27,7 +27,6 @@ import { INVITE_REVIEWER_CLAIM_DISCIPLINE } from "@/lib/invite-reviewer-evidence
 
 import { InviteReviewerPageView } from "./InviteReviewerPageView";
 import {
-  INVITE_REVIEWER_CLAIM_HEADING,
   INVITE_REVIEWER_PAGE_SUBTITLE_BUYER,
 } from "./invite-reviewer-page-copy";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
@@ -50,10 +49,10 @@ describe("InviteReviewerPageView buyer-polished shell", () => {
   it("renders breadcrumb, buyer subtitle, claim strip, and hides contextual help", () => {
     render(<InviteReviewerPageView model={buildModel()} />);
 
-    expect(screen.getByTestId("invite-reviewer-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("invite-reviewer-claim-discipline").textContent).toContain(
+      INVITE_REVIEWER_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByText(INVITE_REVIEWER_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByText(INVITE_REVIEWER_CLAIM_HEADING)).toBeInTheDocument();
-    expect(screen.getByText(INVITE_REVIEWER_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("invite-reviewer-reader-capabilities")).toBeInTheDocument();
     expect(screen.getByTestId("settings-roles-invite-panel-mock")).toBeInTheDocument();

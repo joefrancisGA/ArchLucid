@@ -46,16 +46,14 @@ describe("buyerPolishedRouteOrientation", () => {
     );
   });
 
-  it("orients Outcomes tab hub routes with a shared Insights strip", () => {
-    const scorecard = buyerPolishedRouteOrientation("/insights/architecture-scorecard");
-    const sponsor = buyerPolishedRouteOrientation(SPONSOR_REPORT_PATH);
-    const roi = buyerPolishedRouteOrientation(SPONSOR_REPORT_ROI_SUMMARY_PATH);
-
-    expect(scorecard?.label).toBe("Insights");
-    expect(scorecard?.line).toBe("Value metrics and recommended actions.");
-    expect(sponsor).toEqual(scorecard);
-    expect(roi).toEqual(scorecard);
-    expect(scorecard?.line).not.toBe(BUYER_VALUE_REPORT_PAGE_SUBTITLE);
+  it("returns null for Outcomes tab hub routes — OperatorPageHeader owns the intro", () => {
+    expect(buyerPolishedRouteOrientation("/insights/architecture-scorecard")).toBeNull();
+    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_PATH)).toBeNull();
+    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_ROI_SUMMARY_PATH)).toBeNull();
+    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_PATH)?.line).not.toBe(BUYER_VALUE_REPORT_PAGE_SUBTITLE);
+    expect(buyerPolishedRouteOrientation("/insights/architecture-scorecard")?.line).not.toBe(
+      BUYER_SPONSOR_SUMMARY_VOCABULARY.scorecardLayerContextLine,
+    );
   });
 
   it("returns null for the retired pilot outcomes route (merged into the sponsor report)", () => {

@@ -15,12 +15,14 @@ import {
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
+  fingerprintStructuredBriefForRewriteGate,
   structuredBriefHasRewriteGrounding,
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import { CTA_WIDTH, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_OVERVIEW_REWRITE_ACCEPT_BUTTON,
+  GUIDED_INTAKE_OVERVIEW_REWRITE_BRIEF_UNCHANGED_HINT,
   GUIDED_INTAKE_OVERVIEW_REWRITE_BUTTON,
   GUIDED_INTAKE_OVERVIEW_REWRITE_DISCARD_BUTTON,
   GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_GROUNDING_HINT,
@@ -52,8 +54,13 @@ export function canOfferArchitectureOverviewRewrite(input: {
   readonly disabled?: boolean;
   readonly blocksLlmExecution?: boolean;
   readonly rewriteBusy?: boolean;
+  readonly briefUnchangedSinceAccept?: boolean;
 }): boolean {
   if (input.disabled === true || input.blocksLlmExecution === true || input.rewriteBusy === true) {
+    return false;
+  }
+
+  if (input.briefUnchangedSinceAccept === true) {
     return false;
   }
 
@@ -68,9 +75,14 @@ function resolveOverviewRewriteDisabledHint(input: {
   readonly currentOverview: string;
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
   readonly blocksLlmExecution?: boolean;
+  readonly briefUnchangedSinceAccept?: boolean;
 }): string | null {
   if (input.blocksLlmExecution === true) {
     return null;
+  }
+
+  if (input.briefUnchangedSinceAccept === true) {
+    return GUIDED_INTAKE_OVERVIEW_REWRITE_BRIEF_UNCHANGED_HINT;
   }
 
   if (input.currentOverview.trim().length < ARCHITECTURE_OVERVIEW_REWRITE_MIN_OVERVIEW_CHARS) {
@@ -90,6 +102,7 @@ export function ArchitectureDraftOverviewRewritePanel(
 ): React.JSX.Element {
   const [rewriteBusy, setRewriteBusy] = useState(false);
   const [proposedOverview, setProposedOverview] = useState<string | null>(null);
+  const [consumedBriefFingerprint, setConsumedBriefFingerprint] = useState<string | null>(null);
   const [rewriteError, setRewriteError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -98,17 +111,23 @@ export function ArchitectureDraftOverviewRewritePanel(
   const [showResuggestOffer, setShowResuggestOffer] = useState(false);
   const [resuggestConsumed, setResuggestConsumed] = useState(false);
 
+  const currentBriefFingerprint = fingerprintStructuredBriefForRewriteGate(props.structuredBrief);
+  const briefUnchangedSinceAccept =
+    consumedBriefFingerprint !== null && consumedBriefFingerprint === currentBriefFingerprint;
+
   const canRewrite = canOfferArchitectureOverviewRewrite({
     currentOverview: props.currentOverview,
     structuredBrief: props.structuredBrief,
     disabled: props.disabled,
     blocksLlmExecution: props.blocksLlmExecution,
     rewriteBusy,
+    briefUnchangedSinceAccept,
   });
   const disabledHint = resolveOverviewRewriteDisabledHint({
     currentOverview: props.currentOverview,
     structuredBrief: props.structuredBrief,
     blocksLlmExecution: props.blocksLlmExecution,
+    briefUnchangedSinceAccept,
   });
 
   async function onRewrite(): Promise<void> {
@@ -161,6 +180,7 @@ export function ArchitectureDraftOverviewRewritePanel(
     props.onOverviewAccepted(proposedOverview);
     setProposedOverview(null);
     setRewriteError(null);
+    setConsumedBriefFingerprint(currentBriefFingerprint);
     setShowResuggestOffer(true);
   }
 

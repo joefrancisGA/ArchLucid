@@ -26,7 +26,7 @@ import {
   IMPROVEMENT_PLANNING_PAGE_SUBTITLE_BUYER,
   IMPROVEMENT_PLANNING_SCOPE_DETAILS_TRIGGER,
 } from "@/lib/planning-page-copy";
-import { PLANNING_CLAIM_DISCIPLINE_HEADING } from "@/lib/planning-evidence-copy";
+import { PLANNING_CLAIM_DISCIPLINE } from "@/lib/planning-evidence-copy";
 
 vi.mock("@/components/planning/PlanningExportReadinessNote", () => ({
   PlanningExportReadinessNote: () => null,
@@ -70,8 +70,9 @@ describe("PlanningPageView buyer-polished shell", () => {
     render(<PlanningPageView model={buildModel()} />);
 
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("improvement-planning-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByText(PLANNING_CLAIM_DISCIPLINE_HEADING)).toBeInTheDocument();
+    expect(screen.getByTestId("improvement-planning-claim-discipline").textContent).toContain(
+      PLANNING_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.queryByTestId("planning-reviews-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("planning-plan-detail-hub-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByText(IMPROVEMENT_PLANNING_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();

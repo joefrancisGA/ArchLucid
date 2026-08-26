@@ -1,7 +1,7 @@
-import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
-  GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE,
-  GOVERNANCE_FINDINGS_CLAIM_HEADING,
+  EvidenceOrientationClaimAndSourcesStrip,
+} from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import {
   GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE,
   GOVERNANCE_FINDINGS_SOURCES,
   GOVERNANCE_FINDINGS_SOURCES_INTRO,
@@ -12,8 +12,6 @@ export function GovernanceFindingsClaimOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="governance-findings"
-      claim={GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE}
-      claimHeading={GOVERNANCE_FINDINGS_CLAIM_HEADING}
       sourcesTitle={GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={GOVERNANCE_FINDINGS_SOURCES_INTRO}
       sources={GOVERNANCE_FINDINGS_SOURCES}

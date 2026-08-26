@@ -126,7 +126,8 @@ export function AskMainPanel(props: AskMainPanelProps) {
               fieldId="ask-run-primary"
               label="Review"
               syntheticSampleHint={BUYER_ASK_SYNTHETIC_SAMPLE_HINT}
-              autoSelectSyntheticSample={!buyerPolishedShell}
+              preferAutoPick={false}
+              autoSelectSyntheticSample={false}
             />
           </div>
           <AskReviewScopeStrip runId={runId} buyerPolishedShell={buyerPolishedShell} />

@@ -13,6 +13,7 @@ import { GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT } from "@/lib/enterprise-co
 
 import { GovernanceApprovalLineageDetailContent } from "./GovernanceApprovalLineageDetailContent";
 import { GovernanceApprovalLineageNextRequestFooterClient } from "./GovernanceApprovalLineageNextRequestFooterClient";
+import { GovernanceApprovalQueueNextReviewFooterClient } from "@/app/(operator)/governance/_sections/GovernanceApprovalQueueNextReviewFooterClient";
 import type { UseGovernanceApprovalLineagePageModel } from "./use-governance-approval-lineage-page";
 
 type GovernanceApprovalLineagePageViewProps = {
@@ -98,6 +99,9 @@ export function GovernanceApprovalLineagePageView({ model }: GovernanceApprovalL
       <GovernanceApprovalLineageNextRequestFooterClient
         runId={data.run?.runId ?? data.approvalRequest.runId}
         currentApprovalRequestId={model.approvalRequestId}
+      />
+      <GovernanceApprovalQueueNextReviewFooterClient
+        runId={data.run?.runId ?? data.approvalRequest.runId}
       />
     </>
   );

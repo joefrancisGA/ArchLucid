@@ -1,4 +1,6 @@
-import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import {
+  EvidenceOrientationClaimAndSourcesStrip,
+} from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
   ARCHITECTURES_NEW_SOURCES,
   ARCHITECTURES_NEW_SOURCES_INTRO,

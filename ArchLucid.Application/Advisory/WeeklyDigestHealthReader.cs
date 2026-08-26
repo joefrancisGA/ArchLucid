@@ -11,7 +11,8 @@ public sealed class WeeklyDigestHealthReader(
     IAdvisoryScanScheduleRepository scheduleRepository,
     IDigestSubscriptionRepository digestSubscriptionRepository,
     IArchitectureDigestRepository architectureDigestRepository,
-    ITenantExecDigestPreferencesRepository execDigestPreferencesRepository) : IWeeklyDigestHealthReader
+    ITenantExecDigestPreferencesRepository execDigestPreferencesRepository,
+    ITenantSponsorDigestPreferencesRepository sponsorDigestPreferencesRepository) : IWeeklyDigestHealthReader
 {
     private readonly IAdvisoryScanScheduleRepository _scheduleRepository =
         scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
@@ -24,6 +25,9 @@ public sealed class WeeklyDigestHealthReader(
 
     private readonly ITenantExecDigestPreferencesRepository _execDigestPreferencesRepository =
         execDigestPreferencesRepository ?? throw new ArgumentNullException(nameof(execDigestPreferencesRepository));
+
+    private readonly ITenantSponsorDigestPreferencesRepository _sponsorDigestPreferencesRepository =
+        sponsorDigestPreferencesRepository ?? throw new ArgumentNullException(nameof(sponsorDigestPreferencesRepository));
 
     /// <inheritdoc />
     public async Task<WeeklyDigestHealthSnapshot> GetSnapshotAsync(
@@ -47,6 +51,10 @@ public sealed class WeeklyDigestHealthReader(
         ExecDigestPreferencesResponse execPrefs =
             await _execDigestPreferencesRepository.GetByTenantAsync(scope.TenantId, cancellationToken)
                 .ConfigureAwait(false) ?? ExecDigestPreferencesResponse.Unconfigured(scope.TenantId);
+
+        SponsorDigestPreferencesResponse sponsorPrefs =
+            await _sponsorDigestPreferencesRepository.GetByTenantAsync(scope.TenantId, cancellationToken)
+                .ConfigureAwait(false) ?? SponsorDigestPreferencesResponse.Unconfigured(scope.TenantId);
 
         int enabledSchedules = schedules.Count(static s => s.IsEnabled);
         DateTimeOffset? nextRun = null;
@@ -95,6 +103,10 @@ public sealed class WeeklyDigestHealthReader(
 
         if (!execPrefs.EmailEnabled || execPrefs.RecipientEmails.Count == 0)
             gaps.Add(
+                "Executive email digest is not fully configured — executive digest emails will not be sent on the configured schedule.");
+
+        if (!sponsorPrefs.EmailEnabled || sponsorPrefs.RecipientEmails.Count == 0)
+            gaps.Add(
                 "Sponsor email digest is not fully configured — sponsor emails will not receive the separate sponsor rollup.");
 
         WeeklyDigestHealthSnapshot snapshot = new()
@@ -118,6 +130,12 @@ public sealed class WeeklyDigestHealthReader(
             ExecutiveDigestIanaTimeZoneId = execPrefs.IanaTimeZoneId,
             ExecutiveDigestDayOfWeek = execPrefs.DayOfWeek,
             ExecutiveDigestHourOfDay = execPrefs.HourOfDay,
+            SponsorEmailDigestIsConfigured = sponsorPrefs.IsConfigured,
+            SponsorEmailDigestEnabled = sponsorPrefs is { EmailEnabled: true, RecipientEmails.Count: > 0 },
+            SponsorDigestRecipientCount = sponsorPrefs.RecipientEmails.Count,
+            SponsorDigestIanaTimeZoneId = sponsorPrefs.IanaTimeZoneId,
+            SponsorDigestDayOfWeek = sponsorPrefs.DayOfWeek,
+            SponsorDigestHourOfDay = sponsorPrefs.HourOfDay,
             SetupGaps = gaps,
         };
 

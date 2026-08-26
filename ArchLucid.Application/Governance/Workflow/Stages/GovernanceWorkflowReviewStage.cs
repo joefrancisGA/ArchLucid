@@ -42,12 +42,14 @@ public sealed class GovernanceWorkflowReviewStage(
         string reviewedBy,
         string reviewedByActorKey,
         string? reviewComment,
-        CancellationToken cancellationToken) =>
+        string? reviewedByMailbox = null,
+        CancellationToken cancellationToken = default) =>
         ReviewAsync(
             approvalRequestId,
             reviewedBy,
             reviewedByActorKey,
             reviewComment,
+            reviewedByMailbox,
             GovernanceApprovalStatus.Approved,
             AuditEventTypes.GovernanceApprovalApproved,
             AuditEventTypes.Baseline.Governance.ApprovalRequestApproved,
@@ -59,12 +61,14 @@ public sealed class GovernanceWorkflowReviewStage(
         string reviewedBy,
         string reviewedByActorKey,
         string? reviewComment,
-        CancellationToken cancellationToken) =>
+        string? reviewedByMailbox = null,
+        CancellationToken cancellationToken = default) =>
         ReviewAsync(
             approvalRequestId,
             reviewedBy,
             reviewedByActorKey,
             reviewComment,
+            reviewedByMailbox,
             GovernanceApprovalStatus.Rejected,
             AuditEventTypes.GovernanceApprovalRejected,
             AuditEventTypes.Baseline.Governance.ApprovalRequestRejected,
@@ -75,6 +79,7 @@ public sealed class GovernanceWorkflowReviewStage(
         string reviewedBy,
         string reviewedByActorKey,
         string? reviewComment,
+        string? reviewedByMailbox,
         string newStatus,
         string durableAuditEventType,
         string baselineEventType,
@@ -90,7 +95,13 @@ public sealed class GovernanceWorkflowReviewStage(
         GovernanceApprovalRequest request = await _approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
-        await EnforceSegregationOfDutiesForReviewAsync(request, approvalRequestId, reviewedBy, reviewedByActorKey, cancellationToken);
+        await EnforceSegregationOfDutiesForReviewAsync(
+            request,
+            approvalRequestId,
+            reviewedBy,
+            reviewedByActorKey,
+            reviewedByMailbox,
+            cancellationToken);
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
             throw new GovernanceApprovalReviewConflictException(approvalRequestId, newStatus == GovernanceApprovalStatus.Approved ? "approve" : "reject", request.Status);
@@ -146,10 +157,17 @@ public sealed class GovernanceWorkflowReviewStage(
         string approvalRequestId,
         string reviewedByDisplay,
         string reviewedByActorKey,
+        string? reviewedByMailbox,
         CancellationToken cancellationToken)
     {
-        if (!GovernanceSegregationRules.IsSameActorForReview(request, reviewedByDisplay, reviewedByActorKey))
+        if (!GovernanceSegregationRules.IsSameActorForReview(
+                request,
+                reviewedByDisplay,
+                reviewedByActorKey,
+                reviewedByMailbox))
+        {
             return;
+        }
 
         await _auditSupport.LogSelfApprovalBlockedAsync(request, approvalRequestId, reviewedByDisplay, reviewedByActorKey, cancellationToken);
         throw new GovernanceSelfApprovalException(approvalRequestId, reviewedByDisplay);

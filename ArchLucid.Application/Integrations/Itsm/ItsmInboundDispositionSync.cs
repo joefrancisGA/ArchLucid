@@ -31,9 +31,16 @@ public sealed class ItsmInboundDispositionSync(
         if (mappedDisposition is null)
             return ItsmInboundDispositionSyncResult.Skipped("disposition_unmapped");
 
+        ScopeContext scope = new()
+        {
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            ProjectId = row.ProjectId,
+        };
+
         IReadOnlyList<FindingDispositionEventDto> history =
             await _dispositionService
-                .ListHistoryAsync(row.TenantId, row.FindingId, cancellationToken)
+                .ListHistoryAsync(scope, row.FindingId, cancellationToken)
                 .ConfigureAwait(false);
 
         FindingDispositionEventDto? latestEvent = history
@@ -48,13 +55,6 @@ public sealed class ItsmInboundDispositionSync(
             FindingId = row.FindingId,
             Disposition = mappedDisposition.Value,
             Rationale = $"{InboundSyncRationalePrefix}: external status '{externalStatusLabel.Trim()}'.",
-        };
-
-        ScopeContext scope = new()
-        {
-            TenantId = row.TenantId,
-            WorkspaceId = row.WorkspaceId,
-            ProjectId = row.ProjectId,
         };
 
         try

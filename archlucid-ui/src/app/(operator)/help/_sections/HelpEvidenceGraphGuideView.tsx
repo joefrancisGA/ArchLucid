@@ -1,7 +1,8 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { EvidenceGraphHelpEvidenceOrientationStrip } from "@/components/help/EvidenceGraphHelpEvidenceOrientationStrip";
+import { EvidenceGraphHelpClaimDisciplineStrip } from "@/components/help/EvidenceGraphHelpClaimDisciplineStrip";
+import { EvidenceGraphHelpRelatedNextStepsStrip } from "@/components/help/EvidenceGraphHelpRelatedNextStepsStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -28,7 +29,11 @@ import {
   EVIDENCE_GRAPH_HELP_TILE_ITEMS,
 } from "@/lib/evidence-graph-help-guide-content";
 import { EVIDENCE_GRAPH_HELP_CANONICAL_PATH } from "@/lib/evidence-graph-help-evidence-copy";
-import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+import {
+  HELP_PAGE_LAYOUT,
+  HELP_PAGE_MIN_TOC_HEADINGS,
+  resolveHelpPageContentGridClass,
+} from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -52,6 +57,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpEvidenceGraphGuideView(props: HelpEvidenceGraphGuideViewProps): React.ReactElement {
   const { entry } = props;
   const contentGridClass = resolveHelpPageContentGridClass(EVIDENCE_GRAPH_HELP_GUIDE_HEADINGS.length);
+  const showSectionNav = EVIDENCE_GRAPH_HELP_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -71,30 +77,38 @@ export function HelpEvidenceGraphGuideView(props: HelpEvidenceGraphGuideViewProp
         actions={<PageContextualHelpButton />}
       />
 
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p className={readingBodyClass} data-testid="help-evidence-graph-overview">
-            {EVIDENCE_GRAPH_HELP_OVERVIEW}
-          </p>
+      <EvidenceGraphHelpClaimDisciplineStrip />
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-evidence-graph-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {EVIDENCE_GRAPH_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={EVIDENCE_GRAPH_HELP_PRIMARY_ACTION.href}>{EVIDENCE_GRAPH_HELP_PRIMARY_ACTION.label}</Link>
-              </Button>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-evidence-graph-sample-graph-note"
-              >
-                {EVIDENCE_GRAPH_HELP_SAMPLE_GRAPH_NOTE}
-              </p>
-            </CardContent>
-          </Card>
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+          <div className="space-y-4" data-testid="help-evidence-graph-first-viewport">
+            <p className={readingBodyClass} data-testid="help-evidence-graph-overview">
+              {EVIDENCE_GRAPH_HELP_OVERVIEW}
+            </p>
+
+            <Card
+              className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950"
+              data-testid="help-evidence-graph-action-panel"
+              id="start-here"
+            >
+              <CardHeader className={OPERATOR_CARD.header}>
+                <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  {EVIDENCE_GRAPH_HELP_START_HERE_CARD_TITLE}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
+                <Button asChild size="sm" variant="primary">
+                  <Link href={EVIDENCE_GRAPH_HELP_PRIMARY_ACTION.href}>{EVIDENCE_GRAPH_HELP_PRIMARY_ACTION.label}</Link>
+                </Button>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="help-evidence-graph-sample-graph-note"
+                >
+                  {EVIDENCE_GRAPH_HELP_SAMPLE_GRAPH_NOTE}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
 
           <section
             aria-labelledby="what-evidence-graph-shows"
@@ -133,12 +147,10 @@ export function HelpEvidenceGraphGuideView(props: HelpEvidenceGraphGuideViewProp
             </ol>
           </section>
 
-          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-            <EvidenceGraphHelpEvidenceOrientationStrip />
-          </div>
+          <EvidenceGraphHelpRelatedNextStepsStrip />
         </div>
 
-        <HelpTopicTableOfContents headings={EVIDENCE_GRAPH_HELP_GUIDE_HEADINGS} />
+        {showSectionNav ? <HelpTopicTableOfContents headings={EVIDENCE_GRAPH_HELP_GUIDE_HEADINGS} enableScrollSpy /> : null}
       </div>
     </article>
   );

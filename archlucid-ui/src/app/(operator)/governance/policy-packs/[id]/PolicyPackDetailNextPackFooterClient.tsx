@@ -10,6 +10,7 @@ import { PolicyPackDetailNextPackFooter } from "./PolicyPackDetailNextPackFooter
 
 export type PolicyPackDetailNextPackFooterClientProps = {
   readonly policyPackId: string;
+  readonly reviewId?: string;
 };
 
 /** Loads workspace pack list context and renders the next-pack footer when available. */
@@ -32,8 +33,8 @@ export function PolicyPackDetailNextPackFooterClient(
   }, [loadPacks]);
 
   const nextPack = useMemo(
-    () => resolveNextPolicyPackInList(packs, props.policyPackId),
-    [packs, props.policyPackId],
+    () => resolveNextPolicyPackInList(packs, props.policyPackId, props.reviewId),
+    [packs, props.policyPackId, props.reviewId],
   );
 
   if (nextPack === null) {

@@ -29,6 +29,8 @@ import {
   resolvePostAuthBootstrapDenialMessage,
 } from "@/lib/auth/post-auth-bootstrap-denial-copy";
 import { POST_AUTH_BOOTSTRAP_LOAD_ERROR_MESSAGE, POST_AUTH_BOOTSTRAP_LOAD_ERROR_TITLE } from "@/lib/auth/post-auth-bootstrap-exit-copy";
+import { AUTH_BOOTSTRAP_CLAIM_DISCIPLINE } from "@/lib/auth-bootstrap-evidence-copy";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 
 function applyBootstrapSession(session: {
   accessToken: string;
@@ -241,6 +243,11 @@ export function PostAuthBootstrapClient() {
           <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {POST_AUTH_BOOTSTRAP_COPY.selectWorkspaceLead}
           </p>
+          <PageHeaderClaimDiscipline
+            text={AUTH_BOOTSTRAP_CLAIM_DISCIPLINE}
+            testId="post-auth-bootstrap-claim-discipline"
+            className="mt-3 text-left"
+          />
           {status.workspaces.length === 0 ? (
             <p className={cn("mt-6 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
               {POST_AUTH_BOOTSTRAP_COPY.selectWorkspaceEmpty}

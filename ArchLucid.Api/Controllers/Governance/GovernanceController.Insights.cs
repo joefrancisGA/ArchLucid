@@ -31,6 +31,7 @@ public sealed partial class GovernanceController
     [HttpGet("dashboard")]
     [ProducesResponseType(typeof(GovernanceDashboardSummary), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetDashboard(
         [FromQuery] int maxPending = 20,
         [FromQuery] int maxDecisions = 20,
@@ -38,6 +39,10 @@ public sealed partial class GovernanceController
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         GovernanceDashboardSummary summary = await _governanceDashboardService.GetDashboardAsync(
             scope.TenantId,
@@ -99,14 +104,32 @@ public sealed partial class GovernanceController
         [FromRoute] string approvalRequestId,
         CancellationToken cancellationToken)
     {
+        GovernanceApprovalRequest? approval = await approvalRepo
+            .GetByIdAsync(approvalRequestId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (approval is null)
+        {
+            return this.NotFoundProblem(
+                $"Approval request '{approvalRequestId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         GovernanceLineageResult? result = await _governanceLineageService.GetApprovalRequestLineageAsync(
             approvalRequestId,
             cancellationToken);
 
         if (result is null)
+        {
             return this.NotFoundProblem(
                 $"Approval request '{approvalRequestId}' was not found.",
                 ProblemTypes.ResourceNotFound);
+        }
 
         return Ok(result);
     }
@@ -118,14 +141,32 @@ public sealed partial class GovernanceController
         [FromRoute] string approvalRequestId,
         CancellationToken cancellationToken)
     {
+        GovernanceApprovalRequest? approval = await approvalRepo
+            .GetByIdAsync(approvalRequestId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (approval is null)
+        {
+            return this.NotFoundProblem(
+                $"Approval request '{approvalRequestId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         GovernanceRationaleResult? result = await _governanceRationaleService.GetApprovalRequestRationaleAsync(
             approvalRequestId,
             cancellationToken);
 
         if (result is null)
+        {
             return this.NotFoundProblem(
                 $"Approval request '{approvalRequestId}' was not found.",
                 ProblemTypes.ResourceNotFound);
+        }
 
         return Ok(result);
     }

@@ -43,6 +43,9 @@ public sealed class GovernanceDashboardService(
             throw new ArgumentOutOfRangeException(nameof(maxDecisions));
         if (maxChanges <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxChanges));
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask = _approvalRequestRepository.GetPendingAsync(maxPending, cancellationToken);
         Task<IReadOnlyList<GovernanceApprovalRequest>> decisionsTask = _approvalRequestRepository.GetRecentDecisionsAsync(maxDecisions, cancellationToken);
         Task<IReadOnlyList<PolicyPackChangeLogEntry>> changesTask = _policyPackChangeLogRepository.GetByTenantAsync(tenantId, maxChanges, cancellationToken);
@@ -52,12 +55,16 @@ public sealed class GovernanceDashboardService(
         IReadOnlyList<GovernanceApprovalRequest> pending = await pendingTask;
         IReadOnlyList<GovernanceApprovalRequest> decisions = await decisionsTask;
         IReadOnlyList<PolicyPackChangeLogEntry> changes = await changesTask;
+        IReadOnlyList<PolicyPackChangeLogEntry> scopedChanges = changes
+            .Where(change => change.WorkspaceId == scope.WorkspaceId && change.ProjectId == scope.ProjectId)
+            .Take(maxChanges)
+            .ToList();
         (long promptTokens, long completionTokens) = await tokenTask;
         return new GovernanceDashboardSummary
         {
             PendingApprovals = pending,
             RecentDecisions = decisions,
-            RecentChanges = changes,
+            RecentChanges = scopedChanges,
             PendingCount = pending.Count,
             TotalPromptTokens = promptTokens,
             TotalCompletionTokens = completionTokens,

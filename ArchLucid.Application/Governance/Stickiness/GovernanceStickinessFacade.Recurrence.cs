@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -33,6 +34,11 @@ public sealed partial class GovernanceStickinessFacade
             .GetByIdAsync(scope, request.SourceRunId, ct)
             .ConfigureAwait(false);
 
+        if (sourceRun is null)
+        {
+            throw new RunNotFoundException(request.SourceRunId.ToString("D"));
+        }
+
         if (!_recurrenceNextRunCalculator.IsSupportedCronExpression(cronExpression))
             throw new ArgumentException(RecurrenceScheduleCronValidation.InvalidCronMessage);
 
@@ -49,7 +55,7 @@ public sealed partial class GovernanceStickinessFacade
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             SourceRunId = request.SourceRunId,
-            ArchitectureId = sourceRun?.ArchitectureId,
+            ArchitectureId = sourceRun.ArchitectureId,
             Name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim(),
             CronExpression = cronExpression,
             IsEnabled = request.IsEnabled.Value,
@@ -207,7 +213,7 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        return await _attestationService.GetAttestationAsync(scope.TenantId, ct);
+        return await _attestationService.GetAttestationAsync(scope.TenantId, scope.WorkspaceId, ct);
     }
 
     /// <inheritdoc />
@@ -216,6 +222,6 @@ public sealed partial class GovernanceStickinessFacade
         CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        await _attestationService.SaveAttestationAsync(scope.TenantId, request, ct);
+        await _attestationService.SaveAttestationAsync(scope.TenantId, scope.WorkspaceId, request, ct);
     }
 }

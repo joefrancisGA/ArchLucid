@@ -44,7 +44,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpGettingStartedGuideViewProps = {
@@ -137,6 +137,8 @@ function HowArchLucidWorksDiagram(): React.ReactElement {
 export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const contentGridClass = resolveHelpPageContentGridClass(GETTING_STARTED_HELP_GUIDE_HEADINGS.length);
+  const showSectionNav = GETTING_STARTED_HELP_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-getting-started-guide">
@@ -167,7 +169,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_CLAIM_DISCIPLINE}</p>
       </aside>
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+      <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <Card
             id="quick-start"
@@ -201,6 +203,23 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               </Button>
             </CardContent>
           </Card>
+
+          <section aria-labelledby="what-to-do-next" className="space-y-4">
+            <HelpSectionHeading id="what-to-do-next">What to do next</HelpSectionHeading>
+            <div className="grid gap-3 sm:grid-cols-2" data-testid="getting-started-next-action-cards">
+              {GETTING_STARTED_HELP_NEXT_ACTION_CARDS.map((action) => (
+                <Card key={action.title} className="h-full border-neutral-200 dark:border-neutral-800">
+                  <CardHeader className={OPERATOR_CARD.header}>
+                    <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>{action.title}</CardTitle>
+                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{action.description}</p>
+                  </CardHeader>
+                  <CardContent className={OPERATOR_CARD.content}>
+                    <GettingStartedNextActionLink href={action.href} label={action.ctaLabel} />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
 
           <section aria-labelledby="how-archlucid-works" className="space-y-3">
             <HelpSectionHeading id="how-archlucid-works">{GETTING_STARTED_HELP_DIAGRAM_TITLE}</HelpSectionHeading>
@@ -281,23 +300,6 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             </ol>
           </section>
 
-          <section aria-labelledby="what-to-do-next" className="space-y-4">
-            <HelpSectionHeading id="what-to-do-next">What to do next</HelpSectionHeading>
-            <div className="grid gap-3 sm:grid-cols-2" data-testid="getting-started-next-action-cards">
-              {GETTING_STARTED_HELP_NEXT_ACTION_CARDS.map((action) => (
-                <Card key={action.title} className="h-full border-neutral-200 dark:border-neutral-800">
-                  <CardHeader className={OPERATOR_CARD.header}>
-                    <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>{action.title}</CardTitle>
-                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{action.description}</p>
-                  </CardHeader>
-                  <CardContent className={OPERATOR_CARD.content}>
-                    <GettingStartedNextActionLink href={action.href} label={action.ctaLabel} />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
           <HelpLazyDetails
             id="technical-details"
             className={cn(HELP_PAGE_LAYOUT.details, OPERATOR_SHELL_SCROLL_OFFSET_CLASS)}
@@ -324,7 +326,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
           </HelpLazyDetails>
         </div>
 
-        <HelpTopicTableOfContents headings={GETTING_STARTED_HELP_GUIDE_HEADINGS} />
+        {showSectionNav ? <HelpTopicTableOfContents headings={GETTING_STARTED_HELP_GUIDE_HEADINGS} /> : null}
       </div>
     </article>
   );

@@ -97,7 +97,7 @@ public sealed class SponsorReviewPacketBuilder(
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         ArchitectureDecisionRegisterResponse register = await _decisionRegisterService
-            .GetRegisterAsync(scope.TenantId, scope.ProjectId, maxRows: 25, filters: null, cancellationToken)
+            .GetRegisterAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, maxRows: 25, filters: null, cancellationToken)
             .ConfigureAwait(false);
 
         List<SponsorReviewPacketDecisionRow> rows = [];

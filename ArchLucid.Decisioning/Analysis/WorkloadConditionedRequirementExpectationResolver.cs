@@ -21,39 +21,58 @@ public static class WorkloadConditionedRequirementExpectationResolver
             return DefaultExpectedThemes;
 
         IReadOnlyList<string> scopeTokens = TopologyExpectedCategoryResolver.CollectScopeTokens(contextNode);
-
-        if (scopeTokens.Count == 0)
-            return DefaultExpectedThemes;
-
         HashSet<string> expected = new(DefaultExpectedThemes, StringComparer.OrdinalIgnoreCase);
-        IReadOnlyList<string> expectedCategories =
-            TopologyExpectedCategoryResolver.ResolveExpectedCategories(graphSnapshot);
 
-        if (expectedCategories.Any(c =>
-                c.Equals(GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
-                || c.Equals(GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase)))
+        if (scopeTokens.Count > 0)
         {
-            expected.Add("data-protection");
+            IReadOnlyList<string> expectedCategories =
+                TopologyExpectedCategoryResolver.ResolveExpectedCategories(graphSnapshot);
+
+            if (expectedCategories.Any(c =>
+                    c.Equals(GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
+                    || c.Equals(GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase)))
+            {
+                expected.Add("data-protection");
+            }
+
+            if (expectedCategories.Any(c =>
+                    c.Equals(GraphTopologyCategories.Identity, StringComparison.OrdinalIgnoreCase))
+                || ContainsAnyKeyword(scopeTokens, "identity", "entra", "oauth", "sso", "key vault", "keyvault"))
+            {
+                expected.Add("identity-access");
+            }
+
+            if (expectedCategories.Any(c =>
+                    c.Equals(GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase))
+                || ContainsAnyKeyword(scopeTokens, "vnet", "subnet", "private endpoint", "private link", "vpn"))
+            {
+                expected.Add("network-isolation");
+            }
+
+            if (ContainsAnyKeyword(scopeTokens, "compliance", "regulated", "hipaa", "pci", "sox"))
+                expected.Add("compliance");
         }
 
-        if (expectedCategories.Any(c =>
-                c.Equals(GraphTopologyCategories.Identity, StringComparison.OrdinalIgnoreCase))
-            || ContainsAnyKeyword(scopeTokens, "identity", "entra", "oauth", "sso", "key vault", "keyvault"))
-        {
-            expected.Add("identity-access");
-        }
-
-        if (expectedCategories.Any(c =>
-                c.Equals(GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase))
-            || ContainsAnyKeyword(scopeTokens, "vnet", "subnet", "private endpoint", "private link", "vpn"))
-        {
-            expected.Add("network-isolation");
-        }
-
-        if (ContainsAnyKeyword(scopeTokens, "compliance", "regulated", "hipaa", "pci", "sox"))
-            expected.Add("compliance");
+        UnionPolicyExpectedRequirementThemes(contextNode, expected);
 
         return expected.OrderBy(static t => t, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private static void UnionPolicyExpectedRequirementThemes(GraphNode contextNode, HashSet<string> expected)
+    {
+        if (!contextNode.Properties.TryGetValue(
+                ContextGraphPropertyKeys.PolicyExpectedRequirementThemes,
+                out string? raw)
+            || string.IsNullOrWhiteSpace(raw))
+        {
+            return;
+        }
+
+        foreach (string segment in raw.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (!string.IsNullOrWhiteSpace(segment))
+                expected.Add(segment);
+        }
     }
 
     public static string ResolveRequirementTheme(GraphNode requirementNode)

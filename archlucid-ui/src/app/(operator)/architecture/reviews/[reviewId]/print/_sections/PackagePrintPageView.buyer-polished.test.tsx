@@ -33,7 +33,7 @@ describe("PackagePrintPageView buyer-polished shell", () => {
   it("renders breadcrumb, buyer subtitle, claim strip, and hides operator instructions", () => {
     render(<PackagePrintPageView presentation={presentation} />);
 
-    expect(screen.getByTestId("package-print-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("package-print-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByText(PACKAGE_PRINT_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.getByTestId("package-print-orientation")).toBeInTheDocument();
     expect(screen.getByText(PACKAGE_PRINT_CLAIM_HEADING)).toBeInTheDocument();

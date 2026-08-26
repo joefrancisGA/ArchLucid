@@ -13,12 +13,14 @@ public interface IGovernanceWorkflowReviewStage
         string reviewedBy,
         string reviewedByActorKey,
         string? reviewComment,
-        CancellationToken cancellationToken);
+        string? reviewedByMailbox = null,
+        CancellationToken cancellationToken = default);
 
     Task<GovernanceApprovalRequest> RejectAsync(
         string approvalRequestId,
         string reviewedBy,
         string reviewedByActorKey,
         string? reviewComment,
-        CancellationToken cancellationToken);
+        string? reviewedByMailbox = null,
+        CancellationToken cancellationToken = default);
 }

@@ -203,6 +203,7 @@ public sealed class SponsorReviewPacketBuilderTests
             .Setup(x => x.GetRegisterAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
                 It.IsAny<int>(),
                 It.IsAny<ArchitectureDecisionRegisterQueryOptions?>(),
                 It.IsAny<CancellationToken>()))

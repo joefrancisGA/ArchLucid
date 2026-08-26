@@ -2,6 +2,7 @@
 
 import { ImpactPreviewBreadcrumb } from "@/components/insights/ImpactPreviewBreadcrumb";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { IMPACT_PREVIEW_CLAIM_DISCIPLINE } from "@/lib/impact-preview-evidence-copy";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -42,6 +43,8 @@ export function ImpactPreviewPageHeader(props: ImpactPreviewPageHeaderProps): Re
       titleTestId="impact-preview-page-title"
       breadcrumb={<ImpactPreviewBreadcrumb />}
       subtitle={props.subtitle}
+      claimDiscipline={IMPACT_PREVIEW_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="impact-preview-claim-discipline"
       statusBadge={props.statusKind != null ? <StatusTag kind={props.statusKind} /> : null}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="impact-preview-header-actions">

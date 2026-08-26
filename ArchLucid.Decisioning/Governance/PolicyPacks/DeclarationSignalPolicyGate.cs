@@ -7,9 +7,9 @@ namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 public static class DeclarationSignalPolicyGate
 {
     /// <summary>
-    ///     Empty filtered pack fails closed. When the pack intersects mapped cis-az / sec-base keys,
-    ///     only themes with a surviving mapped key emit. When no mapped keys are present, all themes
-    ///     emit (fail-open for tenants whose packs use soc2-* or other unmapped vocabularies only).
+    ///     Empty filtered pack fails closed. When the tenant speaks declaration vocabulary (mapped keys or
+    ///     bundled framework prefixes such as soc2 / gdpr / cis-aws), only themes with a surviving mapped key emit.
+    ///     Prefixes outside <see cref="DeclarationSignalPolicyPrefixFamily" /> (cost-opt, ai-gov, dora, otel, …) fail-open.
     /// </summary>
     public static bool ShouldEmitTheme(string theme, IReadOnlySet<string> activeRuleIds)
     {

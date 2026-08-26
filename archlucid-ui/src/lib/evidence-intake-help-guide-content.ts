@@ -1,4 +1,5 @@
 import { CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS } from "@/lib/cloud-connections-help-guide-content";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   EVIDENCE_INTAKE_HELP_CANONICAL_PATH,
   EVIDENCE_INTAKE_HELP_PRIMARY_ACTION,
@@ -17,6 +18,29 @@ export const EVIDENCE_INTAKE_HELP_PAGE_TITLE = "Start a review" as const;
 
 export const EVIDENCE_INTAKE_HELP_HERO_OVERVIEW =
   "On New architecture review, attach architecture evidence, pick the path that matches how much structure you already have, then verify intake before you finalize the architecture package.";
+
+export const EVIDENCE_INTAKE_HELP_ACCEPTED_FORMATS_TITLE = "Accepted evidence formats" as const;
+
+export const EVIDENCE_INTAKE_HELP_ACCEPTED_FORMATS_INTRO =
+  "The New architecture review wizard accepts these extensions. Export Visio diagrams to PDF or PNG before uploading — native .vsdx is not supported.";
+
+export const EVIDENCE_INTAKE_HELP_ACCEPTED_FORMATS_DISCLOSURE_LABEL = "View validation details" as const;
+
+export type EvidenceIntakeHelpAcceptedFormatGroup = {
+  readonly label: string;
+  readonly values: string;
+};
+
+export const EVIDENCE_INTAKE_HELP_ACCEPTED_FORMAT_GROUPS: readonly EvidenceIntakeHelpAcceptedFormatGroup[] = [
+  { label: "Documents", values: "PDF · DOCX · Markdown · TXT" },
+  { label: "Structured and IaC", values: "JSON · YAML · Terraform (.tf) · Bicep (.bicep)" },
+  { label: "Cloud inventory", values: "ZIP (Azure, AWS, or GCP)" },
+  { label: "Images", values: "PNG · JPG/JPEG" },
+] as const;
+
+export const EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_TITLE = "How evidence affects finding coverage" as const;
+
+export const EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_DISCLOSURE_LABEL = "Why evidence matters" as const;
 
 export const EVIDENCE_INTAKE_HELP_PATH_PANEL_TITLE = "Choose a starting path";
 
@@ -119,6 +143,22 @@ export const EVIDENCE_INTAKE_HELP_RELATED_GUIDES: readonly EvidenceIntakeHelpRel
 ] as const;
 
 export const EVIDENCE_INTAKE_HELP_CANONICAL_ROUTE_PATH = EVIDENCE_INTAKE_HELP_CANONICAL_PATH;
+
+export const EVIDENCE_INTAKE_HELP_RELATED_GUIDES_TITLE = "Related guides" as const;
+
+/** Structured sections rendered outside markdown — included in the on-page TOC (TB-1350 companion). */
+export function buildEvidenceIntakeHelpTocHeadings(
+  markdownHeadings: readonly HelpMarkdownHeading[],
+): readonly HelpMarkdownHeading[] {
+  return [
+    { level: 2, id: "choose-a-starting-path", title: EVIDENCE_INTAKE_HELP_PATH_PANEL_TITLE },
+    { level: 2, id: "help-evidence-intake-formats-heading", title: EVIDENCE_INTAKE_HELP_ACCEPTED_FORMATS_TITLE },
+    ...markdownHeadings,
+    { level: 2, id: "verify-intake-before-finalize", title: EVIDENCE_INTAKE_HELP_VERIFY_INTAKE_TITLE },
+    { level: 2, id: "finding-coverage", title: EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_TITLE },
+    { level: 2, id: "related-guides", title: EVIDENCE_INTAKE_HELP_RELATED_GUIDES_TITLE },
+  ];
+}
 
 export type EvidenceIntakeHelpSourceDriftAnchor = {
   readonly id: string;

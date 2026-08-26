@@ -3,9 +3,11 @@ using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Application.Advisory;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
@@ -22,6 +24,32 @@ public sealed class TenantWeeklyDigestHealthControllerTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
+
+    [Fact]
+    public async Task GetAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<IWeeklyDigestHealthReader> reader = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        TenantWeeklyDigestHealthController controller = new(
+            scopeProvider.Object,
+            reader.Object,
+            tenantRepository.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        reader.VerifyNoOtherCalls();
+    }
 
     [Fact]
     public async Task GetAsync_maps_reader_snapshot_to_response()
@@ -45,7 +73,15 @@ public sealed class TenantWeeklyDigestHealthControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantWeeklyDigestHealthController controller = new(scopeProvider.Object, reader.Object);
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+
+        TenantWeeklyDigestHealthController controller = new(
+            scopeProvider.Object,
+            reader.Object,
+            tenants.Object);
 
         IActionResult action = await controller.GetAsync(CancellationToken.None);
 

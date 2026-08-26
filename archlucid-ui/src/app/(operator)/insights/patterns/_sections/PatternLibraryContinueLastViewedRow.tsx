@@ -4,19 +4,20 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { patternLibraryDetailPath } from "@/lib/pattern-library-route";
+import { patternLibraryDetailHref } from "@/lib/pattern-library-route";
 import type { PatternLibraryRecord } from "@/lib/pattern-library-types";
 import { cn } from "@/lib/utils";
 
 export type PatternLibraryContinueLastViewedRowProps = {
   readonly record: PatternLibraryRecord;
+  readonly scopedRunId?: string;
 };
 
 /** Pinned continue row for the most recently viewed architecture pattern. */
 export function PatternLibraryContinueLastViewedRow(
   props: PatternLibraryContinueLastViewedRowProps,
 ): React.JSX.Element {
-  const href = patternLibraryDetailPath(props.record.patternKey);
+  const href = patternLibraryDetailHref(props.record.patternKey, props.scopedRunId);
 
   return (
     <section

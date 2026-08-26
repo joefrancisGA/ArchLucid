@@ -98,6 +98,42 @@ public sealed class WeeklyDigestHealthResponse
         set;
     }
 
+    public bool SponsorEmailDigestIsConfigured
+    {
+        get;
+        set;
+    }
+
+    public bool SponsorEmailDigestEnabled
+    {
+        get;
+        set;
+    }
+
+    public int SponsorDigestRecipientCount
+    {
+        get;
+        set;
+    }
+
+    public string SponsorDigestIanaTimeZoneId
+    {
+        get;
+        set;
+    } = "UTC";
+
+    public int SponsorDigestDayOfWeek
+    {
+        get;
+        set;
+    }
+
+    public int SponsorDigestHourOfDay
+    {
+        get;
+        set;
+    }
+
     public IReadOnlyList<string> SetupGaps
     {
         get;

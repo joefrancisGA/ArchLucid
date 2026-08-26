@@ -11,6 +11,7 @@ export function HelpPathChooserEvaluatorSessionStrip(): React.ReactElement {
     <section
       aria-labelledby="help-path-chooser-evaluator-session-heading"
       data-testid="help-path-chooser-evaluator-session"
+      id="evaluator-session-flow"
     >
       <h2
         id="help-path-chooser-evaluator-session-heading"

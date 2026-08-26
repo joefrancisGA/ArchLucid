@@ -14,6 +14,8 @@ import {
   validateArchitectureDraftIntegrity,
 } from "@/lib/architecture/architecture-draft-readiness";
 import { applyArchitectureCreationDraftToFormState, actorSetFromDraftDocument } from "@/lib/architecture/architecture-creation-init";
+import type { ScopeUnderstandingBullet } from "@/lib/architecture/architecture-scope-understanding-check";
+import { mergeScopeBulletsIntoBrief } from "@/lib/architecture/architecture-scope-understanding-check";
 import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
@@ -31,6 +33,8 @@ type UseArchitectureDraftAutosaveArgs = {
   readonly enabled?: boolean;
   /** When true, skip server writes until the operator enters saveable field content. */
   readonly deferCreateUntilFirstSave?: boolean;
+  readonly scopeGateOpen?: boolean;
+  readonly scopeBullets?: readonly ScopeUnderstandingBullet[];
   readonly onDraftCreated?: (draftId: string) => void;
   readonly onDraftLoaded?: (draft: DraftRequestResponse) => void;
   /** Called when GET shows a non-drafting status — do not treat as another-session conflict. */
@@ -77,11 +81,18 @@ function isNonRetryableDraftPatchError(error: unknown): boolean {
   return isApiRequestError(error) && error.httpStatus === 400;
 }
 
-function createIntentForDeferredDraft(fields: ArchitectureDraftFieldState): string {
-  const trimmedIntent = fields.freeTextIntent.trim();
+function createIntentForDeferredDraft(
+  fields: ArchitectureDraftFieldState,
+  confirmedScopeBullets?: readonly ScopeUnderstandingBullet[],
+): string {
+  const strippedIntent = fields.freeTextIntent.trim();
+  const intentForServer =
+    confirmedScopeBullets !== undefined && confirmedScopeBullets.length > 0
+      ? mergeScopeBulletsIntoBrief(confirmedScopeBullets, strippedIntent).trim()
+      : strippedIntent;
 
-  if (trimmedIntent.length > 0) {
-    return trimmedIntent;
+  if (intentForServer.length > 0) {
+    return intentForServer;
   }
 
   return ARCHITECTURE_CREATION_BOOTSTRAP_INTENT;
@@ -103,6 +114,8 @@ export function useArchitectureDraftAutosave(
   const persistedActorSetRef = useRef<ActorSet>(args.actorSet);
   const fieldsRef = useRef(args.fields);
   const actorSetRef = useRef(args.actorSet);
+  const scopeGateOpenRef = useRef(args.scopeGateOpen === true);
+  const scopeBulletsRef = useRef(args.scopeBullets ?? []);
   const serverUpdatedUtcRef = useRef<string | null>(null);
   const saveSequenceRef = useRef(0);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -116,6 +129,8 @@ export function useArchitectureDraftAutosave(
 
   fieldsRef.current = args.fields;
   actorSetRef.current = args.actorSet;
+  scopeGateOpenRef.current = args.scopeGateOpen === true;
+  scopeBulletsRef.current = args.scopeBullets ?? [];
 
   const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
@@ -190,8 +205,9 @@ export function useArchitectureDraftAutosave(
         let architectureId = resolvedArchitectureIdRef.current ?? args.architectureId;
 
         if (deferCreateUntilFirstSave && resolvedArchitectureIdRef.current === null) {
+          const confirmedScopeBullets = scopeGateOpenRef.current ? scopeBulletsRef.current : undefined;
           const created = await createDraftRequest(
-            createIntentForDeferredDraft(fieldsRef.current),
+            createIntentForDeferredDraft(fieldsRef.current, confirmedScopeBullets),
             CREATE_ARCHITECTURE_INTENT,
           );
           resolvedArchitectureIdRef.current = created.draftId;
@@ -227,10 +243,11 @@ export function useArchitectureDraftAutosave(
         // Re-read immediately before PATCH so a long GET cannot freeze older field values.
         const fieldsForPatch = fieldsRef.current;
         const actorSetForPatch = actorSetRef.current;
+        const confirmedScopeBullets = scopeGateOpenRef.current ? scopeBulletsRef.current : undefined;
 
         const patched = await patchDraftRequest(
           architectureId,
-          buildArchitectureDraftPatchPayload(fieldsForPatch, actorSetForPatch),
+          buildArchitectureDraftPatchPayload(fieldsForPatch, actorSetForPatch, confirmedScopeBullets),
         );
 
         if (sequence !== saveSequenceRef.current) {

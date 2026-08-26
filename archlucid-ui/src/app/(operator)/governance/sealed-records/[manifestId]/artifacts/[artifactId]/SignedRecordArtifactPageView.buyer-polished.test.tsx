@@ -75,7 +75,7 @@ describe("SignedRecordArtifactPageView buyer-polished shell", () => {
     expect(screen.getByText(BUYER_SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByText(SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("governance-sealed-record-artifact-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-sealed-record-artifact-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-demo-static-banner")).toBeInTheDocument();
     expect(screen.getByTestId("operator-evidence-limits-footer")).toBeInTheDocument();
     expect(screen.queryByTestId("signed-record-orientation")).toBeNull();

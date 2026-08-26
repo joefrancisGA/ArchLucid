@@ -25,6 +25,14 @@ function rule(overrides: Partial<CompositeAlertRule> = {}): CompositeAlertRule {
 }
 
 describe("resolveContinueLastCompositeAlertRule", () => {
+  it("returns null when rules is not an array", () => {
+    expect(resolveContinueLastCompositeAlertRule(null)).toBeNull();
+    expect(resolveContinueLastCompositeAlertRule(undefined)).toBeNull();
+    expect(resolveContinueLastCompositeAlertRule({})).toBeNull();
+    expect(resolveContinueLastCompositeAlertRule("nope")).toBeNull();
+    expect(resolveContinueLastCompositeAlertRule([])).toBeNull();
+  });
+
   it("falls back to the newest created rule when no stored id exists", () => {
     window.localStorage.removeItem("archlucid_composite_alert_rule_continue_last_v1");
 

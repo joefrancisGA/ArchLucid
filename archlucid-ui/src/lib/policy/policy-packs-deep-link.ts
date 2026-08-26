@@ -1,4 +1,5 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { POLICY_PACKS_REVIEW_ID_QUERY_PARAM } from "@/lib/policy-packs-review-handoff";
 
 /** Query param used by governance conflict links to pre-select a pack on the policy packs hub. */
 
@@ -38,6 +39,27 @@ export function policyPacksEditHref(policyPackId: string): string {
 
   return `${GOVERNANCE_POLICY_PACKS_PATH}?${params.toString()}`;
 
+}
+
+/** First-class policy pack detail route with optional review scope. */
+export function policyPackDetailHref(policyPackId: string, reviewId?: string | null): string {
+  const id = policyPackId.trim();
+
+  if (id.length === 0) {
+    return GOVERNANCE_POLICY_PACKS_PATH;
+  }
+
+  const path = `${GOVERNANCE_POLICY_PACKS_PATH}/${encodeURIComponent(id)}`;
+  const review = reviewId?.trim() ?? "";
+
+  if (review.length === 0) {
+    return path;
+  }
+
+  const params = new URLSearchParams();
+  params.set(POLICY_PACKS_REVIEW_ID_QUERY_PARAM, review);
+
+  return `${path}?${params.toString()}`;
 }
 
 /** Opens the first-class rule authoring tab with optional pack and rule focus. */

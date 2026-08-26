@@ -188,6 +188,13 @@ export const CORE_PILOT_HELP_DISCLOSURE = {
       "You can run an evidence-only review first, then connect a provider later when source-system evidence is required. " +
       "Share the cloud connections guide with your security team before enabling read-only access.",
   },
+  actorIntakeForFindingEngines: {
+    title: "Actors for trust-boundary findings",
+    body:
+      "Bicep, Terraform, and Helm uploads build topology resources but do not create Actor nodes. " +
+      "Trust-boundary, privileged-access, and external-exposure findings need people and systems from guided intake " +
+      "(People, systems, and integrations on New architecture review). IaC-only uploads can look complete while those engines stay quiet.",
+  },
   whatCanWaitUntilLater: {
     title: "What can wait until later",
     body:

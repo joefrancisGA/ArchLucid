@@ -1,8 +1,9 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Models; // GraphSnapshotExtensions
+using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Capabilities.Cost;
 
@@ -18,6 +19,8 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(graphSnapshot);
+
         List<Finding> findings = [];
 
         IReadOnlyList<GraphNode> costNodes = graphSnapshot.GetNodesByType("CostConstraint");
@@ -33,14 +36,17 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
             node.Properties.TryGetValue("confidenceReasoning", out string? confidenceReasoning);
 
             decimal? maxMonthly = null;
+
             if (!string.IsNullOrWhiteSpace(maxCostStr) && decimal.TryParse(maxCostStr, out decimal mc))
                 maxMonthly = mc;
 
             decimal? lowerBound = null;
+
             if (!string.IsNullOrWhiteSpace(lowerBoundStr) && decimal.TryParse(lowerBoundStr, out decimal lb))
                 lowerBound = lb;
 
             decimal? upperBound = null;
+
             if (!string.IsNullOrWhiteSpace(upperBoundStr) && decimal.TryParse(upperBoundStr, out decimal ub))
                 upperBound = ub;
 
@@ -56,7 +62,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                 Title = $"Cost constraint: {node.Label}",
                 Rationale = "A cost constraint node was found and should constrain architecture choices.",
                 RelatedNodeIds = [node.NodeId],
-                ProjectedImpactUsd = maxMonthly, // Assign maxMonthly to ProjectedImpactUsd to ensure it has a point estimate for ROI
+                ProjectedImpactUsd = maxMonthly,
                 PayloadType = nameof(CostConstraintFindingPayload),
                 Payload =
                     new CostConstraintFindingPayload
@@ -94,6 +100,63 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
             });
         }
 
+        if (PolicyExpectationCostGraphReader.RequiresBudgetCap(graphSnapshot)
+            && PolicyExpectationCostGraphReader.GraphHasWorkloadTopology(graphSnapshot)
+            && !PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap(graphSnapshot))
+        {
+            findings.Add(CreatePolicyRequiredCapFinding(graphSnapshot));
+        }
+
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
+    }
+
+    private static Finding CreatePolicyRequiredCapFinding(GraphSnapshot graphSnapshot)
+    {
+        GraphNode? contextNode = graphSnapshot.Nodes.FirstOrDefault(n =>
+            string.Equals(n.NodeType, "ContextSnapshot", StringComparison.OrdinalIgnoreCase));
+
+        List<string> relatedNodeIds = graphSnapshot.Nodes
+            .Where(n => string.Equals(n.NodeType, "TopologyResource", StringComparison.OrdinalIgnoreCase))
+            .Select(n => n.NodeId)
+            .Take(5)
+            .ToList();
+
+        if (contextNode is not null && relatedNodeIds.Count == 0)
+            relatedNodeIds.Add(contextNode.NodeId);
+
+        return new Finding
+        {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+            FindingType = "CostConstraintFinding",
+            Category = "Cost",
+            EngineType = "cost-constraint",
+            Severity = FindingSeverity.Warning,
+            Title = "Policy requires a monthly budget cap",
+            Rationale =
+                "Tenant policy packs require a declared monthly budget cap, but no CostConstraint node exposes maxMonthlyCost.",
+            RelatedNodeIds = relatedNodeIds,
+            PayloadType = nameof(CostConstraintFindingPayload),
+            Payload = new CostConstraintFindingPayload
+            {
+                BudgetName = "policy-required-cap",
+                MaxMonthlyCost = null,
+                CostRisk = "high",
+            },
+            Trace = new ExplainabilityTrace
+            {
+                GraphNodeIdsExamined = relatedNodeIds,
+                RulesApplied = ["cost-policy-require-budget-cap"],
+                DecisionsTaken =
+                [
+                    "Policy advisoryDefaults cost.requireBudgetCap is true and topology is present without a parseable cap."
+                ],
+                AlternativePathsConsidered =
+                [
+                    "Add a CostConstraint node with maxMonthlyCost before finalizing the architecture review.",
+                    "Remove cost.requireBudgetCap from tenant policy overlays if a cap is intentionally absent."
+                ],
+                Notes = ["Stamped policyCostRequireBudgetCap=true on context snapshot."]
+            }
+        };
     }
 }

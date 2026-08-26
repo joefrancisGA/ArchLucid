@@ -6,6 +6,8 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Asp.Versioning;
 
@@ -24,7 +26,9 @@ public sealed class TenantCustomerSuccessController(
     ITenantCustomerSuccessRepository customerSuccessRepository,
     IOperatorNextBestActionService nextBestActionService,
     IOperatorStickinessSnapshotReader stickinessSnapshotReader,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    IRunRepository runRepository,
+    ITenantRepository tenantRepository) : ControllerBase
 {
     private readonly ITenantCustomerSuccessRepository _customerSuccessRepository =
         customerSuccessRepository ?? throw new ArgumentNullException(nameof(customerSuccessRepository));
@@ -38,6 +42,12 @@ public sealed class TenantCustomerSuccessController(
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     /// <summary>Returns the latest materialized health score row when the worker has populated it.</summary>
     [HttpGet("health-score")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -45,6 +55,11 @@ public sealed class TenantCustomerSuccessController(
     public async Task<IActionResult> GetHealthScoreAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? tenantError = await EnsureTenantExistsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantError is not null)
+            return tenantError;
 
         TenantHealthScoreRecord? row = await _customerSuccessRepository.GetHealthScoreAsync(
                 scope.TenantId,
@@ -79,6 +94,13 @@ public sealed class TenantCustomerSuccessController(
     [ProducesResponseType(typeof(IReadOnlyList<OperatorNextBestActionResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetNextBestActionsAsync(CancellationToken cancellationToken)
     {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? tenantError = await EnsureTenantExistsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantError is not null)
+            return tenantError;
+
         IReadOnlyList<OperatorNextBestActionItem> items =
             await _nextBestActionService.GetActionsAsync(cancellationToken).ConfigureAwait(false);
 
@@ -105,6 +127,12 @@ public sealed class TenantCustomerSuccessController(
     public async Task<IActionResult> GetFunnelSnapshotAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? tenantError = await EnsureTenantExistsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantError is not null)
+            return tenantError;
+
         PilotFunnelSnapshot snap = await _stickinessSnapshotReader
             .GetFunnelSnapshotAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
             .ConfigureAwait(false);
@@ -130,6 +158,11 @@ public sealed class TenantCustomerSuccessController(
     public async Task<IActionResult> GetStickinessSnapshotAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? tenantError = await EnsureTenantExistsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantError is not null)
+            return tenantError;
 
         PilotFunnelSnapshot funnel = await _stickinessSnapshotReader
             .GetFunnelSnapshotAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
@@ -160,6 +193,16 @@ public sealed class TenantCustomerSuccessController(
         return Ok(body);
     }
 
+    private async Task<IActionResult?> EnsureTenantExistsAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        return null;
+    }
+
     private static DateTimeOffset? ToOffset(DateTime? utc)
     {
         if (utc is null)
@@ -181,6 +224,25 @@ public sealed class TenantCustomerSuccessController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? tenantError = await EnsureTenantExistsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantError is not null)
+            return tenantError;
+
+        if (request.RunId is Guid runId)
+        {
+            RunRecord? run = await _runRepository
+                .GetByIdAsync(scope, runId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (run is null)
+            {
+                return this.NotFoundProblem(
+                    $"Run '{runId:D}' was not found.",
+                    ProblemTypes.RunNotFound);
+            }
+        }
 
         ProductFeedbackSubmission submission = new()
         {

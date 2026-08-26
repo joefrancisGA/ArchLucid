@@ -279,9 +279,9 @@ export const GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
 
 export const GETTING_STARTED_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "quick-start", title: GETTING_STARTED_HELP_QUICK_START_TITLE },
+  { level: 2, id: "what-to-do-next", title: "What to do next" },
   { level: 2, id: "how-archlucid-works", title: GETTING_STARTED_HELP_DIAGRAM_TITLE },
   { level: 2, id: "plain-language-vocabulary", title: "Plain-language vocabulary" },
   { level: 2, id: "what-happens-during-a-review", title: "What happens during a review?" },
-  { level: 2, id: "what-to-do-next", title: "What to do next" },
   { level: 2, id: "technical-details", title: GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE },
 ];

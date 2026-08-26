@@ -1,11 +1,12 @@
-import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
-  EVIDENCE_TRACE_CLAIM_DISCIPLINE,
+  EvidenceOrientationClaimAndSourcesStrip,
+} from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import {
   EVIDENCE_TRACE_SOURCES_INTRO,
   buildEvidenceTraceSources,
 } from "@/lib/evidence-trace-evidence-copy";
 
-import { EVIDENCE_TRACE_CLAIM_HEADING } from "./evidence-trace-page-copy";
+
 
 export type FindingEvidenceTraceClaimOrientationStripProps = {
   readonly runId: string;
@@ -20,8 +21,6 @@ export function FindingEvidenceTraceClaimOrientationStrip(
     <EvidenceOrientationClaimAndSourcesStrip
       slug="finding-eru"
       stripTestId="finding-eru-orientation"
-      claim={EVIDENCE_TRACE_CLAIM_DISCIPLINE}
-      claimHeading={EVIDENCE_TRACE_CLAIM_HEADING}
       sourcesIntro={EVIDENCE_TRACE_SOURCES_INTRO}
       sources={buildEvidenceTraceSources(props.runId, props.findingId)}
     />

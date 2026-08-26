@@ -4,19 +4,20 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
+import { policyPackDetailHref } from "@/lib/policy/policy-packs-deep-link";
 import { cn } from "@/lib/utils";
 import type { PolicyPack } from "@/types/policy-packs";
 
 export type PolicyPacksContinueLastViewedRowProps = {
   readonly pack: PolicyPack;
+  readonly scopedReviewId?: string;
 };
 
 /** Pinned continue row for the most recently viewed policy pack. */
 export function PolicyPacksContinueLastViewedRow(
   props: PolicyPacksContinueLastViewedRowProps,
 ): React.JSX.Element {
-  const href = policyPacksEditHref(props.pack.policyPackId);
+  const href = policyPackDetailHref(props.pack.policyPackId, props.scopedReviewId);
 
   return (
     <section

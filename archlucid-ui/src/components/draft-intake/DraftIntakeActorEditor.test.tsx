@@ -43,6 +43,7 @@ describe("DraftIntakeActorEditor", () => {
     expect(screen.getByText(GUIDED_INTAKE_ACTORS_SECTION_HEADING)).toBeInTheDocument();
     expect(screen.getByText(GUIDED_INTAKE_TRUST_BOUNDARY_HINT)).toBeInTheDocument();
     expect(screen.getByText(GUIDED_INTAKE_ACTORS_EMPTY_STATE)).toBeInTheDocument();
+    expect(screen.getByTestId("draft-intake-actor-empty")).toHaveTextContent("trust-boundary");
     expect(screen.getByText(GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON })).toBeDisabled();
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_ADD_ACTOR_BUTTON })).toBeInTheDocument();

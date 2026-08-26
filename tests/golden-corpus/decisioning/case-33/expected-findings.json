@@ -1,0 +1,74 @@
+[
+  {
+    "findingId": "f67cfe88-0ce1-6191-891c-274ee24da048",
+    "findingType": "DeclarationSecurityBaselineFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "App service \u0027api\u0027 does not require HTTPS only.",
+    "rationale": "Infrastructure declaration properties on the knowledge graph indicate a security posture risk.",
+    "relatedNodeIds": [
+      "app-1"
+    ],
+    "rulesApplied": [
+      "declaration-security-baseline",
+      "transport-security"
+    ],
+    "decisionsTaken": [
+      "Unsafe or weak declaration attribute present on ingested infrastructure object."
+    ]
+  },
+  {
+    "findingId": "7288eb3e-b248-4d1f-b087-f8e2c05c4d4c",
+    "findingType": "DeclarationSecurityBaselineFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Storage or data service \u0027api\u0027 allows public network access.",
+    "rationale": "Infrastructure declaration properties on the knowledge graph indicate a security posture risk.",
+    "relatedNodeIds": [
+      "app-1"
+    ],
+    "rulesApplied": [
+      "data-protection",
+      "declaration-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Unsafe or weak declaration attribute present on ingested infrastructure object."
+    ]
+  },
+  {
+    "findingId": "6a255873-c388-5f58-2ed0-44940d8a394e",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "api"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "0a4bbf6c-3143-b24d-9251-afc0b2543d78",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "app-1"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

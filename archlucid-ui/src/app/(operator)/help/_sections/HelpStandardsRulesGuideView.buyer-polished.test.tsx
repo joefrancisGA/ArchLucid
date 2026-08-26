@@ -40,7 +40,7 @@ describe("HelpStandardsRulesGuideView buyer-polished shell", () => {
     );
     expect(screen.getByText(STANDARDS_RULES_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(STANDARDS_RULES_HELP_PAGE_SUBTITLE)).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-heading-eyebrow")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-standards-rules-orientation-top")).toBeInTheDocument();

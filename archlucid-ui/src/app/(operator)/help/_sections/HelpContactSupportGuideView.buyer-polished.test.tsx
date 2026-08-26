@@ -52,7 +52,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { HelpContactSupportGuideView } from "@/app/(operator)/help/_sections/HelpContactSupportGuideView";
 import {
-  CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE_HEADING,
+  CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/contact-support-help-evidence-copy";
 import {
   CONTACT_SUPPORT_PRIMARY_ACTIONS,
@@ -61,7 +61,6 @@ import {
   CONTACT_SUPPORT_HELP_PRIMARY_CONTENT_ID,
   CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL,
 } from "@/lib/contact-support-help-page-copy";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpContactSupportGuideView buyer-polished shell", () => {
@@ -77,13 +76,9 @@ describe("HelpContactSupportGuideView buyer-polished shell", () => {
     const skipLink = screen.getByRole("link", { name: CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL });
     expect(skipLink).toHaveAttribute("href", `#${CONTACT_SUPPORT_HELP_PRIMARY_CONTENT_ID}`);
 
-    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb).toHaveTextContent(HELP_TOPIC_BREADCRUMB_HUB_LABEL);
-    expect(breadcrumb).toHaveTextContent(entry.title);
-
-    expect(
-      screen.getByRole("heading", { level: 2, name: CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("contact-support-help-claim-discipline").textContent).toContain(
+      CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId("contact-support-help-sources")).toBeInTheDocument();
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();

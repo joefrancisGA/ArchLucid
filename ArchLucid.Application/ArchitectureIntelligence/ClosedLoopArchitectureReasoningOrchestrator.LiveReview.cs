@@ -362,6 +362,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
                             model,
                             postSaveLedgerEntries);
 
+            using IDisposable storagePinScope = _reviewResultCache.PinScope(storageManifest);
             _reviewResultCache.Set(storageManifest, result);
         }
 

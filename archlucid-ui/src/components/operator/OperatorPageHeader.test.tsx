@@ -64,6 +64,23 @@ describe("OperatorPageHeader", () => {
     expect(screen.getByTestId("meta")).toHaveTextContent("v1.2.3");
   });
 
+  it("renders folded claim discipline under the subtitle", () => {
+    render(
+      <OperatorPageHeader
+        title="T"
+        subtitle="Primary job lead."
+        claimDiscipline="Not financial reporting or a full audit export."
+        claimDisciplineTestId="example-claim-discipline"
+      />,
+    );
+
+    expect(screen.getByText("Primary job lead.")).toBeInTheDocument();
+    expect(screen.getByTestId("example-claim-discipline")).toHaveTextContent(
+      "Not financial reporting or a full audit export.",
+    );
+    expect(screen.queryByRole("heading", { name: /what this .* is not/i })).not.toBeInTheDocument();
+  });
+
   it("renders children below the header", () => {
     render(
       <OperatorPageHeader title="T">

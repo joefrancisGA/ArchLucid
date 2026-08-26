@@ -4,12 +4,15 @@ using System.Text.Json;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 
 using FluentAssertions;
@@ -24,6 +27,13 @@ namespace ArchLucid.Application.Tests.Governance;
 public sealed class PolicyPackDryRunServiceTests
 {
     private static readonly Guid PolicyPackId = Guid.Parse("11112222-3333-4444-5555-666677778888");
+
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
 
     [SkippableFact]
     public async Task EvaluateAsync_DefaultsPageSizeTo20WhenNotProvided()
@@ -111,12 +121,11 @@ public sealed class PolicyPackDryRunServiceTests
 
         FakeDeltaComputer computer = new();
 
-        PolicyPackDryRunService sut = new(
+        PolicyPackDryRunService sut = CreateSut(
             runs,
             computer,
             new StubRedactor(),
-            Mock.Of<IAuditService>(),
-            NullLogger<PolicyPackDryRunService>.Instance);
+            Mock.Of<IAuditService>());
 
         Dictionary<string, string> proposed = new() { { PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings, "0" }, };
 
@@ -147,12 +156,11 @@ public sealed class PolicyPackDryRunServiceTests
 
         FakeDeltaComputer computer = new();
 
-        PolicyPackDryRunService sut = new(
+        PolicyPackDryRunService sut = CreateSut(
             runs,
             computer,
             new StubRedactor(),
-            Mock.Of<IAuditService>(),
-            NullLogger<PolicyPackDryRunService>.Instance);
+            Mock.Of<IAuditService>());
 
         PolicyPackDryRunResponse response = await sut.EvaluateAsync(
             PolicyPackId,
@@ -176,12 +184,11 @@ public sealed class PolicyPackDryRunServiceTests
 
         FakeDeltaComputer computer = new();
 
-        PolicyPackDryRunService sut = new(
+        PolicyPackDryRunService sut = CreateSut(
             runs,
             computer,
             new StubRedactor(),
-            audit,
-            NullLogger<PolicyPackDryRunService>.Instance);
+            audit);
 
         Dictionary<string, string> proposed = new()
         {
@@ -208,6 +215,35 @@ public sealed class PolicyPackDryRunServiceTests
         doc.RootElement.GetProperty("deltaCounts").GetProperty("evaluated").GetInt32().Should().Be(1);
     }
 
+    [SkippableFact]
+    public async Task EvaluateAsync_throws_when_policy_pack_is_out_of_scope()
+    {
+        PolicyPack foreignPack = new()
+        {
+            PolicyPackId = PolicyPackId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            ProjectId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+        };
+
+        PolicyPackDryRunService sut = CreateSut(
+            new FakeRunDetailQueryService(),
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>(),
+            foreignPack);
+
+        Func<Task> act = () => sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["run-1"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<PolicyPackNotFoundException>();
+    }
+
     private static List<string> BuildRunIds(int count) =>
         Enumerable.Range(1, count).Select(i => $"run-{i:0000}").ToList();
 
@@ -223,11 +259,39 @@ public sealed class PolicyPackDryRunServiceTests
 
         FakeDeltaComputer computer = new();
 
+        return CreateSut(runs, computer, redactor, Mock.Of<IAuditService>());
+    }
+
+    private static PolicyPackDryRunService CreateSut(
+        IRunDetailQueryService runDetailQueryService,
+        IPilotRunDeltaComputer pilotRunDeltaComputer,
+        IPromptRedactor redactor,
+        IAuditService auditService,
+        PolicyPack? pack = null)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        PolicyPack visiblePack = pack ?? new PolicyPack
+        {
+            PolicyPackId = PolicyPackId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+        };
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(PolicyPackId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(visiblePack);
+
         return new PolicyPackDryRunService(
-            runs,
-            computer,
+            runDetailQueryService,
+            pilotRunDeltaComputer,
             redactor,
-            Mock.Of<IAuditService>(),
+            auditService,
+            scopeProvider.Object,
+            packs.Object,
             NullLogger<PolicyPackDryRunService>.Instance);
     }
 

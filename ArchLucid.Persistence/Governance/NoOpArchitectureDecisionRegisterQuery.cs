@@ -7,6 +7,7 @@ public sealed class NoOpArchitectureDecisionRegisterQuery : IArchitectureDecisio
 {
     public Task<IReadOnlyList<ArchitectureDecisionRegisterEntry>> ListAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         int maxRows,
         ArchitectureDecisionRegisterQueryOptions? filters,

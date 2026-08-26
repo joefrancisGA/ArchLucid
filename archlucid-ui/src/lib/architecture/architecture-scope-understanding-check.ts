@@ -3,6 +3,7 @@ import {
   GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
   GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
+  GUIDED_INTAKE_ACTORS_SECTION_HEADING,
 } from "@/lib/guided-intake-copy";
 
 export type ScopeUnderstandingBulletKind =
@@ -31,8 +32,16 @@ export type DeriveScopeUnderstandingBulletsInput = {
   readonly architectureOverview?: string;
   readonly systemName?: string;
   readonly intentText?: string;
-  readonly peopleAndSystems?: readonly { readonly label: string; readonly kind: string }[];
+  readonly peopleAndSystems?: readonly ScopeActorInput[];
   readonly missingItemLabels?: readonly string[];
+};
+
+/** Actor row mirrored into the People / Systems scope lines. */
+export type ScopeActorInput = {
+  readonly label?: string;
+  readonly kind: string;
+  readonly trustOrigin?: string;
+  readonly contract?: string;
 };
 
 export type ScopeUnderstandingBulletBehavior = {
@@ -56,6 +65,8 @@ export const SCOPE_UNDERSTANDING_ADD_EFFECT_HINT =
   "Items you add become scope lines in the intake brief — write each one the way you would state the boundary to a reviewer.";
 /** Default pointer to the field that owns the architecture context text on the architecture draft page. */
 export const SCOPE_CONTEXT_SOURCE_DEFAULT_LABEL = `${GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL} above`;
+/** Default pointer to the actor editor that owns people and systems on the architecture draft page. */
+export const SCOPE_ACTORS_SOURCE_DEFAULT_LABEL = `${GUIDED_INTAKE_ACTORS_SECTION_HEADING} above`;
 
 export function scopeReadOnlyHint(contextSourceLabel: string): string {
   return `Read-only preview — edit this in ${contextSourceLabel}.`;
@@ -106,8 +117,9 @@ const SCOPE_BULLET_BEHAVIOR: Record<ScopeUnderstandingBulletKind, ScopeUnderstan
   // create a second source of truth, and merging it would append a truncated copy of the overview to the
   // overview. Both are avoided by keeping this row a read-only preview.
   context: { editable: false, removable: false, includeInBrief: false, label: GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL },
-  people: { editable: true, removable: false, includeInBrief: true, label: "People in Scope" },
-  systems: { editable: true, removable: false, includeInBrief: true, label: "Systems in Scope" },
+  // Mirrored from the actor editor — editing here would drift from the confirmed actor set above.
+  people: { editable: false, removable: false, includeInBrief: true, label: "People in Scope" },
+  systems: { editable: false, removable: false, includeInBrief: true, label: "Systems in Scope" },
   gap: { editable: true, removable: false, includeInBrief: true, label: "Out of scope until clarified" },
   custom: { editable: true, removable: true, includeInBrief: true, label: "Also in Scope" },
   // Placeholder copy shown when nothing has been entered yet — guidance, not operator-stated scope.
@@ -126,6 +138,57 @@ export function isScopeBulletEditable(kind: ScopeUnderstandingBulletKind): boole
 
 export function isScopeBulletRemovable(kind: ScopeUnderstandingBulletKind): boolean {
   return scopeBulletBehavior(kind).removable;
+}
+
+/** Labels each actor for scope mirroring — falls back to kind/trust when the label field is empty. */
+export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
+  const trimmedLabel = actor.label?.trim() ?? "";
+
+  if (trimmedLabel.length > 0) {
+    return trimmedLabel;
+  }
+
+  const kind = actor.kind.trim();
+
+  if (kind.length === 0) {
+    return "";
+  }
+
+  const trustOrigin = actor.trustOrigin?.trim() ?? "";
+
+  if (trustOrigin.length > 0 && trustOrigin !== "Internal") {
+    return `${kind} (${trustOrigin})`;
+  }
+
+  return kind;
+}
+
+function uniqueScopeLabels(labels: readonly string[]): string[] {
+  const seen = new Set<string>();
+  const uniqueLabels: string[] = [];
+
+  for (const label of labels) {
+    const trimmed = label.trim();
+
+    if (trimmed.length === 0) {
+      continue;
+    }
+
+    const key = trimmed.toLowerCase();
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    uniqueLabels.push(trimmed);
+  }
+
+  return uniqueLabels;
+}
+
+function isScopeMirroredFromActorsRow(kind: ScopeUnderstandingBulletKind): boolean {
+  return kind === "people" || kind === "systems" || kind === "context";
 }
 
 /** Flattens a typed row back to the `Label: value` line used in the brief and in assertions. */
@@ -155,6 +218,65 @@ export function stripScopeUnderstandingSection(text: string | null | undefined):
   }
 
   return text.slice(0, sectionIndex).trimEnd();
+}
+
+/** Reads operator-confirmed scope lines already stored on a brief field. */
+export function extractScopeUnderstandingLinesFromBrief(
+  text: string | null | undefined,
+): string[] {
+  if (text === null || text === undefined) {
+    return [];
+  }
+
+  const sectionIndex = text.indexOf(SCOPE_UNDERSTANDING_SECTION_HEADER);
+
+  if (sectionIndex < 0) {
+    return [];
+  }
+
+  const lines: string[] = [];
+
+  for (const line of text.slice(sectionIndex).split("\n")) {
+    const trimmed = line.trim();
+
+    if (!trimmed.startsWith("- ")) {
+      continue;
+    }
+
+    const scopeLine = trimmed.slice(2).trim();
+
+    if (scopeLine.length > 0) {
+      lines.push(scopeLine);
+    }
+  }
+
+  return lines;
+}
+
+/** Stable comparison key so reloads and re-derivation can detect real scope changes only. */
+export function scopeUnderstandingFingerprint(lines: readonly string[]): string {
+  return lines
+    .map((line) => line.trim().toLowerCase())
+    .filter((line) => line.length > 0)
+    .sort((left, right) => left.localeCompare(right))
+    .join("\n");
+}
+
+export function scopeBulletsFingerprint(bullets: readonly ScopeUnderstandingBullet[]): string {
+  return scopeUnderstandingFingerprint(scopeBriefLines(bullets));
+}
+
+export function persistedScopeMatchesBullets(
+  persistedText: string | null | undefined,
+  bullets: readonly ScopeUnderstandingBullet[],
+): boolean {
+  const persistedLines = extractScopeUnderstandingLinesFromBrief(persistedText);
+
+  if (persistedLines.length === 0) {
+    return false;
+  }
+
+  return scopeUnderstandingFingerprint(persistedLines) === scopeBulletsFingerprint(bullets);
 }
 
 function pushUniqueBullet(
@@ -218,14 +340,16 @@ export function deriveScopeUnderstandingBullets(
     pushUniqueBullet(bullets, "context", "context", excerpt);
   }
 
-  const people = (input.peopleAndSystems ?? [])
-    .filter((entry) => entry.kind === "Human" || entry.kind === "Both")
-    .map((entry) => entry.label.trim())
-    .filter((label) => label.length > 0);
-  const systems = (input.peopleAndSystems ?? [])
-    .filter((entry) => entry.kind === "Machine" || entry.kind === "Both")
-    .map((entry) => entry.label.trim())
-    .filter((label) => label.length > 0);
+  const people = uniqueScopeLabels(
+    (input.peopleAndSystems ?? [])
+      .filter((entry) => entry.kind === "Human" || entry.kind === "Both")
+      .map((entry) => actorScopeDisplayLabel(entry)),
+  );
+  const systems = uniqueScopeLabels(
+    (input.peopleAndSystems ?? [])
+      .filter((entry) => entry.kind === "Machine" || entry.kind === "Both")
+      .map((entry) => actorScopeDisplayLabel(entry)),
+  );
 
   pushUniqueBullet(bullets, "people", "people", people.slice(0, 4).join(", "));
   pushUniqueBullet(bullets, "systems", "systems", systems.slice(0, 4).join(", "));
@@ -266,6 +390,10 @@ export function reconcileScopeUnderstandingBullets(
     .filter((bullet) => !dismissedIds.has(bullet.id))
     .map((bullet) => {
       const prior = previousById.get(bullet.id);
+
+      if (isScopeMirroredFromActorsRow(bullet.kind)) {
+        return bullet;
+      }
 
       if (prior === undefined || prior.source !== "user") {
         return bullet;

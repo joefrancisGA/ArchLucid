@@ -7,6 +7,7 @@ public sealed class NoOpArchitectureRiskRegisterQuery : IArchitectureRiskRegiste
 {
     public Task<IReadOnlyList<ArchitectureRiskRegisterEntry>> ListAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         int maxRows,
         ArchitectureRiskRegisterListOptions? options = null,
@@ -15,6 +16,7 @@ public sealed class NoOpArchitectureRiskRegisterQuery : IArchitectureRiskRegiste
 
     public Task<int> CountAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         ArchitectureRiskRegisterListOptions? options = null,
         CancellationToken cancellationToken = default) =>

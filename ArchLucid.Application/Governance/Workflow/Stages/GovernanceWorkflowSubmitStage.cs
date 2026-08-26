@@ -1,11 +1,14 @@
 using System.Text.Json;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
 
@@ -20,6 +23,7 @@ namespace ArchLucid.Application.Governance.Workflow.Stages;
 public sealed class GovernanceWorkflowSubmitStage(
     IGovernanceApprovalRequestRepository approvalRepo,
     IRunDetailQueryService runDetailQueryService,
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
     IBaselineMutationAuditService baselineMutationAudit,
     GovernanceWorkflowAuditSupport auditSupport,
     GovernanceWorkflowIntegrationEventSupport integrationEvents,
@@ -31,6 +35,9 @@ public sealed class GovernanceWorkflowSubmitStage(
 
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader =
+        unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
 
     private readonly IBaselineMutationAuditService _baselineMutationAudit =
         baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
@@ -80,6 +87,19 @@ public sealed class GovernanceWorkflowSubmitStage(
         ArchitectureRunDetail runDetail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
         ArchitectureRun run = runDetail.Run;
+
+        GoldenManifest? manifest =
+            runDetail.Manifest is not null
+            && string.Equals(run.CurrentManifestVersion, manifestVersion, StringComparison.Ordinal)
+                ? runDetail.Manifest
+                : await _unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken)
+                    .ConfigureAwait(false);
+
+        if (manifest is null)
+            throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
+
+        if (!string.Equals(manifest.RunId, runId, StringComparison.Ordinal))
+            throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
         GovernanceApprovalRequest request = new()
         {

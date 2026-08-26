@@ -111,7 +111,7 @@ describe("IdentityProvidersOidcPageView buyer-polished shell (AOI)", () => {
       "id",
       OIDC_SETTINGS_PRIMARY_CONTENT_ID,
     );
-    expect(screen.getByTestId("identity-providers-oidc-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("identity-providers-oidc-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-oidc-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-oidc-settings-sources")).toBeInTheDocument();
     expect(screen.getByText(BUYER_IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE)).toBeInTheDocument();

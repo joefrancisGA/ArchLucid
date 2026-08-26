@@ -5,7 +5,7 @@
     <PackageVersion Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
     <PackageVersion Include="Google.Apis.Auth" Version="1.73.0" />
     <PackageVersion Include="Google.Cloud.Asset.V1" Version="3.11.0" />
-    <PackageVersion Include="AWSSDK.ResourceExplorer2" Version="3.7.401" />
+    <PackageVersion Include="AWSSDK.ResourceExplorer2" Version="4.0.100.9" />
     <PackageVersion Include="AWSSDK.SecurityToken" Version="3.7.401" />
     <PackageVersion Include="Azure.AI.ContentSafety" Version="1.0.0" />
     <PackageVersion Include="Azure.AI.OpenAI" Version="2.1.0" />
@@ -23,7 +23,7 @@
     <PackageVersion Include="Dapper" Version="2.1.72" />
     <PackageVersion Include="dbup-sqlserver" Version="5.0.41" />
     <PackageVersion Include="DocumentFormat.OpenXml" Version="3.2.0" />
-    <PackageVersion Include="FluentAssertions" Version="7.2.2" />
+    <PackageVersion Include="FluentAssertions" Version="8.10.0" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
     <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.1" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />

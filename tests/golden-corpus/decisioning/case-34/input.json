@@ -1,0 +1,45 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000034",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000034",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000034-0000-4000-8000-000000000034",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000034",
+    "runId": "20000000-0000-4000-8000-000000000034",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "baseline-private",
+        "nodeType": "SecurityBaseline",
+        "label": "Private only network access",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "description": "Private only network access required"
+        }
+      },
+      {
+        "nodeId": "obj-storage",
+        "nodeType": "TopologyResource",
+        "label": "docs",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "tf.public_network_access": "enabled"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "fromNodeId": "baseline-private",
+        "toNodeId": "obj-storage",
+        "edgeType": "PROTECTS",
+        "weight": 0.9
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null
+}

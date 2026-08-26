@@ -39,7 +39,7 @@ public sealed class SponsorReportsSummaryServiceTests
 
         Mock<IGovernanceDigestDecisionNeededComposer> decisions = new();
         decisions
-            .Setup(composer => composer.BuildSummaryAsync(tenantId, It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .Setup(composer => composer.BuildSummaryAsync(tenantId, It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new GovernanceDecisionsNeededSummaryResponse
                 {

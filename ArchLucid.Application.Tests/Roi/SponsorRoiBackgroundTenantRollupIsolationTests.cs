@@ -429,7 +429,7 @@ public sealed class SponsorRoiBackgroundTenantRollupIsolationTests
     {
         Mock<IArchitectureRiskRegisterService> service = new();
         service
-            .Setup(s => s.GetRegisterAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetRegisterAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRiskRegisterResponse());
 
         return service.Object;

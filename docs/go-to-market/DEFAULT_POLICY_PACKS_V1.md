@@ -40,10 +40,10 @@ All rows below are seeded as **`PlatformDefault`** (Architect workspace: **Bundl
 | 4 | Azure CAF / LZ | Azure Landing Zone / Cloud Adoption Framework | `lz-caf-001` … `012` | Full curated corpus |
 | 5 | Privacy | GDPR Compliance Baseline | `gdpr-001` … | Expand per GDPR themes |
 | 6 | Compliance | SOC 2 Type II (Architecture Themes) | `soc2-001` … | Expand per TSC |
-| 7 | Cost | FinOps & Cloud Cost Optimization | `cost-opt-001` … `006` | Extractor-aligned |
+| 7 | Cost | FinOps & Cloud Cost Optimization | `cost-opt-001` … `006` | Extractor-aligned; bundled `advisoryDefaults` include `cost.requireBudgetCap=true` so assigning this pack can stamp a required budget cap for `cost-constraint` |
 | 8 | Application security | OWASP API Security Top 10 | `owasp-api-001` … | ~10 categories + depth |
 | 9 | Compliance | ISO/IEC 27001 ISMS (Architecture Slice) | `iso27001-001` … | Expand per Annex A slice |
-| 10 | Security | CIS Microsoft Azure Foundations Benchmark | `cis-az-001` … | Prefer `cis-az-l1-*` / `l2-*` ids |
+| 10 | Security | CIS Microsoft Azure Foundations Benchmark | `cis-az-001` … | Prefer `cis-az-l1-*` / `l2-*` ids; bundled `advisoryDefaults` add `expectation.topologyCategories.add=identity` (additive floor with heuristic pillars) |
 | 11 | Healthcare | HIPAA / HITECH Safeguards | `hipaa-001` … | Expand per safeguard |
 | 12 | Payments | PCI-DSS (Architecture / Segmentation) | `pci-001` … | Expand per DSS area |
 | 13 | Security | Zero Trust Architecture | `zta-001` … | NIST 800-207 themes |
@@ -84,7 +84,9 @@ All rows below are seeded as **`PlatformDefault`** (Architect workspace: **Bundl
 
 Assignments seed **cloud-neutral + Azure baseline** packs **enabled** by default (`PolicyPackAssignments.IsEnabled = true` for `DefaultPolicyPackCatalog.ResolveStandardBaselineDisplayNames(CloudProvider.Azure)`); AWS/GCP-specific baselines auto-enable when a run targets `CloudProvider.Aws` or `CloudProvider.Gcp` via `DefaultPolicyPackCloudBaselineApplicator`. Merges participate in **`PolicyPackResolver`** like any other activated assignment.
 
-**Declaration-security coupling:** CIS Azure curated keys such as **`cis-az-006`** (storage public access), **`cis-az-025`** (App Service HTTPS/TLS), **`cis-az-018`**, **`cis-az-019`**, **`cis-az-027`**, and **`sec-base-028`** also gate **`declaration-security-baseline`** and **`declaration-premise-conflict`** findings when those keys survive tenant **`complianceRuleKeys`** filtering. This extends the compliance moat to declaration findings operators argue about; it does **not** mean all 39 finding engines are policy-aware.
+**Declaration-security coupling:** Curated keys from CIS Azure/AWS/GCP (`cis-az-006`, `cis-az-025`, …), SOC 2 (`soc2-003`, `soc2-004`, `soc2-018`, …), GDPR, HIPAA, ISO 27001, PCI-DSS, Zero Trust, security baseline (`sec-base-028`), and AKS/EKS/GKE baseline packs gate **`declaration-security-baseline`** and **`declaration-premise-conflict`** findings when those keys survive tenant **`complianceRuleKeys`** filtering. Prefixes outside that family (for example **`cost-opt-*`**, **`ai-gov-*`**, **`dora-*`**, **`otel-*`**, **`sust-base-*`**) keep today's fail-open declaration behavior. This extends the compliance moat to declaration findings operators argue about; it does **not** mean all 39 finding engines are policy-aware.
+
+**Expectation facets (coverage + cost):** Tenant overlays and FinOps packs can set `advisoryDefaults` keys documented in **[`POLICY_PACK_EXPECTATION_FACET.md`](../library/POLICY_PACK_EXPECTATION_FACET.md)** — for example `expectation.topologyCategories.add=identity`, `expectation.securityControlFamilies.add=data-protection`, `cost.requireBudgetCap=true`, and `cost.breachSeverity=Critical`. `FindingsOrchestrator` stamps merged extras onto the context snapshot node; topology/security/requirement coverage engines union those extras with heuristic baselines (additive floor). `cost-constraint` can require a declared monthly cap; `cost-breach` can raise severity when a breach would already emit. Open-commitment, portfolio-recurrence, and cross-run diff engines remain pack-independent.
 
 ### Organization Private vs Review Engine Knowledge
 

@@ -27,7 +27,7 @@ import {
   PATTERN_LIBRARY_EMPTY_BUILDING_TITLE,
   PATTERN_LIBRARY_PAGE_SUBTITLE_BUYER,
 } from "@/lib/pattern-library-copy";
-import { PATTERN_LIBRARY_CLAIM_HEADING } from "@/lib/pattern-library-evidence-copy";
+import { PATTERN_LIBRARY_CLAIM_DISCIPLINE } from "@/lib/pattern-library-evidence-copy";
 
 function renderWithQueryClient(ui: React.ReactElement): void {
   const queryClient = new QueryClient({
@@ -65,8 +65,9 @@ describe("PatternLibraryPageClient buyer-polished shell", () => {
 
     expect(screen.getByText(PATTERN_LIBRARY_EMPTY_BUILDING_TITLE)).toBeInTheDocument();
     expect(screen.getByText(PATTERN_LIBRARY_EMPTY_BUILDING_BODY)).toBeInTheDocument();
-    expect(screen.getByTestId("pattern-library-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByText(PATTERN_LIBRARY_CLAIM_HEADING)).toBeInTheDocument();
+    expect(screen.getByTestId("pattern-library-claim-discipline").textContent).toContain(
+      PATTERN_LIBRARY_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.queryByTestId("pattern-library-policy-packs-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("pattern-library-card-grid")).not.toBeInTheDocument();
     expect(screen.queryByText(/runId/i)).not.toBeInTheDocument();

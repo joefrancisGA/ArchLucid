@@ -13,6 +13,7 @@ public interface IGovernanceDigestDecisionNeededComposer
 
     Task<GovernanceDecisionsNeededSummaryResponse> BuildSummaryAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         CancellationToken cancellationToken = default);
 }

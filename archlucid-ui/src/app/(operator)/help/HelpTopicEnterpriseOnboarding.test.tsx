@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
   MermaidDiagram: ({ source }: { readonly source: string }) => (
@@ -180,7 +181,7 @@ describe("HelpEnterpriseOnboardingGuideView enterprise onboarding checklist", ()
     const sources = screen.getByTestId("enterprise-onboarding-help-sources");
 
     for (const link of ENTERPRISE_ONBOARDING_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expectFollowUpLink(within(sources), link);
     }
 
     expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();

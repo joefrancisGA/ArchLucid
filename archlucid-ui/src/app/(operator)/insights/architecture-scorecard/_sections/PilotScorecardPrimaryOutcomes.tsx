@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import {
   ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE,
 } from "@/lib/architecture/architecture-scorecard-page-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   REVIEW_SCORECARD_FINALIZED_HREF,
   REVIEW_SCORECARD_GOVERNANCE_HREF,
@@ -43,6 +44,12 @@ export function PilotScorecardPrimaryOutcomes({
   showPreviewBadge,
   quarterlySavingsLabel,
 }: PilotScorecardPrimaryOutcomesProps) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const savingsClaimDiscipline =
+    buyerPolishedShell ? null : (
+      <ScorecardSavingsClaimDiscipline>{ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}</ScorecardSavingsClaimDiscipline>
+    );
+
   return (
     <section aria-label="Primary outcomes" className="space-y-3" data-testid="review-scorecard-summary-row">
       {!savingsReady ? (
@@ -113,7 +120,7 @@ export function PilotScorecardPrimaryOutcomes({
               actionHref={!summaryRow.estimatedReviewTimeSavingsReady ? REVIEW_SCORECARD_ROI_ASSUMPTIONS_HREF : null}
               actionLabel={!summaryRow.estimatedReviewTimeSavingsReady ? "Configure ROI assumptions" : null}
             />
-            <ScorecardSavingsClaimDiscipline>{ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}</ScorecardSavingsClaimDiscipline>
+            {savingsClaimDiscipline}
           </div>
         </>
       ) : (
@@ -131,7 +138,7 @@ export function PilotScorecardPrimaryOutcomes({
                 quarterlySavingsLabel !== null ? `≈ ${quarterlySavingsLabel} per quarter` : null
               }
             />
-            <ScorecardSavingsClaimDiscipline>{ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}</ScorecardSavingsClaimDiscipline>
+            {savingsClaimDiscipline}
           </div>
 
           {finalizedDisplay !== null && governanceDisplay !== null ? (

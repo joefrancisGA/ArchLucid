@@ -12,7 +12,7 @@ public interface IFindingDispositionService
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<FindingDispositionEventDto>> ListHistoryAsync(
-        Guid tenantId,
+        ScopeContext scope,
         string findingId,
         CancellationToken cancellationToken = default);
 }

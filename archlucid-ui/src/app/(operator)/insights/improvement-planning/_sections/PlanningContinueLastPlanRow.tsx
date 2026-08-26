@@ -4,12 +4,13 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { planningPlanDetailPath } from "@/lib/planning-route";
+import { planningPlanDetailHref } from "@/lib/planning-route";
 import type { LearningPlanListItemResponse } from "@/types/learning";
 import { cn } from "@/lib/utils";
 
 export type PlanningContinueLastPlanRowProps = {
   readonly plan: LearningPlanListItemResponse;
+  readonly scopedRunId?: string;
 };
 
 /** Pinned continue row for the most recently created improvement plan. */
@@ -33,7 +34,7 @@ export function PlanningContinueLastPlanRow(props: PlanningContinueLastPlanRowPr
           </p>
         </div>
         <Button type="button" variant="primary" size="sm" asChild data-testid="planning-continue-last-plan-open">
-          <Link href={planningPlanDetailPath(props.plan.planId)}>Open plan</Link>
+          <Link href={planningPlanDetailHref(props.plan.planId, props.scopedRunId)}>Open plan</Link>
         </Button>
       </div>
     </section>

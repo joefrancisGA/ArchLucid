@@ -4,8 +4,9 @@ using ArchLucid.Application;
 using ArchLucid.Application.Governance.Workflow;
 using ArchLucid.Application.Governance.Workflow.Stages;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
@@ -99,6 +100,80 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task PromoteAsync_throws_when_non_prod_approval_request_run_mismatch()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
+        approvalRepo
+            .Setup(r => r.GetByIdAsync("ar-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = "ar-1",
+                RunId = "run-other",
+                ManifestVersion = "v1",
+                TargetEnvironment = "test",
+                Status = GovernanceApprovalStatus.Submitted,
+            });
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            approvalRepo.Object,
+            runDetail: runDetail.Object);
+
+        Func<Task> act = () => sut.PromoteAsync(
+            "run-1",
+            "v1",
+            "dev",
+            "test",
+            "operator",
+            approvalRequestId: "ar-1",
+            notes: null);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*does not match*");
+    }
+
+    [Fact]
+    public async Task PromoteAsync_throws_when_manifest_version_belongs_to_another_run()
+    {
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        Mock<IUnifiedGoldenManifestReader> manifests = new();
+        manifests
+            .Setup(m => m.GetByVersionAsync("v-foreign", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GoldenManifest
+            {
+                RunId = "run-other",
+                SystemName = "Sys",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Metadata = new ManifestMetadata { ManifestVersion = "v-foreign", CreatedUtc = DateTime.UtcNow }
+            });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            runDetail: runDetail.Object,
+            unifiedManifestReader: manifests.Object);
+
+        Func<Task> act = () => sut.PromoteAsync(
+            "run-1",
+            "v-foreign",
+            "dev",
+            "test",
+            "operator",
+            approvalRequestId: null,
+            notes: null);
+
+        await act.Should().ThrowAsync<GoldenManifestVersionNotFoundException>();
+    }
+
+    [Fact]
     public async Task PromoteAsync_to_prod_without_approval_request_id_throws()
     {
         Mock<IRunDetailQueryService> runDetail = new();
@@ -119,6 +194,77 @@ public sealed class GovernanceWorkflowFacadeTests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*approvalRequestId*");
+    }
+
+    [Fact]
+    public async Task SubmitApprovalRequestAsync_throws_when_manifest_version_belongs_to_another_run()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new(MockBehavior.Strict);
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        Mock<IUnifiedGoldenManifestReader> manifests = new();
+        manifests
+            .Setup(m => m.GetByVersionAsync("v-foreign", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GoldenManifest
+            {
+                RunId = "run-other",
+                SystemName = "Sys",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Metadata = new ManifestMetadata { ManifestVersion = "v-foreign", CreatedUtc = DateTime.UtcNow }
+            });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            approvalRepo.Object,
+            runDetail: runDetail.Object,
+            unifiedManifestReader: manifests.Object);
+
+        Func<Task> act = () => sut.SubmitApprovalRequestAsync(
+            "run-1",
+            "v-foreign",
+            "dev",
+            "test",
+            "alice",
+            null,
+            null,
+            dryRun: false);
+
+        await act.Should().ThrowAsync<GoldenManifestVersionNotFoundException>();
+        approvalRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ActivateAsync_throws_when_manifest_version_belongs_to_another_run()
+    {
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        Mock<IUnifiedGoldenManifestReader> manifests = new();
+        manifests
+            .Setup(m => m.GetByVersionAsync("v-foreign", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GoldenManifest
+            {
+                RunId = "run-other",
+                SystemName = "Sys",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Metadata = new ManifestMetadata { ManifestVersion = "v-foreign", CreatedUtc = DateTime.UtcNow }
+            });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            runDetail: runDetail.Object,
+            unifiedManifestReader: manifests.Object);
+
+        Func<Task> act = () => sut.ActivateAsync("run-1", "v-foreign", "test", "operator");
+
+        await act.Should().ThrowAsync<GoldenManifestVersionNotFoundException>();
     }
 
     [Fact]
@@ -185,7 +331,8 @@ public sealed class GovernanceWorkflowFacadeTests
         IGovernancePromotionRecordRepository? promotionRepo = null,
         IGovernanceEnvironmentActivationRepository? activationRepo = null,
         IRunDetailQueryService? runDetail = null,
-        IAuditService? durableAudit = null)
+        IAuditService? durableAudit = null,
+        IUnifiedGoldenManifestReader? unifiedManifestReader = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
@@ -246,6 +393,7 @@ public sealed class GovernanceWorkflowFacadeTests
             outbox.Object,
             integrationOptions.Object,
             Options.Create(new PreCommitGovernanceGateOptions()),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            unifiedManifestReader);
     }
 }

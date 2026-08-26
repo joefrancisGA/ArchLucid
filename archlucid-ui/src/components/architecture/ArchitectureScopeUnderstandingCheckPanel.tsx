@@ -22,6 +22,7 @@ import {
   SCOPE_UNDERSTANDING_ADD_PLACEHOLDER,
   canConfirmScopeUnderstanding,
   scopeBriefLines,
+  scopeBulletsFingerprint,
   scopeConfirmedSummaryMessage,
   SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT,
   SCOPE_UNDERSTANDING_CONFIRM_LABEL,
@@ -49,6 +50,10 @@ export type ArchitectureScopeUnderstandingCheckPanelProps = {
   readonly readyHint?: string;
   /** Draft persistence on architecture draft surfaces — suppresses the ready line while save is in flight. */
   readonly draftSaveState?: ArchitectureDraftSaveState;
+  /** Fingerprint of scope lines already saved on the draft — restores confirmation when unchanged. */
+  readonly persistedScopeFingerprint?: string | null;
+  /** Persists confirmed scope to the draft before opening the gate. */
+  readonly onConfirm?: (bullets: ScopeUnderstandingBullet[]) => void | Promise<boolean>;
   /** Same-page anchor for the next workflow step after scope is confirmed (e.g. start review CTA). */
   readonly nextStepAnchorId?: string;
   readonly nextStepAnchorLabel?: string;
@@ -69,10 +74,33 @@ export function ArchitectureScopeUnderstandingCheckPanel(
   const [newBulletText, setNewBulletText] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [scopeStale, setScopeStale] = useState(false);
+  const [scopePersistFailed, setScopePersistFailed] = useState(false);
+  const confirmedFingerprintRef = useRef<string | null>(null);
   // Monotonic so a remove-then-add cycle cannot reuse an id that is still on screen.
   const operatorRowCounterRef = useRef(0);
   const reconciledInferredRef = useRef(inferredBullets);
   const onGateChange = props.onGateChange;
+
+  useEffect(() => {
+    const persistedFingerprint = props.persistedScopeFingerprint?.trim() ?? "";
+
+    if (persistedFingerprint.length === 0 || confirmed) {
+      return;
+    }
+
+    const currentFingerprint = scopeBulletsFingerprint(bullets);
+
+    if (currentFingerprint !== persistedFingerprint) {
+      return;
+    }
+
+    confirmedFingerprintRef.current = persistedFingerprint;
+    setConfirmed(true);
+    setScopeStale(false);
+    setScopePersistFailed(false);
+    props.onBulletsChange?.(bullets);
+    onGateChange?.(true);
+  }, [bullets, confirmed, onGateChange, props.onBulletsChange, props.persistedScopeFingerprint]);
 
   useEffect(() => {
     if (reconciledInferredRef.current === inferredBullets) {
@@ -81,26 +109,41 @@ export function ArchitectureScopeUnderstandingCheckPanel(
 
     reconciledInferredRef.current = inferredBullets;
 
-    setBullets((previous) =>
-      reconcileScopeUnderstandingBullets({
-        inferred: inferredBullets,
-        previous,
-        dismissedIds,
-      }),
-    );
+    const reconciled = reconcileScopeUnderstandingBullets({
+      inferred: inferredBullets,
+      previous: bullets,
+      dismissedIds,
+    });
 
-    // Scope confirmed against older form values is stale, so the operator re-confirms what changed.
-    if (confirmed) {
-      setConfirmed(false);
-      setScopeStale(true);
-      onGateChange?.(false);
+    setBullets(reconciled);
+
+    if (!confirmed) {
+      return;
     }
-  }, [inferredBullets, confirmed, dismissedIds, onGateChange]);
+
+    const confirmedFingerprint = confirmedFingerprintRef.current;
+
+    if (confirmedFingerprint === null) {
+      return;
+    }
+
+    const nextFingerprint = scopeBulletsFingerprint(reconciled);
+
+    if (nextFingerprint === confirmedFingerprint) {
+      return;
+    }
+
+    setConfirmed(false);
+    setScopeStale(true);
+    onGateChange?.(false);
+  }, [inferredBullets, confirmed, dismissedIds, onGateChange, bullets]);
 
   const applyBullets = (nextBullets: ScopeUnderstandingBullet[]) => {
     setBullets(nextBullets);
     setConfirmed(false);
     setScopeStale(false);
+    setScopePersistFailed(false);
+    confirmedFingerprintRef.current = null;
     props.onBulletsChange?.(nextBullets);
     props.onGateChange?.(false);
   };
@@ -133,16 +176,39 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       return;
     }
 
-    setBullets(normalized);
-    setConfirmed(true);
-    setScopeStale(false);
-    props.onBulletsChange?.(normalized);
-    props.onGateChange?.(true);
+    const fingerprint = scopeBulletsFingerprint(normalized);
+    const applyConfirmedState = () => {
+      setBullets(normalized);
+      setConfirmed(true);
+      setScopeStale(false);
+      setScopePersistFailed(false);
+      confirmedFingerprintRef.current = fingerprint;
+      props.onBulletsChange?.(normalized);
+      props.onGateChange?.(true);
+    };
+
+    if (props.onConfirm === undefined) {
+      applyConfirmedState();
+
+      return;
+    }
+
+    void Promise.resolve(props.onConfirm(normalized)).then((persisted) => {
+      if (persisted === false) {
+        setScopePersistFailed(true);
+
+        return;
+      }
+
+      applyConfirmedState();
+    });
   };
 
   const handleEditScope = () => {
     setConfirmed(false);
     setScopeStale(false);
+    setScopePersistFailed(false);
+    confirmedFingerprintRef.current = null;
     props.onGateChange?.(false);
   };
 
@@ -327,7 +393,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       ) : null}
 
       {confirmed ? (
-        props.draftSaveState === "error" ? (
+        props.draftSaveState === "error" || scopePersistFailed ? (
           <div
             className={cn(DESIGN_TOKENS.callout.blockedShell, "items-start")}
             role="alert"

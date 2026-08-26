@@ -17,6 +17,7 @@ import {
   PATTERN_LIBRARY_WHAT_IS_PATTERN,
 } from "@/lib/pattern-library-copy";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
+import { PATTERN_LIBRARY_CLAIM_DISCIPLINE } from "@/lib/pattern-library-evidence-copy";
 import type { PatternLibraryProvenance } from "@/lib/pattern-library-types";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +45,8 @@ export function PatternLibraryPageHeader(props: PatternLibraryPageHeaderProps): 
       title={PATTERN_LIBRARY_PAGE_TITLE}
       titleTestId="pattern-library-page-title"
       subtitle={props.subtitle}
+      claimDiscipline={PATTERN_LIBRARY_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="pattern-library-claim-discipline"
       breadcrumb={<PatternLibraryBreadcrumb />}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="pattern-library-header-actions">

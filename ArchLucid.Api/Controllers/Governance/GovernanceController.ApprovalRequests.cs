@@ -49,6 +49,11 @@ public sealed partial class GovernanceController
         if (idempotencyError is not null)
             return idempotencyError;
 
+        IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         string requestedBy = actorContext.GetActor();
         string requestedByActorKey = actorContext.GetActorId();
 
@@ -78,6 +83,11 @@ public sealed partial class GovernanceController
             logger.LogWarning(ex, "SubmitApprovalRequest failed: run not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (GoldenManifestVersionNotFoundException ex)
+        {
+            logger.LogWarning(ex, "SubmitApprovalRequest failed: manifest version not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
+        }
     }
 
     [HttpPost("approval-requests/{approvalRequestId}/approve")]
@@ -93,8 +103,25 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        GovernanceApprovalRequest? approval = await approvalRepo
+            .GetByIdAsync(approvalRequestId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (approval is null)
+        {
+            return this.NotFoundProblem(
+                $"Approval request '{approvalRequestId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
+        string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
         try
         {
@@ -103,6 +130,7 @@ public sealed partial class GovernanceController
                 reviewedBy,
                 reviewedByActorKey,
                 request.ReviewComment,
+                reviewedByMailbox,
                 cancellationToken);
 
             return Ok(result);
@@ -147,8 +175,25 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        GovernanceApprovalRequest? approval = await approvalRepo
+            .GetByIdAsync(approvalRequestId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (approval is null)
+        {
+            return this.NotFoundProblem(
+                $"Approval request '{approvalRequestId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
+        string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
         try
         {
@@ -157,6 +202,7 @@ public sealed partial class GovernanceController
                 reviewedBy,
                 reviewedByActorKey,
                 request.ReviewComment,
+                reviewedByMailbox,
                 cancellationToken);
 
             return Ok(result);
@@ -221,6 +267,7 @@ public sealed partial class GovernanceController
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
+        string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
         List<GovernanceBatchReviewItemResult> results = [];
         List<string> distinctIds = body.ApprovalRequestIds
@@ -233,6 +280,40 @@ public sealed partial class GovernanceController
 
             try
             {
+                GovernanceApprovalRequest? approval = await approvalRepo
+                    .GetByIdAsync(approvalRequestId, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (approval is null)
+                {
+                    results.Add(
+                        new GovernanceBatchReviewItemResult
+                        {
+                            ApprovalRequestId = approvalRequestId,
+                            Succeeded = false,
+                            ErrorCode = ProblemTypes.ResourceNotFound,
+                            Message = $"Approval request '{approvalRequestId}' was not found.",
+                        });
+
+                    continue;
+                }
+
+                IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+
+                if (scopeError is not null)
+                {
+                    results.Add(
+                        new GovernanceBatchReviewItemResult
+                        {
+                            ApprovalRequestId = approvalRequestId,
+                            Succeeded = false,
+                            ErrorCode = ProblemTypes.RunNotFound,
+                            Message = $"Run '{approval.RunId}' was not found.",
+                        });
+
+                    continue;
+                }
+
                 if (approve)
 
                     _ = await workflowService.ApproveAsync(
@@ -240,6 +321,7 @@ public sealed partial class GovernanceController
                         reviewedBy,
                         reviewedByActorKey,
                         body.ReviewComment,
+                        reviewedByMailbox,
                         cancellationToken);
 
                 else
@@ -249,6 +331,7 @@ public sealed partial class GovernanceController
                         reviewedBy,
                         reviewedByActorKey,
                         body.ReviewComment,
+                        reviewedByMailbox,
                         cancellationToken);
 
                 results.Add(

@@ -102,8 +102,19 @@ public sealed class TenantBaselineController(
 
         bool touchManual = body.ManualPrepHoursPerReview.HasValue || body.PeoplePerReview.HasValue;
         bool touchReview = body.BaselineReviewCycleHours.HasValue;
+        bool touchReviewSourceNote =
+            body.BaselineReviewCycleSourceNote is not null && existing.BaselineReviewCycleHours.HasValue;
 
-        if (!touchManual && !touchReview)
+        if (body.BaselineReviewCycleSourceNote is not null
+            && !existing.BaselineReviewCycleHours.HasValue
+            && !body.BaselineReviewCycleHours.HasValue)
+        {
+            return this.BadRequestProblem(
+                "Baseline review-cycle hours must be captured before a source note can be updated.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (!touchManual && !touchReview && !touchReviewSourceNote)
             return Ok(ProjectBaselineResponse(existing));
 
         string actor = User.Identity?.Name ?? "operator";
@@ -112,6 +123,13 @@ public sealed class TenantBaselineController(
         {
             decimal? prep = body.ManualPrepHoursPerReview ?? existing.BaselineManualPrepHoursPerReview;
             int? people = body.PeoplePerReview ?? existing.BaselinePeoplePerReview;
+
+            if (prep is null)
+            {
+                return this.BadRequestProblem(
+                    "Manual preparation hours per review must be set before people involved per review can be captured.",
+                    ProblemTypes.ValidationFailed);
+            }
 
             if (prep is <= 0m or > 10_000m)
             {
@@ -171,6 +189,39 @@ public sealed class TenantBaselineController(
                     EventType = firstReviewCycleCapture
                         ? AuditEventTypes.TrialBaselineReviewCycleCaptured
                         : AuditEventTypes.TrialBaselineReviewCycleUpdated,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            baselineReviewCycleHours = hours,
+                            baselineReviewCycleSource = persistedSource,
+                            capturedUtc = capturedUtc
+                        })
+                },
+                cancellationToken);
+        }
+        else if (touchReviewSourceNote)
+        {
+            decimal hours = existing.BaselineReviewCycleHours!.Value;
+            string persistedSource =
+                BaselineReviewCycleSourceMarkers.FormatOperatorSettingsPersistence(body.BaselineReviewCycleSourceNote);
+            DateTimeOffset capturedUtc = existing.BaselineReviewCycleCapturedUtc ?? TimeProvider.System.GetUtcNow();
+
+            await _tenantRepository.PersistTrialSignupBaselineReviewCycleAsync(
+                scope.TenantId,
+                hours,
+                persistedSource,
+                capturedUtc,
+                cancellationToken);
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TrialBaselineReviewCycleUpdated,
                     ActorUserId = actor,
                     ActorUserName = actor,
                     TenantId = scope.TenantId,

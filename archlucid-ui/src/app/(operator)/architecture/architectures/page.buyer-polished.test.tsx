@@ -26,18 +26,20 @@ import {
 } from "@/lib/architectures-hub-copy";
 
 describe("ArchitecturesListPage buyer-polished shell", () => {
-  it("renders breadcrumb, buyer subtitle, and claim orientation strip after draft list", () => {
+  it("renders breadcrumb, buyer subtitle, and claim discipline in page header", () => {
     render(<ArchitecturesListPage />);
 
     expect(screen.getByTestId("architectures-hub-page-title")).toHaveTextContent(ARCHITECTURES_HUB_PAGE_TITLE);
     expect(screen.getByText(ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("architectures-hub-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByText(ARCHITECTURES_LIST_CLAIM_DISCIPLINE)).toBeInTheDocument();
+    expect(screen.queryByTestId("architectures-hub-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architectures-hub-claim-discipline").textContent).toContain(
+      ARCHITECTURES_LIST_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId("architecture-draft-list")).toBeInTheDocument();
 
     const draftList = screen.getByTestId("architecture-draft-list");
     const claimDiscipline = screen.getByTestId("architectures-hub-claim-discipline");
 
-    expect(draftList.compareDocumentPosition(claimDiscipline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(claimDiscipline.compareDocumentPosition(draftList) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

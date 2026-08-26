@@ -36,8 +36,6 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
-import { isValueReportOutcomesSurface } from "@/lib/value-report-outcomes-nav-tabs";
-
 export type BuyerPolishedRouteOrientationOptions = {
   /** When `/insights/search-review-evidence` or `/governance` carries `runId`, header copy can reflect a scoped review. */
   readonly searchRunId?: string;
@@ -270,12 +268,9 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  // Shared Insights strip for the Outcomes tab hub (scorecard, ROI summary, pilot outcomes, sponsor report).
-  if (isValueReportOutcomesSurface(path)) {
-    return {
-      label: "Insights",
-      line: BUYER_SPONSOR_SUMMARY_VOCABULARY.scorecardLayerContextLine,
-    };
+  if (path.startsWith("/insights/")) {
+    // Insights routes carry their own OperatorPageHeader — not strip + header twins.
+    return null;
   }
 
   return null;

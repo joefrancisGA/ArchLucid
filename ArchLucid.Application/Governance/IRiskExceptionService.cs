@@ -11,6 +11,11 @@ public interface IRiskExceptionService
         string createdByUserId,
         CancellationToken cancellationToken = default);
 
+    Task<RiskExceptionRecord?> GetByIdAsync(
+        Guid tenantId,
+        Guid riskExceptionId,
+        CancellationToken cancellationToken = default);
+
     Task RevokeAsync(
         Guid tenantId,
         Guid riskExceptionId,

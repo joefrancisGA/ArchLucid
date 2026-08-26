@@ -28,7 +28,7 @@ describe("ApiKeysSettingsRestrictedState buyer-polished shell (ADP)", () => {
       "href",
       `#${API_KEYS_SETTINGS_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("api-keys-settings-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("api-keys-settings-page-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("api-keys-settings-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("api-keys-settings-sources")).toBeInTheDocument();
   });

@@ -32,7 +32,7 @@ public sealed class TenantWorkspaceBaselineArtifactsController(
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
-    /// <summary>True when at least one Azure extractor package row exists for the current tenant and workspace.</summary>
+    /// <summary>True when at least one Azure extractor package row exists for the current tenant, workspace, and project.</summary>
     [HttpGet]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(TenantWorkspaceBaselineArtifactsResponse), StatusCodes.Status200OK)]

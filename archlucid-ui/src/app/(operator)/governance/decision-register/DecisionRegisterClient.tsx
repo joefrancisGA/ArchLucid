@@ -56,6 +56,7 @@ import {
   DECISION_REGISTER_VIEW_CARDS_PANEL_LABEL,
   DECISION_REGISTER_VIEW_TIMELINE_PANEL_LABEL,
 } from "./decision-register-copy";
+import { DECISION_REGISTER_CLAIM_DISCIPLINE } from "@/lib/decision-register-evidence-copy";
 import {
   DEFAULT_DECISION_REGISTER_DATE_PRESET,
   resolveDecisionRegisterDateRange,
@@ -233,6 +234,8 @@ export default function DecisionRegisterClient() {
         navHref={GOVERNANCE_DECISION_REGISTER_PATH}
         title={BUYER_GOVERNANCE_DECISION_REGISTER_TITLE}
         subtitle={decisionRegisterPageSubtitle(buyerPolishedShell)}
+        claimDiscipline={DECISION_REGISTER_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="decision-register-claim-discipline"
         breadcrumb={<DecisionRegisterBreadcrumb />}
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -311,7 +314,7 @@ export default function DecisionRegisterClient() {
       ) : null}
 
       {!loading && !loadError && continueLastDecision !== null ? (
-        <DecisionRegisterContinueLastViewedRow decision={continueLastDecision} />
+        <DecisionRegisterContinueLastViewedRow decision={continueLastDecision} scopedRunId={scopedRunId} />
       ) : null}
 
       {loading ? <DecisionRegisterLoadingSkeleton /> : null}
