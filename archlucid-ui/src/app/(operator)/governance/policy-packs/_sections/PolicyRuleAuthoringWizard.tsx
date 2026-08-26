@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
-import { listRunsByProjectPaged, simulatePolicyPackAgainstRun } from "@/lib/api";
-import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { applyGeneratedCuratedPolicyPack } from "@/lib/apply-generated-curated-policy-pack";
 import {
   guidedFieldsFromContentDocument,
@@ -26,13 +23,9 @@ import {
   type CuratedRulesDocument,
   validateCuratedRulesDocument,
 } from "@/lib/policy/policy-pack-curated-rules-v1";
-import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
-import type { components } from "@/lib/openapi-schemas";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
-import { presentPolicyPackSimulateToast } from "@/lib/policy/policy-pack-simulate-toast";
 import { showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { RunSummary } from "@/types/authority";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
@@ -41,8 +34,11 @@ import {
   PolicyPackNaturalLanguageBuilderDeferred,
   PolicyPackVisualBuilderDeferred,
 } from "./policy-packs-authoring-deferred-chunks";
+import {
+  tryParseContentDocument,
+  usePolicyRuleAuthoringSimulate,
+} from "./use-policy-rule-authoring-simulate";
 
-const AUTH_WIZARD_PROJECT_ID = "default";
 const POLICY_RULE_WIZARD_MUTATE_DISABLED_HINT_ID = "policy-rule-wizard-mutate-disabled-hint";
 const POLICY_RULE_WIZARD_BUNDLED_PUBLISH_BLOCKED_HINT_ID = "policy-rule-wizard-bundled-publish-blocked-hint";
 
@@ -68,20 +64,6 @@ export type PolicyRuleAuthoringWizardProps = {
 };
 
 type AuthoringInputMode = "guided" | "visual" | "ai";
-
-function tryParseContentDocument(json: string): PolicyPackContentDocument | null {
-  try {
-    const parsed: unknown = JSON.parse(json);
-
-    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
-      return null;
-    }
-
-    return parsed as PolicyPackContentDocument;
-  } catch {
-    return null;
-  }
-}
 
 function resolveInitialInputMode(
   initialInputMode: PolicyRuleAuthoringWizardProps["initialInputMode"],
@@ -218,15 +200,30 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     publishVersion,
   ]);
 
-  const [simulateRunId, setSimulateRunId] = useState("");
-  const [recentRuns, setRecentRuns] = useState<RunSummary[]>([]);
-  const [runsLoadError, setRunsLoadError] = useState<string | null>(null);
-  const [simulateBusy, setSimulateBusy] = useState(false);
-  const [simulateFailure, setSimulateFailure] = useState<ApiLoadFailureState | null>(null);
-  const [simulateResult, setSimulateResult] =
-    useState<components["schemas"]["PolicyPackGovernanceDryRunResult"] | null>(null);
-  const [blockOnCritical, setBlockOnCritical] = useState(true);
-  const [allowPublishWithoutTest, setAllowPublishWithoutTest] = useState(false);
+  const {
+    simulateRunId,
+    setSimulateRunId,
+    recentRuns,
+    runsLoadError,
+    simulateBusy,
+    simulateFailure,
+    simulateResult,
+    blockOnCritical,
+    setBlockOnCritical,
+    allowPublishWithoutTest,
+    setAllowPublishWithoutTest,
+    loadRecentRuns,
+    runSimulation,
+    parsedDocumentForSimulate,
+    canPublishAfterTest,
+    publishDisabled,
+  } = usePolicyRuleAuthoringSimulate({
+    policyContentJson,
+    selectedPackId,
+    canMutatePacks,
+    loading,
+    bundledPublishBlocked,
+  });
 
   const applyGeneratedCuratedDocument = useCallback(
     (document: CuratedRulesDocument) => {
@@ -285,90 +282,6 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     setInputMode("guided");
     showSuccess("Guided fields loaded from current policy JSON.");
   }, [policyContentJson]);
-
-  const loadRecentRuns = useCallback(async () => {
-    setRunsLoadError(null);
-
-    try {
-      const raw: unknown = await listRunsByProjectPaged(AUTH_WIZARD_PROJECT_ID, 1, 30);
-      const coerced = coerceRunSummaryPaged(raw);
-
-      if (!coerced.ok) {
-        setRecentRuns([]);
-        setRunsLoadError(coerced.message);
-
-        return;
-      }
-
-      setRecentRuns(coerced.value.items);
-    } catch (e: unknown) {
-      setRecentRuns([]);
-      setRunsLoadError(toApiLoadFailure(e).message);
-    }
-  }, []);
-
-  const parsedDocumentForSimulate: PolicyPackContentDocument | null = useMemo(
-    () => tryParseContentDocument(policyContentJson),
-    [policyContentJson],
-  );
-
-  const runSimulation = useCallback(async () => {
-    setSimulateFailure(null);
-    setSimulateResult(null);
-
-    if (parsedDocumentForSimulate === null) {
-      setSimulateFailure(
-        uiFailureFromMessage("Policy content must be valid JSON matching the pack document shape before testing."),
-      );
-
-      return;
-    }
-
-    const trimmedRun: string = simulateRunId.trim();
-
-    if (trimmedRun.length === 0) {
-      setSimulateFailure(
-        uiFailureFromMessage("Enter a review ID to evaluate this policy content against that architecture snapshot."),
-      );
-
-      return;
-    }
-
-    setSimulateBusy(true);
-
-    try {
-      const proposedId: string | null = /^[0-9a-fA-F-]{36}$/.test(selectedPackId) ? selectedPackId : null;
-      const body: components["schemas"]["PolicyPackSimulateRequest"] = {
-        runId: trimmedRun,
-        content: parsedDocumentForSimulate,
-        blockCommitOnCritical: blockOnCritical,
-        proposedPolicyPackId: proposedId,
-      };
-
-      const result: components["schemas"]["PolicyPackGovernanceDryRunResult"] =
-        await simulatePolicyPackAgainstRun(body);
-      setSimulateResult(result);
-      presentPolicyPackSimulateToast(result, {
-        successMessage: "Policy test completed for the selected review.",
-      });
-    } catch (e: unknown) {
-      setSimulateFailure(toApiLoadFailure(e));
-    } finally {
-      setSimulateBusy(false);
-    }
-  }, [blockOnCritical, parsedDocumentForSimulate, selectedPackId, simulateRunId]);
-
-  const gateBlocked: boolean =
-    simulateResult?.gateResult !== undefined && simulateResult.gateResult?.blocked === true;
-
-  const canPublishAfterTest: boolean = simulateResult !== null && !gateBlocked;
-
-  const publishDisabled: boolean =
-    !canMutatePacks ||
-    loading ||
-    bundledPublishBlocked ||
-    parsedDocumentForSimulate === null ||
-    (!canPublishAfterTest && !allowPublishWithoutTest);
 
   return (
     <section
