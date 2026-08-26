@@ -140,6 +140,15 @@ After **`ContextSnapshot`** is saved, **`ArchLucid.KnowledgeGraph`** builds a ty
 
 See **`docs/KNOWLEDGE_GRAPH.md`** for pipeline, **`EdgeType`** semantics, DI registration, persistence JSON aliases, and manifest integration.
 
+### Declaration security signals
+
+Ingested **`tf.*`** / ARM scalar properties on topology resources feed two graph-pure security engines:
+
+- **`declaration-security-baseline`** — reports unsafe declaration values in isolation (e.g. public network access enabled).
+- **`declaration-premise-conflict`** — reports contradictions when the same declaration property conflicts with a linked **`SecurityBaseline`** or **`PolicyControl`** requirement on the graph (e.g. private-only baseline vs public-access declaration).
+
+Both engines read the same ingested properties; premise-conflict findings require intent nodes linked by **`PROTECTS`** / **`APPLIES_TO`** (or graph-wide fallback) and use conflict phrasing in titles.
+
 ---
 
 ## Further reading
