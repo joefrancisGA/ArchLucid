@@ -26,7 +26,8 @@ public sealed class CorePilotTeamChecklistController(
     IAuditService auditService,
     ICorePilotTeamChecklistRepository repository,
     IScopeContextProvider scopeProvider,
-    IActorContext actorContext) : ControllerBase
+    IActorContext actorContext,
+    ITenantRepository tenantRepository) : ControllerBase
 {
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -39,6 +40,9 @@ public sealed class CorePilotTeamChecklistController(
 
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     [HttpGet]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -67,6 +71,7 @@ public sealed class CorePilotTeamChecklistController(
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(
         [FromBody] CorePilotChecklistPutRequest? body,
         CancellationToken cancellationToken)
@@ -78,6 +83,11 @@ public sealed class CorePilotTeamChecklistController(
             return this.BadRequestProblem("stepIndex must be between 0 and 3.", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         string actor = _actorContext.GetActorId();
 
         await _repository

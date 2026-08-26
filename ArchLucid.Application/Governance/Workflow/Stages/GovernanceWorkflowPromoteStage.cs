@@ -1,11 +1,14 @@
 using System.Text.Json;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
@@ -19,6 +22,7 @@ public sealed class GovernanceWorkflowPromoteStage(
     IGovernanceApprovalRequestRepository approvalRepo,
     IGovernancePromotionRecordRepository promotionRepo,
     IRunDetailQueryService runDetailQueryService,
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
     IBaselineMutationAuditService baselineMutationAudit,
     GovernanceWorkflowAuditSupport auditSupport,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
@@ -38,6 +42,9 @@ public sealed class GovernanceWorkflowPromoteStage(
 
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader =
+        unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
 
     private readonly IBaselineMutationAuditService _baselineMutationAudit =
         baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
@@ -77,7 +84,21 @@ public sealed class GovernanceWorkflowPromoteStage(
 
         ArchitectureRunDetail runDetail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
-        string persistedRunId = runDetail.Run.RunId;
+        ArchitectureRun run = runDetail.Run;
+        string persistedRunId = run.RunId;
+
+        GoldenManifest? manifest =
+            runDetail.Manifest is not null
+            && string.Equals(run.CurrentManifestVersion, manifestVersion, StringComparison.Ordinal)
+                ? runDetail.Manifest
+                : await _unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken)
+                    .ConfigureAwait(false);
+
+        if (manifest is null)
+            throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
+
+        if (!string.Equals(manifest.RunId, runId, StringComparison.Ordinal))
+            throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
         if (!GovernanceEnvironmentOrder.IsValidPromotion(sourceEnvironment, targetEnvironment))
         {

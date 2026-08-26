@@ -69,6 +69,7 @@ public static class GovernanceWorkflowTestComposition
                 approvalRepo,
                 promotionRepo,
                 runDetailQueryService,
+                manifestReader,
                 baselineMutationAudit,
                 auditSupport,
                 unitOfWorkFactory,

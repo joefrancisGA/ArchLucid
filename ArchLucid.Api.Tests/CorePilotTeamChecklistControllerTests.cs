@@ -4,6 +4,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
@@ -29,9 +30,20 @@ public sealed class CorePilotTeamChecklistControllerTests
         ICorePilotTeamChecklistRepository repository,
         IScopeContextProvider scopeProvider,
         IActorContext actorContext,
-        IAuditService auditService)
+        IAuditService auditService,
+        ITenantRepository? tenantRepository = null)
     {
-        return new CorePilotTeamChecklistController(auditService, repository, scopeProvider, actorContext)
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+
+        return new CorePilotTeamChecklistController(
+            auditService,
+            repository,
+            scopeProvider,
+            actorContext,
+            tenantRepository ?? tenants.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -103,6 +115,45 @@ public sealed class CorePilotTeamChecklistControllerTests
         repo.Verify(
             r => r.UpsertAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>(),
                 It.IsAny<bool>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ICorePilotTeamChecklistRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IActorContext> actor = new();
+        Mock<IAuditService> audit = new();
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        CorePilotTeamChecklistController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            actor.Object,
+            audit.Object,
+            tenants.Object);
+
+        IActionResult result = await sut.PutAsync(
+            new CorePilotChecklistPutRequest { StepIndex = 1, IsCompleted = true },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.Verify(
+            r => r.UpsertAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

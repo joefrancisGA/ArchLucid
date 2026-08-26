@@ -162,6 +162,63 @@ public sealed class TenantBaselineControllerTests
     }
 
     [Fact]
+    public async Task PutAsync_persists_review_cycle_source_note_when_hours_already_captured()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard,
+            BaselineReviewCycleHours = 40m,
+            BaselineReviewCycleSource = "operator-settings: old note",
+            BaselineReviewCycleCapturedUtc = DateTimeOffset.Parse("2026-05-01T10:00:00Z")
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+        tenants
+            .Setup(r => r.PersistTrialSignupBaselineReviewCycleAsync(
+                Scope.TenantId,
+                40m,
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuditService> audit = new();
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            audit.Object);
+
+        TenantBaselinePutRequest body = new() { BaselineReviewCycleSourceNote = "Updated operator note" };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        tenants.Verify(
+            r => r.PersistTrialSignupBaselineReviewCycleAsync(
+                Scope.TenantId,
+                40m,
+                It.Is<string?>(s => s != null && s.Contains("Updated operator note", StringComparison.Ordinal)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialBaselineReviewCycleUpdated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task PutAsync_returns_existing_projection_when_no_fields_touched()
     {
         TenantRecord tenant = new()

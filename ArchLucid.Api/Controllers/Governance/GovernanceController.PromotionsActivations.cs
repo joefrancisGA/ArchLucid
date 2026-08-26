@@ -95,6 +95,16 @@ public sealed partial class GovernanceController
             logger.LogWarningWithSanitizedUserArg(ex, "Promote failed for run '{RunId}'.", request.RunId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
+        catch (RunNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Promote failed: run not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (GoldenManifestVersionNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Promote failed: manifest version not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
+        }
     }
 
     [HttpPost("activations")]

@@ -204,6 +204,38 @@ public sealed class GovernancePreviewServiceTests
     }
 
     [SkippableFact]
+    public async Task CompareEnvironmentsAsync_WhenActivationManifestRunMismatch_OmitsForeignManifest()
+    {
+        GovernanceEnvironmentActivation srcAct = new()
+        {
+            RunId = "r1", ManifestVersion = "m1", Environment = "dev", IsActive = true
+        };
+        GovernanceEnvironmentActivation tgtAct = new()
+        {
+            RunId = "r2", ManifestVersion = "m2", Environment = "test", IsActive = true
+        };
+
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([srcAct]);
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([tgtAct]);
+
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("m1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("r-foreign", "m1", g => g.CostClassification = "Low"));
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("m2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("r-foreign-2", "m2", g => g.CostClassification = "High"));
+
+        GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(
+            new GovernanceEnvironmentComparisonRequest { SourceEnvironment = "dev", TargetEnvironment = "test" });
+
+        result.Differences.Should().BeEmpty();
+        result.Notes.Should().Contain(n =>
+            n.Contains("does not belong to activation run 'r1'", StringComparison.OrdinalIgnoreCase));
+        result.Notes.Should().Contain(n =>
+            n.Contains("does not belong to activation run 'r2'", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
     public async Task PreviewActivationAsync_DoesNotMutateActivationRows()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-x", It.IsAny<CancellationToken>()))
