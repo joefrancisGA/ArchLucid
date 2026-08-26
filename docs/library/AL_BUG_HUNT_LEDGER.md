@@ -1802,11 +1802,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 33
-- **bugs-found:** 76
+- **hunts:** 34
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — connector payload normalizers rotated random ObjectId on re-normalize
+- **last-bug:** 2026-08-26 — initial-ingestion delta counted duplicate stable keys as separate adds
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1897,6 +1897,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SecurityBaselineHintsPayloadNormalizer` left default random `ObjectId` on security baseline hints — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical hint text (`ConnectorHintNormalizationDeltaTests.SecurityBaselineHintsNormalizer_Reparse_ProducesStableObjectId`).
 - [x] (proven) `StaticRequestPayloadNormalizer` left default random `ObjectId` on static request description — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical description text (`ConnectorHintNormalizationDeltaTests.StaticRequestNormalizer_Reparse_ProducesStableObjectId`).
 - [x] (proven) `PolicyReferencePayloadNormalizer` left default random `ObjectId` on policy references — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical policy reference (`ConnectorHintNormalizationDeltaTests.PolicyReferenceNormalizer_Reparse_ProducesStableObjectId`).
+- [x] (proven) `SetDiffConnectorDeltaComputer.BuildInitialDelta` used `current.Count` instead of distinct stable-key count — **hit 2026-08-26:** duplicate `SourceId` in first ingest reported `AddedCount = 2` but second ingest indexed to one key and reported false remove; fixed by indexing current batch before initial delta (`SetDiffConnectorDeltaComputerTests.Compute_NoPrevious_DuplicateStableKeys_CountDistinctKeysAsAdded`).
 
 ---
 

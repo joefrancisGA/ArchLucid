@@ -29,7 +29,11 @@ public sealed class SetDiffConnectorDeltaComputer : IConnectorDeltaComputer
         ArgumentNullException.ThrowIfNull(stableKeySelector);
 
         if (previous.Count == 0)
-            return BuildInitialDelta(current.Count);
+        {
+            int distinctKeyCount = BuildIndex(current, stableKeySelector).Count;
+
+            return BuildInitialDelta(distinctKeyCount);
+        }
 
         Dictionary<string, CanonicalObject> prevByKey = BuildIndex(previous, stableKeySelector);
         Dictionary<string, CanonicalObject> currByKey = BuildIndex(current, stableKeySelector);
