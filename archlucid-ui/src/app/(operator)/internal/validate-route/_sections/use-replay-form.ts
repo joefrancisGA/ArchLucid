@@ -1,11 +1,12 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { replayRun } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { INTERNAL_REPLAY_PATH, replayScopedHref } from "@/lib/internal-ops-route-paths";
 import { coerceReplayResponse } from "@/lib/operator/operator-response-guards";
 import {
   latestValidationOutcomeByRunId,
@@ -21,8 +22,10 @@ import { defaultReplayMode } from "./replay-page-constants";
 import type { ReplayFormViewModel } from "./replay-form-view-model";
 
 export function useReplayForm(): ReplayFormViewModel {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const [runId, setRunId] = useState("");
+  const scopedRunIdFromUrl = (searchParams.get("runId") ?? "").trim();
+  const [runId, setRunId] = useState(scopedRunIdFromUrl);
   const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
   const [mode, setMode] = useState<string>(defaultReplayMode);
   const [modifyConfirmed, setModifyConfirmed] = useState(false);
@@ -34,12 +37,35 @@ export function useReplayForm(): ReplayFormViewModel {
   const [auditHistory, setAuditHistory] = useState<ReplayValidationHistoryEntry[]>([]);
 
   useEffect(() => {
-    const queryRunId = searchParams.get("runId");
+    setRunId(scopedRunIdFromUrl);
+  }, [scopedRunIdFromUrl]);
 
-    if (queryRunId) {
-      setRunId(queryRunId);
-    }
-  }, [searchParams]);
+  const onPickReview = useCallback(
+    (next: string) => {
+      const trimmed = next.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      router.replace(replayScopedHref(trimmed), { scroll: false });
+    },
+    [router],
+  );
+
+  const handleRunIdChange = useCallback(
+    (next: string) => {
+      setRunId(next);
+      const trimmed = next.trim();
+
+      if (trimmed.length > 0) {
+        router.replace(replayScopedHref(trimmed), { scroll: false });
+      } else {
+        router.replace(INTERNAL_REPLAY_PATH, { scroll: false });
+      }
+    },
+    [router],
+  );
 
   useEffect(() => {
     setModifyConfirmed(false);
@@ -160,7 +186,8 @@ export function useReplayForm(): ReplayFormViewModel {
 
   return {
     runId,
-    setRunId,
+    setRunId: handleRunIdChange,
+    onPickReview,
     selectedRun,
     setSelectedRun,
     mode,

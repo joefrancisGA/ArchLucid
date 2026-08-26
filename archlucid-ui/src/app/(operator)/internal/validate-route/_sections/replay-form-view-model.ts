@@ -7,7 +7,8 @@ import type { RunSummary } from "@/types/authority";
 
 export type ReplayFormViewModel = {
   readonly runId: string;
-  readonly setRunId: Dispatch<SetStateAction<string>>;
+  readonly setRunId: (next: string) => void;
+  readonly onPickReview: (reviewId: string) => void;
   readonly selectedRun: RunSummary | null;
   readonly setSelectedRun: Dispatch<SetStateAction<RunSummary | null>>;
   readonly mode: string;

@@ -18,6 +18,15 @@ export const INTERNAL_INTEGRATION_EVENTS_DLQ_PATH = "/internal/failed-integratio
 export const INTERNAL_EVIDENCE_PROPOSALS_PATH = "/internal/evidence-proposals" as const;
 export const INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH = "/internal/platform-bundled-policy-packs" as const;
 export const INTERNAL_REPLAY_PATH = "/internal/validate-route" as const;
+
+/** Replay validate-route URL with optional review scope. */
+export function replayScopedHref(runId: string | null): string {
+  if (runId === null || runId.trim().length === 0) {
+    return INTERNAL_REPLAY_PATH;
+  }
+
+  return `${INTERNAL_REPLAY_PATH}?runId=${encodeURIComponent(runId.trim())}`;
+}
 export const INTERNAL_RECOMMENDATION_LEARNING_PATH = "/internal/recommendation-learning" as const;
 export const INTERNAL_DEMO_READINESS_PATH = "/internal/demo-readiness" as const;
 export const INTERNAL_ITSM_CONNECTORS_PATH = "/internal/integrations/itsm" as const;

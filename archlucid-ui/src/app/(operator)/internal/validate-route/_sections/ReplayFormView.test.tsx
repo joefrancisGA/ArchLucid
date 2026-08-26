@@ -9,6 +9,7 @@ function buildModel(overrides: Partial<ReplayFormViewModel> = {}): ReplayFormVie
   return {
     runId: "",
     setRunId: vi.fn(),
+    onPickReview: vi.fn(),
     selectedRun: null,
     setSelectedRun: vi.fn(),
     mode: "ReconstructOnly",
@@ -52,8 +53,38 @@ describe("ReplayFormView", () => {
     expect(screen.queryByText(/No review selected/i)).not.toBeInTheDocument();
   });
 
-  it("explains disabled action when no package is selected", () => {
+  it("shows pick-review strip when no review is scoped", () => {
     render(<ReplayFormView model={buildModel()} />);
+
+    expect(screen.getByTestId("replay-pick-review-before-validating-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-package-validation-picker-input")).not.toBeInTheDocument();
+  });
+
+  it("shows scope banner and validation form when review is scoped", () => {
+    render(
+      <ReplayFormView
+        model={buildModel({
+          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          runIdTrimmed: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("replay-run-scope-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-validation-picker-input")).toBeInTheDocument();
+    expect(screen.queryByTestId("replay-pick-review-before-validating-strip")).not.toBeInTheDocument();
+  });
+
+  it("explains disabled action when scoped review has prerequisites", () => {
+    render(
+      <ReplayFormView
+        model={buildModel({
+          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          runIdTrimmed: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          actionDisabledReason: "Select a finalized package to continue.",
+        })}
+      />,
+    );
 
     expect(screen.getByTestId("replay-action-disabled-reason")).toHaveTextContent("Select a finalized package to continue.");
     expect(screen.getByTestId("replay-validation-primary-action")).toBeDisabled();
