@@ -11,6 +11,7 @@ import {
   type PilotOutcomesPeriodPresetId,
   resolvePilotOutcomesPeriodPreset,
 } from "@/lib/pilot-outcomes-period-presets";
+import { formatBrowserTimeZoneAbbreviation } from "@/lib/locale-datetime";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
@@ -31,14 +32,6 @@ const SPONSOR_REPORT_SECTIONS = [
   "Recommendations and remediation",
   "Finalized reviews",
 ] as const;
-
-function resolveReportingTimezoneLabel(): string {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone;
-  } catch {
-    return "UTC";
-  }
-}
 
 function buildEmailPreview(
   fromUtc: string,
@@ -279,6 +272,6 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
     closeEmailPreview,
     confirmSendEmail,
     includesSampleData,
-    reportingTimezoneLabel: resolveReportingTimezoneLabel(),
+    reportingTimezoneLabel: formatBrowserTimeZoneAbbreviation(),
   };
 }

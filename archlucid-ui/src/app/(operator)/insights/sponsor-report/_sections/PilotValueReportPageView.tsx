@@ -36,6 +36,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   PILOT_OUTCOMES_PRIMARY_CONTENT_ID,
   PILOT_OUTCOMES_SKIP_LINK_LABEL,
+  pilotOutcomesReportingPeriodHelper,
 } from "@/lib/pilot-outcomes-page-copy";
 import { Button } from "@/components/ui/button";
 import {
@@ -279,8 +280,7 @@ export function PilotValueReportPageView(props: Props) {
         <div ref={periodControlsRef} className="space-y-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
           <h2 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Reporting period</h2>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Times shown in {m.reportingTimezoneLabel}. Period boundaries are stored in UTC; the end date is exclusive
-            when calculating the report window.
+            {pilotOutcomesReportingPeriodHelper(m.reportingTimezoneLabel)}
           </p>
 
           <div className="flex flex-wrap gap-2" role="group" aria-label="Reporting period presets">
@@ -631,7 +631,7 @@ export function PilotValueReportPageView(props: Props) {
 
             <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="pilot-outcomes-technical-details">
               <ul className={cn("m-0 list-disc pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                <li>Reporting period end timestamp is exclusive (UTC).</li>
+                <li>Reporting period end instant is exclusive in UTC (activity at exactly the end time is excluded).</li>
                 <li>Recommendations generated are counted from audit events in the selected window.</li>
                 <li>Review completion time reflects pipeline duration for finalized reviews in the detail sample.</li>
               </ul>
