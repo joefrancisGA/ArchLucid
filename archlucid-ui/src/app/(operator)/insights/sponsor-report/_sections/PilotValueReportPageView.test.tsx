@@ -226,6 +226,7 @@ describe("PilotValueReportPageView", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Report summary" })).toBeInTheDocument();
+    expect(screen.getByTestId("value-report-reporting-setup-progress")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Finalized reviews" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Download report" })).toBeEnabled();
     expect(screen.queryByTestId("pilot-outcomes-empty-state")).not.toBeInTheDocument();
