@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { AlertRulesPickReviewBeforeCreatingStrip } from "@/components/alerts/AlertRulesPickReviewBeforeCreatingStrip";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { AlertRuleListRow } from "@/components/alerts/AlertRuleListRow";
 import { AlertRulesContinueLastViewedRow } from "@/components/alerts/AlertRulesContinueLastViewedRow";
@@ -94,7 +96,7 @@ import {
   OPERATOR_FORM_FIELD_STACK_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { governanceAlertRulesTabHref, GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import {
   alertRulesCreateButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
@@ -122,6 +124,27 @@ function AlertRulesListLoadingSkeleton(): React.JSX.Element {
 }
 
 export function AlertRulesContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
+
+  const onPickReviewForCreating = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+
+      router.replace(`${GOVERNANCE_ALERT_RULES_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
   const canMutateAlertRules = useOperateCapability();
   const refreshContext = useOptionalAlertRulesHubRefresh();
   const registerTabLoader = refreshContext?.registerTabLoader;
@@ -275,7 +298,7 @@ export function AlertRulesContent() {
   const listInitialLoading = loading && items.length === 0;
   const isEmpty = items.length === 0;
   const showEmptyCard = !listInitialLoading && isEmpty;
-  const showCreateForm = canEdit || !isEmpty;
+  const showCreateForm = scopedRunFilterActive && (canEdit || !isEmpty);
   const sectionGap = pinLivePreviewRail ? "gap-8" : "gap-4";
 
   const emptyStateDescription = useMemo(() => {
@@ -310,7 +333,7 @@ export function AlertRulesContent() {
     ruleEnabled: items.some((rule) => rule.isEnabled === true),
   });
 
-  const emptyStateFooter = canEdit ? (
+  const emptyStateFooter = canEdit && scopedRunFilterActive ? (
     <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-empty-footer">
       <Button
         type="button"
@@ -359,6 +382,29 @@ export function AlertRulesContent() {
           />
         </div>
       ) : null}
+
+      {!scopedRunFilterActive ? (
+        <AlertRulesPickReviewBeforeCreatingStrip selectedReviewId="" onSelectReview={onPickReviewForCreating} />
+      ) : (
+        <p
+          className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="alert-rules-run-scope-banner"
+        >
+          {"Creating rules scoped to review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={governanceAlertRulesTabHref("rules")}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      )}
 
       <div
         className={cn(

@@ -121,17 +121,26 @@ export function governancePolicyPackDetailPath(policyPackId: string): string {
   return `${GOVERNANCE_POLICY_PACKS_PATH}/${encodeURIComponent(policyPackId.trim())}`;
 }
 
-export function governanceAlertRulesTabHref(tab: string): string {
-  const trimmed = tab.trim();
+export function governanceAlertRulesTabHref(tab: string, runId?: string | null): string {
+  const trimmedTab = tab.trim();
+  const trimmedRunId = runId?.trim() ?? "";
+  const params = new URLSearchParams();
 
-  if (trimmed.length === 0 || trimmed === "rules") {
+  if (trimmedTab.length > 0 && trimmedTab !== "rules") {
+    params.set("tab", trimmedTab);
+  }
+
+  if (trimmedRunId.length > 0) {
+    params.set("runId", trimmedRunId);
+  }
+
+  const query = params.toString();
+
+  if (query.length === 0) {
     return GOVERNANCE_ALERT_RULES_PATH;
   }
 
-  const params = new URLSearchParams();
-  params.set("tab", trimmed);
-
-  return `${GOVERNANCE_ALERT_RULES_PATH}?${params.toString()}`;
+  return `${GOVERNANCE_ALERT_RULES_PATH}?${query}`;
 }
 
 /** Legacy deep links on the Alerts inbox URL — prefer {@link governanceAlertRulesTabHref}. */
