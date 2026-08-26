@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   persistIanaTimeZonePreference,
@@ -19,6 +19,7 @@ export function useIanaTimeZonePreference(): {
   const [ianaTimeZoneId, setIanaTimeZoneId] = useState<string>("UTC");
   const [mounted, setMounted] = useState(false);
   const [accountSyncState, setAccountSyncState] = useState<IanaTimeZonePreferenceAccountSyncState>("idle");
+  const userTouchedRef = useRef(false);
 
   useEffect(() => {
     setIanaTimeZoneId(readStoredIanaTimeZonePreference());
@@ -29,11 +30,16 @@ export function useIanaTimeZonePreference(): {
         return;
       }
 
-      setIanaTimeZoneId(syncedTimeZoneId);
+      if (!userTouchedRef.current) {
+        setIanaTimeZoneId(syncedTimeZoneId);
+      }
+
+      setAccountSyncState("synced");
     });
   }, []);
 
   const setAndPersist = useCallback((nextIanaTimeZoneId: string) => {
+    userTouchedRef.current = true;
     setIanaTimeZoneId(nextIanaTimeZoneId);
     void persistIanaTimeZonePreference(nextIanaTimeZoneId).then((synced) => {
       setAccountSyncState(synced ? "synced" : "local-only");

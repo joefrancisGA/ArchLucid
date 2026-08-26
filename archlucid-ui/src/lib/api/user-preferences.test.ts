@@ -398,4 +398,25 @@ describe("setUserIanaTimeZonePreference", () => {
       ianaTimeZoneId: "America/Chicago",
     });
   });
+
+  it("skips redundant PUT when cache already has the explicit value", async () => {
+    const { getOperatorQueryClient } = await import("@/lib/query/operator-query-client");
+    const queryClient = getOperatorQueryClient();
+    queryClient.setQueryData(operatorQueryKeys.userPreferences, {
+      appearancePreference: "system",
+      appearancePreferenceIsExplicit: false,
+      cloudPlatformScope: DEFAULT_CLOUD_PLATFORM_SCOPE,
+      cloudPlatformScopeIsExplicit: false,
+      whereToGoNextEnabled: true,
+      whereToGoNextIsExplicit: false,
+      sampleReviewsOnOverviewEnabled: true,
+      sampleReviewsOnOverviewIsExplicit: false,
+      ianaTimeZoneId: "America/Chicago",
+      ianaTimeZoneIsExplicit: true,
+    });
+
+    await setUserIanaTimeZonePreference("America/Chicago");
+
+    expect(apiPutJsonMock).not.toHaveBeenCalled();
+  });
 });
