@@ -2213,10 +2213,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
 - **hunts:** 14
-- **bugs-found:** 40
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — risk-exception list leaked foreign-workspace waivers; decision register SQL omitted workspace filter on golden manifests
+- **last-bug:** 2026-08-26 — homepage settings PUT returned 400 for out-of-scope featured sample run instead of 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2264,11 +2264,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.ListRiskExceptions` / `GovernanceStickinessFacade.ListRiskExceptionsAsync` — tenant+project `ListActiveAsync` returned active waivers from foreign workspaces — **hit 2026-08-26:** `RiskExceptionScope.FilterActiveToScope`; regression in `GovernanceStickinessFacadeScopeTests.ListRiskExceptionsAsync_excludes_foreign_workspace_active_waivers`.
 - [x] (proven) `GovernanceStickinessController.GetDecisionRegister` / `ArchitectureDecisionRegisterReader` — decision register SQL filtered golden manifests by tenant/project only, returning foreign-workspace decisions — **hit 2026-08-26:** `WorkspaceId` on manifest join; service/facade pass ambient workspace; regression in `GovernanceStickinessFacadeScopeTests.GetDecisionRegisterAsync_passes_caller_workspace_to_decision_register_service`.
 - [x] (invalid) `TenantMeasuredRoiController` / `TenantMeasuredRoiService` — tenant-scoped process counters or audit rows — **cheap-disproof 2026-08-26:** endpoint intentionally composes replica-global `InstrumentationCounterSnapshot`, default-scope audit sample, and `ContosoRetailDemoIdentifiers.RunBaseline`; integration test `TenantMeasuredRoiEndpointTests` asserts demo run id; disclaimer documents non-tenant metering.
-- [ ] (hunt-ready) `TenantHomepageSettingsController.PutAsync` / `FeaturedCompletedSampleService.SetSelectedRunIdAsync` — foreign-workspace `SelectedRunId` in same tenant → HTTP 400 `ValidationFailed` ("not eligible") instead of 404 — scoped `GetByIdAsync` null merged with ineligible runs via `InvalidOperationException` → `BadRequestProblem`, unlike sibling manifest/governance run-scope gates.
+- [x] (proven) `TenantHomepageSettingsController.PutAsync` / `FeaturedCompletedSampleService.SetSelectedRunIdAsync` — foreign-workspace `SelectedRunId` in same tenant → HTTP 400 `ValidationFailed` ("not eligible") instead of 404 — **hit 2026-08-26:** scoped `GetByIdAsync` null throws `RunNotFoundException`; controller maps to `ProblemTypes.RunNotFound`; regression in `FeaturedCompletedSampleServiceTests` and `TenantHomepageSettingsControllerTests`.
 - [ ] (hunt-ready) `WeeklyDigestHealthReader.GetSnapshotAsync` / `TenantWeeklyDigestHealthController` — `TenantSponsorDigestPreferences` enabled with recipients while exec digest disabled → `SetupGaps` still warns "Sponsor email digest is not fully configured" and response omits sponsor-prefs fields — gap predicate reads only `ITenantExecDigestPreferencesRepository.GetByTenantAsync`; `ITenantSponsorDigestPreferencesRepository` not injected or consulted despite `TenantSponsorDigestPreferencesController` CRUD surface.
 - [ ] (hunt-ready) `TenantSponsorDigestPreferencesController` persistence — POST enables email + recipients → no weekly delivery job consumes `ITenantSponsorDigestPreferencesRepository.ListEmailEnabledTenantIdsAsync` (only exec digest scanner wired) — operator configures sponsor-digest-preferences but no scheduled send path exists; unsubscribe/disable works; distinct from `WeeklySponsorSummaryDeliveryScanner` global options + role mailbox lookup.
 
-2026-08-26 seed hunt #89: promoted homepage PUT scope status parity, weekly-digest-health sponsor-prefs omission, sponsor-digest-preferences dead delivery wiring; cheap-disproved tenant measured ROI tenant-scope expectation.
+2026-08-26 seed hunt #89: proved homepage PUT 404 on out-of-scope run; cheap-disproved tenant measured ROI tenant-scope expectation; weekly-digest-health and sponsor-digest delivery rows remain hunt-ready.
 
 2026-08-26 seed hunt #88: proved risk-exception list workspace filter, decision register workspace SQL filter.
 
