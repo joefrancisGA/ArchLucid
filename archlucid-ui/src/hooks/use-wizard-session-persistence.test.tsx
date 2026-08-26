@@ -2,7 +2,10 @@ import { act, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
-import { requestReviewsNewWizardAutoRestore } from "@/lib/reviews-new-wizard-session-resume";
+import {
+  dispatchReviewsNewWizardContinueRequested,
+  requestReviewsNewWizardAutoRestore,
+} from "@/lib/reviews-new-wizard-session-resume";
 import { WIZARD_SESSION_IDS, writeWizardSessionSnapshot } from "@/lib/wizard-session-persistence";
 
 type TestState = {
@@ -71,6 +74,29 @@ describe("useWizardSessionPersistence (TB-2157)", () => {
     render(<TestHarness state={{ title: "" }} onRestore={onRestore} />);
 
     await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByRole("button", { name: "Resume saved wizard" })).not.toBeInTheDocument();
+    expect(onRestore).toHaveBeenCalledWith("Saved title");
+  });
+
+  it("auto-accepts restore when the hub resume strip continues on the same page", async () => {
+    writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewQuickStart, {
+      stepIndex: 0,
+      state: { title: "Saved title" },
+    });
+
+    const onRestore = vi.fn();
+
+    render(<TestHarness state={{ title: "" }} onRestore={onRestore} />);
+
+    expect(screen.getByRole("button", { name: "Resume saved wizard" })).toBeInTheDocument();
+
+    requestReviewsNewWizardAutoRestore(WIZARD_SESSION_IDS.reviewsNewQuickStart);
+
+    await act(async () => {
+      dispatchReviewsNewWizardContinueRequested(WIZARD_SESSION_IDS.reviewsNewQuickStart);
       await Promise.resolve();
     });
 

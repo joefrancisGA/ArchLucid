@@ -8,6 +8,9 @@ import {
   type WizardSessionSnapshot,
 } from "@/lib/wizard-session-persistence";
 
+export const ARCHLUCID_REVIEWS_NEW_WIZARD_CONTINUE_EVENT =
+  "archlucid:reviews-new-wizard-continue" as const;
+
 export const REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY =
   "archlucid:reviews-new-wizard-auto-restore" as const;
 
@@ -186,12 +189,38 @@ export function reviewsNewWizardResumeHref(pathMode: ReviewsNewPathMode): string
   return `/architecture/reviews/new?path=${pathMode}`;
 }
 
+/** True when the current `path` query already shows the wizard for this resume target. */
+export function reviewsNewWizardPathIsActive(
+  pathQuery: string,
+  pathMode: ReviewsNewPathMode,
+): boolean {
+  const normalizedPath = pathQuery.trim().toLowerCase();
+
+  if (normalizedPath.length === 0) {
+    return pathMode === "quick-review";
+  }
+
+  return normalizedPath === pathMode;
+}
+
 export function requestReviewsNewWizardAutoRestore(wizardId: WizardSessionId): void {
   if (typeof window === "undefined") {
     return;
   }
 
   window.sessionStorage.setItem(REVIEWS_NEW_WIZARD_AUTO_RESTORE_STORAGE_KEY, wizardId);
+}
+
+export function dispatchReviewsNewWizardContinueRequested(wizardId: WizardSessionId): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(
+    new CustomEvent<{ wizardId: WizardSessionId }>(ARCHLUCID_REVIEWS_NEW_WIZARD_CONTINUE_EVENT, {
+      detail: { wizardId },
+    }),
+  );
 }
 
 export function consumeReviewsNewWizardAutoRestore(wizardId: WizardSessionId): boolean {

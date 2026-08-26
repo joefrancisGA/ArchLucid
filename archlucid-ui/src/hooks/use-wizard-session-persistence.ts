@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { consumeReviewsNewWizardAutoRestore } from "@/lib/reviews-new-wizard-session-resume";
+import {
+  ARCHLUCID_REVIEWS_NEW_WIZARD_CONTINUE_EVENT,
+  consumeReviewsNewWizardAutoRestore,
+} from "@/lib/reviews-new-wizard-session-resume";
 import {
   clearWizardSessionSnapshot,
   readWizardSessionSnapshot,
@@ -81,6 +84,36 @@ export function useWizardSessionPersistence<TState>(
     setLastSavedUtc(pendingRestore.savedAtUtc);
     setSaveState("saved");
   }, [args, pendingRestore]);
+
+  const acceptRestoreRef = useRef(acceptRestore);
+
+  acceptRestoreRef.current = acceptRestore;
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const onContinueRequested = (event: Event) => {
+      const detail = (event as CustomEvent<{ wizardId: WizardSessionId }>).detail;
+
+      if (detail?.wizardId !== args.wizardId) {
+        return;
+      }
+
+      if (!consumeReviewsNewWizardAutoRestore(args.wizardId)) {
+        return;
+      }
+
+      acceptRestoreRef.current();
+    };
+
+    window.addEventListener(ARCHLUCID_REVIEWS_NEW_WIZARD_CONTINUE_EVENT, onContinueRequested);
+
+    return () => {
+      window.removeEventListener(ARCHLUCID_REVIEWS_NEW_WIZARD_CONTINUE_EVENT, onContinueRequested);
+    };
+  }, [args.wizardId, enabled]);
 
   useEffect(() => {
     if (pendingRestore === null) {
