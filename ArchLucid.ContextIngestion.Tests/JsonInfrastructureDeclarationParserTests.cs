@@ -120,4 +120,51 @@ public sealed class JsonInfrastructureDeclarationParserTests
         result.Should().ContainSingle();
         result[0].Properties["sku"].Should().Be("standard_lrs");
     }
+
+    [Fact]
+    public async Task ParseAsync_CustomPropertyKeys_AreCanonicalized()
+    {
+        InfrastructureDeclarationReference firstKeyCasing = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "storage",
+                            "name": "docstorage01",
+                            "properties": { "Sku": "Standard_LRS" }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        InfrastructureDeclarationReference secondKeyCasing = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "storage",
+                            "name": "docstorage01",
+                            "properties": { "sku": "standard_lrs" }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> firstObjects =
+            await _sut.ParseAsync(firstKeyCasing, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondObjects =
+            await _sut.ParseAsync(secondKeyCasing, CancellationToken.None);
+
+        firstObjects.Should().ContainSingle();
+        secondObjects.Should().ContainSingle();
+        secondObjects[0].Properties.Should().BeEquivalentTo(firstObjects[0].Properties);
+    }
 }

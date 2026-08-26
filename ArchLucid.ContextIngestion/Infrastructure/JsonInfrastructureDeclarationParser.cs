@@ -54,7 +54,8 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
                 if (string.IsNullOrWhiteSpace(property.Value))
                     continue;
 
-                properties[property.Key] = property.Value.Trim().ToLowerInvariant();
+                string canonicalKey = property.Key.Trim().ToLowerInvariant();
+                properties[canonicalKey] = property.Value.Trim().ToLowerInvariant();
             }
 
             if (!string.IsNullOrWhiteSpace(resource.Subtype))

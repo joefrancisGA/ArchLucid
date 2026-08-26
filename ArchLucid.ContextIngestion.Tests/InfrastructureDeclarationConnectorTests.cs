@@ -326,6 +326,93 @@ public sealed class InfrastructureDeclarationConnectorTests
     }
 
     [Fact]
+    public async Task DeltaAsync_JsonCustomPropertyKeyCasingChange_ReportsUnchanged()
+    {
+        JsonInfrastructureDeclarationParser parser =
+            new(Microsoft.Extensions.Logging.Abstractions.NullLogger<JsonInfrastructureDeclarationParser>.Instance);
+
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([parser]),
+            new SetDiffConnectorDeltaComputer());
+
+        const string firstJson = """
+                                 {
+                                   "resources": [
+                                     {
+                                       "type": "storage",
+                                       "name": "docstorage01",
+                                       "properties": { "Sku": "Standard_LRS" }
+                                     }
+                                   ]
+                                 }
+                                 """;
+
+        RawContextPayload firstRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-1",
+                    Name = "core.json",
+                    Format = "json",
+                    Content = firstJson
+                }
+            ]
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+        CanonicalObject persistedObject = firstBatch.CanonicalObjects.Single();
+        Dictionary<string, string> reloadedProperties = new(StringComparer.Ordinal);
+
+        foreach (KeyValuePair<string, string> property in persistedObject.Properties)
+            reloadedProperties[property.Key] = property.Value;
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString("D"),
+            CanonicalObjects =
+            [
+                new CanonicalObject
+                {
+                    ObjectId = persistedObject.ObjectId,
+                    ObjectType = persistedObject.ObjectType,
+                    Name = persistedObject.Name,
+                    SourceType = persistedObject.SourceType,
+                    SourceId = persistedObject.SourceId,
+                    Properties = reloadedProperties,
+                }
+            ],
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-1",
+                    Name = "core.json",
+                    Format = "json",
+                    Content = firstJson.Replace("\"Sku\"", "\"sku\"")
+                        .Replace("\"Standard_LRS\"", "\"standard_lrs\"")
+                }
+            ]
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task DeltaAsync_TerraformTypeCasingChange_ReportsUnchanged()
     {
         InfrastructureDeclarationConnector connector = new(
