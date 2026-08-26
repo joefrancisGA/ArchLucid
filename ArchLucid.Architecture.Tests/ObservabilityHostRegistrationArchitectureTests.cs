@@ -32,6 +32,7 @@ public sealed class ObservabilityHostRegistrationArchitectureTests
         extensions.Should().Contain("AddOtlpExporter");
         extensions.Should().Contain("AddHostedService<RetrievalTelemetryPerTenantTagCircuitBreakerHostedService>");
         extensions.Should().NotContain("RetrievalTelemetryPerTenantTagCircuitBreakerPostConfigure");
+        extensions.Should().NotContain("GetRequiredService<RetrievalTelemetryPerTenantTagCircuitBreaker>");
     }
 
     [SkippableFact]

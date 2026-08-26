@@ -62,10 +62,16 @@ public sealed class RetrievalTelemetryPerTenantTagCircuitBreakerHostedServiceTes
         await using ServiceProvider provider = services.BuildServiceProvider();
 
         Task[] tasks = Enumerable.Range(0, 8)
-            .Select(_ => Task.Run(() =>
+            .Select(i => Task.Run(() =>
             {
-                _ = provider.GetRequiredService<RetrievalTelemetryPerTenantTagCircuitBreaker>();
-                _ = provider.GetRequiredService<IOptionsMonitor<RetrievalTelemetryOptions>>();
+                RetrievalTelemetryPerTenantTagCircuitBreaker resolvedBreaker =
+                    provider.GetRequiredService<RetrievalTelemetryPerTenantTagCircuitBreaker>();
+                IOptionsMonitor<RetrievalTelemetryOptions> monitor =
+                    provider.GetRequiredService<IOptionsMonitor<RetrievalTelemetryOptions>>();
+
+                resolvedBreaker.Should().NotBeNull();
+                monitor.Should().NotBeNull();
+                return i;
             }))
             .ToArray();
 
