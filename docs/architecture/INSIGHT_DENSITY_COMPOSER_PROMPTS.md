@@ -18,7 +18,7 @@
 | **ID-06** | No portfolio-level recurrence | `PortfolioRecurrenceFindingEngine` (default off) |
 | **ID-07** | Declaration unsafe-value findings without premise conflict | `DeclarationPremiseConflictFindingEngine` |
 
-Remaining density work (Bicep/K8s properties, policy-filter golden case, declaration policy vocabulary, advisory labeling) lives in the ID-08 file. Do **not** add another engine that only re-reads `GraphSnapshot`.
+Remaining density work: ID-08–10 shipped (see the ID-08 file). Policy-pack moat beyond CIS Azure is [`POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`](POLICY_PACK_MOAT_COMPOSER_PROMPTS.md). Do **not** add another engine that only re-reads `GraphSnapshot`.
 
 ## The problem these prompts solve
 
