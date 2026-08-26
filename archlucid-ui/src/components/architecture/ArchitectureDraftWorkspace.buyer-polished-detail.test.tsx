@@ -84,9 +84,8 @@ vi.mock("@/components/architecture/ArchitectureDraftAiRefinePanel", () => ({
 
 import { ArchitectureDraftWorkspace } from "@/components/architecture/ArchitectureDraftWorkspace";
 import {
+  ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE,
   ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
-  ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE,
-  resolveArchitectureDraftDetailPageSubtitleBuyer,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import {
   ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE,
@@ -136,9 +135,9 @@ describe("ArchitectureDraftWorkspace buyer-polished detail shell", () => {
     });
 
     const workspaceLead = screen.getByTestId("architecture-draft-workspace-lead");
-    expect(workspaceLead).toHaveTextContent(resolveArchitectureDraftDetailPageSubtitleBuyer(false));
-    expect(workspaceLead).toHaveTextContent(ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE);
-    expect(workspaceLead).toHaveTextContent(ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE);
+    expect(workspaceLead.textContent).toContain(ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE);
+    expect(workspaceLead.textContent).toMatch(/Required before review:.*Complete the system name/i);
+    expect(workspaceLead.textContent).toContain(ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE);
     expect(screen.getByTestId("architecture-draft-detail-claim-discipline").textContent).toContain(
       ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE.slice(0, 40),
     );
