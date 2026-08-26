@@ -29,7 +29,7 @@ public sealed class IntegrationEventDlqRetryBackgroundWorkTests
                 deadLetteredUtc: utcNow.AddMinutes(-i));
         }
 
-        ServiceProvider provider = BuildProvider(repository);
+        ServiceProvider provider = BuildProvider(repository, new FakeTimeProvider(utcNow));
 
         await IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync(
             provider.GetRequiredService<IServiceScopeFactory>(),
@@ -42,12 +42,61 @@ public sealed class IntegrationEventDlqRetryBackgroundWorkTests
             .ContainSingle(x => x.OutboxId == eligibleId);
     }
 
-    private static ServiceProvider BuildProvider(IIntegrationEventOutboxRepository repository)
+    [Fact]
+    public async Task RunSinglePassAsync_does_not_requeue_before_backoff_when_clock_is_injected()
+    {
+        DateTime deadLetteredUtc = new(2026, 8, 26, 5, 0, 0, DateTimeKind.Utc);
+        DateTime passUtc = deadLetteredUtc.AddSeconds(30);
+        InMemoryIntegrationEventOutboxRepository repository = new();
+
+        await DeadLetterAsync(repository, retryCount: 1, deadLetteredUtc: deadLetteredUtc);
+
+        ServiceProvider provider = BuildProvider(repository, new FakeTimeProvider(passUtc));
+
+        await IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            NullLogger.Instance,
+            CancellationToken.None);
+
+        (await repository.CountIntegrationOutboxDeadLetterAsync(CancellationToken.None)).Should().Be(1);
+        (await repository.DequeuePendingAsync(10, CancellationToken.None)).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RunSinglePassAsync_requeues_after_backoff_when_clock_is_injected()
+    {
+        DateTime deadLetteredUtc = new(2026, 8, 26, 5, 0, 0, DateTimeKind.Utc);
+        DateTime passUtc = deadLetteredUtc.AddMinutes(3);
+        InMemoryIntegrationEventOutboxRepository repository = new();
+        Guid outboxId = await DeadLetterAsync(repository, retryCount: 1, deadLetteredUtc: deadLetteredUtc);
+
+        ServiceProvider provider = BuildProvider(repository, new FakeTimeProvider(passUtc));
+
+        await IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            NullLogger.Instance,
+            CancellationToken.None);
+
+        (await repository.CountIntegrationOutboxDeadLetterAsync(CancellationToken.None)).Should().Be(0);
+        (await repository.DequeuePendingAsync(10, CancellationToken.None))
+            .Should()
+            .ContainSingle(x => x.OutboxId == outboxId);
+    }
+
+    private static ServiceProvider BuildProvider(
+        IIntegrationEventOutboxRepository repository,
+        TimeProvider? clock = null)
     {
         ServiceCollection services = new();
         services.AddSingleton(repository);
+        services.AddSingleton(clock ?? TimeProvider.System);
 
         return services.BuildServiceProvider();
+    }
+
+    private sealed class FakeTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 
     private static async Task<Guid> DeadLetterAsync(
