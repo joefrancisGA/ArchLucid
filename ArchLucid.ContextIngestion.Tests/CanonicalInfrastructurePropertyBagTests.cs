@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.ContextIngestion.Infrastructure;
 
 using FluentAssertions;
@@ -28,5 +30,29 @@ public sealed class CanonicalInfrastructurePropertyBagTests
             .Should().BeTrue();
 
         properties["tf.note"].Length.Should().Be(512);
+    }
+
+    [Fact]
+    public void CanonicalizeNumberText_normalizes_equivalent_whole_numbers()
+    {
+        using JsonDocument intDocument = JsonDocument.Parse("1");
+        using JsonDocument decimalDocument = JsonDocument.Parse("1.0");
+
+        string intText = CanonicalInfrastructurePropertyBag.CanonicalizeNumberText(intDocument.RootElement);
+        string decimalText = CanonicalInfrastructurePropertyBag.CanonicalizeNumberText(decimalDocument.RootElement);
+
+        intText.Should().Be("1");
+        decimalText.Should().Be("1");
+    }
+
+    [Fact]
+    public void TryAddTfProperty_lowercases_property_keys()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal);
+
+        CanonicalInfrastructurePropertyBag.TryAddTfProperty(properties, "allowBlobPublicAccess", "true")
+            .Should().BeTrue();
+
+        properties.ContainsKey("tf.allowblobpublicaccess").Should().BeTrue();
     }
 }

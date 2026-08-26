@@ -1,5 +1,8 @@
 namespace ArchLucid.ContextIngestion.Infrastructure;
 
+using System.Globalization;
+using System.Text.Json;
+
 /// <summary>
 ///     Shared <c>tf.*</c> property bag rules for infrastructure declaration parsers
 ///     (truncation, redaction, and per-resource caps).
@@ -42,6 +45,24 @@ public static class CanonicalInfrastructurePropertyBag
         return new string(buffer[..writeIndex]);
     }
 
+    public static string CanonicalizeNumberText(JsonElement value)
+    {
+        if (value.TryGetDecimal(out decimal decimalValue))
+        {
+            decimal truncated = decimal.Truncate(decimalValue);
+
+            if (decimalValue == truncated)
+                return truncated.ToString(CultureInfo.InvariantCulture);
+
+            return decimalValue.ToString(CultureInfo.InvariantCulture);
+        }
+
+        if (value.TryGetInt64(out long intValue))
+            return intValue.ToString(CultureInfo.InvariantCulture);
+
+        return value.GetRawText();
+    }
+
     public static bool ShouldRedactKey(string rawKey)
     {
         if (string.IsNullOrWhiteSpace(rawKey))
@@ -76,7 +97,7 @@ public static class CanonicalInfrastructurePropertyBag
         if (CountTfProperties(properties) >= MaxTfPropertyCount)
             return false;
 
-        string sanitizedKey = SanitizePropertyKey(rawKey);
+        string sanitizedKey = SanitizePropertyKey(rawKey).ToLowerInvariant();
 
         if (string.IsNullOrEmpty(sanitizedKey))
             return false;

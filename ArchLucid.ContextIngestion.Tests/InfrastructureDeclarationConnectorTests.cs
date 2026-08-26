@@ -1776,4 +1776,163 @@ public sealed class InfrastructureDeclarationConnectorTests
         delta.AddedCount.Should().Be(0);
         delta.RemovedCount.Should().Be(0);
     }
+
+    [Fact]
+    public async Task DeltaAsync_ArmJsonEquivalentNumericFormatChange_ReportsUnchanged()
+    {
+        ArmJsonInfrastructureDeclarationParser parser = new(
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<ArmJsonInfrastructureDeclarationParser>.Instance);
+
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([parser]),
+            new SetDiffConnectorDeltaComputer());
+
+        const string templateJson = """
+                                    {
+                                      "resources": [
+                                        {
+                                          "type": "Microsoft.Web/serverfarms",
+                                          "name": "main",
+                                          "properties": {
+                                            "capacity": 1
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    """;
+
+        RawContextPayload firstRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-arm-1",
+                    Name = "template.json",
+                    Format = "arm-json",
+                    Content = templateJson
+                }
+            ]
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString("D"),
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-arm-1",
+                    Name = "template.json",
+                    Format = "arm-json",
+                    Content = templateJson.Replace("\"capacity\": 1", "\"capacity\": 1.0")
+                }
+            ]
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task DeltaAsync_ArmJsonTfPropertyKeyCasingChange_ReportsUnchanged()
+    {
+        ArmJsonInfrastructureDeclarationParser parser = new(
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<ArmJsonInfrastructureDeclarationParser>.Instance);
+
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([parser]),
+            new SetDiffConnectorDeltaComputer());
+
+        const string templateJson = """
+                                    {
+                                      "resources": [
+                                        {
+                                          "type": "Microsoft.Storage/storageAccounts",
+                                          "name": "docs",
+                                          "properties": {
+                                            "allowBlobPublicAccess": true
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    """;
+
+        RawContextPayload firstRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-arm-2",
+                    Name = "template.json",
+                    Format = "arm-json",
+                    Content = templateJson
+                }
+            ]
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+        CanonicalObject persistedObject = firstBatch.CanonicalObjects.Single();
+        Dictionary<string, string> reloadedProperties = new(StringComparer.Ordinal);
+
+        foreach (KeyValuePair<string, string> property in persistedObject.Properties)
+            reloadedProperties[property.Key] = property.Value;
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString("D"),
+            CanonicalObjects =
+            [
+                new CanonicalObject
+                {
+                    ObjectId = persistedObject.ObjectId,
+                    ObjectType = persistedObject.ObjectType,
+                    Name = persistedObject.Name,
+                    SourceType = persistedObject.SourceType,
+                    SourceId = persistedObject.SourceId,
+                    Properties = reloadedProperties,
+                }
+            ],
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-arm-2",
+                    Name = "template.json",
+                    Format = "arm-json",
+                    Content = templateJson.Replace("\"allowBlobPublicAccess\"", "\"allowblobpublicaccess\"")
+                }
+            ]
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
 }

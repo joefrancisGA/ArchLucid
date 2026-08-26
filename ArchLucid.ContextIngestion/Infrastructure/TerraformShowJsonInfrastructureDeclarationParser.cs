@@ -137,7 +137,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                     >= CanonicalInfrastructurePropertyBag.MaxTfPropertyCount)
                     break;
 
-                string key = CanonicalInfrastructurePropertyBag.SanitizePropertyKey(prop.Name);
+                string key = CanonicalInfrastructurePropertyBag.SanitizePropertyKey(prop.Name).ToLowerInvariant();
 
                 if (string.IsNullOrEmpty(key))
                     continue;
@@ -265,22 +265,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
     }
 
     private static string CanonicalizeTerraformNumberText(JsonElement value)
-    {
-        if (value.TryGetDecimal(out decimal decimalValue))
-        {
-            decimal truncated = decimal.Truncate(decimalValue);
-
-            if (decimalValue == truncated)
-                return truncated.ToString(CultureInfo.InvariantCulture);
-
-            return decimalValue.ToString(CultureInfo.InvariantCulture);
-        }
-
-        if (value.TryGetInt64(out long intValue))
-            return intValue.ToString(CultureInfo.InvariantCulture);
-
-        return value.GetRawText();
-    }
+        => CanonicalInfrastructurePropertyBag.CanonicalizeNumberText(value);
 
     private static void RedactTopLevelSensitiveTfValues(
         JsonElement sensitiveRoot,

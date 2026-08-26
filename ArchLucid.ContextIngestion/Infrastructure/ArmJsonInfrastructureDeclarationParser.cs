@@ -129,7 +129,7 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
                 JsonValueKind.String => property.Value.GetString() ?? string.Empty,
                 JsonValueKind.True => "true",
                 JsonValueKind.False => "false",
-                JsonValueKind.Number => property.Value.GetRawText(),
+                JsonValueKind.Number => CanonicalInfrastructurePropertyBag.CanonicalizeNumberText(property.Value),
                 _ => string.Empty,
             };
 
