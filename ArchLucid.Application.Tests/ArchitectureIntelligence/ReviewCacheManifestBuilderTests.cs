@@ -148,6 +148,24 @@ public sealed class ReviewCacheManifestBuilderTests
             .Be(ReviewCacheManifestBuilder.Build(request, null, []).ContentHash);
     }
 
+    [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_changes_hash_when_source_text_changes()
+    {
+        ClosedLoopReasoningRequest baseline = CreateRequest("Public API without auth.");
+        ClosedLoopReasoningRequest changed = CreateRequest("Public API without auth. Added billing worker.");
+
+        ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                baseline,
+                "tenant-cache",
+                "run-continue")
+            .ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                changed,
+                "tenant-cache",
+                "run-continue").ContentHash);
+    }
+
     private static ClosedLoopReasoningRequest CreateRequest(string content)
     {
         return new ClosedLoopReasoningRequest
