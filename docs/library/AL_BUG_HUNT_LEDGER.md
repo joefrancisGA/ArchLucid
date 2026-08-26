@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 24
-- **bugs-found:** 58
+- **hunts:** 25
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — tenant baseline partial manual-prep validation
+- **last-bug:** 2026-08-26 — decision register category filter before TOP limit
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2288,10 +2288,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` / `CreateRiskException` — foreign-workspace `findingId` or body `runId` returned HTTP 400 `ValidationFailed` instead of 404 — **hit 2026-08-26:** scope misses throw `InvalidOperationException` / `RunNotFoundException`; controller maps to 404; regression in `GovernanceStickinessControllerTests` and `GovernanceStickinessFacadeScopeTests`.
 - [x] (invalid) `GovernanceStickinessController.ListDispositions` — out-of-scope `findingId` returns HTTP 200 `[]` instead of 404 — **cheap-disproof 2026-08-26:** intentional hide pattern aligned with `ListRiskExceptions` / register empty responses for scope-filtered reads; `ListDispositionsAsync_returns_empty_when_finding_is_out_of_scope` documents behavior.
 - [x] (proven) `TenantBaselineController.PutAsync` — `peoplePerReview` only with no captured `manualPrepHoursPerReview` persisted incomplete baseline (`people` set, `prep` null) — **hit 2026-08-26:** reject manual-field updates when merged prep is null; regression in `TenantBaselineControllerTests.PutAsync_returns_bad_request_when_people_per_review_set_without_manual_prep_hours`.
-- [ ] (hunt-ready) `ArchitectureDecisionRegisterReader.ListAsync` / `GovernanceStickinessController.GetDecisionRegister` — `TOP (@MaxRows)` before in-memory category/date/confidence filters can return empty register when matching decisions are older than the newest capped slice — mechanism in `ArchitectureDecisionRegisterReader.ApplyFilters` after SQL `TOP`.
+- [x] (proven) `ArchitectureDecisionRegisterReader.ListAsync` / `GovernanceStickinessController.GetDecisionRegister` — `TOP (@MaxRows)` before in-memory category/date/confidence filters returned empty register when matching decisions were older than the newest capped slice — **hit 2026-08-26:** push filters into SQL `WHERE` before `TOP`; regression in `ArchitectureDecisionRegisterReaderSqlIntegrationTests.ListAsync_applies_category_filter_before_top_limit`.
 - [ ] (candidate) `TenantExecDigestPreferencesController.PostExecDigestPreferences` + `ExecDigestWeeklyDeliveryScanner` — tenant-wide prefs but delivery composes digest for `GetFirstWorkspaceAsync` (oldest workspace), not caller workspace.
 - [ ] (candidate) `TenantExecDigestPreferencesController.PostExecDigestPreferences` — invalid `ianaTimeZoneId` persists and scanner silently falls back to UTC.
 - [ ] (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — missing tenant returns HTTP 200 `{ inMigration: false }` instead of 404 (no tenant preflight).
+
+2026-08-26 thorough hunt #100: proved decision register filter-before-TOP SQL ordering.
 
 2026-08-26 seed hunt #99: proved tenant baseline partial manual-prep validation; seeded decision-register filter order, exec digest, and catalog migration candidates.
 
