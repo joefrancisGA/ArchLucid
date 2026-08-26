@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
   applyIncomingStructuredBriefSuggestions,
+  confirmFailureModeSuggestion,
+  denyFailureModeSuggestion,
   denyStructuredBriefSuggestion,
   emptyArchitectureDraftStructuredBrief,
   expandStructuredBriefSuggestionItems,
@@ -160,5 +162,32 @@ describe("mergeExclusiveConfirmedItem", () => {
       statedFact,
       "Private networking",
     ]);
+  });
+});
+
+describe("failure mode suggestion confirm/deny", () => {
+  it("moves a suggested failure mode note into the confirmed field on confirm", () => {
+    const current = {
+      ...emptyArchitectureDraftStructuredBrief(),
+      suggestedFailureModeNote: "Regional outage; fail over to secondary region",
+    };
+
+    const confirmed = confirmFailureModeSuggestion(current);
+
+    expect(confirmed.failureModeNote).toBe("Regional outage; fail over to secondary region");
+    expect(confirmed.suggestedFailureModeNote).toBe("");
+  });
+
+  it("persists a denied failure mode note and clears the suggestion", () => {
+    const current = {
+      ...emptyArchitectureDraftStructuredBrief(),
+      suggestedFailureModeNote: "Queue backlog delays intake",
+    };
+
+    const denied = denyFailureModeSuggestion(current);
+
+    expect(denied.suggestedFailureModeNote).toBe("");
+    expect(denied.deniedFailureModeNote).toBe("Queue backlog delays intake");
+    expect(denied.failureModeNote).toBe("");
   });
 });

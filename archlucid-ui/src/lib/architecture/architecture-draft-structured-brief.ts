@@ -15,6 +15,8 @@ export type ArchitectureDraftStructuredBriefState = {
   readonly deniedRequiredCapabilities: readonly string[];
   readonly qualityAttribute: string;
   readonly failureModeNote: string;
+  readonly suggestedFailureModeNote: string;
+  readonly deniedFailureModeNote: string;
   readonly operationalOwner: string;
 };
 
@@ -49,6 +51,8 @@ export function emptyArchitectureDraftStructuredBrief(): ArchitectureDraftStruct
     deniedRequiredCapabilities: [],
     qualityAttribute: "",
     failureModeNote: "",
+    suggestedFailureModeNote: "",
+    deniedFailureModeNote: "",
     operationalOwner: "",
   };
 }
@@ -235,7 +239,10 @@ export function countStructuredBriefSuggestionApplyDelta(
   const qualityDelta = countNewBriefSuggestionListItems(qualityBefore, qualityAfter, []);
 
   const failureModeDelta =
-    before.failureModeNote.trim().length === 0 && after.failureModeNote.trim().length > 0 ? 1 : 0;
+    before.suggestedFailureModeNote.trim().length === 0
+    && after.suggestedFailureModeNote.trim().length > 0
+      ? 1
+      : 0;
 
   return confirmableDelta + qualityDelta + failureModeDelta;
 }
@@ -344,6 +351,8 @@ export function structuredBriefFromDocument(
     deniedRequiredCapabilities: [...(brief.deniedRequiredCapabilities ?? [])],
     qualityAttribute: brief.qualityAttribute ?? "",
     failureModeNote: brief.failureModeNote ?? "",
+    suggestedFailureModeNote: brief.suggestedFailureModeNote ?? "",
+    deniedFailureModeNote: brief.deniedFailureModeNote ?? "",
     operationalOwner: brief.operationalOwner ?? "",
   };
 }
@@ -363,7 +372,43 @@ export function structuredBriefToPatchPayload(
     deniedRequiredCapabilities: [...brief.deniedRequiredCapabilities],
     qualityAttribute: brief.qualityAttribute.trim(),
     failureModeNote: brief.failureModeNote.trim(),
+    suggestedFailureModeNote: brief.suggestedFailureModeNote.trim(),
+    deniedFailureModeNote: brief.deniedFailureModeNote.trim(),
     operationalOwner: brief.operationalOwner.trim(),
+  };
+}
+
+/** Moves a pending failure-mode suggestion into the confirmed note. */
+export function confirmFailureModeSuggestion(
+  current: ArchitectureDraftStructuredBriefState,
+): ArchitectureDraftStructuredBriefState {
+  const suggested = current.suggestedFailureModeNote.trim();
+
+  if (suggested.length === 0) {
+    return current;
+  }
+
+  return {
+    ...current,
+    failureModeNote: suggested,
+    suggestedFailureModeNote: "",
+  };
+}
+
+/** Persists a denied failure-mode suggestion so later suggest passes skip it. */
+export function denyFailureModeSuggestion(
+  current: ArchitectureDraftStructuredBriefState,
+): ArchitectureDraftStructuredBriefState {
+  const suggested = current.suggestedFailureModeNote.trim();
+
+  if (suggested.length === 0) {
+    return current;
+  }
+
+  return {
+    ...current,
+    suggestedFailureModeNote: "",
+    deniedFailureModeNote: suggested,
   };
 }
 

@@ -409,6 +409,79 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
       "Added 7 suggestions below",
     );
     expect(screen.queryByTestId("architecture-draft-suggest-structured-brief-empty")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-failure-mode-suggestion")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-failure-mode-input")).toHaveValue("");
+  });
+
+  it("requires confirm before applying a failure mode suggestion", async () => {
+    mockDraftSuggestResponse({
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness
+        freeTextIntent={`# Architecture Review Packet\n\n- RPO is 15 minutes; RTO is 4 hours.\n- Manual migration rollback via backup restore for pilot.`}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    const suggestion = await screen.findByTestId("architecture-draft-failure-mode-suggestion");
+    expect(within(suggestion).getByText(/Extended outage or data loss beyond RPO/i)).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-failure-mode-input")).toHaveValue("");
+
+    fireEvent.click(within(suggestion).getByRole("button", { name: "Confirm" }));
+
+    expect(screen.queryByTestId("architecture-draft-failure-mode-suggestion")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-failure-mode-input")).toHaveValue(
+      "Extended outage or data loss beyond RPO (15 minutes); recover service within RTO (4 hours); Migration failure: manual rollback via backup restore for pilot",
+    );
+  });
+
+  it("does not re-suggest a denied failure mode note", async () => {
+    mockDraftSuggestResponse({
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    function StatefulHarness(): React.JSX.Element {
+      const [structuredBrief, setStructuredBrief] = useState(emptyArchitectureDraftStructuredBrief());
+
+      return (
+        <ArchitectureDraftStructuredBriefFields
+          structuredBrief={structuredBrief}
+          freeTextIntent={`# Architecture Review Packet\n\n- RPO is 15 minutes; RTO is 4 hours.`}
+          onStructuredBriefChange={setStructuredBrief}
+        />
+      );
+    }
+
+    render(<StatefulHarness />);
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+    const suggestion = await screen.findByTestId("architecture-draft-failure-mode-suggestion");
+    fireEvent.click(within(suggestion).getByRole("button", { name: "Deny" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-suggest-structured-brief")).not.toBeDisabled();
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+    });
+
+    await waitFor(() => {
+      expect(mockedDraftArchitectureRequestWithPoll).toHaveBeenCalledTimes(2);
+    });
+
+    expect(screen.queryByTestId("architecture-draft-failure-mode-suggestion")).not.toBeInTheDocument();
   });
 
   it("shows an empty-state message when the API returns no new suggestions", async () => {
@@ -497,7 +570,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
       <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
     );
 
-    expect(screen.getByTestId("architecture-draft-failure-mode").tagName).toBe("INPUT");
+    expect(screen.getByTestId("architecture-draft-failure-mode-input").tagName).toBe("INPUT");
     expect(screen.getByTestId("architecture-draft-operational-owner").tagName).toBe("INPUT");
   });
 

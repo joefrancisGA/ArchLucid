@@ -131,6 +131,20 @@ public sealed class ArchitectureDraftStructuredBrief
         set;
     }
 
+    [JsonPropertyName("suggestedFailureModeNote")]
+    public string? SuggestedFailureModeNote
+    {
+        get;
+        set;
+    }
+
+    [JsonPropertyName("deniedFailureModeNote")]
+    public string? DeniedFailureModeNote
+    {
+        get;
+        set;
+    }
+
     [JsonPropertyName("operationalOwner")]
     public string? OperationalOwner
     {

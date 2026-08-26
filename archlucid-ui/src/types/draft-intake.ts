@@ -55,6 +55,8 @@ export type DraftRequestDocument = {
     deniedRequiredCapabilities?: string[];
     qualityAttribute?: string;
     failureModeNote?: string;
+    suggestedFailureModeNote?: string;
+    deniedFailureModeNote?: string;
     operationalOwner?: string;
   };
 };

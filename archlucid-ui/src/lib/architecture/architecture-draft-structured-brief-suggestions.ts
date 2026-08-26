@@ -170,21 +170,35 @@ export type ApplyFailureModeSuggestionResult = {
   readonly applied: boolean;
 };
 
-/** Fills failureModeNote when empty and a non-empty suggestion is available. */
+/** Stages a failure-mode suggestion for operator confirm/deny instead of auto-filling the field. */
 export function applyFailureModeSuggestionIfEmpty(
   current: ArchitectureDraftStructuredBriefState,
   suggestion: string | null | undefined,
 ): ApplyFailureModeSuggestionResult {
   const trimmedSuggestion = suggestion?.trim() ?? "";
 
-  if (trimmedSuggestion.length === 0 || current.failureModeNote.trim().length > 0) {
+  if (trimmedSuggestion.length === 0) {
+    return { brief: current, applied: false };
+  }
+
+  if (current.failureModeNote.trim().length > 0) {
+    return { brief: current, applied: false };
+  }
+
+  if (current.suggestedFailureModeNote.trim().length > 0) {
+    return { brief: current, applied: false };
+  }
+
+  const deniedKey = current.deniedFailureModeNote.trim().toLowerCase();
+
+  if (deniedKey.length > 0 && deniedKey === trimmedSuggestion.toLowerCase()) {
     return { brief: current, applied: false };
   }
 
   return {
     brief: {
       ...current,
-      failureModeNote: trimmedSuggestion,
+      suggestedFailureModeNote: trimmedSuggestion,
     },
     applied: true,
   };
