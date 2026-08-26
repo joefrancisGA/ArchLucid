@@ -51,11 +51,16 @@ import { AuditPageBreadcrumb } from "./AuditPageBreadcrumb";
 import { AuditPageBuyerChrome } from "./AuditPageBuyerChrome";
 import { AuditPageHeader } from "./AuditPageHeader";
 import { AuditResultsSection } from "./AuditResultsSection";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AuditPickReviewBeforeSearchStrip } from "./AuditPickReviewBeforeSearchStrip";
 import { AuditNextReviewFooterClient } from "./AuditNextReviewFooterClient";
 import { AuditSaveViewCoach } from "./AuditSaveViewCoach";
 import { AuditSearchSection } from "./AuditSearchSection";
 import type { AuditPageViewProps } from "./audit-page-view-props";
+import {
+  resolveAuditSearchEmphasizedStepId,
+  resolveAuditSearchSteps,
+} from "@/lib/audit-search-checklist";
 
 /** Presentational layout for the operator audit log page. */
 export function AuditPageView(props: AuditPageViewProps) {
@@ -71,6 +76,22 @@ export function AuditPageView(props: AuditPageViewProps) {
     props.displayEvents.length <= 10;
 
   const buyerCompactFilters = buyerPolishedShell && props.displayEvents.length === 0 && !props.searching;
+  const auditFiltersBeyondRunId =
+    props.eventType.trim().length > 0 ||
+    props.actorUserId.trim().length > 0 ||
+    props.correlationId.trim().length > 0 ||
+    props.fromUtc.trim().length > 0 ||
+    props.toUtc.trim().length > 0;
+  const auditSearchSteps = resolveAuditSearchSteps({
+    reviewPicked: props.runId.trim().length > 0,
+    filtersConfigured: auditFiltersBeyondRunId,
+    searchComplete: props.lastRefreshedAt !== null && !props.searching,
+  });
+  const auditSearchEmphasizedStepId = resolveAuditSearchEmphasizedStepId({
+    reviewPicked: props.runId.trim().length > 0,
+    filtersConfigured: auditFiltersBeyondRunId,
+    searchComplete: props.lastRefreshedAt !== null && !props.searching,
+  });
 
   return (
     <OperatorPageContainer
@@ -239,7 +260,14 @@ export function AuditPageView(props: AuditPageViewProps) {
                 props.setRunId(reviewId);
               }}
             />
-          ) : null}
+          ) : (
+            <IntegrationConnectChecklist
+              title="Search checklist"
+              steps={auditSearchSteps}
+              emphasizedStepId={auditSearchEmphasizedStepId}
+              testIdPrefix="audit-search"
+            />
+          )}
           <AuditSearchSection
             buyerPolishedShell={buyerPolishedShell}
             buyerOmitSearchFiltersChrome={buyerOmitSearchFiltersChrome}
