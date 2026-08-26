@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 54
-- **bugs-found:** 105
+- **hunts:** 55
+- **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
+- **last-bug:** 2026-08-26 — simple-terraform nested block bodies leaked inner scalars as top-level tf properties
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1957,6 +1957,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `KubernetesYamlInfrastructureDeclarationParser` YAML `kind: List` path — mapper already expands List items after YamlDotNet round-trip; added YAML-path regression `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_KindList_MapsMultipleItems`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+
+- [x] (proven) `SimpleTerraformResourceBlockParser.UnquoteScalar` only stripped double-quoted HCL scalars — **hit 2026-08-26:** `location = 'eastus'` kept quotes in `tf.location`; fixed by accepting single-quoted scalars and resource headers (`SimpleTerraformDeclarationParserTests.ParseAsync_SingleQuotedScalar_StripsQuotes`).
+- [x] (proven) `SimpleTerraformResourceBlockParser` treated inline `#` comments as part of scalar values — **hit 2026-08-26:** `location = "eastus" # primary region` false-modified infra declaration deltas; fixed with `CanonicalInfrastructurePropertyBag.StripTrailingHclComment` (`SimpleTerraformDeclarationParserTests.ParseAsync_InlineHashComment_DoesNotChangeTfLocation`).
+- [x] (proven) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` did not advance past nested block bodies — **hit 2026-08-26:** inner `ip_address` scalars leaked as top-level `tf.*` keys; fixed by returning `endLineIndex` from `ExtractNestedBlockBody` (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlockBody_DoesNotLeakInnerScalarsAsTopLevelTfProperties`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` stored nested sensitive block bodies verbatim — **hit 2026-08-26:** `connection_string { value = "..." }` leaked secrets into `tf.connection_string`; fixed with `BlockBodyContainsSensitiveKey` redaction (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedSensitiveBlock_RedactsConnectionString`).
+- [x] (proven) `JsonInfrastructureDeclarationParser` only accepted `{ "resources": [...] }` documents — **hit 2026-08-26:** top-level resource arrays returned zero objects; fixed with `JsonDocument` root-array handling (`JsonInfrastructureDeclarationParserTests.ParseAsync_TopLevelResourceArray_MapsResources`).
+
+2026-08-26 seed hunt #77: proved HCL quote/comment parsing, nested block line advance, sensitive block redaction, and JSON top-level array support.
 
 2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
 

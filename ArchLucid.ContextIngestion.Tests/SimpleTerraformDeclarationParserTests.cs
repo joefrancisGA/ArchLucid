@@ -208,4 +208,92 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().HaveCount(2);
         result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
     }
+
+    [Fact]
+    public async Task ParseAsync_SingleQuotedScalar_StripsQuotes()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_resource_group" "core" {
+                        location = 'eastus'
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.location"].Should().Be("eastus");
+    }
+
+    [Fact]
+    public async Task ParseAsync_InlineHashComment_DoesNotChangeTfLocation()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_resource_group" "rg" {
+                        location = "eastus" # primary region
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.location"].Should().Be("eastus");
+    }
+
+    [Fact]
+    public async Task ParseAsync_NestedBlockBody_DoesNotLeakInnerScalarsAsTopLevelTfProperties()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          ip_restriction {
+                            ip_address = "0.0.0.0/0"
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties.Should().ContainKey("tf.site_config");
+        result[0].Properties.Should().NotContainKey("tf.ip_restriction");
+        result[0].Properties.Should().NotContainKey("tf.ip_address");
+    }
+
+    [Fact]
+    public async Task ParseAsync_NestedSensitiveBlock_RedactsConnectionString()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        connection_string {
+                          value = "AccountName=foo;AccountKey=secret"
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.connection_string"].Should().Be("[REDACTED]");
+    }
 }

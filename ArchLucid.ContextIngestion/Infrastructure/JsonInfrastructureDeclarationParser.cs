@@ -9,8 +9,6 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDeclarationParser> logger)
     : IInfrastructureDeclarationParser
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
-
     public bool CanParse(string format)
     {
         return string.Equals(format?.Trim(), "json", StringComparison.OrdinalIgnoreCase);
@@ -21,10 +19,30 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
         CancellationToken ct)
     {
         _ = ct;
-        ResourceDeclarationDocument? doc;
+
+        if (string.IsNullOrWhiteSpace(declaration.Content))
+            return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
+
         try
         {
-            doc = JsonSerializer.Deserialize<ResourceDeclarationDocument>(declaration.Content, JsonOptions);
+            using JsonDocument document = JsonDocument.Parse(declaration.Content);
+            JsonElement root = document.RootElement;
+
+            List<CanonicalObject> results = [];
+
+            if (root.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement resource in root.EnumerateArray())
+                    TryAddResource(resource, declaration, results);
+            }
+            else if (TryGetPropertyIgnoreCase(root, "resources", out JsonElement resources)
+                     && resources.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement resource in resources.EnumerateArray())
+                    TryAddResource(resource, declaration, results);
+            }
+
+            return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
         }
         catch (JsonException ex)
         {
@@ -32,61 +50,128 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
                 "Failed to parse infrastructure declaration '{Name}' (DeclarationId={DeclarationId}) as JSON; skipping.",
                 declaration.Name,
                 declaration.DeclarationId);
+
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
         }
+    }
 
-        if (doc?.Resources is null || doc.Resources.Count == 0)
-            return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
+    private static void TryAddResource(
+        JsonElement resource,
+        InfrastructureDeclarationReference declaration,
+        List<CanonicalObject> results)
+    {
+        if (!TryGetPropertyIgnoreCase(resource, "type", out JsonElement typeElement)
+            || typeElement.ValueKind is not JsonValueKind.String)
+            return;
 
-        List<CanonicalObject> results = [];
+        if (!TryGetPropertyIgnoreCase(resource, "name", out JsonElement nameElement))
+            return;
 
-        foreach (ResourceDeclarationItem resource in doc.Resources)
+        string type = (typeElement.GetString() ?? string.Empty).Trim();
+        string name = ReadName(nameElement);
+
+        if (string.IsNullOrWhiteSpace(type) || string.IsNullOrWhiteSpace(name))
+            return;
+
+        string objectType = ResolveObjectType(type);
+
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+
+        if (TryGetPropertyIgnoreCase(resource, "properties", out JsonElement resourceProperties)
+            && resourceProperties.ValueKind is JsonValueKind.Object)
+            CopyCustomProperties(resourceProperties, properties);
+
+        if (TryGetPropertyIgnoreCase(resource, "subtype", out JsonElement subtypeElement)
+            && subtypeElement.ValueKind is JsonValueKind.String)
         {
-            if (string.IsNullOrWhiteSpace(resource.Type) || string.IsNullOrWhiteSpace(resource.Name))
-                continue;
+            string? subtype = subtypeElement.GetString();
 
-            string objectType = ResolveObjectType(resource.Type);
+            if (!string.IsNullOrWhiteSpace(subtype))
+                properties["subtype"] = subtype.Trim().ToLowerInvariant();
+        }
 
-            Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+        if (TryGetPropertyIgnoreCase(resource, "region", out JsonElement regionElement)
+            && regionElement.ValueKind is JsonValueKind.String)
+        {
+            string? region = regionElement.GetString();
 
-            foreach (KeyValuePair<string, string> property in resource.Properties)
+            if (!string.IsNullOrWhiteSpace(region))
+                properties["region"] = region.Trim().ToLowerInvariant();
+        }
+
+        properties["resourceType"] = type.Trim().ToLowerInvariant();
+
+        string canonicalName = name.ToLowerInvariant();
+        string canonicalResourceType = type.Trim().ToLowerInvariant();
+
+        results.Add(new CanonicalObject
+        {
+            ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
+                declaration.DeclarationId,
+                objectType,
+                InfrastructureDeclarationResourceIdentity.ForJsonResource(
+                    canonicalResourceType,
+                    canonicalName,
+                    properties)),
+            ObjectType = objectType,
+            Name = canonicalName,
+            SourceType = "InfrastructureDeclaration",
+            SourceId = declaration.DeclarationId,
+            Properties = properties
+        });
+    }
+
+    private static string ReadName(JsonElement nameElement)
+    {
+        if (nameElement.ValueKind is JsonValueKind.String)
+            return (nameElement.GetString() ?? string.Empty).Trim();
+
+        if (nameElement.ValueKind is JsonValueKind.Array)
+        {
+            List<string> segments = [];
+
+            foreach (JsonElement segment in nameElement.EnumerateArray())
             {
-                if (string.IsNullOrWhiteSpace(property.Value))
+                if (segment.ValueKind is not JsonValueKind.String)
                     continue;
 
-                string canonicalKey = property.Key.Trim().ToLowerInvariant();
-                properties[canonicalKey] = property.Value.Trim().ToLowerInvariant();
+                string trimmed = (segment.GetString() ?? string.Empty).Trim();
+
+                if (!string.IsNullOrWhiteSpace(trimmed))
+                    segments.Add(trimmed);
             }
 
-            if (!string.IsNullOrWhiteSpace(resource.Subtype))
-                properties["subtype"] = resource.Subtype!.Trim().ToLowerInvariant();
-
-            if (!string.IsNullOrWhiteSpace(resource.Region))
-                properties["region"] = resource.Region!.Trim().ToLowerInvariant();
-
-            properties["resourceType"] = resource.Type.Trim().ToLowerInvariant();
-
-            string canonicalName = resource.Name.Trim().ToLowerInvariant();
-            string canonicalResourceType = resource.Type.Trim().ToLowerInvariant();
-
-            results.Add(new CanonicalObject
-            {
-                ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
-                    declaration.DeclarationId,
-                    objectType,
-                    InfrastructureDeclarationResourceIdentity.ForJsonResource(
-                        canonicalResourceType,
-                        canonicalName,
-                        properties)),
-                ObjectType = objectType,
-                Name = canonicalName,
-                SourceType = "InfrastructureDeclaration",
-                SourceId = declaration.DeclarationId,
-                Properties = properties
-            });
+            if (segments.Count > 0)
+                return string.Join('/', segments);
         }
 
-        return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+        return nameElement.GetRawText().Trim();
+    }
+
+    private static void CopyCustomProperties(JsonElement propertiesObject, Dictionary<string, string> properties)
+    {
+        foreach (JsonProperty property in propertiesObject.EnumerateObject())
+        {
+            string canonicalKey = property.Name.Trim().ToLowerInvariant();
+            string? valueText = ReadScalarPropertyText(property.Value);
+
+            if (string.IsNullOrWhiteSpace(valueText))
+                continue;
+
+            properties[canonicalKey] = valueText.Trim().ToLowerInvariant();
+        }
+    }
+
+    private static string? ReadScalarPropertyText(JsonElement value)
+    {
+        return value.ValueKind switch
+        {
+            JsonValueKind.String => value.GetString(),
+            JsonValueKind.Number => CanonicalInfrastructurePropertyBag.CanonicalizeNumberText(value),
+            JsonValueKind.True => "true",
+            JsonValueKind.False => "false",
+            _ => null,
+        };
     }
 
     private static string ResolveObjectType(string type)
@@ -108,5 +193,25 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
             "policy" => "PolicyControl",
             _ => "TopologyResource"
         };
+    }
+
+    private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
+    {
+        if (element.TryGetProperty(propertyName, out value))
+            return true;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
