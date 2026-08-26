@@ -3,6 +3,11 @@
 import { cn } from "@/lib/utils";
 import { AlertSimulationPickReviewBeforeSimulatingStrip } from "@/components/alerts/AlertSimulationPickReviewBeforeSimulatingStrip";
 import { AlertSimulationNextReviewFooterClient } from "@/components/alerts/AlertSimulationNextReviewFooterClient";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import {
+  resolveAlertSimulationRunEmphasizedStepId,
+  resolveAlertSimulationRunSteps,
+} from "@/lib/alert-simulation-run-checklist";
 import { AlertSimulationCompareTab } from "@/components/alerts/AlertSimulationCompareTab";
 import { AlertSimulationCompositeTab } from "@/components/alerts/AlertSimulationCompositeTab";
 import { AlertSimulationSimpleTab } from "@/components/alerts/AlertSimulationSimpleTab";
@@ -110,6 +115,18 @@ export function AlertSimulationContent() {
     thresholdValid,
     reviewScopeValid,
   );
+  const dryRunComplete =
+    simpleResult !== null || compositeResult !== null || compareResult !== null;
+  const alertSimulationRunChecklistSteps = resolveAlertSimulationRunSteps({
+    reviewPicked: sRunId.trim().length > 0,
+    inputsConfigured: sRunId.trim().length > 0 && simpleFormValid,
+    dryRunComplete,
+  });
+  const alertSimulationRunChecklistEmphasizedStepId = resolveAlertSimulationRunEmphasizedStepId({
+    reviewPicked: sRunId.trim().length > 0,
+    inputsConfigured: sRunId.trim().length > 0 && simpleFormValid,
+    dryRunComplete,
+  });
 
   return (
     <div className={operatorPageContainerClass("workflow")}>
@@ -119,9 +136,18 @@ export function AlertSimulationContent() {
 
       {sRunId.trim().length === 0 ? (
         <AlertSimulationPickReviewBeforeSimulatingStrip selectedReviewId={sRunId} onSelectReview={setSRunId} />
-      ) : null}
+      ) : (
+        <IntegrationConnectChecklist
+          title="Dry-run checklist"
+          steps={alertSimulationRunChecklistSteps}
+          emphasizedStepId={alertSimulationRunChecklistEmphasizedStepId}
+          testIdPrefix="alert-simulation-run"
+        />
+      )}
 
-      <OperatorSegmentedModeToolbar
+      {sRunId.trim().length > 0 ? (
+        <>
+        <OperatorSegmentedModeToolbar
         tabs={ALERT_SIMULATION_MODE_TABS.map((mode) => ({
           id: mode.id,
           label: mode.label,
@@ -239,6 +265,8 @@ export function AlertSimulationContent() {
           setCmpSlug={setCmpSlug}
           runCompare={runCompare}
         />
+      ) : null}
+        </>
       ) : null}
       {sRunId.trim().length > 0 ? <AlertSimulationNextReviewFooterClient runId={sRunId.trim()} /> : null}
     </div>
