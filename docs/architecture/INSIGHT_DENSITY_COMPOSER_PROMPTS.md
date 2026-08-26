@@ -1,9 +1,24 @@
 > **Scope:** Copy-paste Composer prompts that raise **Decision-Changing Insight Density** (assessment pillar 1, weight 13). Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Pillar definition:** [`../assessments/ASSESSMENT_PROMPT_SERIES.md`](../assessments/ASSESSMENT_PROMPT_SERIES.md) (Category interpretation) · **V1 boundary:** [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §3
+> **Next batch:** [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) (ID-08–11 — ready to run on feature branches)
 
 # Insight density — Composer prompt set
 
-**Created:** 2026-08-26 · **Status:** ready to run (ID-01 through ID-07)
+**Created:** 2026-08-26 · **Status:** ID-01 through ID-07 **SHIPPED on `master`.** Do **not** re-run the prompts below. Follow-on work is [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md).
+
+## Findings this set closed (do not re-implement)
+
+| ID | Finding (pre-ship) | Landed as |
+|----|--------------------|-----------|
+| **ID-01** | Pillar was a desk-review judgment with no instrument | `InsightDensityFrontierDeltaCalculator` + `scripts/ci/insight_density_frontier_delta.py` |
+| **ID-02** | Typed-engine density scores computed then discarded | `InsightDensityEngineDistributionCalculator` + `docs/quality/insight-density-engine-distribution.md` (advisory only) |
+| **ID-03** | Generic-advice patterns Azure-skewed | Multi-cloud fragments in `GenericArchitectureAdvicePatterns` |
+| **ID-04** | Judge no-op on engine findings; unbounded calls | `ApplyToFindingsAsync` + per-snapshot cap + tenant admin controls |
+| **ID-05** | Governance trail never became findings | `OpenCommitmentFindingEngine` |
+| **ID-06** | No portfolio-level recurrence | `PortfolioRecurrenceFindingEngine` (default off) |
+| **ID-07** | Declaration unsafe-value findings without premise conflict | `DeclarationPremiseConflictFindingEngine` |
+
+Remaining density work (Bicep/K8s properties, policy-filter golden case, declaration policy vocabulary, advisory labeling) lives in the ID-08 file. Do **not** add another engine that only re-reads `GraphSnapshot`.
 
 ## The problem these prompts solve
 
@@ -50,7 +65,7 @@ A filter raises **precision**, never **density**. If the generator emits 18 gene
 | **ID-06** | Portfolio recurrence finding engine | No | ID-05 merged (shares effectful scope plumbing) |
 | **ID-07** | Declaration premise-conflict engine | Yes with ID-01/02/03 | none |
 
-**Run one prompt per chat.** Name a git branch in any commit or push request (repo rule: `Git-Commit-Requires-Branch`).
+**Do not run these prompts again.** They have landed. Next runnable set: [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) (Bicep/K8s property extraction, policy-filter golden case, declaration policy vocabulary, advisory labeling). Name a git branch in any commit or push request (repo rule: `Git-Commit-Requires-Branch`); land follow-on work on feature branches, not `master`, while trunk hygiene proceeds.
 
 ---
 
@@ -614,7 +629,7 @@ Done when: a graph with a private-only SecurityBaseline and a declaration enabli
 
 ## After running these
 
-Re-run **ID-01**'s harness. If novelty percentage did not move after ID-05, ID-06, and ID-07, the new engines are producing findings a baseline model already produces — which is the signal to stop adding engines and revisit the generation strategy rather than shipping more of them.
+ID-01–07 have shipped. Re-run **ID-01**'s harness only as a regression check on a feature branch after ID-08/ID-10 — not as a reason to add another `GraphSnapshot`-only engine. Follow-on prompts: [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md).
 
 ## Related
 
