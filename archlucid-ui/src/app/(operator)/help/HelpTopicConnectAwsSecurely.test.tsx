@@ -29,6 +29,7 @@ import {
   CONNECT_AWS_SECURELY_VERIFICATION_HEADING,
   buildConnectAwsSecurelyVerifyHref,
 } from "@/lib/connect-aws-securely-help-content";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpConnectAwsSecurelyGuideView", () => {
@@ -97,7 +98,7 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     const sources = within(screen.getByTestId("connect-aws-securely-help-sources"));
 
     for (const source of CONNECT_AWS_SECURELY_SOURCES) {
-      expect(sources.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      expectFollowUpLink(sources, source);
     }
   });
 

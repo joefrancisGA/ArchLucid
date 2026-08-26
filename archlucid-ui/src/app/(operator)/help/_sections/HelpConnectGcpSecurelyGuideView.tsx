@@ -5,6 +5,7 @@ import { AlertTriangle } from "lucide-react";
 import { GcpWifStarterPanel } from "@/app/(operator)/integrations/cloud-connections/_sections/GcpWifStarterPanel";
 import { HelpConnectGcpSecurelyHeaderActions } from "@/app/(operator)/help/_sections/HelpConnectGcpSecurelyHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { ConnectGcpSecurelyHelpClaimDisciplineStrip } from "@/components/help/ConnectGcpSecurelyHelpClaimDisciplineStrip";
 import { ConnectGcpSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectGcpSecurelyHelpEvidenceOrientationStrip";
 import { HelpConnectGcpSecurelyBreadcrumb } from "@/components/help/HelpConnectGcpSecurelyBreadcrumb";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -190,6 +191,8 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
         }
         actions={<HelpConnectGcpSecurelyHeaderActions entry={entry} />}
       />
+
+      <ConnectGcpSecurelyHelpClaimDisciplineStrip />
 
       <div
         id={CONNECT_GCP_SECURELY_HELP_PRIMARY_CONTENT_ID}

@@ -6,6 +6,7 @@ import { HelpConnectAwsSecurelyHeaderActions } from "@/app/(operator)/help/_sect
 import { HelpConnectAwsSecurelyTrustPolicyPanel } from "@/app/(operator)/help/_sections/HelpConnectAwsSecurelyTrustPolicyPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AwsCloudConnectionPermissionsTable } from "@/components/help/AwsCloudConnectionPermissionsTable";
+import { ConnectAwsSecurelyHelpClaimDisciplineStrip } from "@/components/help/ConnectAwsSecurelyHelpClaimDisciplineStrip";
 import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
 import { HelpConnectAwsSecurelyBreadcrumb } from "@/components/help/HelpConnectAwsSecurelyBreadcrumb";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -152,6 +153,8 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
         }
         actions={<HelpConnectAwsSecurelyHeaderActions entry={entry} />}
       />
+
+      <ConnectAwsSecurelyHelpClaimDisciplineStrip />
 
       <div
         id={CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID}

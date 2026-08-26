@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { HelpCloudConnectionsGuideView } from "@/app/(operator)/help/_sections/HelpCloudConnectionsGuideView";
 import {
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO,
+  CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE,
   CLOUD_CONNECTIONS_HELP_FOLLOW_UP_LINKS,
   CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE,
   CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS_HINT,
@@ -56,18 +57,22 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     expect(screen.getByRole("heading", { level: 3, name: CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Orientation only" })).toBeNull();
     expect(screen.queryByTestId("help-cloud-connections-claim-discipline-status")).toBeNull();
+    expect(screen.getByTestId("help-cloud-connections-claim-discipline-strip")).toHaveTextContent(
+      CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE,
+    );
     expect(screen.getByTestId("help-cloud-connections-intro")).toBeInTheDocument();
     expect(screen.getByTestId("help-cloud-connections-action-panel")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Where to go next" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Connect Azure securely" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Read the Azure connection guide" })).toBeNull();
     expect(screen.queryByTestId("help-center-documentation-badge")).toBeNull();
-    expect(screen.getByText(/finalized review record citations/i)).toBeInTheDocument();
+
+    const orientation = screen.getByTestId("help-cloud-connections-orientation");
+
+    expect(within(orientation).getByText(/finalized review record citations/i)).toBeInTheDocument();
     expect(screen.queryByText(/Sources package/i)).toBeNull();
     expect(screen.queryByText(/claim discipline/i)).toBeNull();
     expect(screen.queryByText(/assurance cites/i)).toBeNull();
-
-    const orientation = screen.getByTestId("help-cloud-connections-orientation");
 
     expect(within(orientation).getByRole("link", { name: "Assurance status" })).toHaveAttribute(
       "href",

@@ -31,6 +31,7 @@ import {
   CONNECT_AZURE_SECURELY_VERIFICATION_HEADING,
   buildConnectAzureSecurelyVerifyHref,
 } from "@/lib/connect-azure-securely-help-content";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_COPY = [
@@ -67,8 +68,7 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
     expect(screen.getByTestId("connect-azure-securely-help-claim-discipline")).toHaveTextContent(
       CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE,
     );
-    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
-    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-09");
 
     const toc = screen.getByTestId("help-topic-toc");
     expect(within(toc).getByRole("link", { name: CONNECT_AZURE_SECURELY_SECURITY_HEADING })).toHaveAttribute(
@@ -205,10 +205,10 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
     expect(screen.queryByRole("button", { name: /contextual help/i })).toBeNull();
     expect(screen.queryByText("Sources for follow-up")).toBeNull();
 
-    const sources = screen.getByTestId("connect-azure-securely-help-sources");
+    const sources = within(screen.getByTestId("connect-azure-securely-help-sources"));
 
     for (const source of CONNECT_AZURE_SECURELY_SOURCES) {
-      expect(within(sources).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      expectFollowUpLink(sources, source);
     }
 
     const toc = screen.getByTestId("help-topic-toc");

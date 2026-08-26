@@ -5,6 +5,7 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
 import { Suspense } from "react";
 
 import { AzureCloudConnectionRolesTable } from "@/components/help/AzureCloudConnectionRolesTable";
+import { AzurePermissionsHelpClaimDisciplineStrip } from "@/components/help/AzurePermissionsHelpClaimDisciplineStrip";
 import { AzurePermissionsHelpEvidenceOrientationStrip } from "@/components/help/AzurePermissionsHelpEvidenceOrientationStrip";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
@@ -194,6 +195,8 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
           </div>
         </div>
       </header>
+
+      <AzurePermissionsHelpClaimDisciplineStrip />
 
       <AzurePermissionsHelpEvidenceOrientationStrip />
       <div className={HELP_PAGE_LAYOUT.contentGrid}>

@@ -5,6 +5,7 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
 import { AlertTriangle } from "lucide-react";
 
 import { AzureCloudConnectionRolesTable } from "@/components/help/AzureCloudConnectionRolesTable";
+import { ConnectAzureSecurelyHelpClaimDisciplineStrip } from "@/components/help/ConnectAzureSecurelyHelpClaimDisciplineStrip";
 import { ConnectAzureSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectAzureSecurelyHelpEvidenceOrientationStrip";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -139,8 +140,12 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
         </div>
       </header>
 
+      <ConnectAzureSecurelyHelpClaimDisciplineStrip />
+
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-connect-azure-securely-primary">
+          <ConnectAzureSecurelyHelpEvidenceOrientationStrip />
+
           <section aria-labelledby="security-model" className="space-y-3">
             <HelpSectionHeading id="security-model">{CONNECT_AZURE_SECURELY_SECURITY_HEADING}</HelpSectionHeading>
             <Card className={DESIGN_TOKENS.surface.card} data-testid="connect-azure-securely-security-panel">
@@ -324,8 +329,6 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
               ))}
             </ul>
           </section>
-
-          <ConnectAzureSecurelyHelpEvidenceOrientationStrip />
         </div>
         <HelpTopicTableOfContents headings={CONNECT_AZURE_SECURELY_TOC_HEADINGS} enableScrollSpy />
       </div>

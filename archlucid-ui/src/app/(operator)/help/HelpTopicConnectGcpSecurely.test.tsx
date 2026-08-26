@@ -21,7 +21,6 @@ import { HelpConnectGcpSecurelyGuideView } from "@/app/(operator)/help/_sections
 import {
   CONNECT_GCP_SECURELY_CANONICAL_PATH,
   CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE,
-  CONNECT_GCP_SECURELY_CONFIGURE_ACTION,
   CONNECT_GCP_SECURELY_SOURCES,
 } from "@/lib/connect-gcp-securely-help-evidence-copy";
 import {
@@ -38,6 +37,7 @@ import {
   formatGcpPermissionRequirementLabel,
 } from "@/lib/gcp-cloud-connection-permissions-manifest";
 import { GCP_PERMISSIONS_TROUBLESHOOT_HEADING } from "@/lib/gcp-cloud-connection-permissions-copy";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpConnectGcpSecurelyGuideView", () => {
@@ -61,10 +61,10 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
       CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE,
     );
 
-    const sources = screen.getByTestId("connect-gcp-securely-help-sources");
+    const sources = within(screen.getByTestId("connect-gcp-securely-help-sources"));
 
     for (const link of CONNECT_GCP_SECURELY_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expectFollowUpLink(sources, link);
       expect(link.href).not.toBe(CONNECT_GCP_SECURELY_CANONICAL_PATH);
     }
   });
@@ -79,7 +79,7 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
     expect(screen.getAllByRole("heading", { level: 1, name: entry.title })).toHaveLength(1);
     expect(screen.queryByRole("heading", { level: 2, name: entry.title })).toBeNull();
     expect(screen.getByText(CONNECT_GCP_SECURELY_PAGE_LEAD)).toBeInTheDocument();
-    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-09");
 
     const toc = screen.getByTestId("help-topic-toc");
     expect(within(toc).getByRole("link", { name: CONNECT_GCP_SECURELY_SECURITY_HEADING })).toHaveAttribute(
@@ -97,7 +97,7 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
     expect(within(toc).queryByRole("link", { name: entry.title })).toBeNull();
   });
 
-  it("provides sibling guides and workflow navigation actions", () => {
+  it("provides workflow navigation actions and diligence source links", () => {
     if (entry === undefined) {
       throw new Error("Expected cloud-connections-gcp documentation entry.");
     }
@@ -105,17 +105,13 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
     render(<HelpConnectGcpSecurelyGuideView entry={entry} />);
 
 
-    const sources = screen.getByTestId("connect-gcp-securely-help-sources");
-    expect(within(sources).getByRole("link", { name: "Connect Azure securely" })).toHaveAttribute(
-      "href",
-      "/help/cloud-connections/azure",
-    );
-    expect(within(sources).getByRole("link", { name: "Connect AWS securely" })).toHaveAttribute(
-      "href",
-      "/help/cloud-connections/aws",
-    );
+    const sources = within(screen.getByTestId("connect-gcp-securely-help-sources"));
 
-    expect(screen.getByRole("link", { name: CONNECT_GCP_SECURELY_CONFIGURE_ACTION })).toHaveAttribute(
+    for (const link of CONNECT_GCP_SECURELY_SOURCES) {
+      expectFollowUpLink(sources, link);
+    }
+
+    expect(screen.getByTestId("connect-gcp-configure-action")).toHaveAttribute(
       "href",
       "/integrations/cloud-connections/gcp",
     );
@@ -124,8 +120,8 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
       "/integrations/cloud-connections/gcp",
     );
     expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
-    expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-print-button")).toBeNull();
+    expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
   });
 
   it("shows roles table, forbidden-roles callout, WIF starter panel, and verification scope", () => {
