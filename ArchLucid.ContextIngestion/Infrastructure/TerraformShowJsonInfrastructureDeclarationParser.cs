@@ -266,7 +266,9 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                string valueText = CanonicalizeTerraformValueText(prop.Value);
+                string valueText = CanonicalInfrastructurePropertyBag.ShouldRedactKey(prop.Name)
+                    ? "[REDACTED]"
+                    : CanonicalInfrastructureJsonValue.CanonicalizeText(prop.Value);
 
                 if (string.IsNullOrWhiteSpace(valueText))
                     continue;

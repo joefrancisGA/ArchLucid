@@ -208,4 +208,44 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().HaveCount(2);
         result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
     }
+
+    [Fact]
+    public async Task ParseAsync_NestedBlockCommentOnlyChange_ProducesEquivalentTfProperties()
+    {
+        InfrastructureDeclarationReference withComment = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            DeclarationId = "d-tf-block-comment",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          # primary region
+                          location = "eastus"
+                        }
+                      }
+                      """
+        };
+
+        InfrastructureDeclarationReference withoutComment = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            DeclarationId = "d-tf-block-comment",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          location = "eastus"
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> withCommentObjects = await _sut.ParseAsync(withComment, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> withoutCommentObjects = await _sut.ParseAsync(withoutComment, CancellationToken.None);
+
+        withCommentObjects.Should().ContainSingle();
+        withoutCommentObjects.Should().ContainSingle();
+        withoutCommentObjects[0].Properties.Should().BeEquivalentTo(withCommentObjects[0].Properties);
+    }
 }

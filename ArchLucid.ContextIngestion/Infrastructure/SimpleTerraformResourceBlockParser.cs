@@ -121,7 +121,7 @@ internal static class SimpleTerraformResourceBlockParser
                 return;
 
             if (builder.Length > 0)
-                builder.Append(' ');
+                builder.Append('\n');
 
             builder.Append(segment.Trim());
         }

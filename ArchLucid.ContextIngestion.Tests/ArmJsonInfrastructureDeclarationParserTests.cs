@@ -299,4 +299,61 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
 
         baseline.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task ParseAsync_IpSecurityRestrictionsArrayOrder_ProducesEquivalentTfProperties()
+    {
+        InfrastructureDeclarationReference firstDeclaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "d-arm-array-order",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Web/sites",
+                            "name": "web-app",
+                            "properties": {
+                              "ipSecurityRestrictions": [
+                                { "name": "AllowA", "priority": 100 },
+                                { "name": "AllowB", "priority": 200 }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        InfrastructureDeclarationReference reversedDeclaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "d-arm-array-order",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Web/sites",
+                            "name": "web-app",
+                            "properties": {
+                              "ipSecurityRestrictions": [
+                                { "name": "AllowB", "priority": 200 },
+                                { "name": "AllowA", "priority": 100 }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> firstObjects = await _sut.ParseAsync(firstDeclaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> reversedObjects = await _sut.ParseAsync(reversedDeclaration, CancellationToken.None);
+
+        firstObjects.Should().ContainSingle();
+        reversedObjects.Should().ContainSingle();
+        reversedObjects[0].Properties.Should().BeEquivalentTo(firstObjects[0].Properties);
+    }
 }

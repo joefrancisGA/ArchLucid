@@ -51,6 +51,9 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
                 apiVersion = fullType[(versionSeparator + 1)..].Trim();
             }
 
+            if (resourceType.Equals("Microsoft.Resources/deployments", StringComparison.OrdinalIgnoreCase))
+                continue;
+
             string objectType = ResolveObjectType(resourceType);
 
             Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

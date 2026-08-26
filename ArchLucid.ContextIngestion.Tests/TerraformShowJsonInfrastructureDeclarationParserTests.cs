@@ -1277,4 +1277,70 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
         storageAccount.Properties["mode"].Should().Be("managed");
         storageAccount.Properties["tf.name"].Should().Be("stacct");
     }
+
+    [Fact]
+    public async Task ParseAsync_redacts_top_level_sensitive_key_without_sensitive_values()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-sensitive-key",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_resource_group",
+                                "name": "x",
+                                "values": { "admin_secret": "hidden" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["tf.admin_secret"].Should().Be("[REDACTED]");
+    }
+
+    [Fact]
+    public async Task ParseAsync_redacts_nested_sensitive_json_key_without_sensitive_values()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-nested-key",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_linux_web_app",
+                                "name": "app",
+                                "values": {
+                                  "site_config": {
+                                    "connection_string": "postgres://user:pass@host/db"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["tf.site_config"].Should().Be("{\"connection_string\":\"[REDACTED]\"}");
+    }
 }

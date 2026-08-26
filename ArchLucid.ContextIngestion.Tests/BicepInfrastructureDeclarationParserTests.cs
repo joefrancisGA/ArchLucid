@@ -71,4 +71,25 @@ public sealed class BicepInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_SkipsMicrosoftResourcesDeployments()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource nestedDeployment 'Microsoft.Resources/deployments@2022-09-01' = {
+                      }
+                      resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("storage");
+    }
 }
