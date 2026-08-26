@@ -239,7 +239,9 @@ export function PolicyPacksPageView(props: Props) {
               }}
             />
 
-            {continueLastPack !== null ? <PolicyPacksContinueLastViewedRow pack={continueLastPack} /> : null}
+            {continueLastPack !== null ? (
+              <PolicyPacksContinueLastViewedRow pack={continueLastPack} scopedReviewId={m.pickedReviewId} />
+            ) : null}
 
             <PolicyPacksRegisteredListSection
               buyerPolishedShell={m.buyerPolishedShell}
