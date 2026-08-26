@@ -56,6 +56,10 @@ internal static class KubernetesManifestCanonicalObjectMapper
         string apiVersion = ReadTopLevelString(resource, "apiVersion") ?? string.Empty;
         string namespaceValue = ReadMetadataString(resource, "metadata", "namespace") ?? string.Empty;
         string name = ReadMetadataString(resource, "metadata", "name") ?? string.Empty;
+        string generateName = ReadMetadataString(resource, "metadata", "generateName") ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(name))
+            name = generateName;
 
         if (string.IsNullOrWhiteSpace(name))
             return;
@@ -73,6 +77,9 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         if (!string.IsNullOrWhiteSpace(namespaceValue))
             properties["k8s.namespace"] = namespaceValue.ToLowerInvariant();
+
+        if (!string.IsNullOrWhiteSpace(generateName))
+            properties["k8s.generateName"] = generateName.ToLowerInvariant();
 
         string objectType = ResolveObjectType(kind);
         string stableObjectId = BuildStableObjectId(objectType, declaration, kind, canonicalName);

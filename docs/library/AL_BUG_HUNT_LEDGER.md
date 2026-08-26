@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 54
-- **bugs-found:** 105
+- **hunts:** 55
+- **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
+- **last-bug:** 2026-08-26 — arm-json nested child resources dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1957,6 +1957,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `KubernetesYamlInfrastructureDeclarationParser` YAML `kind: List` path — mapper already expands List items after YamlDotNet round-trip; added YAML-path regression `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_KindList_MapsMultipleItems`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` ignored nested `resources[]` child declarations — **hit 2026-08-26:** VNet with nested subnet emitted only the parent; fixed by recursing into child resources with composite parent/child names (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_NestedChildResources_MapsSubnetUnderVnet`).
+- [x] (proven) `BicepInfrastructureDeclarationParser` duplicate symbolic names shared `ObjectId` across different `apiVersion` rows — **hit 2026-08-26:** two `storage` resources with different api versions collapsed stable identity; fixed with `bicepOccurrence` disambiguator (`BicepInfrastructureDeclarationParserTests.ParseAsync_DuplicateSymbolicNamesDifferentApiVersion_EmitsDistinctObjectIds`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty` preserved raw JSON inner-key casing via `GetRawText()` — **hit 2026-08-26:** `ipAddress` vs `IpAddress` in `ipSecurityRestrictions` arrays false-modified infra declaration deltas; fixed with shared `CanonicalInfrastructureJsonValue` rewrite (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_ArrayPropertyInnerKeyCasing_IsCanonicalized`).
+- [x] (proven) `SimpleTerraformResourceBlockParser.UnquoteScalar` stripped only double-quoted HCL scalars — **hit 2026-08-26:** `'Enabled'` vs `"Enabled"` produced different `tf.public_network_access` values; fixed by unquoting single-quoted scalars (`SimpleTerraformDeclarationParserTests.ParseAsync_SingleQuotedScalars_AreUnquotedAndCanonicalized`).
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.TryAddResource` skipped manifests with only `metadata.generateName` — **hit 2026-08-26:** Pod with `generateName: api-` returned zero resources; fixed by falling back to `generateName` when `name` is absent (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_GenerateNameOnly_MapsPod`).
+
+2026-08-26 seed hunt #61: reseeded ARM nested / Bicep duplicate identity / arm-json array JSON casing / simple-terraform single quotes / K8s generateName; proved all five hunt-ready rows.
 
 2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
 

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -32,6 +33,8 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
 
         List<CanonicalObject> results = [];
         MatchCollection matches = ResourceRegex.Matches(declaration.Content);
+        Dictionary<string, int> symbolicTotals = CountSymbolicNameOccurrences(matches);
+        Dictionary<string, int> symbolicSeen = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (Match match in matches)
         {
@@ -64,13 +67,23 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
 
             string canonicalName = symbolicName.ToLowerInvariant();
             string canonicalResourceType = resourceType.ToLowerInvariant();
+            string labelKey = $"{canonicalResourceType}|{canonicalName}";
+            int occurrence = symbolicSeen.GetValueOrDefault(labelKey) + 1;
+            symbolicSeen[labelKey] = occurrence;
+
+            string stableIdentity = symbolicTotals[labelKey] > 1
+                ? $"{labelKey}|occurrence:{occurrence}"
+                : labelKey;
+
+            if (symbolicTotals[labelKey] > 1)
+                properties["bicepOccurrence"] = occurrence.ToString(CultureInfo.InvariantCulture);
 
             results.Add(new CanonicalObject
             {
                 ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
                     declaration.DeclarationId,
                     objectType,
-                    $"{canonicalResourceType}|{canonicalName}"),
+                    stableIdentity),
                 ObjectType = objectType,
                 Name = canonicalName,
                 SourceType = "InfrastructureDeclaration",
@@ -80,6 +93,31 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
         }
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    private static Dictionary<string, int> CountSymbolicNameOccurrences(MatchCollection matches)
+    {
+        Dictionary<string, int> counts = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (Match match in matches)
+        {
+            string symbolicName = match.Groups["name"].Value.Trim();
+            string fullType = match.Groups["type"].Value.Trim();
+
+            if (string.IsNullOrWhiteSpace(symbolicName) || string.IsNullOrWhiteSpace(fullType))
+                continue;
+
+            string resourceType = fullType;
+            int versionSeparator = fullType.IndexOf('@', StringComparison.Ordinal);
+
+            if (versionSeparator >= 0)
+                resourceType = fullType[..versionSeparator].Trim();
+
+            string labelKey = $"{resourceType.ToLowerInvariant()}|{symbolicName.ToLowerInvariant()}";
+            counts[labelKey] = counts.GetValueOrDefault(labelKey) + 1;
+        }
+
+        return counts;
     }
 
     private static string ResolveObjectType(string resourceType)

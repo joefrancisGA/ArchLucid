@@ -22,9 +22,16 @@ public static class InfrastructureDeclarationDeltaKey
             return $"{baseKey}|k8s.kind:{k8sKind}";
 
         if (TryGetCanonicalProperty(obj, "resourceType", out string? resourceType))
-            return InfrastructureDeclarationResourceIdentity.AppendSubtypeRegionDisambiguators(
+        {
+            string key = InfrastructureDeclarationResourceIdentity.AppendSubtypeRegionDisambiguators(
                 $"{baseKey}|resourceType:{resourceType}",
                 obj.Properties);
+
+            if (TryGetCanonicalProperty(obj, "bicepOccurrence", out string? bicepOccurrence))
+                key += $"|occurrence:{bicepOccurrence}";
+
+            return key;
+        }
 
         if (TryGetCanonicalProperty(obj, "terraformType", out string? terraformType))
         {

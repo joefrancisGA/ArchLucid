@@ -171,7 +171,9 @@ internal static class SimpleTerraformResourceBlockParser
 
     private static string UnquoteScalar(string rawValue)
     {
-        if (rawValue.Length >= 2 && rawValue[0] == '"' && rawValue[^1] == '"')
+        if (rawValue.Length >= 2
+            && ((rawValue[0] == '"' && rawValue[^1] == '"')
+                || (rawValue[0] == '\'' && rawValue[^1] == '\'')))
             return rawValue[1..^1];
 
         return rawValue;

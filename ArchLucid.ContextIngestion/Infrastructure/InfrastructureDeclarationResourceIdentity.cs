@@ -14,6 +14,7 @@ public static class InfrastructureDeclarationResourceIdentity
         "terraformType",
         "k8s.kind",
         "terraformOccurrence",
+        "bicepOccurrence",
     };
 
     public static string ForJsonResource(

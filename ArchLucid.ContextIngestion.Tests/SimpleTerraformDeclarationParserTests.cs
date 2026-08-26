@@ -208,4 +208,39 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().HaveCount(2);
         result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
     }
+
+    [Fact]
+    public async Task ParseAsync_SingleQuotedScalars_AreUnquotedAndCanonicalized()
+    {
+        InfrastructureDeclarationReference singleQuoted = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-single-quote",
+            Content = """
+                      resource "azurerm_storage_account" "docs" {
+                        public_network_access = 'Enabled'
+                      }
+                      """,
+        };
+
+        InfrastructureDeclarationReference doubleQuoted = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-single-quote",
+            Content = """
+                      resource "azurerm_storage_account" "docs" {
+                        public_network_access = "Enabled"
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> singleQuotedResult = await _sut.ParseAsync(singleQuoted, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> doubleQuotedResult = await _sut.ParseAsync(doubleQuoted, CancellationToken.None);
+
+        singleQuotedResult.Should().ContainSingle();
+        doubleQuotedResult.Should().ContainSingle();
+        doubleQuotedResult[0].Properties.Should().BeEquivalentTo(singleQuotedResult[0].Properties);
+    }
 }

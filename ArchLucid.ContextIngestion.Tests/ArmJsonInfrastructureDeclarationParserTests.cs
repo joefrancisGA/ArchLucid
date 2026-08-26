@@ -299,4 +299,85 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
 
         baseline.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task ParseAsync_NestedChildResources_MapsSubnetUnderVnet()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-nested-subnet",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Network/virtualNetworks",
+                            "name": "hub",
+                            "properties": {},
+                            "resources": [
+                              {
+                                "type": "Microsoft.Network/virtualNetworks/subnets",
+                                "name": "subnet-a",
+                                "properties": { "addressPrefix": "10.0.1.0/24" }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(o => o.Name == "hub");
+        result.Should().ContainSingle(o => o.Name == "hub/subnet-a");
+        result.Select(o => o.ObjectId).Distinct().Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task ParseAsync_ArrayPropertyInnerKeyCasing_IsCanonicalized()
+    {
+        const string camelCaseJson = """
+                                     {
+                                       "resources": [
+                                         {
+                                           "type": "Microsoft.Web/sites",
+                                           "name": "web-app",
+                                           "properties": {
+                                             "ipSecurityRestrictions": [
+                                               { "ipAddress": "0.0.0.0/0" }
+                                             ]
+                                           }
+                                         }
+                                       ]
+                                     }
+                                     """;
+
+        string pascalCaseJson = camelCaseJson.Replace("\"ipAddress\"", "\"IpAddress\"");
+
+        InfrastructureDeclarationReference camelCaseDeclaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-array-casing",
+            Content = camelCaseJson,
+        };
+
+        InfrastructureDeclarationReference pascalCaseDeclaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-array-casing",
+            Content = pascalCaseJson,
+        };
+
+        IReadOnlyList<CanonicalObject> camelCaseObjects = await _sut.ParseAsync(camelCaseDeclaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> pascalCaseObjects = await _sut.ParseAsync(pascalCaseDeclaration, CancellationToken.None);
+
+        camelCaseObjects.Should().ContainSingle();
+        pascalCaseObjects.Should().ContainSingle();
+        pascalCaseObjects[0].Properties.Should().BeEquivalentTo(camelCaseObjects[0].Properties);
+    }
 }

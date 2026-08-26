@@ -160,7 +160,7 @@ public static class CanonicalInfrastructurePropertyBag
         if (ShouldRedactKey(rawKey))
             return TryAddTfProperty(properties, rawKey, "[REDACTED]");
 
-        string serialized = value.GetRawText().Trim();
+        string serialized = CanonicalInfrastructureJsonValue.CanonicalizeText(value).Trim();
 
         if (string.IsNullOrWhiteSpace(serialized))
             return false;

@@ -48,7 +48,13 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
 
         if (item.Properties.TryGetValue("resourceType", out string? resourceType) &&
             !string.IsNullOrEmpty(resourceType))
+        {
+            if (item.Properties.TryGetValue("bicepOccurrence", out string? bicepOccurrence) &&
+                !string.IsNullOrWhiteSpace(bicepOccurrence))
+                return $"{InfrastructureDeclarationResourceIdentity.BuildResourceTypeFingerprint(item.Properties)}|occurrence:{bicepOccurrence.Trim().ToLowerInvariant()}";
+
             return InfrastructureDeclarationResourceIdentity.BuildResourceTypeFingerprint(item.Properties);
+        }
 
         if (item.Properties.TryGetValue("k8s.kind", out string? k8sKind) &&
             !string.IsNullOrEmpty(k8sKind))
