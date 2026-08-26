@@ -203,7 +203,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   );
 
   const workspaceHeading = displayName;
-  const workspaceLead = architectureDraftDetailPageSubtitle(buyerPolishedShell);
+  const workspaceLead = architectureDraftDetailPageSubtitle(buyerPolishedShell, reviewReadiness.isValid);
 
   const scopeUnderstandingInput = useMemo(
     () => ({

@@ -5,6 +5,7 @@ import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCente
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
+  OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
@@ -218,7 +219,7 @@ describe("PilotCommandCenterCard", () => {
       /1 architecture draft · Updated/,
     );
     expect(screen.getByTestId("operator-home-draft-status-refine-hint")).toHaveTextContent(
-      /Refine this architecture draft before starting a review\./,
+      /Required before review:/,
     );
     expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveAttribute(
       "href",
@@ -236,6 +237,52 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("operator-home-lifecycle-recommended-create-architecture")).toBeNull();
     expect(screen.queryByTestId("first-pilot-operate-unlock-vocabulary")).toBeNull();
     expect(screen.queryByTestId("operator-home-do-this-next")).toBeNull();
+  });
+
+  it("shows optional refine guidance when the latest draft is ready for review", () => {
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
+      {
+        architectureId: "draft-ready",
+        displayName: "Claims intake",
+        customerStatus: "ready-for-review",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-01T00:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-01T00:00:00.000Z",
+        serverDraftStatus: "Submitted",
+      },
+    ]);
+
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
+
+    expect(screen.getByTestId("operator-home-draft-status-refine-hint")).toHaveTextContent(
+      /Refining is optional/,
+    );
+    expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveTextContent(
+      OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
+    );
+  });
+
+  it("hides refine guidance when the latest draft is already in review intake", () => {
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
+      {
+        architectureId: "draft-intake",
+        displayName: "Vertex",
+        customerStatus: "ready-for-review",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-01T00:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-01T00:00:00.000Z",
+        serverDraftStatus: "Admitted",
+      },
+    ]);
+
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
+
+    expect(screen.queryByTestId("operator-home-draft-status-refine-hint")).toBeNull();
+    expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveTextContent(
+      OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA,
+    );
   });
 
   it("routes submitted drafts back to the architecture draft workspace from home", () => {

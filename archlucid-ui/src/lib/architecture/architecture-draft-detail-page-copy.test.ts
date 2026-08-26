@@ -4,13 +4,18 @@ import {
   ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
   ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER,
   ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR,
-  ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE,
+  ARCHITECTURE_DRAFT_REFINE_OPTIONAL_BEFORE_REVIEW_SENTENCE,
+  ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE,
   architectureDraftDetailPageSubtitle,
+  resolveArchitectureDraftDetailPageSubtitleBuyer,
+  resolveArchitectureDraftRefineGuidanceSentence,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
 
 describe("architecture-draft-detail-page-copy", () => {
   it("uses buyer subtitle only in polished shell", () => {
-    expect(architectureDraftDetailPageSubtitle(true)).toBe(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER);
+    expect(architectureDraftDetailPageSubtitle(true, false)).toBe(
+      resolveArchitectureDraftDetailPageSubtitleBuyer(false),
+    );
     expect(architectureDraftDetailPageSubtitle(false)).toBe(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR);
   });
 
@@ -20,20 +25,36 @@ describe("architecture-draft-detail-page-copy", () => {
     expect(scope).toContain("drafting workspace");
     expect(scope).toContain("does not start a review");
 
-    expect(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER.startsWith(ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE)).toBe(
-      true,
-    );
+    expect(
+      resolveArchitectureDraftDetailPageSubtitleBuyer(false).startsWith(
+        ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
+      ),
+    ).toBe(true);
     expect(
       ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR.startsWith(ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE),
     ).toBe(true);
   });
 
-  it("uses architecture-draft refine bridge on buyer subtitle", () => {
-    expect(ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE).toBe(
-      "Refine this architecture draft before starting a review.",
+  it("distinguishes required vs optional refine guidance", () => {
+    expect(resolveArchitectureDraftRefineGuidanceSentence(false)).toBe(
+      ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE,
+    );
+    expect(resolveArchitectureDraftRefineGuidanceSentence(true)).toBe(
+      ARCHITECTURE_DRAFT_REFINE_OPTIONAL_BEFORE_REVIEW_SENTENCE,
+    );
+    expect(ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE).toContain("Required before review");
+    expect(ARCHITECTURE_DRAFT_REFINE_OPTIONAL_BEFORE_REVIEW_SENTENCE).toContain("Refining is optional");
+  });
+
+  it("uses readiness-aware refine bridge on buyer subtitle", () => {
+    expect(resolveArchitectureDraftDetailPageSubtitleBuyer(false)).toContain(
+      ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE,
+    );
+    expect(resolveArchitectureDraftDetailPageSubtitleBuyer(true)).toContain(
+      ARCHITECTURE_DRAFT_REFINE_OPTIONAL_BEFORE_REVIEW_SENTENCE,
     );
     expect(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER).toContain(
-      ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE,
+      ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE,
     );
     expect(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER).not.toContain("saved brief on this device");
   });

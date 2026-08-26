@@ -85,7 +85,8 @@ vi.mock("@/components/architecture/ArchitectureDraftAiRefinePanel", () => ({
 import { ArchitectureDraftWorkspace } from "@/components/architecture/ArchitectureDraftWorkspace";
 import {
   ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
-  ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER,
+  ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE,
+  resolveArchitectureDraftDetailPageSubtitleBuyer,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import {
   ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE,
@@ -135,7 +136,8 @@ describe("ArchitectureDraftWorkspace buyer-polished detail shell", () => {
     });
 
     const workspaceLead = screen.getByTestId("architecture-draft-workspace-lead");
-    expect(workspaceLead).toHaveTextContent(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER);
+    expect(workspaceLead).toHaveTextContent(resolveArchitectureDraftDetailPageSubtitleBuyer(false));
+    expect(workspaceLead).toHaveTextContent(ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE);
     expect(workspaceLead).toHaveTextContent(ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE);
     expect(screen.queryByText(ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE })).toBeInTheDocument();

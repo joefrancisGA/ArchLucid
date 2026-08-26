@@ -23,7 +23,8 @@ import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   formatOperatorHomeDraftStatusHeadline,
 } from "@/lib/buyer/buyer-polish-copy";
-import { ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE } from "@/lib/architecture/architecture-draft-detail-page-copy";
+import { resolveArchitectureDraftRefineGuidanceSentence } from "@/lib/architecture/architecture-draft-detail-page-copy";
+import { isArchitectureDraftPastDraftingOnRegistryEntry } from "@/lib/operator-home-latest-draft-primary-action";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import {
   OPERATOR_CARD,
@@ -184,6 +185,14 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     workspacePhase === "eval-with-drafts"
       ? formatOperatorHomeDraftStatusHeadline(phaseSignals.draftCount, draftLastEditedLabel)
       : null;
+  const latestDraftPastDrafting =
+    latestDraft !== null &&
+    latestDraft !== undefined &&
+    isArchitectureDraftPastDraftingOnRegistryEntry(latestDraft);
+  const draftRefineGuidanceSentence =
+    latestDraftPastDrafting || latestDraft === null
+      ? null
+      : resolveArchitectureDraftRefineGuidanceSentence(latestDraft.customerStatus === "ready-for-review");
   const showLeadCopy = props.suppressLeadCopy !== true;
   const showContextualHelp = props.showContextualHelp !== false;
 
@@ -273,12 +282,12 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
                 {draftStatusHeadline}
               </p>
             ) : null}
-            {draftStatusHeadline !== null ? (
+            {draftRefineGuidanceSentence !== null ? (
               <p
                 className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
                 data-testid="operator-home-draft-status-refine-hint"
               >
-                {ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE}
+                {draftRefineGuidanceSentence}
               </p>
             ) : null}
           </div>
