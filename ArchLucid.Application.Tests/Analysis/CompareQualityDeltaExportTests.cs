@@ -98,4 +98,42 @@ public sealed class CompareQualityDeltaExportTests
         markdown.Split("## Compare Quality Delta", StringSplitOptions.None).Length.Should().Be(2,
             "detailed exports embed the summary formatter, which already surfaces compare quality delta");
     }
+
+    [SkippableFact]
+    public void GenerateMarkdown_detailed_profile_includes_interpretation_notes_once_with_default_summary_formatter()
+    {
+        EndToEndReplayComparisonExportService sut = new(new MarkdownEndToEndReplayComparisonSummaryFormatter());
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            InterpretationNotes = ["Structural execution mode differs between runs."],
+            Warnings = ["One or both manifests were unavailable for manifest comparison."],
+        };
+
+        string markdown = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
+
+        markdown.Split("## Interpretation Notes", StringSplitOptions.None).Length.Should().Be(2,
+            "detailed exports embed the summary formatter, which already surfaces interpretation notes");
+        markdown.Split("## Warnings", StringSplitOptions.None).Length.Should().Be(2,
+            "detailed exports embed the summary formatter, which already surfaces warnings");
+    }
+
+    [SkippableFact]
+    public void GenerateHtml_detailed_profile_includes_interpretation_notes_once_with_default_summary_formatter()
+    {
+        EndToEndReplayComparisonExportService sut = new(new MarkdownEndToEndReplayComparisonSummaryFormatter());
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            InterpretationNotes = ["Structural execution mode differs between runs."],
+            Warnings = ["One or both manifests were unavailable for manifest comparison."],
+        };
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+
+        html.Split("<h2>Interpretation Notes</h2>", StringSplitOptions.None).Length.Should().Be(2);
+        html.Split("<h2>Warnings</h2>", StringSplitOptions.None).Length.Should().Be(2);
+    }
 }

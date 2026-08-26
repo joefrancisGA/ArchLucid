@@ -62,9 +62,6 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
                 AppendManifestDiff(sb, report);
                 AppendExportDiffs(sb, report);
             }
-
-            AppendList(sb, "Interpretation Notes", report.InterpretationNotes);
-            AppendList(sb, "Warnings", report.Warnings);
         }
 
         sb.AppendLine("</body></html>");

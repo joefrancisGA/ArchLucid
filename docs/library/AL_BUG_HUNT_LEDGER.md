@@ -1492,11 +1492,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 5
-- **bugs-found:** 6
+- **hunts:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — duplicate Interpretation Notes/Warnings in E2E comparison exports
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1509,6 +1509,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Compare quality delta populated on report but omitted from markdown/HTML/DOCX/PDF exports — **hit 2026-08-24:** `AddCompareQualityDeltaAsync` set `CompareQualityDelta` but export formatters never surfaced the stratified counts
 - [x] (proven) Manifest diff skipped when `CurrentManifestVersion` asymmetric — **hit 2026-08-24:** `BuildAsync` gated `IManifestDiffService.Compare` on both runs having non-empty version metadata even when both manifest bodies were loaded
 - [x] (proven) Detailed comparison exports duplicate Compare Quality Delta section — **hit 2026-08-25:** refactor #21 moved delta into `MarkdownEndToEndReplayComparisonSummaryFormatter` but markdown/HTML/DOCX/PDF detailed formatters still appended `CompareQualityDeltaExportFormatter` again (`CompareQualityDeltaExportTests.GenerateMarkdown_detailed_profile_includes_compare_quality_delta_once_with_default_summary_formatter`)
+- [x] (proven) Detailed comparison exports duplicate Interpretation Notes and Warnings — **hit 2026-08-26:** summary formatter already appends notes/warnings but markdown/HTML/DOCX/PDF formatters appended them again; fixed by removing outer duplicate sections (`CompareQualityDeltaExportTests.GenerateMarkdown_detailed_profile_includes_interpretation_notes_once_with_default_summary_formatter`, `CompareQualityDeltaExportTests.GenerateHtml_detailed_profile_includes_interpretation_notes_once_with_default_summary_formatter`).
+- [ ] (candidate) `EndToEndReplayComparisonService.BuildAsync` pairs export diffs by `ExportType` only (`GroupBy` + `First()`), so multiple exports of the same type (e.g. sponsor vs internal consulting DOCX) can mispair across runs when creation order differs.
+- [ ] (candidate) `ComparisonDriftAnalyzer.CompareElement` compares JSON arrays positionally — reordering `["a","b"]` to `["b","a"]` reports value drift at each index.
+- [ ] (candidate) `EndToEndReplayComparisonService.AddInterpretationNotes` skips agent/manifest synergy notes when `ManifestDiff` is null even if `AgentResultDiff` shows material drift.
+
+2026-08-26 seed hunt #6: reseeded export mispairing / array reorder drift / synergy-note candidates; proved duplicate Interpretation Notes and Warnings in E2E exports.
 
 ---
 

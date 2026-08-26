@@ -34,8 +34,6 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             AppendExportDiffs(sb, report);
         }
 
-        AppendList(sb, "Interpretation Notes", report.InterpretationNotes);
-        AppendList(sb, "Warnings", report.Warnings);
         return sb.ToString();
     }
 
