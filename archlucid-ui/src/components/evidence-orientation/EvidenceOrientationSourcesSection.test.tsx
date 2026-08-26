@@ -144,9 +144,11 @@ describe("EvidenceOrientationSourcesSection", () => {
 
     const section = screen.getByTestId("cloud-connections-sources");
     expect(section).toHaveAttribute("data-layout", "columns");
-    expect(section).toHaveClass("md:grid", "md:grid-cols-[minmax(0,1fr)_auto]");
-    expect(section.querySelector("ul")).toHaveClass("sm:grid-cols-2");
+    expect(section).toHaveClass("md:grid", "md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]");
+    expect(section.querySelector("ul")).toHaveClass("grid-cols-[minmax(0,1fr)_minmax(0,1fr)]");
     expect(section.querySelector("ul")).not.toHaveClass("flex-col");
+    expect(section.querySelector("li")).toHaveClass("min-w-0");
+    expect(section.querySelector("a")).toHaveClass("break-words", "min-w-0");
   });
 
   it("uses a compact single-column link list when only one follow-up sits beside the intro", () => {
@@ -163,7 +165,7 @@ describe("EvidenceOrientationSourcesSection", () => {
 
     const section = screen.getByTestId("cloud-connections-sources");
     expect(section.querySelector("ul")).toHaveClass("flex-col");
-    expect(section.querySelector("ul")).not.toHaveClass("sm:grid-cols-2");
+    expect(section.querySelector("ul")).not.toHaveClass("grid-cols-[minmax(0,1fr)_minmax(0,1fr)]");
   });
 
   it("uses a dense link grid when many follow-ups need a two-column index", () => {
@@ -183,7 +185,7 @@ describe("EvidenceOrientationSourcesSection", () => {
     );
 
     const section = screen.getByTestId("cloud-connections-sources");
-    expect(section.querySelector("ul")).toHaveClass("sm:grid-cols-2");
+    expect(section.querySelector("ul")).toHaveClass("grid-cols-[minmax(0,1fr)_minmax(0,1fr)]");
     expect(section.querySelector("ul")).not.toHaveClass("flex-col");
   });
 
