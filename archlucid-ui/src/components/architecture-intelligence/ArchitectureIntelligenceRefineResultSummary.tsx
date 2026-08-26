@@ -1,10 +1,8 @@
 "use client";
 
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
-import {
-  formatArchitectureIntelligenceSpendSummary,
-  type ClosedLoopReasoningResult,
-} from "@/lib/architecture/architecture-intelligence-api";
+import { ArchitectureIntelligenceRunSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRunSummary";
+import type { ClosedLoopReasoningResult } from "@/lib/architecture/architecture-intelligence-api";
 import { resolvePublishBlockedAlertMessage } from "@/lib/architecture/architecture-intelligence-framing-interview";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -50,14 +48,7 @@ export function ArchitectureIntelligenceRefineResultSummary(
         </p>
       ) : null}
 
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        Model elements: {result.model?.elements?.length ?? 0} · Integrity-passed findings:{" "}
-        {result.integrityPassedFindingIds?.length ?? 0}
-        {result.cacheHit
-          ? ` · Cache hit${result.cacheReuseReason ? ` (${result.cacheReuseReason})` : ""}`
-          : " · Cache miss"}
-        {formatArchitectureIntelligenceSpendSummary(result)}
-      </p>
+      <ArchitectureIntelligenceRunSummary result={result} testIdPrefix={prefix} />
 
       <ArchitectureIntelligenceProductRoundTrip
         runId={result.runId ?? undefined}
