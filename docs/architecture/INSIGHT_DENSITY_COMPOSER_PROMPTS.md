@@ -169,6 +169,8 @@ Done when: three fixtures score deterministically, --check passes on committed s
 
 ## ID-02 — Per-engine insight-density distribution report
 
+**Status:** Shipped on `master`. Scores remain **advisory** — `typed-engine-protected` bypass is unchanged.
+
 **Closes:** a real hole. In `DeterministicInsightDensityGate.Score`, when `!candidate.IsAgentArchitectureFinding` the method returns `Promote` / `DecisionGradeFinding` unconditionally with penalty reason `typed-engine-protected` — the computed score is discarded as a decision input. All 35 deterministic engines bypass density control entirely, so checklist-shaped engine output inflates finding count with nothing to catch it.
 **Depends on:** none
 **Branch suggestion:** `insight-density/per-engine-distribution`

@@ -83,6 +83,8 @@ Emit **`Finding`** records (`ArchLucid.Contracts/Findings/Finding.cs`) with:
 
 **Orchestrator merge:** parallel invoke of `IFindingEngine` and `IEffectfulFindingEngine`; results are sorted by `EngineType` (ordinal) before join; total failure → `AggregateException`; partial failure → snapshot + `FindingEngineFailure` rows.
 
+**Insight-density gate (advisory):** `DeterministicInsightDensityGate` scores all findings but demotes only agent architecture rows below `DemotionThreshold`. Typed-engine findings always promote (`typed-engine-protected`). Per-engine distribution in `docs/quality/insight-density-engine-distribution.md` is measurement only — not a control on engine output.
+
 **Join key (ADR 0063, `FindingSnapshotMergeKey`):** SHA-256 hex (lower) of `NormalizeToken(category)|NormalizeToken(title)` (`Finding.Title` plays the role of `ArchitectureFinding.Message`). When `PolicyRuleId` is present: `{trimmedPolicyRuleId}:{fingerprint}`; otherwise the fuzzy `category|title` token key. Payload-equal partitions (FindingType, Title, Severity, Rationale, Category — ordinal) keep the lowest `EngineType`. Payload-unequal partitions keep that primary **and** append a `FindingEngineFailure` listing EngineType ids and FindingIds — they are not silently dropped.
 
 **UI / exports:** Findings roll into review surfaces, manifest snapshots, and **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** Pilot vs Operate narratives — the manifest remains the buyer-facing aggregate artifact.

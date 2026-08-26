@@ -189,28 +189,27 @@ public sealed class InsightDensityEngineDistributionReportTests
             "quality",
             "insight-density-engine-distribution.md");
 
-        await File.WriteAllTextAsync(markdownPath, BuildMarkdown(rollupRows));
+        await File.WriteAllTextAsync(markdownPath, InsightDensityEngineDistributionMarkdown.Build(rollupRows));
     }
 
-    private static string BuildMarkdown(IReadOnlyList<InsightDensityEngineDistributionRow> rows)
+    [Fact]
+    public void Distribution_markdown_includes_claim_boundary_disclaimer()
     {
-        List<string> lines = [
-            "# Insight-density engine distribution",
-            "",
-            "Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.",
-            "Typed-engine-protected findings are never demoted in production — a low median signals engine output quality, not a gate bug.",
-            "",
-            "| Engine | Findings | Min | Median | Max | Would demote if unprotected |",
-            "| --- | --- | --- | --- | --- | --- |",
-        ];
+        string markdown = InsightDensityEngineDistributionMarkdown.Build([
+            new InsightDensityEngineDistributionRow
+            {
+                EngineType = "compliance",
+                FindingCount = 1,
+                MinScore = 100,
+                MedianScore = 100,
+                MaxScore = 100,
+                WouldDemoteIfUnprotectedCount = 0,
+            },
+        ]);
 
-        foreach (InsightDensityEngineDistributionRow row in rows)
-        {
-            lines.Add(
-                $"| {row.EngineType} | {row.FindingCount} | {row.MinScore} | {row.MedianScore} | {row.MaxScore} | {row.WouldDemoteIfUnprotectedCount} |");
-        }
-
-        lines.Add("");
-        return string.Join('\n', lines) + "\n";
+        markdown.Should().Contain(InsightDensityEngineDistributionMarkdown.ClaimBoundaryMarker);
+        markdown.Should().Contain("typed-engine-protected");
+        markdown.Should().Contain("six");
+        markdown.Should().Contain("WouldDemoteIfUnprotectedCount");
     }
 }

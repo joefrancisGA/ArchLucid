@@ -133,6 +133,14 @@ Authoring checklist and local commands: **`tests/technology-consistency-corpus/R
 
 **Honest limitation:** baseline rows in this corpus are **fixture-authored**, not captured frontier-model output. The harness measures whether novelty math is stable and whether ArchLucid findings are covered by that baseline — it does **not** prove ArchLucid beats any named model.
 
+### Per-engine distribution (advisory)
+
+| Artifact | Meaning |
+|---------|---------|
+| **`docs/quality/insight-density-engine-distribution.md`** | Per-engine min/median/max scores from the six-engine golden corpus |
+
+**claimBoundary:** Advisory-only — `DeterministicInsightDensityGate` never demotes typed-engine findings (`typed-engine-protected`). The table covers six harness engines; thirty-three built-in engines are absent. `WouldDemoteIfUnprotectedCount` is a counterfactual, not production demotion behavior.
+
 Local commands:
 
 ```bash
