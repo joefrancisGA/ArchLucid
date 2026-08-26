@@ -2,12 +2,13 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { planningPlanDetailPath } from "@/lib/planning-route";
+import { planningPlanDetailHref } from "@/lib/planning-route";
 import type { LearningPlanListItemResponse } from "@/types/learning";
 import { cn } from "@/lib/utils";
 
 export type PlanningPlanDetailNextPlanFooterProps = {
   readonly plan: LearningPlanListItemResponse;
+  readonly scopedRunId?: string;
 };
 
 /** Footer CTA to continue with the next plan in this theme. */
@@ -30,7 +31,7 @@ export function PlanningPlanDetailNextPlanFooter(
         </p>
       </div>
       <Button type="button" variant="primary" size="sm" asChild data-testid="planning-plan-detail-next-plan-action">
-        <Link href={planningPlanDetailPath(props.plan.planId)}>Open next plan</Link>
+        <Link href={planningPlanDetailHref(props.plan.planId, props.scopedRunId)}>Open next plan</Link>
       </Button>
     </section>
   );
