@@ -347,6 +347,7 @@ internal static class InfrastructureExtensions
                     .WithMethods(methods)
                     .WithHeaders(headers)
                     .WithExposedHeaders(
+                        "Location",
                         "traceparent",
                         "X-Trace-Id",
                         "X-Correlation-ID",
