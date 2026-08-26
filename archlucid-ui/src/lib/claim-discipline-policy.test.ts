@@ -38,6 +38,11 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("integration-readiness-help", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("repeat-review-loop-help", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-standards-rules", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("comparison-replay-help", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-accelerator-chooser", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-path-chooser", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-first-review", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-roi-summary", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-evidence-graph", "not a package.")).toBe("not a package.");
   });
 

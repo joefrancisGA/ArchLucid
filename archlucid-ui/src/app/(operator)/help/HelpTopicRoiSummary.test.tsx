@@ -6,6 +6,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpRoiSummaryGuideView } from "@/app/(operator)/help/_sections/HelpRoiSummaryGuideView";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
 import {
   ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
@@ -130,18 +135,20 @@ describe("HelpRoiSummaryGuideView", () => {
     expect(screen.getByTestId("help-roi-summary-claim-discipline-strip")).toHaveTextContent(
       ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
     );
-
-    const claimDiscipline = screen.getByTestId("help-roi-summary-claim-discipline");
-    const siblingReports = screen.getByTestId("help-roi-summary-sibling-reports");
-
-    expect(claimDiscipline).toHaveTextContent(ROI_SUMMARY_HELP_CLAIM_DISCIPLINE);
-    expect(screen.getByRole("heading", { name: ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-roi-summary",
+      "help-roi-summary-claim-discipline",
+      ROI_SUMMARY_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expectClaimDisciplineHeading(
+      screen,
+      "help-roi-summary",
+      ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING,
       ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
     );
-    expect(screen.getByRole("heading", { name: ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING }).className).toContain(
-      OPERATOR_TYPOGRAPHY.sectionTitle,
-    );
+
+    const siblingReports = screen.getByTestId("help-roi-summary-sibling-reports");
     expect(screen.getByRole("heading", { name: ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(siblingReports).toBeInTheDocument();
 
@@ -193,7 +200,11 @@ describe("HelpRoiSummaryGuideView", () => {
     expect(screen.getByTestId("help-roi-summary-how-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("help-roi-summary-guide").textContent).not.toMatch(/\bSources\b/);
 
-    for (const heading of ROI_SUMMARY_HELP_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-roi-summary",
+      ROI_SUMMARY_HELP_GUIDE_HEADINGS,
+      ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
+    )) {
       expect(screen.getByRole("heading", { name: heading.title })).toHaveAttribute("id", heading.id);
     }
 
@@ -202,7 +213,11 @@ describe("HelpRoiSummaryGuideView", () => {
       throw new Error("Expected ROI summary primary content region.");
     }
 
-    const guideHeadings = ROI_SUMMARY_HELP_GUIDE_HEADINGS.filter(
+    const guideHeadings = resolveGuideHeadingsForStrip(
+      "help-roi-summary",
+      ROI_SUMMARY_HELP_GUIDE_HEADINGS,
+      ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
+    ).filter(
       (heading) =>
         heading.title !== ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE &&
         heading.title !== ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING,

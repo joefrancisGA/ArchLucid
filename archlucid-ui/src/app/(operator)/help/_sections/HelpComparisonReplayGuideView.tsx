@@ -13,7 +13,6 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   COMPARE_REPEAT_REVIEW_HELP_JOB_MATRIX_HEADING,
   COMPARISON_REPLAY_HELP_JOB_MATRIX,
@@ -48,11 +47,11 @@ import {
 } from "@/lib/comparison-replay-help-page-copy";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
@@ -87,8 +86,12 @@ export function HelpComparisonReplayGuideView(
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = appendHelpClaimDisciplineTocHeadings(
-    extractHelpMarkdownHeadings(preparedMarkdown),
+  const headings = resolveGuideHeadingsForStrip(
+    "comparison-replay-help",
+    appendHelpClaimDisciplineTocHeadings(
+      extractHelpMarkdownHeadings(preparedMarkdown),
+      COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID,
+    ),
     COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID,
   );
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
@@ -135,59 +138,59 @@ export function HelpComparisonReplayGuideView(
           className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
           data-testid={COMPARISON_REPLAY_HELP_FIRST_VIEWPORT_TEST_ID}
         >
-          <Card
-            className={DESIGN_TOKENS.surface.card}
+          <section
+            className="space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid={COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID}
+            aria-labelledby="help-comparison-replay-decision-panel-heading"
           >
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                {COMPARISON_REPLAY_HELP_DECISION_PANEL_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-4")}>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div
-                  className="space-y-3 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
-                  data-testid="help-comparison-replay-decision-compare"
-                >
-                  <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{COMPARISON_REPLAY_HELP_DECISION_COMPARE.title}</h2>
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{COMPARISON_REPLAY_HELP_DECISION_COMPARE.summary}</p>
-                  <Button asChild size="sm" variant="primary">
-                    <Link href={COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.href}>
-                      {COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.label}
+            <h2
+              id="help-comparison-replay-decision-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {COMPARISON_REPLAY_HELP_DECISION_PANEL_TITLE}
+            </h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div
+                className="space-y-3 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+                data-testid="help-comparison-replay-decision-compare"
+              >
+                <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{COMPARISON_REPLAY_HELP_DECISION_COMPARE.title}</h3>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{COMPARISON_REPLAY_HELP_DECISION_COMPARE.summary}</p>
+                <Button asChild size="sm" variant="primary">
+                  <Link href={COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.href}>
+                    {COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.label}
+                  </Link>
+                </Button>
+              </div>
+
+              <div
+                className="space-y-3 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+                data-testid="help-comparison-replay-decision-validate"
+              >
+                <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{COMPARISON_REPLAY_HELP_DECISION_VALIDATE.title}</h3>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{COMPARISON_REPLAY_HELP_DECISION_VALIDATE.summary}</p>
+
+                {validateActionAvailable ? (
+                  <Button asChild size="sm" variant="outline">
+                    <Link href={COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.href}>
+                      {COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label}
                     </Link>
                   </Button>
-                </div>
+                ) : null}
 
-                <div
-                  className="space-y-3 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
-                  data-testid="help-comparison-replay-decision-validate"
-                >
-                  <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{COMPARISON_REPLAY_HELP_DECISION_VALIDATE.title}</h2>
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{COMPARISON_REPLAY_HELP_DECISION_VALIDATE.summary}</p>
-
-                  {validateActionAvailable ? (
-                    <Button asChild size="sm" variant="outline">
-                      <Link href={COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.href}>
-                        {COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label}
-                      </Link>
-                    </Button>
-                  ) : null}
-
-                  {validateUnavailable !== null ? (
-                    <p
-                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                      data-testid="comparison-replay-validate-unavailable"
-                      role="status"
-                    >
-                      <span className="font-medium text-al-text-primary">{validateUnavailable.label}</span> is not available
-                      in this workspace mode. {validateUnavailable.description}
-                    </p>
-                  ) : null}
-                </div>
+                {validateUnavailable !== null ? (
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="comparison-replay-validate-unavailable"
+                    role="status"
+                  >
+                    <span className="font-medium text-al-text-primary">{validateUnavailable.label}</span> is not available
+                    in this workspace mode. {validateUnavailable.description}
+                  </p>
+                ) : null}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </section>
 
           <div
             className={cn(

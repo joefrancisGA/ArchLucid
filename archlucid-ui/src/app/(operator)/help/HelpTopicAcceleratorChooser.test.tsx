@@ -28,6 +28,9 @@ import {
   ACCELERATOR_CHOOSER_GUIDE_HEADINGS,
 } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserGuideView";
 import {
+  ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_COPY,
+} from "@/lib/accelerator-chooser-help-guide-content";
+import {
   ACCELERATOR_CHOOSER_ENTRIES,
   isAcceleratorCostGovernancePackId,
 } from "@/lib/accelerator-chooser";
@@ -48,6 +51,7 @@ import {
   ACCELERATOR_PACK_UNLOCK_BLOCKED_MESSAGE,
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 import { getHelpCenterTier } from "@/lib/help/help-center-catalog";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 function renderGuideWithPrerequisiteStatus(
@@ -100,7 +104,10 @@ describe("HelpAcceleratorChooserGuideView", () => {
     expect(visible).not.toContain("accelerator_chooser.md");
     expect(screen.getByTestId("help-accelerator-chooser-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-accelerator-chooser-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("help-accelerator-chooser-claim-discipline-strip")).toHaveTextContent(
+      ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_COPY,
+    );
+    expect(screen.queryByTestId("help-accelerator-chooser-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-accelerator-chooser-claim-discipline-scope")).toHaveTextContent(
       ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_SCOPE,
     );
@@ -188,7 +195,11 @@ describe("HelpAcceleratorChooserGuideView", () => {
 
     render(<HelpAcceleratorChooserGuideView entry={loaded.entry} />);
 
-    for (const heading of ACCELERATOR_CHOOSER_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-accelerator-chooser",
+      ACCELERATOR_CHOOSER_GUIDE_HEADINGS,
+      "claim-discipline",
+    )) {
       expect(document.getElementById(heading.id)).not.toBeNull();
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }

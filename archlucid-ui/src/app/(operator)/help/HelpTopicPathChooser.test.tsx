@@ -31,6 +31,7 @@ import {
 import {
   PATH_CHOOSER_HELP_RELATED_NEXT_STEPS,
   PATH_CHOOSER_HELP_SOURCES,
+  PATH_CHOOSER_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/path-chooser-help-evidence-copy";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -97,7 +98,9 @@ describe("HelpPathChooserGuideView", () => {
     expect(screen.getByTestId("help-path-chooser-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-path-chooser-orientation")).toBeInTheDocument();
-    expect(screen.getByTestId("help-path-chooser-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("help-path-chooser-claim-discipline")).toHaveTextContent(
+      PATH_CHOOSER_HELP_CLAIM_DISCIPLINE,
+    );
     expect(screen.getByTestId("help-path-chooser-sources")).toBeInTheDocument();
 
     const sources = screen.getByTestId("help-path-chooser-sources");

@@ -12,7 +12,6 @@ import { PathChooserHelpRelatedNextStepsStrip } from "@/components/help/PathChoo
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -29,13 +28,14 @@ import {
   buildPathChooserHelpTocHeadings,
   pathChooserHelpPageSubtitle,
 } from "@/lib/path-chooser-help-guide-content";
+import { PATH_CHOOSER_HELP_CLAIM_HEADING_ID } from "@/lib/path-chooser-help-evidence-copy";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import {
@@ -60,7 +60,11 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = buildPathChooserHelpTocHeadings(extractHelpMarkdownHeadings(preparedMarkdown));
+  const headings = resolveGuideHeadingsForStrip(
+    "help-path-chooser",
+    buildPathChooserHelpTocHeadings(extractHelpMarkdownHeadings(preparedMarkdown)),
+    PATH_CHOOSER_HELP_CLAIM_HEADING_ID,
+  );
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
   const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
@@ -106,6 +110,8 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+          <PathChooserHelpRelatedNextStepsStrip />
+
           <div
             id={PATH_CHOOSER_HELP_PRIMARY_CONTENT_ID}
             className={cn("scroll-mt-24 space-y-6")}
@@ -157,20 +163,22 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
               </ul>
             </section>
 
-            <Card
-              className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950"
+            <section
+              className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
               data-testid="help-path-chooser-action-panel"
               id="common-next-steps"
+              aria-labelledby="help-path-chooser-action-panel-heading"
             >
-              <CardHeader className={OPERATOR_CARD.header}>
-                <CardTitle as="h2" className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                  {PATH_CHOOSER_HELP_ACTION_PANEL_TITLE}
-                </CardTitle>
-                <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {PATH_CHOOSER_HELP_ACTION_PANEL_INTRO}
-                </p>
-              </CardHeader>
-              <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+              <h2
+                id="help-path-chooser-action-panel-heading"
+                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+              >
+                {PATH_CHOOSER_HELP_ACTION_PANEL_TITLE}
+              </h2>
+              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {PATH_CHOOSER_HELP_ACTION_PANEL_INTRO}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
                 <Button asChild size="sm" variant="primary" data-testid="help-path-chooser-start-review">
                   <Link href={PATH_CHOOSER_HELP_PRIMARY_ACTIONS.startReview.href}>
                     {PATH_CHOOSER_HELP_PRIMARY_ACTIONS.startReview.label}
@@ -187,8 +195,8 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
                 >
                   {PATH_CHOOSER_HELP_PRIMARY_ACTIONS.firstPilotPath.label}
                 </Link>
-              </CardContent>
-            </Card>
+              </div>
+            </section>
 
             <HelpPathChooserEvaluatorSessionStrip />
           </div>
@@ -221,8 +229,6 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
               />
             </HelpLazyDetails>
           </section>
-
-          <PathChooserHelpRelatedNextStepsStrip />
         </div>
 
         {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}

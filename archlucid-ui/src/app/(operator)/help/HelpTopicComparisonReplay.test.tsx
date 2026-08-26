@@ -22,6 +22,9 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpComparisonReplayGuideView } from "@/app/(operator)/help/_sections/HelpComparisonReplayGuideView";
 import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE,
   COMPARISON_REPLAY_HELP_SOURCES,
 } from "@/lib/comparison-replay-help-evidence-copy";
@@ -136,8 +139,14 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-09");
 
     expect(screen.getByTestId("comparison-replay-help-orientation")).toBeInTheDocument();
-    expect(screen.getByTestId("comparison-replay-help-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("help-comparison-replay-claim-discipline-strip")).toHaveTextContent(
       COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "comparison-replay-help",
+      "comparison-replay-help-claim-discipline",
+      COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
 
     const sources = screen.getByTestId("comparison-replay-help-sources");

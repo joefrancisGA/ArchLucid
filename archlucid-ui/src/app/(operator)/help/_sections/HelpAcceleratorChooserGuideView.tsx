@@ -22,7 +22,6 @@ import {
   ACCELERATOR_CHOOSER_HELP_PAGE_SUBTITLE,
   ACCELERATOR_CHOOSER_HELP_PAGE_TITLE,
   ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS,
-  ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_COPY,
 } from "@/lib/accelerator-chooser-help-guide-content";
 import { ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO } from "@/lib/accelerator-chooser-help-evidence-copy";
 import { ACCELERATOR_CHOOSER_HELP_PATH } from "@/lib/accelerator-chooser-help-route";
@@ -33,11 +32,11 @@ import {
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 import { ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL } from "@/lib/accelerator-chooser-start-copy";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   HELP_PAGE_LAYOUT,
@@ -51,7 +50,6 @@ import {
 import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 type HelpAcceleratorChooserGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -158,8 +156,13 @@ export function HelpAcceleratorChooserGuideView(
   const { entry } = props;
   const presentation = useAcceleratorChooserPrerequisitePresentation();
   const gridItems = buildAcceleratorChooserGridItemsForPrerequisite(presentation.status);
-  const contentGridClass = resolveHelpPageContentGridClass(ACCELERATOR_CHOOSER_GUIDE_HEADINGS.length);
-  const showSectionNav = ACCELERATOR_CHOOSER_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-accelerator-chooser",
+    ACCELERATOR_CHOOSER_GUIDE_HEADINGS,
+    "claim-discipline",
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
+  const showSectionNav = guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article
@@ -253,40 +256,26 @@ export function HelpAcceleratorChooserGuideView(
             </ol>
           </section>
 
-          <aside
-            className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
-            data-testid="help-accelerator-chooser-claim-discipline"
-            id="claim-discipline"
-          >
-            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>Claim discipline</h2>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_COPY}</p>
-          </aside>
-
           <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             aria-labelledby="help-accelerator-chooser-related-next-steps-heading"
             data-testid="help-accelerator-chooser-related-next-steps"
             id="related-next-steps"
           >
-            <Card className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
-              <CardHeader className={OPERATOR_CARD.header}>
-                <h2
-                  id="help-accelerator-chooser-related-next-steps-heading"
-                  className={cn("m-0 text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}
-                >
-                  Related next steps
-                </h2>
-                <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO}
-                </p>
-              </CardHeader>
-              <CardContent className={OPERATOR_CARD.content}>
-                <HelpAcceleratorChooserRelatedNextStepsLinks />
-              </CardContent>
-            </Card>
+            <h2
+              id="help-accelerator-chooser-related-next-steps-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              Related next steps
+            </h2>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO}
+            </p>
+            <HelpAcceleratorChooserRelatedNextStepsLinks />
           </section>
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={ACCELERATOR_CHOOSER_GUIDE_HEADINGS} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
       </div>
     </article>
   );

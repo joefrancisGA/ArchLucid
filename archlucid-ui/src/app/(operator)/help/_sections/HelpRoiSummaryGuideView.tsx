@@ -9,23 +9,23 @@ import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHe
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   CTA_WIDTH,
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   ROI_SUMMARY_HELP_BREADCRUMB_TOPIC_TITLE,
+  ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
   ROI_SUMMARY_HELP_DATA_NEEDS_ITEMS,
   ROI_SUMMARY_HELP_DATA_NEEDS_SECTION_TITLE,
   ROI_SUMMARY_HELP_DIRECTIONAL_DISCLAIMER,
@@ -90,7 +90,12 @@ function HowToReadRoiSummarySteps(): React.ReactElement {
 /** Operator ROI summary orientation for `/help/roi-summary`. */
 export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(ROI_SUMMARY_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-roi-summary",
+    ROI_SUMMARY_HELP_GUIDE_HEADINGS,
+    ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -258,25 +263,22 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
             <HelpSectionHeading id="sibling-sponsor-reports">Related sponsor reports</HelpSectionHeading>
             <div className="grid gap-3 sm:grid-cols-2" data-testid="help-roi-summary-sibling-reports">
               {ROI_SUMMARY_HELP_SIBLING_REPORTS.map((report) => (
-                <Card key={report.id} className="border-neutral-200 dark:border-neutral-800">
-                  <CardHeader className={OPERATOR_CARD.header}>
-                    <CardTitle as="h3" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                      {report.title}
-                    </CardTitle>
-                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{report.description}</p>
-                  </CardHeader>
-                  <CardContent className={OPERATOR_CARD.content}>
-                    <Button asChild className={CTA_WIDTH.content} size="sm" variant="outline">
-                      <Link href={report.href}>{report.actionLabel}</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div
+                  key={report.id}
+                  className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                >
+                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{report.title}</h3>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{report.description}</p>
+                  <Button asChild className={CTA_WIDTH.content} size="sm" variant="outline">
+                    <Link href={report.href}>{report.actionLabel}</Link>
+                  </Button>
+                </div>
               ))}
             </div>
           </section>
         </div>
 
-        <HelpTopicTableOfContents headings={ROI_SUMMARY_HELP_GUIDE_HEADINGS} enableScrollSpy />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
     </article>
   );

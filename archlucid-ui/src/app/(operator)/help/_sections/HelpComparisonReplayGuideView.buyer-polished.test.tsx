@@ -31,6 +31,9 @@ import {
   COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/comparison-replay-help-evidence-copy";
 import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS,
 } from "@/lib/comparison-replay-help-guide-content";
 import {
@@ -53,7 +56,13 @@ describe("HelpComparisonReplayGuideView buyer-polished shell", () => {
     expect(skipLink).toHaveAttribute("href", `#${COMPARISON_REPLAY_HELP_PRIMARY_CONTENT_ID}`);
 
     expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).not.toBeInTheDocument();
-    expect(screen.getByTestId("comparison-replay-help-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-comparison-replay-claim-discipline-strip").textContent).toContain(
+      COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "comparison-replay-help",
+      "comparison-replay-help-claim-discipline",
       COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByTestId("comparison-replay-help-sources")).toBeInTheDocument();
