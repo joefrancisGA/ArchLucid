@@ -22,7 +22,7 @@ import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-regi
 
 describe("usability lib", () => {
   it("pageHelpTopicForPathname maps review routes", () => {
-    expect(pageHelpTopicForPathname("/")?.slug).toBe("first-architecture-review");
+    expect(pageHelpTopicForPathname("/")?.slug).toBeUndefined();
     expect(pageHelpTopicForPathname("/")?.label).toBe("Home");
     expect(pageHelpTopicForPathname("/architecture/reviews/new")?.slug).toBe("evidence-intake");
     expect(pageHelpTopicForPathname("/reviews/new")?.slug).toBe("evidence-intake");
@@ -39,6 +39,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/architecture/architectures")?.label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
     expect(pageHelpTopicForPathname("/architecture/architectures/draft-id-123")?.slug).toBe("architecture-drafts");
     expect(pageHelpTopicForPathname("/architecture/architectures/draft-id-123")?.label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
+    expect(pageHelpTopicForPathname("/architecture/architectures/new")?.slug).toBe("structured-brief");
     expect(pageHelpTopicForPathname("/architecture/digests")?.slug).toBe("digests");
     expect(pageHelpTopicForPathname("/settings/roles")?.slug).toBe("users-and-roles");
     expect(pageHelpTopicForPathname("/architecture/digests")?.label).toBe(DIGESTS_HELP_TOPIC_LABEL);
