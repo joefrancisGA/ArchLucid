@@ -409,6 +409,150 @@ public sealed class ContextIngestionServiceTests
             .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.FailureModeNote]);
     }
 
+    [Fact]
+    public async Task IngestAsync_ActorsJsonPropertyCasing_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string actorsCamelCase = """
+                                       [
+                                         {
+                                           "label": "ops engineer",
+                                           "kind": "Human",
+                                           "trustOrigin": "Internal",
+                                           "contract": "Sync",
+                                           "origin": "Asserted",
+                                           "confidence": 100
+                                         }
+                                       ]
+                                       """;
+
+        const string actorsPascalCaseKeys = """
+                                            [
+                                              {
+                                                "Label": "ops engineer",
+                                                "Kind": "Human",
+                                                "TrustOrigin": "Internal",
+                                                "Contract": "Sync",
+                                                "Origin": "Asserted",
+                                                "Confidence": 100
+                                              }
+                                            ]
+                                            """;
+
+        const string projectId = "proj-actors-metadata";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            ActorsJson = actorsCamelCase
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            ActorsJson = actorsPascalCaseKeys
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.Actors);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.Actors]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.Actors]);
+    }
+
+    [Fact]
+    public async Task IngestAsync_PriorTopologyCategoryCasing_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-prior-topology-categories";
+        ContextSnapshot previousTitleCase = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            CreatedUtc = DateTime.UtcNow,
+            CanonicalObjects =
+            [
+                new CanonicalObject
+                {
+                    ObjectType = "TopologyResource",
+                    Name = "hub-vnet",
+                    SourceType = "Test",
+                    SourceId = "prior-1",
+                    Properties = new Dictionary<string, string> { ["category"] = "Network" }
+                },
+                new CanonicalObject
+                {
+                    ObjectType = "TopologyResource",
+                    Name = "data-store",
+                    SourceType = "Test",
+                    SourceId = "prior-2",
+                    Properties = new Dictionary<string, string> { ["category"] = "Storage" }
+                }
+            ]
+        };
+
+        await repo.SaveAsync(previousTitleCase, CancellationToken.None);
+
+        ContextIngestionRequest firstRequest = new() { RunId = Guid.NewGuid(), ProjectId = projectId };
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextSnapshot previousLowerCase = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            CreatedUtc = DateTime.UtcNow,
+            CanonicalObjects =
+            [
+                new CanonicalObject
+                {
+                    ObjectType = "TopologyResource",
+                    Name = "hub-vnet",
+                    SourceType = "Test",
+                    SourceId = "prior-1",
+                    Properties = new Dictionary<string, string> { ["category"] = "network" }
+                },
+                new CanonicalObject
+                {
+                    ObjectType = "TopologyResource",
+                    Name = "data-store",
+                    SourceType = "Test",
+                    SourceId = "prior-2",
+                    Properties = new Dictionary<string, string> { ["category"] = "storage" }
+                }
+            ]
+        };
+
+        await repo.SaveAsync(previousLowerCase, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new() { RunId = Guid.NewGuid(), ProjectId = projectId };
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.PriorTopologyCategories);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.PriorTopologyCategories]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.PriorTopologyCategories]);
+    }
+
     private sealed class CountingConnector : IContextConnector
     {
         public string ConnectorType => "test-connector";

@@ -2,8 +2,10 @@ using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Topology;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Persistence.Context;
+using System.Text.Json;
 
 namespace ArchLucid.ContextIngestion.Services;
 
@@ -17,6 +19,10 @@ public class ContextIngestionService(
     ICanonicalDeduplicator deduplicator,
     IContextSnapshotRepository snapshotRepository) : IContextIngestionService
 {
+    private static readonly JsonSerializerOptions ActorJsonDeserializeOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+    };
     public async Task<ContextSnapshot> IngestAsync(
         ContextIngestionRequest request,
         CancellationToken ct)
@@ -88,7 +94,7 @@ public class ContextIngestionService(
             snapshot.SourceHashes[ContextScopeMetadataKeys.Assumptions] = string.Join('|', confirmedAssumptions);
 
         if (!string.IsNullOrWhiteSpace(request.ActorsJson))
-            snapshot.SourceHashes[ContextScopeMetadataKeys.Actors] = request.ActorsJson;
+            snapshot.SourceHashes[ContextScopeMetadataKeys.Actors] = CanonicalizeActorsJson(request.ActorsJson);
 
         if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(request.QualityAttribute))
             snapshot.SourceHashes[ContextScopeMetadataKeys.QualityAttribute] =
@@ -105,7 +111,7 @@ public class ContextIngestionService(
             .Where(static o => string.Equals(o.ObjectType, "TopologyResource", StringComparison.OrdinalIgnoreCase))
             .Select(static o =>
                 o.Properties.TryGetValue("category", out string? category) && !string.IsNullOrWhiteSpace(category)
-                    ? category
+                    ? category.Trim().ToLowerInvariant()
                     : "general")
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(static c => c, StringComparer.OrdinalIgnoreCase)
@@ -126,5 +132,24 @@ public class ContextIngestionService(
             return;
 
         snapshot.SourceHashes[ContextScopeMetadataKeys.PriorRequirementNames] = string.Join('|', priorRequirementNames);
+    }
+
+    private static string CanonicalizeActorsJson(string actorsJson)
+    {
+        try
+        {
+            List<ActorDescriptor>? actors = JsonSerializer.Deserialize<List<ActorDescriptor>>(
+                actorsJson,
+                ActorJsonDeserializeOptions);
+
+            if (actors is not { Count: > 0 })
+                return actorsJson.Trim();
+
+            return JsonSerializer.Serialize(actors);
+        }
+        catch (JsonException)
+        {
+            return actorsJson.Trim();
+        }
     }
 }

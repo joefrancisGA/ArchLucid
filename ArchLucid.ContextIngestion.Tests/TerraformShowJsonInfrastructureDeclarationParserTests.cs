@@ -710,6 +710,51 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_EquivalentScientificNotation_ProduceSameTfProperties()
+    {
+        const string jsonInt = """
+                               {
+                                 "values": {
+                                   "root_module": {
+                                     "resources": [
+                                       {
+                                         "type": "azurerm_service_plan",
+                                         "name": "main",
+                                         "values": { "worker_count": 1 }
+                                       }
+                                     ]
+                                   }
+                                 }
+                               }
+                               """;
+
+        string jsonScientific = jsonInt.Replace("\"worker_count\": 1", "\"worker_count\": 1e0");
+
+        InfrastructureDeclarationReference declInt = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-int",
+            Content = jsonInt
+        };
+
+        InfrastructureDeclarationReference declScientific = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-sci",
+            Content = jsonScientific
+        };
+
+        IReadOnlyList<CanonicalObject> intObjects = await _sut.ParseAsync(declInt, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> scientificObjects = await _sut.ParseAsync(declScientific, CancellationToken.None);
+
+        intObjects.Should().ContainSingle();
+        scientificObjects.Should().ContainSingle();
+        scientificObjects[0].Properties.Should().BeEquivalentTo(intObjects[0].Properties);
+    }
+
+    [Fact]
     public void CanParse_TrimsPaddedFormat()
     {
         _sut.CanParse(" terraform-show-json ").Should().BeTrue();
