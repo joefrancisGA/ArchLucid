@@ -10,16 +10,17 @@ import {
   loadHelpTopicContent,
   resolveHelpTopicContentKind,
 } from "@/lib/help/help-topic-content-loader";
-import { parseHelpTopicViewResolverSlugs } from "@/lib/help/help-topic-page-dispatch-inventory";
+import {
+  HELP_TOPIC_VIEW_RESOLVER_MODULE_FILENAMES,
+  parseHelpTopicViewResolverSlugs,
+} from "@/lib/help/help-topic-page-dispatch-inventory";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
-const HELP_TOPIC_VIEW_RESOLVER_PATH = join(
-  process.cwd(),
-  "src",
-  "lib",
-  "help",
-  "help-topic-view-resolver.tsx",
-);
+function readHelpTopicViewResolverLadderSource(): string {
+  return HELP_TOPIC_VIEW_RESOLVER_MODULE_FILENAMES.map((filename) =>
+    readFileSync(join(process.cwd(), "src", "lib", "help", filename), "utf8"),
+  ).join("\n");
+}
 
 describe("help-topic-content-loader (TB-2238)", () => {
   it("classifies app-guided troubleshooting without repo markdown", () => {
@@ -67,8 +68,7 @@ describe("help-topic-content-loader (TB-2238)", () => {
   });
 
   it("aligns app-guided registry with help-topic-view-resolver slug ladder", () => {
-    const resolverSource = readFileSync(HELP_TOPIC_VIEW_RESOLVER_PATH, "utf8");
-    const resolverSlugs = parseHelpTopicViewResolverSlugs(resolverSource);
+    const resolverSlugs = parseHelpTopicViewResolverSlugs(readHelpTopicViewResolverLadderSource());
     const appGuided = new Set<string>(HELP_APP_GUIDED_TOPIC_SLUGS);
     const markdownWithLayout = new Set<string>(HELP_MARKDOWN_WITH_LAYOUT_TOPIC_SLUGS);
     const expectedResolverSlugs = new Set<string>([...appGuided, ...markdownWithLayout]);

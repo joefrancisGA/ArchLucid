@@ -81,15 +81,12 @@ describe("help-topic-catch-all-fallthrough TB-1601", () => {
     expect(source).toContain("HelpPathChooserGuideView");
   });
 
-  it("guards tryResolveOperateHelpTopicView catch-all in help-topic-view-resolver-operate.tsx", () => {
+  // tryResolveOperateHelpTopicView must stay a "try" resolver: a terminal fallthrough there
+  // makes the integrations and admin resolvers unreachable and throws on their slugs.
+  it("keeps tryResolveOperateHelpTopicView falling through instead of owning the catch-all", () => {
     const source = readFileSync(HELP_TOPIC_VIEW_RESOLVER_OPERATE_PATH, "utf8");
-    const assertIndex = source.indexOf("assertHelpTopicCatchAllFallthroughAllowed");
 
-    expect(assertIndex).toBeGreaterThan(-1);
-
-    const afterAssert = source.slice(assertIndex);
-
-    expect(afterAssert).toContain("markdown={loaded.markdown}");
-    expect(afterAssert).not.toMatch(/assertHelpTopicCatchAllFallthroughAllowed[\s\S]*return null/);
+    expect(source).not.toContain("assertHelpTopicCatchAllFallthroughAllowed");
+    expect(source.trimEnd().endsWith("return null;\n}")).toBe(true);
   });
 });

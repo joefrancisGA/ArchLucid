@@ -5,7 +5,6 @@ import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownVi
 import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
 import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
 import { SECURITY_TRUST_HELP_CLAIM_HEADING_ID } from "@/lib/security-trust-help-evidence-copy";
-import { assertHelpTopicCatchAllFallthroughAllowed } from "@/lib/help/help-topic-catch-all-fallthrough";
 import type { LoadedHelpTopicContent } from "@/lib/help/help-topic-content-loader";
 
 
@@ -359,13 +358,7 @@ export function tryResolveOperateHelpTopicView(
     return <HelpEvidenceTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
-  assertHelpTopicCatchAllFallthroughAllowed(loaded.entry);
-
-  return (
-    <HelpTopicMarkdownView
-      entry={loaded.entry}
-      markdown={loaded.markdown}
-      showContextualHelp
-    />
-  );
+  // Unhandled slugs must fall through to the integrations/admin resolvers; only
+  // resolveHelpTopicView owns the terminal TB-1601 bare-markdown assert.
+  return null;
 }

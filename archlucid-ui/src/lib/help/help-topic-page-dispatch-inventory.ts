@@ -9,6 +9,17 @@ export type HelpTopicPageDispatchInventoryDiff = {
   readonly missingFromInventory: readonly string[];
 };
 
+/**
+ * Resolver modules that together own the help topic slug ladder (#163 split).
+ * `help-topic-view-resolver` only chains these and owns the terminal TB-1601 assert,
+ * so any guard that scans source for slug branches must read every module here.
+ */
+export const HELP_TOPIC_VIEW_RESOLVER_MODULE_FILENAMES = [
+  "help-topic-view-resolver-operate.tsx",
+  "help-topic-view-resolver-integrations.tsx",
+  "help-topic-view-resolver-admin.tsx",
+] as const;
+
 /** Slugs wired in help topic view resolver modules before catch-all fallthrough (TB-2238). */
 export function parseHelpTopicViewResolverSlugs(resolverSource: string): ReadonlySet<string> {
   const slugs = new Set<string>();
