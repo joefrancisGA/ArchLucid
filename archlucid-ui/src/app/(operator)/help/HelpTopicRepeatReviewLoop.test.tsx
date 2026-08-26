@@ -9,6 +9,9 @@ vi.mock("@/components/help/MermaidDiagram", () => ({
 
 import { HelpRepeatReviewLoopGuideView } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView";
 import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   COMPARISON_REPLAY_HELP_IA_DUAL_INBOUND_LABEL,
   REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX_TEST_ID,
 } from "@/lib/compare-repeat-review-help-ia-dual";
@@ -18,6 +21,7 @@ import {
   REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE,
   REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
 } from "@/lib/repeat-review-loop-help-guide-content";
+import { REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE } from "@/lib/repeat-review-loop-help-evidence-copy";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
@@ -121,7 +125,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(allComparisonReplayHrefs).toHaveLength(1);
   });
 
-  it("hoists eligibility and start-loop CTA above claim discipline (TB-1394)", () => {
+  it("hoists eligibility and start-loop CTA above orientation follow-ups (TB-1394)", () => {
     if (loaded === null) {
       throw new Error("Expected repeat-review-loop documentation to load.");
     }
@@ -130,14 +134,22 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
 
     const eligibility = screen.getByTestId("help-repeat-review-loop-eligibility");
     const actionPanel = screen.getByTestId("help-repeat-review-loop-action-panel");
-    const claimDiscipline = screen.getByTestId("repeat-review-loop-help-claim-discipline");
+    const claimStrip = screen.getByTestId("help-repeat-review-loop-claim-discipline-strip");
+    const orientation = screen.getByTestId("repeat-review-loop-help-orientation");
 
     expect(within(actionPanel).getByRole("link", { name: /Compare two reviews/i })).toHaveAttribute(
       "href",
       "/insights/compare-two-reviews",
     );
+    expect(claimStrip.compareDocumentPosition(eligibility) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(eligibility.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(actionPanel.compareDocumentPosition(claimDiscipline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(actionPanel.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expectClaimDisciplineBandContent(
+      screen,
+      "repeat-review-loop-help",
+      "repeat-review-loop-help-claim-discipline",
+      REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId("repeat-review-loop-help-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.queryByTestId("help-repeat-review-loop-refresh-button")).toBeNull();

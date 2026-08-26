@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { expectClaimDisciplineBandContent, expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "@/components/help/EnterpriseOnboardingHelpEvidenceOrientationStrip";
 import {
@@ -10,11 +10,14 @@ import {
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
 
 describe("EnterpriseOnboardingHelpEvidenceOrientationStrip", () => {
-  it("renders claim discipline and related setup pages without diligence artifact vocabulary", () => {
+  it("renders follow-up links without duplicate claim discipline when the strip slug is omitted", () => {
     render(<EnterpriseOnboardingHelpEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("enterprise-onboarding-help-claim-discipline")).toHaveTextContent(
-      ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
+    expectClaimDisciplineBandContent(
+      screen,
+      "enterprise-onboarding-help",
+      "enterprise-onboarding-help-claim-discipline",
+      ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByTestId("enterprise-onboarding-help-sources")).toHaveTextContent(
       ENTERPRISE_ONBOARDING_HELP_FOLLOW_UPS_TITLE,

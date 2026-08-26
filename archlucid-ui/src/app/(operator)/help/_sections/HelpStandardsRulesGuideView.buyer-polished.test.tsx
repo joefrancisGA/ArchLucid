@@ -44,7 +44,7 @@ describe("HelpStandardsRulesGuideView buyer-polished shell", () => {
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-heading-eyebrow")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-standards-rules-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("help-standards-rules-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-standards-rules-claim-discipline-strip").textContent).toContain(
       STANDARDS_RULES_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
 

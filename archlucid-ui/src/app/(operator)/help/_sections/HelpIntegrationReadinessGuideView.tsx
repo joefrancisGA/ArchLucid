@@ -11,8 +11,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   INTEGRATION_READINESS_HELP_CONFIGURE_SECTION_ANCHORS,
   INTEGRATION_READINESS_HELP_DEFERRED_STATUS_LABELS_ANCHOR,
@@ -31,7 +29,6 @@ import {
 } from "@/lib/integration-readiness-help-related-guides";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -43,6 +40,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 
 type HelpIntegrationReadinessGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -96,6 +94,8 @@ export function HelpIntegrationReadinessGuideView(
       <IntegrationReadinessHelpClaimDisciplineStrip />
 
       <div className="space-y-4" data-testid={INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_TEST_ID}>
+        <IntegrationReadinessHelpEvidenceOrientationStrip />
+
         <section
           className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="help-integration-readiness-action-panel"
@@ -117,8 +117,6 @@ export function HelpIntegrationReadinessGuideView(
           </Button>
         </section>
 
-        <IntegrationReadinessHelpEvidenceOrientationStrip />
-
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-integration-readiness-overview">
           {INTEGRATION_READINESS_HELP_OVERVIEW}
         </p>
@@ -136,24 +134,27 @@ export function HelpIntegrationReadinessGuideView(
         ) : null}
       </div>
 
-      <Card data-testid={INTEGRATION_READINESS_HELP_RELATED_TEST_ID}>
-        <CardHeader className={OPERATOR_CARD.header}>
-          <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-            {INTEGRATION_READINESS_HELP_RELATED_HEADING}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-          <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-            {INTEGRATION_READINESS_HELP_RELATED_GUIDES.map((guide) => (
-              <li key={guide.href}>
-                <Link className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)} href={guide.href}>
-                  {guide.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+      <section
+        className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+        data-testid={INTEGRATION_READINESS_HELP_RELATED_TEST_ID}
+        aria-labelledby="help-integration-readiness-related-heading"
+      >
+        <h2
+          id="help-integration-readiness-related-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          {INTEGRATION_READINESS_HELP_RELATED_HEADING}
+        </h2>
+        <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+          {INTEGRATION_READINESS_HELP_RELATED_GUIDES.map((guide) => (
+            <li key={guide.href}>
+              <Link className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)} href={guide.href}>
+                {guide.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       {statusGlossaryMarkdown.trim().length > 0 ? (
         <CollapsibleSection

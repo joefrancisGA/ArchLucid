@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { expectClaimDisciplineBandContent, expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "@/components/help/IntegrationReadinessHelpEvidenceOrientationStrip";
 import {
@@ -9,11 +9,14 @@ import {
 } from "@/lib/integration-readiness-help-evidence-copy";
 
 describe("IntegrationReadinessHelpEvidenceOrientationStrip", () => {
-  it("renders claim discipline and all connector follow-up links", () => {
+  it("renders connector follow-up links without duplicate claim discipline when omitted", () => {
     render(<IntegrationReadinessHelpEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("integration-readiness-help-claim-discipline")).toHaveTextContent(
-      INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE,
+    expectClaimDisciplineBandContent(
+      screen,
+      "integration-readiness-help",
+      "integration-readiness-help-claim-discipline",
+      INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
 
     for (const link of INTEGRATION_READINESS_HELP_SOURCES) {

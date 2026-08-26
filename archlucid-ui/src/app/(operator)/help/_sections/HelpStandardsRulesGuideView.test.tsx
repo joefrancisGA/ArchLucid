@@ -1,11 +1,24 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
 import { HelpStandardsRulesGuideView } from "@/app/(operator)/help/_sections/HelpStandardsRulesGuideView";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
 import {
   STANDARDS_RULES_HELP_CLAIM_HEADING_ID,
   STANDARDS_RULES_HELP_GUIDE_HEADINGS,
@@ -21,6 +34,7 @@ import {
   STANDARDS_RULES_HELP_SOURCES,
 } from "@/lib/standards-rules-help-evidence-copy";
 import { STANDARDS_RULES_PAGE_SUBTITLE } from "@/lib/standards-rules-page";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -36,7 +50,7 @@ describe("HelpStandardsRulesGuideView", () => {
     render(<HelpStandardsRulesGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-standards-rules-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Guide last reviewed 2026-08-13 · Policy resolution, enforced rules, and diagnostic export",
     );
@@ -44,14 +58,19 @@ describe("HelpStandardsRulesGuideView", () => {
     expect(STANDARDS_RULES_HELP_OVERVIEW.toLowerCase()).not.toContain("this review");
     expect(screen.getByTestId("help-standards-rules-overview")).toHaveTextContent(STANDARDS_RULES_HELP_OVERVIEW);
     expect(screen.getByTestId("help-standards-rules-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
-    expect(screen.getByTestId("help-standards-rules-claim-discipline").textContent?.toLowerCase()).not.toContain(
-      "sources package",
-    );
-    expect(screen.getByTestId("help-standards-rules-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-standards-rules-claim-discipline-strip").textContent).toContain(
       STANDARDS_RULES_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByRole("heading", { name: STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-standards-rules",
+      "help-standards-rules-claim-discipline",
+      STANDARDS_RULES_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expectClaimDisciplineHeading(
+      screen,
+      "help-standards-rules",
+      STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING,
       STANDARDS_RULES_HELP_CLAIM_HEADING_ID,
     );
     expect(screen.getByRole("link", { name: STANDARDS_RULES_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
@@ -87,10 +106,14 @@ describe("HelpStandardsRulesGuideView", () => {
     expect(screen.getAllByRole("link", { name: "Policy packs" })).toHaveLength(1);
     expect(screen.getAllByRole("link", { name: STANDARDS_RULES_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
 
-    for (const heading of STANDARDS_RULES_HELP_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-standards-rules",
+      STANDARDS_RULES_HELP_GUIDE_HEADINGS,
+      STANDARDS_RULES_HELP_CLAIM_HEADING_ID,
+    )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
 
-    expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
   });
 });

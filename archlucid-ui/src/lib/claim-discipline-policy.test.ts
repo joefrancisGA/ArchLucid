@@ -34,6 +34,10 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("help-system-health", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("findings-help", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("findings-help", undefined)).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("enterprise-onboarding-help", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("integration-readiness-help", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("repeat-review-loop-help", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-standards-rules", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-evidence-graph", "not a package.")).toBe("not a package.");
   });
 

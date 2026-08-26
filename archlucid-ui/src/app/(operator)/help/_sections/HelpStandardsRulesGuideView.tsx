@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { StandardsRulesHelpClaimDisciplineStrip } from "@/components/help/StandardsRulesHelpClaimDisciplineStrip";
 import { StandardsRulesHelpEvidenceOrientationStrip } from "@/components/help/StandardsRulesHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -14,10 +15,12 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   STANDARDS_RULES_HELP_BREADCRUMB_TOPIC_TITLE,
+  STANDARDS_RULES_HELP_CLAIM_HEADING_ID,
   STANDARDS_RULES_HELP_GUIDE_HEADINGS,
   STANDARDS_RULES_HELP_HOW_TO_READ_STEPS,
   STANDARDS_RULES_HELP_OVERVIEW,
@@ -55,8 +58,14 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const contentGridClass = resolveHelpPageContentGridClass(STANDARDS_RULES_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-standards-rules",
+    STANDARDS_RULES_HELP_GUIDE_HEADINGS,
+    STANDARDS_RULES_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+  const orientationSources = buyerPolishedShell ? STANDARDS_RULES_HELP_ORIENTATION_SOURCES : undefined;
 
   return (
     <article
@@ -88,19 +97,19 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
         }
       />
 
+      <StandardsRulesHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div
           id={STANDARDS_RULES_HELP_PRIMARY_CONTENT_ID}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
-          {buyerPolishedShell ? (
-            <div data-testid="help-standards-rules-orientation-top">
-              <StandardsRulesHelpEvidenceOrientationStrip
-                readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
-                sources={STANDARDS_RULES_HELP_ORIENTATION_SOURCES}
-              />
-            </div>
-          ) : null}
+          <div data-testid="help-standards-rules-orientation-top">
+            <StandardsRulesHelpEvidenceOrientationStrip
+              readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
+              sources={orientationSources}
+            />
+          </div>
 
           <p className={readingBodyClass} data-testid="help-standards-rules-overview">
             {STANDARDS_RULES_HELP_OVERVIEW}
@@ -142,15 +151,9 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
               ))}
             </ol>
           </section>
-
-          {!buyerPolishedShell ? (
-            <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-              <StandardsRulesHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-            </div>
-          ) : null}
         </div>
 
-        <HelpTopicTableOfContents headings={STANDARDS_RULES_HELP_GUIDE_HEADINGS} enableScrollSpy />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
     </article>
   );

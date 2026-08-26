@@ -8,10 +8,8 @@ import { EnterpriseOnboardingHubSteps } from "@/components/help/EnterpriseOnboar
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -23,6 +21,7 @@ import {
 import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID,
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import {
@@ -48,11 +47,15 @@ export function HelpEnterpriseOnboardingGuideView(
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = appendHelpClaimDisciplineTocHeadings(
-    [
-      { id: "onboarding-hub", title: "Onboarding hub", level: 2 as const },
-      ...extractHelpMarkdownHeadings(preparedMarkdown),
-    ],
+  const headings = resolveGuideHeadingsForStrip(
+    "enterprise-onboarding-help",
+    appendHelpClaimDisciplineTocHeadings(
+      [
+        { id: "onboarding-hub", title: "Onboarding hub", level: 2 as const },
+        ...extractHelpMarkdownHeadings(preparedMarkdown),
+      ],
+      ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID,
+    ),
     ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID,
   );
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
@@ -74,19 +77,21 @@ export function HelpEnterpriseOnboardingGuideView(
       <EnterpriseOnboardingHelpClaimDisciplineStrip />
 
       <div className="space-y-6" data-testid="help-enterprise-onboarding-first-viewport">
-        <Card
-          className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950"
+        <section
+          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="help-enterprise-onboarding-action-panel"
+          aria-labelledby="help-enterprise-onboarding-action-panel-heading"
         >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Start tenant onboarding
-            </CardTitle>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-enterprise-onboarding-overview">
-              {ENTERPRISE_ONBOARDING_HELP_HERO_OVERVIEW}
-            </p>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+          <h2
+            id="help-enterprise-onboarding-action-panel-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            Start tenant onboarding
+          </h2>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-enterprise-onboarding-overview">
+            {ENTERPRISE_ONBOARDING_HELP_HERO_OVERVIEW}
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="outline">
               <Link href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.href}>
                 {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.label}
@@ -108,12 +113,14 @@ export function HelpEnterpriseOnboardingGuideView(
             >
               {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCloudConnections.label}
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")} data-testid="help-topic-content">
+          <EnterpriseOnboardingHelpEvidenceOrientationStrip />
+
           <EnterpriseOnboardingHubSteps />
 
           <div className="min-w-0">
@@ -126,8 +133,6 @@ export function HelpEnterpriseOnboardingGuideView(
               preparedMarkdownOverride={preparedMarkdown}
             />
           </div>
-
-          <EnterpriseOnboardingHelpEvidenceOrientationStrip />
         </div>
 
         {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}

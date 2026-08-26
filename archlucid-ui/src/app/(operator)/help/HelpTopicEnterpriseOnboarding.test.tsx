@@ -1,6 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+  expectFollowUpLink,
+} from "@/lib/claim-discipline-test-helpers";
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
   MermaidDiagram: ({ source }: { readonly source: string }) => (
@@ -19,6 +23,7 @@ vi.mock("next/navigation", () => ({
 import { HelpEnterpriseOnboardingGuideView } from "@/app/(operator)/help/_sections/HelpEnterpriseOnboardingGuideView";
 import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
+  ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE_HEADING,
   ENTERPRISE_ONBOARDING_HELP_FOLLOW_UPS_TITLE,
   ENTERPRISE_ONBOARDING_HELP_SOURCES,
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
@@ -161,16 +166,28 @@ describe("HelpEnterpriseOnboardingGuideView enterprise onboarding checklist", ()
     expect(hub.textContent ?? "").not.toContain("/help/pilot-guide");
   });
 
-  it("renders evidence orientation after the hub with related setup pages title", () => {
+  it("renders evidence orientation before the hub with related setup pages title", () => {
     renderEnterpriseOnboardingView();
 
-    expect(contentOrderIndex("enterprise-onboarding-hub-steps")).toBeGreaterThanOrEqual(0);
-    expect(contentOrderIndex("enterprise-onboarding-help-orientation")).toBeGreaterThan(
-      contentOrderIndex("enterprise-onboarding-hub-steps"),
+    expect(contentOrderIndex("enterprise-onboarding-help-orientation")).toBeGreaterThanOrEqual(0);
+    expect(contentOrderIndex("enterprise-onboarding-hub-steps")).toBeGreaterThan(
+      contentOrderIndex("enterprise-onboarding-help-orientation"),
     );
 
-    expect(screen.getByTestId("enterprise-onboarding-help-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("help-enterprise-onboarding-claim-discipline-strip")).toHaveTextContent(
       ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "enterprise-onboarding-help",
+      "enterprise-onboarding-help-claim-discipline",
+      ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expectClaimDisciplineHeading(
+      screen,
+      "enterprise-onboarding-help",
+      ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE_HEADING,
+      "help-enterprise-onboarding-claim-discipline-heading",
     );
     expect(screen.queryByText(/Sources package/i)).toBeNull();
     expect(screen.queryByText(/Diligence artifact/i)).toBeNull();

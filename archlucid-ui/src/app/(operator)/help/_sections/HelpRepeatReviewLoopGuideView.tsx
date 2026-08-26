@@ -10,20 +10,14 @@ import { RepeatReviewLoopHelpClaimDisciplineStrip } from "@/components/help/Repe
 import { RepeatReviewLoopHelpEvidenceOrientationStrip } from "@/components/help/RepeatReviewLoopHelpEvidenceOrientationStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
@@ -67,8 +61,12 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = appendHelpClaimDisciplineTocHeadings(
-    extractHelpMarkdownHeadings(preparedMarkdown),
+  const headings = resolveGuideHeadingsForStrip(
+    "repeat-review-loop-help",
+    appendHelpClaimDisciplineTocHeadings(
+      extractHelpMarkdownHeadings(preparedMarkdown),
+      REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID,
+    ),
     REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID,
   );
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
@@ -141,14 +139,18 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
       </section>
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
+        <section
+          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="help-repeat-review-loop-action-panel"
+          aria-labelledby="help-repeat-review-loop-action-panel-heading"
         >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>Start the loop</CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+          <h2
+            id="help-repeat-review-loop-action-panel-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            Start the loop
+          </h2>
+          <div className="flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="primary">
               <Link href={REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS.compareReviews.href}>
                 {REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS.compareReviews.label}
@@ -159,14 +161,16 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
                 {REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS.startNextReview.label}
               </Link>
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
 
       <HelpRepeatReviewLoopWorkflowStepper />
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+          <RepeatReviewLoopHelpEvidenceOrientationStrip />
+
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-repeat-review-loop-overview">
             {REPEAT_REVIEW_LOOP_HELP_OVERVIEW}
           </p>
@@ -223,8 +227,6 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
               ))}
             </ul>
           </section>
-
-          <RepeatReviewLoopHelpEvidenceOrientationStrip />
         </div>
 
         {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}

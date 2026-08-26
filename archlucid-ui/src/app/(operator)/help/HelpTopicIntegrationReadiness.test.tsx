@@ -19,6 +19,9 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
 
 import { HelpIntegrationReadinessGuideView } from "@/app/(operator)/help/_sections/HelpIntegrationReadinessGuideView";
 import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE,
   INTEGRATION_READINESS_HELP_PRIMARY_ACTION,
 } from "@/lib/integration-readiness-help-evidence-copy";
@@ -62,6 +65,12 @@ describe("HelpTopicIntegrationReadiness (HEI)", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-integration-readiness-claim-discipline-strip")).toHaveTextContent(
       INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "integration-readiness-help",
+      "integration-readiness-help-claim-discipline",
+      INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByTestId("integration-readiness-help-sources")).toBeInTheDocument();
     expect(screen.getByTestId(INTEGRATION_READINESS_HELP_RELATED_TEST_ID)).toBeInTheDocument();
