@@ -348,5 +348,53 @@ public sealed class TenantTrialControllerTests
         body.DaysRemaining!.Value.Should().BeGreaterOrEqualTo(8).And.BeLessOrEqualTo(10);
     }
 
+    [SkippableFact]
+    public async Task GetTrialStatusAsync_returns_null_days_remaining_when_converted()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
+        };
+        DateTimeOffset expires = TimeProvider.System.GetUtcNow().AddDays(30);
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialRunsUsed = 0,
+            TrialSeatsUsed = 0,
+            TrialStatus = TrialLifecycleStatus.Converted,
+            TrialStartUtc = TimeProvider.System.GetUtcNow().AddDays(-14),
+            TrialExpiresUtc = expires,
+            EntraTenantId = Guid.Parse("44444444-4444-4444-4444-444444444444")
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+        IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
+        body.Status.Should().Be(TrialLifecycleStatus.Converted);
+        body.DaysRemaining.Should().BeNull();
+    }
+
     private static ITrialIdentityUserRepository NoopTrialIdentityUsers() => Mock.Of<ITrialIdentityUserRepository>();
 }

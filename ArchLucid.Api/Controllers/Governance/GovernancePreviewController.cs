@@ -56,6 +56,11 @@ public sealed class GovernancePreviewController(
             logger.LogWarning(ex, "Preview failed: run not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (GoldenManifestVersionNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Preview failed: manifest version not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
+        }
         catch (ArgumentException ex)
         {
             logger.LogWarning(ex, "Preview failed: validation error.");

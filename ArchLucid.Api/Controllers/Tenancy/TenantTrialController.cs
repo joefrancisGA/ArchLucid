@@ -83,23 +83,11 @@ public sealed class TenantTrialController(
 
         int? daysRemaining = null;
 
-        if (!string.IsNullOrWhiteSpace(tenant.TrialStatus) &&
-            tenant.TrialExpiresUtc is not null &&
-            !string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
-
+        if (!string.IsNullOrWhiteSpace(tenant.TrialStatus) && tenant.TrialExpiresUtc is not null)
             daysRemaining = TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay(
                 tenant,
                 TimeProvider.System.GetUtcNow(),
                 _trialLifecycleSchedulerOptions.CurrentValue);
-
-        else if (tenant.TrialExpiresUtc is { } expires)
-        {
-            double totalDays = (expires - TimeProvider.System.GetUtcNow()).TotalDays;
-            daysRemaining = (int)Math.Floor(totalDays);
-
-            if (daysRemaining < 0)
-                daysRemaining = 0;
-        }
 
         return Ok(
             new TenantTrialStatusResponse

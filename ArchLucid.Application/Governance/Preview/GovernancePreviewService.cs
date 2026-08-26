@@ -45,8 +45,7 @@ public sealed class GovernancePreviewService(
                 ? runDetail.Manifest
                 : await unifiedGoldenManifestReader.GetByVersionAsync(request.ManifestVersion, cancellationToken);
         if (candidateManifest is null)
-            throw new InvalidOperationException($"Golden manifest version '{request.ManifestVersion}' was not found for run '{request.RunId}'. " +
-                                                "Ensure the manifest version belongs to this run and has been committed.");
+            throw new GoldenManifestVersionNotFoundException(request.ManifestVersion, request.RunId);
         if (!string.Equals(candidateManifest.RunId, request.RunId, StringComparison.Ordinal))
             throw new InvalidOperationException(
                 $"Manifest version '{request.ManifestVersion}' belongs to run '{candidateManifest.RunId}', not '{request.RunId}'.");

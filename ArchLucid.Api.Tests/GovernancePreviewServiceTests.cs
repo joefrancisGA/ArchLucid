@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -237,5 +238,22 @@ public sealed class GovernancePreviewServiceTests
         });
 
         await act.Should().ThrowAsync<RunNotFoundException>();
+    }
+
+    [SkippableFact]
+    public async Task PreviewActivationAsync_WhenManifestVersionMissing_ThrowsGoldenManifestVersionNotFoundException()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail("run-1"));
+        _unifiedManifestReader
+            .Setup(r => r.GetByVersionAsync("missing-v", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GoldenManifest?)null);
+
+        Func<Task<GovernancePreviewResult>> act = () => _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = "run-1", ManifestVersion = "missing-v", Environment = "dev"
+        });
+
+        await act.Should().ThrowAsync<GoldenManifestVersionNotFoundException>();
     }
 }
