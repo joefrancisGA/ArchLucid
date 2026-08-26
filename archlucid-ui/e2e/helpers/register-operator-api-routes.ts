@@ -7,6 +7,10 @@ import type { ArtifactDescriptor, ManifestSummary, RunComparison, RunDetail } fr
 import { getIdentityProvidersPageBundleMockJson } from "../fixtures/identity-providers-page-bundle-mock";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import {
+  getMockEffectiveContent,
+  listMockPacks,
+} from "../policy-packs-mock-state";
+import {
   fixtureArtifactDescriptorsNonEmpty,
   fixtureCompareLeftRunManifestDocument,
   fixtureCompareRightRunManifestDocument,
@@ -458,6 +462,57 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
         nextCursor: null,
         hasMore: false,
         requestedTake,
+      });
+
+      return;
+    }
+
+    await route.fallback();
+  });
+}
+
+/** Policy pack detail reads — route-level stub avoids flake when the shared loopback mock is contended. */
+export async function registerPolicyPackDetailRoutes(page: Page): Promise<void> {
+  await page.route("**/api/proxy/**", async (route) => {
+    const req = route.request();
+
+    if (req.method() !== "GET") {
+      await route.fallback();
+
+      return;
+    }
+
+    const url = new URL(req.url());
+    const apiPath = backendApiPath(url);
+
+    if (apiPath === null) {
+      await route.fallback();
+
+      return;
+    }
+
+    if (apiPath === "/v1/policy-packs") {
+      await fulfillJson(route, 200, listMockPacks());
+
+      return;
+    }
+
+    if (apiPath === "/v1/policy-packs/workspace-selection") {
+      await fulfillJson(route, 200, []);
+
+      return;
+    }
+
+    const versionMatch = /^\/v1\/policy-packs\/([^/]+)\/versions\/([^/]+)$/.exec(apiPath);
+
+    if (versionMatch) {
+      await fulfillJson(route, 200, {
+        policyPackVersionId: `${versionMatch[1]}-${versionMatch[2]}`,
+        policyPackId: versionMatch[1],
+        version: versionMatch[2],
+        contentJson: JSON.stringify(getMockEffectiveContent()),
+        createdUtc: "2026-01-01T00:00:00.000Z",
+        isPublished: true,
       });
 
       return;

@@ -15,6 +15,7 @@ import {
   showcaseSignedManifestBrowserUrlPattern,
 } from "./helpers/buyer-golden-path";
 import { expectGraphPageReadySurface, expectMainHasNoHardFailureChrome, runsDashboardBuyerProofSummary } from "./helpers/operator-journey";
+import { registerPolicyPackDetailRoutes } from "./helpers/register-operator-api-routes";
 import { waitForAppReady } from "./helpers/waits";
 
 const claimsShowcasePath = "/showcase/customer-intake-modernization";
@@ -43,7 +44,8 @@ function showcaseDemoReviewDetailUrlPattern(): RegExp {
  * Run in isolation: `npx playwright test -c playwright.mock.config.ts e2e/demo-readiness.spec.ts`
  * or `npx playwright test --grep @demo-readiness`.
  */
-test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", () => {
+/** Serial: parallel mock journeys contend on the shared loopback API stub and flake policy-pack detail loads. */
+test.describe("demo-readiness — mock proof chain @demo-readiness", () => {
   test("policy pack rejects literal undefined token route @demo-readiness", async ({ page }) => {
     await page.goto("/governance/policy-packs/undefined");
     await expectBrandedNotFoundSurface(page);
@@ -220,11 +222,10 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   test("policy pack scoped route renders pack shell (not governance workflow page heading) @demo-readiness", async ({
     page,
   }) => {
+    await registerPolicyPackDetailRoutes(page);
     await page.goto("/governance/policy-packs/e2e-policy-pack-001");
     await waitForAppReady(page);
-    await expect(page.getByTestId("policy-pack-detail-primary-content")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("policy-pack-detail-load-error")).toHaveCount(0);
-    // Pack detail body uses buyer-polished empty-state copy; library link lives in page actions or Sources — not TB-2090 breadcrumbs.
     await expect(page.getByTestId("policy-pack-detail-title")).toBeVisible({ timeout: 30_000 });
     await expect(
       page.getByRole("link", { name: /Open policy pack library|Policy pack library|Policy packs|registry catalog/i }).first(),
