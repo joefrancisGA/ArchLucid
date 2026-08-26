@@ -5,6 +5,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
@@ -152,11 +153,7 @@ public sealed class ArchitectureRunAsyncCreateAdmitter(
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
-            _logger.LogInformation(
-                "Async create admitted: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}",
-                runId,
-                request.RequestId,
-                request.SystemName);
+            _logger.LogInformationAsyncCreateAdmitted(runIdText, request.RequestId, request.SystemName);
         }
 
         return new ArchitectureRunAsyncCreateAdmitResult(runId, IdempotentReplay: false);

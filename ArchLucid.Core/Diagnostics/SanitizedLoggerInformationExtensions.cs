@@ -212,6 +212,24 @@ public static partial class SanitizedLoggerInformationExtensions
     }
 
     /// <summary>
+    ///     Logs Tier C async create admit success with user-derived string placeholders sanitized before the sink.
+    /// </summary>
+    public static void LogInformationAsyncCreateAdmitted(
+        this ILogger logger,
+        string userRunId,
+        string userRequestId,
+        string userSystemName)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+        string safeRequestId = LogSanitizer.Sanitize(userRequestId);
+        string safeSystemName = LogSanitizer.Sanitize(userSystemName);
+
+        EmitAsyncCreateAdmitted(logger, safeRunId, safeRequestId, safeSystemName);
+    }
+
+    /// <summary>
     ///     Logs successful internal architecture run replay with five user-derived string placeholders sanitized before the sink.
     /// </summary>
     public static void LogInformationInternalArchitectureRunReplayed(

@@ -125,9 +125,7 @@ function writeReports(report: BatchReport): { readonly markdownPath: string; rea
 
   for (const row of report.results) {
     const durationSec = (row.durationMs / 1000).toFixed(1);
-    const errorCell = row.error
-      ? truncateError(row.error).replace(/\|/g, "\\|").replace(/\n/g, " ")
-      : "";
+    const errorCell = row.error ? escapeMarkdownTableCell(truncateError(row.error)) : "";
 
     lines.push(
       `| ${row.scenarioName} | ${row.runId ?? "—"} | ${row.status} | ${row.manifestVersion ?? "—"} | ${formatFindingsByCategory(row.findingsByCategory)} | ${durationSec} | ${errorCell} |`,

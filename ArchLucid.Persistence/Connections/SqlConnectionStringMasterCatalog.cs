@@ -1,5 +1,7 @@
 using Microsoft.Data.SqlClient;
 
+using ArchLucid.Persistence.Data.Infrastructure;
+
 namespace ArchLucid.Persistence.Connections;
 
 /// <summary>Redirects a tenant/product connection string at the <c>master</c> catalog for DDL that cannot run in-session.</summary>
@@ -16,13 +18,14 @@ public static class SqlConnectionStringMasterCatalog
             InitialCatalog = MasterCatalogName
         };
 
-        return builder.ConnectionString;
+        return SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(builder.ConnectionString);
     }
 
     public static string ReadInitialCatalog(string connectionString)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
+        // codeql[cs/insecure-sql-connection]: parses catalog name only; no connection opened; Encrypt applied on builders that return strings.
         SqlConnectionStringBuilder builder = new(connectionString);
 
         if (string.IsNullOrWhiteSpace(builder.InitialCatalog))

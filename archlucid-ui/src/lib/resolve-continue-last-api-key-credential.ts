@@ -41,6 +41,7 @@ export function writeApiKeyCredentialLastViewedSlot(slot: ApiKeyCredentialSlot):
   }
 
   try {
+    // codeql[js/clear-text-storage-of-sensitive-data]: stores credential slot enum (Admin|ReadOnly), never secret key material.
     window.localStorage.setItem(API_KEY_CREDENTIAL_LAST_VIEWED_STORAGE_KEY, slot);
   } catch {
     /* ignore */
