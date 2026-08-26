@@ -18,7 +18,7 @@ public static class TopologyHintStableObjectIds
         ArgumentException.ThrowIfNullOrWhiteSpace(trimmedHint);
 
         if (!trimmedHint.Contains('/'))
-            return trimmedHint;
+            return NormalizeInternalWhitespace(trimmedHint);
 
         string[] segments = trimmedHint.Split(
             '/',
@@ -27,7 +27,19 @@ public static class TopologyHintStableObjectIds
         if (segments.Length == 0)
             return trimmedHint;
 
-        return string.Join('/', segments);
+        return string.Join('/', segments.Select(NormalizeInternalWhitespace));
+    }
+
+    private static string NormalizeInternalWhitespace(string segment)
+    {
+        string[] parts = segment.Split(
+            (char[]?)null,
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (parts.Length == 0)
+            return segment.Trim();
+
+        return string.Join(' ', parts);
     }
 
     /// <summary>32 lowercase hex characters (128 bits of SHA-256).</summary>

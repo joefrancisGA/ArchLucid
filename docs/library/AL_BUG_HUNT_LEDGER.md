@@ -1808,11 +1808,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 40
-- **bugs-found:** 84
+- **hunts:** 41
+- **bugs-found:** 88
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — ARM composite `name` arrays collapsed child resources to parent-only names
+- **last-bug:** 2026-08-26 — JSON custom-property identity + duplicate simple-terraform blocks collapsed connector deltas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1911,10 +1911,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TopologyHintStableObjectIds.CanonicalizeHintName` only normalized spacing around the first `/` — **hit 2026-08-26:** `prod / vnet / subnet-a` vs `prod/vnet/subnet-a` churned topology-hints connector deltas and `ObjectId`; fixed by trimming all slash segments (`TopologyHintStableObjectIdsTests.CanonicalizeHintName_ThreeSegmentInnerSlashSpacing_EquivalentPathsMatch`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_DeltaAsync_ThreeSegmentInnerSlashSpacing_ReportsUnchanged`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.CollectFromModule` ignored module/resource `address` when sibling child modules declared the same Terraform type + label — **hit 2026-08-26:** two `azurerm_subnet.this` resources in `module.network` and `module.data` collapsed to one `Name`, `ObjectId`, and delta key; fixed by resolving terraform resource addresses from JSON `address` or `moduleAddress.type.label` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_SiblingChildModulesSameResourceLabel_EmitsTwoResources`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonSiblingModulesSameLabel_CountsBothResources`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser.ReadName` kept only the first segment of composite ARM `name` arrays — **hit 2026-08-26:** `["hub-vnet","subnet-a"]` and `["hub-vnet","subnet-b"]` both parsed as `hub-vnet`, collapsing delta keys and dedupe fingerprints; fixed by joining array segments with `/` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_CompositeSubnetNames_EmitsDistinctChildNames`, `InfrastructureDeclarationConnectorTests.DeltaAsync_ArmJsonCompositeSubnetNames_CountsBothResources`).
-- [ ] (hunt-ready) `InfrastructureDeclarationResourceIdentity` / `CanonicalDeduplicator` with JSON resources sharing `type`+`name`+`subtype`+`region` but differing custom `properties` — identity disambiguators stop at subtype/region, so distinct resources collapse in connector delta and dedupe.
-- [ ] (hunt-ready) `TopologyHintStableObjectIds.CanonicalizeHintName` with internal whitespace (`hub  vnet` vs `hub vnet`) — slash segments are trimmed but internal runs of spaces churn stable ids and topology-hints connector deltas.
-- [ ] (hunt-ready) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` preserves nested block-name casing (`tf.Site_Config` vs `tf.site_config`) — unlike `TryAddTfProperty`, block keys are not lowercased, false-modifying simple-terraform deltas on ordinal bags.
-- [ ] (hunt-ready) `SimpleTerraformDeclarationParser` / `InfrastructureDeclarationDeltaKey` with duplicate `resource` blocks sharing type+label — stable identity is `terraformType|label` only, so malformed duplicate HCL collapses in delta.
+- [x] (proven) `InfrastructureDeclarationResourceIdentity` / `CanonicalDeduplicator` with JSON resources sharing `type`+`name`+`subtype`+`region` but differing custom `properties` — **hit 2026-08-26:** identity disambiguators stopped at subtype/region so distinct `cidr` values collapsed; fixed by appending sorted custom property segments (`InfrastructureDeclarationConnectorTests.DeltaAsync_JsonSameTypeNameSubtypeRegionDifferentCustomProperties_CountsBothResources`).
+- [x] (proven) `TopologyHintStableObjectIds.CanonicalizeHintName` with internal whitespace (`hub  vnet` vs `hub vnet`) — **hit 2026-08-26:** double-space hints churned topology-hints connector deltas; fixed by collapsing internal whitespace in each segment (`TopologyHintStableObjectIdsTests`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_DeltaAsync_InternalWhitespaceChange_ReportsUnchanged`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` preserves nested block-name casing (`tf.Site_Config` vs `tf.site_config`) — **hit 2026-08-26:** unlike `TryAddTfProperty`, block keys were not lowercased, false-modifying simple-terraform deltas; fixed with `.ToLowerInvariant()` on sanitized block names (`CanonicalInfrastructurePropertyBagTests`, `InfrastructureDeclarationConnectorTests.DeltaAsync_SimpleTerraformNestedBlockNameCasingChange_ReportsUnchanged`).
+- [x] (proven) `SimpleTerraformDeclarationParser` / `InfrastructureDeclarationDeltaKey` with duplicate `resource` blocks sharing type+label — **hit 2026-08-26:** stable identity was `terraformType|label` only so malformed duplicate HCL collapsed in delta; fixed with per-declaration `terraformOccurrence` suffix (`SimpleTerraformDeclarationParserTests.ParseAsync_DuplicateResourceBlocksSameTypeLabel_EmitsDistinctObjects`, `InfrastructureDeclarationConnectorTests.DeltaAsync_DuplicateSimpleTerraformResourceBlocks_CountsBothResources`).
 
 ---
 

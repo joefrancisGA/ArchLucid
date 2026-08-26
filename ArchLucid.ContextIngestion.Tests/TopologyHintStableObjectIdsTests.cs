@@ -38,4 +38,14 @@ public sealed class TopologyHintStableObjectIdsTests
         spaced.Should().Be(compact);
         TopologyHintStableObjectIds.FromHintName(spaced).Should().Be(TopologyHintStableObjectIds.FromHintName(compact));
     }
+
+    [Fact]
+    public void CanonicalizeHintName_InternalWhitespace_EquivalentHintsMatch()
+    {
+        string spaced = TopologyHintStableObjectIds.CanonicalizeHintName("hub  vnet");
+        string compact = TopologyHintStableObjectIds.CanonicalizeHintName("hub vnet");
+
+        spaced.Should().Be(compact);
+        TopologyHintStableObjectIds.FromHintName(spaced).Should().Be(TopologyHintStableObjectIds.FromHintName(compact));
+    }
 }

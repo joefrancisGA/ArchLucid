@@ -55,4 +55,15 @@ public sealed class CanonicalInfrastructurePropertyBagTests
 
         properties.ContainsKey("tf.allowblobpublicaccess").Should().BeTrue();
     }
+
+    [Fact]
+    public void TryAddTfBlockProperty_lowercases_block_keys()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal);
+
+        CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(properties, "Site_Config", "enabled = true")
+            .Should().BeTrue();
+
+        properties.ContainsKey("tf.site_config").Should().BeTrue();
+    }
 }
