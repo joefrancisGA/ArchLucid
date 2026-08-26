@@ -136,7 +136,13 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
                 analysisRequest,
                 "leader-run",
                 notPublished)
-            .Should().BeFalse();
+            .Should().BeTrue();
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                analysisRequest,
+                "leader-run",
+                published)
+            .Should().BeTrue();
     }
 
     [Fact]
