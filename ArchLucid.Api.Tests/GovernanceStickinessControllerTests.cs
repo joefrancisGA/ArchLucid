@@ -40,7 +40,8 @@ public sealed class GovernanceStickinessControllerTests
         Mock<IArchitectureReviewRecurrenceNextRunCalculator>? recurrenceCalculator = null,
         Mock<IRiskExceptionService>? riskExceptions = null,
         Mock<IFindingInspectReadRepository>? findingInspect = null,
-        Mock<IRunRepository>? runRepository = null)
+        Mock<IRunRepository>? runRepository = null,
+        IRealizedValueAttestationService? attestationService = null)
     {
         Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -145,7 +146,7 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
                     digestComposer.Object,
                     reviewsAwaiting.Object,
-                    Mock.Of<IRealizedValueAttestationService>(),
+                    attestationService ?? Mock.Of<IRealizedValueAttestationService>(),
                     audit.Object,
                     findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>()),
                 scope.Object)
@@ -816,6 +817,50 @@ public sealed class GovernanceStickinessControllerTests
         body.IsValid.Should().BeFalse();
         body.NextRunUtc.Should().BeEmpty();
         body.ValidationError.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task ResolveFindingMergeConflict_returns_not_found_when_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchLucid.Persistence.Models.RunRecord?)null);
+
+        GovernanceStickinessController controller = BuildSut(runRepository: runs);
+
+        ResolveFindingMergeConflictRequest request = new()
+        {
+            Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+        };
+
+        IActionResult action = await controller.ResolveFindingMergeConflict(
+            foreignRunId,
+            "conflict-finding",
+            request,
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task UpsertRealizedValueAttestation_returns_bad_request_when_attested_incidents_negative()
+    {
+        RealizedValueAttestationService attestationService = new(Mock.Of<ArchLucid.Persistence.Tenancy.ITenantSettingsRepository>());
+        GovernanceStickinessController controller = BuildSut(attestationService: attestationService);
+
+        UpsertRealizedValueAttestationRequest request = new()
+        {
+            AttestedIncidentsAvoided = -3,
+        };
+
+        IActionResult action = await controller.UpsertRealizedValueAttestation(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     private static Mock<IArchitectureReviewRecurrenceNextRunCalculator> BuildRealRecurrenceCalculator()

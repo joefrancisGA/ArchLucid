@@ -137,6 +137,33 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task TryResolveFindingMergeConflictAsync_throws_when_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchLucid.Persistence.Models.RunRecord?)null);
+
+        GovernanceStickinessFacade sut = CreateSut(runRepository: runs.Object);
+
+        ResolveFindingMergeConflictRequest request = new()
+        {
+            Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+        };
+
+        Func<Task> act = () => sut.TryResolveFindingMergeConflictAsync(
+            foreignRunId,
+            "conflict-finding",
+            request,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<RunNotFoundException>()
+            .WithMessage($"*'{foreignRunId:D}'*");
+    }
+
+    [Fact]
     public async Task ListDispositionsAsync_excludes_foreign_workspace_events_for_same_finding_id()
     {
         Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

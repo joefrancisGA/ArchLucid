@@ -217,8 +217,15 @@ public sealed partial class GovernanceStickinessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        await _facade.UpsertRealizedValueAttestationAsync(request, cancellationToken);
+        try
+        {
+            await _facade.UpsertRealizedValueAttestationAsync(request, cancellationToken);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
     }
 }

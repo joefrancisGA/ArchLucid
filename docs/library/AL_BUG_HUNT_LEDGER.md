@@ -2212,8 +2212,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 33
-- **bugs-found:** 93
+- **hunts:** 34
+- **bugs-found:** 96
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
 - **last-bug:** 2026-08-26 — funnel first-manifest SQL, preview activation binding, setup bundle, promote linkage
@@ -2325,11 +2325,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Simulate` — missing `runId` or `content` dereferenced before validation (HTTP 500 risk) — **hit 2026-08-26:** explicit 400 guards before `RunId.Trim()`; regression in `GovernanceControllerSimulateTests.Simulate_returns_bad_request_when_run_id_missing`.
 - [x] (proven) `TenantWeeklyDigestHealthController.GetAsync` — missing tenant returned HTTP 200 zeroed snapshot — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantWeeklyDigestHealthControllerTests.GetAsync_returns_not_found_when_tenant_missing`.
 - [x] (proven) `TenantHomepageSettingsController.GetAsync` / `ListEligibleSamplesAsync` — missing tenant returned HTTP 200 unconfigured/empty — **hit 2026-08-26:** tenant preflight on GET paths; regression in `TenantHomepageSettingsControllerTests.GetAsync_returns_not_found_when_tenant_missing`.
-- [ ] (candidate) `TenantCustomerSuccessController` GET reads — ghost tenant returns HTTP 200 empty/`isCalculated: false` instead of 404.
-- [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` — out-of-scope `runId` returns conflict-not-found instead of run-not-found.
-- [ ] (candidate) `GovernanceStickinessController.UpsertRealizedValueAttestation` — negative `attestedIncidentsAvoided` or oversized note persists without validation.
-- [ ] (candidate) `GovernanceController.DryRunPolicyPack` / batch dry-run — foreign `policyPackId` evaluated without scope visibility check (if distinct from prior `PolicyPackDryRunService` fix).
-- [ ] (candidate) `TenantUsageStatusController.GetAsync` — missing tenant returns HTTP 200 default status instead of 404 (if not already guarded).
+- [x] (proven) `TenantCustomerSuccessController` GET reads — ghost tenant returned HTTP 200 empty/`isCalculated: false` instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync` on health-score, next-actions, funnel-snapshot, and stickiness-snapshot; regression in `TenantCustomerSuccessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` — out-of-scope `runId` returned conflict-not-found instead of run-not-found — **hit 2026-08-26:** `EnsureRunInScopeWhenProvidedAsync` preflight in facade; controller maps `RunNotFoundException` to `ProblemTypes.RunNotFound`; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.UpsertRealizedValueAttestation` — negative `attestedIncidentsAvoided` or oversized note persisted without validation — **hit 2026-08-26:** `RealizedValueAttestationUpsertValidation` before persist; controller maps `ArgumentException` to 400; regression in `RealizedValueAttestationServiceTests` and `GovernanceStickinessControllerTests`.
+- [x] (invalid) `GovernanceController.DryRunPolicyPack` / batch dry-run — foreign `policyPackId` evaluated without scope visibility check — **cheap-disproof 2026-08-26:** `PolicyPackDryRunService.EnsurePolicyPackInScopeAsync` already guards; regression in `PolicyPackDryRunServiceTests.EvaluateAsync_throws_when_policy_pack_is_out_of_scope`.
+- [x] (invalid) `TenantUsageStatusController.GetAsync` — missing tenant returns HTTP 200 default status instead of 404 — **cheap-disproof 2026-08-26:** `TenantUsageStatusService.BuildAsync` returns null for missing tenant; controller returns 404; regression in `TenantUsageStatusControllerTests.GetUsageStatusAsync_returns_not_found_when_tenant_missing`.
+
+2026-08-26 thorough hunt #109: proved customer-success GET tenant 404, merge-conflict run-scope 404 parity, and realized-value attestation validation; cheap-disproved DryRunPolicyPack scope (already fixed) and usage-status tenant 404 (already guarded).
 
 2026-08-26 seed hunt #108: proved approve/reject run-scope preflight, recurrence schedule 404 parity, governance simulate validation, weekly digest health tenant 404, and homepage settings GET tenant 404; seeded customer-success GET ghost tenant, merge-conflict run miss, realized-value attestation validation, and usage-status tenant parity candidates.
 

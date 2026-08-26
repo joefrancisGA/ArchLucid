@@ -95,4 +95,36 @@ public sealed class RealizedValueAttestationServiceTests
 
         capturedKey.Should().Be($"{TenantSettingKeys.RealizedValueAttestation}.{WorkspaceId:D}");
     }
+
+    [Fact]
+    public async Task SaveAttestationAsync_throws_when_attested_incidents_negative()
+    {
+        RealizedValueAttestationService sut = new(Mock.Of<ITenantSettingsRepository>());
+
+        UpsertRealizedValueAttestationRequest request = new()
+        {
+            AttestedIncidentsAvoided = -1,
+        };
+
+        Func<Task> act = () => sut.SaveAttestationAsync(TenantId, WorkspaceId, request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*non-negative*");
+    }
+
+    [Fact]
+    public async Task SaveAttestationAsync_throws_when_note_exceeds_max_length()
+    {
+        RealizedValueAttestationService sut = new(Mock.Of<ITenantSettingsRepository>());
+
+        UpsertRealizedValueAttestationRequest request = new()
+        {
+            AttestedReviewerTimeSavedNote = new string('x', RealizedValueAttestationUpsertValidation.NoteMaxLength + 1),
+        };
+
+        Func<Task> act = () => sut.SaveAttestationAsync(TenantId, WorkspaceId, request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage($"*at most {RealizedValueAttestationUpsertValidation.NoteMaxLength}*");
+    }
 }

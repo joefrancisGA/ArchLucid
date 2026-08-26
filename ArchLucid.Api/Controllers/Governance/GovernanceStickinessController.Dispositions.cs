@@ -124,15 +124,22 @@ public sealed partial class GovernanceStickinessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        bool resolved = await _facade.TryResolveFindingMergeConflictAsync(
-            runId,
-            findingId,
-            request,
-            cancellationToken).ConfigureAwait(false);
+        try
+        {
+            bool resolved = await _facade.TryResolveFindingMergeConflictAsync(
+                runId,
+                findingId,
+                request,
+                cancellationToken).ConfigureAwait(false);
 
-        if (!resolved)
-            return this.NotFoundProblem("Finding merge conflict was not found.", ProblemTypes.ResourceNotFound);
+            if (!resolved)
+                return this.NotFoundProblem("Finding merge conflict was not found.", ProblemTypes.ResourceNotFound);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
     }
 }

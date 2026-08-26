@@ -97,6 +97,8 @@ internal static class RealizedValueMetricsCalculator
         ArgumentNullException.ThrowIfNull(tenantSettingsRepository);
         ArgumentNullException.ThrowIfNull(request);
 
+        RealizedValueAttestationUpsertValidation.ValidateOrThrow(request);
+
         RealizedValueAttestation attestation = new()
         {
             AttestedIncidentsAvoided = request.AttestedIncidentsAvoided,

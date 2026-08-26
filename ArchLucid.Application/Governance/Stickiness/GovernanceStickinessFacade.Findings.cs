@@ -201,6 +201,9 @@ public sealed partial class GovernanceStickinessFacade
         CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await EnsureRunInScopeWhenProvidedAsync(scope, runId, ct);
+
         bool resolved = await _findingMergeConflictResolutionService.TryResolveAsync(
             scope,
             runId,
