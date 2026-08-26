@@ -85,11 +85,14 @@ public sealed class ReviewResultCache : IReviewResultCache
         ClosedLoopReasoningResult snapshot = ClosedLoopReasoningResultCloner.Clone(result);
         ClosedLoopCacheHitPublishGuard.SanitizeForStorage(snapshot);
 
+        if (IsRunIdTombstoned(snapshot.RunId))
+            return;
+
         string key = ReviewCacheKeyBuilder.Build(manifest);
 
         lock (_evictionLock)
         {
-            if (IsRunIdTombstonedUnlocked(result.RunId))
+            if (IsRunIdTombstonedUnlocked(snapshot.RunId))
                 return;
 
             EvictExpiredEntries();
