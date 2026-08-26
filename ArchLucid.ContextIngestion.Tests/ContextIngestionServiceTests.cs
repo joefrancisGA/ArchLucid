@@ -230,6 +230,42 @@ public sealed class ContextIngestionServiceTests
     }
 
     [Fact]
+    public async Task IngestAsync_TopologyHintsListOrder_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-topology-hint-order";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            TopologyHints = ["hub-vnet", "spoke-vnet"]
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            TopologyHints = ["spoke-vnet", "hub-vnet"]
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.TopologyHints);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.TopologyHints]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.TopologyHints]);
+    }
+
+    [Fact]
     public async Task IngestAsync_ConstraintPaddingAndCasing_ProducesStableScopeMetadata()
     {
         InMemoryContextSnapshotRepository repo = new();
@@ -256,6 +292,42 @@ public sealed class ContextIngestionServiceTests
             RunId = Guid.NewGuid(),
             ProjectId = projectId,
             Constraints = [" Monthly Budget Cap $100 "]
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.Constraints);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.Constraints]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.Constraints]);
+    }
+
+    [Fact]
+    public async Task IngestAsync_ConstraintsListOrder_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-constraint-order";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            Constraints = ["monthly budget cap $100", "no public endpoints"]
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            Constraints = ["no public endpoints", "monthly budget cap $100"]
         };
 
         ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
@@ -302,6 +374,42 @@ public sealed class ContextIngestionServiceTests
     }
 
     [Fact]
+    public async Task IngestAsync_RequiredCapabilitiesListOrder_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-capability-order";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            RequiredCapabilities = ["cost-analysis", "topology-coverage"]
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            RequiredCapabilities = ["topology-coverage", "cost-analysis"]
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.RequiredCapabilities);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.RequiredCapabilities]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.RequiredCapabilities]);
+    }
+
+    [Fact]
     public async Task IngestAsync_AssumptionPaddingAndCasing_ProducesStableScopeMetadata()
     {
         InMemoryContextSnapshotRepository repo = new();
@@ -328,6 +436,42 @@ public sealed class ContextIngestionServiceTests
             RunId = Guid.NewGuid(),
             ProjectId = projectId,
             Assumptions = [" Existing SQL Database Reused "]
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.Assumptions);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.Assumptions]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.Assumptions]);
+    }
+
+    [Fact]
+    public async Task IngestAsync_AssumptionsListOrder_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-assumption-order";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            Assumptions = ["existing sql database reused", "hub-spoke topology"]
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            Assumptions = ["hub-spoke topology", "existing sql database reused"]
         };
 
         ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);

@@ -65,7 +65,8 @@ public class ContextIngestionService(
             snapshot.SourceHashes[ContextScopeMetadataKeys.RequiredCapabilities] =
                 string.Join('|', request.RequiredCapabilities
                     .Where(static c => !string.IsNullOrWhiteSpace(c))
-                    .Select(static c => c.Trim().ToLowerInvariant()));
+                    .Select(static c => c.Trim().ToLowerInvariant())
+                    .OrderBy(static c => c, StringComparer.OrdinalIgnoreCase));
         }
 
         if (request.TopologyHints is { Count: > 0 })
@@ -74,7 +75,8 @@ public class ContextIngestionService(
                 string.Join('|', request.TopologyHints
                     .Where(static h => !string.IsNullOrWhiteSpace(h))
                     .Select(static h =>
-                        TopologyHintStableObjectIds.CanonicalizeHintName(h.Trim()).ToLowerInvariant()));
+                        TopologyHintStableObjectIds.CanonicalizeHintName(h.Trim()).ToLowerInvariant())
+                    .OrderBy(static h => h, StringComparer.OrdinalIgnoreCase));
         }
 
         if (request.Constraints is { Count: > 0 })
@@ -82,12 +84,14 @@ public class ContextIngestionService(
             snapshot.SourceHashes[ContextScopeMetadataKeys.Constraints] =
                 string.Join('|', request.Constraints
                     .Where(static c => !string.IsNullOrWhiteSpace(c))
-                    .Select(static c => c.Trim().ToLowerInvariant()));
+                    .Select(static c => c.Trim().ToLowerInvariant())
+                    .OrderBy(static c => c, StringComparer.OrdinalIgnoreCase));
         }
 
         List<string> confirmedAssumptions = request.Assumptions
             .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
             .Select(static a => a.Trim().ToLowerInvariant())
+            .OrderBy(static a => a, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         if (confirmedAssumptions.Count > 0)

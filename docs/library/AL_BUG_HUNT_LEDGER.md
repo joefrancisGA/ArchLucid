@@ -1801,11 +1801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 20
-- **bugs-found:** 53
+- **hunts:** 21
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — infrastructure declaration resource `Name` casing churned connector deltas
+- **last-bug:** 2026-08-26 — scope metadata list order churned `SourceHashes` for topology hints, capabilities, constraints, and assumptions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1872,6 +1872,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` preserves `null` vs missing `tf.*` keys — explicit JSON null canonicalizes to empty and is skipped like absent keys; regression `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonNullVsMissingTfValue_ReportsUnchanged`.
 - [x] (valid-no-repro) `ContextIngestionService.ApplyScopeMetadata` stores raw `ActorsJson` for invalid JSON — malformed payloads trim to the same hash; regression `ContextIngestionServiceTests.IngestAsync_InvalidActorsJsonPadding_ProducesStableScopeMetadata`.
 - [x] (proven) Infrastructure declaration parsers preserved resource `Name` casing while `InfrastructureDeclarationConnector.DeltaAsync` keys deltas case-sensitively — **hit 2026-08-26:** `hub-vnet` vs `Hub-Vnet` reported false add/remove on JSON, simple-terraform, and terraform-show-json re-ingest; fixed by lowercasing trimmed resource names in all three parsers (`JsonInfrastructureDeclarationParserTests.ParseAsync_ResourceNameCasing_IsCanonicalized`, `SimpleTerraformDeclarationParserTests.ParseAsync_ResourceNameCasing_IsCanonicalized`, `TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_ResourceNameCasing_IsCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_*ResourceNameCasingChange_ReportsUnchanged`).
+- [x] (proven) `ContextIngestionService.ApplyScopeMetadata` joined `TopologyHints`/`RequiredCapabilities`/`Constraints`/confirmed `Assumptions` without sorting — **hit 2026-08-26:** semantically identical lists in different order churned `SourceHashes` (same class as proven `CanonicalizeActorsJson` element-order bug); fixed with `OrderBy` before join (`ContextIngestionServiceTests.IngestAsync_TopologyHintsListOrder_ProducesStableScopeMetadata`, `IngestAsync_RequiredCapabilitiesListOrder_ProducesStableScopeMetadata`, `IngestAsync_ConstraintsListOrder_ProducesStableScopeMetadata`, `IngestAsync_AssumptionsListOrder_ProducesStableScopeMetadata`).
+- [ ] (hunt-ready) `PlainTextContextDocumentParser` leaves default random `CanonicalObject.ObjectId` on prefixed lines — identical document re-parse/re-ingest rotates `obj-{ObjectId}` graph node ids while document connector delta may report unchanged.
+- [ ] (hunt-ready) `PlainTextContextDocumentParser` `TOP:` slash hints omit stable `ObjectId` and `parentNodeId`, and document topology is not fed into `PolicyReferencePayloadNormalizer` overlap resolution — policy `applicableTopologyNodeIds` may miss document-only topology.
 
 ---
 
