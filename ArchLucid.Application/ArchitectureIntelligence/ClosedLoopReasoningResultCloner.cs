@@ -348,9 +348,15 @@ internal static class ClosedLoopReasoningResultCloner
         if (payload is ICloneable cloneable)
             return cloneable.Clone();
 
-        return JsonSerializer.Deserialize(
+        object? deserialized = JsonSerializer.Deserialize(
             JsonSerializer.Serialize(payload),
             payload.GetType());
+
+        if (deserialized is null)
+            throw new InvalidOperationException(
+                $"Unable to deep-clone finding payload of type '{payload.GetType().FullName}'.");
+
+        return deserialized;
     }
 
     private static ExplainabilityTrace CloneExplainabilityTrace(ExplainabilityTrace trace)
