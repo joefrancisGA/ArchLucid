@@ -499,16 +499,20 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
             IntegrityPassedFindingIds = publishDecision.IntegrityPassedFindingIds.ToList(),
             RunId = runId,
             ModelId = model.ModelId,
-            ProductFindings = ArchitectureIntelligenceProductBridge.ToFindings(
-                publishDecision.PublishableFindings,
-                validationByFindingId),
-            ProductRecommendations = ArchitectureIntelligenceProductBridge.ToRecommendationRecords(
-                publishDecision.PublishableRecommendations,
-                publishDecision.PublishableFindings,
-                tenantId,
-                workspaceId,
-                projectId,
-                runId),
+            ProductFindings = effectiveRequest.PublishToProduct
+                ? ArchitectureIntelligenceProductBridge.ToFindings(
+                    publishDecision.PublishableFindings,
+                    validationByFindingId)
+                : [],
+            ProductRecommendations = effectiveRequest.PublishToProduct
+                ? ArchitectureIntelligenceProductBridge.ToRecommendationRecords(
+                    publishDecision.PublishableRecommendations,
+                    publishDecision.PublishableFindings,
+                    tenantId,
+                    workspaceId,
+                    projectId,
+                    runId)
+                : [],
         };
 
         ArchitectureIntelligenceBudgetResultApplier.Apply(result, budget);
