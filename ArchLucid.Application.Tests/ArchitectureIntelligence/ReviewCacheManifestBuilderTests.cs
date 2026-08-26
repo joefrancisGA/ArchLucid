@@ -1,5 +1,6 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
@@ -103,6 +104,37 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(withoutGolden).ContentHash
             .Should()
             .NotBe(ReviewCacheManifestBuilder.Build(withGolden).ContentHash);
+    }
+
+    [Fact]
+    public void Build_changes_content_hash_when_baseline_ledger_fingerprint_changes_for_supplied_run_id()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-with-ledger";
+
+        TechnologyLedgerEntry awsEntry = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = "Amazon Web Services",
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Aws,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+        };
+
+        TechnologyLedgerEntry azureEntry = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = "Microsoft Azure",
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Azure,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+        };
+
+        ReviewCacheManifestBuilder.Build(request, null, [awsEntry]).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(request, null, [azureEntry]).ContentHash);
     }
 
     private static ClosedLoopReasoningRequest CreateRequest(string content)
