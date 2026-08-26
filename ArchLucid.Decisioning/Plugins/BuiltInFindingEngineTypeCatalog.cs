@@ -52,6 +52,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["AzureInventorySecurityBaselineFindingEngine"] = "azure-inventory-security-baseline",
             ["AwsInventorySecurityBaselineFindingEngine"] = "aws-inventory-security-baseline",
             ["GcpInventorySecurityBaselineFindingEngine"] = "gcp-inventory-security-baseline",
+            ["DeclarationSecurityBaselineFindingEngine"] = "declaration-security-baseline",
         };
 
     /// <summary>Every product <c>EngineType</c> (ordinal ignore-case).</summary>
