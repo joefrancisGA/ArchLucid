@@ -7,6 +7,8 @@ This document describes **`tests/eval-corpus/`** — a deliberately **small, syn
 Companion scripts:
 
 - **`scripts/ci/eval_agent_corpus.py`** — synthetic scenarios under **`tests/eval-corpus/`** (finding recall vs recordings).
+- **`scripts/ci/policy_pack_attribution_signal.py`** — offline policy-pack attribution signal over **`tests/eval-corpus/policy-pack-attribution/`** (TB-884).
+- **`scripts/ci/insight_density_frontier_delta.py`** — offline frontier-baseline delta over **`tests/eval-corpus/insight-density-frontier-delta/`** (insight-density pillar instrument). Hand-authored baseline fixtures only — not evidence against any named frontier model.
 - **`scripts/ci/assert_technology_consistency_corpus.py`** — manifest drift guard for **`tests/technology-consistency-corpus/`** (deterministic Technology Ledger finding-engine and artifact-prose lint regression; see that folder’s **`README.md`**).
 - **`scripts/ci/eval_agent_quality.py`** — validates **`tests/eval-datasets/`** (manifest **`schemaVersion` 2**): topology/cost/compliance/critic eval JSON **must** include per-case **`architecturalContext`**, **`expect.requiredCategories`**, and **`expect.forbiddenCategories`**. Prompt-injection fixtures declare **`expectedBlockedAt`** as **`precheck`**, **`redactor`**, **`evaluator`**, or **`judge`**, **or** honest residual **`expectedContained: true`** with **`containmentNotes`** (TB-951 indirect doc/repo shapes that phrase precheck may miss). CI passes **`--strict`** on PR and nightly workflows so schema drift fails the build.
 
@@ -118,6 +120,25 @@ Reported **`recall`** = **hits Ã· rules** per scenario — not classical IR re
 | **`tests/technology-consistency-corpus/`** | Deterministic **`TechnologyConsistencyFindingEngine`** titles and **`TechnologyLedgerArtifactLinter`** rule ids on committed ledger snapshots + prose | **`TechnologyConsistencyGoldenCorpus`** / **`TechnologyConsistencyArtifactGoldenCorpus`** dotnet filters + **`assert_technology_consistency_corpus.py`** |
 
 Authoring checklist and local commands: **`tests/technology-consistency-corpus/README.md`**.
+
+---
+
+## Frontier-baseline delta (insight density)
+
+| Artifact | Meaning |
+|---------|---------|
+| **`tests/eval-corpus/insight-density-frontier-delta/*.json`** | Hand-authored ArchLucid findings plus a neutral baseline transcript label |
+| **`docs/quality/insight-density-frontier-delta.json`** | Committed rollup from **`scripts/ci/insight_density_frontier_delta.py`** |
+| **`docs/quality/insight-density-frontier-delta.md`** | Human-readable mirror of the JSON rollup |
+
+**Honest limitation:** baseline rows in this corpus are **fixture-authored**, not captured frontier-model output. The harness measures whether novelty math is stable and whether ArchLucid findings are covered by that baseline — it does **not** prove ArchLucid beats any named model.
+
+Local commands:
+
+```bash
+python scripts/ci/insight_density_frontier_delta.py --enforce --check
+python -m unittest discover -s scripts/ci/tests -p "test_insight_density_frontier_delta.py"
+```
 
 ---
 

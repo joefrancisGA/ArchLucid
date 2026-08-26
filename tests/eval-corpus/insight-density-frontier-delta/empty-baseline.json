@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "empty-baseline",
+  "inputSummary": "Edge case: decision-grade findings with no baseline transcript.",
+  "archlucidFindings": [
+    {
+      "findingId": "e1",
+      "engineType": "topology",
+      "category": "Cost",
+      "title": "Overprovisioned App Service plan for low-traffic API",
+      "policyRuleId": null,
+      "classification": "DecisionGradeFinding"
+    },
+    {
+      "findingId": "e2",
+      "engineType": "topology",
+      "category": "Reliability",
+      "title": "Single-region SQL deployment without geo-redundant backup",
+      "policyRuleId": null,
+      "classification": "DecisionGradeFinding"
+    }
+  ],
+  "frontierBaseline": {
+    "model": "baseline-a",
+    "capturedUtc": "2026-08-26T00:00:00Z",
+    "promptRef": "docs/quality/insight-density-frontier-delta-fixture-authorship",
+    "findings": []
+  },
+  "expectedNoveltyPercentage": 100.0
+}

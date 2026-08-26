@@ -1,7 +1,7 @@
 namespace ArchLucid.Core.Findings;
 
 /// <summary>Token-set Jaccard similarity for duplication penalties within a findings snapshot.</summary>
-internal static class InsightDensityTextSimilarity
+public static class InsightDensityTextSimilarity
 {
     internal static double MaxPeerSimilarity(string message, IReadOnlyList<InsightDensityGateCandidate> peers, string candidateKey)
     {
@@ -29,7 +29,7 @@ internal static class InsightDensityTextSimilarity
         return maxSimilarity;
     }
 
-    internal static double JaccardSimilarity(string left, string right)
+    public static double JaccardSimilarity(string left, string right)
     {
         HashSet<string> leftTokens = Tokenize(left);
         HashSet<string> rightTokens = Tokenize(right);
