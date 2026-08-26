@@ -67,7 +67,7 @@ describe("PreferencesSettingsPage", () => {
     expect(
       screen.queryByTestId("shell-theme-preferences-appearance-vocabulary"),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId("preferences-notifications-vocabulary")).toBeInTheDocument();
+    expect(screen.queryByTestId("preferences-notifications-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Appearance" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Time zone" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Cloud platforms shown" })).toBeInTheDocument();

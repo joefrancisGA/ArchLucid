@@ -7,7 +7,6 @@ import { CloudPlatformScopePanel } from "@/components/preferences/CloudPlatformS
 import { SampleReviewsOnOverviewPreferencePanel } from "@/components/preferences/SampleReviewsOnOverviewPreferencePanel";
 import { TimeZonePreferencePanel } from "@/components/preferences/TimeZonePreferencePanel";
 import { WhereToGoNextPreferencePanel } from "@/components/preferences/WhereToGoNextPreferencePanel";
-import { PreferencesNotificationsVocabularyRail } from "@/components/PreferencesNotificationsVocabularyRail";
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -204,7 +203,6 @@ export function PreferencesSettingsPageView() {
           )}
         </CardContent>
       </Card>
-      <PreferencesNotificationsVocabularyRail currentSurfaceId="preferences" />
       <PreferencesSettingsEvidenceOrientationStrip />
     </OperatorPageContainer>
   );
