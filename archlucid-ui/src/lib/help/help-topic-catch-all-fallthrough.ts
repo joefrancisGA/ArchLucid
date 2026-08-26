@@ -17,7 +17,9 @@ export type HelpTopicBareMarkdownFallthroughAllowlistEntry = {
 
 /** Residual bare markdown exceptions — each row must cite an open specialty backlog owner (TB-1601). */
 export const HELP_TOPIC_BARE_MARKDOWN_FALLTHROUGH_ALLOWLIST: ReadonlyArray<HelpTopicBareMarkdownFallthroughAllowlistEntry> =
-  [];
+  [
+    { slug: "preferences", backlogId: "TB-1601" },
+  ];
 
 export type HelpTopicCatchAllDispatchKind =
   | "specialty-guide"
