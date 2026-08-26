@@ -62,11 +62,24 @@ internal sealed class ReviewSingleFlightCoordinator
             {
                 return await existing.Completion.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
             }
-            catch (ReviewCacheSingleFlightLeaderAbortedException)
+            catch (Exception exception) when (IsLeaderAborted(exception))
             {
                 continue;
             }
         }
+    }
+
+    private static bool IsLeaderAborted(Exception exception)
+    {
+        if (exception is ReviewCacheSingleFlightLeaderAbortedException)
+            return true;
+
+        if (exception is AggregateException aggregate)
+        {
+            return aggregate.Flatten().InnerExceptions.Any(IsLeaderAborted);
+        }
+
+        return exception.InnerException is not null && IsLeaderAborted(exception.InnerException);
     }
 
     private sealed class InFlightEntry
