@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-utils";
 import { wizardPresets } from "@/lib/wizard-presets";
+import { wizardPresetActionLabel } from "@/lib/wizard-preset-action-label";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 function FormValuesProbe() {
@@ -55,11 +56,32 @@ describe("WizardStepPreset", () => {
       expect(screen.getByText(preset.label)).toBeInTheDocument();
       expect(screen.getByText(preset.description)).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: `Use ${preset.label.toLowerCase()}` }),
+        screen.getByRole("button", { name: wizardPresetActionLabel(preset.label) }),
       ).toBeInTheDocument();
     }
 
     expect(screen.getByRole("button", { name: /Import prepared request/i })).toBeInTheDocument();
+  });
+
+  it("preserves SaaS, EU, US, FedRAMP, and StateRAMP on industry starter buttons", () => {
+    render(
+      <WizardFormTestHarness>
+        <WizardStepPreset />
+      </WizardFormTestHarness>,
+    );
+
+    expect(screen.getByRole("button", { name: "Use SaaS / B2B starter" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Use public sector — EU (GDPR) starter" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Use public sector — US (FedRAMP / StateRAMP) starter" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Use greenfield SaaS design" })).toBeInTheDocument();
+
+    expect(screen.queryByRole("button", { name: "Use saas / b2b starter" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Use public sector — eu (gdpr) starter" })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Use public sector — us (fedramp / stateramp) starter" }),
+    ).toBeNull();
   });
 
   it("calls onPresetSelect with the correct preset id when a quick-shape button is clicked", () => {

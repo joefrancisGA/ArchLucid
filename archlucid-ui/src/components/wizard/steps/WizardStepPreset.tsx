@@ -20,6 +20,7 @@ import { getDocHref } from "@/lib/help/help-topics";
 import { TRIAL_ONBOARDING_SAMPLE_RUN_ID } from "@/lib/trial-sample-run";
 import { verticalBriefWizardPresets } from "@/lib/vertical-wizard-presets";
 import { starterArchitectureTemplates } from "@/data/starter-templates";
+import { wizardPresetActionLabel } from "@/lib/wizard-preset-action-label";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { CTA_WIDTH, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -31,10 +32,6 @@ const PRESET_CARD_CTA_CLASS = cn(
   CTA_WIDTH.content,
   "border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600",
 );
-
-function verticalTemplateActionLabel(preset: WizardPreset): string {
-  return `Use ${preset.label.toLowerCase()} starter`;
-}
 
 export type WizardStepPresetProps = {
   /** When true, preset step explains the `?baseline=1` ZIP-first path (already on that route). */
@@ -236,7 +233,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                   variant="outline"
                   onClick={() => selectPreset(preset.id, preset.values)}
                 >
-                  {verticalTemplateActionLabel(preset)}
+                  {wizardPresetActionLabel(preset.label, { starter: true })}
                 </Button>
               </CardFooter>
             </Card>
@@ -264,7 +261,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                     variant="outline"
                     onClick={() => selectPreset(preset.id, preset.values)}
                   >
-                    {verticalTemplateActionLabel(preset)}
+                    {wizardPresetActionLabel(preset.label, { starter: true })}
                   </Button>
                 </CardFooter>
               </Card>
@@ -295,7 +292,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                   data-testid={`wizard-starter-${preset.id}`}
                   onClick={() => selectPreset(preset.id, preset.values)}
                 >
-                  {`Use ${preset.label}`}
+                  {wizardPresetActionLabel(preset.label)}
                 </Button>
               </CardFooter>
             </Card>
@@ -323,7 +320,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                   variant="outline"
                   onClick={() => selectPreset(preset.id, preset.values)}
                 >
-                  Use {preset.label.toLowerCase()}
+                  {wizardPresetActionLabel(preset.label)}
                 </Button>
               </CardFooter>
             </Card>
@@ -363,7 +360,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                   data-testid={index === 0 ? "wizard-docs-architecture-template-first" : undefined}
                   onClick={() => selectPreset(preset.id, preset.values)}
                 >
-                  {`Use ${preset.label}`}
+                  {wizardPresetActionLabel(preset.label)}
                 </Button>
               </CardFooter>
             </Card>
