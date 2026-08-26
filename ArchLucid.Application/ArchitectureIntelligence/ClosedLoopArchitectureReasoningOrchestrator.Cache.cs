@@ -145,6 +145,9 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
             && (isReviewCacheHit || shared.PublishedToProduct))
             ClosedLoopCacheHitPublishGuard.ApplyAnalysisOnlyCoalescedIsolation(effectiveRequest, isolated);
 
+        // Live coalesced leaders keep PublishBlocked; analysis followers are stripped in
+        // ReviewSingleFlightCoordinator before Finalize runs.
+
         string policyRunId = string.IsNullOrWhiteSpace(effectiveRequest.RunId)
             ? isolated.RunId ?? runId
             : runId;
