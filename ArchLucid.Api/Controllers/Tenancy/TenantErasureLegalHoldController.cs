@@ -5,6 +5,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
@@ -21,10 +22,14 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 [Route("v{version:apiVersion}/tenant/erasure")]
 public sealed class TenantErasureLegalHoldController(
     ITenantErasureCommandService tenantErasureCommands,
+    ITenantRepository tenantRepository,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
     private readonly ITenantErasureCommandService _tenantErasureCommands =
         tenantErasureCommands ?? throw new ArgumentNullException(nameof(tenantErasureCommands));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
@@ -45,6 +50,15 @@ public sealed class TenantErasureLegalHoldController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+        {
+            return this.NotFoundProblem(
+                "Tenant was not found for the current scope.",
+                ProblemTypes.ResourceNotFound);
+        }
+
         ClaimsPrincipal user = User;
         string userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown";
         string userName = user.Identity?.Name ?? "unknown";
@@ -62,7 +76,7 @@ public sealed class TenantErasureLegalHoldController(
 
         if (!ok)
             return this.ConflictProblem(
-                "Legal hold could not be applied (tenant missing, not in erasure quarantine, or untilUtc is not in the future).",
+                "Legal hold could not be applied (not in erasure quarantine, or untilUtc is not in the future).",
                 ProblemTypes.Conflict);
 
         return NoContent();

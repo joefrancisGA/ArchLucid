@@ -133,6 +133,59 @@ public sealed class PolicyPackResolverTests
     }
 
     [Fact]
+    public async Task ResolveAsync_excludes_foreign_workspace_pack_on_tenant_level_assignment()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid callerWorkspaceId = Guid.NewGuid();
+        Guid callerProjectId = Guid.NewGuid();
+        Guid foreignWorkspaceId = Guid.NewGuid();
+        Guid foreignProjectId = Guid.NewGuid();
+        Guid packId = Guid.NewGuid();
+
+        PolicyPackAssignment assignment = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Empty,
+            ProjectId = Guid.Empty,
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0.0",
+            ScopeLevel = GovernanceScopeLevel.Tenant,
+            IsEnabled = true,
+        };
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(a => a.ListByScopeAsync(tenantId, callerWorkspaceId, callerProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([assignment]);
+
+        PolicyPack pack = new()
+        {
+            PolicyPackId = packId,
+            TenantId = tenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = foreignProjectId,
+            Name = "foreign-workspace-pack",
+            PackType = PolicyPackType.TenantCustom,
+        };
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pack);
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+
+        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object, NullPlatformBundledPolicyPackAvailability.Instance);
+
+        EffectivePolicyPackSet result = await sut.ResolveAsync(tenantId, callerWorkspaceId, callerProjectId, CancellationToken.None);
+
+        result.Packs.Should().BeEmpty();
+        versions.Verify(
+            r => r.GetByPackAndVersionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ResolveAsync_SkipsAssignment_WhenPackRowMissing()
     {
         Guid tenantId = Guid.NewGuid();
