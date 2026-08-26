@@ -1824,11 +1824,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 51
-- **bugs-found:** 102
+- **hunts:** 52
+- **bugs-found:** 103
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — camelCase `connectionString` leaked plaintext in `tf.*` properties
+- **last-bug:** 2026-08-26 — duplicate topology hints emitted twice in one normalize batch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1951,6 +1951,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `KubernetesYamlInfrastructureDeclarationParser` has no YAML-path tests for `kind: List` multi-item manifests (JSON List path covered).
 - [ ] (hunt-ready) `TopologyHintsPayloadNormalizer` does not dedupe duplicate hints within one batch (unlike `PolicyReferencePayloadNormalizer`) — identical canonical hints emit duplicate `CanonicalObject` rows and inflate connector `AddedCount`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
+- [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+
+2026-08-26 thorough hunt #52: proved topology-hints within-batch dedupe gap.
 
 2026-08-26 seed hunt #51: reseeded ARM array / nested sensitive_values / K8s YAML List / topology-hint dedupe candidates; proved camelCase sensitive-key redaction gap.
 
