@@ -36,6 +36,12 @@ test.describe(
     await openReviewDetailWorkspaceTab(page, SHOWCASE_DEMO_RUN_ID, "findings");
 
     const findingsPanel = page.getByTestId("review-detail-workspace-panel-findings");
+    const quickDecisionSummary = findingsPanel.getByTestId("quick-decision-summary");
+
+    if (await quickDecisionSummary.getByTestId("quick-decision-show-low-confidence").isVisible().catch(() => false)) {
+      await quickDecisionSummary.getByTestId("quick-decision-show-low-confidence").check();
+    }
+
     const showcaseCard = await expandFindingWorkspaceCard(findingsPanel, showcaseFindingId);
     const evidenceChip = showcaseCard.getByTestId("finding-evidence-link-chip");
     await evidenceChip.scrollIntoViewIfNeeded();
