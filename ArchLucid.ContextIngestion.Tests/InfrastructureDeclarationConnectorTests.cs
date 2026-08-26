@@ -2002,4 +2002,56 @@ public sealed class InfrastructureDeclarationConnectorTests
         secondDelta.AddedCount.Should().Be(0);
         secondDelta.RemovedCount.Should().Be(0);
     }
+
+    [Fact]
+    public async Task DeltaAsync_JsonSameTypeNameDifferentSubtype_CountsBothResources()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([
+                new JsonInfrastructureDeclarationParser(
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger<JsonInfrastructureDeclarationParser>.Instance),
+            ]),
+            new SetDiffConnectorDeltaComputer());
+
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "network.json",
+            Format = "json",
+            DeclarationId = "decl-json-subtype",
+            Content = """
+                      {
+                        "resources": [
+                          { "type": "vnet", "name": "hub", "subtype": "hub", "region": "eastus" },
+                          { "type": "vnet", "name": "hub", "subtype": "spoke", "region": "westus" }
+                        ]
+                      }
+                      """,
+        };
+
+        RawContextPayload raw = new()
+        {
+            InfrastructureDeclarations = [declaration],
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        firstBatch.CanonicalObjects.Should().HaveCount(2);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "p",
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        ContextDelta secondDelta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        secondDelta.UnchangedCount.Should().Be(2);
+        secondDelta.AddedCount.Should().Be(0);
+        secondDelta.RemovedCount.Should().Be(0);
+    }
 }

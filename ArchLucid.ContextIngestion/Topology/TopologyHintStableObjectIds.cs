@@ -11,24 +11,23 @@ namespace ArchLucid.ContextIngestion.Topology;
 public static class TopologyHintStableObjectIds
 {
     /// <summary>
-    ///     Collapses slash-separated hint segments to a stable form (trim around <c>/</c>).
+    ///     Collapses slash-separated hint segments to a stable form (trim around each <c>/</c>).
     /// </summary>
     public static string CanonicalizeHintName(string trimmedHint)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(trimmedHint);
 
-        int slash = trimmedHint.IndexOf('/');
+        if (!trimmedHint.Contains('/'))
+            return trimmedHint;
 
-        if (slash > 0 && slash < trimmedHint.Length - 1)
-        {
-            string parentName = trimmedHint[..slash].Trim();
-            string childRemainder = trimmedHint[(slash + 1)..].Trim();
+        string[] segments = trimmedHint.Split(
+            '/',
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-            if (parentName.Length > 0 && childRemainder.Length > 0)
-                return $"{parentName}/{childRemainder}";
-        }
+        if (segments.Length == 0)
+            return trimmedHint;
 
-        return trimmedHint;
+        return string.Join('/', segments);
     }
 
     /// <summary>32 lowercase hex characters (128 bits of SHA-256).</summary>

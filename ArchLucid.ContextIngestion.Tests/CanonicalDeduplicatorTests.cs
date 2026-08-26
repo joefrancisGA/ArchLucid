@@ -113,6 +113,45 @@ public sealed class CanonicalDeduplicatorTests
     }
 
     [Fact]
+    public void Deduplicate_KeepsJsonResourcesWithSameTypeNameDifferentSubtype()
+    {
+        List<CanonicalObject> items =
+        [
+            new()
+            {
+                ObjectType = "TopologyResource",
+                Name = "hub",
+                SourceType = "InfrastructureDeclaration",
+                SourceId = "decl-json",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["resourceType"] = "vnet",
+                    ["subtype"] = "hub",
+                    ["region"] = "eastus",
+                },
+            },
+
+            new()
+            {
+                ObjectType = "TopologyResource",
+                Name = "hub",
+                SourceType = "InfrastructureDeclaration",
+                SourceId = "decl-json",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["resourceType"] = "vnet",
+                    ["subtype"] = "spoke",
+                    ["region"] = "westus",
+                },
+            },
+        ];
+
+        IReadOnlyList<CanonicalObject> result = _sut.Deduplicate(items);
+
+        result.Should().HaveCount(2);
+    }
+
+    [Fact]
     public void Deduplicate_KeepsKubernetesResourcesWithSameNameDifferentKind()
     {
         List<CanonicalObject> items =

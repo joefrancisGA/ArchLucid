@@ -204,6 +204,26 @@ public sealed class ConnectorHintNormalizationDeltaTests
     }
 
     [Fact]
+    public async Task TopologyHintsConnector_DeltaAsync_ThreeSegmentInnerSlashSpacing_ReportsUnchanged()
+    {
+        TopologyHintsConnector connector = CreateTopologyConnector();
+
+        ContextSnapshot previous = await SnapshotAsync(
+            connector,
+            new RawContextPayload { TopologyHints = ["prod/vnet/subnet-a"] });
+
+        NormalizedContextBatch currentBatch = await connector.NormalizeAsync(
+            new RawContextPayload { TopologyHints = ["prod / vnet / subnet-a"] },
+            CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(currentBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task JsonInfrastructureDeclarationParser_ResourceTypeCasing_IsCanonicalized()
     {
         JsonInfrastructureDeclarationParser parser = new(NullLogger<JsonInfrastructureDeclarationParser>.Instance);

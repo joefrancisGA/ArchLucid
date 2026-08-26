@@ -1,3 +1,4 @@
+using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.ContextIngestion.Canonicalization;
@@ -41,7 +42,7 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
 
         if (item.Properties.TryGetValue("resourceType", out string? resourceType) &&
             !string.IsNullOrEmpty(resourceType))
-            return resourceType;
+            return InfrastructureDeclarationResourceIdentity.BuildResourceTypeFingerprint(item.Properties);
 
         if (item.Properties.TryGetValue("k8s.kind", out string? k8sKind) &&
             !string.IsNullOrEmpty(k8sKind))

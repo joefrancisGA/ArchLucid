@@ -28,4 +28,14 @@ public sealed class TopologyHintStableObjectIdsTests
 
         a.Should().NotBe(b);
     }
+
+    [Fact]
+    public void CanonicalizeHintName_ThreeSegmentInnerSlashSpacing_EquivalentPathsMatch()
+    {
+        string spaced = TopologyHintStableObjectIds.CanonicalizeHintName("prod / vnet / subnet-a");
+        string compact = TopologyHintStableObjectIds.CanonicalizeHintName("prod/vnet/subnet-a");
+
+        spaced.Should().Be(compact);
+        TopologyHintStableObjectIds.FromHintName(spaced).Should().Be(TopologyHintStableObjectIds.FromHintName(compact));
+    }
 }

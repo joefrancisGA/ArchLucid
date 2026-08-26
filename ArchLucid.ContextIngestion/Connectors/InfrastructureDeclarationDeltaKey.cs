@@ -1,3 +1,4 @@
+using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.ContextIngestion.Connectors;
@@ -21,7 +22,9 @@ public static class InfrastructureDeclarationDeltaKey
             return $"{baseKey}|k8s.kind:{k8sKind}";
 
         if (TryGetCanonicalProperty(obj, "resourceType", out string? resourceType))
-            return $"{baseKey}|resourceType:{resourceType}";
+            return InfrastructureDeclarationResourceIdentity.AppendSubtypeRegionDisambiguators(
+                $"{baseKey}|resourceType:{resourceType}",
+                obj.Properties);
 
         if (TryGetCanonicalProperty(obj, "terraformType", out string? terraformType))
             return $"{baseKey}|terraformType:{terraformType}";

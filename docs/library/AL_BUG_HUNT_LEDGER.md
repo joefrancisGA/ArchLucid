@@ -1802,11 +1802,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 37
-- **bugs-found:** 80
+- **hunts:** 38
+- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — CanonicalDeduplicator collapsed same-name Kubernetes resources with different kinds
+- **last-bug:** 2026-08-26 — JSON infra same type/name different subtype collapsed; three-segment topology hint inner slash spacing churned deltas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1901,6 +1901,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InfrastructureDeclarationConnector.DeltaAsync` keyed resources by `SourceId|ObjectType|Name` only — **hit 2026-08-26:** cluster-scoped Kubernetes Deployment and Service both named `api` collapsed to one delta key; fixed with `InfrastructureDeclarationDeltaKey` including `k8s.kind` / `resourceType` / `terraformType` disambiguators (`InfrastructureDeclarationConnectorTests.DeltaAsync_KubernetesDeploymentAndServiceSameClusterName_CountsBothResources`).
 - [x] (proven) `DocumentConnector.DeltaAsync` keyed lines by `SourceId:Name` only — **hit 2026-08-26:** `REQ:` and `POL:` with identical canonical text collapsed to one delta key; fixed by including `ObjectType` in document delta keys (`DocumentConnectorTests.DeltaAsync_RequirementAndPolicyWithSameCanonicalText_CountsBothResources`).
 - [x] (proven) `CanonicalDeduplicator.GetDedupeFingerprint` omitted `k8s.kind` — **hit 2026-08-26:** cluster-scoped Kubernetes Deployment and Service both named `api` collapsed to one snapshot object after enrich/dedupe despite connector delta fix; fixed by fingerprinting `k8s.kind` (`CanonicalDeduplicatorTests.Deduplicate_KeepsKubernetesResourcesWithSameNameDifferentKind`).
+- [x] (proven) `InfrastructureDeclarationDeltaKey` / `CanonicalDeduplicator` / `JsonInfrastructureDeclarationParser` ignored JSON `subtype` and `region` when `resourceType` and `Name` matched — **hit 2026-08-26:** two `vnet` resources both named `hub` with different `subtype`/`region` collapsed to one delta key, deduped to one object, and shared unstable `ObjectId`; fixed with `InfrastructureDeclarationResourceIdentity` disambiguators (`InfrastructureDeclarationConnectorTests.DeltaAsync_JsonSameTypeNameDifferentSubtype_CountsBothResources`, `CanonicalDeduplicatorTests.Deduplicate_KeepsJsonResourcesWithSameTypeNameDifferentSubtype`).
+- [x] (proven) `TopologyHintStableObjectIds.CanonicalizeHintName` only normalized spacing around the first `/` — **hit 2026-08-26:** `prod / vnet / subnet-a` vs `prod/vnet/subnet-a` churned topology-hints connector deltas and `ObjectId`; fixed by trimming all slash segments (`TopologyHintStableObjectIdsTests.CanonicalizeHintName_ThreeSegmentInnerSlashSpacing_EquivalentPathsMatch`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_DeltaAsync_ThreeSegmentInnerSlashSpacing_ReportsUnchanged`).
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser.CollectFromModule` ignores module address when sibling child modules declare the same Terraform type + label — needs module path in `Name`, `ObjectId`, and delta keys before hunt-ready
 
 ---
 
