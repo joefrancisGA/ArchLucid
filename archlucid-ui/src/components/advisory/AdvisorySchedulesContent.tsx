@@ -10,6 +10,7 @@ import { useAdvisoryScheduleReviewAvailability } from "@/hooks/use-advisory-sche
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdvisoryScheduleCreateForm } from "@/components/advisory/AdvisoryScheduleCreateForm";
 import { AdvisorySchedulesContinueLastViewedRow } from "@/components/advisory/AdvisorySchedulesContinueLastViewedRow";
+import { AdvisorySchedulesNextReviewFooterClient } from "@/components/advisory/AdvisorySchedulesNextReviewFooterClient";
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -106,12 +107,18 @@ function formatAdvisorySchedulesLastLoaded(lastLoadedUtc: string | null): string
  * Schedules tab: customer workflow for recurring advisory scans.
  * Mutations require AdminAuthority (API); sample / public shells are read-only.
  */
-export function AdvisorySchedulesContent(): ReactElement {
+export type AdvisorySchedulesContentProps = {
+  readonly initialRunId?: string | null;
+};
+
+export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = {}): ReactElement {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const sampleModeBlocked =
     isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
   const canMutateSchedules =
     callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority && !sampleModeBlocked;
+  const scopedRunId = (props.initialRunId ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
 
   const [schedules, setSchedules] = useState<AdvisoryScanSchedule[]>([]);
   const [executionsBySchedule, setExecutionsBySchedule] = useState<Record<string, AdvisoryScanExecution[]>>(
@@ -622,6 +629,7 @@ export function AdvisorySchedulesContent(): ReactElement {
             </div>
           )}
         </section>
+        {scopedRunFilterActive ? <AdvisorySchedulesNextReviewFooterClient runId={scopedRunId} /> : null}
       </div>
     </OperatorPageContainer>
   );

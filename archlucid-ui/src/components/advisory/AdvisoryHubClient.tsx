@@ -117,7 +117,7 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
           <AdvisoryScansContent initialRunId={scopedRunId} />
         </TabsContent>
         <TabsContent value="schedules" className="mt-4 min-w-0">
-          <AdvisorySchedulesContent />
+          <AdvisorySchedulesContent initialRunId={scopedRunId} />
         </TabsContent>
       </Tabs>
     </div>
