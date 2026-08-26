@@ -35,6 +35,7 @@ export type ArchitectureIntelligenceFramingQuestion = {
   readonly questionId: string;
   readonly prompt: string;
   readonly isAnswered?: boolean;
+  readonly inferredAnswer?: string | null;
   readonly confirmedAnswer?: string | null;
   readonly source?: string;
 };
