@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Interfaces;
@@ -62,7 +63,12 @@ public sealed class FeaturedCompletedSampleService(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
-        if (run is null || !FeaturedCompletedSampleEligibility.IsEligible(run))
+        if (run is null)
+        {
+            throw new RunNotFoundException(runId.ToString("D"));
+        }
+
+        if (!FeaturedCompletedSampleEligibility.IsEligible(run))
         {
             throw new InvalidOperationException("The selected review is not eligible for workspace sample use.");
         }

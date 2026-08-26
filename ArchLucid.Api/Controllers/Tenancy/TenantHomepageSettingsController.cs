@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.OperatorHome;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -70,6 +71,7 @@ public sealed class TenantHomepageSettingsController(
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(TenantHomepageSettingsGetResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(
         [FromBody] TenantHomepageSettingsPutRequest? body,
         CancellationToken cancellationToken)
@@ -108,6 +110,10 @@ public sealed class TenantHomepageSettingsController(
             snapshot = await _featuredCompletedSampleService
                 .SetSelectedRunIdAsync(body.SelectedRunId.Value, cancellationToken)
                 .ConfigureAwait(false);
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (InvalidOperationException ex)
         {

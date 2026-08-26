@@ -1,5 +1,7 @@
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.OperatorHome;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -71,6 +73,29 @@ public sealed class TenantHomepageSettingsControllerTests
             CancellationToken.None);
 
         action.Should().BeOfType<ObjectResult>();
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_not_found_when_selected_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IFeaturedCompletedSampleService> service = new();
+        service
+            .Setup(s => s.SetSelectedRunIdAsync(foreignRunId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new RunNotFoundException(foreignRunId.ToString("D")));
+
+        TenantHomepageSettingsController controller = CreateController(service.Object);
+
+        IActionResult action = await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest
+            {
+                SelectedRunId = foreignRunId,
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     private static TenantHomepageSettingsController CreateController(IFeaturedCompletedSampleService service)

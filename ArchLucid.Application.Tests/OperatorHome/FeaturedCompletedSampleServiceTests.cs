@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.OperatorHome;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -35,6 +36,21 @@ public sealed class FeaturedCompletedSampleServiceTests
         snapshot.IsConfigured.Should().BeFalse();
         snapshot.IsAvailable.Should().BeFalse();
         snapshot.SelectedRunId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task SetSelectedRunIdAsync_throws_when_run_is_out_of_scope()
+    {
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, EligibleRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        FeaturedCompletedSampleService sut = CreateService(CreateTenantSettingsMock(null), runs);
+
+        Func<Task> act = () => sut.SetSelectedRunIdAsync(EligibleRunId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<RunNotFoundException>();
     }
 
     [Fact]
