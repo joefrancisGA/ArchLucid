@@ -192,4 +192,31 @@ public sealed class JsonInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_CompositeNameArray_EmitsJoinedName()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "subnet",
+                            "name": ["hub-vnet", "subnet-a"],
+                            "properties": { "cidr": "10.0.1.0/24" }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("hub-vnet/subnet-a");
+        result[0].Properties["cidr"].Should().Be("10.0.1.0/24");
+    }
 }

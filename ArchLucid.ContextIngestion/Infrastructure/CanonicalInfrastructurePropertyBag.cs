@@ -92,6 +92,31 @@ public static class CanonicalInfrastructurePropertyBag
         return rawValue.Trim().ToLowerInvariant();
     }
 
+    public static string StripTrailingHclComment(string rawValue)
+    {
+        if (string.IsNullOrWhiteSpace(rawValue))
+            return string.Empty;
+
+        bool inDoubleQuotes = false;
+        bool inSingleQuotes = false;
+
+        for (int index = 0; index < rawValue.Length; index++)
+        {
+            char character = rawValue[index];
+
+            if (character == '"' && !inSingleQuotes)
+                inDoubleQuotes = !inDoubleQuotes;
+
+            if (character == '\'' && !inDoubleQuotes)
+                inSingleQuotes = !inSingleQuotes;
+
+            if (character == '#' && !inDoubleQuotes && !inSingleQuotes)
+                return rawValue[..index].TrimEnd();
+        }
+
+        return rawValue;
+    }
+
     public static bool TryAddTfProperty(
         Dictionary<string, string> properties,
         string rawKey,
@@ -160,7 +185,7 @@ public static class CanonicalInfrastructurePropertyBag
         if (ShouldRedactKey(rawKey))
             return TryAddTfProperty(properties, rawKey, "[REDACTED]");
 
-        string serialized = value.GetRawText().Trim();
+        string serialized = CanonicalInfrastructureJsonValue.CanonicalizeText(value).Trim();
 
         if (string.IsNullOrWhiteSpace(serialized))
             return false;

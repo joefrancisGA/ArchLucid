@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 54
-- **bugs-found:** 105
+- **hunts:** 55
+- **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
+- **last-bug:** 2026-08-26 — single-quoted HCL scalars kept quote characters
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1957,6 +1957,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `KubernetesYamlInfrastructureDeclarationParser` YAML `kind: List` path — mapper already expands List items after YamlDotNet round-trip; added YAML-path regression `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_KindList_MapsMultipleItems`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+
+- [x] (proven) `SimpleTerraformResourceBlockParser.UnquoteScalar` kept single-quoted HCL scalar wrappers — **hit 2026-08-26:** `location = 'eastus'` stored as `'eastus'`; fixed by stripping single quotes like double quotes (`SimpleTerraformDeclarationParserTests.ParseAsync_SingleQuotedScalar_StripsQuotes`).
+- [x] (proven) `SimpleTerraformResourceBlockParser` left inline `#` comments on scalar assignment lines — **hit 2026-08-26:** `location = "eastus" # primary` leaked comment text into `tf.location`; fixed with `StripTrailingHclComment` before `UnquoteScalar` (`SimpleTerraformDeclarationParserTests.ParseAsync_InlineHashComment_DoesNotChangeTfLocation`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser` ignored `properties.template.resources` inside deployment wrappers — **hit 2026-08-26:** nested deployment template storage accounts returned zero resources; fixed by descending into `properties.template.resources` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_DeploymentTemplateResources_MapsNestedStorageAccount`).
+- [x] (proven) `JsonInfrastructureDeclarationParser` rejected composite `name` arrays — **hit 2026-08-26:** `["hub-vnet","subnet-a"]` silently dropped subnet resources; fixed with shared `ReadName` array join (`JsonInfrastructureDeclarationParserTests.ParseAsync_CompositeNameArray_EmitsJoinedName`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty` preserved inner JSON key casing in ARM array/object blobs — **hit 2026-08-26:** `ipAddress` vs `IpAddress` in `ipSecurityRestrictions` false-modified infra declaration deltas; fixed with `CanonicalInfrastructureJsonValue` rewrite (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_ArrayPropertyInnerKeyCasing_IsCanonicalized`).
+
+2026-08-26 seed hunt #55: reseeded simple-terraform HCL quoting/comments, ARM deployment template descent, JSON composite names, and ARM array JSON canonicalization; proved all five hunt-ready rows.
 
 2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
 

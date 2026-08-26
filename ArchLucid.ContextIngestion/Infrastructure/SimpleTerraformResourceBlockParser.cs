@@ -10,7 +10,7 @@ internal static class SimpleTerraformResourceBlockParser
 {
     private static readonly Regex ResourceHeaderRegex = new(
         """
-        resource\s+"(?<type>[^"]+)"\s+"(?<name>[^"]+)"
+        resource\s+"(?<type>[^"]+)"\s+"(?<name>[^"]+)"|resource\s+'(?<type>[^']+)'\s+'(?<name>[^']+)'
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -103,6 +103,7 @@ internal static class SimpleTerraformResourceBlockParser
             if (rawValue.StartsWith("${", StringComparison.Ordinal))
                 continue;
 
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
             string scalarValue = UnquoteScalar(rawValue);
 
             CanonicalInfrastructurePropertyBag.TryAddTfProperty(properties, key, scalarValue);
@@ -171,7 +172,9 @@ internal static class SimpleTerraformResourceBlockParser
 
     private static string UnquoteScalar(string rawValue)
     {
-        if (rawValue.Length >= 2 && rawValue[0] == '"' && rawValue[^1] == '"')
+        if (rawValue.Length >= 2
+            && ((rawValue[0] == '"' && rawValue[^1] == '"')
+                || (rawValue[0] == '\'' && rawValue[^1] == '\'')))
             return rawValue[1..^1];
 
         return rawValue;
