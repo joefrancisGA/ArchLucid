@@ -8,6 +8,14 @@ public interface IReviewResultCache
 
     void Set(ReviewCacheDependencyManifest manifest, ClosedLoopReasoningResult result);
 
+    void InvalidateForRun(string runId);
+
+    string BuildInFlightKey(ReviewCacheDependencyManifest manifest, bool publishToProduct);
+
+    void MarkCoalesceLeaderReviewCacheHit(string inFlightKey, string? reuseReason);
+
+    bool TryConsumeCoalesceLeaderReviewCacheHit(string inFlightKey, out string? reuseReason);
+
     Task<ClosedLoopReasoningResult> CoalesceAsync(
         ReviewCacheDependencyManifest manifest,
         Func<CancellationToken, Task<ClosedLoopReasoningResult>> leaderWork,

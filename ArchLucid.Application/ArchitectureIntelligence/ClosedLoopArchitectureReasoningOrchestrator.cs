@@ -123,29 +123,43 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 && _reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
                 && cached is not null)
             {
-                cached.CacheHit = true;
-                cached.CacheReuseReason = cacheManifest.ReuseReason ?? "dependency-manifest-match";
-                ArchitectureIntelligenceBudgetResultApplier.Apply(cached, budget);
-                ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(effectiveRequest, runId, cached);
-
-                return cached;
+                return FinalizeCoalescedReviewResult(
+                    cached,
+                    effectiveRequest,
+                    runId,
+                    budget,
+                    new ReviewCacheHitMetadata(
+                        true,
+                        cacheManifest.ReuseReason ?? "dependency-manifest-match"));
             }
 
-            return FinalizeCoalescedReviewResult(
-                await _reviewResultCache.CoalesceAsync(
+            string inFlightKey =
+                _reviewResultCache.BuildInFlightKey(cacheManifest, effectiveRequest.PublishToProduct);
+
+            ClosedLoopReasoningResult shared = await _reviewResultCache.CoalesceAsync(
+                cacheManifest,
+                ct => CoalesceReviewCacheMissAsync(
+                    effectiveRequest,
+                    tenantId,
+                    runId,
+                    budget,
                     cacheManifest,
-                    ct => CoalesceReviewCacheMissAsync(
-                        effectiveRequest,
-                        tenantId,
-                        runId,
-                        budget,
-                        cacheManifest,
-                        ct),
-                    cancellationToken,
-                    effectiveRequest.PublishToProduct),
+                    inFlightKey,
+                    ct),
+                cancellationToken,
+                effectiveRequest.PublishToProduct);
+
+            ReviewCacheHitMetadata? reviewCacheHit = null;
+
+            if (_reviewResultCache.TryConsumeCoalesceLeaderReviewCacheHit(inFlightKey, out string? reuseReason))
+                reviewCacheHit = new ReviewCacheHitMetadata(true, reuseReason);
+
+            return FinalizeCoalescedReviewResult(
+                shared,
                 effectiveRequest,
                 runId,
-                budget);
+                budget,
+                reviewCacheHit);
         }
 
         return await RunContinueFromExistingReviewAsync(
@@ -173,23 +187,52 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 existing,
                 ledgerEntries);
 
-        return FinalizeCoalescedReviewResult(
-            await _continueRunSingleFlight.CoalesceAsync(
+        if (!effectiveRequest.PublishToProduct
+            && _reviewResultCache.TryGet(continueManifest, out ClosedLoopReasoningResult? cachedContinue)
+            && cachedContinue is not null)
+        {
+            return FinalizeCoalescedReviewResult(
+                cachedContinue,
+                effectiveRequest,
+                runId,
+                budget,
+                new ReviewCacheHitMetadata(
+                    true,
+                    continueManifest.ReuseReason ?? "dependency-manifest-match"));
+        }
+
+        string continueInFlightKey = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            tenantId,
+            runId,
+            continueManifest,
+            effectiveRequest.PublishToProduct);
+
+        ClosedLoopReasoningResult sharedContinue = await _continueRunSingleFlight.CoalesceAsync(
+            tenantId,
+            runId,
+            continueManifest,
+            effectiveRequest.PublishToProduct,
+            ct => CoalesceContinueReviewCacheMissAsync(
+                effectiveRequest,
                 tenantId,
                 runId,
+                budget,
                 continueManifest,
-                effectiveRequest.PublishToProduct,
-                ct => ExecuteLiveReviewAsync(
-                    effectiveRequest,
-                    tenantId,
-                    runId,
-                    budget,
-                    null,
-                    ct),
-                cancellationToken),
+                continueInFlightKey,
+                ct),
+            cancellationToken);
+
+        ReviewCacheHitMetadata? continueCacheHit = null;
+
+        if (_reviewResultCache.TryConsumeCoalesceLeaderReviewCacheHit(continueInFlightKey, out string? continueReuseReason))
+            continueCacheHit = new ReviewCacheHitMetadata(true, continueReuseReason);
+
+        return FinalizeCoalescedReviewResult(
+            sharedContinue,
             effectiveRequest,
             runId,
-            budget);
+            budget,
+            continueCacheHit);
     }
 
     private async Task<ClosedLoopReasoningResult> CoalesceReviewCacheMissAsync(
@@ -198,14 +241,14 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         string runId,
         ArchitectureIntelligenceBudgetDecision budget,
         ReviewCacheDependencyManifest cacheManifest,
+        string inFlightKey,
         CancellationToken cancellationToken)
     {
         if (!effectiveRequest.PublishToProduct
             && _reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
             && cached is not null)
         {
-            cached.CacheHit = true;
-            cached.CacheReuseReason = cacheManifest.ReuseReason ?? "dependency-manifest-match";
+            _reviewResultCache.MarkCoalesceLeaderReviewCacheHit(inFlightKey, cacheManifest.ReuseReason);
 
             return cached;
         }
@@ -219,11 +262,39 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
             cancellationToken);
     }
 
+    private async Task<ClosedLoopReasoningResult> CoalesceContinueReviewCacheMissAsync(
+        ClosedLoopReasoningRequest effectiveRequest,
+        string tenantId,
+        string runId,
+        ArchitectureIntelligenceBudgetDecision budget,
+        ReviewCacheDependencyManifest continueManifest,
+        string continueInFlightKey,
+        CancellationToken cancellationToken)
+    {
+        if (!effectiveRequest.PublishToProduct
+            && _reviewResultCache.TryGet(continueManifest, out ClosedLoopReasoningResult? cached)
+            && cached is not null)
+        {
+            _reviewResultCache.MarkCoalesceLeaderReviewCacheHit(continueInFlightKey, continueManifest.ReuseReason);
+
+            return cached;
+        }
+
+        return await ExecuteLiveReviewAsync(
+            effectiveRequest,
+            tenantId,
+            runId,
+            budget,
+            continueManifest,
+            cancellationToken);
+    }
+
     private static ClosedLoopReasoningResult FinalizeCoalescedReviewResult(
         ClosedLoopReasoningResult shared,
         ClosedLoopReasoningRequest effectiveRequest,
         string runId,
-        ArchitectureIntelligenceBudgetDecision budget)
+        ArchitectureIntelligenceBudgetDecision budget,
+        ReviewCacheHitMetadata? reviewCacheHit = null)
     {
         ArgumentNullException.ThrowIfNull(shared);
         ArgumentNullException.ThrowIfNull(effectiveRequest);
@@ -232,6 +303,16 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
         ClosedLoopReasoningResult isolated = ClosedLoopReasoningResultCloner.Clone(shared);
         ArchitectureIntelligenceBudgetResultApplier.Apply(isolated, budget);
+
+        if (reviewCacheHit?.IsReviewCacheHit == true)
+        {
+            isolated.CacheHit = true;
+            isolated.CacheReuseReason = reviewCacheHit.Value.ReuseReason ?? "dependency-manifest-match";
+        }
+
+        if (reviewCacheHit?.IsReviewCacheHit == true
+            && !effectiveRequest.PublishToProduct)
+            ClosedLoopCacheHitPublishGuard.ApplyAnalysisOnlyCoalescedIsolation(effectiveRequest, isolated);
 
         if (ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
                 effectiveRequest,
@@ -581,20 +662,30 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
         if (cacheManifest is not null && persistModel)
         {
+            IReadOnlyList<TechnologyLedgerEntry>? postSaveLedgerEntries =
+                await TryLoadLedgerEntriesAsync(runId, cancellationToken);
+
+            ReviewCacheDependencyManifest storageManifest =
+                string.Equals(
+                    cacheManifest.ReuseReason,
+                    "closed-loop-continue-existing",
+                    StringComparison.Ordinal)
+                    ? ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                        effectiveRequest,
+                        tenantId,
+                        runId,
+                        model,
+                        postSaveLedgerEntries)
+                    : ReviewCacheManifestBuilder.BuildWithResolvedRunId(
+                        effectiveRequest,
+                        runId,
+                        model,
+                        postSaveLedgerEntries);
+
+            _reviewResultCache.Set(storageManifest, result);
+
             if (string.IsNullOrWhiteSpace(effectiveRequest.RunId))
-            {
                 _reviewResultCache.Set(cacheManifest, result);
-            }
-            else
-            {
-                IReadOnlyList<TechnologyLedgerEntry>? postSaveLedgerEntries =
-                    await TryLoadLedgerEntriesAsync(runId, cancellationToken);
-
-                ReviewCacheDependencyManifest postSaveManifest =
-                    ReviewCacheManifestBuilder.Build(effectiveRequest, model, postSaveLedgerEntries);
-
-                _reviewResultCache.Set(postSaveManifest, result);
-            }
         }
 
         return result;

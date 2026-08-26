@@ -48,6 +48,21 @@ public static class ClosedLoopCacheHitPublishGuard
             || !string.Equals(result.RunId, runId, StringComparison.Ordinal);
     }
 
+    public static void ApplyAnalysisOnlyCoalescedIsolation(
+        ClosedLoopReasoningRequest request,
+        ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(isolated);
+
+        if (request.PublishToProduct)
+            return;
+
+        isolated.PublishBlocked = false;
+        isolated.PublishBlockReasons = [];
+        isolated.PublishSkipReason = null;
+    }
+
     public static void SanitizeForStorage(ClosedLoopReasoningResult result)
     {
         ArgumentNullException.ThrowIfNull(result);

@@ -6,6 +6,8 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 /// <summary>
 ///     Stable fingerprint of technology-ledger facts that influence closed-world publish gating.
+///     Aligns with <see cref="TechnologyLedgerClosedWorldValidator" /> token sources
+///     (<see cref="TechnologyLedgerEntry.TechnologyName" /> and role labels).
 /// </summary>
 public static class ReviewCacheLedgerFingerprint
 {
@@ -21,7 +23,7 @@ public static class ReviewCacheLedgerFingerprint
                      .ThenBy(item => item.TechnologyName, StringComparer.Ordinal)
                      .ThenBy(item => item.ProviderFamily))
         {
-            builder.Append(entry.Role).Append('|');
+            builder.Append(entry.Role.ToString()).Append('|');
             builder.Append(entry.TechnologyName ?? string.Empty).Append('|');
             builder.Append(entry.ProviderFamily).Append('|');
             builder.Append(entry.Status).Append('|');

@@ -9,6 +9,25 @@ public sealed class ClosedLoopContinueRunSingleFlight
 {
     private readonly ReviewSingleFlightCoordinator _coordinator = new();
 
+    public static string BuildCoalesceKey(
+        string tenantId,
+        string runId,
+        ReviewCacheDependencyManifest requestManifest,
+        bool publishToProduct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentNullException.ThrowIfNull(requestManifest);
+
+        return string.Join(
+            '|',
+            "continue",
+            tenantId,
+            runId,
+            requestManifest.ContentHash ?? string.Empty,
+            publishToProduct ? "publish=1" : "publish=0");
+    }
+
     public Task<ClosedLoopReasoningResult> CoalesceAsync(
         string tenantId,
         string runId,
@@ -22,13 +41,7 @@ public sealed class ClosedLoopContinueRunSingleFlight
         ArgumentNullException.ThrowIfNull(requestManifest);
         ArgumentNullException.ThrowIfNull(leaderWork);
 
-        string key = string.Join(
-            '|',
-            "continue",
-            tenantId,
-            runId,
-            requestManifest.ContentHash ?? string.Empty,
-            publishToProduct ? "publish=1" : "publish=0");
+        string key = BuildCoalesceKey(tenantId, runId, requestManifest, publishToProduct);
 
         return _coordinator.CoalesceAsync(key, leaderWork, cancellationToken);
     }

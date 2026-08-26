@@ -9,9 +9,12 @@ public sealed class ReviewResultCache : IReviewResultCache
     private static readonly TimeSpan EntryTtl = TimeSpan.FromHours(4);
 
     private readonly ConcurrentDictionary<string, CacheEntry> _cache = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, string?> _coalesceCacheHitReuseReasons =
+        new(StringComparer.Ordinal);
     private readonly ReviewSingleFlightCoordinator _inFlight = new();
     private readonly TimeProvider _clock;
     private readonly object _evictionLock = new();
+    private readonly HashSet<string> _pinnedStorageKeys = new(StringComparer.Ordinal);
 
     public ReviewResultCache(TimeProvider? timeProvider = null)
     {
@@ -51,6 +54,8 @@ public sealed class ReviewResultCache : IReviewResultCache
         ClosedLoopReasoningResult snapshot = ClosedLoopReasoningResultCloner.Clone(result);
         ClosedLoopCacheHitPublishGuard.SanitizeForStorage(snapshot);
 
+        string key = ReviewCacheKeyBuilder.Build(manifest);
+
         lock (_evictionLock)
         {
             EvictExpiredEntries();
@@ -59,7 +64,6 @@ public sealed class ReviewResultCache : IReviewResultCache
                 EvictOldestEntry();
 
             DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
-            string key = ReviewCacheKeyBuilder.Build(manifest);
 
             _cache[key] = new CacheEntry
             {
@@ -68,6 +72,68 @@ public sealed class ReviewResultCache : IReviewResultCache
                 ExpiresUtc = utcNow.Add(EntryTtl),
             };
         }
+    }
+
+    public void InvalidateForRun(string runId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        string normalizedRunId = NormalizeRunId(runId);
+
+        foreach (KeyValuePair<string, CacheEntry> entry in _cache)
+        {
+            string? storedRunId = entry.Value.Result.RunId;
+
+            if (string.IsNullOrWhiteSpace(storedRunId))
+                continue;
+
+            if (RunIdsMatch(storedRunId, normalizedRunId))
+                _cache.TryRemove(entry.Key, out _);
+        }
+    }
+
+    private static string NormalizeRunId(string runId)
+    {
+        return runId.Replace("-", string.Empty, StringComparison.Ordinal);
+    }
+
+    private static bool RunIdsMatch(string storedRunId, string normalizedRequestedRunId)
+    {
+        if (string.IsNullOrWhiteSpace(storedRunId))
+            return false;
+
+        return string.Equals(
+            NormalizeRunId(storedRunId),
+            normalizedRequestedRunId,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    public string BuildInFlightKey(ReviewCacheDependencyManifest manifest, bool publishToProduct)
+    {
+        ArgumentNullException.ThrowIfNull(manifest);
+
+        return ReviewCacheKeyBuilder.BuildInFlight(manifest, publishToProduct);
+    }
+
+    public void MarkCoalesceLeaderReviewCacheHit(string inFlightKey, string? reuseReason)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(inFlightKey);
+
+        _coalesceCacheHitReuseReasons[inFlightKey] = reuseReason ?? "dependency-manifest-match";
+    }
+
+    public bool TryConsumeCoalesceLeaderReviewCacheHit(string inFlightKey, out string? reuseReason)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(inFlightKey);
+
+        if (_coalesceCacheHitReuseReasons.TryRemove(inFlightKey, out string? reason))
+        {
+            reuseReason = reason;
+            return true;
+        }
+
+        reuseReason = null;
+        return false;
     }
 
     public async Task<ClosedLoopReasoningResult> CoalesceAsync(
@@ -79,9 +145,43 @@ public sealed class ReviewResultCache : IReviewResultCache
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNull(leaderWork);
 
-        string key = ReviewCacheKeyBuilder.BuildInFlight(manifest, publishToProduct);
+        string inFlightKey = ReviewCacheKeyBuilder.BuildInFlight(manifest, publishToProduct);
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
 
-        return await _inFlight.CoalesceAsync(key, leaderWork, cancellationToken);
+        PinStorageKey(storageKey);
+
+        try
+        {
+            return await _inFlight.CoalesceAsync(inFlightKey, leaderWork, cancellationToken);
+        }
+        finally
+        {
+            UnpinStorageKey(storageKey);
+        }
+    }
+
+    private void PinStorageKey(string storageKey)
+    {
+        lock (_evictionLock)
+        {
+            _pinnedStorageKeys.Add(storageKey);
+        }
+    }
+
+    private void UnpinStorageKey(string storageKey)
+    {
+        lock (_evictionLock)
+        {
+            _pinnedStorageKeys.Remove(storageKey);
+        }
+    }
+
+    private bool IsStorageKeyPinned(string storageKey)
+    {
+        lock (_evictionLock)
+        {
+            return _pinnedStorageKeys.Contains(storageKey);
+        }
     }
 
     private void EvictExpiredEntries()
@@ -91,6 +191,9 @@ public sealed class ReviewResultCache : IReviewResultCache
         foreach (KeyValuePair<string, CacheEntry> entry in _cache)
         {
             if (entry.Value.ExpiresUtc > utcNow)
+                continue;
+
+            if (IsStorageKeyPinned(entry.Key))
                 continue;
 
             _cache.TryRemove(entry.Key, out _);
@@ -103,6 +206,9 @@ public sealed class ReviewResultCache : IReviewResultCache
 
         foreach (KeyValuePair<string, CacheEntry> entry in _cache)
         {
+            if (IsStorageKeyPinned(entry.Key))
+                continue;
+
             if (oldest is null || entry.Value.CreatedUtc < oldest.Value.Value.CreatedUtc)
                 oldest = entry;
         }

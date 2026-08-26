@@ -177,4 +177,51 @@ public sealed class ReviewResultCacheTests
         cached.PublishSkipReason.Should().BeNull();
         cached.ProductFindings.Should().BeEmpty();
     }
+
+    [Fact]
+    public void InvalidateForRun_removes_entries_for_matching_run_id_regardless_of_guid_format()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-run-invalidated" };
+        ClosedLoopReasoningResult stored = new() { RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" };
+
+        cache.Set(manifest, stored);
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeTrue();
+
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task CoalesceAsync_pins_storage_key_until_leader_completes()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-pinned" };
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = "pinned-run" });
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? pinned).Should().BeTrue();
+        pinned!.RunId.Should().Be("pinned-run");
+
+        Task<ClosedLoopReasoningResult> inflight = cache.CoalesceAsync(
+            manifest,
+            async cancellationToken =>
+            {
+                await Task.Delay(300, cancellationToken);
+                return new ClosedLoopReasoningResult { RunId = "leader-run" };
+            },
+            CancellationToken.None);
+
+        for (int index = 0; index < 150; index++)
+        {
+            cache.Set(
+                new ReviewCacheDependencyManifest { ContentHash = $"overflow-{index}" },
+                new ClosedLoopReasoningResult());
+        }
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
+        stillPinned!.RunId.Should().Be("pinned-run");
+
+        await inflight;
+    }
 }

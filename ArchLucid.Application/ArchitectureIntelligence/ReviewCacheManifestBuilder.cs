@@ -28,6 +28,34 @@ public static class ReviewCacheManifestBuilder
         };
     }
 
+    public static ReviewCacheDependencyManifest BuildWithResolvedRunId(
+        ClosedLoopReasoningRequest request,
+        string resolvedRunId,
+        ArchitectureKnowledgeModel? baselineKnowledgeModel = null,
+        IReadOnlyList<TechnologyLedgerEntry>? technologyLedgerEntries = null)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentException.ThrowIfNullOrWhiteSpace(resolvedRunId);
+
+        ClosedLoopReasoningRequest resolvedRequest = new()
+        {
+            TenantId = request.TenantId,
+            RunId = resolvedRunId.Trim(),
+            WorkspaceId = request.WorkspaceId,
+            ProjectId = request.ProjectId,
+            SourceTexts = request.SourceTexts,
+            DeclaredPriorities = request.DeclaredPriorities,
+            FramingAnswers = request.FramingAnswers,
+            UseGoldenFixture = request.UseGoldenFixture,
+            ContinueFromExistingRun = request.ContinueFromExistingRun,
+            PublishToProduct = request.PublishToProduct,
+            ReviewTier = request.ReviewTier,
+            ModelAliasId = request.ModelAliasId,
+        };
+
+        return Build(resolvedRequest, baselineKnowledgeModel, technologyLedgerEntries);
+    }
+
     public static ReviewCacheDependencyManifest BuildContinueFromExistingRunCoalesceManifest(
         ClosedLoopReasoningRequest request,
         string tenantId,
@@ -62,7 +90,10 @@ public static class ReviewCacheManifestBuilder
         IReadOnlyList<TechnologyLedgerEntry>? technologyLedgerEntries)
     {
         StringBuilder builder = new();
-        builder.Append("continue=").Append(request.ContinueFromExistingRun ? '1' : '0').Append('|');
+
+        if (request.ContinueFromExistingRun)
+            builder.Append("continue=1|");
+
         builder.Append("tier=").Append(request.ReviewTier.ToString()).Append('|');
         builder.Append("golden=").Append(request.UseGoldenFixture ? '1' : '0').Append('|');
         builder.Append("alias=").Append(request.ModelAliasId ?? string.Empty).Append('|');
@@ -91,6 +122,10 @@ public static class ReviewCacheManifestBuilder
         }
 
         foreach (KeyValuePair<string, string> answer in request.FramingAnswers
+                     .Where(pair => !string.IsNullOrWhiteSpace(pair.Key))
+                     .Select(pair => new KeyValuePair<string, string>(
+                         pair.Key.Trim(),
+                         pair.Value?.Trim() ?? string.Empty))
                      .OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             builder.Append(answer.Key).Append('=').Append(answer.Value).Append('\n');

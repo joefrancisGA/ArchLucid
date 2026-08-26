@@ -72,7 +72,8 @@ public sealed class RecommendationImproveLoopCoordinator(
     IMustNotFailEnforcer mustNotFailEnforcer,
     ITrustPublishGate trustPublishGate,
     IAuthorityFindingsSnapshotUpdater? findingsSnapshotUpdater,
-    ITechnologyLedgerRepository? technologyLedgerRepository = null) : IRecommendationImproveLoopCoordinator
+    ITechnologyLedgerRepository? technologyLedgerRepository = null,
+    IReviewResultCache? reviewResultCache = null) : IRecommendationImproveLoopCoordinator
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -104,6 +105,8 @@ public sealed class RecommendationImproveLoopCoordinator(
     private readonly IAuthorityFindingsSnapshotUpdater? _findingsSnapshotUpdater = findingsSnapshotUpdater;
 
     private readonly ITechnologyLedgerRepository? _technologyLedgerRepository = technologyLedgerRepository;
+
+    private readonly IReviewResultCache? _reviewResultCache = reviewResultCache;
 
     public async Task<RecommendationImproveLoopResult?> TryApplyAsync(
         RecommendationRecord recommendation,
@@ -194,6 +197,9 @@ public sealed class RecommendationImproveLoopCoordinator(
 
         await _knowledgeModelAccess.SaveForRunAsync(scope, runId, afterModel, cancellationToken)
             .ConfigureAwait(false);
+
+        if (_reviewResultCache is not null)
+            _reviewResultCache.InvalidateForRun(runId.ToString("N"));
 
         IReadOnlyList<string> mergedFindingIds = [];
 

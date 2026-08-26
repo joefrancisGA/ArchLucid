@@ -212,6 +212,46 @@ public sealed class ReviewCacheManifestBuilderTests
                 "run-continue").ContentHash);
     }
 
+    [Fact]
+    public void Build_normalizes_framing_answer_keys_and_values()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
+        spaced.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [" scope "] = "  security  ",
+        };
+
+        ClosedLoopReasoningRequest normalized = CreateRequest("Architecture note.");
+        normalized.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["scope"] = "security",
+        };
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(normalized).ContentHash);
+    }
+
+    [Fact]
+    public void BuildWithResolvedRunId_emits_model_fingerprint_for_assigned_run_id()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-assigned",
+            RunId = "assigned-run-id",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.BuildWithResolvedRunId(
+                request,
+                "assigned-run-id",
+                model).ContentHash);
+    }
+
     private static ClosedLoopReasoningRequest CreateRequest(string content)
     {
         return new ClosedLoopReasoningRequest

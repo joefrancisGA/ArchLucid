@@ -146,6 +146,24 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
     }
 
     [Fact]
+    public void ApplyAnalysisOnlyCoalescedIsolation_clears_publish_block_metadata_for_analysis_callers()
+    {
+        ClosedLoopReasoningRequest request = new() { PublishToProduct = false };
+        ClosedLoopReasoningResult isolated = new()
+        {
+            PublishBlocked = true,
+            PublishBlockReasons = ["MustNotFailClass: blocked"],
+            PublishSkipReason = "skip",
+        };
+
+        ClosedLoopCacheHitPublishGuard.ApplyAnalysisOnlyCoalescedIsolation(request, isolated);
+
+        isolated.PublishBlocked.Should().BeFalse();
+        isolated.PublishBlockReasons.Should().BeEmpty();
+        isolated.PublishSkipReason.Should().BeNull();
+    }
+
+    [Fact]
     public void SanitizeForStorage_strips_publish_side_effects_from_result()
     {
         ClosedLoopReasoningResult result = new()
