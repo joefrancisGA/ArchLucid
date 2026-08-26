@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -44,10 +45,11 @@ export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCa
         <details className="group" data-testid="settings-destination-meta-disclosure">
           <summary
             className={cn(
-              "cursor-pointer list-none text-al-text-secondary underline-offset-2 hover:underline marker:content-none [&::-webkit-details-marker]:hidden",
+              "flex cursor-pointer list-none items-center gap-2 text-al-text-secondary underline-offset-2 hover:underline marker:content-none [&::-webkit-details-marker]:hidden",
               OPERATOR_TYPOGRAPHY.helper,
             )}
           >
+            <DisclosureTriangleIndicator />
             Scope and editability details
           </summary>
           <div className="mt-2">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpGovernanceApprovalRoleGuide } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalRoleGuide";
 import { HelpGovernanceApprovalTechnicalReference } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalTechnicalReference";
@@ -163,10 +164,11 @@ function TroubleshootingList(): React.ReactElement {
           <details className={cn(DESIGN_TOKENS.surface.card, "group p-3")}>
             <summary
               className={cn(
-                "cursor-pointer list-none font-semibold text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
+                "flex cursor-pointer list-none items-center gap-2 font-semibold text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
                 OPERATOR_TYPOGRAPHY.cardTitle,
               )}
             >
+              <DisclosureTriangleIndicator />
               {item.issue}
             </summary>
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>

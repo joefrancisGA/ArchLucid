@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
 import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
@@ -42,16 +43,17 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
       data-testid={`finding-workspace-card-${finding.findingId}`}
     >
       <details
-        className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+        className="group rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
         data-workspace-disclosure
       >
         <summary
           className={cn(
-            "cursor-pointer list-none [&::-webkit-details-marker]:hidden",
+            "flex cursor-pointer list-none items-start gap-2 marker:content-none [&::-webkit-details-marker]:hidden",
             OPERATOR_TYPOGRAPHY.body,
           )}
         >
-          <div className="flex flex-wrap items-center gap-2">
+          <DisclosureTriangleIndicator className="mt-1" />
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
             <SeverityTag
               severity={badgeLabel}
               kind={severityKindFromNumericValue(finding.severityValue)}
