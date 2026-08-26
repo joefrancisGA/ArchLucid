@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import { usePolicyPackRuleTemplatesQuery } from "@/hooks/use-policy-pack-rule-templates-query";
-import { useRunsByProjectPagedQuery } from "@/hooks/use-runs-by-project-paged-query";
 import { simulatePolicyPackAgainstRun } from "@/lib/api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -90,10 +89,6 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
       ? templatesQuery.error.message
       : "Network error loading rule templates."
     : null;
-  const defaultRunQuery = useRunsByProjectPagedQuery(
-    { projectId: "default", page: 1, pageSize: 1 },
-    { enabled: simulateRunId.trim().length === 0 },
-  );
   const [simulateBusy, setSimulateBusy] = useState<boolean>(false);
   const [simulateFailure, setSimulateFailure] = useState<ApiLoadFailureState | null>(null);
   const [simulateResult, setSimulateResult] = useState<
@@ -106,14 +101,6 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
     setJsonPreview(policyContentJson);
     setRoundTripWarning(parsed.warning);
   }, [selectedPackId, policyContentJson]);
-
-  useEffect(() => {
-    const firstRunId = (defaultRunQuery.data as { items?: Array<{ runId?: string }> } | undefined)?.items?.[0]?.runId;
-
-    if (firstRunId && simulateRunId.trim().length === 0) {
-      setSimulateRunId(firstRunId);
-    }
-  }, [defaultRunQuery.data, simulateRunId]);
 
   const syncFromBuilder = useCallback(
     (nextState: VisualBuilderState) => {
