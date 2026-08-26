@@ -73,12 +73,13 @@ public sealed class ReviewResultCache : IReviewResultCache
     public async Task<ClosedLoopReasoningResult> CoalesceAsync(
         ReviewCacheDependencyManifest manifest,
         Func<CancellationToken, Task<ClosedLoopReasoningResult>> leaderWork,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool publishToProduct = false)
     {
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNull(leaderWork);
 
-        string key = ReviewCacheKeyBuilder.Build(manifest);
+        string key = ReviewCacheKeyBuilder.BuildInFlight(manifest, publishToProduct);
 
         while (true)
         {

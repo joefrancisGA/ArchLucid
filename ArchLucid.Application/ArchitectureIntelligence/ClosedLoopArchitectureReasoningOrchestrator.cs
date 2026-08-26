@@ -138,7 +138,8 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                         budget,
                         cacheManifest,
                         ct),
-                    cancellationToken),
+                    cancellationToken,
+                    effectiveRequest.PublishToProduct),
                 effectiveRequest,
                 runId,
                 budget);
@@ -172,7 +173,8 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                     budget,
                     null,
                     ct),
-                cancellationToken),
+                cancellationToken,
+                effectiveRequest.PublishToProduct),
             effectiveRequest,
             runId,
             budget);

@@ -11,5 +11,6 @@ public interface IReviewResultCache
     Task<ClosedLoopReasoningResult> CoalesceAsync(
         ReviewCacheDependencyManifest manifest,
         Func<CancellationToken, Task<ClosedLoopReasoningResult>> leaderWork,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken,
+        bool publishToProduct = false);
 }
