@@ -16,7 +16,7 @@ import {
   getStructuredBriefSuggestionExplainCache,
   setStructuredBriefSuggestionExplainCache,
 } from "@/lib/architecture/structured-brief-suggestion-explain-cache";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_EXPLAIN_SUGGESTION_BUTTON,
   GUIDED_INTAKE_EXPLAIN_SUGGESTION_LOADING,
@@ -111,21 +111,22 @@ export function StructuredBriefSuggestionExplainPanel(
       onOpenChange={handleOpenChange}
       data-testid={props.testId ?? "structured-brief-suggestion-explain"}
     >
-      <CollapsibleTrigger
-        type="button"
-        disabled={props.disabled === true}
-        aria-expanded={open}
-        aria-controls={panelId}
-        className={cn(
-          "inline-flex h-8 items-center gap-1 rounded-md border border-neutral-200 bg-white px-2.5 text-neutral-700 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-al-focus dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800",
-          OPERATOR_DISCLOSURE_TRIGGER_CLASS,
-        )}
-      >
-        <span>{GUIDED_INTAKE_EXPLAIN_SUGGESTION_BUTTON}</span>
-        <ChevronDown
-          className={cn("h-3.5 w-3.5 shrink-0 transition-transform", open ? "rotate-180" : "rotate-0")}
-          aria-hidden
-        />
+      <CollapsibleTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={props.disabled === true}
+          aria-expanded={open}
+          aria-controls={panelId}
+          className="gap-1"
+        >
+          <span>{GUIDED_INTAKE_EXPLAIN_SUGGESTION_BUTTON}</span>
+          <ChevronDown
+            className={cn("h-3.5 w-3.5 shrink-0 transition-transform", open ? "rotate-180" : "rotate-0")}
+            aria-hidden
+          />
+        </Button>
       </CollapsibleTrigger>
       <CollapsibleContent
         id={panelId}

@@ -199,15 +199,22 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
 
     const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
     expect(within(suggestion).getByText("EU data residency")).toBeInTheDocument();
-    expect(within(suggestion).getByRole("button", { name: "Confirm" })).toBeInTheDocument();
-    expect(within(suggestion).getByRole("button", { name: "Deny" })).toBeInTheDocument();
+    const confirmButton = within(suggestion).getByRole("button", { name: "Confirm" });
+    const denyButton = within(suggestion).getByRole("button", { name: "Deny" });
+    const explainButton = within(suggestion).getByRole("button", { name: /Explain/i });
+    expect(confirmButton).toBeInTheDocument();
+    expect(denyButton).toBeInTheDocument();
+    expect(explainButton).toBeInTheDocument();
     const suggestionButtons = within(suggestion).getAllByRole("button");
     const confirmButtonIndex = suggestionButtons.findIndex((button) => button.textContent === "Confirm");
     const denyButtonIndex = suggestionButtons.findIndex((button) => button.textContent === "Deny");
     expect(confirmButtonIndex).toBeGreaterThanOrEqual(0);
     expect(denyButtonIndex).toBeGreaterThanOrEqual(0);
     expect(confirmButtonIndex).toBeLessThan(denyButtonIndex);
-    expect(within(suggestion).getByRole("button", { name: /Explain/i })).toBeInTheDocument();
+    expect(explainButton.className).toContain("text-xs");
+    expect(confirmButton.className).toContain("text-xs");
+    expect(denyButton.className).toContain("text-xs");
+    expect(screen.getByTestId("architecture-draft-constraints-confirm-all-suggestions")).toBeInTheDocument();
     expect(screen.queryByText("Suggested", { selector: "span" })).not.toBeInTheDocument();
   });
 
@@ -360,6 +367,33 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(within(confirmedRow).getByRole("button", { name: "Remove EU data residency" })).toBeInTheDocument();
     expect(confirmedRow.className).not.toMatch(/truncate/);
     expect(confirmedRow.querySelector(".max-w-\\[240px\\]")).toBeNull();
+  });
+
+  it("confirms all suggestions in a section when Confirm all is clicked", async () => {
+    mockDraftSuggestResponse({
+      suggestedConstraints: ["EU data residency", "Private networking only"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    expect(await screen.findAllByTestId("architecture-draft-constraints-suggestion")).toHaveLength(2);
+
+    fireEvent.click(screen.getByTestId("architecture-draft-constraints-confirm-all-suggestions"));
+
+    expect(screen.queryByTestId("architecture-draft-constraints-suggestion")).not.toBeInTheDocument();
+
+    const confirmedRows = screen.getAllByTestId("architecture-draft-constraints-confirmed");
+    expect(confirmedRows).toHaveLength(2);
+    expect(within(confirmedRows[0]).getByText("EU data residency")).toBeInTheDocument();
+    expect(within(confirmedRows[1]).getByText("Private networking only")).toBeInTheDocument();
   });
 
   it("splits multiline LLM suggestion strings into separate confirmable items", async () => {

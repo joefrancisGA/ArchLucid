@@ -120,6 +120,8 @@ export const GUIDED_INTAKE_EXPLAIN_SUGGESTION_LOADING = "Loading explanation…"
 
 export const GUIDED_INTAKE_EXPLAIN_SUGGESTION_RETRY_BUTTON = "Retry";
 
+export const GUIDED_INTAKE_CONFIRM_ALL_SUGGESTIONS_BUTTON = "Confirm all";
+
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY =
   "No new suggestions were returned. Add constraints and assumptions manually, or refine the architecture overview and try again.";
 
