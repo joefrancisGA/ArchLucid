@@ -32,8 +32,8 @@ public sealed class StarterProofPackSecondRunTests
         outcome.IsSuccess.Should().BeTrue(outcome.Message ?? "parse failed");
         outcome.Request.Should().NotBeNull();
         outcome.Request!.SystemName.Should().NotBeNullOrWhiteSpace();
-        outcome.Request.Description.Length.Should().BeGreaterOrEqualTo(10);
+        outcome.Request.Description.Length.Should().BeGreaterThanOrEqualTo(10);
         outcome.Request.RequestId.Should().NotBeNullOrWhiteSpace();
-        outcome.Request.RequestId.Length.Should().BeLessOrEqualTo(64);
+        outcome.Request.RequestId.Length.Should().BeLessThanOrEqualTo(64);
     }
 }

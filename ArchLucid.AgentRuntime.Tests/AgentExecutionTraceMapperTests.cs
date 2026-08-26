@@ -58,7 +58,7 @@ public sealed class AgentExecutionTraceMapperTests
 
         AgentExecutionTraceSummary summary = AgentExecutionTraceSummary.FromTrace(trace);
 
-        typeof(AgentExecutionTraceSummary).GetProperties().Length.Should().BeLessOrEqualTo(14);
+        typeof(AgentExecutionTraceSummary).GetProperties().Length.Should().BeLessThanOrEqualTo(14);
         summary.QualityRejected.Should().BeTrue();
         summary.ModelAlias.Should().Be(AgentModelAliasIds.PremiumAssurance);
     }

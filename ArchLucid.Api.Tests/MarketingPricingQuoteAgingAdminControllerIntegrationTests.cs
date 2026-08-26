@@ -79,7 +79,7 @@ public sealed class MarketingPricingQuoteAgingAdminControllerIntegrationTests(Gr
             await get.Content.ReadFromJsonAsync<MarketingPricingQuoteAgingResponse>();
 
         body.Should().NotBeNull();
-        body!.BreachCount.Should().BeGreaterOrEqualTo(1);
+        body!.BreachCount.Should().BeGreaterThanOrEqualTo(1);
         body.Rows.Should().Contain(row =>
             row.Id == requestId
             && row.BreachStatus == "breach at 24h"

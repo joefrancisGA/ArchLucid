@@ -94,7 +94,7 @@ public sealed class StagedPriorAgentsSummaryBuilderTests
         options.Normalize();
         EvidenceNote note = StagedPriorAgentsSummaryBuilder.CreateNote([], options, ledger);
 
-        note.Message.Length.Should().BeLessOrEqualTo(options.SummaryMaxTotalChars);
+        note.Message.Length.Should().BeLessThanOrEqualTo(options.SummaryMaxTotalChars);
         note.Message.Should().Contain("Technology Ledger");
     }
 }

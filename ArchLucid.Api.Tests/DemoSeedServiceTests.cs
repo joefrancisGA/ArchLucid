@@ -285,7 +285,7 @@ public sealed class DemoSeedServiceTests
         created.Should().NotBeNull();
         created!.Manifest.Should().NotBeNull();
         created.Run.CurrentManifestVersion.Should().Be(CreatedSampleWorkspaceSeed.ManifestVersionLiteral);
-        created.Results.Should().HaveCountGreaterOrEqualTo(4);
+        created.Results.Should().HaveCountGreaterThanOrEqualTo(4);
 
         IArchitectureRequestRepository requests =
             scope.ServiceProvider.GetRequiredService<IArchitectureRequestRepository>();

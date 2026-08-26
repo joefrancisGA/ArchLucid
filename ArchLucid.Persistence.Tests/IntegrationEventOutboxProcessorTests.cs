@@ -396,8 +396,8 @@ public sealed class IntegrationEventOutboxProcessorTests
 
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
 
-        peak.Should().BeLessOrEqualTo(2);
-        peak.Should().BeGreaterOrEqualTo(2);
+        peak.Should().BeLessThanOrEqualTo(2);
+        peak.Should().BeGreaterThanOrEqualTo(2);
         outbox.Verify(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Exactly(entries.Count));
     }
 

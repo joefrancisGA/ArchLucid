@@ -27,7 +27,7 @@ public sealed class ExemplarCorpusIndexerTests
         ExemplarCorpusIndexer sut = new(options);
         IReadOnlyList<RetrievalDocument> docs = await sut.BuildDocumentsAsync(CancellationToken.None);
 
-        docs.Should().HaveCountGreaterOrEqualTo(10);
+        docs.Should().HaveCountGreaterThanOrEqualTo(10);
         docs.Should().OnlyContain(d => d.CorpusKind == CorpusKind.ReferenceArchitecture);
         docs.Should().OnlyContain(d => d.SourceType == "ReferenceArchitectureExemplar");
         docs.Should().OnlyContain(d => d.TenantId == CorpusKindSentinels.PlatformSentinelTenantId);
