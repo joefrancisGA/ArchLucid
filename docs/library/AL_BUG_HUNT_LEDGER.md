@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 54
-- **bugs-found:** 105
+- **hunts:** 55
+- **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
+- **last-bug:** 2026-08-26 — terraform-show-json mode:data resources ingested as managed topology
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1959,6 +1959,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
 
 2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
+
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` ingested `mode: data` resources as managed topology — **hit 2026-08-26 hunt #73:** data-source rows appeared alongside managed resources and false-modified infra declaration deltas; fixed by skipping `mode` `data` entries (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_skips_mode_data_resources`).
+- [x] (proven) `BicepInfrastructureDeclarationParser` ignored `module` declarations — **hit 2026-08-26 hunt #73:** pasted Bicep with only `module` blocks returned zero resources; fixed with `ModuleRegex` and `bicepModuleSource` property (`BicepInfrastructureDeclarationParserTests.ParseAsync_ExtractsBicepModules`).
+- [x] (proven) `BicepInfrastructureDeclarationParser` duplicate symbolic name + type collapsed `ObjectId` — **hit 2026-08-26 hunt #73:** repeated `resource stg 'Microsoft.Storage/...'` rows shared one stable id; fixed with per-declaration `bicepOccurrence` suffix (`BicepInfrastructureDeclarationParserTests.ParseAsync_DuplicateResourceSymbolicNames_EmitsDistinctObjectIds`).
+- [x] (proven) `KubernetesJsonInfrastructureDeclarationParser` required a single JSON document — **hit 2026-08-26 hunt #73:** NDJSON exporter output (`{...}\n{...}`) failed to parse; fixed with single-document-first fallback to line-wise NDJSON (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_NdjsonLines_MapsMultipleResources`).
+- [x] (proven) `KubernetesYamlInfrastructureDeclarationParser` split documents on literal `\n---` only — **hit 2026-08-26 hunt #73:** leading or whitespace-padded `---` separators dropped trailing manifests; fixed with multiline `^\s*---\s*$` split (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_PaddedDocumentSeparators_MapsMultipleDocuments`).
+
+2026-08-26 seed hunt #73: reseeded mode:data / Bicep module / bicepOccurrence / K8s NDJSON / YAML separator candidates; proved all five in one hit pass.
 
 2026-08-26 thorough hunt #53: proved arm-json array property serialization gap for App Service network rules.
 
