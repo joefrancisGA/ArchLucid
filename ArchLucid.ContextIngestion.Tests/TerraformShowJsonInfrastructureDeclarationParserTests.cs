@@ -1034,4 +1034,37 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
 
         objects.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task ParseAsync_Reparse_ProducesStableObjectId()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "show.json",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tfshow-stable",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_virtual_network",
+                                "name": "hub-vnet",
+                                "values": { "location": "eastus" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> firstParse = await _sut.ParseAsync(decl, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondParse = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        firstParse.Should().ContainSingle();
+        secondParse.Should().ContainSingle();
+        secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
+    }
 }

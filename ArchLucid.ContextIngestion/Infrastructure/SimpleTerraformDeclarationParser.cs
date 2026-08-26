@@ -42,10 +42,16 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
 
             SimpleTerraformResourceBlockParser.ParseBodyIntoProperties(block.Body, properties);
 
+            string canonicalName = name.ToLowerInvariant();
+
             results.Add(new CanonicalObject
             {
+                ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
+                    declaration.DeclarationId,
+                    objectType,
+                    $"{canonicalTerraformType}|{canonicalName}"),
                 ObjectType = objectType,
-                Name = name.ToLowerInvariant(),
+                Name = canonicalName,
                 SourceType = "InfrastructureDeclaration",
                 SourceId = declaration.DeclarationId,
                 Properties = properties

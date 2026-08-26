@@ -177,10 +177,16 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             }
         }
 
+        string canonicalName = name.ToLowerInvariant();
+
         results.Add(new CanonicalObject
         {
+            ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
+                declaration.DeclarationId,
+                objectType,
+                $"{canonicalTerraformType}|{canonicalName}"),
             ObjectType = objectType,
-            Name = $"{canonicalTerraformType}.{name.ToLowerInvariant()}",
+            Name = $"{canonicalTerraformType}.{canonicalName}",
             SourceType = "InfrastructureDeclaration",
             SourceId = declaration.DeclarationId,
             Properties = properties

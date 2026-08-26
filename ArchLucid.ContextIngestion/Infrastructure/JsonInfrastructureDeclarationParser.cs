@@ -66,10 +66,17 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
 
             properties["resourceType"] = resource.Type.Trim().ToLowerInvariant();
 
+            string canonicalName = resource.Name.Trim().ToLowerInvariant();
+            string canonicalResourceType = resource.Type.Trim().ToLowerInvariant();
+
             results.Add(new CanonicalObject
             {
+                ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
+                    declaration.DeclarationId,
+                    objectType,
+                    $"{canonicalResourceType}|{canonicalName}"),
                 ObjectType = objectType,
-                Name = resource.Name.Trim().ToLowerInvariant(),
+                Name = canonicalName,
                 SourceType = "InfrastructureDeclaration",
                 SourceId = declaration.DeclarationId,
                 Properties = properties
