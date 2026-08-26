@@ -203,7 +203,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 buffer[w++] = '_';
         }
 
-        return new string(buffer[..w]);
+        return new string(buffer[..w]).ToLowerInvariant();
     }
 
     private static string CanonicalizeTerraformValueText(JsonElement value)

@@ -649,6 +649,51 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_TfPropertyKeys_AreCanonicalized()
+    {
+        const string baseJson = """
+                                {
+                                  "values": {
+                                    "root_module": {
+                                      "resources": [
+                                        {
+                                          "type": "azurerm_resource_group",
+                                          "name": "main",
+                                          "values": { "Location": "EastUS", "Sku": "Standard_LRS" }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                                """;
+
+        InfrastructureDeclarationReference firstKeyCasing = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-tf-keys",
+            Content = baseJson,
+        };
+
+        InfrastructureDeclarationReference secondKeyCasing = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-tf-keys",
+            Content = baseJson
+                .Replace("\"Location\"", "\"location\"")
+                .Replace("\"Sku\"", "\"sku\""),
+        };
+
+        IReadOnlyList<CanonicalObject> firstObjects = await _sut.ParseAsync(firstKeyCasing, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondObjects = await _sut.ParseAsync(secondKeyCasing, CancellationToken.None);
+
+        firstObjects.Should().ContainSingle();
+        secondObjects.Should().ContainSingle();
+        secondObjects[0].Properties.Should().BeEquivalentTo(firstObjects[0].Properties);
+    }
+
+    [Fact]
     public async Task ParseAsync_CanonicalizesComplexTfJsonCasing()
     {
         InfrastructureDeclarationReference decl = new()
