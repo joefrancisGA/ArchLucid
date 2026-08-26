@@ -2320,11 +2320,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 4
-- **bugs-found:** 6
+- **hunts:** 5
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — Trust Center `<time dateTime>` used marketing copy when review date absent
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2338,6 +2338,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Sponsor digest `mapResponse` only defaulted missing `signInUrl`; API still returns `/auth/sign-in` (404) — fixed 2026-08-24; normalize legacy path to `/auth/signin` (`exec-digest-sponsor-deep-link-server.test.ts`).
 - [x] (proven) `showcaseTitleForRunId` / `showcaseScenarioRibbonLabel` still called raw `decodeURIComponent` — malformed `%` in route segment throws during metadata/hero render — fixed 2026-08-24; use `decodeShowcaseRunId` (`showcase-page-copy.test.ts`, `showcase-page.test.tsx`).
 - [x] (proven) Showcase API 200 with only `run` + `manifest` crashed render on `payload.artifacts.length` — fixed 2026-08-24; reject thin payloads in `fetchShowcasePayload` and guard snapshot (`ShowcaseWhatThisProves.test.tsx`, `showcase-page.test.tsx`).
+- [x] (proven) `MarketingTrustCenterBuyerBody` / `AssuranceStatusPageHero` set `<time dateTime={reviewedLabel}>` when `lastReviewedUtc` is null or unparsable — **hit 2026-08-26:** `dateTime` received marketing copy instead of ISO-8601; fixed with `formatTrustCenterReviewDate` + `TrustCenterReviewTime` (`trust-center-review-date.test.ts`, `MarketingTrustCenterBuyerBody.test.tsx`).
+- [ ] (hunt-ready) `MarketingShowcasePage` `http_error`/`missing` branches always call `getShowcaseStaticDemoPayload` without `hasCuratedShowcaseStaticPayload` guard — non-curated slug on API 503 renders static demo instead of not-available shell.
+- [ ] (hunt-ready) `QuickScanClient` capacity banner hardcodes `/auth/signin` without `returnUrl` — anonymous limit CTA does not return to `/quick-scan` after sign-in.
+- [ ] (hunt-ready) `ShowcaseQuickNav` + thin API payload missing `manifest.manifestId` — `signedRecordDetailPath` calls `manifestId.trim()` when demo deep-link mode is enabled.
+- [ ] (candidate) `normalizeSignInUrl` in `exec-digest-sponsor-deep-link-server.ts` misses trailing-slash legacy `/auth/sign-in/` paths.
 
 ---
 
