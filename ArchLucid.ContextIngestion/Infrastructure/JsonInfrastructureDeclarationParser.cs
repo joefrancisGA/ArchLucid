@@ -62,7 +62,7 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
             results.Add(new CanonicalObject
             {
                 ObjectType = objectType,
-                Name = resource.Name,
+                Name = resource.Name.Trim(),
                 SourceType = "InfrastructureDeclaration",
                 SourceId = declaration.DeclarationId,
                 Properties = properties

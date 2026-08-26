@@ -12,8 +12,9 @@ namespace ArchLucid.ContextIngestion.Delta;
 ///         <see cref="Enumerable.ToDictionary{TSource,TKey}" /> semantics).
 ///     </para>
 ///     <para>
-///         "Modified" means the same key exists in both batches but the <see cref="CanonicalObject.Properties" />
-///         dictionaries differ (key set or any value). Name and ObjectType changes are not tracked separately.
+///         "Modified" means the same key exists in both batches but a property on the current object
+///         differs from the previous object. Extra properties on the previous object only (e.g. enricher-added
+///         <c>category</c>) are ignored so re-ingest deltas compare normalized connector output fairly.
 ///     </para>
 /// </remarks>
 public sealed class SetDiffConnectorDeltaComputer : IConnectorDeltaComputer
@@ -68,9 +69,6 @@ public sealed class SetDiffConnectorDeltaComputer : IConnectorDeltaComputer
 
     private static bool ArePropertiesEqual(CanonicalObject a, CanonicalObject b)
     {
-        if (a.Properties.Count != b.Properties.Count)
-            return false;
-
         foreach (KeyValuePair<string, string> kv in a.Properties)
         {
             if (!b.Properties.TryGetValue(kv.Key, out string? bVal) || bVal != kv.Value)

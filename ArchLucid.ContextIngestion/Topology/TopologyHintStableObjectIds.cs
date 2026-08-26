@@ -10,12 +10,34 @@ namespace ArchLucid.ContextIngestion.Topology;
 /// </summary>
 public static class TopologyHintStableObjectIds
 {
+    /// <summary>
+    ///     Collapses slash-separated hint segments to a stable form (trim around <c>/</c>).
+    /// </summary>
+    public static string CanonicalizeHintName(string trimmedHint)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(trimmedHint);
+
+        int slash = trimmedHint.IndexOf('/');
+
+        if (slash > 0 && slash < trimmedHint.Length - 1)
+        {
+            string parentName = trimmedHint[..slash].Trim();
+            string childRemainder = trimmedHint[(slash + 1)..].Trim();
+
+            if (parentName.Length > 0 && childRemainder.Length > 0)
+                return $"{parentName}/{childRemainder}";
+        }
+
+        return trimmedHint;
+    }
+
     /// <summary>32 lowercase hex characters (128 bits of SHA-256).</summary>
     public static string FromHintName(string topologyHintName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(topologyHintName);
 
-        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(topologyHintName.Trim().ToLowerInvariant()));
+        string canonical = CanonicalizeHintName(topologyHintName.Trim()).ToLowerInvariant();
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
         return Convert.ToHexString(hash.AsSpan(0, 16)).ToLowerInvariant();
     }
 }

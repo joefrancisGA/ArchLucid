@@ -26,7 +26,7 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
             if (trimmed.Length == 0)
                 continue;
 
-            string canonicalHint = CanonicalizeTopologyHint(trimmed).ToLowerInvariant();
+            string canonicalHint = TopologyHintStableObjectIds.CanonicalizeHintName(trimmed).ToLowerInvariant();
             Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase) { ["text"] = canonicalHint };
 
             int slash = canonicalHint.IndexOf('/');
@@ -56,21 +56,5 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
         }
 
         return Task.FromResult(batch);
-    }
-
-    private static string CanonicalizeTopologyHint(string trimmed)
-    {
-        int slash = trimmed.IndexOf('/');
-
-        if (slash > 0 && slash < trimmed.Length - 1)
-        {
-            string parentName = trimmed[..slash].Trim();
-            string childRemainder = trimmed[(slash + 1)..].Trim();
-
-            if (parentName.Length > 0 && childRemainder.Length > 0)
-                return $"{parentName}/{childRemainder}";
-        }
-
-        return trimmed;
     }
 }

@@ -8,6 +8,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Repositories;
 using ArchLucid.ContextIngestion.Services;
 using ArchLucid.ContextIngestion.Summaries;
+using ArchLucid.ContextIngestion.Topology;
 using ArchLucid.Contracts.Persistence.Context;
 
 using FluentAssertions;
@@ -146,6 +147,50 @@ public sealed class ContextIngestionServiceTests
         priorNames.Should().HaveCount(2);
         priorNames.Should().OnlyContain(name => name.StartsWith(sharedPrefix, StringComparison.Ordinal));
         priorNames.Should().OnlyContain(name => name.Contains('#', StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task IngestAsync_IdenticalTopologyHintOnSecondIngest_ReportsUnchangedDelta()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        IReadOnlyList<IConnectorDescriptor> descriptors =
+        [
+            new ConnectorDescriptor(
+                1,
+                new TopologyHintsConnector(
+                    new TopologyHintsPayloadExtractor(),
+                    new TopologyHintsPayloadNormalizer(new PolicyTopologyOverlapResolver()),
+                    new SetDiffConnectorDeltaComputer()))
+        ];
+
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(descriptors, new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([new TopologyResourceCanonicalEnricher()]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-topology-delta";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            TopologyHints = ["hub-vnet"]
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+        await repo.SaveAsync(firstSnapshot, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            TopologyHints = ["hub-vnet"]
+        };
+
+        ContextSnapshot snapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        snapshot.DeltaSummary.Should().Contain("0 modified");
+        snapshot.DeltaSummary.Should().Contain("1 unchanged");
     }
 
     private sealed class CountingConnector : IContextConnector

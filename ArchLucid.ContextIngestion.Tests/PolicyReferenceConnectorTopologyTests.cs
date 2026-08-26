@@ -66,6 +66,36 @@ public sealed class PolicyReferenceConnectorTopologyTests
     }
 
     [Fact]
+    public async Task NormalizeAsync_WhenPolicyOverlapsSlashSpacedTopologyHint_UsesCanonicalTopologyObjectId()
+    {
+        PolicyReferenceConnector sut = new(
+            new PolicyReferencePayloadExtractor(),
+            new PolicyReferencePayloadNormalizer(new PolicyTopologyOverlapResolver()),
+            new SetDiffConnectorDeltaComputer());
+
+        TopologyHintsConnector topologyConnector = new(
+            new TopologyHintsPayloadExtractor(),
+            new TopologyHintsPayloadNormalizer(new PolicyTopologyOverlapResolver()),
+            new SetDiffConnectorDeltaComputer());
+
+        RawContextPayload topologyRaw = new() { TopologyHints = ["parentNet / childSubnet"] };
+        NormalizedContextBatch topologyBatch = await topologyConnector.NormalizeAsync(topologyRaw, CancellationToken.None);
+        string topologyObjectId = topologyBatch.CanonicalObjects.Single().ObjectId;
+
+        RawContextPayload policyRaw = new()
+        {
+            PolicyReferences = ["childSubnet"],
+            TopologyHints = ["parentNet / childSubnet"]
+        };
+
+        NormalizedContextBatch policyBatch = await sut.NormalizeAsync(policyRaw, CancellationToken.None);
+
+        CanonicalObject policy = policyBatch.CanonicalObjects.Single();
+        policy.Properties.Should().ContainKey("applicableTopologyNodeIds");
+        policy.Properties["applicableTopologyNodeIds"].Should().Be($"obj-{topologyObjectId}");
+    }
+
+    [Fact]
     public async Task DeltaAsync_PaddedPolicyReference_ReportsUnchanged()
     {
         PolicyReferenceConnector connector = new(

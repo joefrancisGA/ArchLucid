@@ -37,7 +37,8 @@ public sealed class PolicyTopologyOverlapResolver : IPolicyTopologyOverlapResolv
             if (!Overlaps(policyReference, trimmed))
                 continue;
 
-            ids.Add($"obj-{ResolveStableObjectId(trimmed)}");
+            string canonicalHint = TopologyHintStableObjectIds.CanonicalizeHintName(trimmed).ToLowerInvariant();
+            ids.Add($"obj-{ResolveStableObjectId(canonicalHint)}");
         }
 
         return ids.Count == 0 ? null : string.Join(',', ids);

@@ -167,6 +167,97 @@ public sealed class InfrastructureDeclarationConnectorTests
         delta.UnchangedCount.Should().Be(2);
     }
 
+    [Fact]
+    public async Task JsonInfrastructureDeclarationParser_PaddedResourceName_IsTrimmed()
+    {
+        JsonInfrastructureDeclarationParser parser = new(Microsoft.Extensions.Logging.Abstractions.NullLogger<JsonInfrastructureDeclarationParser>.Instance);
+        InfrastructureDeclarationReference declaration = new()
+        {
+            DeclarationId = "decl-1",
+            Name = "network.json",
+            Format = "json",
+            Content = """
+                      {
+                        "resources": [
+                          { "type": "vnet", "name": " hub-vnet " }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await parser.ParseAsync(declaration, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Name.Should().Be("hub-vnet");
+    }
+
+    [Fact]
+    public async Task DeltaAsync_PaddedResourceName_ReportsUnchanged()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([new JsonInfrastructureDeclarationParser(Microsoft.Extensions.Logging.Abstractions.NullLogger<JsonInfrastructureDeclarationParser>.Instance)]),
+            new SetDiffConnectorDeltaComputer());
+
+        RawContextPayload firstRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-1",
+                    Name = "network.json",
+                    Format = "json",
+                    Content = """
+                              {
+                                "resources": [
+                                  { "type": "vnet", "name": " hub-vnet " }
+                                ]
+                              }
+                              """
+                }
+            ]
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString("D"),
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-1",
+                    Name = "network.json",
+                    Format = "json",
+                    Content = """
+                              {
+                                "resources": [
+                                  { "type": "vnet", "name": "hub-vnet" }
+                                ]
+                              }
+                              """
+                }
+            ]
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
+
     private static CanonicalObject MakeInfraResource(string declarationId, string name, string resourceType)
         => new()
         {

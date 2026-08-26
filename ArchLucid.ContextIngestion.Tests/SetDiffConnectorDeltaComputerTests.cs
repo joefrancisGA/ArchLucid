@@ -127,6 +127,24 @@ public sealed class SetDiffConnectorDeltaComputerTests
     }
 
     [Fact]
+    public void Compute_SameKeyExtraPropertyInPrevious_CountsAsUnchanged()
+    {
+        IReadOnlyList<CanonicalObject> previous =
+        [
+            MakePolicy("p1", new Dictionary<string, string> { ["a"] = "1", ["category"] = "network" })
+        ];
+        IReadOnlyList<CanonicalObject> current =
+        [
+            MakePolicy("p1", new Dictionary<string, string> { ["a"] = "1" })
+        ];
+
+        ContextDelta delta = _sut.Compute(current, previous, static o => o.SourceId);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.ModifiedCount.Should().Be(0);
+    }
+
+    [Fact]
     public void Compute_SameKeyExtraPropertyInCurrent_CountsAsModified()
     {
         IReadOnlyList<CanonicalObject> previous =
