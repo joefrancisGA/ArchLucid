@@ -28,25 +28,52 @@ public static class TopologyExpectedCategoryResolver
             return DefaultExpected;
 
         IReadOnlyList<string> scopeTokens = CollectScopeTokens(contextNode);
-
-        if (scopeTokens.Count == 0)
-            return DefaultExpected;
-
         HashSet<string> expected = new(DefaultExpected, StringComparer.OrdinalIgnoreCase);
 
-        if (SuggestsStaticOrCdnWorkload(scopeTokens) && !MentionsObjectStorage(scopeTokens))
-            expected.Remove(GraphTopologyCategories.Storage);
+        if (scopeTokens.Count > 0)
+        {
+            if (SuggestsStaticOrCdnWorkload(scopeTokens) && !MentionsObjectStorage(scopeTokens))
+                expected.Remove(GraphTopologyCategories.Storage);
 
-        if (SuggestsServerlessWorkload(scopeTokens) && !MentionsNetworkIsolation(scopeTokens))
-            expected.Remove(GraphTopologyCategories.Network);
+            if (SuggestsServerlessWorkload(scopeTokens) && !MentionsNetworkIsolation(scopeTokens))
+                expected.Remove(GraphTopologyCategories.Network);
 
-        if (SuggestsApiWithoutDatastore(scopeTokens))
-            expected.Remove(GraphTopologyCategories.Data);
+            if (SuggestsApiWithoutDatastore(scopeTokens))
+                expected.Remove(GraphTopologyCategories.Data);
 
-        if (MentionsIdentityWorkload(scopeTokens))
-            expected.Add(GraphTopologyCategories.Identity);
+            if (MentionsIdentityWorkload(scopeTokens))
+                expected.Add(GraphTopologyCategories.Identity);
+        }
+
+        UnionPolicyExpectedTopologyCategories(contextNode, expected);
 
         return expected.OrderBy(static c => c, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private static void UnionPolicyExpectedTopologyCategories(GraphNode contextNode, HashSet<string> expected)
+    {
+        if (!contextNode.Properties.TryGetValue(
+                ContextGraphPropertyKeys.PolicyExpectedTopologyCategories,
+                out string? raw)
+            || string.IsNullOrWhiteSpace(raw))
+        {
+            return;
+        }
+
+        foreach (string segment in raw.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (string.IsNullOrWhiteSpace(segment))
+                continue;
+
+            if (segment.Equals(GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase)
+                || segment.Equals(GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase)
+                || segment.Equals(GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase)
+                || segment.Equals(GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
+                || segment.Equals(GraphTopologyCategories.Identity, StringComparison.OrdinalIgnoreCase))
+            {
+                expected.Add(segment);
+            }
+        }
     }
 
     public static IReadOnlyList<string> CollectScopeTokens(GraphNode contextNode)

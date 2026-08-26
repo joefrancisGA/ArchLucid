@@ -77,7 +77,8 @@ Open `http://localhost:8080` and load **`workspace.dsl`** from this directory.
 *(Former thin hub `ARCHITECTURE_INDEX.md` redirects here — see [`../redirects.md`](../redirects.md).)*
 
 ### Orientation
-- **Insight-density Composer prompts** — [`INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS.md) (**shipped 2026-08-26** — archive; do not re-run ID-01–07) · follow-on [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) (**ready to run on feature branches** — ID-08–11: Bicep/K8s declaration properties, policy-filter golden case, declaration policy vocabulary, advisory density labeling)
+- **Policy-pack expectation facets** — [`../library/POLICY_PACK_EXPECTATION_FACET.md`](../library/POLICY_PACK_EXPECTATION_FACET.md) (additive coverage/cost parameterization via `advisoryDefaults`; commitment engines stay pack-independent)
+- **Policy-pack expectation Composer prompts** — [`POLICY_PACK_EXPECTATION_COMPOSER_PROMPTS.md`](POLICY_PACK_EXPECTATION_COMPOSER_PROMPTS.md) (PP-02–PP-05 shipped on `master`)
 - **Ingestion fit-gap Composer prompts** — [`INGESTION_FIT_GAP_COMPOSER_PROMPTS.md`](INGESTION_FIT_GAP_COMPOSER_PROMPTS.md) (**shipped 2026-08-26** — archive; do not re-run FIT-01–05)
 - **Saved Mermaid + SVG diagrams** — [`architecture_diagrams/README.md`](architecture_diagrams/README.md) (system overview + zoom-ins)
 - **Platform architecture handbook** — [`architecture_handbook/README.md`](architecture_handbook/README.md) (Markdown spine → regenerable DOCX; buyer pack under `architecture_handbook/buyer/`)

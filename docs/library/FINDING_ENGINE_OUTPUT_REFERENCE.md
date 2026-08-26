@@ -42,8 +42,8 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 
 | Engine id | Implementation | Category | What it analyzes |
 |-----------|----------------|----------|------------------|
-| `cost-constraint` | `CostConstraintFindingEngine` | Cost | `CostConstraint` graph nodes → cost/architecture findings. |
-| `cost-breach` | `CostBreachFindingEngine` | Cost | Constraint breaches. |
+| `cost-constraint` | `CostConstraintFindingEngine` | Cost | `CostConstraint` graph nodes → cost/architecture findings. When `policyCostRequireBudgetCap=true` is stamped on the context snapshot, emits a warning if topology is present without a parseable `maxMonthlyCost`. |
+| `cost-breach` | `CostBreachFindingEngine` | Cost | Constraint breaches. Honors stamped `policyCostBreachSeverity` (minimum Warning) when a breach would already emit. |
 
 ## Application (effectful — `IEffectfulFindingEngine`)
 

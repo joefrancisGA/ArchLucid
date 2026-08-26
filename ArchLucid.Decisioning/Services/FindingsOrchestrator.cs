@@ -2,8 +2,11 @@ using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Governance.PolicyPacks;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,7 +20,9 @@ public partial class FindingsOrchestrator(
     IOptions<HumanReviewFindingOptions> humanReviewOptions,
     IInsightDensityGate insightDensityGate,
     TimeProvider? timeProvider = null,
-    IEnumerable<IEffectfulFindingEngine>? effectfulEngines = null)
+    IEnumerable<IEffectfulFindingEngine>? effectfulEngines = null,
+    IScopeContextProvider? scopeContextProvider = null,
+    IEffectiveGovernanceLoader? effectiveGovernanceLoader = null)
     : IFindingsOrchestrator
 {
     private readonly IOptions<HumanReviewFindingOptions> _humanReviewOptions =
@@ -28,6 +33,10 @@ public partial class FindingsOrchestrator(
 
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
+    private readonly IScopeContextProvider? _scopeContextProvider = scopeContextProvider;
+
+    private readonly IEffectiveGovernanceLoader? _effectiveGovernanceLoader = effectiveGovernanceLoader;
+
     public async Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
         Guid runId,
         Guid contextSnapshotId,
@@ -36,6 +45,8 @@ public partial class FindingsOrchestrator(
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
         ArgumentNullException.ThrowIfNull(engines);
+
+        await TryStampPolicyExpectationsAsync(graphSnapshot, runId, ct);
 
         List<Finding> allFindings = [];
         List<FindingEngineFailure> engineFailures = [];
@@ -170,6 +181,35 @@ public partial class FindingsOrchestrator(
         return snapshot;
     }
 
+    private async Task TryStampPolicyExpectationsAsync(
+        GraphSnapshot graphSnapshot,
+        Guid runId,
+        CancellationToken ct)
+    {
+        if (_scopeContextProvider is null || _effectiveGovernanceLoader is null)
+            return;
+
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            ArchLucid.Contracts.Governance.PolicyPackContentDocument effective = await _effectiveGovernanceLoader
+                .LoadEffectiveContentAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct);
+
+            PolicyPackExpectationFacet facet = PolicyPackExpectationFacetParser.Parse(effective);
+
+            if (!facet.IsEmpty)
+                PolicyExpectationGraphStamp.Stamp(graphSnapshot, facet);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            LogPolicyExpectationStampFailed(ex, runId);
+        }
+    }
+
     private static async Task<EngineInvocationOutcome[]> AwaitEngineInvocationsAsync(
         Task<EngineInvocationOutcome>[] invocationTasks)
     {
@@ -280,4 +320,10 @@ public partial class FindingsOrchestrator(
         Level = LogLevel.Warning,
         Message = "Findings snapshot built with engine failures: RunId={RunId} FailedEngineCount={FailedEngineCount}")]
     private partial void LogPartialEngineFailures(Guid runId, int failedEngineCount);
+
+    [LoggerMessage(
+        EventId = 6,
+        Level = LogLevel.Warning,
+        Message = "Policy expectation stamp failed (fail-open): RunId={RunId}")]
+    private partial void LogPolicyExpectationStampFailed(Exception ex, Guid runId);
 }

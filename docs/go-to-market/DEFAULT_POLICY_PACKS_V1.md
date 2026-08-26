@@ -86,6 +86,8 @@ Assignments seed **cloud-neutral + Azure baseline** packs **enabled** by default
 
 **Declaration-security coupling:** Curated keys from CIS Azure/AWS/GCP (`cis-az-006`, `cis-az-025`, …), SOC 2 (`soc2-003`, `soc2-004`, `soc2-018`, …), GDPR, HIPAA, ISO 27001, PCI-DSS, Zero Trust, security baseline (`sec-base-028`), and AKS/EKS/GKE baseline packs gate **`declaration-security-baseline`** and **`declaration-premise-conflict`** findings when those keys survive tenant **`complianceRuleKeys`** filtering. Prefixes outside that family (for example **`cost-opt-*`**, **`ai-gov-*`**, **`dora-*`**, **`otel-*`**, **`sust-base-*`**) keep today's fail-open declaration behavior. This extends the compliance moat to declaration findings operators argue about; it does **not** mean all 39 finding engines are policy-aware.
 
+**Expectation facets (coverage + cost):** Tenant overlays and FinOps packs can set `advisoryDefaults` keys documented in **[`POLICY_PACK_EXPECTATION_FACET.md`](../library/POLICY_PACK_EXPECTATION_FACET.md)** — for example `expectation.topologyCategories.add=identity`, `expectation.securityControlFamilies.add=data-protection`, `cost.requireBudgetCap=true`, and `cost.breachSeverity=Critical`. `FindingsOrchestrator` stamps merged extras onto the context snapshot node; topology/security/requirement coverage engines union those extras with heuristic baselines (additive floor). `cost-constraint` can require a declared monthly cap; `cost-breach` can raise severity when a breach would already emit. Open-commitment, portfolio-recurrence, and cross-run diff engines remain pack-independent.
+
 ### Organization Private vs Review Engine Knowledge
 
 | Knowledge class | `PackType` (origin) | `DistributionScope` | Buyer meaning |

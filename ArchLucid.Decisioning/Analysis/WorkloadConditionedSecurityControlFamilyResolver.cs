@@ -26,42 +26,71 @@ public static class WorkloadConditionedSecurityControlFamilyResolver
             return DefaultExpectedFamilies;
 
         IReadOnlyList<string> scopeTokens = TopologyExpectedCategoryResolver.CollectScopeTokens(contextNode);
-
-        if (scopeTokens.Count == 0)
-            return DefaultExpectedFamilies;
-
         HashSet<string> expected = new(DefaultExpectedFamilies, StringComparer.OrdinalIgnoreCase);
-        IReadOnlyList<string> expectedCategories =
-            TopologyExpectedCategoryResolver.ResolveExpectedCategories(graphSnapshot);
 
-        if (expectedCategories.Any(c =>
-                c.Equals(GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
-                || c.Equals(GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase)))
+        if (scopeTokens.Count > 0)
         {
-            expected.Add(SecurityControlFamilies.DataProtection);
-            expected.Add(SecurityControlFamilies.Encryption);
+            IReadOnlyList<string> expectedCategories =
+                TopologyExpectedCategoryResolver.ResolveExpectedCategories(graphSnapshot);
+
+            if (expectedCategories.Any(c =>
+                    c.Equals(GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
+                    || c.Equals(GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase)))
+            {
+                expected.Add(SecurityControlFamilies.DataProtection);
+                expected.Add(SecurityControlFamilies.Encryption);
+            }
+
+            if (expectedCategories.Any(c =>
+                    c.Equals(GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase)))
+            {
+                expected.Add(SecurityControlFamilies.VulnerabilityManagement);
+            }
+
+            if (expectedCategories.Any(c =>
+                    c.Equals(GraphTopologyCategories.Identity, StringComparison.OrdinalIgnoreCase))
+                || ContainsAnyKeyword(scopeTokens, "identity", "entra", "oauth", "sso", "key vault", "keyvault"))
+            {
+                expected.Add(SecurityControlFamilies.IdentityAccess);
+            }
+
+            if (ContainsAnyKeyword(scopeTokens, "compliance", "regulated", "hipaa", "pci", "sox"))
+            {
+                expected.Add(SecurityControlFamilies.DataProtection);
+                expected.Add(SecurityControlFamilies.LoggingMonitoring);
+            }
         }
 
-        if (expectedCategories.Any(c =>
-                c.Equals(GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase)))
-        {
-            expected.Add(SecurityControlFamilies.VulnerabilityManagement);
-        }
-
-        if (expectedCategories.Any(c =>
-                c.Equals(GraphTopologyCategories.Identity, StringComparison.OrdinalIgnoreCase))
-            || ContainsAnyKeyword(scopeTokens, "identity", "entra", "oauth", "sso", "key vault", "keyvault"))
-        {
-            expected.Add(SecurityControlFamilies.IdentityAccess);
-        }
-
-        if (ContainsAnyKeyword(scopeTokens, "compliance", "regulated", "hipaa", "pci", "sox"))
-        {
-            expected.Add(SecurityControlFamilies.DataProtection);
-            expected.Add(SecurityControlFamilies.LoggingMonitoring);
-        }
+        UnionPolicyExpectedControlFamilies(contextNode, expected);
 
         return expected.OrderBy(static f => f, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private static void UnionPolicyExpectedControlFamilies(GraphNode contextNode, HashSet<string> expected)
+    {
+        if (!contextNode.Properties.TryGetValue(
+                ContextGraphPropertyKeys.PolicyExpectedSecurityControlFamilies,
+                out string? raw)
+            || string.IsNullOrWhiteSpace(raw))
+        {
+            return;
+        }
+
+        foreach (string segment in raw.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (string.IsNullOrWhiteSpace(segment))
+                continue;
+
+            if (segment.Equals(SecurityControlFamilies.IdentityAccess, StringComparison.OrdinalIgnoreCase)
+                || segment.Equals(SecurityControlFamilies.NetworkIsolation, StringComparison.OrdinalIgnoreCase)
+                || segment.Equals(SecurityControlFamilies.DataProtection, StringComparison.OrdinalIgnoreCase)
+                || segment.Equals(SecurityControlFamilies.Encryption, StringComparison.OrdinalIgnoreCase)
+                || segment.Equals(SecurityControlFamilies.LoggingMonitoring, StringComparison.OrdinalIgnoreCase)
+                || segment.Equals(SecurityControlFamilies.VulnerabilityManagement, StringComparison.OrdinalIgnoreCase))
+            {
+                expected.Add(segment);
+            }
+        }
     }
 
     public static string ResolveControlFamily(GraphNode securityBaselineNode)

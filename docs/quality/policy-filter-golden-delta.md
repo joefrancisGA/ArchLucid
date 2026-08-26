@@ -21,3 +21,14 @@ Regression instrument for `ComplianceRulePackGovernanceFilter` — not evidence 
 | CIS Azure public access | `cis-az-006` | Public network / data-protection only (`cis-az-006`) |
 
 **claimBoundary:** proves tenant rule keys change **declaration-security-baseline** findings on a fixed graph. Coverage, topology, cost, and inventory engines remain pack-inert; this is not evidence that all 39 engines are policy-aware.
+
+## Expectation-coverage sibling (`PolicyExpectationCoverageGoldenCorpusTests`)
+
+**Graph:** `ContextSnapshot` plus network + compute `TopologyResource` nodes only (no storage, data, or identity).
+
+| Posture | Stamp | Topology-coverage missing categories |
+| --- | --- | --- |
+| Baseline | none | `storage`, `data` (no `identity`) |
+| Identity extra | `policyExpectedTopologyCategories=identity` | `storage`, `data`, **`identity`** |
+
+**claimBoundary:** proves stamped `advisoryDefaults` extras change **topology-coverage** findings on a fixed graph. Coverage extras are additive; open-commitment remains pack-inert; not all 39 engines are policy-aware.

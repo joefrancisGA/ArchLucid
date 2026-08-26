@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -23,10 +24,11 @@ public sealed class CostBreachFindingEngine : IFindingEngine
 
         List<Finding> findings = [];
         IReadOnlyList<GraphNode> costNodes = graphSnapshot.GetNodesByType("CostConstraint");
+        FindingSeverity? severityOverride = PolicyExpectationCostGraphReader.ResolveBreachSeverityOverride(graphSnapshot);
 
         foreach (GraphNode node in costNodes)
         {
-            Finding? finding = TryCreateBreachFinding(node);
+            Finding? finding = TryCreateBreachFinding(node, severityOverride);
 
             if (finding is not null)
                 findings.Add(finding);
@@ -35,7 +37,7 @@ public sealed class CostBreachFindingEngine : IFindingEngine
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 
-    private static Finding? TryCreateBreachFinding(GraphNode node)
+    private static Finding? TryCreateBreachFinding(GraphNode node, FindingSeverity? severityOverride)
     {
         if (!node.Properties.TryGetValue("maxMonthlyCost", out string? maxCostRaw)
             || !decimal.TryParse(maxCostRaw, out decimal maxMonthlyCost))
@@ -55,6 +57,7 @@ public sealed class CostBreachFindingEngine : IFindingEngine
         decimal? lowerBound = TryParseDecimal(lowerBoundRaw);
         decimal? upperBound = TryParseDecimal(upperBoundRaw);
         decimal breachAmount = spend - maxMonthlyCost;
+        FindingSeverity severity = severityOverride ?? FindingSeverity.Error;
 
         return new Finding
         {
@@ -62,7 +65,7 @@ public sealed class CostBreachFindingEngine : IFindingEngine
             FindingType = FindingTypes.CostBreachFinding,
             Category = "Cost",
             EngineType = "cost-breach",
-            Severity = FindingSeverity.Error,
+            Severity = severity,
             Title = $"Monthly cost breach: {node.Label}",
             Rationale =
                 "Projected monthly spend exceeds the declared budget cap from the cost constraint node.",
