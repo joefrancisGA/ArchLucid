@@ -24,8 +24,8 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
     }
 
     /// <summary>
-    ///     Stable identity for deduplication. Precedence: <c>text</c> → <c>reference</c> → empty.
-    ///     Aligns with connectors that emit policy refs without a <c>text</c> property.
+    ///     Stable identity for deduplication. Precedence: <c>text</c> → <c>reference</c> →
+    ///     <c>terraformType</c> → <c>resourceType</c> → <c>k8s.kind</c> → empty.
     /// </summary>
     internal static string GetDedupeFingerprint(CanonicalObject item)
     {
@@ -42,6 +42,10 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
         if (item.Properties.TryGetValue("resourceType", out string? resourceType) &&
             !string.IsNullOrEmpty(resourceType))
             return resourceType;
+
+        if (item.Properties.TryGetValue("k8s.kind", out string? k8sKind) &&
+            !string.IsNullOrEmpty(k8sKind))
+            return k8sKind;
 
         return string.Empty;
     }

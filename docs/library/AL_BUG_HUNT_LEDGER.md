@@ -1802,11 +1802,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 36
-- **bugs-found:** 79
+- **hunts:** 37
+- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — document connector delta keys omitted ObjectType for REQ/POL same-text lines
+- **last-bug:** 2026-08-26 — CanonicalDeduplicator collapsed same-name Kubernetes resources with different kinds
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1900,6 +1900,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SetDiffConnectorDeltaComputer.BuildInitialDelta` used `current.Count` instead of distinct stable-key count — **hit 2026-08-26:** duplicate `SourceId` in first ingest reported `AddedCount = 2` but second ingest indexed to one key and reported false remove; fixed by indexing current batch before initial delta (`SetDiffConnectorDeltaComputerTests.Compute_NoPrevious_DuplicateStableKeys_CountDistinctKeysAsAdded`).
 - [x] (proven) `InfrastructureDeclarationConnector.DeltaAsync` keyed resources by `SourceId|ObjectType|Name` only — **hit 2026-08-26:** cluster-scoped Kubernetes Deployment and Service both named `api` collapsed to one delta key; fixed with `InfrastructureDeclarationDeltaKey` including `k8s.kind` / `resourceType` / `terraformType` disambiguators (`InfrastructureDeclarationConnectorTests.DeltaAsync_KubernetesDeploymentAndServiceSameClusterName_CountsBothResources`).
 - [x] (proven) `DocumentConnector.DeltaAsync` keyed lines by `SourceId:Name` only — **hit 2026-08-26:** `REQ:` and `POL:` with identical canonical text collapsed to one delta key; fixed by including `ObjectType` in document delta keys (`DocumentConnectorTests.DeltaAsync_RequirementAndPolicyWithSameCanonicalText_CountsBothResources`).
+- [x] (proven) `CanonicalDeduplicator.GetDedupeFingerprint` omitted `k8s.kind` — **hit 2026-08-26:** cluster-scoped Kubernetes Deployment and Service both named `api` collapsed to one snapshot object after enrich/dedupe despite connector delta fix; fixed by fingerprinting `k8s.kind` (`CanonicalDeduplicatorTests.Deduplicate_KeepsKubernetesResourcesWithSameNameDifferentKind`).
 
 ---
 
