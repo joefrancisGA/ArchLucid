@@ -48,4 +48,14 @@ describe("architectures-new-page-copy", () => {
       expect(subtitle).not.toContain("on this device");
     }
   });
+
+  it("points draft resume below the page subtitle, not above", () => {
+    for (const subtitle of [
+      ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER_WITH_DRAFTS,
+      ARCHITECTURES_NEW_PAGE_SUBTITLE_OPERATOR_WITH_DRAFTS,
+    ]) {
+      expect(subtitle.toLowerCase()).toContain("continue a saved draft below");
+      expect(subtitle.toLowerCase()).not.toContain("saved draft above");
+    }
+  });
 });
