@@ -111,9 +111,10 @@ internal static class KubernetesManifestCanonicalObjectMapper
         string kind,
         string canonicalName)
     {
-        return ContextIngestionStableLineNames.StableObjectId(
+        return InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
+            declaration.DeclarationId,
             objectType,
-            $"{declaration.DeclarationId}|{kind.ToLowerInvariant()}|{canonicalName}");
+            $"{kind.ToLowerInvariant()}|{canonicalName}");
     }
 
     private static string ResolveObjectType(string kind)

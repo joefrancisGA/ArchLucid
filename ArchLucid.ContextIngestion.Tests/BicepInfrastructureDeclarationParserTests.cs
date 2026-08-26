@@ -49,4 +49,26 @@ public sealed class BicepInfrastructureDeclarationParserTests
 
         result.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task ParseAsync_Reparse_ProducesStableObjectId()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            DeclarationId = "decl-bicep-stable",
+            Content = """
+                      resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> firstParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        firstParse.Should().ContainSingle();
+        secondParse.Should().ContainSingle();
+        secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
+    }
 }

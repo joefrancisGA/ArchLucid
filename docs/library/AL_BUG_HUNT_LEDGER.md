@@ -1802,11 +1802,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 31
-- **bugs-found:** 67
+- **hunts:** 32
+- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — K8s manifest resources rotated random ObjectId; topology enricher ignored k8s.kind
+- **last-bug:** 2026-08-26 — ARM/Bicep/JSON/simple-terraform/terraform-show-json infra parsers rotated random ObjectId on re-parse
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1888,6 +1888,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TopologyResourceCanonicalEnricher.InferCategory` ignored `k8s.kind` — **hit 2026-08-26:** kubernetes-json Deployments classified as `general` instead of `compute`; fixed with `k8s.kind` branch before ARM/Terraform heuristics (`CompositeCanonicalEnricherTests.Enrich_classifies_kubernetes_deployment_as_compute`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` preserved numeric `tf.*` JSON formatting — **hit 2026-08-26:** `capacity: 1` vs `capacity: 1.0` false-modified infrastructure declaration connector deltas; fixed with shared `CanonicalInfrastructurePropertyBag.CanonicalizeNumberText` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_EquivalentNumericRepresentations_ProduceSameTfProperties`, `InfrastructureDeclarationConnectorTests.DeltaAsync_ArmJsonEquivalentNumericFormatChange_ReportsUnchanged`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser` / `CanonicalInfrastructurePropertyBag.TryAddTfProperty` preserved `tf.*` property key casing — **hit 2026-08-26:** `allowBlobPublicAccess` vs `allowblobpublicaccess` produced different ordinal snapshot keys and false-modified infra declaration deltas; fixed by lowercasing sanitized keys in `TryAddTfProperty` and `TerraformShowJsonInfrastructureDeclarationParser` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_TfPropertyKeys_AreCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_ArmJsonTfPropertyKeyCasingChange_ReportsUnchanged`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` left default random `ObjectId` on ARM resources — **hit 2026-08-26:** identical arm-json re-parse rotated `obj-{ObjectId}` graph node ids; fixed with shared `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` keyed by declaration id, resource type, and name (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `BicepInfrastructureDeclarationParser` left default random `ObjectId` on Bicep resources — **hit 2026-08-26:** identical bicep re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` (`BicepInfrastructureDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `JsonInfrastructureDeclarationParser` left default random `ObjectId` on JSON infra resources — **hit 2026-08-26:** identical json declaration re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` (`JsonInfrastructureDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `SimpleTerraformDeclarationParser` left default random `ObjectId` on HCL resources — **hit 2026-08-26:** identical simple-terraform re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` (`SimpleTerraformDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` left default random `ObjectId` on terraform-show-json resources — **hit 2026-08-26:** identical terraform-show-json re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
 
 ---
 

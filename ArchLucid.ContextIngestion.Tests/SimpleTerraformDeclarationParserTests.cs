@@ -165,4 +165,23 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().ContainSingle();
         result[0].Properties["tf.access_key"].Should().Be("[REDACTED]");
     }
+
+    [Fact]
+    public async Task ParseAsync_Reparse_ProducesStableObjectId()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-stable",
+            Content = "resource \"azurerm_virtual_network\" \"hub-vnet\"\n"
+        };
+
+        IReadOnlyList<CanonicalObject> firstParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        firstParse.Should().ContainSingle();
+        secondParse.Should().ContainSingle();
+        secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
+    }
 }

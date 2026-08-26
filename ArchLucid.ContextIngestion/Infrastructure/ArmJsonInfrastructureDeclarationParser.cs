@@ -88,10 +88,17 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             && resourceProperties.ValueKind is JsonValueKind.Object)
             CopyBoundedProperties(resourceProperties, properties);
 
+        string canonicalName = name.ToLowerInvariant();
+        string canonicalResourceType = resourceType.ToLowerInvariant();
+
         results.Add(new CanonicalObject
         {
+            ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
+                declaration.DeclarationId,
+                objectType,
+                $"{canonicalResourceType}|{canonicalName}"),
             ObjectType = objectType,
-            Name = name.ToLowerInvariant(),
+            Name = canonicalName,
             SourceType = "InfrastructureDeclaration",
             SourceId = declaration.DeclarationId,
             Properties = properties

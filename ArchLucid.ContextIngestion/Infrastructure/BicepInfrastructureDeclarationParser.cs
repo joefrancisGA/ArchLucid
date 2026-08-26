@@ -62,10 +62,17 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
             if (!string.IsNullOrWhiteSpace(apiVersion))
                 properties["apiVersion"] = apiVersion.ToLowerInvariant();
 
+            string canonicalName = symbolicName.ToLowerInvariant();
+            string canonicalResourceType = resourceType.ToLowerInvariant();
+
             results.Add(new CanonicalObject
             {
+                ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
+                    declaration.DeclarationId,
+                    objectType,
+                    $"{canonicalResourceType}|{canonicalName}"),
                 ObjectType = objectType,
-                Name = symbolicName.ToLowerInvariant(),
+                Name = canonicalName,
                 SourceType = "InfrastructureDeclaration",
                 SourceId = declaration.DeclarationId,
                 Properties = properties

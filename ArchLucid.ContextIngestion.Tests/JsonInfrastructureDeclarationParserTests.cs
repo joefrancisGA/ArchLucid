@@ -167,4 +167,29 @@ public sealed class JsonInfrastructureDeclarationParserTests
         secondObjects.Should().ContainSingle();
         secondObjects[0].Properties.Should().BeEquivalentTo(firstObjects[0].Properties);
     }
+
+    [Fact]
+    public async Task ParseAsync_Reparse_ProducesStableObjectId()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            DeclarationId = "decl-json-stable",
+            Content = """
+                      {
+                        "resources": [
+                          { "type": "vnet", "name": "core-vnet", "region": "eastus" }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> firstParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        firstParse.Should().ContainSingle();
+        secondParse.Should().ContainSingle();
+        secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
+    }
 }
