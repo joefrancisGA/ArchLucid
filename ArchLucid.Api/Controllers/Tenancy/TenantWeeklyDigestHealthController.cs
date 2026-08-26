@@ -57,6 +57,12 @@ public sealed class TenantWeeklyDigestHealthController(
             ExecutiveDigestIanaTimeZoneId = snap.ExecutiveDigestIanaTimeZoneId,
             ExecutiveDigestDayOfWeek = snap.ExecutiveDigestDayOfWeek,
             ExecutiveDigestHourOfDay = snap.ExecutiveDigestHourOfDay,
+            SponsorEmailDigestIsConfigured = snap.SponsorEmailDigestIsConfigured,
+            SponsorEmailDigestEnabled = snap.SponsorEmailDigestEnabled,
+            SponsorDigestRecipientCount = snap.SponsorDigestRecipientCount,
+            SponsorDigestIanaTimeZoneId = snap.SponsorDigestIanaTimeZoneId,
+            SponsorDigestDayOfWeek = snap.SponsorDigestDayOfWeek,
+            SponsorDigestHourOfDay = snap.SponsorDigestHourOfDay,
             SetupGaps = snap.SetupGaps,
         };
 

@@ -1,5 +1,6 @@
 using ArchLucid.Application.ExecDigest;
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Application.SponsorDigest;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
@@ -18,6 +19,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IExecDigestSponsorDeepLinkReadService, ExecDigestSponsorDeepLinkReadService>();
         services.AddScoped<IExecDigestEmailDispatcher, ExecDigestEmailDispatcher>();
         services.AddScoped<ExecDigestWeeklyDeliveryScanner>();
+        services.AddScoped<SponsorDigestWeeklyDeliveryScanner>();
     }
 
     private static void RegisterExecDigestWorkerInfrastructure(
@@ -32,5 +34,9 @@ public static partial class ServiceCollectionExtensions
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.ExecDigestWeekly))
 
             services.AddHostedService<ExecDigestWeeklyHostedService>();
+
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.SponsorDigestWeekly))
+
+            services.AddHostedService<SponsorDigestWeeklyHostedService>();
     }
 }
