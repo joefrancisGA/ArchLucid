@@ -43,6 +43,10 @@ public sealed class ClosedLoopContinueRunSingleFlight
 
         string key = BuildCoalesceKey(tenantId, runId, requestManifest, publishToProduct);
 
-        return _coordinator.CoalesceAsync(key, leaderWork, cancellationToken);
+        return _coordinator.CoalesceAsync(
+            key,
+            leaderWork,
+            cancellationToken,
+            stripCoalescedFollowerPublishLeaks: !publishToProduct);
     }
 }

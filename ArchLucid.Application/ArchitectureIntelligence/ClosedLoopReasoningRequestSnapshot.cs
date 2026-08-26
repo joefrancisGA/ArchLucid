@@ -25,7 +25,7 @@ internal static class ClosedLoopReasoningRequestSnapshot
                     Content = source.Content,
                 })
                 .ToList(),
-            DeclaredPriorities = request.DeclaredPriorities.ToList(),
+            DeclaredPriorities = ClosedLoopDeclaredPrioritiesNormalizer.Normalize(request.DeclaredPriorities),
             FramingAnswers = ClosedLoopFramingAnswersNormalizer.Normalize(request.FramingAnswers),
             UseGoldenFixture = request.UseGoldenFixture,
             ContinueFromExistingRun = request.ContinueFromExistingRun,

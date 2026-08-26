@@ -302,4 +302,68 @@ public sealed class ReviewResultCacheTests
         waiterResult.CacheReuseReason.Should().Be("dependency-manifest-match");
         waiterResult.RunId.Should().Be("stored-run");
     }
+
+    [Fact]
+    public void TryGet_returns_pinned_expired_entry_and_refreshes_ttl()
+    {
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 8, 25, 12, 0, 0, TimeSpan.Zero));
+        ReviewResultCache cache = new(clock);
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-expired-pinned" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = "expired-pinned-run" });
+        cache.PinStorageKey(storageKey);
+
+        clock.Advance(TimeSpan.FromHours(5));
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+        cached!.RunId.Should().Be("expired-pinned-run");
+
+        clock.Advance(TimeSpan.FromHours(3));
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillValid).Should().BeTrue();
+        stillValid!.RunId.Should().Be("expired-pinned-run");
+
+        cache.UnpinStorageKey(storageKey);
+    }
+
+    [Fact]
+    public void InvalidateForRun_defers_removal_while_pinned_then_flushes_on_unpin()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-deferred-invalidated" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+        ClosedLoopReasoningResult stored = new() { RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" };
+
+        cache.Set(manifest, stored);
+        cache.PinStorageKey(storageKey);
+
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillPresent).Should().BeTrue();
+
+        cache.UnpinStorageKey(storageKey);
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void UnpinStorageKey_evicts_overflow_after_deferred_invalidations_flush()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest pinnedManifest = new() { ContentHash = "hash-overflow-evict" };
+        string storageKey = ReviewCacheKeyBuilder.Build(pinnedManifest);
+
+        cache.Set(pinnedManifest, new ClosedLoopReasoningResult { RunId = "overflow-run" });
+        cache.PinStorageKey(storageKey);
+
+        for (int index = 0; index < 150; index++)
+        {
+            cache.Set(
+                new ReviewCacheDependencyManifest { ContentHash = $"overflow-{index}" },
+                new ClosedLoopReasoningResult());
+        }
+
+        cache.InvalidateForRun("overflow-run");
+        cache.UnpinStorageKey(storageKey);
+
+        cache.TryGet(pinnedManifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
 }

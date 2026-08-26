@@ -146,10 +146,7 @@ public static class ReviewCacheManifestBuilder
     {
         string payload = string.Join(
             '|',
-            priorities
-                .Where(priority => !string.IsNullOrWhiteSpace(priority))
-                .Select(priority => priority.Trim())
-                .OrderBy(priority => priority, StringComparer.Ordinal));
+            ClosedLoopDeclaredPrioritiesNormalizer.Normalize(priorities));
 
         return Sha256Hex(payload);
     }

@@ -22,6 +22,8 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
                 existing,
                 ledgerEntries);
 
+        using IDisposable pinScope = _reviewResultCache.PinScope(continueManifest);
+
         if (!effectiveRequest.PublishToProduct
             && _reviewResultCache.TryGet(continueManifest, out ClosedLoopReasoningResult? cachedContinue)
             && cachedContinue is not null)
@@ -36,32 +38,19 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
                     continueManifest.ReuseReason ?? "dependency-manifest-match"));
         }
 
-        string continueStorageKey = _reviewResultCache.BuildStorageKey(continueManifest);
-
-        _reviewResultCache.PinStorageKey(continueStorageKey);
-
-        ClosedLoopReasoningResult sharedContinue;
-
-        try
-        {
-            sharedContinue = await _continueRunSingleFlight.CoalesceAsync(
+        ClosedLoopReasoningResult sharedContinue = await _continueRunSingleFlight.CoalesceAsync(
+            tenantId,
+            runId,
+            continueManifest,
+            effectiveRequest.PublishToProduct,
+            ct => CoalesceContinueReviewCacheMissAsync(
+                effectiveRequest,
                 tenantId,
                 runId,
+                budget,
                 continueManifest,
-                effectiveRequest.PublishToProduct,
-                ct => CoalesceContinueReviewCacheMissAsync(
-                    effectiveRequest,
-                    tenantId,
-                    runId,
-                    budget,
-                    continueManifest,
-                    ct),
-                cancellationToken);
-        }
-        finally
-        {
-            _reviewResultCache.UnpinStorageKey(continueStorageKey);
-        }
+                ct),
+            cancellationToken);
 
         return FinalizeCoalescedReviewResult(
             sharedContinue,

@@ -119,6 +119,8 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 baselineKnowledgeModel,
                 baselineLedgerEntries);
 
+            using IDisposable pinScope = _reviewResultCache.PinScope(cacheManifest);
+
             if (!effectiveRequest.PublishToProduct
                 && _reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
                 && cached is not null)

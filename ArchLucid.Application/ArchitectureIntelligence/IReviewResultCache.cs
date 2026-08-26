@@ -10,9 +10,9 @@ public interface IReviewResultCache
 
     void InvalidateForRun(string runId);
 
-    string BuildInFlightKey(ReviewCacheDependencyManifest manifest, bool publishToProduct);
-
     string BuildStorageKey(ReviewCacheDependencyManifest manifest);
+
+    IDisposable PinScope(ReviewCacheDependencyManifest manifest);
 
     void PinStorageKey(string storageKey);
 

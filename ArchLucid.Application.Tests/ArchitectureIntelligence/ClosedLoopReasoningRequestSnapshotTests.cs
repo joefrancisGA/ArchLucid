@@ -60,4 +60,17 @@ public sealed class ClosedLoopReasoningRequestSnapshotTests
         snapshot.FramingAnswers.ContainsKey("Goal").Should().BeTrue();
         snapshot.FramingAnswers.Comparer.Should().BeSameAs(StringComparer.Ordinal);
     }
+
+    [Fact]
+    public void Capture_normalizes_declared_priorities()
+    {
+        ClosedLoopReasoningRequest request = new()
+        {
+            DeclaredPriorities = [" Cost ", "Security", "security", "Cost"],
+        };
+
+        ClosedLoopReasoningRequest snapshot = ClosedLoopReasoningRequestSnapshot.Capture(request);
+
+        snapshot.DeclaredPriorities.Should().Equal("Cost", "Security");
+    }
 }

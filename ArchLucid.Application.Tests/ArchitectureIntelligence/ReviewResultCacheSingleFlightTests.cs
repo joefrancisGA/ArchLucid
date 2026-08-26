@@ -193,4 +193,77 @@ public sealed class ReviewResultCacheSingleFlightTests
         analysisCalls.Should().Be(1);
         publishCalls.Should().Be(1);
     }
+
+    [Fact]
+    public async Task CoalesceAsync_leader_and_waiter_results_are_isolated()
+    {
+        ReviewSingleFlightCoordinator coordinator = new();
+        TaskCompletionSource leaderCanFinish = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Task<ClosedLoopReasoningResult> leader = coordinator.CoalesceAsync(
+            "isolation-key",
+            async cancellationToken =>
+            {
+                await leaderCanFinish.Task.WaitAsync(cancellationToken);
+
+                return new ClosedLoopReasoningResult { RunId = "leader-run" };
+            },
+            CancellationToken.None);
+
+        await Task.Delay(50);
+
+        Task<ClosedLoopReasoningResult> waiter = coordinator.CoalesceAsync(
+            "isolation-key",
+            _ => Task.FromException<ClosedLoopReasoningResult>(new InvalidOperationException("not leader")),
+            CancellationToken.None);
+
+        leaderCanFinish.SetResult();
+
+        ClosedLoopReasoningResult leaderResult = await leader;
+        ClosedLoopReasoningResult waiterResult = await waiter;
+
+        leaderResult.RunId = "mutated-leader";
+        waiterResult.RunId.Should().Be("leader-run");
+    }
+
+    [Fact]
+    public async Task CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader()
+    {
+        ReviewSingleFlightCoordinator coordinator = new();
+        TaskCompletionSource leaderCanFinish = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Task<ClosedLoopReasoningResult> leader = coordinator.CoalesceAsync(
+            "blocked-leader-key",
+            async cancellationToken =>
+            {
+                await leaderCanFinish.Task.WaitAsync(cancellationToken);
+
+                return new ClosedLoopReasoningResult
+                {
+                    RunId = "leader-run",
+                    PublishBlocked = true,
+                    PublishBlockReasons = ["MustNotFailClass: blocked"],
+                    ReviewCompleteBlocked = true,
+                };
+            },
+            CancellationToken.None);
+
+        await Task.Delay(50);
+
+        Task<ClosedLoopReasoningResult> waiter = coordinator.CoalesceAsync(
+            "blocked-leader-key",
+            _ => Task.FromException<ClosedLoopReasoningResult>(new InvalidOperationException("not leader")),
+            CancellationToken.None,
+            stripCoalescedFollowerPublishLeaks: true);
+
+        leaderCanFinish.SetResult();
+
+        ClosedLoopReasoningResult leaderResult = await leader;
+        ClosedLoopReasoningResult waiterResult = await waiter;
+
+        leaderResult.PublishBlocked.Should().BeTrue();
+        leaderResult.ReviewCompleteBlocked.Should().BeTrue();
+        waiterResult.PublishBlocked.Should().BeFalse();
+        waiterResult.ReviewCompleteBlocked.Should().BeFalse();
+    }
 }
