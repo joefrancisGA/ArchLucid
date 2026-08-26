@@ -122,7 +122,7 @@ public class ContextIngestionService(
 
         List<string> priorRequirementNames = previous.CanonicalObjects
             .Where(static o => string.Equals(o.ObjectType, "Requirement", StringComparison.OrdinalIgnoreCase))
-            .Select(static o => o.Name)
+            .Select(static o => o.Name.Trim().ToLowerInvariant())
             .Where(static name => !string.IsNullOrWhiteSpace(name))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(static name => name, StringComparer.OrdinalIgnoreCase)
@@ -145,7 +145,16 @@ public class ContextIngestionService(
             if (actors is not { Count: > 0 })
                 return actorsJson.Trim();
 
-            return JsonSerializer.Serialize(actors);
+            List<ActorDescriptor> orderedActors = actors
+                .OrderBy(static actor => actor.Label ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(static actor => actor.Kind)
+                .ThenBy(static actor => actor.TrustOrigin)
+                .ThenBy(static actor => actor.Contract)
+                .ThenBy(static actor => actor.Origin)
+                .ThenBy(static actor => actor.Confidence)
+                .ToList();
+
+            return JsonSerializer.Serialize(orderedActors);
         }
         catch (JsonException)
         {

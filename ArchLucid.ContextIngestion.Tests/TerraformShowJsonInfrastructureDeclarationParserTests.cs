@@ -755,6 +755,51 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_EquivalentBooleanRepresentations_ProduceSameTfProperties()
+    {
+        const string jsonBoolean = """
+                                   {
+                                     "values": {
+                                       "root_module": {
+                                         "resources": [
+                                           {
+                                             "type": "azurerm_linux_web_app",
+                                             "name": "main",
+                                             "values": { "https_only": true }
+                                           }
+                                         ]
+                                       }
+                                     }
+                                   }
+                                   """;
+
+        string jsonString = jsonBoolean.Replace("\"https_only\": true", "\"https_only\": \"true\"");
+
+        InfrastructureDeclarationReference declBoolean = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-bool",
+            Content = jsonBoolean
+        };
+
+        InfrastructureDeclarationReference declString = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-str",
+            Content = jsonString
+        };
+
+        IReadOnlyList<CanonicalObject> booleanObjects = await _sut.ParseAsync(declBoolean, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> stringObjects = await _sut.ParseAsync(declString, CancellationToken.None);
+
+        booleanObjects.Should().ContainSingle();
+        stringObjects.Should().ContainSingle();
+        stringObjects[0].Properties.Should().BeEquivalentTo(booleanObjects[0].Properties);
+    }
+
+    [Fact]
     public void CanParse_TrimsPaddedFormat()
     {
         _sut.CanParse(" terraform-show-json ").Should().BeTrue();

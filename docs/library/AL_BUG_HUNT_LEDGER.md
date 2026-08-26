@@ -1801,11 +1801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 17
-- **bugs-found:** 48
+- **hunts:** 18
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — brief assumptions/quality/failure-mode scope metadata casing, terraform-show-json numeric tf.* canonicalization
+- **last-bug:** 2026-08-26 — ActorsJson scope metadata canonicalization, prior topology category casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1862,9 +1862,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ContextIngestionService.ApplyScopeMetadata` joined confirmed `Assumptions` with trim only — **hit 2026-08-26:** `" Existing SQL Database Reused "` vs `existing sql database reused` churned `SourceHashes`; fixed by trim/lowercase like constraints (`ContextIngestionServiceTests.IngestAsync_AssumptionPaddingAndCasing_ProducesStableScopeMetadata`)
 - [x] (proven) `ContextIngestionService.ApplyScopeMetadata` stored `QualityAttribute`/`FailureModeNote` with trim only — **hit 2026-08-26:** padded casing variants churned brief scope metadata hashes; fixed by trim/lowercase (`ContextIngestionServiceTests.IngestAsync_QualityAttributePaddingAndCasing_ProducesStableScopeMetadata`, `IngestAsync_FailureModeNotePaddingAndCasing_ProducesStableScopeMetadata`)
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` preserved numeric `tf.*` JSON formatting — **hit 2026-08-26:** `1` vs `1.0` false-modified infra declaration deltas; fixed with `CanonicalizeTerraformNumberText` whole-number normalization (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_EquivalentNumericRepresentations_ProduceSameTfProperties`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonEquivalentNumericFormatChange_ReportsUnchanged`)
-- [ ] (candidate) `ContextIngestionService.ApplyScopeMetadata` stores raw `ActorsJson` without canonical JSON rewrite — differently-cased actor property keys may churn snapshot `SourceHashes` when brief actors are re-serialized.
-- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` preserves scientific-notation numeric literals — `1e0` vs `1` may still false-modify infra declaration deltas after decimal canonicalization.
-- [ ] (candidate) `ContextIngestionService.ApplyScopeMetadata` builds `PriorTopologyCategories` from enricher `category` values without lowercasing — mixed-case categories from prior snapshots may churn metadata hashes on re-ingest.
+- [x] (proven) `ContextIngestionService.ApplyScopeMetadata` stored raw `ActorsJson` without canonical JSON rewrite — **hit 2026-08-26:** PascalCase vs camelCase actor property keys churned `SourceHashes`; fixed by deserialize/re-serialize via `ActorDescriptor` (`ContextIngestionServiceTests.IngestAsync_ActorsJsonPropertyCasing_ProducesStableScopeMetadata`)
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` preserves scientific-notation numeric literals — `1e0` vs `1` already canonicalizes to `"1"` via `CanonicalizeTerraformNumberText`; regression `TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_EquivalentScientificNotation_ProduceSameTfProperties`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonScientificNotationNumericChange_ReportsUnchanged`
+- [x] (proven) `ContextIngestionService.ApplyScopeMetadata` built `PriorTopologyCategories` from enricher `category` values without lowercasing — **hit 2026-08-26:** `Network|Storage` vs `network|storage` churned metadata hashes; fixed by lowercasing category values before join (`ContextIngestionServiceTests.IngestAsync_PriorTopologyCategoryCasing_ProducesStableScopeMetadata`)
+- [ ] (candidate) `ContextIngestionService.ApplyScopeMetadata` builds `PriorRequirementNames` from prior requirement `Name` values without lowercasing — mixed-case requirement names may churn metadata hashes on re-ingest.
+- [ ] (candidate) `ContextIngestionService.CanonicalizeActorsJson` preserves actor array element order — semantically equivalent actor sets serialized in different order may churn `SourceHashes`.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` preserves boolean `tf.*` string literals — JSON `true` vs string `"true"` may false-modify infra declaration deltas.
 
 ---
 

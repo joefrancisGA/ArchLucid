@@ -553,6 +553,162 @@ public sealed class ContextIngestionServiceTests
             .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.PriorTopologyCategories]);
     }
 
+    [Fact]
+    public async Task IngestAsync_PriorRequirementNameCasing_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-prior-requirement-names";
+        ContextSnapshot previousTitleCase = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            CreatedUtc = DateTime.UtcNow,
+            CanonicalObjects =
+            [
+                new CanonicalObject
+                {
+                    ObjectType = "Requirement",
+                    Name = "Availability",
+                    SourceType = "Test",
+                    SourceId = "prior-1"
+                },
+                new CanonicalObject
+                {
+                    ObjectType = "Requirement",
+                    Name = "Encryption",
+                    SourceType = "Test",
+                    SourceId = "prior-2"
+                }
+            ]
+        };
+
+        await repo.SaveAsync(previousTitleCase, CancellationToken.None);
+
+        ContextIngestionRequest firstRequest = new() { RunId = Guid.NewGuid(), ProjectId = projectId };
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextSnapshot previousLowerCase = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            CreatedUtc = DateTime.UtcNow,
+            CanonicalObjects =
+            [
+                new CanonicalObject
+                {
+                    ObjectType = "Requirement",
+                    Name = "availability",
+                    SourceType = "Test",
+                    SourceId = "prior-1"
+                },
+                new CanonicalObject
+                {
+                    ObjectType = "Requirement",
+                    Name = "encryption",
+                    SourceType = "Test",
+                    SourceId = "prior-2"
+                }
+            ]
+        };
+
+        await repo.SaveAsync(previousLowerCase, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new() { RunId = Guid.NewGuid(), ProjectId = projectId };
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.PriorRequirementNames);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.PriorRequirementNames]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.PriorRequirementNames]);
+    }
+
+    [Fact]
+    public async Task IngestAsync_ActorsJsonElementOrder_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string actorsAbOrder = """
+                                     [
+                                       {
+                                         "label": "ops engineer",
+                                         "kind": "Human",
+                                         "trustOrigin": "Internal",
+                                         "contract": "Sync",
+                                         "origin": "Asserted",
+                                         "confidence": 100
+                                       },
+                                       {
+                                         "label": "partner user",
+                                         "kind": "Human",
+                                         "trustOrigin": "External",
+                                         "contract": "Sync",
+                                         "origin": "Asserted",
+                                         "confidence": 100
+                                       }
+                                     ]
+                                     """;
+
+        const string actorsBaOrder = """
+                                     [
+                                       {
+                                         "label": "partner user",
+                                         "kind": "Human",
+                                         "trustOrigin": "External",
+                                         "contract": "Sync",
+                                         "origin": "Asserted",
+                                         "confidence": 100
+                                       },
+                                       {
+                                         "label": "ops engineer",
+                                         "kind": "Human",
+                                         "trustOrigin": "Internal",
+                                         "contract": "Sync",
+                                         "origin": "Asserted",
+                                         "confidence": 100
+                                       }
+                                     ]
+                                     """;
+
+        const string projectId = "proj-actors-order";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            ActorsJson = actorsAbOrder
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            ActorsJson = actorsBaOrder
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.Actors);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.Actors]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.Actors]);
+    }
+
     private sealed class CountingConnector : IContextConnector
     {
         public string ConnectorType => "test-connector";
