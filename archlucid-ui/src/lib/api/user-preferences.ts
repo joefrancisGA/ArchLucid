@@ -206,6 +206,12 @@ export async function setUserSampleReviewsOnOverviewEnabled(enabled: boolean): P
 }
 
 export async function setUserIanaTimeZonePreference(ianaTimeZoneId: string): Promise<void> {
+  const cached = readCachedUserPreferences();
+
+  if (cached.ianaTimeZoneIsExplicit && cached.ianaTimeZoneId === ianaTimeZoneId) {
+    return;
+  }
+
   await httpApi.apiPutJson<void>(
     "/v1/user/preferences/time-zone",
     { ianaTimeZoneId } satisfies SetIanaTimeZonePreferenceRequest,
