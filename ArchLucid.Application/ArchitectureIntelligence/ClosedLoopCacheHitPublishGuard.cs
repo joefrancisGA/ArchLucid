@@ -94,6 +94,9 @@ public static class ClosedLoopCacheHitPublishGuard
         result.CacheHit = false;
         result.CacheReuseReason = null;
         result.RunId = ClosedLoopRunIdNormalizer.NormalizeOptional(result.RunId);
+        result.ReviewCompleteBlocked = false;
+        result.IntegrityPassedFindingIds = [];
+        result.MustNotFailViolations = [];
         StripProductPayloads(result);
     }
 
