@@ -8,6 +8,7 @@ import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/Hel
 
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
 
+import { ScopeHelpClaimDisciplineStrip } from "@/components/help/ScopeHelpClaimDisciplineStrip";
 import { SecurityTrustHelpClaimDisciplineStrip } from "@/components/help/SecurityTrustHelpClaimDisciplineStrip";
 import { SecurityTrustHelpNextSteps } from "@/components/help/SecurityTrustHelpNextSteps";
 
@@ -173,6 +174,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
       : extractedHeadings;
 
   const isSecurityTrustHelp = entry.slug === "security-trust";
+  const isScopeHelp = entry.slug === "scope";
 
   const resolvedTocGroups =
 
@@ -196,7 +198,6 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   const isIntegrationReadinessHelp = entry.slug === "integration-readiness";
   const isPolicyPacksHelp = entry.slug === "policy-packs";
-  const isScopeHelp = entry.slug === "scope";
   const isSubprocessorsHelp = entry.slug === "subprocessors";
   const isProcurementHelp = isProcurementHelpTopic(entry.slug);
   const allowWithoutServerPdf = entry.pdfStatus === null && (entry.audience === "buyer" || isProcurementHelp);
@@ -277,6 +278,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
       {isSecurityTrustHelp ? <SecurityTrustHelpClaimDisciplineStrip /> : null}
 
+      {isScopeHelp ? <ScopeHelpClaimDisciplineStrip /> : null}
+
       {entry.slug === "security-trust" ? (
         <SecurityTrustHelpHubVocabularyRail currentSurfaceId="security-trust-help" />
       ) : null}
@@ -317,6 +320,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
         <div className={contentColumnClass} data-testid="help-topic-content">
 
+          {!evidenceOrientation ? null : evidenceOrientation}
+
           <MarketingAccessibilityMarkdownFragment
 
             markdownBody={markdown}
@@ -334,8 +339,6 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             preparedMarkdownOverride={preparedMarkdown}
 
           />
-
-          {!evidenceOrientation ? null : evidenceOrientation}
 
         </div>
 

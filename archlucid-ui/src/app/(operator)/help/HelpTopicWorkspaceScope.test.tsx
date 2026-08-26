@@ -41,7 +41,6 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
 
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
-import { ScopeHelpEvidenceOrientationStrip } from "@/components/help/ScopeHelpEvidenceOrientationStrip";
 import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -64,12 +63,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       <HelpTopicMarkdownView
         entry={loaded.entry}
         markdown={loaded.markdown}
-        evidenceOrientation={
-          <>
-            <ScopeHelpEvidenceOrientationStrip />
-            <ScopeHelpCurrentScopePanel />
-          </>
-        }
+        evidenceOrientation={<ScopeHelpCurrentScopePanel />}
       />,
     );
 
@@ -86,12 +80,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-          <>
-            <ScopeHelpEvidenceOrientationStrip />
-            <ScopeHelpCurrentScopePanel />
-          </>
-        }
+        evidenceOrientation={<ScopeHelpCurrentScopePanel />}
       />,
     );
 
@@ -111,18 +100,22 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       <HelpTopicMarkdownView
         entry={loaded.entry}
         markdown={loaded.markdown}
-        evidenceOrientation={
-          <>
-            <ScopeHelpEvidenceOrientationStrip />
-            <ScopeHelpCurrentScopePanel />
-          </>
-        }
+        evidenceOrientation={<ScopeHelpCurrentScopePanel />}
       />,
     );
 
-    expect(screen.getByTestId("scope-help-claim-discipline")).toHaveTextContent(SCOPE_HELP_CLAIM_DISCIPLINE);
+    expect(screen.getByTestId("help-scope-claim-discipline-strip")).toHaveTextContent(SCOPE_HELP_CLAIM_DISCIPLINE);
+    expect(screen.queryByTestId("scope-help-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("scope-help-current-scope-panel")).toBeInTheDocument();
     expect(screen.getByTestId("scope-help-current-scope-status")).toHaveTextContent("Sample");
+
+    const contentColumn = screen.getByTestId("help-topic-content");
+    const scopePanel = screen.getByTestId("scope-help-current-scope-panel");
+
+    expect(
+      scopePanel.compareDocumentPosition(within(contentColumn).getByRole("heading", { name: "Three scope levels" }))
+        & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it("renders the Three scope levels table with tenant, workspace, and project rows", () => {

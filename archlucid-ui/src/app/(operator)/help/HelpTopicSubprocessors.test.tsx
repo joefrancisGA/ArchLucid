@@ -16,6 +16,9 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { HelpSubprocessorsGuideView } from "@/app/(operator)/help/_sections/HelpSubprocessorsGuideView";
+import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
 import { getHelpCenterTier } from "@/lib/help/help-center-catalog";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -82,8 +85,14 @@ describe("HelpSubprocessorsGuideView", () => {
     renderSubprocessorsPage();
 
     expect(screen.getByTestId("subprocessors-help-orientation")).toBeInTheDocument();
-    expect(screen.getByTestId("subprocessors-help-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("help-subprocessors-claim-discipline-strip")).toHaveTextContent(
       SUBPROCESSORS_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "subprocessors-help",
+      "subprocessors-help-claim-discipline",
+      SUBPROCESSORS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByRole("button", { name: /print \/ save as pdf/i })).toBeInTheDocument();
 

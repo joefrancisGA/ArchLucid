@@ -47,9 +47,10 @@ describe("HelpSubprocessorsGuideView buyer-polished shell", () => {
     expect(screen.queryByTestId("help-subprocessors-header-actions")).not.toBeInTheDocument();
     expect(screen.queryByTestId(SUBPROCESSORS_HELP_RELATED_TEST_ID)).not.toBeInTheDocument();
     expect(screen.getByTestId("help-subprocessors-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("subprocessors-help-claim-discipline").textContent).toContain(
-      SUBPROCESSORS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    expect(screen.getByTestId("help-subprocessors-claim-discipline-strip")).toHaveTextContent(
+      SUBPROCESSORS_HELP_CLAIM_DISCIPLINE,
     );
+    expect(screen.queryByTestId("subprocessors-help-claim-discipline")).not.toBeInTheDocument();
 
     const primaryContent = document.getElementById(SUBPROCESSORS_HELP_PRIMARY_CONTENT_ID);
 

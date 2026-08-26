@@ -10,6 +10,7 @@ import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/Sec
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { buildSecurityTrustTocGroups } from "@/lib/security-trust-help-presentation";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+import { SECURITY_TRUST_HELP_CLAIM_DISCIPLINE } from "@/lib/security-trust-help-evidence-copy";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF } from "@/lib/trust-center-public-assurance";
 
@@ -92,6 +93,10 @@ describe("HelpTopicMarkdownView security and trust", () => {
     );
 
     expect(screen.getByTestId("security-trust-help-orientation")).toBeInTheDocument();
+    expect(screen.getByTestId("help-security-trust-claim-discipline-strip")).toHaveTextContent(
+      SECURITY_TRUST_HELP_CLAIM_DISCIPLINE,
+    );
+    expect(screen.queryByTestId("security-trust-help-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-security-trust-primary-action")).toHaveAttribute(
       "href",
       TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF,

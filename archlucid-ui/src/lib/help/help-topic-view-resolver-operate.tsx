@@ -3,10 +3,7 @@ import dynamic from "next/dynamic";
 
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
-import { ScopeHelpEvidenceOrientationStrip } from "@/components/help/ScopeHelpEvidenceOrientationStrip";
 import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
-import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
-import { HelpSubprocessorsHeaderMetadata } from "@/app/(operator)/help/_sections/HelpSubprocessorsHeaderMetadata";
 import { SECURITY_TRUST_HELP_CLAIM_HEADING_ID } from "@/lib/security-trust-help-evidence-copy";
 import { assertHelpTopicCatchAllFallthroughAllowed } from "@/lib/help/help-topic-catch-all-fallthrough";
 import type { LoadedHelpTopicContent } from "@/lib/help/help-topic-content-loader";
@@ -159,6 +156,9 @@ const HelpSearchReviewEvidenceGuideView = dynamic(() =>
 );
 const HelpSoc2SelfAssessmentGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpSoc2SelfAssessmentGuideView").then((module) => module.HelpSoc2SelfAssessmentGuideView),
+);
+const HelpSubprocessorsGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpSubprocessorsGuideView").then((module) => module.HelpSubprocessorsGuideView),
 );
 const HelpSpecialtyWalkthroughTemplatesView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughTemplatesView").then(
@@ -328,15 +328,7 @@ export function tryResolveOperateHelpTopicView(
     return <HelpPriorManifestRetrievalGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "subprocessors") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        titleBlockOrientation={<HelpSubprocessorsHeaderMetadata entry={loaded.entry} />}
-        evidenceOrientation={<SubprocessorsHelpEvidenceOrientationStrip />}
-      />
-    );
+    return <HelpSubprocessorsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "pilot-feedback") {
     return <HelpPilotFeedbackGuideView entry={loaded.entry} markdown={loaded.markdown} />;
@@ -356,12 +348,7 @@ export function tryResolveOperateHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-          <>
-            <ScopeHelpEvidenceOrientationStrip />
-            <ScopeHelpCurrentScopePanel />
-          </>
-        }
+        evidenceOrientation={<ScopeHelpCurrentScopePanel />}
       />
     );
   }

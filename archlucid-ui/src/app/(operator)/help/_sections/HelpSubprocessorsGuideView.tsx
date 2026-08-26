@@ -10,12 +10,10 @@ import { SubprocessorsHelpClaimDisciplineStrip } from "@/components/help/Subproc
 import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -114,16 +112,18 @@ export function HelpSubprocessorsGuideView(
       <SubprocessorsHelpClaimDisciplineStrip />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950"
+        <section
+          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="help-subprocessors-action-panel"
+          aria-labelledby="help-subprocessors-action-panel-heading"
         >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Continue diligence
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+          <h2
+            id="help-subprocessors-action-panel-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            Continue diligence
+          </h2>
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               asChild
               size="sm"
@@ -154,8 +154,8 @@ export function HelpSubprocessorsGuideView(
                 {SUBPROCESSORS_HELP_PRIMARY_ACTIONS.openSecurityTrust.label}
               </Link>
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
 
       <section
@@ -195,14 +195,12 @@ export function HelpSubprocessorsGuideView(
           id={SUBPROCESSORS_HELP_PRIMARY_CONTENT_ID}
           className={cn("min-w-0 scroll-mt-24 space-y-6", HELP_PAGE_LAYOUT.contentColumn)}
         >
-          {buyerPolishedShell ? (
-            <div data-testid="help-subprocessors-orientation-top">
-              <SubprocessorsHelpEvidenceOrientationStrip
-                readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
-                sources={SUBPROCESSORS_HELP_ORIENTATION_SOURCES}
-              />
-            </div>
-          ) : null}
+          <div data-testid="help-subprocessors-orientation-top">
+            <SubprocessorsHelpEvidenceOrientationStrip
+              readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
+              sources={buyerPolishedShell ? SUBPROCESSORS_HELP_ORIENTATION_SOURCES : undefined}
+            />
+          </div>
 
           <p className={readingBodyClass} data-testid="help-subprocessors-overview">
             {SUBPROCESSORS_HELP_OVERVIEW}
@@ -243,12 +241,6 @@ export function HelpSubprocessorsGuideView(
                 ))}
               </ul>
             </section>
-          ) : null}
-
-          {!buyerPolishedShell ? (
-            <div className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
-              <SubprocessorsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-            </div>
           ) : null}
         </div>
 
