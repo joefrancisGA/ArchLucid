@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 16
-- **bugs-found:** 45
+- **hunts:** 17
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — governance preview missing manifest returned 400; converted trial showed days remaining
+- **last-bug:** 2026-08-26 — effective governance/resolver foreign-pack leak; erasure legal-hold 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2270,13 +2270,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreviewController.Preview` / `GovernancePreviewService.PreviewActivationAsync` — missing manifest version for scoped run → HTTP 400 `BadRequest` instead of 404 `ManifestNotFound` — **hit 2026-08-26:** `GoldenManifestVersionNotFoundException` + controller maps to `ProblemTypes.ManifestNotFound`; regression in `GovernancePreviewControllerUnitTests` and `GovernancePreviewServiceTests`.
 - [x] (proven) `TenantTrialController.GetTrialStatusAsync` — `TrialStatus = Converted` with future `TrialExpiresUtc` → HTTP 200 with positive `daysRemaining` — **hit 2026-08-26:** always use `TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay`; regression in `TenantTrialControllerTests.GetTrialStatusAsync_returns_null_days_remaining_when_converted`.
 - [x] (invalid) `TenantPilotValueReportController.GetPilotValueReport` — inverted `fromUtc`/`toUtc` returns 200 empty metrics — **cheap-disproof 2026-08-26:** `PilotValueReportService.BuildAsync` intentionally returns `EmptyReport` for `to <= from`; covered by `PilotValueReportServiceTests.BuildAsync_empty_window_returns_zeros`.
-- [ ] (hunt-ready) `GovernanceResolutionController.Resolve` / `EffectiveGovernanceResolver.ResolveAsync` — tenant-level assignment for workspace-authored pack → HTTP 200 merges foreign workspace `ContentJson` into effective resolution (`GetByIdsAsync` without pack visibility filter).
-- [ ] (hunt-ready) `PolicyPacksController.GetEffectiveContent` / `GetPageBundle` / `GovernanceSetupController.GetSetupGuideBundle` — same tenant-assignment foreign-workspace pack JSON leak via `PolicyPackResolver.ResolveAsync`.
-- [ ] (hunt-ready) `TenantErasureLegalHoldController.SetLegalHoldAsync` — missing tenant row → HTTP 409 Conflict instead of 404 (`TrySetLegalHoldAsync` false lumps missing tenant with quarantine failures).
+- [x] (proven) `GovernanceResolutionController.Resolve` / `EffectiveGovernanceResolver.ResolveAsync` — tenant-level assignment for workspace-authored pack merged foreign workspace `ContentJson` — **hit 2026-08-26:** `PolicyPackVisibility.IsVisibleInScope` filters `GetByIdsAsync` enrichment; regression in `EffectiveGovernanceResolverTests.ResolveAsync_excludes_foreign_workspace_pack_on_tenant_level_assignment`.
+- [x] (proven) `PolicyPacksController.GetEffectiveContent` / `GetPageBundle` / `GovernanceSetupController.GetSetupGuideBundle` — foreign-workspace pack JSON leak via `PolicyPackResolver.ResolveAsync` — **hit 2026-08-26:** same visibility filter in resolver; regression in `PolicyPackResolverTests.ResolveAsync_excludes_foreign_workspace_pack_on_tenant_level_assignment`.
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — missing tenant row returned HTTP 409 instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_not_found_when_tenant_missing`.
 - [ ] (candidate) `TenantCostSettingsController.PutAsync` — both `eaDiscountPercentage` and `eaDiscountMultiplier` supplied → percentage wins silently with no 400.
 - [ ] (candidate) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — approval row with deleted/out-of-scope `RunId` returns HTTP 200 shell instead of 404 (no `RequireScopedRunAsync` preflight).
 
-2026-08-26 seed hunt #91: proved governance preview manifest 404 + converted trial daysRemaining; reseeded resolution/effective-content/legal-hold rows.
+2026-08-26 thorough hunt #92: proved effective governance/resolver foreign-pack scope + erasure legal-hold 404.
 
 2026-08-26 thorough hunt #90: proved weekly digest health sponsor-prefs gap + sponsor digest weekly delivery pipeline.
 
