@@ -26,8 +26,8 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
 
         cached.RunId.Should().Be("current-run");
         cached.Model.RunId.Should().Be("current-run");
-        cached.ModelId.Should().Be("current-run");
-        cached.Model.ModelId.Should().Be("current-run");
+        cached.ModelId.Should().Be("cached-model");
+        cached.Model.ModelId.Should().Be("cached-model");
         cached.PublishedToProduct.Should().BeFalse();
         cached.PublishedFindingsSnapshotId.Should().BeNull();
         cached.PublishedRecommendationCount.Should().Be(0);
@@ -35,13 +35,13 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
     }
 
     [Fact]
-    public void ApplyCacheHitPolicy_rewrites_product_payload_run_identity()
+    public void ApplyCacheHitPolicy_strips_product_payloads_and_preserves_model_identity()
     {
-        Guid originalRunGuid = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         ClosedLoopReasoningRequest request = new() { PublishToProduct = false };
         ClosedLoopReasoningResult cached = new()
         {
             RunId = "cached-run",
+            ModelId = "cached-model",
             Model = new ArchitectureKnowledgeModel { RunId = "cached-run", ModelId = "cached-model" },
             Interview = new ProgressiveInterviewState { ModelId = "cached-model" },
             ProductFindings =
@@ -63,7 +63,7 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
                 new ArchLucid.Contracts.Advisory.Workflow.RecommendationRecord
                 {
                     RecommendationId = Guid.NewGuid(),
-                    RunId = originalRunGuid,
+                    RunId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                     Title = "Fix gap",
                     Category = "security",
                     Rationale = "Rationale.",
@@ -74,7 +74,7 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
 
         ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(request, "current-run", cached);
 
-        cached.Interview.ModelId.Should().Be("current-run");
+        cached.Interview.ModelId.Should().Be("cached-model");
         cached.ProductFindings.Should().BeEmpty();
         cached.ProductRecommendations.Should().BeEmpty();
     }
