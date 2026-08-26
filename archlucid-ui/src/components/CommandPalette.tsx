@@ -2,7 +2,6 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCommandState } from "cmdk";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -26,26 +25,10 @@ import { useNavCallerAuthorityRank, useOperatorNavAuthority } from "@/components
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
 import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effective-nav-committed-architecture-review";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
-import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";
 import { scopeOperatorShellHrefSet, scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
-import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
-import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
-import { buildCommandPaletteReviewActions } from "@/lib/command-palette-review-actions";
-import { COMMAND_PALETTE_CURATED_TASKS, commandPaletteNavVisibilityHref } from "@/lib/command-palette-curated-tasks";
-import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isSponsorDashboardPath } from "@/lib/sponsor-dashboard-route";
-import { resetBuyerCtoDemoSession } from "@/lib/buyer/buyer-cto-demo-orchestration";
-import {
-  ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
-} from "@/lib/buyer/buyer-cto-demo-tour";
-import {
-  COMMAND_PALETTE_RESET_DEMO_LABEL,
-  COMMAND_PALETTE_START_CTO_DEMO_LABEL,
-} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
-import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { mergeContextualOnlyOperatorNavHrefsIntoVisibleSet } from "@/lib/nav-contextual-only-operator-paths";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import {
@@ -59,12 +42,15 @@ import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPa
 import { COMMAND_PALETTE_SIDEBAR_COMPACT_LINE } from "@/lib/vocabulary/command-palette-sidebar-vocabulary";
 import { stampRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
-import {
-  searchFindPageIndex,
-} from "@/lib/find-page-search-index";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
-
-const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import { CommandPaletteActions } from "@/components/CommandPaletteActions";
+import { CommandPaletteAdminNavGroups } from "@/components/CommandPaletteAdminNavGroups";
+import { CommandPaletteCuratedTasks } from "@/components/CommandPaletteCuratedTasks";
+import { CommandPaletteDemoActions } from "@/components/CommandPaletteDemoActions";
+import { CommandPaletteDocumentationSearch } from "@/components/CommandPaletteDocumentationSearch";
+import { CommandPaletteFindPageSearch } from "@/components/CommandPaletteFindPageSearch";
+import { CommandPaletteReviewActions } from "@/components/CommandPaletteReviewActions";
+import { RunIdQuickOpen } from "@/components/RunIdQuickOpen";
 
 /** Buyer-polished header search: route-aware label for the Ctrl+K command palette trigger. */
 function buyerPolishedCommandPaletteLabel(pathname: string): string {
@@ -101,339 +87,6 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
   }
 
   return "Search reviews";
-}
-
-function curatedPaletteVisibilityHref(href: string): string {
-  return commandPaletteNavVisibilityHref(href);
-}
-
-function CommandPaletteFindPageSearch({
-  visibleHrefs,
-  onNavigate,
-}: {
-  visibleHrefs: ReadonlySet<string>;
-  onNavigate: (href: string) => void;
-}) {
-  const search = useCommandState((state) => state.search);
-  const trimmed = search.trim();
-  const matches = searchFindPageIndex(trimmed, { limit: 8, visibleHrefs });
-
-  if (trimmed.length === 0 || matches.length === 0) {
-    return null;
-  }
-
-  return (
-    <CommandGroup heading="Pages">
-      {matches.map((entry) => (
-        <CommandItem
-          key={entry.id}
-          value={`find-page ${entry.label} ${entry.searchValue}`}
-          onSelect={() => {
-            onNavigate(entry.href);
-          }}
-        >
-          {entry.label}
-        </CommandItem>
-      ))}
-    </CommandGroup>
-  );
-}
-
-function CommandPaletteDocumentationSearch({
-  buyerPolishedShell,
-  onNavigate,
-}: {
-  buyerPolishedShell: boolean;
-  onNavigate: (href: string) => void;
-}) {
-  return (
-    <CommandGroup heading={buyerPolishedShell ? "Help topics" : "Documentation"}>
-      {DOCUMENTATION_SEARCH_ITEMS.map((row) => {
-        const href = resolveDocumentationHref(row.relativeDocsPath);
-
-        return (
-          <CommandItem
-            key={row.relativeDocsPath}
-            value={`doc ${row.title} ${row.description} ${row.category} ${row.relativeDocsPath}`}
-            className="cursor-pointer"
-            onSelect={() => onNavigate(href)}
-          >
-            {/*
-             * Render a real <a> so the browser provides right-click → "Open in new tab",
-             * Ctrl+Click, and middle-click. For plain left-clicks we preventDefault and
-             * delegate to the SPA router so the dialog closes cleanly.
-             */}
-            <a
-              href={href}
-              className="flex w-full items-center"
-              onClick={(e) => {
-                if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onNavigate(href);
-                }
-              }}
-            >
-              <span className="font-medium">{row.title}</span>
-              <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{row.category}</span>
-            </a>
-          </CommandItem>
-        );
-      })}
-    </CommandGroup>
-  );
-}
-
-function CommandPaletteActions({ onNavigate }: { onNavigate: (href: string) => void }) {
-  return (
-    <CommandGroup heading="Actions">
-      {COMMAND_PALETTE_ACTIONS.map((action) => (
-        <CommandItem
-          key={action.id}
-          value={`action ${action.label} ${action.searchValue}`}
-          onSelect={() => {
-            onNavigate(action.href);
-          }}
-        >
-          {action.label}
-        </CommandItem>
-      ))}
-    </CommandGroup>
-  );
-}
-
-function CommandPaletteReviewActions({
-  runId,
-  onNavigate,
-}: {
-  runId: string | null;
-  onNavigate: (href: string) => void;
-}) {
-  const actions = useMemo(() => buildCommandPaletteReviewActions(runId), [runId]);
-
-  if (actions.length === 0) {
-    return null;
-  }
-
-  return (
-    <CommandGroup heading="This review">
-      {actions.map((action) => (
-        <CommandItem
-          key={action.id}
-          value={`review ${action.label} ${action.searchValue}`}
-          onSelect={() => {
-            onNavigate(action.href);
-          }}
-        >
-          {action.label}
-        </CommandItem>
-      ))}
-    </CommandGroup>
-  );
-}
-
-function CommandPaletteCuratedTasks({
-  visibleHrefs,
-  buyerPolishedShell,
-  auditRunId,
-  onNavigate,
-}: {
-  visibleHrefs: ReadonlySet<string>;
-  buyerPolishedShell: boolean;
-  auditRunId: string | null;
-  onNavigate: (href: string) => void;
-}) {
-  const curated = useMemo(() => {
-    if (buyerPolishedShell) {
-      return [...BUYER_COMMAND_PALETTE_CURATED_TASKS];
-    }
-
-    return COMMAND_PALETTE_CURATED_TASKS.filter((task) => visibleHrefs.has(curatedPaletteVisibilityHref(task.href)));
-  }, [buyerPolishedShell, visibleHrefs]);
-
-  if (curated.length === 0) {
-    return null;
-  }
-
-  return (
-    <CommandGroup heading={buyerPolishedShell ? "Shortcuts" : "Quick tasks"}>
-      {curated.map((task) => {
-        const href = isAuditNavPath(task.href.split("?")[0] ?? "")
-          ? auditTrailNavHref(auditRunId)
-          : task.href;
-
-        return (
-        <CommandItem
-          key={`curated-${task.href}`}
-          value={`quick ${task.label} ${task.searchValue}`}
-          onSelect={() => {
-            onNavigate(href);
-          }}
-        >
-          {task.label}
-        </CommandItem>
-        );
-      })}
-    </CommandGroup>
-  );
-}
-
-function CommandPaletteAdminNavGroups({
-  callerAuthorityRank,
-  hasCommittedArchitectureReview,
-  auditRunId,
-  patternLibraryNavVisible,
-  roleNavDensityPersona,
-  roleNavDensityShowFullNav,
-  onNavigate,
-}: {
-  callerAuthorityRank: number;
-  hasCommittedArchitectureReview: boolean;
-  auditRunId: string | null;
-  patternLibraryNavVisible: boolean;
-  roleNavDensityPersona: ReturnType<typeof resolveRoleNavDensityPersona>;
-  roleNavDensityShowFullNav: boolean;
-  onNavigate: (href: string) => void;
-}) {
-  const search = useCommandState((state) => state.search);
-  const showAdminPalette = search.trim().length > 0;
-
-  if (!showAdminPalette) {
-    return null;
-  }
-
-  const adminRows = filterNavGroupsByRoleDensity(
-    applyPatternLibraryNavGate(
-      scopeOperatorShellNavRows(
-        listNavGroupsVisibleInOperatorShell(
-          NAV_GROUPS,
-          callerAuthorityRank,
-          "platform-admin",
-          hasCommittedArchitectureReview,
-        ),
-        auditRunId,
-      ),
-      patternLibraryNavVisible,
-    ),
-    roleNavDensityPersona,
-    roleNavDensityShowFullNav,
-  );
-
-  const systemAdminRows = filterNavGroupsByRoleDensity(
-    isShowSystemAdministrationNavEnabled()
-      ? listNavGroupsVisibleInOperatorShell(
-          NAV_GROUPS,
-          callerAuthorityRank,
-          "system-admin",
-          hasCommittedArchitectureReview,
-        )
-      : [],
-    roleNavDensityPersona,
-    roleNavDensityShowFullNav,
-  );
-
-  return (
-    <>
-      {adminRows.map(({ group, visibleLinks }) => (
-        <CommandGroup
-          key={`palette-${group.id}`}
-          heading={group.id === "operator-admin" ? "Administration" : group.label}
-        >
-          {visibleLinks.map((link) => (
-            <CommandItem
-              key={link.href}
-              value={`administration ${link.label} ${link.href}`}
-              onSelect={() => {
-                onNavigate(link.href);
-              }}
-            >
-              {link.label}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      ))}
-      {systemAdminRows.map(({ group, visibleLinks }) => (
-        <CommandGroup key={`palette-${group.id}`} heading={group.label}>
-          {visibleLinks.map((link) => (
-            <CommandItem
-              key={link.href}
-              value={`internal operations ${link.label} ${link.href}`}
-              onSelect={() => {
-                onNavigate(link.href);
-              }}
-            >
-              {link.label}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      ))}
-    </>
-  );
-}
-
-function CommandPaletteDemoActions({
-  onNavigate,
-  onClose,
-}: {
-  onNavigate: (href: string) => void;
-  onClose: () => void;
-}) {
-  if (!isCtoDemoPackEnv()) {
-    return null;
-  }
-
-  return (
-    <CommandGroup heading="CTO demo">
-      <CommandItem
-        value={`demo ${COMMAND_PALETTE_START_CTO_DEMO_LABEL} tour start`}
-        onSelect={() => {
-          onClose();
-          window.dispatchEvent(new Event(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT));
-        }}
-      >
-        {COMMAND_PALETTE_START_CTO_DEMO_LABEL}
-      </CommandItem>
-      <CommandItem
-        value={`demo ${COMMAND_PALETTE_RESET_DEMO_LABEL} reset showcase`}
-        onSelect={() => {
-          onClose();
-          void resetBuyerCtoDemoSession().then((result) => {
-            onNavigate(result.destinationHref);
-          });
-        }}
-      >
-        {COMMAND_PALETTE_RESET_DEMO_LABEL}
-      </CommandItem>
-    </CommandGroup>
-  );
-}
-
-function RunIdQuickOpen({
-  onNavigate,
-  allowRunIdPaste,
-}: {
-  onNavigate: (href: string) => void;
-  allowRunIdPaste: boolean;
-}) {
-  const search = useCommandState((state) => state.search);
-  const trimmed = search.trim();
-
-  if (!allowRunIdPaste || !RUN_ID_LIKE.test(trimmed)) {
-    return null;
-  }
-
-  return (
-    <CommandGroup heading="Quick open">
-      <CommandItem
-        value={`open-review-${trimmed}`}
-        onSelect={() => {
-          onNavigate(`/architecture/reviews/${trimmed}`);
-        }}
-      >
-        Open linked review
-      </CommandItem>
-    </CommandGroup>
-  );
 }
 
 function isEditableEventTarget(target: EventTarget | null): boolean {
