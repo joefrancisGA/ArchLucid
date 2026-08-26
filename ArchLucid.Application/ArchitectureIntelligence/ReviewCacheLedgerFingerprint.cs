@@ -25,7 +25,9 @@ public static class ReviewCacheLedgerFingerprint
             builder.Append(entry.TechnologyName ?? string.Empty).Append('|');
             builder.Append(entry.ProviderFamily).Append('|');
             builder.Append(entry.Status).Append('|');
-            builder.Append(entry.Source).Append('\n');
+            builder.Append(entry.Source).Append('|');
+            builder.Append(entry.IsLocked ? '1' : '0').Append('|');
+            builder.Append(entry.EvidenceRef ?? string.Empty).Append('\n');
         }
 
         return Sha256Hex(builder.ToString());
