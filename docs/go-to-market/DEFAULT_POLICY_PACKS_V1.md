@@ -43,7 +43,7 @@ All rows below are seeded as **`PlatformDefault`** (Architect workspace: **Bundl
 | 7 | Cost | FinOps & Cloud Cost Optimization | `cost-opt-001` … `006` | Extractor-aligned; bundled `advisoryDefaults` include `cost.requireBudgetCap=true` so assigning this pack can stamp a required budget cap for `cost-constraint` |
 | 8 | Application security | OWASP API Security Top 10 | `owasp-api-001` … | ~10 categories + depth |
 | 9 | Compliance | ISO/IEC 27001 ISMS (Architecture Slice) | `iso27001-001` … | Expand per Annex A slice |
-| 10 | Security | CIS Microsoft Azure Foundations Benchmark | `cis-az-001` … | Prefer `cis-az-l1-*` / `l2-*` ids |
+| 10 | Security | CIS Microsoft Azure Foundations Benchmark | `cis-az-001` … | Prefer `cis-az-l1-*` / `l2-*` ids; bundled `advisoryDefaults` add `expectation.topologyCategories.add=identity` (additive floor with heuristic pillars) |
 | 11 | Healthcare | HIPAA / HITECH Safeguards | `hipaa-001` … | Expand per safeguard |
 | 12 | Payments | PCI-DSS (Architecture / Segmentation) | `pci-001` … | Expand per DSS area |
 | 13 | Security | Zero Trust Architecture | `zta-001` … | NIST 800-207 themes |

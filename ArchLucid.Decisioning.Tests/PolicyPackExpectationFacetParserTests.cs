@@ -100,6 +100,33 @@ public sealed class PolicyPackExpectationFacetParserTests
         facet.RequireBudgetCap.Should().BeTrue();
     }
 
+    [Fact]
+    public void Parse_bundled_cis_azure_adds_identity_topology_extra()
+    {
+        string? repoRoot = TryFindRepoRoot();
+
+        repoRoot.Should().NotBeNull();
+
+        string path = Path.Combine(
+            repoRoot!,
+            "ArchLucid.Application",
+            "Governance",
+            "DefaultPolicyPacks",
+            "Bundled",
+            "cis-azure-foundations.json");
+
+        string json = File.ReadAllText(path);
+        PolicyPackContentDocument? document = JsonSerializer.Deserialize<PolicyPackContentDocument>(
+            json,
+            ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackJsonSerializerOptions.Default);
+
+        document.Should().NotBeNull();
+
+        PolicyPackExpectationFacet facet = PolicyPackExpectationFacetParser.Parse(document);
+
+        facet.ExtraTopologyCategories.Should().Contain("identity");
+    }
+
     private static string? TryFindRepoRoot()
     {
         DirectoryInfo? directory = new(AppContext.BaseDirectory);
