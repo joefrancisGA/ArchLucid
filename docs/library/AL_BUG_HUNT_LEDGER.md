@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 54
-- **bugs-found:** 105
+- **hunts:** 55
+- **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
+- **last-bug:** 2026-08-26 — ARM nested child resources dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1957,6 +1957,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `KubernetesYamlInfrastructureDeclarationParser` YAML `kind: List` path — mapper already expands List items after YamlDotNet round-trip; added YAML-path regression `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_KindList_MapsMultipleItems`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` ignored nested `resources[]` child declarations — **hit 2026-08-26:** VNet with nested subnet emitted only the parent; fixed by recursing into child resources with composite parent/child names (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_NestedChildResources_MapsSubnetUnderVnet`).
+- [x] (proven) `JsonInfrastructureDeclarationParser` deserialized `properties` as `Dictionary<string,string>` and failed on numeric JSON values — **hit 2026-08-26:** `{ "instanceCount": 2 }` threw during deserialize and returned zero resources; fixed with `JsonDocument` scalar property reads (`JsonInfrastructureDeclarationParserTests.ParseAsync_NumericCustomProperty_MapsResource`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` ingested `mode: "data"` resources — **hit 2026-08-26:** `azurerm_client_config` data sources appeared as topology resources alongside managed resources; fixed by skipping `mode: data` rows (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_ModeDataResources_AreExcluded`).
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.TryAddResource` skipped manifests with only `metadata.generateName` — **hit 2026-08-26:** Pod with `generateName: api-` returned zero resources; fixed by falling back to `generateName` when `name` is absent (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_GenerateNameOnly_MapsPod`).
+- [x] (proven) `BicepInfrastructureDeclarationParser` ignored `module` declarations — **hit 2026-08-26:** `module storageModule 'br/public:…'` returned zero resources; fixed with `ModuleRegex` and `bicepModule=true` (`BicepInfrastructureDeclarationParserTests.ParseAsync_ModuleDeclaration_MapsStorageModule`).
+
+2026-08-26 seed hunt #55: reseeded ARM nested children / JSON numeric properties / terraform-show-json data sources / K8s generateName / Bicep modules; proved all five hunt-ready rows.
 
 2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
 

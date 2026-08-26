@@ -1,4 +1,3 @@
-using System.Text.Json;
 using System.Text.RegularExpressions;
 
 using ArchLucid.ContextIngestion.Models;
@@ -13,6 +12,12 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
     private static readonly Regex ResourceRegex = new(
         """
         resource\s+(?<name>[\w-]+)\s+['"](?<type>[^'"]+)['"]
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ModuleRegex = new(
+        """
+        module\s+(?<name>[\w-]+)\s+['"](?<type>[^'"]+)['"]
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -31,12 +36,12 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
         List<CanonicalObject> results = [];
-        MatchCollection matches = ResourceRegex.Matches(declaration.Content);
+        List<BicepDeclarationMatch> declarations = CollectDeclarations(declaration.Content);
 
-        foreach (Match match in matches)
+        foreach (BicepDeclarationMatch declarationMatch in declarations)
         {
-            string symbolicName = match.Groups["name"].Value.Trim();
-            string fullType = match.Groups["type"].Value.Trim();
+            string symbolicName = declarationMatch.SymbolicName;
+            string fullType = declarationMatch.FullType;
 
             if (string.IsNullOrWhiteSpace(symbolicName) || string.IsNullOrWhiteSpace(fullType))
                 continue;
@@ -58,6 +63,9 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
                 ["resourceType"] = resourceType.ToLowerInvariant(),
                 ["bicepSymbolicName"] = symbolicName.ToLowerInvariant(),
             };
+
+            if (declarationMatch.IsModule)
+                properties["bicepModule"] = "true";
 
             if (!string.IsNullOrWhiteSpace(apiVersion))
                 properties["apiVersion"] = apiVersion.ToLowerInvariant();
@@ -81,6 +89,34 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
     }
+
+    private static List<BicepDeclarationMatch> CollectDeclarations(string content)
+    {
+        List<(int Index, BicepDeclarationMatch Match)> declarations = [];
+
+        foreach (Match match in ResourceRegex.Matches(content))
+        {
+            declarations.Add((match.Index, new BicepDeclarationMatch(
+                match.Groups["name"].Value.Trim(),
+                match.Groups["type"].Value.Trim(),
+                IsModule: false)));
+        }
+
+        foreach (Match match in ModuleRegex.Matches(content))
+        {
+            declarations.Add((match.Index, new BicepDeclarationMatch(
+                match.Groups["name"].Value.Trim(),
+                match.Groups["type"].Value.Trim(),
+                IsModule: true)));
+        }
+
+        return declarations
+            .OrderBy(static declaration => declaration.Index)
+            .Select(static declaration => declaration.Match)
+            .ToList();
+    }
+
+    private readonly record struct BicepDeclarationMatch(string SymbolicName, string FullType, bool IsModule);
 
     private static string ResolveObjectType(string resourceType)
     {
