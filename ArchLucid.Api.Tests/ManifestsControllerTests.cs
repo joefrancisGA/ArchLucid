@@ -134,7 +134,9 @@ public sealed class ManifestsControllerTests
                 manifestSummaryService.Object,
                 architectureExport.Object,
                 evidenceRepo.Object,
-                diagramService.Object)
+                diagramService.Object,
+                Mock.Of<ArchLucid.Core.Scoping.IScopeContextProvider>(),
+                Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };

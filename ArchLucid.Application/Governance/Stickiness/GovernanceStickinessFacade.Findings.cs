@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 
 namespace ArchLucid.Application.Governance.Stickiness;
 
@@ -16,6 +17,8 @@ public sealed partial class GovernanceStickinessFacade
         CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await EnsureFindingInScopeAsync(scope, request.FindingId, ct);
 
         return await _findingDispositionService.RecordAsync(
             request,
@@ -48,6 +51,7 @@ public sealed partial class GovernanceStickinessFacade
 
             try
             {
+                await EnsureFindingInScopeAsync(scope, findingId, ct);
                 await _findingDispositionService.RecordAsync(normalized, scope, actorId, ct);
                 updated.Add(findingId);
             }
@@ -70,7 +74,31 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        if (!await IsFindingInScopeAsync(scope, findingId, ct))
+            return [];
+
         return await _findingDispositionService.ListHistoryAsync(scope.TenantId, findingId, ct);
+    }
+
+    private async Task EnsureFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)
+    {
+        if (!await IsFindingInScopeAsync(scope, findingId, ct))
+        {
+            throw new ArgumentException(
+                $"Finding '{findingId.Trim()}' was not found in the current scope.",
+                nameof(findingId));
+        }
+    }
+
+    private async Task<bool> IsFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)
+    {
+        FindingInspectResponse? finding = await _findingInspectReadRepository.GetInspectAsync(
+            scope,
+            findingId,
+            ct,
+            FindingInspectReadOptions.MetadataOnly);
+
+        return finding is not null;
     }
 
     /// <inheritdoc />
