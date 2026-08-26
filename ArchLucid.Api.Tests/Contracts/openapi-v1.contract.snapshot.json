@@ -6827,7 +6827,7 @@
       "ChatIntakeRequest": {
         "properties": {
           "rawText": {
-            "maxLength": 50000,
+            "maxLength": 2000000,
             "minLength": 20,
             "type": "string"
           }
@@ -24623,6 +24623,7 @@
             ]
           },
           "currentOverview": {
+            "maxLength": 2000000,
             "minLength": 20,
             "type": "string"
           },

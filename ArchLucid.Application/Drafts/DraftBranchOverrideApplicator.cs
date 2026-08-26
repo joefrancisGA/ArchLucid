@@ -30,6 +30,10 @@ public static class DraftBranchOverrideApplicator
                     throw new InvalidOperationException(
                         $"FreeTextIntent override must be at least {DraftIntakeValidation.MinimumFreeTextIntentLength} characters.");
 
+                if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(intent))
+                    throw new InvalidOperationException(
+                        $"FreeTextIntent override must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.");
+
                 document.FreeTextIntent = intent;
                 break;
 

@@ -9,8 +9,6 @@ namespace ArchLucid.AgentRuntime.Planning;
 /// </summary>
 public static class FakeArchitectureOverviewRewriteCompletionJson
 {
-    private const int MaxOverviewChars = 4_000;
-
     /// <summary>Builds a valid overview-rewrite response for <see cref="Application.Planning.ArchitectureOverviewRewriteService" /> parsing.</summary>
     public static string Build(string userPrompt)
     {
@@ -31,13 +29,11 @@ public static class FakeArchitectureOverviewRewriteCompletionJson
 
         if (currentOverview.Length > 0)
         {
-            string trimmedOverview = currentOverview.Length > MaxOverviewChars
-                ? currentOverview[..MaxOverviewChars] + "…"
-                : currentOverview;
-
+            // Keep the full overview. Intake rejects text above DraftIntakeValidation.MaximumFreeTextIntentLength;
+            // a 4,000-character clip made realistic review packets look like a successful shorter rewrite.
             rewritten.AppendLine();
             rewritten.AppendLine();
-            rewritten.Append(trimmedOverview.Trim());
+            rewritten.Append(currentOverview.Trim());
         }
         else
         {

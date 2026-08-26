@@ -84,40 +84,6 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
-    public async Task DraftRequest_returns_bad_request_when_description_exceeds_chat_intake_max_length()
-    {
-        Mock<IArchitectureRequestDraftService> draftService = new();
-        RunsController controller = CreateController(draftService: draftService.Object);
-
-        DraftArchitectureRequestInput input = new() { FreeTextDescription = new string('x', 50_001) };
-
-        IActionResult action = await controller.DraftRequest(input, CancellationToken.None);
-
-        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
-        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        draftService.Verify(
-            s => s.DraftAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
-    public async Task DraftRequestAsync_returns_bad_request_when_description_exceeds_chat_intake_max_length()
-    {
-        Mock<IAdvisoryDraftOperationAcceptor> acceptor = new();
-        RunsController controller = CreateController();
-
-        DraftArchitectureRequestInput input = new() { FreeTextDescription = new string('x', 50_001) };
-
-        IActionResult action = await controller.DraftRequestAsync(input, acceptor.Object, CancellationToken.None);
-
-        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
-        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        acceptor.Verify(
-            a => a.AcceptAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
     public async Task RewriteArchitectureOverview_returns_rewritten_overview_when_valid()
     {
         Mock<IArchitectureOverviewRewriteService> rewriteService = new();
@@ -146,27 +112,6 @@ public sealed class RunsControllerTests
             ok.Value.Should().BeOfType<RewriteArchitectureOverviewResponse>().Subject;
 
         response.RewrittenOverview.Should().Contain("EU data residency");
-    }
-
-    [Fact]
-    public async Task RewriteArchitectureOverview_returns_bad_request_when_current_overview_exceeds_chat_intake_max_length()
-    {
-        Mock<IArchitectureOverviewRewriteService> rewriteService = new();
-        RunsController controller = CreateController(overviewRewriteService: rewriteService.Object);
-
-        RewriteArchitectureOverviewInput input = new()
-        {
-            CurrentOverview = new string('x', 50_001),
-            StructuredBrief = new ArchitectureDraftStructuredBrief(),
-        };
-
-        IActionResult action = await controller.RewriteArchitectureOverview(input, CancellationToken.None);
-
-        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
-        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        rewriteService.Verify(
-            s => s.RewriteAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     [Fact]

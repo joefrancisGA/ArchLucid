@@ -24,7 +24,12 @@ public sealed class ArchitectureOverviewRewriteServiceTests
 
         Mock<IAgentCompletionClient> client = new();
         client
-            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                ArchitectureOverviewRewriteService.RewriteMaxCompletionTokens,
+                null,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(json);
 
         ArchitectureOverviewRewriteService sut = new(client.Object);
@@ -105,7 +110,12 @@ public sealed class ArchitectureOverviewRewriteServiceTests
     {
         Mock<IAgentCompletionClient> client = new();
         client
-            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                ArchitectureOverviewRewriteService.RewriteMaxCompletionTokens,
+                null,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync("   ");
 
         ArchitectureOverviewRewriteService sut = new(client.Object);
@@ -119,5 +129,44 @@ public sealed class ArchitectureOverviewRewriteServiceTests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*Rewrite response was empty*");
+    }
+
+    [Fact]
+    public async Task RewriteAsync_requests_full_overview_budget_and_completeness_instructions()
+    {
+        const string json = """
+                            {"rewrittenOverview":"Grounded overview."}
+                            """;
+
+        string? capturedSystemPrompt = null;
+        int? capturedMaxTokens = null;
+
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback((string systemPrompt, string _, int? maxTokens, float? _, CancellationToken _) =>
+            {
+                capturedSystemPrompt = systemPrompt;
+                capturedMaxTokens = maxTokens;
+            })
+            .ReturnsAsync(json);
+
+        ArchitectureOverviewRewriteService sut = new(client.Object);
+
+        _ = await sut.RewriteAsync(
+            new RewriteArchitectureOverviewInput
+            {
+                CurrentOverview = "Tenant migration platform with private networking and EU residency goals.",
+            },
+            CancellationToken.None);
+
+        capturedMaxTokens.Should().Be(ArchitectureOverviewRewriteService.RewriteMaxCompletionTokens);
+        capturedSystemPrompt.Should().Contain("Keep comparable length and completeness");
+        capturedSystemPrompt.Should().Contain("not a shorter digest");
     }
 }
