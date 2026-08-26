@@ -19,8 +19,9 @@ export function HelpEvidenceIntakeAcceptedFormatsTable(): React.ReactElement {
         Accepted evidence formats
       </h2>
       <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        The New architecture review wizard accepts these file extensions. Unsupported types show a validation message
-        before analysis starts.
+        The New architecture review wizard accepts these file extensions, including IaC and cloud inventory ZIPs.
+        Export Visio diagrams to PDF or PNG before uploading — native .vsdx is not supported. Unsupported types show a
+        validation message before analysis starts.
       </p>
       <div className={HELP_PAGE_LAYOUT.compactTableWrap}>
         <table className={HELP_PAGE_LAYOUT.table}>

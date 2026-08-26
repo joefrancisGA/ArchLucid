@@ -40,7 +40,7 @@ import {
   ARCHITECTURE_DOCUMENT_TEXT_EXTRACTION_IN_PROGRESS_HELPER,
   evidenceFilesIncludeBinaryArchitectureDocument,
 } from "@/lib/evidence-readable-text";
-import { EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX } from "@/lib/evidence-upload-accepted-formats";
+import { QUICK_START_EVIDENCE_UPLOAD_DESCRIPTION } from "@/lib/evidence-upload-accepted-formats";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL } from "@/lib/architecture/architecture-draft-structured-brief";
@@ -433,7 +433,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           <WizardEvidenceUploadZone
             labelId="first-pilot-evidence"
             title="Attach architecture evidence"
-            description={`Diagram, PDF export, or architecture document. ${EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX}.`}
+            description={QUICK_START_EVIDENCE_UPLOAD_DESCRIPTION}
             attachmentSummarySuffix="architecture context optional"
             onFilesSelected={(files: File[]) => {
               setEvidenceFiles(files);

@@ -7,9 +7,10 @@
 ArchLucid accepts architecture evidence that helps reviewers understand your design:
 
 - **Written briefs** — goals, constraints, risks, and integration notes you type directly in the wizard.
-- **Diagrams and documents** — PDF, Word, Markdown, plain text, JSON, or YAML exports from your architecture tools.
+- **Diagrams and documents** — PDF, Word, Markdown, plain text, JSON, or YAML exports from your architecture tools. Export Visio diagrams to PDF or PNG — native `.vsdx` is not supported.
 - **Images** — PNG or JPEG snapshots of diagrams when a native export is not available.
-- **Cloud inventory archives** — ZIP bundles from supported cloud extractors when you connect a cloud account.
+- **Infrastructure as code** — Terraform (`.tf`), Bicep (`.bicep`), and YAML/JSON declarations.
+- **Cloud inventory archives** — ZIP bundles from supported Azure, AWS, or GCP extractors when you connect a cloud account or upload an inventory package.
 
 You can attach multiple files. At least one piece of evidence is required before you start analysis in most paths.
 
@@ -29,7 +30,7 @@ You can switch paths before you start the review. Each path uses the same eviden
 
 Use **Browse files** or **Browse folder** in the evidence upload area, or drag files into the drop zone.
 
-**Accepted extensions** include PDF, DOCX, Markdown, text, JSON, YAML, and common image formats. If validation fails, the wizard shows a specific message — for example, an unsupported file type or a cloud inventory ZIP that does not match the expected layout. Fix the file and upload again; you do not need to restart the whole review.
+**Accepted extensions** include PDF, DOCX, Markdown, text, JSON, YAML, Terraform (`.tf`), Bicep (`.bicep`), cloud inventory ZIP, and common image formats. Export Visio to PDF or PNG before uploading. If validation fails, the wizard shows a specific message — for example, an unsupported file type or a cloud inventory ZIP that does not match the expected layout. Fix the file and upload again; you do not need to restart the whole review.
 
 For cloud evidence, connect the right cloud account first from **Cloud connections** in settings, then follow the extractor guidance for that provider.
 

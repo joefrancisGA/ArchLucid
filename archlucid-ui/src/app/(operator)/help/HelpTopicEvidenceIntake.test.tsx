@@ -74,8 +74,10 @@ describe("HelpEvidenceIntakeGuideView (EVI)", () => {
     expect(within(firstViewport).getByTestId("help-evidence-intake-accepted-formats")).toBeInTheDocument();
     expect(within(firstViewport).getByTestId("help-evidence-intake-reference")).toBeInTheDocument();
 
+    const formatsTable = within(firstViewport).getByTestId("help-evidence-intake-accepted-formats");
+
     for (const extension of EVIDENCE_UPLOAD_ACCEPTED_EXTENSIONS) {
-      expect(within(firstViewport).getByText(extension)).toBeInTheDocument();
+      expect(within(formatsTable).getByText(extension)).toBeInTheDocument();
     }
 
     for (const pathOption of EVIDENCE_INTAKE_HELP_PATH_OPTIONS) {
