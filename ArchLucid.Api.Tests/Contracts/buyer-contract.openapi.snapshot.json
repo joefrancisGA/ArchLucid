@@ -32169,6 +32169,27 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "sponsorDigestDayOfWeek": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "sponsorDigestHourOfDay": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "sponsorDigestIanaTimeZoneId": {
+            "type": "string"
+          },
+          "sponsorDigestRecipientCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "sponsorEmailDigestEnabled": {
+            "type": "boolean"
+          },
+          "sponsorEmailDigestIsConfigured": {
+            "type": "boolean"
           }
         },
         "type": "object"
