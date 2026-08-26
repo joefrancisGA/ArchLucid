@@ -14,6 +14,7 @@ import {
   OperatorRecipientSubscriptionsHelperLink,
 } from "@/components/advisory/OperatorRecipientChipField";
 import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
+import { DigestsHubNextReviewFooterClient } from "@/components/digests/DigestsHubNextReviewFooterClient";
 import { ExecDigestPickReviewBeforeSchedulingStrip } from "@/components/digests/ExecDigestPickReviewBeforeSchedulingStrip";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -623,6 +624,17 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
         })()
       )}
       </>
+      ) : null}
+
+      {scopedRunFilterActive ? (
+        <DigestsHubNextReviewFooterClient
+          runId={scopedRunId}
+          tab="schedule"
+          title="Next review digest schedule"
+          actionLabel="Schedule next digest"
+          ariaLabel="Next review digest schedule"
+          testIdPrefix="exec-digest-schedule"
+        />
       ) : null}
     </div>
   );
