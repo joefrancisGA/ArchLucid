@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactElement } from "react";
 
 import {
@@ -42,6 +43,7 @@ import {
 } from "@/lib/quick-scan/quick-scan-validation";
 import { TRUST_CENTER_PUBLIC_EVIDENCE_VERSION } from "@/lib/trust-center-buyer-content";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
+import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { cn } from "@/lib/utils";
 
 const SESSION_STORAGE_KEY = "al_quick_scan_session";
@@ -162,6 +164,16 @@ function filterVisibleFieldErrors(
  * No-sign-in Quick Scan: POST /v1/marketing/quick-scan via same-origin proxy (no privileged bearer).
  */
 export function QuickScanClient(): ReactElement {
+  const [queryClient] = useState(() => getOperatorQueryClient());
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <QuickScanClientInner />
+    </QueryClientProvider>
+  );
+}
+
+function QuickScanClientInner(): ReactElement {
   const statusRegionId = useId();
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
