@@ -68,6 +68,8 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 
 `ArchLucid.TestSupport` intentionally does **not** reference `ArchLucid.Decisioning`, so the heavy wiring stays in the Decisioning test project and the solution graph stays clean.
 
+**Policy-filter contract (sibling test):** `GoldenCorpusHarness.CreateEngines()` still constructs `FileComplianceRulePackProvider` directly (six engines, unfiltered pack). `PolicyFilteredGoldenCorpusTests` runs `ComplianceFindingEngine` twice on a fixed graph with two different `PolicyPackContentDocument.ComplianceRuleKeys` postures and asserts the compliance finding rule ids differ. Summary artifact: `docs/quality/policy-filter-golden-delta.md`. This does **not** exercise `PolicyFilteredComplianceRulePackProvider` or tenant curated-rule merger — only `ComplianceRulePackGovernanceFilter`.
+
 ---
 
 ## How to refresh or add cases
