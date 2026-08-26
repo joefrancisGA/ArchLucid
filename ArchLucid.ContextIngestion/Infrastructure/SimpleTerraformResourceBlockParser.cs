@@ -10,7 +10,7 @@ internal static class SimpleTerraformResourceBlockParser
 {
     private static readonly Regex ResourceHeaderRegex = new(
         """
-        resource\s+"(?<type>[^"]+)"\s+"(?<name>[^"]+)"
+        resource\s+"(?<type>[^"]+)"\s+"(?<name>[^"]+)"|resource\s+'(?<type>[^']+)'\s+'(?<name>[^']+)'
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -84,11 +84,12 @@ internal static class SimpleTerraformResourceBlockParser
             {
                 string blockName = nestedBlockMatch.Groups["block"].Value;
                 string remainder = line[(nestedBlockMatch.Index + nestedBlockMatch.Length)..];
-                string blockBody = ExtractNestedBlockBody(remainder, lines, lineIndex);
+                string blockBody = ExtractNestedBlockBody(remainder, lines, lineIndex, out int endLineIndex);
 
                 if (!string.IsNullOrWhiteSpace(blockBody))
                     CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(properties, blockName, blockBody);
 
+                lineIndex = endLineIndex;
                 continue;
             }
 
@@ -103,14 +104,20 @@ internal static class SimpleTerraformResourceBlockParser
             if (rawValue.StartsWith("${", StringComparison.Ordinal))
                 continue;
 
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
             string scalarValue = UnquoteScalar(rawValue);
 
             CanonicalInfrastructurePropertyBag.TryAddTfProperty(properties, key, scalarValue);
         }
     }
 
-    private static string ExtractNestedBlockBody(string remainderOnLine, string[] lines, int lineIndex)
+    private static string ExtractNestedBlockBody(
+        string remainderOnLine,
+        string[] lines,
+        int lineIndex,
+        out int endLineIndex)
     {
+        endLineIndex = lineIndex;
         StringBuilder builder = new();
         int depth = 0;
         bool started = false;
@@ -121,7 +128,7 @@ internal static class SimpleTerraformResourceBlockParser
                 return;
 
             if (builder.Length > 0)
-                builder.Append(' ');
+                builder.Append('\n');
 
             builder.Append(segment.Trim());
         }
@@ -140,7 +147,10 @@ internal static class SimpleTerraformResourceBlockParser
                 depth--;
 
                 if (started && depth <= 0)
+                {
+                    endLineIndex = lineIndex;
                     return builder.ToString();
+                }
             }
         }
 
@@ -161,17 +171,23 @@ internal static class SimpleTerraformResourceBlockParser
                     depth--;
 
                     if (started && depth <= 0)
+                    {
+                        endLineIndex = nextLineIndex;
                         return builder.ToString();
+                    }
                 }
             }
         }
 
+        endLineIndex = lines.Length - 1;
         return builder.ToString();
     }
 
     private static string UnquoteScalar(string rawValue)
     {
-        if (rawValue.Length >= 2 && rawValue[0] == '"' && rawValue[^1] == '"')
+        if (rawValue.Length >= 2
+            && ((rawValue[0] == '"' && rawValue[^1] == '"')
+                || (rawValue[0] == '\'' && rawValue[^1] == '\'')))
             return rawValue[1..^1];
 
         return rawValue;
