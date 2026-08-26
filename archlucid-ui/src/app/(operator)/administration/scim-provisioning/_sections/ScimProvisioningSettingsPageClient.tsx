@@ -195,13 +195,16 @@ export function ScimProvisioningSettingsPageClient() {
     setStatusAnnouncement(SCIM_VERIFYING_ACTION);
 
     try {
-      const response = await fetch(SCIM_SERVICE_PROVIDER_CONFIG_PATH, {
-        headers: {
-          Accept: "application/scim+json, application/json",
-          Authorization: `Bearer ${verifyTokenValue}`,
-        },
-        cache: "no-store",
-      });
+      const response = await fetch(
+        SCIM_SERVICE_PROVIDER_CONFIG_PATH,
+        mergeRegistrationScopeForProxy({
+          headers: {
+            Accept: "application/scim+json, application/json",
+            Authorization: `Bearer ${verifyTokenValue}`,
+          },
+          cache: "no-store",
+        }),
+      );
 
       if (!response.ok) {
         const details = buildScimVerifyFailureDetails(response.status);

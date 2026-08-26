@@ -361,3 +361,4 @@
 {"at":"2026-08-26T07:57:14.9102106Z","zoneId":"agent-runtime-evaluation","outcome":"hit"}
 {"at":"2026-08-26T08:03:10.5855374Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
 {"at":"2026-08-26T08:07:37.8802942Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-08-26T08:18:22.7170964Z","zoneId":"ui-operator-routes","outcome":"hit"}

@@ -10,6 +10,11 @@ import {
   SCIM_VERIFY_STATUS_NOT_VERIFIED,
 } from "@/lib/scim-provisioning-page-copy";
 import { showSuccess } from "@/lib/toast";
+import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
+
+const tenantId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+const workspaceId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+const projectId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
 
 vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
@@ -226,6 +231,78 @@ describe("ScimProvisioningSettingsPageClient", () => {
     });
   });
 
+  it("forwards operator scope headers when verifying SCIM connectivity", async () => {
+    writeOperatorScopeToStorage({ tenantId, workspaceId, projectId });
+
+    const plaintextToken = "archlucid_scim.public.secret";
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+
+      if (url.endsWith("/api/proxy/v1/admin/scim/tokens") && (!init?.method || init.method === "GET")) {
+        return new Response(JSON.stringify({ tokens: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (url.endsWith("/api/proxy/v1/admin/scim/tokens") && init?.method === "POST") {
+        return new Response(
+          JSON.stringify({
+            id: "token-1",
+            publicLookupKey: "lookup-key",
+            plaintextToken,
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      if (url.includes("/api/proxy/scim/v2/ServiceProviderConfig")) {
+        return new Response(JSON.stringify({ schemas: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+    stubClipboard();
+    stubLocationOrigin("https://app.archlucid.example");
+
+    render(<ScimProvisioningSettingsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("scim-create-token")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("scim-create-token"));
+    fireEvent.click(
+      within(screen.getByRole("alertdialog")).getByRole("button", { name: SCIM_CREATE_DIALOG_CONFIRM }),
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("scim-token-plaintext")).toHaveValue(plaintextToken);
+    });
+
+    fireEvent.click(screen.getByTestId("scim-verify-connection"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("scim-verify-success")).toBeInTheDocument();
+    });
+
+    const verifyCall = fetchMock.mock.calls.find((call) =>
+      String(call[0]).includes("/api/proxy/scim/v2/ServiceProviderConfig"),
+    );
+    expect(verifyCall).toBeDefined();
+
+    const verifyHeaders = new Headers((verifyCall?.[1] as RequestInit | undefined)?.headers);
+    expect(verifyHeaders.get("x-tenant-id")).toBe(tenantId);
+    expect(verifyHeaders.get("x-workspace-id")).toBe(workspaceId);
+    expect(verifyHeaders.get("x-project-id")).toBe(projectId);
+    expect(verifyHeaders.get("Authorization")).toBe(`Bearer ${plaintextToken}`);
+  });
+
   it("creates a token once, verifies with the session token, and clears secrets on Done", async () => {
     const plaintextToken = "archlucid_scim.public.secret";
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -253,8 +330,8 @@ describe("ScimProvisioningSettingsPageClient", () => {
       }
 
       if (url.includes("/api/proxy/scim/v2/ServiceProviderConfig") && init?.headers) {
-        const headers = init.headers as Record<string, string>;
-        expect(headers.Authorization).toBe(`Bearer ${plaintextToken}`);
+        const headers = new Headers(init.headers);
+        expect(headers.get("Authorization")).toBe(`Bearer ${plaintextToken}`);
 
         return new Response(JSON.stringify({ schemas: [] }), {
           status: 200,

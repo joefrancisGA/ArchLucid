@@ -2324,11 +2324,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — SCIM verify omitted operator scope on ServiceProviderConfig fetch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2342,6 +2342,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Architecture intelligence `getJson`/`postJson` in `architecture-intelligence-client-api.ts` omitted `mergeRegistrationScopeForProxy` — product-run source-context load and reasoning POSTs hit proxy dev-default tenant instead of operator-selected scope (hydrated review context wrong or missing after scope switch) — fixed 2026-08-23 (`architecture-intelligence-client-api.test.tsx`)
 - [x] (proven) `AdminEvidenceProposalsPageClient` GET `/api/proxy/v1/admin/evidence/proposals` and POST promote omitted `mergeRegistrationScopeForProxy` — list/promote hit proxy dev-default tenant instead of operator-selected scope (wrong tenant proposals shown or promote lands on wrong catalog) — fixed 2026-08-23 (`AdminEvidenceProposalsPageClient.test.tsx`)
 - [x] (proven) `PlanningBridgePanel` POST `/api/proxy/v1/learning/planning/materialize` omitted `mergeRegistrationScopeForProxy` — draft plan materialization hit proxy dev-default tenant instead of operator-selected scope — **hit 2026-08-25:** fixed with scoped fetch init; regression in `PlanningBridgePanel.test.tsx`.
+- [x] (proven) `ScimProvisioningSettingsPageClient.verifyConnection` GET `/api/proxy/scim/v2/ServiceProviderConfig` omitted `mergeRegistrationScopeForProxy` — **hit 2026-08-26:** token list/create/revoke were scoped but connectivity verification hit proxy dev-default tenant, so verify could fail or validate the wrong tenant SCIM endpoint after scope switch; fixed by wrapping verify fetch with `mergeRegistrationScopeForProxy` (`ScimProvisioningSettingsPageClient.test.tsx`).
+
+2026-08-26 seed hunt #7: reseeded proxy-scope audit across operator routes; proved SCIM verify connectivity scope gap.
 
 ---
 
