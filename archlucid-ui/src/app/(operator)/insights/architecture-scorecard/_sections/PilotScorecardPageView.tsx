@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useMemo, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
@@ -24,7 +24,7 @@ import {
   ARCHITECTURE_SCORECARD_SOURCES_INTRO,
 } from "@/lib/architecture/architecture-scorecard-page-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import {
@@ -85,18 +85,27 @@ function resolveSampleSavingsLabels(data: NonNullable<ReturnType<typeof resolveR
 }
 
 export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const sampleMode = isReviewScorecardSampleMode(searchParams);
-  const urlRunId = searchParams.get("runId")?.trim() ?? "";
-  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
 
-  useEffect(() => {
-    if (urlRunId.length === 0 || selectedReviewId !== null) {
-      return;
-    }
+  const onPickReviewForScoring = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
 
-    setSelectedReviewId(urlRunId);
-  }, [selectedReviewId, urlRunId]);
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+
+      router.replace(`${ARCHITECTURE_SCORECARD_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   const {
     assumptionsComplete,
@@ -175,8 +184,8 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
         : null;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showScorecardReviewPicker =
-    displayData !== null && !scorecardEmpty && !sampleMode && selectedReviewId === null;
-  const showScorecardMetrics = displayData !== null && !scorecardEmpty && (sampleMode || selectedReviewId !== null);
+    displayData !== null && !scorecardEmpty && !sampleMode && !scopedRunFilterActive;
+  const showScorecardMetrics = displayData !== null && !scorecardEmpty && (sampleMode || scopedRunFilterActive);
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4" data-testid="review-scorecard-page">
@@ -315,12 +324,31 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
 
       {scorecardEmpty ? <ReviewScorecardEmptyState /> : null}
 
+      {scopedRunFilterActive && !sampleMode && !scorecardEmpty ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="review-scorecard-run-scope-banner"
+        >
+          {"Scorecard scoped to review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={ARCHITECTURE_SCORECARD_PATH}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : null}
+
       {showScorecardReviewPicker ? (
         <ScorecardReviewPickerStrip
-          selectedReviewId={selectedReviewId}
-          onSelectReview={(reviewId) => {
-            setSelectedReviewId(reviewId);
-          }}
+          selectedReviewId=""
+          onSelectReview={onPickReviewForScoring}
         />
       ) : null}
 
@@ -640,8 +668,8 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
           </CollapsibleSection>
         </>
       ) : null}
-      {selectedReviewId !== null && selectedReviewId.trim().length > 0 ? (
-        <ScorecardNextReviewFooterClient runId={selectedReviewId} />
+      {scopedRunFilterActive ? (
+        <ScorecardNextReviewFooterClient runId={scopedRunId} />
       ) : null}
         </div>
       </DocumentLayout>

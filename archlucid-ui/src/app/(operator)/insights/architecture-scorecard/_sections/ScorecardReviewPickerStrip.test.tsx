@@ -25,13 +25,14 @@ vi.mock("@/components/AskRunIdPicker", () => ({
 import { ScorecardReviewPickerStrip } from "./ScorecardReviewPickerStrip";
 
 describe("ScorecardReviewPickerStrip", () => {
-  it("auto-selects workspace active review when none is chosen", () => {
+  it("renders review picker without auto-selecting workspace active review", () => {
     const onSelectReview = vi.fn();
 
-    render(<ScorecardReviewPickerStrip selectedReviewId={null} onSelectReview={onSelectReview} />);
+    render(<ScorecardReviewPickerStrip selectedReviewId="" onSelectReview={onSelectReview} />);
 
-    expect(onSelectReview).toHaveBeenCalledWith("workspace-run-1");
+    expect(onSelectReview).not.toHaveBeenCalled();
     expect(screen.getByTestId("scorecard-pick-review-before-metrics-strip")).toBeInTheDocument();
+    expect(screen.getByText(/Pick a review before scoring/)).toBeInTheDocument();
   });
 
   it("forwards manual review selection", () => {

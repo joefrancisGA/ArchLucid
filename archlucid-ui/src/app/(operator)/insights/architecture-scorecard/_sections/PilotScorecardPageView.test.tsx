@@ -27,7 +27,8 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-    useSearchParams: vi.fn(() => new URLSearchParams()),
+    useRouter: () => ({ replace: vi.fn() }),
+    useSearchParams: vi.fn(() => new URLSearchParams("runId=run-scorecard-test")),
   };
 });
 
@@ -105,7 +106,7 @@ function buildModel(overrides: Partial<UsePilotScorecardPageModel> = {}): UsePil
 
 describe("PilotScorecardPageView", () => {
   beforeEach(() => {
-    mockUseSearchParams.mockReturnValue(new URLSearchParams());
+    mockUseSearchParams.mockReturnValue(new URLSearchParams("runId=run-scorecard-test"));
   });
 
   it("mounts contextual help (TB-1959)", () => {
@@ -131,6 +132,15 @@ describe("PilotScorecardPageView", () => {
     expect(screen.queryByText(/ROI_MODEL/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/roiEstimate/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/SOURCE:/i)).not.toBeInTheDocument();
+  });
+
+  it("shows review picker when no runId is scoped", () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams());
+
+    render(<PilotScorecardPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("scorecard-pick-review-before-metrics-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-scorecard-summary-row")).not.toBeInTheDocument();
   });
 
   it("renders savings hero, primary KPIs, and ROI calculator layout", () => {

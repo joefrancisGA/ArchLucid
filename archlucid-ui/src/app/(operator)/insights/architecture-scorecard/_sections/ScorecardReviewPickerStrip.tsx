@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type ScorecardReviewPickerStripProps = {
-  readonly selectedReviewId: string | null;
+  readonly selectedReviewId: string;
   readonly onSelectReview: (reviewId: string) => void;
 };
 
@@ -16,17 +14,12 @@ export type ScorecardReviewPickerStripProps = {
 export function ScorecardReviewPickerStrip(props: ScorecardReviewPickerStripProps): React.JSX.Element {
   const workspaceRun = useWorkspaceActiveRun();
   const workspaceRunId = workspaceRun.runId.trim();
-  const pickerValue = props.selectedReviewId ?? (workspaceRunId.length > 0 ? workspaceRunId : "");
-
-  useEffect(() => {
-    if (props.selectedReviewId !== null) {
-      return;
-    }
-
-    if (workspaceRunId.length > 0) {
-      props.onSelectReview(workspaceRunId);
-    }
-  }, [props.onSelectReview, props.selectedReviewId, workspaceRunId]);
+  const pickerValue =
+    props.selectedReviewId.trim().length > 0
+      ? props.selectedReviewId
+      : workspaceRunId.length > 0
+        ? workspaceRunId
+        : "";
 
   return (
     <section
@@ -38,10 +31,10 @@ export function ScorecardReviewPickerStrip(props: ScorecardReviewPickerStripProp
         id="scorecard-review-picker-heading"
         className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
       >
-        Pick a review before metrics
+        Pick a review before scoring
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Scorecard metrics are scoped to a review package. Workspace active review is the default when available.
+        Scorecard metrics are scoped to one review package. Choose a review to keep savings previews aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
