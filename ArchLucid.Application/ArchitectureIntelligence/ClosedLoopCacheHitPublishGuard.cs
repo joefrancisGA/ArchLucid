@@ -59,16 +59,23 @@ public static class ClosedLoopCacheHitPublishGuard
         if (request.PublishToProduct)
             return;
 
-        ClearCoalescedFollowerPublishLeaks(isolated);
+        ClearAnalysisOnlyPublishIsolation(isolated);
     }
 
-    public static void ClearCoalescedFollowerPublishLeaks(ClosedLoopReasoningResult isolated)
+    public static void ClearAnalysisOnlyPublishIsolation(ClosedLoopReasoningResult isolated)
     {
         ArgumentNullException.ThrowIfNull(isolated);
 
         isolated.PublishBlocked = false;
         isolated.PublishBlockReasons = [];
         isolated.PublishSkipReason = null;
+    }
+
+    public static void ClearCoalescedFollowerPublishLeaks(ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(isolated);
+
+        ClearAnalysisOnlyPublishIsolation(isolated);
         isolated.ReviewCompleteBlocked = false;
         isolated.IntegrityPassedFindingIds = [];
         isolated.MustNotFailViolations = [];

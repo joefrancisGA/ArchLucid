@@ -200,9 +200,9 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         isolated.PublishBlocked.Should().BeFalse();
         isolated.PublishBlockReasons.Should().BeEmpty();
         isolated.PublishSkipReason.Should().BeNull();
-        isolated.ReviewCompleteBlocked.Should().BeFalse();
-        isolated.IntegrityPassedFindingIds.Should().BeEmpty();
-        isolated.MustNotFailViolations.Should().BeEmpty();
+        isolated.ReviewCompleteBlocked.Should().BeTrue();
+        isolated.IntegrityPassedFindingIds.Should().Contain("finding-1");
+        isolated.MustNotFailViolations.Should().NotBeEmpty();
     }
 
     [Fact]
