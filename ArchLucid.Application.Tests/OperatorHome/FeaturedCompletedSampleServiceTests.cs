@@ -140,6 +140,25 @@ public sealed class FeaturedCompletedSampleServiceTests
     }
 
     [Fact]
+    public async Task ListEligibleCandidatesAsync_excludes_ready_for_commit_runs_with_manifest()
+    {
+        RunRecord readyForCommit = CreateEligibleRun();
+        readyForCommit.LegacyRunStatus = nameof(ArchLucid.Contracts.Common.ArchitectureRunStatus.ReadyForCommit);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(repository => repository.ListRecentInScopeAsync(Scope, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { readyForCommit });
+
+        FeaturedCompletedSampleService sut = CreateService(CreateTenantSettingsMock(null), runs);
+
+        IReadOnlyList<FeaturedCompletedSampleCandidate> candidates =
+            await sut.ListEligibleCandidatesAsync(CancellationToken.None);
+
+        candidates.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ListEligibleCandidatesAsync_returns_only_completed_non_archived_reviews()
     {
         RunRecord eligible = CreateEligibleRun();
@@ -209,6 +228,7 @@ public sealed class FeaturedCompletedSampleServiceTests
             CompletedUtc = DateTime.UtcNow.AddDays(-1),
             GoldenManifestId = Guid.NewGuid(),
             IsPublicShowcase = true,
+            LegacyRunStatus = nameof(ArchLucid.Contracts.Common.ArchitectureRunStatus.Committed),
         };
     }
 }

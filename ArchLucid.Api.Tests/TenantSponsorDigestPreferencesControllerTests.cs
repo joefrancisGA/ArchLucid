@@ -83,6 +83,25 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostSponsorDigestPreferences_returns_bad_request_when_iana_time_zone_invalid()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantSponsorDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            Mock.Of<ITenantSponsorDigestPreferencesRepository>(),
+            Mock.Of<IAuditService>());
+
+        SponsorDigestPreferencesUpsertRequest body = new() { IanaTimeZoneId = "Not/AZone" };
+
+        IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PostSponsorDigestPreferences_returns_not_found_when_upsert_misses_tenant()
     {
         Mock<ITenantSponsorDigestPreferencesRepository> repository = new();

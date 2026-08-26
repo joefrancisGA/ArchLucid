@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 26
-- **bugs-found:** 61
+- **hunts:** 27
+- **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — catalog migration tenant 404 + exec digest timezone validation
+- **last-bug:** 2026-08-26 — sponsor digest timezone validation + featured sample committed-only eligibility
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2292,6 +2292,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantExecDigestPreferencesController.PostExecDigestPreferences` + `ExecDigestWeeklyDeliveryScanner` — tenant-wide prefs but delivery composes digest for `GetFirstWorkspaceAsync` (oldest workspace), not caller workspace — **cheap-disproof 2026-08-26:** tenant-scoped background digest intentionally uses primary workspace (`GetFirstWorkspaceAsync` = oldest by `CreatedUtc`); aligned with `IExecDigestComposer` primary authority scope and sponsor/executive weekly scanners.
 - [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` — invalid `ianaTimeZoneId` persisted and scanner silently fell back to UTC — **hit 2026-08-26:** validate with `IanaTimeZonePreferenceValues.NormalizeOrNull` (aligned with `UserPreferencesController`); regression in `TenantExecDigestPreferencesControllerTests.PostExecDigestPreferences_returns_bad_request_when_iana_time_zone_invalid`.
 - [x] (proven) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — missing tenant returned HTTP 200 `{ inMigration: false }` instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantCatalogMigrationStatusControllerTests.GetCatalogMigrationStatusAsync_returns_not_found_when_tenant_missing`.
+- [x] (proven) `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — invalid `ianaTimeZoneId` persisted and weekly scanner silently fell back to UTC — **hit 2026-08-26:** validate with `IanaTimeZonePreferenceValues.NormalizeOrNull` (exec digest parity); regression in `TenantSponsorDigestPreferencesControllerTests.PostSponsorDigestPreferences_returns_bad_request_when_iana_time_zone_invalid`.
+- [x] (proven) `TenantHomepageSettingsController.ListEligibleSamplesAsync` / `FeaturedCompletedSampleEligibility.IsEligible` — `ReadyForCommit` runs with manifest listed as eligible completed samples — **hit 2026-08-26:** require `LegacyRunStatus = Committed` (aligned with stickiness funnel / pilot value report); regression in `FeaturedCompletedSampleServiceTests.ListEligibleCandidatesAsync_excludes_ready_for_commit_runs_with_manifest`.
+- [ ] (candidate) `TenantCostSettingsController.PutAsync` — missing tenant row may surface HTTP 500 (FK violation) instead of 404 (no `ITenantRepository` preflight).
+- [ ] (candidate) `GovernancePreviewController.Preview` / `GovernancePreviewService` — in-scope `runId` with manifest version belonging to another run returns HTTP 400 instead of 404 and names foreign run id.
+- [ ] (candidate) `GovernanceController.Activate` / `GovernanceWorkflowActivateStage` — bogus or foreign `manifestVersion` may persist on activation without manifest-run binding check (Preview path validates).
+- [ ] (candidate) `TenantLlmCostReportingController.GetDashboard` — out-of-range `days` query silently clamped to 1–90 instead of HTTP 400 (ROI bundle validates `rollingDays`).
+- [ ] (candidate) `GovernanceController.Promote` — mutating POST lacks controller-level `RequireScopedRunAsync` preflight present on `GetPromotions`/`GetActivations` read paths.
+
+2026-08-26 seed hunt #102: proved sponsor digest timezone validation and featured-sample committed-only eligibility; seeded cost-settings 404, preview manifest/run mismatch, activate manifest binding, LLM cost days validation, and promote run-scope candidates.
 
 2026-08-26 thorough hunt #101: proved catalog migration tenant 404 and exec digest timezone validation; cheap-disproved exec digest primary-workspace candidate.
 
