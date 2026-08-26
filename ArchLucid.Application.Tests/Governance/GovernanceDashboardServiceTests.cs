@@ -157,6 +157,71 @@ public sealed class GovernanceDashboardServiceTests
     }
 
     [SkippableFact]
+    public async Task GetDashboard_ExcludesReadyForCommitRunsFromTokenAggregation()
+    {
+        Guid tenantId = Guid.Parse("dddddddd-eeee-ffff-0000-111122223333");
+        string readyRunId = Guid.NewGuid().ToString("N");
+        string committedRunId = Guid.NewGuid().ToString("N");
+        DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals.Setup(a => a.GetPendingAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        approvals.Setup(a => a.GetRecentDecisionsAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        Mock<IPolicyPackChangeLogRepository> changes = new();
+        changes.Setup(c => c.GetByTenantAsync(tenantId, 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(q => q.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((
+                new List<RunSummary>
+                {
+                    new()
+                    {
+                        RunId = readyRunId,
+                        Status = nameof(ArchitectureRunStatus.ReadyForCommit),
+                        CurrentManifestVersion = "v-ready",
+                        CreatedUtc = createdUtc,
+                    },
+                    new()
+                    {
+                        RunId = committedRunId,
+                        Status = nameof(ArchitectureRunStatus.Committed),
+                        CreatedUtc = createdUtc,
+                    },
+                },
+                false,
+                (string?)null));
+
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(t => t.GetLlmCostSlicesByRunIdsAsync(
+                It.IsAny<ScopeContext>(),
+                It.Is<IReadOnlyList<string>>(ids => ids.SequenceEqual(new[] { committedRunId })),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>
+            {
+                [committedRunId] =
+                [
+                    new AgentExecutionTraceLlmCostSlice { InputTokenCount = 50, OutputTokenCount = 25 },
+                ],
+            });
+
+        IGovernanceDashboardService sut = new GovernanceDashboardService(
+            approvals.Object,
+            changes.Object,
+            runQuery.Object,
+            traces.Object,
+            CreateScopeProvider());
+
+        GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
+
+        summary.TotalPromptTokens.Should().Be(50);
+        summary.TotalCompletionTokens.Should().Be(25);
+    }
+
+    [SkippableFact]
     public async Task GetDashboard_FiltersRecentChangesToCurrentWorkspaceProject()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");

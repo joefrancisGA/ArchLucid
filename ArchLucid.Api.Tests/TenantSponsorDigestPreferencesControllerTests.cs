@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
@@ -47,6 +48,33 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
 
         body.TenantId.Should().Be(Scope.TenantId);
         body.IsConfigured.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task GetSponsorDigestPreferences_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantSponsorDigestPreferencesRepository> repository = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        TenantSponsorDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>(),
+            tenantRepository.Object);
+
+        IActionResult action = await controller.GetSponsorDigestPreferences(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repository.Verify(
+            r => r.GetByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -194,9 +222,21 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
     private static TenantSponsorDigestPreferencesController CreateController(
         IScopeContextProvider scopeProvider,
         ITenantSponsorDigestPreferencesRepository preferencesRepository,
-        IAuditService auditService) =>
-        new(scopeProvider, preferencesRepository, auditService)
+        IAuditService auditService,
+        ITenantRepository? tenantRepository = null)
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+
+        return new TenantSponsorDigestPreferencesController(
+            scopeProvider,
+            preferencesRepository,
+            auditService,
+            tenantRepository ?? tenants.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
+    }
 }

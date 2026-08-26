@@ -28,7 +28,8 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 public sealed class TenantSponsorDigestPreferencesController(
     IScopeContextProvider scopeProvider,
     ITenantSponsorDigestPreferencesRepository preferencesRepository,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    ITenantRepository tenantRepository) : ControllerBase
 {
     private readonly IAuditService
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -39,13 +40,21 @@ public sealed class TenantSponsorDigestPreferencesController(
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     /// <summary>Reads digest preferences (defaults when no row exists).</summary>
     [HttpGet("sponsor-digest-preferences")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(SponsorDigestPreferencesResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetSponsorDigestPreferences(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         SponsorDigestPreferencesResponse? row =
             await _preferencesRepository.GetByTenantAsync(scope.TenantId, cancellationToken);

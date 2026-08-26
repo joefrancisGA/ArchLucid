@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 28
-- **bugs-found:** 68
+- **hunts:** 29
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — cost settings 404, manifest-run binding, LLM days validation, promote scope
+- **last-bug:** 2026-08-26 — GET tenant 404 parity, submit manifest binding, dashboard token committed filter
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2299,6 +2299,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Activate` / `GovernanceWorkflowActivateStage` — bogus or foreign `manifestVersion` persisted on activation without manifest-run binding check — **hit 2026-08-26:** resolve and validate manifest via `IUnifiedGoldenManifestReader` (preview parity); regression in `GovernanceWorkflowFacadeTests.ActivateAsync_throws_when_manifest_version_belongs_to_another_run`.
 - [x] (proven) `TenantLlmCostReportingController.GetDashboard` — out-of-range `days` query silently clamped to 1–90 instead of HTTP 400 — **hit 2026-08-26:** controller validates `days` range (ROI bundle parity); regression in `TenantLlmCostReportingControllerTests.GetDashboard_returns_bad_request_when_days_out_of_range`.
 - [x] (proven) `GovernanceController.Promote` — mutating POST lacked controller-level `RequireScopedRunAsync` preflight present on read paths — **hit 2026-08-26:** scoped run preflight before promote workflow; regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_not_found_when_run_is_out_of_scope`.
+- [x] (proven) `TenantCostSettingsController.GetAsync` — missing tenant returned HTTP 200 platform defaults while `PutAsync` returned 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync` (PUT parity); regression in `TenantCostSettingsControllerTests.GetAsync_returns_not_found_when_tenant_missing`.
+- [x] (proven) `TenantExecDigestPreferencesController.GetExecDigestPreferences` — missing tenant returned HTTP 200 `Unconfigured` while POST returned 404 — **hit 2026-08-26:** tenant preflight on GET; regression in `TenantExecDigestPreferencesControllerTests.GetExecDigestPreferences_returns_not_found_when_tenant_missing`.
+- [x] (proven) `TenantSponsorDigestPreferencesController.GetSponsorDigestPreferences` — missing tenant returned HTTP 200 `Unconfigured` while POST returned 404 — **hit 2026-08-26:** tenant preflight on GET (exec digest parity); regression in `TenantSponsorDigestPreferencesControllerTests.GetSponsorDigestPreferences_returns_not_found_when_tenant_missing`.
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` / `GovernanceWorkflowSubmitStage.SubmitAsync` — approval submit accepted bogus or foreign `manifestVersion` without manifest-run binding — **hit 2026-08-26:** resolve and validate manifest via `IUnifiedGoldenManifestReader` (activate/preview parity); regression in `GovernanceWorkflowFacadeTests.SubmitApprovalRequestAsync_throws_when_manifest_version_belongs_to_another_run`.
+- [x] (proven) `GovernanceDashboardRecentRunTokenAggregator.IsCommittedSummary` — `ReadyForCommit` runs with manifest version counted toward dashboard token totals — **hit 2026-08-26:** require `Status == Committed` (aligned with `PilotValueReportService`); regression in `GovernanceDashboardServiceTests.GetDashboard_ExcludesReadyForCommitRunsFromTokenAggregation`.
+- [ ] (candidate) `CorePilotTeamChecklistController.PutAsync` — missing tenant row may surface HTTP 500 (FK violation) instead of 404.
+- [ ] (candidate) `TenantLlmCostReportingController.GetDashboard` — missing tenant may return HTTP 200 empty dashboard instead of 404.
+- [ ] (candidate) `GovernancePreviewService.CompareEnvironmentsAsync` — activation rows lack manifest-run binding check (preview/activate parity gap).
+- [ ] (candidate) `GovernanceWorkflowPromoteStage.PromoteAsync` — promotion persisted without manifest-run binding (submit/activate parity gap).
+- [ ] (candidate) `TenantBaselineController.PutAsync` — `baselineReviewCycleSourceNote`-only updates may not persist when other baseline fields unchanged.
+
+2026-08-26 seed hunt #104: proved cost-settings GET tenant 404, exec/sponsor digest GET tenant 404, submit manifest-run binding, and dashboard ReadyForCommit token exclusion; seeded checklist PUT 404, LLM cost GET ghost tenant, compare-environments binding, promote binding, and baseline source-note candidates.
 
 2026-08-26 thorough hunt #103: proved cost-settings tenant 404, preview/activate manifest-run binding, LLM cost days validation, and promote run-scope preflight.
 

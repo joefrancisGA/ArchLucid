@@ -78,6 +78,11 @@ public sealed partial class GovernanceController
             logger.LogWarning(ex, "SubmitApprovalRequest failed: run not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (GoldenManifestVersionNotFoundException ex)
+        {
+            logger.LogWarning(ex, "SubmitApprovalRequest failed: manifest version not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
+        }
     }
 
     [HttpPost("approval-requests/{approvalRequestId}/approve")]

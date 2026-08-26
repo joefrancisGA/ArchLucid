@@ -52,6 +52,7 @@ public static class GovernanceWorkflowTestComposition
             new GovernanceWorkflowSubmitStage(
                 approvalRepo,
                 runDetailQueryService,
+                manifestReader,
                 baselineMutationAudit,
                 auditSupport,
                 integrationEvents,
