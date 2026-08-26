@@ -71,6 +71,11 @@ import { StandardsRulesFilters } from "./StandardsRulesFilters";
 import { StandardsRulesApplyFirstUnmatchedStrip } from "./StandardsRulesApplyFirstUnmatchedStrip";
 import { GovernanceStandardsRulesNextReviewFooterClient } from "./GovernanceStandardsRulesNextReviewFooterClient";
 import { StandardsRulesPickReviewBeforeResolvingStrip } from "./StandardsRulesPickReviewBeforeResolvingStrip";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import {
+  resolveStandardsRulesResolveEmphasizedStepId,
+  resolveStandardsRulesResolveSteps,
+} from "@/lib/standards-rules-resolve-checklist";
 import { StandardsRulesPolicyPackReference } from "./StandardsRulesPolicyPackReference";
 import { StandardsRulesReviewContextRow } from "./StandardsRulesReviewContextRow";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
@@ -248,6 +253,16 @@ export function GovernanceResolutionPageView(props: Props) {
         : null,
     [m.data, m.failure, summary.contributingPolicyPacks, useShowcaseFallback],
   );
+  const standardsRulesResolveChecklistSteps = resolveStandardsRulesResolveSteps({
+    reviewPicked: pickedReviewId.trim().length > 0,
+    rulesFiltered: pickedReviewId.trim().length > 0 && filteredRuleRows.length < allRuleRows.length,
+    resolveReady: pickedReviewId.trim().length > 0 && showRulesTable,
+  });
+  const standardsRulesResolveChecklistEmphasizedStepId = resolveStandardsRulesResolveEmphasizedStepId({
+    reviewPicked: pickedReviewId.trim().length > 0,
+    rulesFiltered: pickedReviewId.trim().length > 0 && filteredRuleRows.length < allRuleRows.length,
+    resolveReady: pickedReviewId.trim().length > 0 && showRulesTable,
+  });
 
   if (m.buyerPolishedShell) {
     return (
@@ -297,7 +312,14 @@ export function GovernanceResolutionPageView(props: Props) {
                 selectedReviewId={pickedReviewId}
                 onSelectReview={setPickedReviewId}
               />
-            ) : null}
+            ) : (
+              <IntegrationConnectChecklist
+                title="Resolve checklist"
+                steps={standardsRulesResolveChecklistSteps}
+                emphasizedStepId={standardsRulesResolveChecklistEmphasizedStepId}
+                testIdPrefix="standards-rules-resolve"
+              />
+            )}
             {reviewContext !== null ? <StandardsRulesReviewContextRow context={reviewContext} /> : null}
             <div className="mb-4">
               <OperatorPageFreshnessMetadata
@@ -396,7 +418,14 @@ export function GovernanceResolutionPageView(props: Props) {
           selectedReviewId={pickedReviewId}
           onSelectReview={setPickedReviewId}
         />
-      ) : null}
+      ) : (
+        <IntegrationConnectChecklist
+          title="Resolve checklist"
+          steps={standardsRulesResolveChecklistSteps}
+          emphasizedStepId={standardsRulesResolveChecklistEmphasizedStepId}
+          testIdPrefix="standards-rules-resolve"
+        />
+      )}
       {m.failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
