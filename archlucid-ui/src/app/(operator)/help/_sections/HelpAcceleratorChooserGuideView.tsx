@@ -6,6 +6,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAcceleratorChooserHeaderActions } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserHeaderActions";
 import { HelpAcceleratorChooserPrerequisitePanel } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserPrerequisitePanel";
 import { HelpAcceleratorChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserSourceLinks";
+import { AcceleratorChooserHelpClaimDisciplineStrip } from "@/components/help/AcceleratorChooserHelpClaimDisciplineStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -38,7 +39,11 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  HELP_PAGE_LAYOUT,
+  HELP_PAGE_MIN_TOC_HEADINGS,
+  resolveHelpPageContentGridClass,
+} from "@/lib/help/help-page-layout";
 import {
   inAppHelpHref,
   type ProductDocumentationEntry,
@@ -153,6 +158,8 @@ export function HelpAcceleratorChooserGuideView(
   const { entry } = props;
   const presentation = useAcceleratorChooserPrerequisitePresentation();
   const gridItems = buildAcceleratorChooserGridItemsForPrerequisite(presentation.status);
+  const contentGridClass = resolveHelpPageContentGridClass(ACCELERATOR_CHOOSER_GUIDE_HEADINGS.length);
+  const showSectionNav = ACCELERATOR_CHOOSER_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article
@@ -174,50 +181,50 @@ export function HelpAcceleratorChooserGuideView(
         }
       />
 
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <HelpAcceleratorChooserPrerequisitePanel presentation={presentation} />
+      <AcceleratorChooserHelpClaimDisciplineStrip />
 
-        <section
-          aria-labelledby="help-accelerator-chooser-packs-heading"
-          data-testid="help-accelerator-chooser-packs"
-          id="accelerator-packs"
-        >
-          <h2
-            id="help-accelerator-chooser-packs-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+          <HelpAcceleratorChooserPrerequisitePanel presentation={presentation} />
+
+          <section
+            aria-labelledby="help-accelerator-chooser-packs-heading"
+            data-testid="help-accelerator-chooser-packs"
+            id="accelerator-packs"
           >
-            Accelerator packs
-          </h2>
-          <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {ACCELERATOR_CHOOSER_HELP_OVERVIEW}
-          </p>
-          <ul className="m-0 mt-3 grid list-none gap-3 p-0 sm:grid-cols-2">
-            {gridItems.map((gridItem) => {
-              if (gridItem.kind === "cost-governance-group") {
+            <h2
+              id="help-accelerator-chooser-packs-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              Accelerator packs
+            </h2>
+            <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {ACCELERATOR_CHOOSER_HELP_OVERVIEW}
+            </p>
+            <ul className="m-0 mt-3 grid list-none gap-3 p-0 sm:grid-cols-2">
+              {gridItems.map((gridItem) => {
+                if (gridItem.kind === "cost-governance-group") {
+                  return (
+                    <HelpAcceleratorCostGovernancePackCard
+                      key="cost-governance-group"
+                      prerequisiteStatus={presentation.status}
+                      onRetry={presentation.retry}
+                    />
+                  );
+                }
+
                 return (
-                  <HelpAcceleratorCostGovernancePackCard
-                    key="cost-governance-group"
+                  <AcceleratorChooserPackCard
+                    key={gridItem.entry.id}
+                    packEntry={gridItem.entry}
                     prerequisiteStatus={presentation.status}
                     onRetry={presentation.retry}
                   />
                 );
-              }
+              })}
+            </ul>
+          </section>
 
-              return (
-                <AcceleratorChooserPackCard
-                  key={gridItem.entry.id}
-                  packEntry={gridItem.entry}
-                  prerequisiteStatus={presentation.status}
-                  onRetry={presentation.retry}
-                />
-              );
-            })}
-          </ul>
-        </section>
-      </div>
-
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
           <section
             aria-labelledby="help-accelerator-chooser-workflow-heading"
             data-testid="help-accelerator-chooser-workflow"
@@ -279,7 +286,7 @@ export function HelpAcceleratorChooserGuideView(
           </section>
         </div>
 
-        <HelpTopicTableOfContents headings={ACCELERATOR_CHOOSER_GUIDE_HEADINGS} />
+        {showSectionNav ? <HelpTopicTableOfContents headings={ACCELERATOR_CHOOSER_GUIDE_HEADINGS} /> : null}
       </div>
     </article>
   );
