@@ -223,4 +223,33 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
         result.Should().HaveCount(2);
         result.Select(o => o.ObjectId).Distinct().Should().HaveCount(2);
     }
+
+    [Fact]
+    public async Task ParseAsync_PascalCasePropertyNames_MapsStorageAccount()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-pascal",
+            Content = """
+                      {
+                        "Resources": [
+                          {
+                            "Type": "Microsoft.Storage/storageAccounts",
+                            "Name": "docs",
+                            "Properties": {
+                              "allowBlobPublicAccess": true
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle(o => o.Name == "docs" && o.ObjectType == "TopologyResource");
+        result[0].Properties["tf.allowblobpublicaccess"].Should().Be("true");
+    }
 }

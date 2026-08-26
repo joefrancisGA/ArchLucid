@@ -31,7 +31,8 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             using JsonDocument document = JsonDocument.Parse(declaration.Content);
             JsonElement root = document.RootElement;
 
-            if (!root.TryGetProperty("resources", out JsonElement resources) || resources.ValueKind is not JsonValueKind.Array)
+            if (!TryGetPropertyIgnoreCase(root, "resources", out JsonElement resources)
+                || resources.ValueKind is not JsonValueKind.Array)
                 return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
             List<CanonicalObject> results = [];
@@ -58,7 +59,7 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
         InfrastructureDeclarationReference declaration,
         List<CanonicalObject> results)
     {
-        if (!resource.TryGetProperty("type", out JsonElement typeElement) || typeElement.ValueKind is not JsonValueKind.String)
+        if (!TryGetPropertyIgnoreCase(resource, "type", out JsonElement typeElement) || typeElement.ValueKind is not JsonValueKind.String)
             return;
 
         string resourceType = (typeElement.GetString() ?? string.Empty).Trim();
@@ -69,7 +70,7 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
         if (resourceType.Equals("Microsoft.Resources/deployments", StringComparison.OrdinalIgnoreCase))
             return;
 
-        if (!resource.TryGetProperty("name", out JsonElement nameElement))
+        if (!TryGetPropertyIgnoreCase(resource, "name", out JsonElement nameElement))
             return;
 
         string name = ReadName(nameElement);
@@ -84,7 +85,7 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             ["resourceType"] = resourceType.ToLowerInvariant(),
         };
 
-        if (resource.TryGetProperty("properties", out JsonElement resourceProperties)
+        if (TryGetPropertyIgnoreCase(resource, "properties", out JsonElement resourceProperties)
             && resourceProperties.ValueKind is JsonValueKind.Object)
             CopyBoundedProperties(resourceProperties, properties);
 
@@ -172,5 +173,25 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             return "PolicyControl";
 
         return "TopologyResource";
+    }
+
+    private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
+    {
+        if (element.TryGetProperty(propertyName, out value))
+            return true;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }

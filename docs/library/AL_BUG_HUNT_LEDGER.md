@@ -1821,11 +1821,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 47
-- **bugs-found:** 98
+- **hunts:** 48
+- **bugs-found:** 99
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — lowercase Kubernetes `kind` misclassified `ObjectType`
+- **last-bug:** 2026-08-26 — arm-json PascalCase `Resources`/`Type`/`Name` keys dropped all resources
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1940,6 +1940,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyTopologyOverlapResolver.Overlaps` uses bidirectional `Contains` — **hit 2026-08-26:** policy `prod` false-positived on topology hint `production-vnet`; fixed with delimited prefix/suffix matching (`PolicyTopologyOverlapResolverTests`, `PolicyReferenceConnectorTopologyTests.NormalizeAsync_prod_policy_does_not_target_production_vnet_hint`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` vs document `TOP:` path disagree on long-hint `Name` truncation — **hit 2026-08-26:** connector kept full `canonicalHint` while document path used `BuildDisplayName`, so identical long hints produced mismatched display names and divergent graph labels for the same `ObjectId`; fixed by aligning connector `Name` with `ContextIngestionStableLineNames.BuildDisplayName` (`TopologyHintsPayloadNormalizerTests`).
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ResolveObjectType` matched `kind` case-sensitively — **hit 2026-08-26:** `"kind": "secret"` classified as `TopologyResource` instead of `SecurityBaseline`, skipping secret-handling and misrouting K8s security objects from lowercase exporters; fixed with `ToLowerInvariant()` before kind switch (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_LowercaseKind_ClassifiesSecretAsSecurityBaseline`, `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_LowercaseKindValue_ClassifiesSecretAsSecurityBaseline`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser` read `resources`/`type`/`name`/`properties` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Resources`/`Type`/`Name`/`Properties` returned zero resources; fixed with case-insensitive JSON property reads (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
+
+2026-08-26 seed hunt #48: reseeded ARM/K8s parser casing paths; proved arm-json PascalCase property reads.
 
 2026-08-26 seed hunt #47: reseeded from mapper/enricher paths; proved lowercase Kubernetes kind `ObjectType` classification.
 
