@@ -29,7 +29,7 @@ export function OperatorHomeInFlightReviewsSection(): React.JSX.Element | null {
     >
       <h2
         id="operator-home-in-flight-reviews-heading"
-        className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionLabel)}
+        className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
       >
         {OPERATOR_HOME_IN_PROGRESS_HEADING}
       </h2>
@@ -57,7 +57,7 @@ export function OperatorHomeInFlightReviewsSection(): React.JSX.Element | null {
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
-                <StatusTag tone="info" label={operation.stepLabel} />
+                <StatusTag kind="in-progress" label={operation.stepLabel} />
                 <Link
                   href={operation.href}
                   className="text-al-link underline-offset-2 hover:underline"

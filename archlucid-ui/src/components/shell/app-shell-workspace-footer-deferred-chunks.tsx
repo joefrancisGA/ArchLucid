@@ -1,12 +1,16 @@
 "use client";
 
-import type { ComponentType } from "react";
+import type { ComponentProps, ComponentType } from "react";
 
 import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
-import type { DeploymentBuildFingerprintStripProps } from "./DeploymentBuildFingerprintStrip";
-import type { SystemHealthStatusStripProps } from "@/components/operator-home/SystemHealthStatusStrip";
-import type { TrustCenterShellLinkProps } from "@/components/usability/TrustCenterShellLink";
+import { DeploymentBuildFingerprintStrip } from "./DeploymentBuildFingerprintStrip";
+import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
+import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
+
+type DeploymentBuildFingerprintStripProps = ComponentProps<typeof DeploymentBuildFingerprintStrip>;
+type SystemHealthStatusStripProps = ComponentProps<typeof SystemHealthStatusStrip>;
+type TrustCenterShellLinkProps = ComponentProps<typeof TrustCenterShellLink>;
 
 export const TrustCenterShellLinkDeferred: ComponentType<TrustCenterShellLinkProps> =
   createDeferredComponentFromManifest("app-shell-footer-trust-center-shell-link", {

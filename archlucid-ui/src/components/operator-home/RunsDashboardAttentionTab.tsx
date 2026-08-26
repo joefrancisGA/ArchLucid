@@ -16,7 +16,7 @@ export type RunsDashboardAttentionTabProps = {
   readonly phase: RunsDashboardLoadPhase;
   readonly failure: ApiLoadFailureState | null;
   readonly runListError: boolean;
-  readonly filteredItems: RunSummary[];
+  readonly filteredItems: readonly RunSummary[];
   /** Partition label for home dedup surfaces (TB-2369). */
   readonly attentionPartitionLabel?: string;
   /** Total attention count before home unfinished-rail dedup. */

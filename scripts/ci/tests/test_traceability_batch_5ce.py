@@ -12,7 +12,11 @@ class TestTraceabilityBatch5CE(unittest.TestCase):
     def test_tb_056_partial_failure_surfacing(self) -> None:
         orchestrator = REPO_ROOT / "ArchLucid.Decisioning" / "Services" / "FindingsOrchestrator.cs"
         manifest_builder = (
-            REPO_ROOT / "ArchLucid.Decisioning" / "Manifest" / "Builders" / "DefaultGoldenManifestBuilder.cs"
+            REPO_ROOT
+            / "ArchLucid.Decisioning"
+            / "Manifest"
+            / "Builders"
+            / "RequirementsPolicyComplianceManifestSectionPopulators.cs"
         )
         analyzer = (
             REPO_ROOT / "ArchLucid.Decisioning" / "Findings" / "ExplainabilityTraceCompletenessAnalyzer.cs"

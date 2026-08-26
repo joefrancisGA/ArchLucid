@@ -11,7 +11,7 @@ import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completenes
 import type { components } from "@/lib/api-types.generated";
 
 type TenantBaselineRoiGatePayload = Pick<
-  components["schemas"]["TenantBaselineResponse"],
+  components["schemas"]["TenantBaselineGetResponse"],
   "baselineReviewCycleHours" | "manualPrepHoursPerReview"
 >;
 

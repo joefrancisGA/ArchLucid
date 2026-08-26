@@ -239,7 +239,7 @@ export async function ensureAccessTokenFresh(): Promise<void> {
 
   if (!refreshInFlight) {
     const generationAtStart = refreshSessionGeneration;
-    const refreshPromise = (async () => {
+    refreshInFlight = (async () => {
       try {
         const doc = await loadDiscoveryDocument(authority);
         const tokens = await refreshAccessToken({
@@ -259,12 +259,9 @@ export async function ensureAccessTokenFresh(): Promise<void> {
           clearOidcSession();
         }
       } finally {
-        if (refreshInFlight === refreshPromise) {
-          refreshInFlight = null;
-        }
+        refreshInFlight = null;
       }
     })();
-    refreshInFlight = refreshPromise;
   }
 
   await refreshInFlight;

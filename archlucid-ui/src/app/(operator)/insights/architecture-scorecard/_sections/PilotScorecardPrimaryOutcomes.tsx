@@ -4,10 +4,12 @@ import { cn } from "@/lib/utils";
 
 import {
   ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE,
+} from "@/lib/architecture/architecture-scorecard-page-copy";
+import {
   REVIEW_SCORECARD_FINALIZED_HREF,
   REVIEW_SCORECARD_GOVERNANCE_HREF,
   REVIEW_SCORECARD_ROI_ASSUMPTIONS_HREF,
-} from "@/lib/architecture/architecture-scorecard-page-copy";
+} from "@/lib/pilot-scorecard-present";
 import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 import type {
   ReviewScorecardMetricDisplay,

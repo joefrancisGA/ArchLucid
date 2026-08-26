@@ -14,17 +14,17 @@ import type {
  */
 export function sortDiffItems(items: DiffItem[]): DiffItem[] {
   return [...items].sort((a, b) => {
-    const section = a.section.localeCompare(b.section, "en");
+    const section = (a.section ?? "").localeCompare(b.section ?? "", "en");
     if (section !== 0) {
       return section;
     }
 
-    const key = a.key.localeCompare(b.key, "en");
+    const key = (a.key ?? "").localeCompare(b.key ?? "", "en");
     if (key !== 0) {
       return key;
     }
 
-    return a.diffKind.localeCompare(b.diffKind, "en");
+    return (a.diffKind ?? "").localeCompare(b.diffKind ?? "", "en");
   });
 }
 

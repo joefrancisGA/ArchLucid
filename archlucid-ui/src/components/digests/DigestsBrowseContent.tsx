@@ -20,7 +20,6 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
-import { DigestsBrowseContinueLastViewedRow } from "@/components/digests/DigestsBrowseContinueLastViewedRow";
 import { DigestsBrowseHistorySkeleton } from "@/components/digests/DigestsBrowseHistorySkeleton";
 import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowseIncludesPreview";
 import { DigestsBrowseSetupChecklist } from "@/components/digests/DigestsBrowseSetupChecklist";

@@ -6,6 +6,7 @@ import type { Dispatch, RefObject, SetStateAction } from "react";
 import { IntegrationConnectChecklist, type IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,7 +62,7 @@ export type AlertRulesCreateFormProps = {
   readonly nameInputRef: RefObject<HTMLInputElement | null>;
   readonly alertRulesCreateSteps: readonly IntegrationConnectChecklistStep[];
   readonly alertRulesCreateEmphasizedStepId: string;
-  readonly mutationDisabledReason: string | null;
+  readonly mutationDisabledReason: WhyDisabledCtaReason | null;
   readonly mutationDisabledHintId: string;
   readonly onCreate: () => void;
 };

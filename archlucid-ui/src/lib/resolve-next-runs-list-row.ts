@@ -1,3 +1,4 @@
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { RunSummary } from "@/types/authority";
 
 export type RunDetailNextReviewTarget = {
@@ -27,7 +28,7 @@ export function resolveNextRunsListRow(
 
   return {
     runId: nextRun.runId,
-    reviewTitle: nextRun.title.trim().length > 0 ? nextRun.title : nextRun.runId,
+    reviewTitle: buyerFacingReviewTitleFromSummary(nextRun),
     href: `/architecture/reviews/${encodeURIComponent(nextRun.runId)}`,
   };
 }

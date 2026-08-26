@@ -32,6 +32,7 @@ import {
   ROLES_MATRIX_LEGEND_COPY,
   unsavedRoleEditsNotice,
 } from "./roles-matrix-constants";
+import { totalUnsavedPermissionChanges } from "./custom-role-draft-state";
 import { SettingsRolesMatrixTable } from "./SettingsRolesMatrixTable";
 import { useSettingsRolesMatrix } from "./use-settings-roles-matrix";
 
@@ -107,7 +108,7 @@ export function SettingsRolesMatrixSection() {
               OPERATOR_TYPOGRAPHY.body,
             )}
           >
-            {unsavedRoleEditsNotice(unsavedRoleNames)}
+            {unsavedRoleEditsNotice(unsavedRoleNames, totalUnsavedPermissionChanges(matrix.roles, matrix.baseline))}
           </p>
         ) : null}
 

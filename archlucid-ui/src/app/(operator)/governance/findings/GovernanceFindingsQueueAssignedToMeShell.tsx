@@ -7,6 +7,7 @@ import {
 } from "@/app/(operator)/governance/findings/GovernanceFindingsAssignedToMeChrome";
 import { GovernanceFindingsContinueLastViewedRow } from "@/app/(operator)/governance/findings/GovernanceFindingsContinueLastViewedRow";
 import type { AssignedToMeOldestFindingTarget, FirstFindingTriageTarget } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
+import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { EnterpriseInlineErrorNotification } from "@/components/EnterpriseInlineErrorNotification";
 import { GovernanceFindingsBuyerChrome } from "@/components/governance/findings/GovernanceFindingsBuyerChrome";
@@ -40,7 +41,7 @@ import { COMPARE_FINDING_LIFECYCLE_ANCHOR } from "@/lib/compare-finding-lifecycl
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import type { GovernanceFindingsFetchFailure } from "@/components/governance/findings/governance-findings-query-fetch";
 import {
   buildGovernanceAssignedToMeEmptyDescription,
   GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF,
@@ -99,11 +100,7 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly onClearAllFilters: () => void;
   readonly loading: boolean;
   readonly rows: readonly GovernanceFindingQueueRow[];
-  readonly filterNoMatchPreset: {
-    readonly testId: string;
-    readonly title: string;
-    readonly description: string;
-  };
+  readonly filterNoMatchPreset: EnterpriseCompactEmptyStateProps;
   readonly activeFiltersSummary: string | null;
   readonly sponsorSynopsisPackageTitle: string;
   readonly sponsorSynopsisCounts: ReturnType<
@@ -120,12 +117,8 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly onSelectionChange: (next: ReadonlySet<string>) => void;
   readonly onBulkApplied: () => void;
   readonly loadFailed: boolean;
-  readonly loadFailedPreset: {
-    readonly testId: string;
-    readonly title: string;
-    readonly description: string;
-  };
-  readonly loadFailure: ApiLoadFailureState | null;
+  readonly loadFailedPreset: EnterpriseCompactEmptyStateProps;
+  readonly loadFailure: GovernanceFindingsFetchFailure | null;
   readonly onRefresh: () => void;
   readonly workspaceScopeTeaching: {
     readonly title: string;
@@ -253,7 +246,7 @@ export function GovernanceFindingsQueueAssignedToMeShell(
         <IntegrationConnectChecklist
           title="Triage checklist"
           steps={findingsQueueTriageSteps}
-          emphasizedStepId={findingsQueueTriageEmphasizedStepId}
+          emphasizedStepId={findingsQueueTriageEmphasizedStepId ?? ""}
           testIdPrefix="findings-queue-triage"
         />
       ) : null}
@@ -382,13 +375,22 @@ export function GovernanceFindingsQueueAssignedToMeShell(
           onRetry={() => {
             onRefresh();
           }}
-          diagnostics={loadFailure}
+          diagnostics={
+            loadFailure === null
+              ? null
+              : {
+                  attemptedAtUtc: loadFailure.attemptedAtUtc,
+                  correlationId: loadFailure.correlationId,
+                  errorCode: loadFailure.errorCode,
+                  httpStatus: loadFailure.httpStatus,
+                }
+          }
           reportProblem={{
             surfaceId: "governance-findings-queue-hard-failure",
             errorTitle: pageTitle,
             errorCode: loadFailure?.errorCode ?? "governance-findings-load-failed",
-            correlationId: loadFailure?.correlationId,
-            httpStatus: loadFailure?.httpStatus,
+            correlationId: loadFailure?.correlationId ?? null,
+            httpStatus: loadFailure?.httpStatus ?? null,
           }}
         />
       ) : null}

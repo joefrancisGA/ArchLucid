@@ -165,7 +165,7 @@ export function SettingsRolesMatrixTable({
                             <Button
                               type="button"
                               size="sm"
-                              variant="ghost"
+                              variant="outline"
                               className="h-7 px-2 text-xs"
                               aria-label={`Discard unsaved changes to ${displayName}`}
                               onClick={() => onDiscardRoleEdits(roleKey)}

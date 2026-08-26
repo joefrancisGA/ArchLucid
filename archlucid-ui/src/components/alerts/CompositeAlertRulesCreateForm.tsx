@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import {
   COMPOSITE_ALERT_CONDITION_OPERATOR_OPTIONS,
   COMPOSITE_ALERT_DEDUPE_SCOPE_OPTIONS,
@@ -38,7 +39,7 @@ export type CompositeAlertRulesCreateFormProps = {
   readonly formValid: boolean;
   readonly submitAttempted: boolean;
   readonly fieldErrors: CompositeAlertRuleFormFieldErrors;
-  readonly mutationDisabledReason: string | null;
+  readonly mutationDisabledReason: WhyDisabledCtaReason | null;
   readonly mutationDisabledHintId: string;
   readonly compositeCreateSteps: readonly IntegrationConnectChecklistStep[];
   readonly compositeCreateEmphasizedStepId: string;

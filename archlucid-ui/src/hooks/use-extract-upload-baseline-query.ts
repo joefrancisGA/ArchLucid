@@ -6,7 +6,7 @@ import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
 
-const EXTRACTOR_SCRIPT_CDN_URL =
+export const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
   "https://cdn.archlucid.net/scripts/Get-ArchLucidAzurePackage.ps1";
 

@@ -64,7 +64,7 @@ function HomeSectionHeading(props: { readonly id?: string; readonly children: st
 function OperatorHomePageChrome(props: { readonly buyerPolishedShell: boolean }): React.JSX.Element {
   return (
     <>
-      <OperatorHomePageHeader subtitle={operatorHomePageSubtitle(props.buyerPolishedShell)} />
+      <OperatorHomePageHeader subtitle={operatorHomePageSubtitle(props.buyerPolishedShell) ?? ""} />
 </>
   );
 }

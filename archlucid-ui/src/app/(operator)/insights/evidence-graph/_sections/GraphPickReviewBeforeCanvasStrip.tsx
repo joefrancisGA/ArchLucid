@@ -17,7 +17,7 @@ export function GraphPickReviewBeforeCanvasStrip(
   props: GraphPickReviewBeforeCanvasStripProps,
 ): React.JSX.Element {
   const workspaceRun = useWorkspaceActiveRun();
-  const workspaceRunId = workspaceRun.runId.trim();
+  const workspaceRunId = workspaceRun?.activeRunId?.trim() ?? "";
   const pickerValue =
     props.selectedReviewId.trim().length > 0
       ? props.selectedReviewId

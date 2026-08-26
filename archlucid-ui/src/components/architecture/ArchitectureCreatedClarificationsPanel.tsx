@@ -76,7 +76,7 @@ export function ArchitectureCreatedClarificationsPanel(
     props.model.evidenceGaps.length > 0 ||
     props.model.assessmentItems.length > 0;
   const hasOpenQuestions = hasOpenQuestionEntities(openQuestions);
-  const preferModelInterviewQuestions = clarificationQuestions.length > 0;
+  const preferModelInterviewQuestions = (props.clarificationQuestions ?? []).length > 0;
   const showIntakeOpenQuestions = hasOpenQuestions && !preferModelInterviewQuestions;
   const isZeroGapSuccess =
     !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !showIntakeOpenQuestions;

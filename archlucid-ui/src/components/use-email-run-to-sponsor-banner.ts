@@ -63,13 +63,14 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
   } | null>(null);
   const [badgeDayN, setBadgeDayN] = useState<number | null>(null);
   const [timeToFirstCommitHours, setTimeToFirstCommitHours] = useState<number | null>(null);
-  const { data: roiBaselineGate } = useTenantBaselineRoiQuery({ enabled: sidecarFetchesEnabled });
-  const telemetrySentRef = useRef(false);
-  const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
 
   const skipSidecarFetches =
     AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn();
   const sidecarFetchesEnabled = !skipSidecarFetches;
+
+  const { data: roiBaselineGate } = useTenantBaselineRoiQuery({ enabled: sidecarFetchesEnabled });
+  const telemetrySentRef = useRef(false);
+  const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
 
   const { data: trialPayload } = useTenantTrialStatusQuery({ enabled: sidecarFetchesEnabled });
   const { data: deltasPayload, isPending: deltasPending, isError: deltasError } = usePilotRunDeltasQuery(runId, {

@@ -15,7 +15,7 @@ export type CompareNaturalPairSuggestionProps = {
 /** Suggests comparing the workspace active review against its prior finalized sibling. */
 export function CompareNaturalPairSuggestion(props: CompareNaturalPairSuggestionProps): React.JSX.Element | null {
   const workspaceRun = useWorkspaceActiveRun();
-  const laterRunId = workspaceRun.runId.trim();
+  const laterRunId = workspaceRun?.activeRunId?.trim() ?? "";
   const contextQuery = useRunDetailWorkspaceContextBundleQuery(laterRunId, {
     enabled: laterRunId.length > 0,
   });

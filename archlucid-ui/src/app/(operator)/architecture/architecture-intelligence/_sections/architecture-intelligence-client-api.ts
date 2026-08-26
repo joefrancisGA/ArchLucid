@@ -112,7 +112,7 @@ export function buildRequest(
   };
 }
 
-export function primaryDescriptionFromSources(sources: ClosedLoopReasoningSourceText[]): string {
+export function primaryDescriptionFromSources(sources: readonly ClosedLoopReasoningSourceText[]): string {
   const descriptionSource =
     sources.find((source) => source.fileName === DEFAULT_ARCHITECTURE_FILE_NAME) ?? sources[0];
 

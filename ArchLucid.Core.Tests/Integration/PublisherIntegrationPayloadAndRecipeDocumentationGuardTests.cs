@@ -83,8 +83,8 @@ public sealed class PublisherIntegrationPayloadAndRecipeDocumentationGuardTests
         string path = Path.Combine(root, "ArchLucid.Core", "Integration", "IntegrationEventServiceBusApplicationProperties.cs");
         string source = File.ReadAllText(path);
 
-        source.Should().Contain("TryGetProperty(\"severity\"");
-        source.Should().Contain("TryGetProperty(\"deduplicationKey\"");
+        source.Should().Contain("TryGetStringPropertyCaseInsensitive(doc.RootElement, \"severity\"");
+        source.Should().Contain("TryGetStringPropertyCaseInsensitive(doc.RootElement, \"deduplicationKey\"");
         source.Should().Contain("DeduplicationKeyPropertyName");
     }
 

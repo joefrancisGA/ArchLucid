@@ -30,7 +30,7 @@ export type IntegrationEventsDlqTableProps = {
   retryingId: string | null;
   suppressingId: string | null;
   mutationDisabledHintId: string;
-  mutationDisabledReason: string | null;
+  mutationDisabledReason: import("@/lib/why-disabled-cta").WhyDisabledCtaReason | null;
   onRetry: (outboxId: string) => void;
   onSuppressRequest: (outboxId: string) => void;
   onCopyCurl: (outboxId: string) => void;

@@ -28,6 +28,20 @@ export type ConnectorSurfaceStatusDto = ConnectorSurfaceStatusResponseSchema &
     >
   >;
 
+/** Normalizes API connector rows to the stricter DTO shape used by readiness helpers. */
+export function normalizeConnectorSurfaceStatus(
+  connector: ConnectorSurfaceStatusResponseSchema,
+): ConnectorSurfaceStatusDto {
+  return {
+    ...connector,
+    connectorKey: connector.connectorKey ?? "",
+    displayName: connector.displayName ?? connector.connectorKey ?? "",
+    isConfigured: connector.isConfigured ?? false,
+    smokeReadiness: connector.smokeReadiness ?? "Unknown",
+    summary: connector.summary ?? "",
+  };
+}
+
 type IntegrationEventBusStatusResponseSchema = components["schemas"]["IntegrationEventBusStatusResponse"];
 
 export type IntegrationEventBusStatusDto = IntegrationEventBusStatusResponseSchema &
