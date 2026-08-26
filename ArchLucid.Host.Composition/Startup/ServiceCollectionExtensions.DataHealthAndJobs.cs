@@ -226,6 +226,14 @@ public static partial class ServiceCollectionExtensions
             RegisterDurableBackgroundJobInfrastructure(services);
             services.AddSingleton<IBackgroundJobQueueNotifySender, AzureStorageQueueBackgroundJobNotifySender>();
             services.AddSingleton<IBackgroundJobQueue, DurableBackgroundJobQueue>();
+
+            if (hostingRole == ArchLucidHostingRole.Combined)
+            {
+                services.AddHostedService<BackgroundJobQueueProcessorHostedService>();
+                services.AddScoped<IBackgroundJobCancellationWriter, BackgroundJobRepositoryCancellationWriter>();
+
+                return;
+            }
         }
         else
         {

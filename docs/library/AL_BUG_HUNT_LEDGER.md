@@ -1959,11 +1959,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 6
-- **bugs-found:** 8
+- **hunts:** 7
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — Combined role omitted Service Bus integration event consumer registration
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — Combined durable omitted BackgroundJobQueueProcessorHostedService
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1985,6 +1985,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InMemoryValueReportJobQueue` poll failed across service instances — **hit 2026-08-24:** enqueue/poll used per-process memory only; regression in `InMemoryValueReportJobQueue_poll_reads_job_enqueued_on_another_instance_via_distributed_cache`
 - [x] (hunt-ready) `OutboxProcessorsCompositionRegistrar.RegisterIntegrationEventConsumer` gates on `hostingRole == Worker` only — sibling outbox/advisory registrars include `Combined`, so default Combined hosts never register `AzureServiceBusIntegrationEventConsumer` or integration handlers.
 - [x] (proven) Combined role omitted Service Bus integration event consumer — **hit 2026-08-25:** `RegisterIntegrationEventConsumer` returned before wiring handlers/consumer when role was `Combined`; fixed to match Worker (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Combined_role_registers_ServiceBus_integration_event_consumer`).
+- [x] (proven) Combined durable background jobs omit queue processor — **hit 2026-08-26:** `RegisterBackgroundJobs` registered `BackgroundJobQueueProcessorHostedService` only for `Worker` when `BackgroundJobs:Mode=Durable`; Combined hosts enqueued to SQL/queue but never drained; fixed with Combined branch + `BackgroundJobRepositoryCancellationWriter`; regression in `AddArchLucidApplicationServices_Combined_durable_registers_BackgroundJobQueueProcessorHostedService` and `AddArchLucidApplicationServices_Api_durable_does_not_register_BackgroundJobQueueProcessorHostedService`.
+- [ ] (candidate) `DraftIntakeCompositionRegistrar` registers `AdvisoryDraftOperationHostedService` without hosting-role gate — split Api/Worker deployments may both process advisory-draft async operations.
+- [ ] (candidate) `RunLifecycleOrchestrationCompositionRegistrar` registers `ArchitectureRunAsyncOperationHostedService` without hosting-role gate — Api-only host may compete with Worker for async run dequeue.
+- [ ] (candidate) `RegisterDurableBackgroundJobInfrastructure` registers `BackgroundJobStuckRunningWatchdogHostedService` for Api durable enqueue-only hosts — watchdog may alert without local processor to remediate.
 
 ---
 
