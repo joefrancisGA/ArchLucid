@@ -2350,31 +2350,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantHomepageSettingsController.PutAsync` — missing tenant returned HTTP 200 while GET returned 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync` (GET parity); regression in `TenantHomepageSettingsControllerTests.PutAsync_returns_not_found_when_tenant_missing`.
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — ghost tenant accepted feedback while GET returned 404 — **hit 2026-08-26:** `EnsureTenantExistsAsync` preflight on POST (GET parity); regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_not_found_when_tenant_missing`.
 - [x] (proven) `TenantIntegrationsOperationsController.GetAsync` — missing tenant returned HTTP 200 connector posture — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantIntegrationsOperationsControllerTests.GetAsync_returns_not_found_when_tenant_missing`.
-<<<<<<< HEAD
 - [x] (valid-no-repro) `GovernanceController.GetDashboard` — ghost tenant returns HTTP 200 empty dashboard instead of 404 — **cheap-disproof 2026-08-26:** `ITenantRepository.GetByIdAsync` preflight on `GetDashboard`; regression in `GovernanceControllerDashboardTests.GetDashboard_returns_not_found_when_tenant_missing`.
 - [x] (invalid) `GovernanceController.DryRunPolicyPack` — all out-of-scope `evaluateAgainstRunIds` return HTTP 200 with `runMissing` instead of 404 — **cheap-disproof 2026-08-26:** intentional batch `runMissing` semantics per `PolicyPackDryRunServiceTests`.
 - [x] (invalid) `PolicyPacksController.SimulateBulk` — all out-of-scope `runIds` return HTTP 200 summary instead of 404 — **cheap-disproof 2026-08-26:** intentional `notFoundRunCount` batch semantics.
 - [x] (valid-no-repro) `TenantTrialController.ConvertTrialAsync` — unrecognized `TargetTier` silently defaults to Standard instead of 400 — **cheap-disproof 2026-08-26:** `TryMapRequestTier` rejects unknown tiers; regression in `TenantTrialControllerTests.ConvertTrialAsync_returns_bad_request_when_target_tier_unrecognized`.
 - [x] (proven) `GovernancePostureController.GetPosture` — ghost tenant returned HTTP 200 empty posture instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync` (dashboard/customer-success parity); regression in `GovernancePostureControllerTests.GetPosture_returns_not_found_when_tenant_missing`.
+- [x] (proven) `GovernanceController.GetComplianceDriftTrend` — ghost tenant returned HTTP 200 empty trend instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync` (dashboard parity); regression in `GovernanceControllerDashboardTests.GetComplianceDriftTrend_returns_not_found_when_tenant_missing`.
 
-- [ ] (candidate) `GovernanceController.GetComplianceDriftTrend` — ghost tenant returns HTTP 200 empty trend instead of 404.
 - [ ] (candidate) `GovernanceResolutionController.Resolve` — ghost tenant returns HTTP 200 default resolution instead of 404.
 - [ ] (candidate) `GovernanceCoverageController.GetScopeCoverage` — ghost tenant returns HTTP 200 empty coverage instead of 404.
 - [ ] (candidate) `PolicyPacksController.List` — ghost tenant returns HTTP 200 empty catalog instead of 404.
 
 2026-08-26 thorough hunt #115: proved governance posture ghost tenant 404; cheap-disproved four stale picker candidates; seeded compliance-drift/resolution/coverage/policy-packs list ghost-tenant parity candidates.
-=======
-- [x] (valid-no-repro) `GovernanceController.GetDashboard` — ghost tenant returns HTTP 200 empty dashboard instead of 404 — **cheap-disproof 2026-08-26:** `ITenantRepository.GetByIdAsync` preflight added hunt #111; regression in `GovernanceControllerDashboardTests.GetDashboard_returns_not_found_when_tenant_missing`.
-- [x] (invalid) `GovernanceController.DryRunPolicyPack` — all out-of-scope `evaluateAgainstRunIds` return HTTP 200 with `runMissing` instead of 404 — **cheap-disproof 2026-08-26:** intentional batch `runMissing` semantics per `PolicyPackDryRunServiceTests` (hunt #111).
-- [x] (invalid) `PolicyPacksController.SimulateBulk` — all out-of-scope `runIds` return HTTP 200 summary instead of 404 — **cheap-disproof 2026-08-26:** intentional `notFoundRunCount` batch semantics (hunt #111).
-- [x] (valid-no-repro) `TenantTrialController.ConvertTrialAsync` — unrecognized `TargetTier` silently defaults to Standard instead of 400 — **cheap-disproof 2026-08-26:** `TryMapRequestTier` rejects unknown tiers; regression in `TenantTrialControllerTests.ConvertTrialAsync_returns_bad_request_when_target_tier_unrecognized` (hunt #111).
-- [x] (proven) `GovernanceController.GetComplianceDriftTrend` — ghost tenant returned HTTP 200 empty trend instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync` (dashboard parity); regression in `GovernanceControllerDashboardTests.GetComplianceDriftTrend_returns_not_found_when_tenant_missing`.
->>>>>>> origin/cursor/api-governance-compliance-drift-2cd9
-
-- [ ] (candidate) `GovernancePostureController.GetPosture` — ghost tenant returns HTTP 200 empty posture instead of 404.
-- [ ] (candidate) `GovernanceResolutionController.Get` — ghost tenant returns HTTP 200 default resolution instead of 404.
-- [ ] (candidate) `GovernanceCoverageController.GetScopeCoverage` — ghost tenant returns HTTP 200 empty coverage instead of 404.
-- [ ] (candidate) `PolicyPacksController.List` — ghost tenant returns HTTP 200 empty catalog instead of 404.
 
 2026-08-26 thorough hunt #112: proved compliance-drift-trend ghost tenant 404; cheap-disproved four stale seed candidates (dashboard tenant 404, dry-run batch semantics, simulate-bulk batch semantics, convert-trial tier validation); seeded posture/resolution/coverage/policy-packs list ghost-tenant parity candidates.
 
