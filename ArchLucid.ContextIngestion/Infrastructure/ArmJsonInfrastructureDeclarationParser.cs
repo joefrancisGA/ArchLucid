@@ -110,12 +110,23 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
         if (nameElement.ValueKind is JsonValueKind.String)
             return (nameElement.GetString() ?? string.Empty).Trim();
 
-        if (nameElement.ValueKind is JsonValueKind.Array && nameElement.GetArrayLength() > 0)
+        if (nameElement.ValueKind is JsonValueKind.Array)
         {
-            JsonElement first = nameElement[0];
+            List<string> segments = [];
 
-            if (first.ValueKind is JsonValueKind.String)
-                return (first.GetString() ?? string.Empty).Trim();
+            foreach (JsonElement segment in nameElement.EnumerateArray())
+            {
+                if (segment.ValueKind is not JsonValueKind.String)
+                    continue;
+
+                string trimmed = (segment.GetString() ?? string.Empty).Trim();
+
+                if (!string.IsNullOrWhiteSpace(trimmed))
+                    segments.Add(trimmed);
+            }
+
+            if (segments.Count > 0)
+                return string.Join('/', segments);
         }
 
         return nameElement.GetRawText().Trim();
