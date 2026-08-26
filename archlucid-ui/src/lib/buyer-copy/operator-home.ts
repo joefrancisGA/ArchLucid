@@ -129,10 +129,10 @@ export function formatOperatorHomeCompactDraftStatusRow(
       : null;
 
   if (trimmedEditedLabel !== null) {
-    return `${countLabel} · ${trimmedEditedLabel} — Continue refining it before starting a review.`;
+    return `${countLabel} · ${trimmedEditedLabel} — continue refining it before starting a review.`;
   }
 
-  return `${countLabel} — Continue refining it before starting a review.`;
+  return `${countLabel} — continue refining it before starting a review.`;
 }
 
 export function formatOperatorHomePastDraftingLead(displayName: string): string {
