@@ -17,12 +17,14 @@ import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-  formatOperatorHomeCompactDraftStatusRow,
+  formatOperatorHomeDraftStatusHeadline,
 } from "@/lib/buyer/buyer-polish-copy";
+import { ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import {
   OPERATOR_CARD,
@@ -179,9 +181,9 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
           createdUtc: latestDraft.lastUpdatedUtc,
         })
       : null;
-  const compactDraftStatusRow =
+  const draftStatusHeadline =
     workspacePhase === "eval-with-drafts"
-      ? formatOperatorHomeCompactDraftStatusRow(phaseSignals.draftCount, draftLastEditedLabel)
+      ? formatOperatorHomeDraftStatusHeadline(phaseSignals.draftCount, draftLastEditedLabel)
       : null;
   const showLeadCopy = props.suppressLeadCopy !== true;
   const showContextualHelp = props.showContextualHelp !== false;
@@ -264,12 +266,26 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
           data-testid="operator-home-eval-with-drafts-resume-header"
         >
           <div className="min-w-0 space-y-1">
-            {compactDraftStatusRow !== null ? (
-              <p
-                className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+            {draftStatusHeadline !== null ? (
+              <div
+                className="flex flex-wrap items-center gap-2"
                 data-testid="operator-home-draft-status-row"
               >
-                {compactDraftStatusRow}
+                <StatusTag kind="draft" data-testid="operator-home-draft-status-tag" />
+                <p
+                  className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+                  data-testid="operator-home-draft-status-headline"
+                >
+                  {draftStatusHeadline}
+                </p>
+              </div>
+            ) : null}
+            {draftStatusHeadline !== null ? (
+              <p
+                className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
+                data-testid="operator-home-draft-status-refine-hint"
+              >
+                {ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE}
               </p>
             ) : null}
           </div>

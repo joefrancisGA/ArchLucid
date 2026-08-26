@@ -69,7 +69,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
     expect(screen.getByTestId("runs-dashboard-buyer-proof-title").tagName).toBe("A");
     expect(screen.getByText("Package finalized")).toBeInTheDocument();
     expect(screen.getByText("Findings")).toBeInTheDocument();
-    expect(screen.getByText(/9 findings, including 1 monitored risk under active review/)).toBeInTheDocument();
+    expect(screen.getByText("9 findings · 1 monitored risk")).toBeInTheDocument();
     expect(screen.getByText("Finalized")).toBeInTheDocument();
     expect(
       screen.getByText(buyerDemoPackageCardMeta(SHOWCASE_STATIC_DEMO_RUN_ID)?.decisionDate ?? ""),
@@ -85,6 +85,9 @@ describe("OperatorHomeReviewSummaryCard", () => {
     const details = screen.getByTestId("runs-dashboard-buyer-proof-details");
     expect(details).toBeInTheDocument();
     expect(details.querySelector("summary")).toHaveTextContent("Details");
+
+    fireEvent.click(details.querySelector("summary")!);
+    expect(screen.getByText(/monitored PHI risk is counted among findings but does not block approval/)).toBeInTheDocument();
 
     const finalizedRecordLink = screen.getByTestId("runs-dashboard-buyer-proof-finalized-record-link");
     expect(finalizedRecordLink).toHaveTextContent(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);

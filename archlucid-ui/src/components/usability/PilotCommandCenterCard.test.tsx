@@ -213,11 +213,13 @@ describe("PilotCommandCenterCard", () => {
     expect(
       screen.queryByRole("heading", { level: 2, name: "Claims intake" }),
     ).toBeNull();
-    expect(screen.getByTestId("operator-home-draft-status-row")).toHaveTextContent(
+    expect(screen.getByTestId("operator-home-draft-status-row")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-draft-status-tag")).toHaveTextContent("Draft");
+    expect(screen.getByTestId("operator-home-draft-status-headline")).toHaveTextContent(
       /1 architecture draft · Updated/,
     );
-    expect(screen.getByTestId("operator-home-draft-status-row")).toHaveTextContent(
-      /continue refining it before starting a review\./,
+    expect(screen.getByTestId("operator-home-draft-status-refine-hint")).toHaveTextContent(
+      /Refine this architecture draft before starting a review\./,
     );
     expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveAttribute(
       "href",

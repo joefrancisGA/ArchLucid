@@ -14,7 +14,7 @@ import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-me
 import { finalizedReviewRecordDisplayLabel } from "@/lib/buyer/finalized-review-record-display-label";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
-import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK } from "@/lib/buyer/buyer-polish-copy";
+import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, formatOperatorHomeFeaturedFindingsSummary } from "@/lib/buyer/buyer-polish-copy";
 import {
   INLINE_METADATA_LABEL_CLASS,
   OPERATOR_CARD,
@@ -93,10 +93,12 @@ function FeaturedShowcaseReviewSummary(props: FeaturedShowcaseSummaryProps): Rea
   const recordLabel = finalizedReviewRecordDisplayLabel(props.run, SHOWCASE_STATIC_DEMO_MANIFEST_ID, {
     cardTitle: props.title,
   });
-  const findingsValue = BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(
+  const findingsValue = formatOperatorHomeFeaturedFindingsSummary(
     SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
     SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
   );
+  const monitoredRiskClarifier =
+    SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount > 0 ? BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER : null;
 
   return (
     <div
@@ -135,6 +137,11 @@ function FeaturedShowcaseReviewSummary(props: FeaturedShowcaseSummaryProps): Rea
             <span className="hidden group-open:inline">Hide details</span>
           </summary>
           <div className="mt-2 space-y-2 border-t border-neutral-200 pt-2 dark:border-neutral-800">
+            {monitoredRiskClarifier !== null ? (
+              <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.navHelper)}>
+                {monitoredRiskClarifier}
+              </p>
+            ) : null}
             <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
             <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.navHelper)}>
               Approver: {showcaseProofMeta.approvalAuthority}

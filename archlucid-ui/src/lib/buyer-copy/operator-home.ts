@@ -123,6 +123,16 @@ export function formatOperatorHomeCompactDraftStatusRow(
   draftCount: number,
   draftLastEditedLabel: string | null,
 ): string {
+  const headline = formatOperatorHomeDraftStatusHeadline(draftCount, draftLastEditedLabel);
+
+  return `${headline} — ${ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE}`;
+}
+
+/** Status headline for eval-with-drafts hero — count and last-edited only (refine hint is separate). */
+export function formatOperatorHomeDraftStatusHeadline(
+  draftCount: number,
+  draftLastEditedLabel: string | null,
+): string {
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
   const countLabel =
     safeCount === 1 ? "1 architecture draft" : `${safeCount} architecture drafts`;
@@ -132,10 +142,27 @@ export function formatOperatorHomeCompactDraftStatusRow(
       : null;
 
   if (trimmedEditedLabel !== null) {
-    return `${countLabel} · ${trimmedEditedLabel} — continue refining it before starting a review.`;
+    return `${countLabel} · ${trimmedEditedLabel}`;
   }
 
-  return `${countLabel} — continue refining it before starting a review.`;
+  return countLabel;
+}
+
+/** Compact findings line for featured home review rows — long monitored-risk copy lives in Details. */
+export function formatOperatorHomeFeaturedFindingsSummary(
+  findingCount: number,
+  warningCount: number,
+): string {
+  const safeFindings = Number.isFinite(findingCount) ? Math.max(0, Math.trunc(findingCount)) : 0;
+  const safeWarnings = Number.isFinite(warningCount) ? Math.max(0, Math.trunc(warningCount)) : 0;
+  const findingsWord = safeFindings === 1 ? "finding" : "findings";
+  const riskWord = safeWarnings === 1 ? "risk" : "risks";
+
+  if (safeWarnings > 0) {
+    return `${safeFindings} ${findingsWord} · ${safeWarnings} monitored ${riskWord}`;
+  }
+
+  return `${safeFindings} ${findingsWord}`;
 }
 
 export function formatOperatorHomePastDraftingLead(displayName: string): string {

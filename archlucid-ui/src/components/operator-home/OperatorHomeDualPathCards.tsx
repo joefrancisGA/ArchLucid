@@ -98,7 +98,7 @@ function lifecycleCardClassName(
 
   return cn(
     OPERATOR_SURFACE_CARD_CLASS,
-    "min-w-0 flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800",
+    "flex min-h-full min-w-0 flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800",
     isEmphasized && OPERATOR_CARD.lifecycleEmphasized,
     selectedPath === path && "ring-2 ring-teal-700/40 ring-offset-2",
     extraClassName,
@@ -229,7 +229,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
             )}
           </div>
           {canExecute ? (
-            <div className="space-y-2" data-testid="operator-home-create-architecture-actions">
+            <div className="mt-auto space-y-2" data-testid="operator-home-create-architecture-actions">
               <div
                 className="flex flex-wrap items-center gap-2"
                 data-testid="operator-home-connect-cloud-path"
@@ -306,18 +306,20 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
             )}
           </div>
           {canExecute ? (
-            <ReviewStartLoadingButton
-              variant={reviewArchitectureVariant}
-              size="sm"
-              className="h-8 w-fit"
-              idleLabel={OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA}
-              loadingLabel={REVIEW_START_LOADING_LABEL}
-              isLoading={reviewNavigation.isNavigating && selectedPath === "review-architecture"}
-              onClick={startReviewArchitecture}
-              data-testid="operator-home-review-architecture-cta"
-            />
+            <div className="mt-auto">
+              <ReviewStartLoadingButton
+                variant={reviewArchitectureVariant}
+                size="sm"
+                className="h-8 w-fit"
+                idleLabel={OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA}
+                loadingLabel={REVIEW_START_LOADING_LABEL}
+                isLoading={reviewNavigation.isNavigating && selectedPath === "review-architecture"}
+                onClick={startReviewArchitecture}
+                data-testid="operator-home-review-architecture-cta"
+              />
+            </div>
           ) : (
-            <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
+            <p className={cn("m-0 mt-auto", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
               {OPERATOR_HOME_READ_ONLY_INTENT_HINT}
             </p>
           )}
@@ -357,18 +359,20 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
               </p>
             ) : null}
           </div>
-          <SpecimenDeliverablePreviewCallout
-            variant="compact"
-            sectionTestId="operator-home-explore-completed-review-specimen-preview"
-          />
-          <OperatorHomeCompletedSampleAction
-            compact={isCompact}
-            pagePrimaryOwnedElsewhere={exploreCompletedReviewVariant === "outline"}
-            onOpenSample={() => {
-              setSelectedPath("explore-completed-review");
-              trackOperatorHomeLifecyclePathClick("explore-completed-review");
-            }}
-          />
+          <div className="mt-auto space-y-2" data-testid="operator-home-explore-completed-review-actions">
+            <OperatorHomeCompletedSampleAction
+              compact={isCompact}
+              pagePrimaryOwnedElsewhere={exploreCompletedReviewVariant === "outline"}
+              onOpenSample={() => {
+                setSelectedPath("explore-completed-review");
+                trackOperatorHomeLifecyclePathClick("explore-completed-review");
+              }}
+            />
+            <SpecimenDeliverablePreviewCallout
+              variant="compact"
+              sectionTestId="operator-home-explore-completed-review-specimen-preview"
+            />
+          </div>
         </article>
       </div>
 

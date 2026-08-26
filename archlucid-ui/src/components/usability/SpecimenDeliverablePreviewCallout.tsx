@@ -52,14 +52,13 @@ export function SpecimenDeliverablePreviewCallout(
   if (variant === "compact") {
     return (
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid={sectionTestId}>
-        <Button asChild variant="outline" size="sm" className="h-8 w-fit">
-          <Link
-            href={showcaseSpecimenSealedReviewRecordHref()}
-            data-testid={`${sectionTestId}-primary-cta`}
-          >
-            {REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA}
-          </Link>
-        </Button>
+        <Link
+          href={showcaseSpecimenSealedReviewRecordHref()}
+          className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`${sectionTestId}-primary-link`}
+        >
+          {REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA}
+        </Link>
         <Link
           href={showcaseSpecimenFindingsHref()}
           className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}

@@ -36,7 +36,7 @@ describe("SpecimenDeliverablePreviewCallout", () => {
   it("renders a compact variant for home start-review cards", () => {
     render(<SpecimenDeliverablePreviewCallout variant="compact" sectionTestId="home-specimen-preview" />);
 
-    expect(screen.getByTestId("home-specimen-preview-primary-cta")).toHaveAttribute(
+    expect(screen.getByTestId("home-specimen-preview-primary-link")).toHaveAttribute(
       "href",
       showcaseSpecimenSignedReviewRecordHref(),
     );
@@ -44,6 +44,7 @@ describe("SpecimenDeliverablePreviewCallout", () => {
       "href",
       showcaseSpecimenFindingsHref(),
     );
+    expect(screen.queryByTestId("home-specimen-preview-primary-cta")).toBeNull();
   });
 
   it("renders inline header links for returning tenants on reviews/new", () => {
