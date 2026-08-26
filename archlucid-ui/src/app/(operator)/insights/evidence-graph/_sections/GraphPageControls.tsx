@@ -163,7 +163,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               fieldId="graph-run"
               label="Review"
               committedOnly
-              preferAutoPick
+              preferAutoPick={false}
               autoSelectSyntheticSample
               hideFieldHelper
               reviewsLoadErrorPlaceholder={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER}

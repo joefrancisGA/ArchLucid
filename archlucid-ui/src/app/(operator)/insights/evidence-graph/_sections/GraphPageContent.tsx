@@ -203,30 +203,6 @@ export function GraphPageContent() {
     );
   }, [urlPresentation]);
 
-  useEffect(() => {
-    if (urlRunId.length > 0) {
-      return;
-    }
-
-    if (buyerPolishedShell) {
-      return;
-    }
-
-    if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
-      setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
-
-      return;
-    }
-
-    const fromWorkspace = workspaceRun?.activeRunId?.trim() ?? "";
-
-    if (fromWorkspace.length === 0) {
-      return;
-    }
-
-    setRunId(fromWorkspace);
-  }, [workspaceRun?.activeRunId, urlRunId, buyerPolishedShell]);
-
   useLayoutEffect(() => {
     setGraph(null);
   }, [runId]);
