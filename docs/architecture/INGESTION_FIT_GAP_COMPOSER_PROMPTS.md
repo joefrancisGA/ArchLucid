@@ -3,25 +3,33 @@
 
 # Ingestion fit-gap — Composer prompt set
 
-These prompts mitigate findings from the question *“why would a cloud architecture project not be well-served by ArchLucid?”* They do **not** try to make ArchLucid a CMDB, an EAM repository, an air-gapped on-prem product, or a `terraform apply` engine. Those remain explicit non-goals in [`V1_SCOPE.md`](../library/V1_SCOPE.md) §3 and [`BUYER_PERSONAS.md`](../go-to-market/BUYER_PERSONAS.md)#when-archlucid-is-not-a-fit.
+**Status (2026-08-26): SHIPPED on `master`.** FIT-01–05 landed as product code and GTM copy. Treat this file as an **archive**. Do **not** re-run the prompts below; they describe pre-ship gaps.
 
-**Run one prompt per chat**, in the order below unless the prompt says it can run in parallel. Name a git branch in any commit/push request. Do not expand a prompt into Pulumi, CDK, diagram OCR, PDF/DOCX ingest, or FedRAMP ATO automation.
+These prompts mitigated findings from the question *“why would a cloud architecture project not be well-served by ArchLucid?”* They do **not** try to make ArchLucid a CMDB, an EAM repository, an air-gapped on-prem product, or a `terraform apply` engine. Those remain explicit non-goals in [`V1_SCOPE.md`](../library/V1_SCOPE.md) §3 and [`BUYER_PERSONAS.md`](../go-to-market/BUYER_PERSONAS.md)#when-archlucid-is-not-a-fit.
 
-## Findings this set actually closes
+**Do not expand this archive into Pulumi, CDK, diagram OCR, PDF/DOCX ingest, or FedRAMP ATO automation.** Remaining honesty work (competitive-landscape / persona copy vs shipped ingest) is a docs pass, not a new FIT prompt.
 
-| ID | Finding | Why it is Composer-sized |
-|----|---------|--------------------------|
-| **FIT-01** | `simple-terraform` keeps only `resource "type" "name"` — every HCL attribute is discarded, so reviews cannot see `public_network_access`, SKU, TLS, or NSG rules from pasted `.tf`. | Parser + tests; reuse `terraform-show-json` property bag rules. |
-| **FIT-02** | Azure-native shops that author **Bicep / ARM** have no IaC ingest format (ironic given the Azure ICP). | New `IInfrastructureDeclarationParser` types + validator allowlist. |
-| **FIT-03** | Kubernetes-only (or AKS/EKS/GKE-as-YAML) estates cannot ingest workload manifests. | `kubectl -o json` parser; optional YAML using existing `YamlDotNet` version. |
-| **FIT-04** | GTM still **disqualifies AWS/GCP-only** buyers while `V1_SCOPE.md` §2.19 promoted those targets to V1 GA and the enum comments still say “V1.1”. | Docs + XML comments only; no product lie. |
-| **FIT-05** | Even after FIT-01, no finding engine reads `tf.*` attributes, so captured config still does not become review findings. | Small graph-pure engine; reuse inventory security-baseline *ideas*, not ARM `resources.json` JSON. |
+## Findings this set closed (do not re-implement)
 
-## Findings this set does **not** close (leave them)
+| ID | Finding (pre-ship) | Landed as |
+|----|--------------------|-----------|
+| **FIT-01** | `simple-terraform` kept only `resource "type" "name"`. | `CanonicalInfrastructurePropertyBag` + `SimpleTerraformResourceBlockParser`; `tf.*` attributes with redaction/caps. |
+| **FIT-02** | No Bicep / ARM declaration format. | `bicep` and `arm-json` parsers on `InfrastructureDeclarationRequestValidator`. |
+| **FIT-03** | No Kubernetes manifest ingest. | `kubernetes-json` and `kubernetes-yaml` parsers (rendered manifests; not Helm/Kustomize). |
+| **FIT-04** | GTM still disqualified AWS/GCP-only buyers. | Personas / positioning / `CloudProvider` comments aligned with V1_SCOPE §2.19. |
+| **FIT-05** | Captured `tf.*` did not become findings. | `declaration-security-baseline` finding engine. |
 
-Air-gapped / sovereign self-host (ADR 0020). LLM-prohibited environments (simulator ≠ sponsor-faithful). EAM/CMDB replacement. Diagram/image OCR. ArchiMate / Structurizr import. `terraform apply`. Multi-cloud merge in one review. Certification/ATO as an output. English-only docs. Sub-500-node visualization is already paginated — do not raise `FullGraphResponseMaxNodes` here.
+## Findings this set did **not** close (leave them)
 
-## Sequencing
+Air-gapped / sovereign self-host (ADR 0020). LLM-prohibited environments (simulator ≠ sponsor-faithful). EAM/CMDB replacement. Diagram/image OCR. ArchiMate / Structurizr import. `terraform apply`. Multi-cloud merge in one review. Certification/ATO as an output. English-only docs. Pulumi / CDK / CloudFormation / Helm compilers.
+
+Historical prompt text follows for audit only.
+
+---
+
+## Sequencing (historical — already executed)
+
+Do not run these prompts again.
 
 | Prompt | Parallel? | Depends on |
 |--------|-----------|------------|
