@@ -74,10 +74,9 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
             && _reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
             && cached is not null)
         {
-            cached.CacheHit = true;
-            cached.CacheReuseReason = cacheManifest.ReuseReason ?? "dependency-manifest-match";
-
-            return cached;
+            return CreateCoalescedCacheHitResult(
+                cached,
+                cacheManifest);
         }
 
         return await ExecuteLiveReviewAsync(
@@ -102,10 +101,9 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
             && _reviewResultCache.TryGet(continueManifest, out ClosedLoopReasoningResult? cached)
             && cached is not null)
         {
-            cached.CacheHit = true;
-            cached.CacheReuseReason = continueManifest.ReuseReason ?? "dependency-manifest-match";
-
-            return cached;
+            return CreateCoalescedCacheHitResult(
+                cached,
+                continueManifest);
         }
 
         return await ExecuteLiveReviewAsync(
@@ -160,5 +158,19 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         }
 
         return isolated;
+    }
+
+    private static ClosedLoopReasoningResult CreateCoalescedCacheHitResult(
+        ClosedLoopReasoningResult cached,
+        ReviewCacheDependencyManifest manifest)
+    {
+        ArgumentNullException.ThrowIfNull(cached);
+        ArgumentNullException.ThrowIfNull(manifest);
+
+        ClosedLoopReasoningResult hit = ClosedLoopReasoningResultCloner.Clone(cached);
+        hit.CacheHit = true;
+        hit.CacheReuseReason = manifest.ReuseReason ?? "dependency-manifest-match";
+
+        return hit;
     }
 }
