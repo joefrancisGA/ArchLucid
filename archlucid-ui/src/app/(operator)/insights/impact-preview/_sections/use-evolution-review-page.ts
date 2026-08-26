@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
@@ -11,6 +12,7 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { parseEvolutionPlanSnapshot } from "@/lib/evolution-plan-snapshot";
+import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import {
   DEFAULT_IMPACT_PREVIEW_COMPARISON_SCOPE,
   type ImpactPreviewBaselineOption,
@@ -54,6 +56,8 @@ export function useEvolutionReviewPage(
   serverLoad: EvolutionReviewPageServerLoad,
   scopedRunId: string,
 ): EvolutionReviewPageViewModel {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const isDemo = serverLoad.mode === "demo";
 
   const [candidates, setCandidates] = useState<EvolutionCandidateChangeSetResponse[]>(
@@ -113,7 +117,12 @@ export function useEvolutionReviewPage(
     setSelectedId(pair.candidateRunId);
     writeImpactPreviewLastBaselinePair(pair);
     setContinueLastPair(pair);
-  }, []);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("runId", pair.baselineRunId);
+
+    router.replace(`${IMPACT_PREVIEW_PATH}?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
 
   const skipInitialClientListFetchRef = useRef(serverLoad.mode === "live");
   const skipInitialDetailFetchRef = useRef(
