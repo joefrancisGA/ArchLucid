@@ -15,8 +15,8 @@ internal static class ClosedLoopReasoningRequestSnapshot
         {
             TenantId = ClosedLoopTenantIdNormalizer.NormalizeOptional(request.TenantId),
             RunId = ClosedLoopRunIdNormalizer.NormalizeOptional(request.RunId),
-            WorkspaceId = request.WorkspaceId?.Trim(),
-            ProjectId = request.ProjectId?.Trim(),
+            WorkspaceId = ClosedLoopWorkspaceIdNormalizer.NormalizeOptional(request.WorkspaceId),
+            ProjectId = ClosedLoopProjectIdNormalizer.NormalizeOptional(request.ProjectId),
             SourceTexts = request.SourceTexts
                 .Select(ClosedLoopReasoningSourceTextNormalizer.Normalize)
                 .ToList(),
@@ -26,7 +26,7 @@ internal static class ClosedLoopReasoningRequestSnapshot
             ContinueFromExistingRun = request.ContinueFromExistingRun,
             PublishToProduct = request.PublishToProduct,
             ReviewTier = request.ReviewTier,
-            ModelAliasId = request.ModelAliasId?.Trim(),
+            ModelAliasId = ClosedLoopModelAliasIdNormalizer.NormalizeOptional(request.ModelAliasId),
         };
     }
 }

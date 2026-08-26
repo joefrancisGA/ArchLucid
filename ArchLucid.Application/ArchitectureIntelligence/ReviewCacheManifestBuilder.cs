@@ -41,8 +41,8 @@ public static class ReviewCacheManifestBuilder
         {
             TenantId = ClosedLoopTenantIdNormalizer.NormalizeOptional(request.TenantId),
             RunId = ClosedLoopRunIdNormalizer.NormalizeRequired(resolvedRunId),
-            WorkspaceId = request.WorkspaceId?.Trim(),
-            ProjectId = request.ProjectId?.Trim(),
+            WorkspaceId = ClosedLoopWorkspaceIdNormalizer.NormalizeOptional(request.WorkspaceId),
+            ProjectId = ClosedLoopProjectIdNormalizer.NormalizeOptional(request.ProjectId),
             SourceTexts = request.SourceTexts
                 .Select(ClosedLoopReasoningSourceTextNormalizer.Normalize)
                 .ToList(),
@@ -52,7 +52,7 @@ public static class ReviewCacheManifestBuilder
             ContinueFromExistingRun = request.ContinueFromExistingRun,
             PublishToProduct = request.PublishToProduct,
             ReviewTier = request.ReviewTier,
-            ModelAliasId = request.ModelAliasId?.Trim(),
+            ModelAliasId = ClosedLoopModelAliasIdNormalizer.NormalizeOptional(request.ModelAliasId),
         };
 
         return Build(resolvedRequest, baselineKnowledgeModel, technologyLedgerEntries);
@@ -144,8 +144,12 @@ public static class ReviewCacheManifestBuilder
             request.TenantId is null
                 ? string.Empty
                 : ClosedLoopTenantIdNormalizer.NormalizeRequired(request.TenantId),
-            request.WorkspaceId?.Trim() ?? string.Empty,
-            request.ProjectId?.Trim() ?? string.Empty);
+            request.WorkspaceId is null
+                ? string.Empty
+                : ClosedLoopWorkspaceIdNormalizer.NormalizeRequired(request.WorkspaceId),
+            request.ProjectId is null
+                ? string.Empty
+                : ClosedLoopProjectIdNormalizer.NormalizeRequired(request.ProjectId));
 
         return Sha256Hex(payload);
     }
