@@ -1,14 +1,11 @@
 using ArchLucid.ArtifactSynthesis.Docx.Builders;
-using ArchLucid.ArtifactSynthesis.Docx.Helpers;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.Contracts.Governance.Resolution;
-using ArchLucid.Core.Comparison;
-using ArchLucid.Core.Diagrams;
-using ArchLucid.Core.Explanation;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Advisory.Services;
 using ArchLucid.Core.Manifest.Sections;
@@ -24,7 +21,7 @@ namespace ArchLucid.ArtifactSynthesis.Docx;
 ///     for advisory sections,
 ///     <see cref="IDiagramImageRenderer" /> for optional Mermaid→PNG rasterization, and OpenXML builders.
 /// </summary>
-public sealed class DocxExportService(
+public sealed partial class DocxExportService(
     IImprovementAdvisorService improvementAdvisorService,
     IDiagramImageRenderer diagramImageRenderer) : IDocxExportService
 {
@@ -330,224 +327,5 @@ public sealed class DocxExportService(
         }
 
         WordDocumentBuilder.AddSimpleTable(body, provenanceRows, true);
-    }
-
-    private async Task AppendArchitectureDiagramSectionAsync(
-        WordprocessingDocument doc,
-        Body body,
-        ManifestDocument manifest,
-        IReadOnlyList<SynthesizedArtifact> artifacts,
-        CancellationToken ct)
-    {
-        WordDocumentBuilder.AddHeading(body, "Architecture diagram");
-        byte[]? pngBytes = TryGetPngBytesFromArtifacts(artifacts);
-
-        if (pngBytes is not null)
-        {
-            ImageHelper.AddPngToBody(doc, body, pngBytes, "Architecture diagram");
-            WordDocumentBuilder.AddBodyText(
-                body,
-                "Raster image embedded from a synthesized artifact on this manifest (PNG supplied as base64 in storage).");
-        }
-        else if (TryGetMermaidDiagramSource(artifacts) is { } mermaid)
-        {
-            byte[]? rendered = await diagramImageRenderer.RenderMermaidPngAsync(mermaid, ct);
-
-            if (rendered is not null && rendered.Length > 0)
-            {
-                ImageHelper.AddPngToBody(doc, body, rendered, "Architecture diagram");
-                WordDocumentBuilder.AddBodyText(
-                    body,
-                    "Raster image rendered from the Mermaid source in the artifact bundle (Mermaid CLI on the API host when enabled).");
-            }
-            else
-            {
-                WordDocumentBuilder.AddBodyText(
-                    body,
-                    "Mermaid source is embedded below. Enable ArchLucid:MermaidCli:Enabled and install the mmdc CLI on the API host to rasterize this diagram automatically, or render architecture.mmd from the bundle externally.");
-                WordDocumentBuilder.AddMonospaceSourceLines(body, mermaid);
-            }
-        }
-        else
-        {
-            WordDocumentBuilder.AddBodyText(
-                body,
-                "No diagram image or Mermaid source was synthesized for this manifest.");
-            AppendManifestTopologySummaryForDiagramFallback(body, manifest);
-        }
-
-        WordDocumentBuilder.AddSpacer(body, 2);
-    }
-
-    private static byte[]? TryGetPngBytesFromArtifacts(IReadOnlyList<SynthesizedArtifact> artifacts)
-    {
-        ReadOnlySpan<byte> pngSignature =
-        [
-            0x89,
-            (byte)'P',
-            (byte)'N',
-            (byte)'G',
-            0x0D,
-            0x0A,
-            0x1A,
-            0x0A
-        ];
-
-        foreach (SynthesizedArtifact a in artifacts)
-        {
-            if (string.IsNullOrWhiteSpace(a.Content))
-                continue;
-
-            string format = a.Format.Trim();
-
-            if (!format.Equals("png", StringComparison.OrdinalIgnoreCase) &&
-                !format.Equals("image/png", StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            string trimmed = a.Content.Trim();
-            byte[] bytes;
-
-            try
-            {
-                bytes = Convert.FromBase64String(trimmed);
-            }
-            catch (FormatException)
-            {
-                continue;
-            }
-
-            if (bytes.Length < pngSignature.Length)
-                continue;
-
-            if (!bytes.AsSpan(0, pngSignature.Length).SequenceEqual(pngSignature))
-                continue;
-
-            return bytes;
-        }
-
-        return null;
-    }
-
-    private static string? TryGetMermaidDiagramSource(IReadOnlyList<SynthesizedArtifact> artifacts) =>
-        MermaidDiagramArtifactExtractor.TryGetDiagramSource(artifacts, MaxEmbeddedMermaidChars);
-
-    private static void AppendManifestTopologySummaryForDiagramFallback(Body body, ManifestDocument manifest)
-    {
-        int resourceCount = manifest.Topology.Resources.Count;
-        int patternCount = manifest.Topology.SelectedPatterns.Count;
-        int decisionCount = manifest.Decisions.Count;
-
-        WordDocumentBuilder.AddBodyText(
-            body,
-            $"Committed manifest includes {resourceCount} topology resource(s), {patternCount} selected pattern(s), and {decisionCount} decision(s). See Topology Posture and Decisions below for full detail.");
-    }
-
-    private static void AppendManifestComparison(Body body, ComparisonResult c)
-    {
-        WordDocumentBuilder.AddHeading(body, "Architecture Comparison");
-        WordDocumentBuilder.AddBodyText(
-            body,
-            $"Base run: {c.BaseRunId} → Target run: {c.TargetRunId}");
-        WordDocumentBuilder.AddSpacer(body);
-
-        WordDocumentBuilder.AddHeading(body, "Summary Highlights", DocxStyleIds.Heading2);
-        if (c.SummaryHighlights.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "—");
-        else
-            WordDocumentBuilder.AddBulletList(body, c.SummaryHighlights);
-
-        WordDocumentBuilder.AddHeading(body, "Decision Changes", DocxStyleIds.Heading2);
-        if (c.DecisionChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No decision changes.");
-        else
-
-            foreach (DecisionDelta d in c.DecisionChanges)
-
-                WordDocumentBuilder.AddBodyText(
-                    body,
-                    $"{d.DecisionKey}: {FormatOptional(d.BaseValue)} → {FormatOptional(d.TargetValue)} ({d.ChangeType})");
-
-        WordDocumentBuilder.AddHeading(body, "Requirement Changes", DocxStyleIds.Heading2);
-        if (c.RequirementChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No requirement changes.");
-        else
-
-            foreach (RequirementDelta r in c.RequirementChanges)
-                WordDocumentBuilder.AddBodyText(body, $"{r.RequirementName}: {r.ChangeType}");
-
-        WordDocumentBuilder.AddHeading(body, "Security Posture Delta", DocxStyleIds.Heading2);
-        if (c.SecurityChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No security control changes.");
-        else
-
-            foreach (SecurityDelta s in c.SecurityChanges)
-
-                WordDocumentBuilder.AddBodyText(
-                    body,
-                    $"{s.ControlName}: {FormatOptional(s.BaseStatus)} → {FormatOptional(s.TargetStatus)}");
-
-        WordDocumentBuilder.AddHeading(body, "Topology Changes", DocxStyleIds.Heading2);
-        if (c.TopologyChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No topology resource changes.");
-        else
-
-            foreach (TopologyDelta t in c.TopologyChanges)
-                WordDocumentBuilder.AddBodyText(body, $"{t.Resource} ({t.ChangeType})");
-
-        WordDocumentBuilder.AddHeading(body, "Cost Delta", DocxStyleIds.Heading2);
-        if (c.CostChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "Maximum monthly cost unchanged.");
-        else
-
-            foreach (CostDelta x in c.CostChanges)
-
-                WordDocumentBuilder.AddBodyText(
-                    body,
-                    $"{FormatCost(x.BaseCost)} → {FormatCost(x.TargetCost)}");
-
-        WordDocumentBuilder.AddSpacer(body);
-    }
-
-    private static void AppendRunExplanation(Body body, ExplanationResult e)
-    {
-        WordDocumentBuilder.AddHeading(body, "Sponsor Narrative (AI)");
-        WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(e.Summary));
-        WordDocumentBuilder.AddSpacer(body);
-        WordDocumentBuilder.AddHeading(body, "Key Drivers", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body, e.KeyDrivers.Count > 0 ? e.KeyDrivers : ["(none)"]);
-        WordDocumentBuilder.AddHeading(body, "Risk Implications", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body, e.RiskImplications.Count > 0 ? e.RiskImplications : ["(none)"]);
-        WordDocumentBuilder.AddHeading(body, "Cost Implications", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body, e.CostImplications.Count > 0 ? e.CostImplications : ["(none)"]);
-        WordDocumentBuilder.AddHeading(body, "Compliance Implications", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body,
-            e.ComplianceImplications.Count > 0 ? e.ComplianceImplications : ["(none)"]);
-        WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddMultilineBodyText(body, SanitizeArtifactText(e.DetailedNarrative));
-        WordDocumentBuilder.AddSpacer(body, 2);
-    }
-
-    private static void AppendComparisonExplanation(Body body, ComparisonExplanationResult e)
-    {
-        WordDocumentBuilder.AddHeading(body, "Sponsor Change Narrative (AI)");
-        WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(e.HighLevelSummary));
-        WordDocumentBuilder.AddSpacer(body);
-        WordDocumentBuilder.AddHeading(body, "Major Changes (structured)", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body, e.MajorChanges.Count > 0 ? e.MajorChanges : ["(none)"]);
-        WordDocumentBuilder.AddHeading(body, "Key Tradeoffs (AI)", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body, e.KeyTradeoffs.Count > 0 ? e.KeyTradeoffs : ["(none)"]);
-        WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddMultilineBodyText(body, SanitizeArtifactText(e.Narrative));
-        WordDocumentBuilder.AddSpacer(body, 2);
-    }
-
-    private static string FormatOptional(string? v)
-    {
-        return string.IsNullOrEmpty(v) ? "—" : v;
-    }
-
-    private static string FormatCost(decimal? v)
-    {
-        return v.HasValue ? v.Value.ToString("0.00") : "—";
     }
 }

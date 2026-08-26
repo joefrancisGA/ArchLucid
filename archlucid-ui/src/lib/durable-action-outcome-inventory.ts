@@ -221,7 +221,10 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
   },
   {
     id: "admin-webhook-save",
-    sourceRoots: ["app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx"],
+    sourceRoots: [
+      "app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx",
+      "app/(operator)/integrations/webhooks/WebhooksCreateSubscriptionForm.tsx",
+    ],
     requiredDurableMarkers: ["OperatorSuccessCallout"],
   },
   {

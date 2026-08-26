@@ -19,7 +19,10 @@ export const REVIEW_PIPELINE_IN_FLIGHT_SURFACES: readonly ErrorRecoveryContractG
   },
   {
     id: "first-pilot-intake-wizard",
-    sourceRoots: ["app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx"],
+    sourceRoots: [
+      "app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx",
+      "app/(operator)/architecture/reviews/new/use-first-pilot-intake-submit.ts",
+    ],
     requiredMarkers: IN_FLIGHT_REGISTRATION_MARKERS,
   },
   {

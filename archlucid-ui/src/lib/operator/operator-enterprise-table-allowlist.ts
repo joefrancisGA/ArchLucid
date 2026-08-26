@@ -30,7 +30,7 @@ export const OPERATOR_ENTERPRISE_TABLE_ALLOWLIST: readonly OperatorEnterpriseTab
   },
   {
     id: "recurrence-schedules-inventory",
-    modulePath: "components/governance/RecurrenceSchedulesClient.tsx",
+    modulePath: "components/governance/RecurrenceSchedulesTable.tsx",
     kind: "inventory",
     notes: "Governance recurrence schedules — TB-1649 buyer scope + cadence disclosure.",
   },
@@ -72,7 +72,7 @@ export const OPERATOR_ENTERPRISE_TABLE_ALLOWLIST: readonly OperatorEnterpriseTab
   },
   {
     id: "webhooks-subscriptions-inventory",
-    modulePath: "app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx",
+    modulePath: "app/(operator)/integrations/webhooks/WebhooksSubscriptionsTable.tsx",
     kind: "inventory",
     notes: "Webhook subscriptions inventory — TB-1648.",
   },
