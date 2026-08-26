@@ -229,6 +229,11 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         if (string.IsNullOrWhiteSpace(name))
             return;
 
+        if (TryGetPropertyIgnoreCase(res, "mode", out JsonElement modeElement)
+            && modeElement.ValueKind == JsonValueKind.String
+            && string.Equals(modeElement.GetString()?.Trim(), "data", StringComparison.OrdinalIgnoreCase))
+            return;
+
         string objectType = ResolveObjectTypeFromTerraformType(tfType);
         string canonicalTerraformType = tfType.ToLowerInvariant();
 

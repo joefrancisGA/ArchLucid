@@ -58,7 +58,13 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
 
         if (item.Properties.TryGetValue("k8s.kind", out string? k8sKind) &&
             !string.IsNullOrEmpty(k8sKind))
+        {
+            if (item.Properties.TryGetValue("k8s.apiVersion", out string? apiVersion) &&
+                !string.IsNullOrWhiteSpace(apiVersion))
+                return $"{k8sKind}|apiVersion:{apiVersion.Trim().ToLowerInvariant()}";
+
             return k8sKind;
+        }
 
         return string.Empty;
     }

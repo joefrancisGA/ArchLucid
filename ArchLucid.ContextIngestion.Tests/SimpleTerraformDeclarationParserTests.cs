@@ -243,4 +243,80 @@ public sealed class SimpleTerraformDeclarationParserTests
         doubleQuotedResult.Should().ContainSingle();
         doubleQuotedResult[0].Properties.Should().BeEquivalentTo(singleQuotedResult[0].Properties);
     }
+
+    [Fact]
+    public async Task ParseAsync_NestedBlockSensitiveScalar_IsRedacted()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-nested-sensitive",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          connection_string = "postgres://user:pass@host/db"
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.site_config"].Should().Be("[REDACTED]");
+    }
+
+    [Fact]
+    public async Task ParseAsync_InlineHashComment_DoesNotChangeTfLocation()
+    {
+        InfrastructureDeclarationReference withoutComment = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-comment",
+            Content = """
+                      resource "azurerm_resource_group" "main" {
+                        location = "eastus"
+                      }
+                      """,
+        };
+
+        InfrastructureDeclarationReference withComment = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-comment",
+            Content = """
+                      resource "azurerm_resource_group" "main" {
+                        location = "eastus" # primary region
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> withoutCommentResult = await _sut.ParseAsync(withoutComment, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> withCommentResult = await _sut.ParseAsync(withComment, CancellationToken.None);
+
+        withoutCommentResult.Should().ContainSingle();
+        withCommentResult.Should().ContainSingle();
+        withCommentResult[0].Properties.Should().BeEquivalentTo(withoutCommentResult[0].Properties);
+    }
+
+    [Fact]
+    public async Task ParseAsync_SingleQuotedResourceHeader_MapsResource()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-single-quote-header",
+            Content = "resource 'azurerm_virtual_network' 'core'\n",
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("core");
+        result[0].Properties["terraformType"].Should().Be("azurerm_virtual_network");
+    }
 }

@@ -122,4 +122,38 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_SameNameDifferentApiVersion_EmitsDistinctObjectIds()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "cluster.json",
+            Format = "kubernetes-json",
+            DeclarationId = "decl-k8s-apiversion",
+            Content = """
+                      {
+                        "apiVersion": "v1",
+                        "kind": "List",
+                        "items": [
+                          {
+                            "apiVersion": "apps/v1",
+                            "kind": "Deployment",
+                            "metadata": { "name": "api", "namespace": "prod" }
+                          },
+                          {
+                            "apiVersion": "apps/v1beta1",
+                            "kind": "Deployment",
+                            "metadata": { "name": "api", "namespace": "prod" }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
+    }
 }

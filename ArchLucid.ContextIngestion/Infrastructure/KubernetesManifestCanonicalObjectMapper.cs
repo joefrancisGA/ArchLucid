@@ -82,7 +82,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
             properties["k8s.generateName"] = generateName.ToLowerInvariant();
 
         string objectType = ResolveObjectType(kind);
-        string stableObjectId = BuildStableObjectId(objectType, declaration, kind, canonicalName);
+        string stableObjectId = BuildStableObjectId(objectType, declaration, kind, canonicalName, apiVersion);
 
         if (string.Equals(kind, "Secret", StringComparison.OrdinalIgnoreCase))
         {
@@ -116,12 +116,17 @@ internal static class KubernetesManifestCanonicalObjectMapper
         string objectType,
         InfrastructureDeclarationReference declaration,
         string kind,
-        string canonicalName)
+        string canonicalName,
+        string apiVersion)
     {
+        string identity = string.IsNullOrWhiteSpace(apiVersion)
+            ? $"{kind.ToLowerInvariant()}|{canonicalName}"
+            : $"{kind.ToLowerInvariant()}|{apiVersion.ToLowerInvariant()}|{canonicalName}";
+
         return InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
             declaration.DeclarationId,
             objectType,
-            $"{kind.ToLowerInvariant()}|{canonicalName}");
+            identity);
     }
 
     private static string ResolveObjectType(string kind)

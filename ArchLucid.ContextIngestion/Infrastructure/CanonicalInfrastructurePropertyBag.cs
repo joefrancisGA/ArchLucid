@@ -2,6 +2,7 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 
 using System.Globalization;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 /// <summary>
 ///     Shared <c>tf.*</c> property bag rules for infrastructure declaration parsers
@@ -24,6 +25,10 @@ public static class CanonicalInfrastructurePropertyBag
         "client_secret",
         "primary_key",
     ];
+
+    private static readonly Regex BlockAssignmentKeyRegex = new(
+        @"(?<key>[A-Za-z0-9_-]+)\s*=",
+        RegexOptions.Compiled);
 
     public static string SanitizePropertyKey(string name)
     {
@@ -92,6 +97,45 @@ public static class CanonicalInfrastructurePropertyBag
         return rawValue.Trim().ToLowerInvariant();
     }
 
+    public static string StripTrailingHclComment(string rawValue)
+    {
+        if (string.IsNullOrWhiteSpace(rawValue))
+            return string.Empty;
+
+        bool inDoubleQuotes = false;
+        bool inSingleQuotes = false;
+
+        for (int index = 0; index < rawValue.Length; index++)
+        {
+            char character = rawValue[index];
+
+            if (character == '"' && !inSingleQuotes)
+                inDoubleQuotes = !inDoubleQuotes;
+
+            if (character == '\'' && !inDoubleQuotes)
+                inSingleQuotes = !inSingleQuotes;
+
+            if (character == '#' && !inDoubleQuotes && !inSingleQuotes)
+                return rawValue[..index].TrimEnd();
+        }
+
+        return rawValue;
+    }
+
+    public static bool BlockBodyContainsSensitiveKey(string blockBody)
+    {
+        if (string.IsNullOrWhiteSpace(blockBody))
+            return false;
+
+        foreach (Match match in BlockAssignmentKeyRegex.Matches(blockBody))
+        {
+            if (ShouldRedactKey(match.Groups["key"].Value))
+                return true;
+        }
+
+        return false;
+    }
+
     public static bool TryAddTfProperty(
         Dictionary<string, string> properties,
         string rawKey,
@@ -136,6 +180,13 @@ public static class CanonicalInfrastructurePropertyBag
 
         if (string.IsNullOrEmpty(sanitizedBlockName))
             return false;
+
+        if (ShouldRedactKey(blockName) || BlockBodyContainsSensitiveKey(blockBody))
+        {
+            properties[$"tf.{sanitizedBlockName}"] = "[REDACTED]";
+
+            return true;
+        }
 
         string trimmedBody = blockBody.Trim();
 

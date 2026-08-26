@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 55
-- **bugs-found:** 110
+- **hunts:** 56
+- **bugs-found:** 115
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — arm-json nested child resources dropped
+- **last-bug:** 2026-08-26 — simple-terraform nested HCL blocks leaked sensitive scalars
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1962,6 +1962,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty` preserved raw JSON inner-key casing via `GetRawText()` — **hit 2026-08-26:** `ipAddress` vs `IpAddress` in `ipSecurityRestrictions` arrays false-modified infra declaration deltas; fixed with shared `CanonicalInfrastructureJsonValue` rewrite (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_ArrayPropertyInnerKeyCasing_IsCanonicalized`).
 - [x] (proven) `SimpleTerraformResourceBlockParser.UnquoteScalar` stripped only double-quoted HCL scalars — **hit 2026-08-26:** `'Enabled'` vs `"Enabled"` produced different `tf.public_network_access` values; fixed by unquoting single-quoted scalars (`SimpleTerraformDeclarationParserTests.ParseAsync_SingleQuotedScalars_AreUnquotedAndCanonicalized`).
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.TryAddResource` skipped manifests with only `metadata.generateName` — **hit 2026-08-26:** Pod with `generateName: api-` returned zero resources; fixed by falling back to `generateName` when `name` is absent (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_GenerateNameOnly_MapsPod`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` never redacted nested HCL block assignments — **hit 2026-08-26:** `site_config { connection_string = "..." }` leaked plaintext into `tf.site_config`; fixed by scanning block bodies for sensitive keys (`CanonicalInfrastructurePropertyBagTests.TryAddTfBlockProperty_redacts_sensitive_assignments_in_block_body`, `SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlockSensitiveScalar_IsRedacted`).
+- [x] (proven) `SimpleTerraformResourceBlockParser` preserved inline `#` comments in scalar values — **hit 2026-08-26:** `location = "eastus" # primary` false-modified infra declaration deltas; fixed with `StripTrailingHclComment` before unquoting (`SimpleTerraformDeclarationParserTests.ParseAsync_InlineHashComment_DoesNotChangeTfLocation`).
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.BuildStableObjectId` omitted `k8s.apiVersion` — **hit 2026-08-26:** `apps/v1` and `apps/v1beta1` Deployments both named `prod/api` collapsed to one `ObjectId` and delta key; fixed by including apiVersion in stable identity and connector keys (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_SameNameDifferentApiVersion_EmitsDistinctObjectIds`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` ingested `mode: "data"` resources — **hit 2026-08-26:** `azurerm_client_config` data sources appeared as topology resources alongside managed resources; fixed by skipping `mode: data` rows (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_ModeDataResources_AreExcluded`).
+- [x] (proven) `SimpleTerraformResourceBlockParser.ResourceHeaderRegex` accepted only double-quoted resource headers — **hit 2026-08-26:** `resource 'azurerm_virtual_network' 'core'` returned zero resources; fixed with single-quoted header alternation (`SimpleTerraformDeclarationParserTests.ParseAsync_SingleQuotedResourceHeader_MapsResource`).
+
+2026-08-26 seed hunt #62: reseeded nested HCL redaction / inline comments / K8s apiVersion identity / terraform data sources / single-quoted headers; proved all five hunt-ready rows.
 
 2026-08-26 seed hunt #61: reseeded ARM nested / Bicep duplicate identity / arm-json array JSON casing / simple-terraform single quotes / K8s generateName; proved all five hunt-ready rows.
 
