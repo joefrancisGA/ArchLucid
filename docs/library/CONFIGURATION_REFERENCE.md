@@ -52,6 +52,17 @@ Premium-tier judge calls are metered and capped. Each judged finding is one Reas
 | `ArchLucid:Findings:InsightDensityGate:EnableLlmJudgeForEngineFindings` | `false` | When `true` with `EnableLlmJudge`, also judges deterministic engine findings after snapshot build (authority pipeline). |
 | `ArchLucid:Findings:InsightDensityGate:MaxJudgedFindingsPerSnapshot` | `12` | Hard per-snapshot ceiling on judge completions — cost guard for large finding sets. |
 
+## Portfolio recurrence finding engine (ID-06)
+
+Cross-run portfolio scan on every review when enabled. **Default off** so tenants do not incur `IRunDetailQueryService` / `IFindingsSnapshotRepository` fan-out until operators opt in and measure cost.
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `ArchLucid:Findings:PortfolioRecurrence:Enabled` | `false` | When `false`, `PortfolioRecurrenceFindingEngine` returns empty with **zero** repository calls. |
+| `ArchLucid:Findings:PortfolioRecurrence:MinSystemCountToReport` | `3` | Minimum distinct systems sharing a finding identity before emitting a portfolio recurrence finding. |
+| `ArchLucid:Findings:PortfolioRecurrence:MaxSystemsScanned` | `50` | Cap on distinct systems whose latest committed runs are scanned per review. |
+| `ArchLucid:Findings:PortfolioRecurrence:MaxFindings` | `10` | Maximum recurrence findings emitted per review (ordered by descending system count). |
+
 ## Tenant data residency (administrator)
 
 Buyer-facing residency messaging lives in **[Data handling](/help/data-handling)** and the Procurement FAQ — not here. Platform operators configure regional allowlists and blob service URIs at provision time:

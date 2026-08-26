@@ -60,6 +60,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.SecurityCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.ExternalExposureFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DeclarationSecurityBaselineFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.DeclarationPremiseConflictFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TrustBoundaryFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PrivilegedAccessFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyApplicabilityFindingEngine>();
@@ -82,6 +83,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.AwsInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.GcpInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.OpenCommitmentFindingEngine>();
+        services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PortfolioRecurrenceFindingEngine>();
 
         services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));
@@ -90,6 +92,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<InsightDensityGateOptions>(configuration.GetSection(InsightDensityGateOptions.SectionPath));
         services.Configure<ArchLucid.Application.Findings.OpenCommitmentFindingOptions>(
             configuration.GetSection(ArchLucid.Application.Findings.OpenCommitmentFindingOptions.SectionPath));
+        services.Configure<ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptions>(
+            configuration.GetSection(ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptions.SectionPath));
         services.AddSingleton<IInsightDensityGate, DeterministicInsightDensityGate>();
         services.TryAddSingleton<IInsightDensityLlmJudge, NoOpInsightDensityLlmJudge>();
 

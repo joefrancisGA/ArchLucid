@@ -24,6 +24,8 @@ public static class FindingPayloadRegistry
         [nameof(ExtractorOrphanCandidateFindingPayload)] = typeof(ExtractorOrphanCandidateFindingPayload),
         [nameof(AdvisorCostRecommendationFindingPayload)] = typeof(AdvisorCostRecommendationFindingPayload),
         [nameof(OpenCommitmentFindingPayload)] = typeof(OpenCommitmentFindingPayload),
+        [nameof(DeclarationPremiseConflictFindingPayload)] = typeof(DeclarationPremiseConflictFindingPayload),
+        [nameof(PortfolioRecurrenceFindingPayload)] = typeof(PortfolioRecurrenceFindingPayload),
     };
 
     public static IReadOnlyDictionary<string, Type> RegisteredTypes => ByPayloadTypeName;
