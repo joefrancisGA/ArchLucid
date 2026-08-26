@@ -55,9 +55,16 @@ public sealed partial class GovernanceStickinessController
     [MutatingAuditExcluded("Audit: IRiskExceptionService logs RiskExceptionRevoked via IAuditService.")]
     public async Task<IActionResult> RevokeRiskException(Guid riskExceptionId, CancellationToken cancellationToken = default)
     {
-        await _facade.RevokeRiskExceptionAsync(riskExceptionId, cancellationToken);
+        try
+        {
+            await _facade.RevokeRiskExceptionAsync(riskExceptionId, cancellationToken);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry

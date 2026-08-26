@@ -189,6 +189,9 @@ public sealed class TenantWorkspacesController(
         if (workspace is null)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
+        if (workspaceId != scope.WorkspaceId)
+            return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
+
         if (workspace.DefaultProjectId == projectId)
         {
             return this.BadRequestProblem(
@@ -252,6 +255,9 @@ public sealed class TenantWorkspacesController(
         TenantWorkspaceListItem? workspace = workspaces.SingleOrDefault(w => w.WorkspaceId == workspaceId);
 
         if (workspace is null)
+            return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
+
+        if (workspaceId != scope.WorkspaceId)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
         ArchitectureProjectRestoreResult outcome =

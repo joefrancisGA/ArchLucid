@@ -98,10 +98,125 @@ public sealed class GovernanceStickinessFacadeScopeTests
         dispositions.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task GetDecisionRegisterAsync_returns_empty_when_project_id_is_out_of_scope()
+    {
+        Guid foreignProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IArchitectureDecisionRegisterService> decisions = new(MockBehavior.Strict);
+
+        GovernanceStickinessFacade sut = CreateSut(decisionRegister: decisions.Object);
+
+        ArchitectureDecisionRegisterResponse response = await sut.GetDecisionRegisterAsync(
+            foreignProjectId,
+            maxRows: 50,
+            new ArchitectureDecisionRegisterQueryOptions(),
+            CancellationToken.None);
+
+        response.Decisions.Should().BeEmpty();
+        decisions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetFindingsRegistersBundleAsync_returns_empty_when_project_id_is_out_of_scope()
+    {
+        Guid foreignProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IArchitectureRiskRegisterService> riskRegister = new(MockBehavior.Strict);
+        Mock<IArchitectureDecisionRegisterService> decisions = new(MockBehavior.Strict);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            riskRegister: riskRegister.Object,
+            decisionRegister: decisions.Object);
+
+        GovernanceFindingsRegistersBundleResponse response =
+            await sut.GetFindingsRegistersBundleAsync(foreignProjectId, maxRows: 50, CancellationToken.None);
+
+        response.RiskRegister.Entries.Should().BeEmpty();
+        response.DecisionRegister.Decisions.Should().BeEmpty();
+        riskRegister.VerifyNoOtherCalls();
+        decisions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CreateRiskExceptionAsync_throws_when_finding_is_out_of_scope()
+    {
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                "foreign-finding",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync((FindingInspectResponse?)null);
+
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: findings.Object,
+            riskExceptionService: riskExceptions.Object);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "foreign-finding",
+            OwnerUserId = "owner",
+            Rationale = "accepted risk",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        Func<Task> act = () => sut.CreateRiskExceptionAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*not found in the current scope*");
+
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RevokeRiskExceptionAsync_throws_when_exception_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(s => s.GetByIdAsync(CallerScope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RiskExceptionRecord
+            {
+                RiskExceptionId = exceptionId,
+                TenantId = CallerScope.TenantId,
+                WorkspaceId = foreignWorkspaceId,
+                ProjectId = CallerScope.ProjectId,
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "rationale",
+                Status = RiskExceptionStatus.Active,
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+                CreatedByUserId = "creator",
+            });
+
+        GovernanceStickinessFacade sut = CreateSut(riskExceptionService: riskExceptions.Object);
+
+        Func<Task> act = () => sut.RevokeRiskExceptionAsync(exceptionId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*not found*");
+
+        riskExceptions.Verify(
+            s => s.RevokeAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static GovernanceStickinessFacade CreateSut(
         IArchitectureRiskRegisterService? riskRegister = null,
         IFindingInspectReadRepository? findingInspect = null,
-        IFindingDispositionService? dispositionService = null)
+        IFindingDispositionService? dispositionService = null,
+        IArchitectureDecisionRegisterService? decisionRegister = null,
+        IRiskExceptionService? riskExceptionService = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
@@ -110,9 +225,9 @@ public sealed class GovernanceStickinessFacadeScopeTests
             scope.Object,
             Mock.Of<IActorContext>(),
             dispositionService ?? new Mock<IFindingDispositionService>().Object,
-            Mock.Of<IRiskExceptionService>(),
+            riskExceptionService ?? Mock.Of<IRiskExceptionService>(),
             riskRegister ?? new Mock<IArchitectureRiskRegisterService>().Object,
-            Mock.Of<IArchitectureDecisionRegisterService>(),
+            decisionRegister ?? new Mock<IArchitectureDecisionRegisterService>().Object,
             Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
             Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
             Mock.Of<IRunRepository>(),

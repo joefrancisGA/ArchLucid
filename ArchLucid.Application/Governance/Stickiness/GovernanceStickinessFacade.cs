@@ -120,6 +120,10 @@ public sealed partial class GovernanceStickinessFacade(
     public async Task<int> GetAssignedToMeFindingsCountAsync(Guid? projectId, CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
+            return 0;
+
         IReadOnlyList<string> identities =
             ArchitectureRiskRegisterAssignedToMeIdentityResolver.Resolve(_actorContext);
 
@@ -134,7 +138,7 @@ public sealed partial class GovernanceStickinessFacade(
 
         return await _riskRegisterService.CountAsync(
             scope.TenantId,
-            projectId ?? scope.ProjectId,
+            resolvedProjectId,
             options,
             ct);
     }
@@ -154,9 +158,12 @@ public sealed partial class GovernanceStickinessFacade(
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
+            return new GovernanceDecisionsNeededSummaryResponse();
+
         return await _governanceDigestDecisionNeededComposer.BuildSummaryAsync(
             scope.TenantId,
-            projectId ?? scope.ProjectId,
+            resolvedProjectId,
             ct);
     }
 
@@ -168,7 +175,9 @@ public sealed partial class GovernanceStickinessFacade(
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         int take = Math.Clamp(maxRows, 1, 500);
-        Guid resolvedProjectId = projectId ?? scope.ProjectId;
+
+        if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
+            return new GovernanceFindingsRegistersBundleResponse();
 
         Task<ArchitectureRiskRegisterResponse> riskTask = _riskRegisterService.GetRegisterAsync(
             scope.TenantId,
@@ -202,9 +211,12 @@ public sealed partial class GovernanceStickinessFacade(
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
+            return new ArchitectureDecisionRegisterResponse();
+
         return await _decisionRegisterService.GetRegisterAsync(
             scope.TenantId,
-            projectId ?? scope.ProjectId,
+            resolvedProjectId,
             Math.Clamp(maxRows, 1, 500),
             filters,
             ct);

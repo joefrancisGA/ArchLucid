@@ -108,6 +108,8 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        await EnsureFindingInScopeAsync(scope, request.FindingId, ct);
+
         return await _riskExceptionService.CreateAsync(
             request,
             scope,
@@ -122,9 +124,12 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
+            return [];
+
         return await _riskExceptionService.ListActiveAsync(
             scope.TenantId,
-            projectId ?? scope.ProjectId,
+            resolvedProjectId,
             ct);
     }
 
@@ -132,6 +137,8 @@ public sealed partial class GovernanceStickinessFacade
     public async Task RevokeRiskExceptionAsync(Guid riskExceptionId, CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await EnsureRiskExceptionInScopeAsync(scope, riskExceptionId, ct);
 
         await _riskExceptionService.RevokeAsync(
             scope.TenantId,
@@ -148,12 +155,22 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        await EnsureRiskExceptionInScopeAsync(scope, riskExceptionId, ct);
+
         return await _riskExceptionService.RenewAsync(
             scope.TenantId,
             riskExceptionId,
             request,
             _actorContext.GetActorId(),
             ct);
+    }
+
+    private async Task EnsureRiskExceptionInScopeAsync(ScopeContext scope, Guid riskExceptionId, CancellationToken ct)
+    {
+        RiskExceptionRecord? record = await _riskExceptionService.GetByIdAsync(scope.TenantId, riskExceptionId, ct);
+
+        if (!RiskExceptionScope.IsVisibleInScope(record, scope))
+            throw new InvalidOperationException("Risk exception was not found.");
     }
 
     /// <inheritdoc />
