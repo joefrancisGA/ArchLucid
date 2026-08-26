@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 57
-- **bugs-found:** 115
+- **hunts:** 58
+- **bugs-found:** 120
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — terraform-show-json key-name redaction without sensitive_values
+- **last-bug:** 2026-08-26 — simple-terraform nested block sensitive redaction and arm-json nested child resources
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1968,6 +1968,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CanonicalInfrastructureJsonValue` preserved JSON array element order — **hit 2026-08-26:** reversed `ipSecurityRestrictions` rule order false-modified arm-json infra declaration deltas; fixed with stable sort of array elements by canonical JSON text (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_IpSecurityRestrictionsArrayOrder_ProducesEquivalentTfProperties`).
 - [x] (proven) `SimpleTerraformResourceBlockParser.ExtractNestedBlockBody` retained `#` comment lines inside nested HCL blocks — **hit 2026-08-26:** comment-only line inside `site_config` churned `tf.site_config`; fixed with newline-preserving block extraction plus `StripHclComments` / `NormalizeHclBlockBody` (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlockCommentOnlyChange_ProducesEquivalentTfProperties`).
 - [x] (proven) `BicepInfrastructureDeclarationParser.ParseAsync` did not skip `Microsoft.Resources/deployments` wrappers — **hit 2026-08-26:** nested deployment resource emitted spurious topology node; fixed with arm-json parity filter (`BicepInfrastructureDeclarationParserTests.ParseAsync_SkipsMicrosoftResourcesDeployments`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.NormalizeHclBlockBody` stored nested HCL sensitive assignments in plaintext — **hit 2026-08-26:** `site_config { connection_string = "..." }` leaked password text despite ledger claim of `RedactSensitiveAssignmentsInHclBody`; fixed with `ShouldRedactKey` during block normalization (`SimpleTerraformDeclarationParserTests.ParseAsync_redacts_sensitive_nested_block_assignments`).
+- [x] (proven) `SecurityBaselineSensitivityScopeExpander.Expand` stored padded `topologySensitivity` values — **hit 2026-08-26:** `" data-bearing "` topology nodes missed baseline scope linking after baseline-scope trim fix; fixed by trimming topology sensitivity (`SecurityBaselineSensitivityScopeExpanderTests.Expand_padded_topology_sensitivity_links_matching_baseline`).
+- [x] (proven) `ContextIngestionService.CanonicalizeActorsJson` preserved actor label value casing — **hit 2026-08-26:** `"Ops Engineer"` vs `ops engineer` churned `SourceHashes[Actors]`; fixed by lowercasing trimmed labels before serialize (`ContextIngestionServiceTests.IngestAsync_ActorsJsonLabelValueCasing_ProducesStableScopeMetadata`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.NormalizeHclBlockBody` preserved nested HCL assignment order — **hit 2026-08-26:** reversed `site_config` assignments false-modified infra declaration deltas; fixed with stable sort of block assignments (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlockAssignmentOrder_ProducesEquivalentTfProperties`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.ParseAsync` ignored nested child `resources` arrays — **hit 2026-08-26:** VNet child `subnets` resources were dropped from canonical batch; fixed by recursing nested ARM resources with composed type/name (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_NestedChildResources_MapsSubnetUnderVnet`).
+
+2026-08-26 seed hunt #58: reseeded nested sensitive block redaction, padded topology sensitivity, actor label casing, nested HCL assignment order, and arm-json nested child resources; proved all five rows.
 
 2026-08-26 seed hunt #57: proved seed #56 hunt-ready rows (terraform-show-json key-name redaction, arm-json array order, simple-terraform nested-block comments, Bicep deployment filter).
 

@@ -38,7 +38,7 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             List<CanonicalObject> results = [];
 
             foreach (JsonElement resource in resources.EnumerateArray())
-                TryAddResource(resource, declaration, results);
+                TryAddResource(resource, declaration, results, parentName: null, parentResourceType: null);
 
             return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
         }
@@ -57,12 +57,14 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
     private static void TryAddResource(
         JsonElement resource,
         InfrastructureDeclarationReference declaration,
-        List<CanonicalObject> results)
+        List<CanonicalObject> results,
+        string? parentName,
+        string? parentResourceType)
     {
         if (!TryGetPropertyIgnoreCase(resource, "type", out JsonElement typeElement) || typeElement.ValueKind is not JsonValueKind.String)
             return;
 
-        string resourceType = (typeElement.GetString() ?? string.Empty).Trim();
+        string resourceType = ResolveFullResourceType(typeElement.GetString() ?? string.Empty, parentResourceType);
 
         if (string.IsNullOrWhiteSpace(resourceType))
             return;
@@ -73,7 +75,7 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
         if (!TryGetPropertyIgnoreCase(resource, "name", out JsonElement nameElement))
             return;
 
-        string name = ReadName(nameElement);
+        string name = ComposeResourceName(ReadName(nameElement), parentName);
 
         if (string.IsNullOrWhiteSpace(name))
             return;
@@ -107,6 +109,37 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             SourceId = declaration.DeclarationId,
             Properties = properties
         });
+
+        if (!TryGetPropertyIgnoreCase(resource, "resources", out JsonElement nestedResources)
+            || nestedResources.ValueKind is not JsonValueKind.Array)
+            return;
+
+        foreach (JsonElement nestedResource in nestedResources.EnumerateArray())
+            TryAddResource(nestedResource, declaration, results, canonicalName, resourceType);
+    }
+
+    private static string ResolveFullResourceType(string rawType, string? parentResourceType)
+    {
+        string trimmedType = rawType.Trim();
+
+        if (string.IsNullOrWhiteSpace(trimmedType))
+            return string.Empty;
+
+        if (trimmedType.Contains('/', StringComparison.Ordinal))
+            return trimmedType;
+
+        if (!string.IsNullOrWhiteSpace(parentResourceType))
+            return $"{parentResourceType.Trim()}/{trimmedType}";
+
+        return trimmedType;
+    }
+
+    private static string ComposeResourceName(string name, string? parentName)
+    {
+        if (string.IsNullOrWhiteSpace(parentName))
+            return name.Trim();
+
+        return $"{parentName.Trim()}/{name.Trim()}";
     }
 
     private static string ReadName(JsonElement nameElement)

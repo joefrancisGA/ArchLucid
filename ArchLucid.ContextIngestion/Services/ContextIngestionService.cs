@@ -149,6 +149,12 @@ public class ContextIngestionService(
             if (actors is not { Count: > 0 })
                 return actorsJson.Trim();
 
+            foreach (ActorDescriptor actor in actors)
+            {
+                if (!string.IsNullOrWhiteSpace(actor.Label))
+                    actor.Label = actor.Label.Trim().ToLowerInvariant();
+            }
+
             List<ActorDescriptor> orderedActors = actors
                 .OrderBy(static actor => actor.Label ?? string.Empty, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(static actor => actor.Kind)

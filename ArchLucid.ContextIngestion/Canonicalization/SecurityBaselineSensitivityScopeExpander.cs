@@ -18,7 +18,7 @@ public static class SecurityBaselineSensitivityScopeExpander
                 static o => $"obj-{o.ObjectId}",
                 static o => o.Properties.TryGetValue(CanonicalGraphPropertyKeys.TopologySensitivity, out string? sensitivity)
                             && !string.IsNullOrWhiteSpace(sensitivity)
-                    ? sensitivity
+                    ? sensitivity.Trim()
                     : TopologySensitivityClassifier.Classify(o.Name, o.Properties),
                 StringComparer.OrdinalIgnoreCase);
 

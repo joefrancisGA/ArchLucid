@@ -195,6 +195,7 @@ public static class CanonicalInfrastructurePropertyBag
 
         string[] lines = blockBody.Split('\n');
         StringBuilder builder = new();
+        List<(string Key, string Assignment)> assignments = [];
 
         for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
         {
@@ -213,12 +214,10 @@ public static class CanonicalInfrastructurePropertyBag
                 string key = trimmedLine[..equalsIndex].Trim();
                 string assignmentValue = StripTrailingHclComment(trimmedLine[(equalsIndex + 1)..].Trim());
 
-                if (builder.Length > 0)
-                    builder.Append(' ');
+                if (ShouldRedactKey(key))
+                    assignmentValue = "\"[REDACTED]\"";
 
-                builder.Append(key);
-                builder.Append(" = ");
-                builder.Append(assignmentValue);
+                assignments.Add((key, $"{key} = {assignmentValue}"));
                 continue;
             }
 
@@ -226,6 +225,14 @@ public static class CanonicalInfrastructurePropertyBag
                 builder.Append(' ');
 
             builder.Append(StripTrailingHclComment(trimmedLine));
+        }
+
+        foreach ((string _, string Assignment) in assignments.OrderBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            if (builder.Length > 0)
+                builder.Append(' ');
+
+            builder.Append(Assignment);
         }
 
         return builder.ToString();

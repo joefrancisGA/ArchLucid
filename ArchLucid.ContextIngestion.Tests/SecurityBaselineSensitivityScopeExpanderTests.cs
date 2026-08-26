@@ -90,6 +90,41 @@ public sealed class SecurityBaselineSensitivityScopeExpanderTests
     }
 
     [Fact]
+    public void Expand_padded_topology_sensitivity_links_matching_baseline()
+    {
+        CanonicalObject database = new()
+        {
+            ObjectId = "cccccccc-cccc-cccc-cccc-cccccccccccc",
+            ObjectType = "TopologyResource",
+            Name = "sql-db",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.TopologySensitivity] = " data-bearing ",
+            },
+        };
+        CanonicalObject baseline = new()
+        {
+            ObjectType = "SecurityBaseline",
+            Name = "Encrypt data at rest",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["controlId"] = "storage-encryption",
+                [CanonicalGraphPropertyKeys.BaselineScope] = TopologySensitivityLevels.DataBearing,
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> expanded =
+            SecurityBaselineSensitivityScopeExpander.Expand([database, baseline]);
+
+        CanonicalObject scopedBaseline = expanded.Single(o =>
+            string.Equals(o.ObjectType, "SecurityBaseline", StringComparison.OrdinalIgnoreCase));
+
+        scopedBaseline.Properties[CanonicalGraphPropertyKeys.ProtectedTopologyNodeIds]
+            .Should()
+            .Be($"obj-{database.ObjectId}");
+    }
+
+    [Fact]
     public void Expand_protected_topology_node_ids_are_stable_across_topology_list_order()
     {
         CanonicalObject firstDatabase = new()

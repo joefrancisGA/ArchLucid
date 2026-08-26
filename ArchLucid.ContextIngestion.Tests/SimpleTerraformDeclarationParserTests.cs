@@ -248,4 +248,68 @@ public sealed class SimpleTerraformDeclarationParserTests
         withoutCommentObjects.Should().ContainSingle();
         withoutCommentObjects[0].Properties.Should().BeEquivalentTo(withCommentObjects[0].Properties);
     }
+
+    [Fact]
+    public async Task ParseAsync_redacts_sensitive_nested_block_assignments()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          connection_string = "Server=db;Password=secret"
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.site_config"].Should().Contain("[REDACTED]");
+        result[0].Properties["tf.site_config"].Should().NotContain("secret");
+    }
+
+    [Fact]
+    public async Task ParseAsync_NestedBlockAssignmentOrder_ProducesEquivalentTfProperties()
+    {
+        InfrastructureDeclarationReference firstOrder = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            DeclarationId = "d-tf-block-order",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          location = "eastus"
+                          https_only = true
+                        }
+                      }
+                      """
+        };
+
+        InfrastructureDeclarationReference reversedOrder = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            DeclarationId = "d-tf-block-order",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          https_only = true
+                          location = "eastus"
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> firstObjects = await _sut.ParseAsync(firstOrder, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> reversedObjects = await _sut.ParseAsync(reversedOrder, CancellationToken.None);
+
+        firstObjects.Should().ContainSingle();
+        reversedObjects.Should().ContainSingle();
+        reversedObjects[0].Properties.Should().BeEquivalentTo(firstObjects[0].Properties);
+    }
 }
