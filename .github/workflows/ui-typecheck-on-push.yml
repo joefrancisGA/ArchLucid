@@ -20,9 +20,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-      - uses: gacts/gitleaks@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: gacts/gitleaks@v1.3.2
+        with:
+          version: "8.30.1"
+          config-path: .gitleaks.toml
 
   ui-typecheck:
     name: "Operator UI: typecheck (blocking)"

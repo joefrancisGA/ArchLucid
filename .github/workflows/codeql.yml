@@ -17,7 +17,8 @@ env:
 
 concurrency:
   group: codeql-${{ github.ref }}
-  cancel-in-progress: true
+  # Push storms on master cancel in-progress runs and leave CodeQL unverified; PRs still coalesce.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   csharp:
