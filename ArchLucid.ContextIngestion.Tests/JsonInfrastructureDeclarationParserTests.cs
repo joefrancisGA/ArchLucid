@@ -219,4 +219,25 @@ public sealed class JsonInfrastructureDeclarationParserTests
         result[0].Name.Should().Be("hub-vnet/subnet-a");
         result[0].Properties["cidr"].Should().Be("10.0.1.0/24");
     }
+
+    [Fact]
+    public async Task ParseAsync_TopLevelResourceArray_MapsResources()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            Content = """
+                      [
+                        { "type": "vnet", "name": "hub", "region": "eastus" }
+                      ]
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("hub");
+        result[0].Properties["resourceType"].Should().Be("vnet");
+    }
 }

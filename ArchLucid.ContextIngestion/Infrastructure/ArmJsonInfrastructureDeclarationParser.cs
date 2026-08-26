@@ -38,7 +38,7 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             List<CanonicalObject> results = [];
 
             foreach (JsonElement resource in resources.EnumerateArray())
-                TryAddResource(resource, declaration, results);
+                TryAddResource(resource, declaration, results, parentNamePrefix: null);
 
             return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
         }
@@ -57,7 +57,8 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
     private static void TryAddResource(
         JsonElement resource,
         InfrastructureDeclarationReference declaration,
-        List<CanonicalObject> results)
+        List<CanonicalObject> results,
+        string? parentNamePrefix)
     {
         if (!TryGetPropertyIgnoreCase(resource, "type", out JsonElement typeElement) || typeElement.ValueKind is not JsonValueKind.String)
             return;
@@ -73,7 +74,7 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
                 && deploymentChildren.ValueKind is JsonValueKind.Array)
             {
                 foreach (JsonElement childResource in deploymentChildren.EnumerateArray())
-                    TryAddResource(childResource, declaration, results);
+                    TryAddResource(childResource, declaration, results, parentNamePrefix: null);
             }
 
             if (TryGetPropertyIgnoreCase(resource, "properties", out JsonElement deploymentProperties)
@@ -82,7 +83,7 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
                 && templateResources.ValueKind is JsonValueKind.Array)
             {
                 foreach (JsonElement childResource in templateResources.EnumerateArray())
-                    TryAddResource(childResource, declaration, results);
+                    TryAddResource(childResource, declaration, results, parentNamePrefix: null);
             }
 
             return;
@@ -92,6 +93,11 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             return;
 
         string name = ReadName(nameElement);
+
+        if (!string.IsNullOrWhiteSpace(parentNamePrefix)
+            && !string.IsNullOrWhiteSpace(name)
+            && !name.Contains('/', StringComparison.Ordinal))
+            name = $"{parentNamePrefix}/{name}";
 
         if (string.IsNullOrWhiteSpace(name))
             return;
@@ -125,6 +131,13 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             SourceId = declaration.DeclarationId,
             Properties = properties
         });
+
+        if (!TryGetPropertyIgnoreCase(resource, "resources", out JsonElement childResources)
+            || childResources.ValueKind is not JsonValueKind.Array)
+            return;
+
+        foreach (JsonElement childResource in childResources.EnumerateArray())
+            TryAddResource(childResource, declaration, results, parentNamePrefix: name);
     }
 
     private static string ReadName(JsonElement nameElement)

@@ -122,4 +122,31 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_GenerateNameOnly_MapsJob()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "job.json",
+            Format = "kubernetes-json",
+            DeclarationId = "decl-k8s-generatename",
+            Content = """
+                      {
+                        "apiVersion": "batch/v1",
+                        "kind": "Job",
+                        "metadata": {
+                          "generateName": "batch-",
+                          "namespace": "prod"
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("prod/batch-");
+        result[0].Properties["k8s.name"].Should().Be("batch-");
+    }
 }

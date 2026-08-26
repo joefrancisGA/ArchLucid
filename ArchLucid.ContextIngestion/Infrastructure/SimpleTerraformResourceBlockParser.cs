@@ -84,11 +84,12 @@ internal static class SimpleTerraformResourceBlockParser
             {
                 string blockName = nestedBlockMatch.Groups["block"].Value;
                 string remainder = line[(nestedBlockMatch.Index + nestedBlockMatch.Length)..];
-                string blockBody = ExtractNestedBlockBody(remainder, lines, lineIndex);
+                string blockBody = ExtractNestedBlockBody(remainder, lines, lineIndex, out int endLineIndex);
 
                 if (!string.IsNullOrWhiteSpace(blockBody))
                     CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(properties, blockName, blockBody);
 
+                lineIndex = endLineIndex;
                 continue;
             }
 
@@ -110,7 +111,7 @@ internal static class SimpleTerraformResourceBlockParser
         }
     }
 
-    private static string ExtractNestedBlockBody(string remainderOnLine, string[] lines, int lineIndex)
+    private static string ExtractNestedBlockBody(string remainderOnLine, string[] lines, int lineIndex, out int endLineIndex)
     {
         StringBuilder builder = new();
         int depth = 0;
@@ -141,7 +142,10 @@ internal static class SimpleTerraformResourceBlockParser
                 depth--;
 
                 if (started && depth <= 0)
+                {
+                    endLineIndex = lineIndex;
                     return builder.ToString();
+                }
             }
         }
 
@@ -162,11 +166,15 @@ internal static class SimpleTerraformResourceBlockParser
                     depth--;
 
                     if (started && depth <= 0)
+                    {
+                        endLineIndex = nextLineIndex;
                         return builder.ToString();
+                    }
                 }
             }
         }
 
+        endLineIndex = lines.Length - 1;
         return builder.ToString();
     }
 

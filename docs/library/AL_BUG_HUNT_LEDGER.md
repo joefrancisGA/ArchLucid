@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 55
-- **bugs-found:** 110
+- **hunts:** 56
+- **bugs-found:** 115
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — single-quoted HCL scalars kept quote characters
+- **last-bug:** 2026-08-26 — nested HCL block line advance leaked inner scalars
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1965,6 +1965,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty` preserved inner JSON key casing in ARM array/object blobs — **hit 2026-08-26:** `ipAddress` vs `IpAddress` in `ipSecurityRestrictions` false-modified infra declaration deltas; fixed with `CanonicalInfrastructureJsonValue` rewrite (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_ArrayPropertyInnerKeyCasing_IsCanonicalized`).
 
 2026-08-26 seed hunt #55: reseeded simple-terraform HCL quoting/comments, ARM deployment template descent, JSON composite names, and ARM array JSON canonicalization; proved all five hunt-ready rows.
+
+- [x] (proven) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` did not advance `lineIndex` after `ExtractNestedBlockBody` consumed nested-block lines — **hit 2026-08-26:** `site_config { ip_restriction { ip_address = "0.0.0.0/0" } }` also emitted spurious top-level `tf.ip_restriction` and `tf.ip_address`; fixed by setting `lineIndex = endLineIndex` before `continue` (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlockBody_DoesNotLeakInnerScalarsAsTopLevelTfProperties`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` stored nested HCL block bodies verbatim without `ShouldRedactKey` — **hit 2026-08-26:** `connection_string { value = "AccountKey=secret" }` leaked plaintext into `tf.connection_string`; fixed with `BlockBodyContainsSensitiveKey` scan and block-name redaction (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedSensitiveBlock_RedactsConnectionString`).
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.TryAddResource` required `metadata.name` and ignored `metadata.generateName` — **hit 2026-08-26:** Job manifest with only `generateName: batch-` returned zero resources; fixed by falling back to `generateName` when `name` is blank (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_GenerateNameOnly_MapsJob`).
+- [x] (proven) `JsonInfrastructureDeclarationParser.ParseAsync` called `TryGetPropertyIgnoreCase` on a root array — **hit 2026-08-26:** top-level `[{"type":"vnet","name":"hub"}]` threw `InvalidOperationException`; fixed by branching on `JsonValueKind.Array` before `resources` wrapper lookup (`JsonInfrastructureDeclarationParserTests.ParseAsync_TopLevelResourceArray_MapsResources`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` did not descend into parent `resources` child arrays (non-deployment) — **hit 2026-08-26:** storage account with nested `blobServices` child emitted only parent `sa`; fixed by recursing child `resources[]` with `parentNamePrefix` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_NestedChildResources_MapsBlobService`).
+
+2026-08-26 seed hunt #56: proved nested HCL block line advance, nested sensitive block redaction, K8s generateName fallback, JSON top-level array, and ARM inline nested child resources; all five hunt-ready rows from seed #71.
 
 2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
 

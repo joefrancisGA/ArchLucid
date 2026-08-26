@@ -28,14 +28,19 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
             using JsonDocument document = JsonDocument.Parse(declaration.Content);
             JsonElement root = document.RootElement;
 
-            if (!TryGetPropertyIgnoreCase(root, "resources", out JsonElement resources)
-                || resources.ValueKind is not JsonValueKind.Array)
-                return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
-
             List<CanonicalObject> results = [];
 
-            foreach (JsonElement resource in resources.EnumerateArray())
-                TryAddResource(resource, declaration, results);
+            if (root.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement resource in root.EnumerateArray())
+                    TryAddResource(resource, declaration, results);
+            }
+            else if (TryGetPropertyIgnoreCase(root, "resources", out JsonElement resources)
+                     && resources.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement resource in resources.EnumerateArray())
+                    TryAddResource(resource, declaration, results);
+            }
 
             return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
         }
