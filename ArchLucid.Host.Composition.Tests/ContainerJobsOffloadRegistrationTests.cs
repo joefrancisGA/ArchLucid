@@ -328,6 +328,48 @@ public sealed class ContainerJobsOffloadRegistrationTests
         hasConsumer.Should().BeFalse();
     }
 
+    [Fact]
+    public void AddArchLucidApplicationServices_Combined_durable_registers_BackgroundJobQueueProcessorHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Combined";
+        data["BackgroundJobs:Mode"] = "Durable";
+        data["BackgroundJobs:QueueServiceUri"] = "https://test.queue.core.windows.net";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Combined);
+
+        bool hasProcessor = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(BackgroundJobQueueProcessorHostedService));
+
+        hasProcessor.Should().BeTrue(
+            "Combined hosts enqueue and process durable background jobs in one process like Worker");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_durable_does_not_register_BackgroundJobQueueProcessorHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+        data["BackgroundJobs:Mode"] = "Durable";
+        data["BackgroundJobs:QueueServiceUri"] = "https://test.queue.core.windows.net";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasProcessor = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(BackgroundJobQueueProcessorHostedService));
+
+        hasProcessor.Should().BeFalse(
+            "Api-only nodes enqueue durable jobs but a separate Worker must process the queue");
+    }
+
     private static Dictionary<string, string?> CreateWorkerCompositionDictionary()
     {
         return new Dictionary<string, string?>

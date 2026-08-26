@@ -1801,9 +1801,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 52
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-26
 - **last-bug:** 2026-08-26 — prior requirement name casing, ActorsJson element order canonicalization
 - **related-pd-tb:** none
@@ -1868,9 +1868,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ContextIngestionService.ApplyScopeMetadata` built `PriorRequirementNames` from prior requirement `Name` values without lowercasing — **hit 2026-08-26:** `Availability|Encryption` vs `availability|encryption` churned metadata hashes; fixed by lowercasing requirement names before join (`ContextIngestionServiceTests.IngestAsync_PriorRequirementNameCasing_ProducesStableScopeMetadata`)
 - [x] (proven) `ContextIngestionService.CanonicalizeActorsJson` preserved actor array element order — **hit 2026-08-26:** semantically equivalent actor sets in different order churned `SourceHashes`; fixed by stable sort before serialize (`ContextIngestionServiceTests.IngestAsync_ActorsJsonElementOrder_ProducesStableScopeMetadata`)
 - [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` preserves boolean `tf.*` string literals — JSON `true` and string `"true"` both canonicalize to `"true"`; regression `TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_EquivalentBooleanRepresentations_ProduceSameTfProperties`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonBooleanStringChange_ReportsUnchanged`
-- [ ] (candidate) `ContextIngestionService.CanonicalizeActorsJson` does not normalize enum casing in serialized actor JSON — `Human` vs `human` in actor `kind` may churn `SourceHashes` when clients send non-standard enum strings.
-- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` preserves `null` vs missing `tf.*` keys — absent values vs explicit JSON null may false-modify infra declaration deltas.
-- [ ] (candidate) `ContextIngestionService.ApplyScopeMetadata` stores raw `ActorsJson` for invalid JSON — malformed actor payloads only trim whitespace, so equivalent invalid strings with different padding may churn hashes.
+- [x] (valid-no-repro) `ContextIngestionService.CanonicalizeActorsJson` does not normalize enum casing in serialized actor JSON — `human` vs `Human` deserialize to the same `ActorDescriptor` and re-serialize with canonical enum names; regression `ContextIngestionServiceTests.IngestAsync_ActorsJsonEnumCasing_ProducesStableScopeMetadata`
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` preserves `null` vs missing `tf.*` keys — explicit JSON null and absent keys both skip property emission via `IsNullOrWhiteSpace` guard; regression `TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_MissingVsNullTfValues_ProduceSameTfProperties`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonNullVsMissingTfValue_ReportsUnchanged`
+- [x] (valid-no-repro) `ContextIngestionService.ApplyScopeMetadata` stores raw `ActorsJson` for invalid JSON — malformed payloads trim outer whitespace before hash, so padding-only variants stabilize; regression `ContextIngestionServiceTests.IngestAsync_InvalidActorsJsonPadding_ProducesStableScopeMetadata`
+- [ ] (candidate) `ContextIngestionService.ApplyScopeMetadata` omits `Actors` metadata when `ActorsJson` is null but stores `[]` for empty actor arrays — absent vs empty actor lists may churn scope metadata on re-ingest.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` preserves empty-object `tf.*` values — explicit `{}` vs missing nested object may false-modify infra declaration deltas.
+- [ ] (candidate) `ContextIngestionStableReferenceIds` hashes declaration `format` before trim — padded declaration format in mapper input may produce different stable ids than parser `CanParse` accepts after trim.
 
 ---
 
@@ -1986,11 +1989,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 6
-- **bugs-found:** 8
+- **hunts:** 7
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — Combined role omitted Service Bus integration event consumer registration
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — Combined role omitted durable background job queue processor
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2012,8 +2015,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InMemoryValueReportJobQueue` poll failed across service instances — **hit 2026-08-24:** enqueue/poll used per-process memory only; regression in `InMemoryValueReportJobQueue_poll_reads_job_enqueued_on_another_instance_via_distributed_cache`
 - [x] (hunt-ready) `OutboxProcessorsCompositionRegistrar.RegisterIntegrationEventConsumer` gates on `hostingRole == Worker` only — sibling outbox/advisory registrars include `Combined`, so default Combined hosts never register `AzureServiceBusIntegrationEventConsumer` or integration handlers.
 - [x] (proven) Combined role omitted Service Bus integration event consumer — **hit 2026-08-25:** `RegisterIntegrationEventConsumer` returned before wiring handlers/consumer when role was `Combined`; fixed to match Worker (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Combined_role_registers_ServiceBus_integration_event_consumer`).
-
----
+- [x] (proven) `RegisterBackgroundJobs` omitted `BackgroundJobQueueProcessorHostedService` on Combined role when `BackgroundJobs:Mode` is `Durable` — **hit 2026-08-26:** Combined hosts enqueue durable export jobs but only Worker registered the queue processor, so single-process Combined deployments never drained the queue; fixed by registering the processor for Combined+durable while keeping Api-only enqueue-only (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Combined_durable_registers_BackgroundJobQueueProcessorHostedService`, `AddArchLucidApplicationServices_Api_durable_does_not_register_BackgroundJobQueueProcessorHostedService`).
+- [ ] (candidate) `DraftIntakeCompositionRegistrar` registers `AdvisoryDraftOperationHostedService` without hosting-role gate — Api-only composition may run async advisory-draft worker loop intended for Combined/Worker hosts.
+- [ ] (candidate) `AdvisoryDigestSchedulingRegistrar` registers `ArchitectureReviewRecurrenceHostedService` without container-job offload gate — unlike `AdvisoryScanHostedService`, recurrence scheduling may keep running in-process when advisory jobs are container-offloaded.
+- [ ] (candidate) `RunLifecycleOrchestrationCompositionRegistrar` registers `ArchitectureRunAsyncOperationHostedService` without hosting-role gate — Api-only hosts may process async architecture-run operations locally instead of delegating to worker infrastructure.
 
 ## Zone: cloud-extractors
 

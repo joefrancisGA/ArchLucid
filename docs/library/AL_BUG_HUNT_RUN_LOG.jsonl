@@ -316,4 +316,5 @@
 {"at":"2026-08-26T02:06:25.6908273Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-08-26T02:10:13.5138785Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-08-26T02:12:57.5531971Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-08-26T02:15:37.9887560Z","zoneId":"context-ingestion","outcome":"dry"}
+{"at":"2026-08-26T02:15:37.988756Z","zoneId":"context-ingestion","outcome":"dry"}
+{"at":"2026-08-26T02:20:05.0247814Z","zoneId":"host-composition","outcome":"hit"}
