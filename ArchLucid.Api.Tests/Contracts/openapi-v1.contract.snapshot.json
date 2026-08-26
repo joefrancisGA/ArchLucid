@@ -2642,153 +2642,7 @@
         },
         "type": "object"
       },
-      "AgentResult": {
-        "properties": {
-          "agentType": {
-            "$ref": "#/components/schemas/AgentType"
-          },
-          "cacheServed": {
-            "type": "boolean"
-          },
-          "calibratedConfidence": {
-            "format": "double",
-            "maximum": 1,
-            "minimum": 0,
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ]
-          },
-          "checklistCoverage": {
-            "items": {
-              "$ref": "#/components/schemas/ArchitectureFinding"
-            },
-            "type": "array"
-          },
-          "citations": {
-            "items": {
-              "$ref": "#/components/schemas/Citation"
-            },
-            "type": [
-              "null",
-              "array"
-            ]
-          },
-          "claims": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "confidence": {
-            "format": "double",
-            "maximum": 1,
-            "minimum": 0,
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
-            "type": [
-              "number",
-              "string"
-            ]
-          },
-          "createdUtc": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "degradationReasonCode": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "evidenceRefs": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "findings": {
-            "items": {
-              "$ref": "#/components/schemas/ArchitectureFinding"
-            },
-            "type": "array"
-          },
-          "insightDensityCuration": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/InsightDensityCurationSummary"
-              }
-            ]
-          },
-          "proposedChanges": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/AgentTopologyProposal"
-              }
-            ]
-          },
-          "reasoningTrace": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "resultId": {
-            "type": "string"
-          },
-          "retrievalGroundingTrace": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/AgentResultRetrievalGroundingTrace"
-              }
-            ]
-          },
-          "runId": {
-            "type": "string"
-          },
-          "taskId": {
-            "type": "string"
-          },
-          "taskStructuralExecutionMode": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/StructuralExecutionMode"
-              }
-            ]
-          },
-          "upstreamResultFingerprints": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "type": [
-              "null",
-              "object"
-            ]
-          }
-        },
-        "required": [
-          "agentType",
-          "claims",
-          "evidenceRefs",
-          "resultId",
-          "runId",
-          "taskId"
-        ],
-        "type": "object"
-      },
+      "AgentResult": {},
       "AgentResultCompareResponse": {
         "properties": {
           "diff": {
@@ -2926,19 +2780,6 @@
         },
         "type": "object"
       },
-      "AgentResultRetrievalGroundingTrace": {
-        "properties": {
-          "citationCoverage": {
-            "format": "double",
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
-            "type": [
-              "number",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
       "AgentTask": {
         "properties": {
           "agentType": {
@@ -3020,47 +2861,6 @@
           "Failed"
         ],
         "type": "string"
-      },
-      "AgentTopologyProposal": {
-        "properties": {
-          "addedDatastores": {
-            "items": {
-              "$ref": "#/components/schemas/ManifestDatastore"
-            },
-            "type": "array"
-          },
-          "addedRelationships": {
-            "items": {
-              "$ref": "#/components/schemas/ManifestRelationship"
-            },
-            "type": "array"
-          },
-          "addedServices": {
-            "items": {
-              "$ref": "#/components/schemas/ManifestService"
-            },
-            "type": "array"
-          },
-          "proposalId": {
-            "type": "string"
-          },
-          "requiredControls": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "sourceAgent": {
-            "$ref": "#/components/schemas/AgentType"
-          },
-          "warnings": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          }
-        },
-        "type": "object"
       },
       "AgentType": {
         "enum": [
@@ -3621,6 +3421,39 @@
         },
         "type": "object"
       },
+      "ApplyKnowledgeModelClarificationAnswersRequest": {
+        "properties": {
+          "answers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "ApplyKnowledgeModelClarificationAnswersResponse": {
+        "properties": {
+          "appliedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "mergedFindingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "partialScopeDisclaimer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reReviewTriggered": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ApproveGovernanceRequest": {
         "properties": {
           "reviewComment": {
@@ -3970,6 +3803,12 @@
             },
             "type": "array"
           },
+          "deniedFailureModeNote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "deniedRequiredCapabilities": {
             "items": {
               "type": "string"
@@ -4005,6 +3844,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "suggestedFailureModeNote": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "suggestedRequiredCapabilities": {
             "items": {
@@ -4044,154 +3889,6 @@
           "Contradiction"
         ],
         "type": "string"
-      },
-      "ArchitectureFinding": {
-        "properties": {
-          "category": {
-            "type": "string"
-          },
-          "classification": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/FindingClassification"
-              }
-            ]
-          },
-          "confidenceLevel": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/FindingConfidenceLevel"
-              }
-            ]
-          },
-          "confidenceScore": {
-            "format": "double",
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ]
-          },
-          "decisionConsequence": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "enforcementTier": {
-            "$ref": "#/components/schemas/FindingEnforcementTier"
-          },
-          "estimatedUsdSavings": {
-            "format": "double",
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ]
-          },
-          "evaluationConfidenceScore": {
-            "format": "int32",
-            "type": [
-              "null",
-              "integer"
-            ]
-          },
-          "evidenceRefs": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "findingId": {
-            "type": "string"
-          },
-          "iacStub": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "insightDensityScore": {
-            "format": "int32",
-            "type": [
-              "null",
-              "integer"
-            ]
-          },
-          "isMuted": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          },
-          "muteReason": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "policyRuleId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "principalArchitectValue": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "reasoningTrace": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "severity": {
-            "$ref": "#/components/schemas/FindingSeverity"
-          },
-          "sourceAgent": {
-            "$ref": "#/components/schemas/AgentType"
-          },
-          "treatment": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/FindingTreatment"
-              }
-            ]
-          },
-          "trustLabel": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "trustLabelReason": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "whyThisIsNotGeneric": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
       },
       "ArchitectureFindingFeedbackPostRequest": {
         "properties": {
@@ -4817,6 +4514,12 @@
               "string"
             ]
           },
+          "priorRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "qualityAttributeSnapshot": {
             "type": [
               "null",
@@ -4905,6 +4608,13 @@
       },
       "ArchitectureReviewRecurrenceSchedule": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "consecutiveFailureCount": {
             "format": "int32",
             "type": "integer"
@@ -5261,9 +4971,6 @@
             ]
           },
           "results": {
-            "items": {
-              "$ref": "#/components/schemas/AgentResult"
-            },
             "type": "array"
           },
           "run": {
@@ -6938,6 +6645,27 @@
         },
         "type": "object"
       },
+      "ClarificationAnswerRephraseItem": {
+        "properties": {
+          "extractedAnswer": {
+            "minLength": 3,
+            "type": "string"
+          },
+          "questionKey": {
+            "type": "string"
+          },
+          "questionPrompt": {
+            "minLength": 10,
+            "type": "string"
+          }
+        },
+        "required": [
+          "extractedAnswer",
+          "questionKey",
+          "questionPrompt"
+        ],
+        "type": "object"
+      },
       "ClientErrorReport": {
         "properties": {
           "context": {
@@ -7237,27 +6965,6 @@
         },
         "type": "object"
       },
-      "ClarificationAnswerRephraseItem": {
-        "properties": {
-          "extractedAnswer": {
-            "minLength": 3,
-            "type": "string"
-          },
-          "questionKey": {
-            "type": "string"
-          },
-          "questionPrompt": {
-            "minLength": 10,
-            "type": "string"
-          }
-        },
-        "required": [
-          "extractedAnswer",
-          "questionKey",
-          "questionPrompt"
-        ],
-        "type": "object"
-      },
       "CloudPlatformScopeDto": {
         "properties": {
           "aws": {
@@ -7430,6 +7137,18 @@
       },
       "CommittedGovernancePackAssignmentSnapshot": {
         "properties": {
+          "complianceRuleKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "evaluationOutcome": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "policyPackId": {
             "format": "uuid",
             "type": "string"
@@ -12041,9 +11760,6 @@
       "ExecuteRunResponse": {
         "properties": {
           "results": {
-            "items": {
-              "$ref": "#/components/schemas/AgentResult"
-            },
             "type": "array"
           },
           "runId": {
@@ -12970,7 +12686,14 @@
         "type": "string"
       },
       "FindingDisposition": {
-        "type": "integer"
+        "enum": [
+          "Accepted",
+          "Deferred",
+          "NeedsEvidence",
+          "Remediated",
+          "RejectedAsNotApplicable"
+        ],
+        "type": "string"
       },
       "FindingDispositionEventDto": {
         "properties": {
@@ -13652,6 +13375,14 @@
         },
         "type": "object"
       },
+      "FindingMergeConflictResolutionAction": {
+        "enum": [
+          "AcceptPrimary",
+          "AcceptAlternate",
+          "KeepBoth"
+        ],
+        "type": "string"
+      },
       "FindingMuteRequest": {
         "properties": {
           "expiresAtUtc": {
@@ -13857,9 +13588,7 @@
         ],
         "type": "object"
       },
-      "FindingTreatment": {
-        "type": "integer"
-      },
+      "FindingTreatment": {},
       "FindingsSnapshot": {
         "properties": {
           "checklistCoverage": {
@@ -15868,6 +15597,12 @@
           "globalInvariantResults": {
             "items": {
               "$ref": "#/components/schemas/GlobalInvariantCheckResult"
+            },
+            "type": "array"
+          },
+          "mergedFindingIds": {
+            "items": {
+              "type": "string"
             },
             "type": "array"
           },
@@ -18320,8 +18055,20 @@
           "class": {
             "$ref": "#/components/schemas/MustNotFailClass"
           },
+          "findingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "message": {
             "type": "string"
+          },
+          "recommendationId": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -21545,6 +21292,63 @@
         ],
         "type": "object"
       },
+      "PreFinalizeChecklistItem": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PreFinalizeChecklistItemStatus"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PreFinalizeChecklistItemStatus": {
+        "enum": [
+          "Clear",
+          "Advisory",
+          "Blocking"
+        ],
+        "type": "string"
+      },
+      "PreFinalizeChecklistResult": {
+        "properties": {
+          "advisoryCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "blockingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PreFinalizeChecklistItem"
+            },
+            "type": "array"
+          },
+          "readyToFinalize": {
+            "type": "boolean"
+          },
+          "runId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PreviewRecurrenceScheduleRunsRequest": {
         "properties": {
           "count": {
@@ -22619,6 +22423,24 @@
         },
         "type": "object"
       },
+      "RecommendationActionResponse": {
+        "properties": {
+          "improveLoop": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RecommendationImproveLoopEvidenceResponse"
+              }
+            ]
+          },
+          "recommendation": {
+            "$ref": "#/components/schemas/RecommendationRecordResponse"
+          }
+        },
+        "type": "object"
+      },
       "RecommendationAlternative": {
         "properties": {
           "path": {
@@ -22632,6 +22454,42 @@
       },
       "RecommendationConfidence": {
         "type": "integer"
+      },
+      "RecommendationImproveLoopEvidenceResponse": {
+        "properties": {
+          "diffEntries": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureModelDiffEntry"
+            },
+            "type": "array"
+          },
+          "fullReReviewTriggered": {
+            "type": "boolean"
+          },
+          "impact": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChangeImpactResult"
+              }
+            ]
+          },
+          "mergedFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "partialScopeDisclaimer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
       },
       "RecommendationLearningOperationalStatusResponse": {
         "properties": {
@@ -23266,42 +23124,6 @@
         },
         "type": "object"
       },
-      "RecommendationImproveLoopEvidenceResponse": {
-        "properties": {
-          "diffEntries": {
-            "items": {
-              "$ref": "#/components/schemas/ArchitectureModelDiffEntry"
-            },
-            "type": "array"
-          },
-          "fullReReviewTriggered": {
-            "type": "boolean"
-          },
-          "impact": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/ChangeImpactResult"
-              }
-            ]
-          },
-          "mergedFindingIds": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "partialScopeDisclaimer": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
       "RecommendationRecordResponse": {
         "properties": {
           "category": {
@@ -23651,6 +23473,32 @@
         ],
         "type": "object"
       },
+      "RephraseClarificationAnswersInput": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ClarificationAnswerRephraseItem"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "RephraseClarificationAnswersResponse": {
+        "properties": {
+          "rephrasedAnswers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
       "ReplayComparisonMetadataResponse": {
         "properties": {
           "comparisonRecordId": {
@@ -23968,9 +23816,6 @@
             "type": "string"
           },
           "results": {
-            "items": {
-              "$ref": "#/components/schemas/AgentResult"
-            },
             "type": "array"
           },
           "warnings": {
@@ -23978,32 +23823,6 @@
               "type": "string"
             },
             "type": "array"
-          }
-        },
-        "type": "object"
-      },
-      "RephraseClarificationAnswersInput": {
-        "properties": {
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/ClarificationAnswerRephraseItem"
-            },
-            "minItems": 1,
-            "type": "array"
-          }
-        },
-        "required": [
-          "items"
-        ],
-        "type": "object"
-      },
-      "RephraseClarificationAnswersResponse": {
-        "properties": {
-          "rephrasedAnswers": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "type": "object"
           }
         },
         "type": "object"
@@ -24227,6 +24046,14 @@
               "$ref": "#/components/schemas/RequirementCoverageItem"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ResolveFindingMergeConflictRequest": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/FindingMergeConflictResolutionAction"
           }
         },
         "type": "object"
@@ -25555,9 +25382,6 @@
             ]
           },
           "results": {
-            "items": {
-              "$ref": "#/components/schemas/AgentResult"
-            },
             "type": [
               "null",
               "array"
@@ -25682,9 +25506,6 @@
             ]
           },
           "results": {
-            "items": {
-              "$ref": "#/components/schemas/AgentResult"
-            },
             "type": "array"
           },
           "run": {
@@ -26476,6 +26297,13 @@
       },
       "RunRecord": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "architectureRequestId": {
             "type": [
               "null",
@@ -26572,6 +26400,12 @@
           "hasWarnings": {
             "type": "boolean"
           },
+          "improveLoopEvidenceJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "isDeadLettered": {
             "type": "boolean"
           },
@@ -26586,6 +26420,12 @@
           },
           "isSample": {
             "type": "boolean"
+          },
+          "knowledgeModelId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "lastFailureReason": {
             "type": [
@@ -29734,6 +29574,52 @@
         ],
         "type": "object"
       },
+      "TenantFindingEngineControlsResponse": {
+        "properties": {
+          "effectiveEnableLlmJudge": {
+            "type": "boolean"
+          },
+          "effectiveEnableLlmJudgeForEngineFindings": {
+            "type": "boolean"
+          },
+          "effectivePortfolioRecurrenceEnabled": {
+            "type": "boolean"
+          },
+          "enableLlmJudgeForEngineFindingsOverridden": {
+            "type": "boolean"
+          },
+          "enableLlmJudgeOverridden": {
+            "type": "boolean"
+          },
+          "hostDefaultEnableLlmJudge": {
+            "type": "boolean"
+          },
+          "hostDefaultEnableLlmJudgeForEngineFindings": {
+            "type": "boolean"
+          },
+          "hostDefaultPortfolioRecurrenceEnabled": {
+            "type": "boolean"
+          },
+          "portfolioRecurrenceEnabledOverridden": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "TenantFindingEngineControlsUpdateRequest": {
+        "properties": {
+          "enableLlmJudge": {
+            "type": "boolean"
+          },
+          "enableLlmJudgeForEngineFindings": {
+            "type": "boolean"
+          },
+          "portfolioRecurrenceEnabled": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "TenantHealthScoreResponse": {
         "properties": {
           "breadthScore": {
@@ -32390,52 +32276,6 @@
         "properties": {
           "profile": {
             "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "TenantFindingEngineControlsResponse": {
-        "properties": {
-          "effectiveEnableLlmJudge": {
-            "type": "boolean"
-          },
-          "effectiveEnableLlmJudgeForEngineFindings": {
-            "type": "boolean"
-          },
-          "effectivePortfolioRecurrenceEnabled": {
-            "type": "boolean"
-          },
-          "hostDefaultEnableLlmJudge": {
-            "type": "boolean"
-          },
-          "hostDefaultEnableLlmJudgeForEngineFindings": {
-            "type": "boolean"
-          },
-          "hostDefaultPortfolioRecurrenceEnabled": {
-            "type": "boolean"
-          },
-          "enableLlmJudgeOverridden": {
-            "type": "boolean"
-          },
-          "enableLlmJudgeForEngineFindingsOverridden": {
-            "type": "boolean"
-          },
-          "portfolioRecurrenceEnabledOverridden": {
-            "type": "boolean"
-          }
-        },
-        "type": "object"
-      },
-      "TenantFindingEngineControlsUpdateRequest": {
-        "properties": {
-          "enableLlmJudge": {
-            "type": "boolean"
-          },
-          "enableLlmJudgeForEngineFindings": {
-            "type": "boolean"
-          },
-          "portfolioRecurrenceEnabled": {
-            "type": "boolean"
           }
         },
         "type": "object"
@@ -51900,6 +51740,442 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/admin/settings/finding-engine-controls": {
+      "delete": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "Settings"
+        ],
+        "x-archlucid-audience": "operator"
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "Settings"
+        ],
+        "x-archlucid-audience": "operator"
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantFindingEngineControlsUpdateRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantFindingEngineControlsUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantFindingEngineControlsUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "Settings"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/admin/settings/model-execution-profile": {
       "delete": {
         "responses": {
@@ -56911,17 +57187,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecommendationRecordResponse"
+                  "$ref": "#/components/schemas/RecommendationActionResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecommendationRecordResponse"
+                  "$ref": "#/components/schemas/RecommendationActionResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecommendationRecordResponse"
+                  "$ref": "#/components/schemas/RecommendationActionResponse"
                 }
               }
             },
@@ -73664,7 +73940,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/request/draft/overview-rewrite": {
+    "/v1/architecture/request/draft/async": {
       "post": {
         "requestBody": {
           "content": {
@@ -73675,7 +73951,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
+                    "$ref": "#/components/schemas/DraftArchitectureRequestInput"
                   }
                 ]
               }
@@ -73687,7 +73963,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
+                    "$ref": "#/components/schemas/DraftArchitectureRequestInput"
                   }
                 ]
               }
@@ -73699,7 +73975,441 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
+                    "$ref": "#/components/schemas/DraftArchitectureRequestInput"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "Runs"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/request/draft/async/{operationId}/result": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operationId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftArchitectureRequestResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftArchitectureRequestResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftArchitectureRequestResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "Runs"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/request/draft/clarification-answers/rephrase": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
                   }
                 ]
               }
@@ -73711,17 +74421,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
+                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
+                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
+                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
                 }
               }
             },
@@ -73889,7 +74599,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/request/draft/clarification-answers/rephrase": {
+    "/v1/architecture/request/draft/overview-rewrite": {
       "post": {
         "requestBody": {
           "content": {
@@ -73900,7 +74610,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
+                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
                   }
                 ]
               }
@@ -73912,7 +74622,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
+                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
                   }
                 ]
               }
@@ -73924,7 +74634,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
+                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
                   }
                 ]
               }
@@ -73936,17 +74646,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
+                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
+                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
+                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
                 }
               }
             },
@@ -82591,9 +83301,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -83097,6 +83812,257 @@
         },
         "tags": [
           "RunQuery"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/review/{runId}/knowledge-model/clarification-answers": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "ReviewClarificationQuestions"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -122442,6 +123408,201 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/governance/pre-finalize/checklist/{runId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreFinalizeChecklistResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreFinalizeChecklistResult"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreFinalizeChecklistResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "GovernancePreCommitSimulation"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/governance/pre-finalize/simulate": {
       "post": {
         "requestBody": {
@@ -125592,6 +126753,203 @@
         },
         "tags": [
           "Governance"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/governance/runs/{runId}/finding-merge-conflicts/{findingId}/resolve": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "findingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ResolveFindingMergeConflictRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ResolveFindingMergeConflictRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ResolveFindingMergeConflictRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -164940,457 +166298,6 @@
         },
         "tags": [
           "Version"
-        ],
-        "x-archlucid-audience": "operator"
-      }
-    },
-    "/v1/admin/settings/finding-engine-controls": {
-      "delete": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Bad Request (validation or malformed input)."
-          },
-          "401": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unauthorized."
-          },
-          "403": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Forbidden."
-          },
-          "404": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found."
-          },
-          "405": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Method Not Allowed."
-          },
-          "409": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Conflict."
-          },
-          "415": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unsupported Media Type."
-          },
-          "422": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unprocessable Entity."
-          },
-          "429": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Too Many Requests."
-          },
-          "500": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Internal Server Error."
-          },
-          "503": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Service Unavailable."
-          }
-        },
-        "tags": [
-          "Settings"
-        ],
-        "x-archlucid-audience": "operator"
-      },
-      "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Bad Request (validation or malformed input)."
-          },
-          "401": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unauthorized."
-          },
-          "403": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Forbidden."
-          },
-          "404": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found."
-          },
-          "405": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Method Not Allowed."
-          },
-          "409": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Conflict."
-          },
-          "415": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unsupported Media Type."
-          },
-          "422": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unprocessable Entity."
-          },
-          "429": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Too Many Requests."
-          },
-          "500": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Internal Server Error."
-          },
-          "503": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Service Unavailable."
-          }
-        },
-        "tags": [
-          "Settings"
-        ],
-        "x-archlucid-audience": "operator"
-      },
-      "put": {
-        "requestBody": {
-          "content": {
-            "application/*\u002Bjson": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantFindingEngineControlsUpdateRequest"
-              }
-            },
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantFindingEngineControlsUpdateRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantFindingEngineControlsUpdateRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantFindingEngineControlsResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "401": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unauthorized."
-          },
-          "403": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Forbidden."
-          },
-          "404": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found."
-          },
-          "405": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Method Not Allowed."
-          },
-          "409": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Conflict."
-          },
-          "415": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unsupported Media Type."
-          },
-          "422": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unprocessable Entity."
-          },
-          "429": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Too Many Requests."
-          },
-          "500": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Internal Server Error."
-          },
-          "503": {
-            "content": {
-              "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Service Unavailable."
-          }
-        },
-        "tags": [
-          "Settings"
         ],
         "x-archlucid-audience": "operator"
       }
