@@ -115,6 +115,7 @@ public sealed class GovernanceStickinessFacadeTests
             new Mock<IGovernanceDigestDecisionNeededComposer>().Object,
             new Mock<IReviewsAwaitingActionQueryService>().Object,
             new Mock<IRealizedValueAttestationService>().Object,
-            new Mock<IAuditService>().Object);
+            new Mock<IAuditService>().Object,
+            new Mock<IFindingInspectReadRepository>().Object);
     }
 }

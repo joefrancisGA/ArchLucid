@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { FirstReviewHelpClaimDisciplineStrip } from "@/components/help/FirstReviewHelpClaimDisciplineStrip";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -9,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  FIRST_REVIEW_HELP_CLAIM_DISCIPLINE,
+  buildFirstReviewHelpTocHeadings,
   FIRST_REVIEW_HELP_EVIDENCE_ARC,
   FIRST_REVIEW_HELP_OVERVIEW,
   FIRST_REVIEW_HELP_PAGE_SUBTITLE,
@@ -18,14 +19,18 @@ import {
 } from "@/lib/first-review-help-guide-content";
 import { FIRST_REVIEW_HELP_PATH } from "@/lib/first-review-help-route";
 import {
-  DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  HELP_PAGE_LAYOUT,
+  HELP_PAGE_MIN_TOC_HEADINGS,
+  resolveHelpPageContentGridClass,
+} from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -44,7 +49,9 @@ export function HelpFirstReviewEvidenceChecklistGuideView(
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const headings = buildFirstReviewHelpTocHeadings(extractHelpMarkdownHeadings(preparedMarkdown));
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
+  const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article
@@ -66,71 +73,62 @@ export function HelpFirstReviewEvidenceChecklistGuideView(
         }
       />
 
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
-          data-testid="help-first-review-action-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Run the evidence path
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
-              <Link href={FIRST_REVIEW_HELP_PRIMARY_ACTIONS.openBuyerFirstReview.href}>
-                {FIRST_REVIEW_HELP_PRIMARY_ACTIONS.openBuyerFirstReview.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={FIRST_REVIEW_HELP_PRIMARY_ACTIONS.startArchitectureReview.href}>
-                {FIRST_REVIEW_HELP_PRIMARY_ACTIONS.startArchitectureReview.label}
-              </Link>
-            </Button>
-            <Link
-              href={FIRST_REVIEW_HELP_PRIMARY_ACTIONS.openAuditTrail.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
+      <FirstReviewHelpClaimDisciplineStrip />
+
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+          <div className="space-y-6" data-testid="help-first-review-first-viewport">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-first-review-overview">
+              {FIRST_REVIEW_HELP_OVERVIEW}
+            </p>
+
+            <section
+              aria-labelledby="help-first-review-arc-heading"
+              data-testid="help-first-review-evidence-arc"
+              id="evidence-arc"
             >
-              {FIRST_REVIEW_HELP_PRIMARY_ACTIONS.openAuditTrail.label}
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
+              <h2
+                id="help-first-review-arc-heading"
+                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+              >
+                Evidence arc
+              </h2>
+              <ol className={cn("m-0 mt-2 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                {FIRST_REVIEW_HELP_EVIDENCE_ARC.map((beat) => (
+                  <li key={beat}>{beat}</li>
+                ))}
+              </ol>
+            </section>
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-first-review-overview">
-            {FIRST_REVIEW_HELP_OVERVIEW}
-          </p>
-
-          <section
-            aria-labelledby="help-first-review-arc-heading"
-            data-testid="help-first-review-evidence-arc"
-          >
-            <h2
-              id="help-first-review-arc-heading"
-              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            <Card
+              className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950"
+              data-testid="help-first-review-action-panel"
             >
-              Evidence arc
-            </h2>
-            <ol className={cn("m-0 mt-2 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-              {FIRST_REVIEW_HELP_EVIDENCE_ARC.map((beat) => (
-                <li key={beat}>{beat}</li>
-              ))}
-            </ol>
-          </section>
-
-          <aside
-            className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
-            data-testid="help-first-review-claim-discipline"
-          >
-            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h2>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{FIRST_REVIEW_HELP_CLAIM_DISCIPLINE}</p>
-          </aside>
+              <CardHeader className={OPERATOR_CARD.header}>
+                <CardTitle as="h2" className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                  Run the evidence path
+                </CardTitle>
+              </CardHeader>
+              <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+                <Button asChild size="sm" variant="primary">
+                  <Link href={FIRST_REVIEW_HELP_PRIMARY_ACTIONS.openBuyerFirstReview.href}>
+                    {FIRST_REVIEW_HELP_PRIMARY_ACTIONS.openBuyerFirstReview.label}
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <Link href={FIRST_REVIEW_HELP_PRIMARY_ACTIONS.startArchitectureReview.href}>
+                    {FIRST_REVIEW_HELP_PRIMARY_ACTIONS.startArchitectureReview.label}
+                  </Link>
+                </Button>
+                <Link
+                  href={FIRST_REVIEW_HELP_PRIMARY_ACTIONS.openAuditTrail.href}
+                  className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)}
+                >
+                  {FIRST_REVIEW_HELP_PRIMARY_ACTIONS.openAuditTrail.label}
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
 
           <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-first-review-content">
             <MarketingAccessibilityMarkdownFragment
@@ -139,11 +137,12 @@ export function HelpFirstReviewEvidenceChecklistGuideView(
               presentation="help"
               sourceDocPath={sourceDocPath}
               helpTopicSlug={entry.slug}
+              preparedMarkdownOverride={preparedMarkdown}
             />
           </div>
         </div>
 
-        <HelpTopicTableOfContents headings={headings} />
+        {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
       </div>
     </article>
   );

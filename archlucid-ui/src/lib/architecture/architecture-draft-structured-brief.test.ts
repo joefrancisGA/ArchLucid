@@ -13,6 +13,7 @@ import {
   parseQualityAttributeEntries,
   qualityAttributeMeetsMinimum,
   structuredBriefHasRewriteGrounding,
+  fingerprintStructuredBriefForRewriteGate,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 
 describe("expandStructuredBriefSuggestionItems", () => {
@@ -189,5 +190,23 @@ describe("failure mode suggestion confirm/deny", () => {
     expect(denied.suggestedFailureModeNote).toBe("");
     expect(denied.deniedFailureModeNote).toBe("Queue backlog delays intake");
     expect(denied.failureModeNote).toBe("");
+  });
+});
+
+describe("fingerprintStructuredBriefForRewriteGate", () => {
+  it("changes when any brief field changes, including whitespace", () => {
+    const brief = {
+      ...emptyArchitectureDraftStructuredBrief(),
+      confirmedConstraints: ["EU data residency"],
+    };
+    const baseline = fingerprintStructuredBriefForRewriteGate(brief);
+
+    expect(fingerprintStructuredBriefForRewriteGate(brief)).toBe(baseline);
+    expect(
+      fingerprintStructuredBriefForRewriteGate({
+        ...brief,
+        confirmedConstraints: ["EU data residency "],
+      }),
+    ).not.toBe(baseline);
   });
 });

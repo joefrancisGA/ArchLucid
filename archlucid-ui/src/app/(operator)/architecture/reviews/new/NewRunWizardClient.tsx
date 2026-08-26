@@ -1,41 +1,18 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
-import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { CorePilotProgressTrackerBanner } from "@/components/usability/CorePilotProgressTrackerBanner";
-import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
-import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
-import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
-import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
-import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
-import { WizardStepper } from "@/components/wizard/WizardStepper";
-import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
-import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
-import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
-import { WizardStepEvidenceUpload } from "@/components/wizard/steps/WizardStepEvidenceUpload";
-import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
-import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
-import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
-import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
-import { LlmUsageBandHint } from "@/components/llm/LlmUsageBandHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
-import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
-import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   resolveNewRunWizardCompleteSetupEmphasizedStepId,
   resolveNewRunWizardCompleteSetupSteps,
 } from "@/lib/new-run-wizard-complete-setup-checklist";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
 import {
   deriveWizardPolicyPackCloudMismatch,
@@ -44,7 +21,6 @@ import {
 import {
   getWizardStepFieldGroup,
   FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
-  FULL_WIZARD_EVIDENCE_STEP_INDEX,
 } from "@/lib/wizard-step-fields";
 import { useWizardBaselineMetricsActions } from "@/lib/use-wizard-baseline-metrics-actions";
 import {
@@ -58,25 +34,7 @@ import { shouldShowWizardModeToggle } from "@/lib/core-pilot-step-presentation";
 import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
 import { applyBundledSamplePackageToWizard } from "@/lib/zero-config-demo-mode";
 import type { AzureExtractorDemoScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
-import {
-  WIZARD_SESSION_IDS,
-  wizardSessionHasTextContent,
-  writeWizardSessionSnapshot,
-} from "@/lib/wizard-session-persistence";
 
-import {
-  ArchitectureRequestWizardHelpDrawer,
-  QuickStartWizard,
-  SimplifiedPilotWizard,
-  WizardPostCreateEvidenceUploadPanel,
-  WizardStepAdvanced,
-  WizardStepCloudInventoryContext,
-  WizardStepBaselineMetrics,
-  WizardStepBaselineZip,
-  WizardStepTrack,
-} from "./NewRunWizardDeferredChunks";
-import { NewRunWizardModeToggle } from "./NewRunWizardModeToggle";
-import { NewRunWizardStepRecap } from "./NewRunWizardStepRecap";
 import {
   MACRO_WIZARD_STEP_DEFINITIONS,
   REVIEW_STEP_INDEX,
@@ -91,6 +49,9 @@ import { useNewRunWizardMode } from "./use-new-run-wizard-mode";
 import { useNewRunWizardPendingEvidence } from "./use-new-run-wizard-pending-evidence";
 import { useNewRunWizardQueryPrefill } from "./use-new-run-wizard-query-prefill";
 import { useNewRunWizardSubmit } from "./use-new-run-wizard-submit";
+import { useNewRunWizardTemplateRestore } from "./NewRunWizardTemplateRestore";
+import { NewRunWizardStepBody } from "./NewRunWizardStepBody";
+import { WizardPostCreateEvidenceUploadPanel, WizardStepTrack } from "./NewRunWizardDeferredChunks";
 
 export type NewRunWizardClientProps = {
   /**
@@ -138,7 +99,6 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [advancedConfigurationOptIn, setAdvancedConfigurationOptIn] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
-  const clearWizardSessionRef = useRef<() => void>(() => {});
   const [trackPollSession, setTrackPollSession] = useState(0);
   const {
     baselineReviewCycleHours,
@@ -229,6 +189,23 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     [payloadOptions, templateWizardSessionState],
   );
 
+  const showQuickTrack = wizardMode === "quick" && runId !== null;
+  const effectiveShowFullWizardShell = wizardMode === "full" && !showQuickTrack;
+
+  const {
+    templateWizardSession,
+    suppressWizardResumePrompt,
+    saveWizardDraft,
+    clearWizardSessionRef,
+  } = useNewRunWizardTemplateRestore({
+    stepIndex,
+    templateWizardSessionState,
+    showFullWizardShell: effectiveShowFullWizardShell,
+    reset,
+    setStepIndex,
+    getValues,
+  });
+
   const {
     submitError,
     creationProgress,
@@ -254,18 +231,6 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     hasPendingEvidence: evidence.hasPendingEvidence,
     uploadPendingEvidence: evidence.uploadPendingEvidence,
   });
-
-  const saveWizardDraft = useCallback(() => {
-    try {
-      writeWizardSessionSnapshot(WIZARD_SESSION_IDS.reviewsNewTemplates, {
-        stepIndex,
-        state: getValues(),
-      });
-      showSuccess("Draft saved in this browser.");
-    } catch {
-      showError("Wizard", "Could not save draft.");
-    }
-  }, [getValues, stepIndex]);
 
   const macroStep: number = macroWizardStepIndex(stepIndex);
   const completedMacroSteps: number[] = macroCompletedSteps(stepIndex);
@@ -353,8 +318,6 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
   };
 
   const showNav: boolean = stepIndex < TRACK_STEP_INDEX;
-  const showQuickTrack = wizardMode === "quick" && runId !== null;
-  const showFullWizardShell = wizardMode === "full" && !showQuickTrack;
   const showSimplifiedPilotWizard = baselineFirst && wizardMode === "quick" && !showQuickTrack;
   const showQuickStartWizard = !baselineFirst && wizardMode === "quick" && !showQuickTrack;
   const showWizardModeToggle =
@@ -365,32 +328,11 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     wizardMode === "quick" &&
     !showQuickTrack &&
     !commitPresentationContext.hasCommittedManifest;
-  const showDetailedPathStepperChrome = showFullWizardShell && !(embeddedInPathSwitcher && stepIndex === 0);
+  const showDetailedPathStepperChrome = effectiveShowFullWizardShell && !(embeddedInPathSwitcher && stepIndex === 0);
   const fullWizardStepCountLabel: number = stepDefinitions.length;
   const quickModeLabel = baselineFirst ? "Pilot baseline (4 steps)" : "Quick start (3 steps)";
   const showStepRecap =
     stepIndex >= 2 && stepIndex <= REVIEW_STEP_INDEX && !(baselineFirst && stepIndex === 1);
-
-  const handleTemplateWizardRestore = useCallback(
-    (snapshot: { stepIndex: number; state: WizardFormValues }) => {
-      setStepIndex(snapshot.stepIndex);
-      reset(snapshot.state);
-    },
-    [reset, setStepIndex],
-  );
-  const templateWizardSession = useWizardSessionPersistence({
-    wizardId: WIZARD_SESSION_IDS.reviewsNewTemplates,
-    stepIndex,
-    state: templateWizardSessionState,
-    enabled: showFullWizardShell,
-    hasSaveableContent: (state, currentStep) =>
-      currentStep > 0 ||
-      wizardSessionHasTextContent(state.systemName) ||
-      wizardSessionHasTextContent(state.description),
-    onRestore: handleTemplateWizardRestore,
-  });
-  const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
-  clearWizardSessionRef.current = templateWizardSession.clearSession;
 
   const postCreateEvidencePanel = runId === null ? null : (
     <WizardPostCreateEvidenceUploadPanel
@@ -414,252 +356,73 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
   );
 
   const wizardBody = (
-    <>
-          {followUpSourceRunId !== null ? (
-            <p
-              className={cn(
-                "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-              data-testid="new-run-follow-up-source-run-id"
-            >
-              Follow-up review for prior review{" "}
-              <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{followUpSourceRunId}</span>. Source context is stored for a
-              future wizard prefill.
-            </p>
-          ) : null}
-          {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
-          {showFirstRunProgressBanner ? <CorePilotProgressTrackerBanner /> : null}
-
-          <NewRunWizardModeToggle
-            wizardMode={wizardMode}
-            quickModeLabel={quickModeLabel}
-            fullWizardStepCount={fullWizardStepCountLabel}
-            showToggle={showWizardModeToggle}
-            onModeChange={persistWizardMode}
-            onAdvancedOptIn={() => {
-              setAdvancedConfigurationOptIn(true);
-              persistWizardMode("full");
-            }}
-          />
-
-          {isOperatorExperienceFullShellEnv() && llmBudgetStatus !== null ? (
-            <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} />
-          ) : null}
-
-          {showQuickTrack ? (
-            <>
-              {postCreateEvidencePanel}
-              {pipelineTrackPanel}
-            </>
-          ) : null}
-
-          {showSimplifiedPilotWizard ? (
-            <SimplifiedPilotWizard
-              key="simplified-pilot"
-              blocksLlmExecution={blocksLlmExecution}
-              llmBudgetStatus={llmBudgetStatus}
-              onPendingZipFileChange={evidence.handlePendingEvidenceFileChange}
-              onRunCreated={(id: string) => {
-                setRunId(id);
-              }}
-            />
-          ) : null}
-
-          {showQuickStartWizard ? (
-            <QuickStartWizard
-              key={wizardMode}
-              blocksLlmExecution={blocksLlmExecution}
-              llmBudgetStatus={llmBudgetStatus}
-              initialPresetId={presetDeeplinkPresetId ?? undefined}
-              exampleTemplate={exampleTemplate}
-              onRunCreated={(id: string) => {
-                setRunId(id);
-              }}
-            />
-          ) : null}
-
-          {showFullWizardShell && presetDeeplinkPresetId !== null ? (
-            <p
-              className={cn(
-                "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-              data-testid="wizard-preset-deeplink-active"
-              data-preset-id={presetDeeplinkPresetId}
-            >
-              Preset applied from link:{" "}
-              <span className="font-medium">{presetDeeplinkToken ?? presetDeeplinkPresetId}</span>
-            </p>
-          ) : null}
-
-          {showFullWizardShell ? (
-            <>
-          {templateWizardSession.pendingRestore !== null && !suppressWizardResumePrompt ? (
-            <WizardSessionResumePrompt
-              onResume={templateWizardSession.acceptRestore}
-              onDismiss={templateWizardSession.dismissRestore}
-            />
-          ) : null}
-          {showDetailedPathStepperChrome ? (
-            <>
-              <div className="flex flex-wrap items-start justify-between gap-2" data-testid="new-run-wizard-progress">
-                <div className="min-w-0 flex-1 space-y-1">
-                  <p
-                    className="m-0 font-medium text-neutral-900 dark:text-neutral-100"
-                    data-testid="new-run-wizard-stage-line"
-                  >
-                    Stage {macroStep + 1} of {MACRO_WIZARD_STEP_DEFINITIONS.length} —{" "}
-                    {MACRO_WIZARD_STEP_DEFINITIONS[macroStep].label}
-                  </p>
-                  <p
-                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="new-run-wizard-step-line"
-                  >
-                    Step {stepIndex + 1}: {stepDefinitions[stepIndex].label}
-                  </p>
-                </div>
-                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                  <WizardSessionSaveStatus saveState={templateWizardSession.saveState} />
-                  <ArchitectureRequestWizardHelpDrawer />
-                </div>
-              </div>
-
-              <WizardStepper
-                steps={[...MACRO_WIZARD_STEP_DEFINITIONS]}
-                currentStep={macroStep}
-                completedSteps={completedMacroSteps}
-              />
-              <IntegrationConnectChecklist
-                title="Complete setup checklist"
-                steps={wizardCompleteSetupSteps}
-                emphasizedStepId={wizardCompleteSetupEmphasizedStepId}
-                testIdPrefix="new-run-wizard-complete-setup"
-              />
-            </>
-          ) : null}
-
-          {showDetailedPathStepperChrome && showStepRecap ? <NewRunWizardStepRecap stepIndex={stepIndex} /> : null}
-
-          {stepIndex === 0 ? (
-            embeddedInPathSwitcher ? (
-              <div data-testid="reviews-new-detailed-template-entry">
-                <WizardStepPreset
-                  baselineFirst={baselineFirst}
-                  featuredSampleRunId={featuredSampleRunId}
-                  onStartingPointCommitted={() => goToStep(1)}
-                  onWizardNotice={(kind, message) => showToast(kind === "ok" ? "ok" : "err", message)}
-                />
-              </div>
-            ) : (
-              <WizardStepPreset
-                baselineFirst={baselineFirst}
-                featuredSampleRunId={featuredSampleRunId}
-                onStartingPointCommitted={() => goToStep(1)}
-                onWizardNotice={(kind, message) => showToast(kind === "ok" ? "ok" : "err", message)}
-              />
-            )
-          ) : null}
-          {stepIndex === FULL_WIZARD_EVIDENCE_STEP_INDEX && !baselineFirst ? (
-            <WizardStepEvidenceUpload
-              pendingFile={evidence.pendingEvidenceFile}
-              pendingDocumentFiles={evidence.pendingDocumentFiles}
-              onPendingFileChange={evidence.handlePendingEvidenceFileChange}
-              onPendingDocumentFilesChange={evidence.setPendingDocumentFiles}
-              onTryDemoData={tryWithDemoData}
-              onSkipDemoData={skipEvidenceAndAdvance}
-            />
-          ) : null}
-          {stepIndex === 1 && baselineFirst ? (
-            <WizardStepBaselineZip onPendingZipFileChange={evidence.handlePendingEvidenceFileChange} />
-          ) : null}
-          {stepIndex === 2 ? (
-            <div className={OPERATOR_LAYOUT.sectionStack}>
-              <ReviewAssuranceCoverageSection
-                focusedPilotModeEnabled={focusedPilotModeEnabled}
-                onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
-              />
-              <WizardStepIdentity />
-              <WizardStepDescription />
-            </div>
-          ) : null}
-          {stepIndex === 3 ? <WizardStepConstraints /> : null}
-          {stepIndex === 4 ? (
-            <WizardStepCloudInventoryContext
-              pendingFile={evidence.pendingEvidenceFile}
-              onPendingFileChange={evidence.handlePendingEvidenceFileChange}
-            />
-          ) : null}
-          {stepIndex === 5 ? <WizardStepAdvanced /> : null}
-          {stepIndex === FULL_WIZARD_BASELINE_METRICS_STEP_INDEX ? (
-            <WizardStepBaselineMetrics
-              reviewCycleHours={baselineReviewCycleHours}
-              confidence={baselineConfidence}
-              fieldError={baselineMetricsError}
-              onReviewCycleHoursChange={(value: string) => {
-                setBaselineReviewCycleHours(value);
-
-                if (baselineMetricsError !== null) {
-                  setBaselineMetricsError(null);
-                }
-              }}
-              onConfidenceChange={setBaselineConfidence}
-            />
-          ) : null}
-          {stepIndex === REVIEW_STEP_INDEX ? (
-            <WizardStepReview focusedPilotModeEnabled={focusedPilotModeEnabled} />
-          ) : null}
-          {stepIndex === TRACK_STEP_INDEX && runId ? (
-            <>
-              {postCreateEvidencePanel}
-              {pipelineTrackPanel}
-            </>
-          ) : null}
-
-          {showNav ? (
-            <WizardStickyFooter
-              testIdPrefix="new-run-wizard"
-              progress={creationProgress}
-              onRecheck={() => {
-                void recheckUnresolvedRun();
-              }}
-              submitError={submitError}
-              showSubmitError={isReviewStep}
-            >
-              <WizardNavButtons
-                onBack={goBack}
-                onNext={isReviewStep ? undefined : goNext}
-                onSubmit={isReviewStep ? submitRun : undefined}
-                onSaveDraft={saveWizardDraft}
-                submitting={isCreating}
-                canProceed={canProceed}
-                canSubmit={canSubmit}
-                isFirstStep={isFirstStep}
-                isLastInputStep={isReviewStep}
-                nextLabel={stepIndex === 0 ? "Continue" : "Next"}
-                submitLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
-                submittingLabel="Creating…"
-              />
-            </WizardStickyFooter>
-          ) : null}
-
-          {stepIndex === TRACK_STEP_INDEX && !runId ? (
-            <p className={cn("text-red-600", OPERATOR_TYPOGRAPHY.body)}>Review id missing; cannot track pipeline.</p>
-          ) : null}
-
-            </>
-          ) : null}
-
-          <div ref={liveRef} aria-live="polite" aria-atomic="true" className="sr-only">
-            {liveMessage}
-          </div>
-
-          {isBuyerPolishedOperatorShellEnv() ? (
-            <div className="mt-6" data-testid="new-run-wizard-llm-usage-band-footer">
-              <LlmUsageBandHint />
-            </div>
-          ) : null}
-    </>
+    <NewRunWizardStepBody
+      embeddedInPathSwitcher={embeddedInPathSwitcher}
+      followUpSourceRunId={followUpSourceRunId}
+      exampleTemplate={exampleTemplate}
+      showFirstRunProgressBanner={showFirstRunProgressBanner}
+      wizardMode={wizardMode}
+      quickModeLabel={quickModeLabel}
+      fullWizardStepCountLabel={fullWizardStepCountLabel}
+      showWizardModeToggle={showWizardModeToggle}
+      persistWizardMode={persistWizardMode}
+      onAdvancedOptIn={() => {
+        setAdvancedConfigurationOptIn(true);
+        persistWizardMode("full");
+      }}
+      llmBudgetStatus={llmBudgetStatus}
+      showQuickTrack={showQuickTrack}
+      postCreateEvidencePanel={postCreateEvidencePanel}
+      pipelineTrackPanel={pipelineTrackPanel}
+      showSimplifiedPilotWizard={showSimplifiedPilotWizard}
+      blocksLlmExecution={blocksLlmExecution}
+      onRunCreated={setRunId}
+      showQuickStartWizard={showQuickStartWizard}
+      presetDeeplinkPresetId={presetDeeplinkPresetId}
+      presetDeeplinkToken={presetDeeplinkToken}
+      showFullWizardShell={effectiveShowFullWizardShell}
+      templateWizardSession={templateWizardSession}
+      suppressWizardResumePrompt={suppressWizardResumePrompt}
+      showDetailedPathStepperChrome={showDetailedPathStepperChrome}
+      macroStep={macroStep}
+      stepIndex={stepIndex}
+      stepDefinitions={stepDefinitions}
+      completedMacroSteps={completedMacroSteps}
+      wizardCompleteSetupSteps={wizardCompleteSetupSteps}
+      wizardCompleteSetupEmphasizedStepId={wizardCompleteSetupEmphasizedStepId}
+      showStepRecap={showStepRecap}
+      baselineFirst={baselineFirst}
+      featuredSampleRunId={featuredSampleRunId}
+      goToStep={goToStep}
+      showToast={showToast}
+      evidence={evidence}
+      tryWithDemoData={tryWithDemoData}
+      skipEvidenceAndAdvance={skipEvidenceAndAdvance}
+      focusedPilotModeEnabled={focusedPilotModeEnabled}
+      setFocusedPilotModeEnabled={setFocusedPilotModeEnabled}
+      baselineReviewCycleHours={baselineReviewCycleHours}
+      setBaselineReviewCycleHours={setBaselineReviewCycleHours}
+      baselineConfidence={baselineConfidence}
+      setBaselineConfidence={setBaselineConfidence}
+      baselineMetricsError={baselineMetricsError}
+      setBaselineMetricsError={setBaselineMetricsError}
+      runId={runId}
+      showNav={showNav}
+      creationProgress={creationProgress}
+      recheckUnresolvedRun={recheckUnresolvedRun}
+      submitError={submitError}
+      isReviewStep={isReviewStep}
+      goBack={goBack}
+      goNext={goNext}
+      submitRun={submitRun}
+      saveWizardDraft={saveWizardDraft}
+      isCreating={isCreating}
+      canProceed={canProceed}
+      canSubmit={canSubmit}
+      isFirstStep={isFirstStep}
+      liveMessage={liveMessage}
+      liveRef={liveRef}
+    />
   );
 
   return (

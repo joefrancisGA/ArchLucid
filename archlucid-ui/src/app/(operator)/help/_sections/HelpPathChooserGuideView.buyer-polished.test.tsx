@@ -31,7 +31,7 @@ import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 describe("HelpPathChooserGuideView buyer-polished shell", () => {
   const loaded = tryLoadProductDocumentation("choose-your-next-step");
 
-  it("renders skip link, buyer subtitle, orientation above overview, and hides operator chrome", () => {
+  it("renders skip link, buyer subtitle, claim discipline under header, and hides operator chrome", () => {
     if (loaded === null) {
       throw new Error("Expected path-chooser documentation to load.");
     }
@@ -44,10 +44,9 @@ describe("HelpPathChooserGuideView buyer-polished shell", () => {
     );
     expect(screen.getByText(PATH_CHOOSER_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(PATH_CHOOSER_HELP_PAGE_SUBTITLE)).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("path-chooser-create-object-vocabulary")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-path-chooser-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("help-path-chooser-claim-discipline").textContent).toContain(
       PATH_CHOOSER_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
@@ -57,9 +56,10 @@ describe("HelpPathChooserGuideView buyer-polished shell", () => {
     expect(primaryContent).not.toBeNull();
 
     const orderedLandmarks = within(primaryContent as HTMLElement)
-      .getAllByTestId(/help-path-chooser-(orientation-top|overview)/)
+      .getAllByTestId(/help-path-chooser-(overview|branches)/)
       .map((node) => node.getAttribute("data-testid"));
 
-    expect(orderedLandmarks).toEqual(["help-path-chooser-orientation-top", "help-path-chooser-overview"]);
+    expect(orderedLandmarks[0]).toBe("help-path-chooser-overview");
+    expect(orderedLandmarks[1]).toBe("help-path-chooser-branches");
   });
 });

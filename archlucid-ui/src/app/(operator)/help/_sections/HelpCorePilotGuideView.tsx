@@ -29,7 +29,11 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  HELP_PAGE_LAYOUT,
+  HELP_PAGE_MIN_TOC_HEADINGS,
+  resolveHelpPageContentGridClass,
+} from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpCorePilotGuideViewProps = {
@@ -63,6 +67,8 @@ function HelpDisclosure(props: {
 /** Guided first-review workflow for `/help/first-architecture-review` — action-oriented, not prose documentation. */
 export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const contentGridClass = resolveHelpPageContentGridClass(CORE_PILOT_HELP_GUIDE_HEADINGS.length);
+  const showSectionNav = CORE_PILOT_HELP_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-core-pilot-guide">
@@ -92,7 +98,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
         </div>
       </details>
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+      <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <div className="space-y-6" data-testid="core-pilot-first-viewport">
             <HelpCorePilotJobMatrix />
@@ -101,7 +107,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
               id="first-review-path"
               className={cn(
                 OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-                "border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20",
+                "border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950",
               )}
               data-testid="core-pilot-summary-card"
             >
@@ -138,12 +144,19 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
           </HelpDisclosure>
 
+          <HelpDisclosure
+            title={CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.title}
+            testId="core-pilot-actor-intake-disclosure"
+          >
+            {CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.body}
+          </HelpDisclosure>
+
           <CorePilotHelpPostStepperPanel />
 
           <CorePilotHelpClosingPanel />
         </div>
 
-        <HelpTopicTableOfContents headings={CORE_PILOT_HELP_GUIDE_HEADINGS} />
+        {showSectionNav ? <HelpTopicTableOfContents headings={CORE_PILOT_HELP_GUIDE_HEADINGS} /> : null}
       </div>
     </article>
   );

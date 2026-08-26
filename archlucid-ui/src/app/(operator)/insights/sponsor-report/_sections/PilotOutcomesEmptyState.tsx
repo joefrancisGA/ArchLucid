@@ -43,7 +43,7 @@ export function PilotOutcomesEmptyState(props: Props) {
       data-testid="pilot-outcomes-empty-state"
       aria-labelledby="pilot-outcomes-empty-heading"
     >
-      <h2 id="pilot-outcomes-empty-heading" className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
+      <h2 id="pilot-outcomes-empty-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
         No finalized reviews in this reporting period
       </h2>
       <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

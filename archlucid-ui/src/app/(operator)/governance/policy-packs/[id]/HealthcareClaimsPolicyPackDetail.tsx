@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { BUYER_GOVERNANCE_PAGE_TITLE, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_POLICY_PACK_LEAD } from "@/lib/buyer/buyer-polish-copy";
+import { POLICY_PACK_DETAIL_CLAIM_DISCIPLINE } from "@/lib/policy/policy-pack-detail-evidence-copy";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
@@ -45,6 +46,8 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         headingLevel="h1"
         breadcrumb={<GovernancePolicyPackBreadcrumb packLabel="Enterprise Privacy" />}
         subtitle={BUYER_POLICY_PACK_LEAD}
+        claimDiscipline={POLICY_PACK_DETAIL_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="policy-pack-detail-claim-discipline"
         subtitleClassName="max-w-prose leading-relaxed"
         actions={
           <Button asChild variant="default" size="sm">

@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Governance.Posture;
 using ArchLucid.Core.Authorization;
@@ -34,7 +35,9 @@ public sealed class GovernancePostureController(
         CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        Guid resolvedProjectId = projectId ?? scope.ProjectId;
+
+        if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
+            return Ok(new ArchitecturePostureSummary());
 
         ArchitecturePostureSummary summary = await postureService.GetSummaryAsync(
             scope.TenantId,

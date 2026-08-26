@@ -27,6 +27,8 @@ public static class HostElectionLeaseNames
 
     public const string ExecDigestWeeklyPolling = "hosted:exec-digest-weekly-polling";
 
+    public const string SponsorDigestWeeklyPolling = "hosted:sponsor-digest-weekly-polling";
+
     public const string WeeklySponsorReportPolling = "hosted:weekly-sponsor-report-polling";
 
     public const string WeeklySponsorSummaryPolling = "hosted:weekly-sponsor-summary-polling";

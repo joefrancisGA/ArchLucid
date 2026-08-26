@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.Stickiness;
@@ -9,6 +10,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
 
@@ -35,7 +37,11 @@ public sealed class GovernanceStickinessControllerTests
         Mock<IFindingDispositionService>? dispositionService = null,
         Mock<IArchitectureRiskRegisterService>? riskRegister = null,
         Mock<IArchitectureReviewRecurrenceScheduleRepository>? recurrenceRepo = null,
-        Mock<IArchitectureReviewRecurrenceNextRunCalculator>? recurrenceCalculator = null)
+        Mock<IArchitectureReviewRecurrenceNextRunCalculator>? recurrenceCalculator = null,
+        Mock<IRiskExceptionService>? riskExceptions = null,
+        Mock<IFindingInspectReadRepository>? findingInspect = null,
+        Mock<IRunRepository>? runRepository = null,
+        IRealizedValueAttestationService? attestationService = null)
     {
         Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -45,11 +51,11 @@ public sealed class GovernanceStickinessControllerTests
 
         Mock<IFindingDispositionService> dispositions = dispositionService ?? new Mock<IFindingDispositionService>();
         dispositions
-            .Setup(d => d.ListHistoryAsync(Scope.TenantId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(d => d.ListHistoryAsync(Scope, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
 
-        Mock<IRiskExceptionService> riskExceptions = new();
-        riskExceptions
+        Mock<IRiskExceptionService> riskExceptionService = riskExceptions ?? new Mock<IRiskExceptionService>();
+        riskExceptionService
             .Setup(r => r.ListActiveAsync(Scope.TenantId, Scope.ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<RiskExceptionRecord>());
 
@@ -60,6 +66,7 @@ public sealed class GovernanceStickinessControllerTests
             riskRegisterService
                 .Setup(r => r.GetRegisterAsync(
                     Scope.TenantId,
+                    Scope.WorkspaceId,
                     Scope.ProjectId,
                     It.IsAny<int>(),
                     It.IsAny<ArchitectureRiskRegisterListOptions?>(),
@@ -69,6 +76,7 @@ public sealed class GovernanceStickinessControllerTests
             riskRegisterService
                 .Setup(r => r.CountAsync(
                     Scope.TenantId,
+                    Scope.WorkspaceId,
                     Scope.ProjectId,
                     It.IsAny<ArchitectureRiskRegisterListOptions?>(),
                     It.IsAny<CancellationToken>()))
@@ -79,6 +87,7 @@ public sealed class GovernanceStickinessControllerTests
         decisionRegister
             .Setup(d => d.GetRegisterAsync(
                 Scope.TenantId,
+                Scope.WorkspaceId,
                 Scope.ProjectId,
                 It.IsAny<int>(),
                 It.IsAny<ArchitectureDecisionRegisterQueryOptions>(),
@@ -110,7 +119,7 @@ public sealed class GovernanceStickinessControllerTests
 
         Mock<IGovernanceDigestDecisionNeededComposer> digestComposer = new();
         digestComposer
-            .Setup(c => c.BuildSummaryAsync(Scope.TenantId, Scope.ProjectId, It.IsAny<CancellationToken>()))
+            .Setup(c => c.BuildSummaryAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GovernanceDecisionsNeededSummaryResponse());
 
         Mock<IReviewsAwaitingActionQueryService> reviewsAwaiting = new();
@@ -128,17 +137,18 @@ public sealed class GovernanceStickinessControllerTests
                     scope.Object,
                     actor.Object,
                     dispositions.Object,
-                    riskExceptions.Object,
+                    riskExceptionService.Object,
                     riskRegisterService.Object,
                     decisionRegister.Object,
                     recurrenceRepository.Object,
                     nextRun.Object,
-                    Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+                    runRepository?.Object ?? Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
                     Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
                     digestComposer.Object,
                     reviewsAwaiting.Object,
-                    Mock.Of<IRealizedValueAttestationService>(),
-                    audit.Object),
+                    attestationService ?? Mock.Of<IRealizedValueAttestationService>(),
+                    audit.Object,
+                    findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>()),
                 scope.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
@@ -167,7 +177,8 @@ public sealed class GovernanceStickinessControllerTests
                     digestComposer ?? Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
                     reviewsAwaiting ?? Mock.Of<IReviewsAwaitingActionQueryService>(),
                     Mock.Of<IRealizedValueAttestationService>(),
-                    Mock.Of<IAuditService>()),
+                    Mock.Of<IAuditService>(),
+                    Mock.Of<IFindingInspectReadRepository>()),
                 scopeProvider)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
@@ -182,6 +193,7 @@ public sealed class GovernanceStickinessControllerTests
         riskRegister
             .Setup(r => r.GetRegisterAsync(
                 Scope.TenantId,
+                Scope.WorkspaceId,
                 Scope.ProjectId,
                 200,
                 It.IsAny<ArchitectureRiskRegisterListOptions?>(),
@@ -208,12 +220,13 @@ public sealed class GovernanceStickinessControllerTests
         riskRegister
             .Setup(r => r.GetRegisterAsync(
                 Scope.TenantId,
+                Scope.WorkspaceId,
                 Scope.ProjectId,
                 200,
                 It.IsAny<ArchitectureRiskRegisterListOptions?>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<Guid, Guid?, int, ArchitectureRiskRegisterListOptions?, CancellationToken>(
-                (_, _, _, options, _) => capturedOptions = options)
+            .Callback<Guid, Guid, Guid?, int, ArchitectureRiskRegisterListOptions?, CancellationToken>(
+                (_, _, _, _, options, _) => capturedOptions = options)
             .ReturnsAsync(new ArchitectureRiskRegisterResponse());
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -248,6 +261,7 @@ public sealed class GovernanceStickinessControllerTests
         riskRegister
             .Setup(r => r.CountAsync(
                 Scope.TenantId,
+                Scope.WorkspaceId,
                 Scope.ProjectId,
                 It.IsAny<ArchitectureRiskRegisterListOptions?>(),
                 It.IsAny<CancellationToken>()))
@@ -305,6 +319,7 @@ public sealed class GovernanceStickinessControllerTests
         riskRegister.Verify(
             service => service.CountAsync(
                 It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<ArchitectureRiskRegisterListOptions?>(),
                 It.IsAny<CancellationToken>()),
@@ -341,6 +356,7 @@ public sealed class GovernanceStickinessControllerTests
         riskRegister.Verify(
             service => service.GetRegisterAsync(
                 It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<int>(),
                 It.IsAny<ArchitectureRiskRegisterListOptions?>(),
@@ -366,6 +382,61 @@ public sealed class GovernanceStickinessControllerTests
         };
 
         IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RenewRiskException_returns_not_found_when_exception_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid exceptionId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(s => s.GetByIdAsync(Scope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RiskExceptionRecord
+            {
+                RiskExceptionId = exceptionId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = foreignWorkspaceId,
+                ProjectId = Scope.ProjectId,
+                FindingId = "finding-1",
+                OwnerUserId = "owner",
+                Rationale = "rationale",
+                Status = RiskExceptionStatus.Active,
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+                CreatedByUserId = "creator",
+            });
+
+        GovernanceStickinessController controller = BuildSut(riskExceptions: riskExceptions);
+
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.RenewRiskException(exceptionId, request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_all_findings_are_out_of_scope()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["foreign-finding-1", "foreign-finding-2"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk"
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -405,6 +476,15 @@ public sealed class GovernanceStickinessControllerTests
     [Fact]
     public async Task RecordDisposition_returns_bad_request_when_service_throws_argument_exception()
     {
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
         Mock<IFindingDispositionService> dispositions = new();
         dispositions
             .Setup(d => d.RecordAsync(
@@ -414,7 +494,9 @@ public sealed class GovernanceStickinessControllerTests
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("invalid disposition"));
 
-        GovernanceStickinessController controller = BuildSut(dispositionService: dispositions);
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
         SetIdempotencyKey(controller);
 
         RecordFindingDispositionRequest request = new()
@@ -428,6 +510,70 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_not_found_when_finding_is_out_of_scope()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "foreign-finding",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync((FindingInspectResponse?)null);
+
+        GovernanceStickinessController controller = BuildSut(findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "foreign-finding",
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "ok"
+        };
+
+        IActionResult action = await controller.RecordDisposition("foreign-finding", request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_not_found_when_run_id_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchLucid.Persistence.Models.RunRecord?)null);
+
+        GovernanceStickinessController controller = BuildSut(findingInspect: findingInspect, runRepository: runs);
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = foreignRunId,
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "ok"
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     [Fact]
@@ -447,6 +593,31 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceSchedule_returns_not_found_when_source_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchLucid.Persistence.Models.RunRecord?)null);
+
+        GovernanceStickinessController controller = BuildSut(runRepository: runs);
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = foreignRunId,
+            IsEnabled = true,
+            CronExpression = "0 8 * * 1",
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     [Fact]
@@ -495,7 +666,16 @@ public sealed class GovernanceStickinessControllerTests
             .Callback<ArchitectureReviewRecurrenceSchedule, CancellationToken>((schedule, _) => captured = schedule)
             .Returns(Task.CompletedTask);
 
-        GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo);
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            });
+
+        GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo, runRepository: runs);
 
         CreateArchitectureReviewRecurrenceScheduleRequest request = new()
         {
@@ -528,7 +708,16 @@ public sealed class GovernanceStickinessControllerTests
             .Callback<ArchitectureReviewRecurrenceSchedule, CancellationToken>((schedule, _) => captured = schedule)
             .Returns(Task.CompletedTask);
 
-        GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo);
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            });
+
+        GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo, runRepository: runs);
 
         CreateArchitectureReviewRecurrenceScheduleRequest request = new()
         {
@@ -628,6 +817,50 @@ public sealed class GovernanceStickinessControllerTests
         body.IsValid.Should().BeFalse();
         body.NextRunUtc.Should().BeEmpty();
         body.ValidationError.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task ResolveFindingMergeConflict_returns_not_found_when_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchLucid.Persistence.Models.RunRecord?)null);
+
+        GovernanceStickinessController controller = BuildSut(runRepository: runs);
+
+        ResolveFindingMergeConflictRequest request = new()
+        {
+            Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+        };
+
+        IActionResult action = await controller.ResolveFindingMergeConflict(
+            foreignRunId,
+            "conflict-finding",
+            request,
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task UpsertRealizedValueAttestation_returns_bad_request_when_attested_incidents_negative()
+    {
+        RealizedValueAttestationService attestationService = new(Mock.Of<ArchLucid.Persistence.Tenancy.ITenantSettingsRepository>());
+        GovernanceStickinessController controller = BuildSut(attestationService: attestationService);
+
+        UpsertRealizedValueAttestationRequest request = new()
+        {
+            AttestedIncidentsAvoided = -3,
+        };
+
+        IActionResult action = await controller.UpsertRealizedValueAttestation(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     private static Mock<IArchitectureReviewRecurrenceNextRunCalculator> BuildRealRecurrenceCalculator()

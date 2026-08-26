@@ -104,3 +104,40 @@ export function formatConversationListDatePolished(iso: string | null | undefine
 
   return "Example evidence answer";
 }
+
+/** Browser IANA zone id from `Intl`, or `UTC` when unavailable. */
+export function getBrowserIanaTimeZoneId(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return "UTC";
+  }
+}
+
+/**
+ * Short zone label for a wall clock (for example `EDT`, `EST`, `UTC`) — not the long IANA id.
+ * Uses the instant so daylight-saving transitions pick the correct abbreviation.
+ */
+export function formatIanaTimeZoneAbbreviation(timeZoneId: string, instant: Date = new Date()): string {
+  try {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timeZoneId,
+      timeZoneName: "short",
+    });
+    const parts = formatter.formatToParts(instant);
+    const abbreviation = parts.find((part) => part.type === "timeZoneName")?.value ?? "";
+
+    if (abbreviation.length > 0) {
+      return abbreviation;
+    }
+  } catch {
+    // Fall through to IANA id when the zone is unknown to Intl.
+  }
+
+  return timeZoneId;
+}
+
+/** Abbreviation for the browser's current zone (for example `EDT` for Eastern in summer). */
+export function formatBrowserTimeZoneAbbreviation(instant: Date = new Date()): string {
+  return formatIanaTimeZoneAbbreviation(getBrowserIanaTimeZoneId(), instant);
+}

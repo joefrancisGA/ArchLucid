@@ -21,7 +21,6 @@ import {
   WORKSPACE_SETTINGS_HELP_PRIMARY_CONTENT_ID,
   WORKSPACE_SETTINGS_HELP_SKIP_LINK_LABEL,
 } from "@/lib/workspace-settings-help-guide-content";
-import { WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE } from "@/lib/workspace-settings-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpWorkspaceSettingsGuideView buyer-polished shell", () => {
@@ -43,9 +42,7 @@ describe("HelpWorkspaceSettingsGuideView buyer-polished shell", () => {
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-heading-eyebrow")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-workspace-settings-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("help-workspace-settings-claim-discipline").textContent).toContain(
-      WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
-    );
+    expect(screen.queryByTestId("help-workspace-settings-claim-discipline")).not.toBeInTheDocument();
 
     const orientationTop = screen.getByTestId("help-workspace-settings-orientation-top");
     const overview = screen.getByTestId("help-workspace-settings-overview");

@@ -91,6 +91,7 @@ export function GovernanceWorkflowQueryCard(props: GovernanceWorkflowQueryCardPr
                   value={queryRunId}
                   useBuyerFacingRunLabels={buyerPolishedShell}
                   onChange={setQueryRunId}
+                  preferAutoPick={false}
                   onSelect={(id) => {
                     setQueryRunId(id);
                     setActiveRunId(id);

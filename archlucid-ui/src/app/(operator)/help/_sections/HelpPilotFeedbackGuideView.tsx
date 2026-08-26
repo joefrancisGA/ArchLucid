@@ -4,6 +4,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { PilotFeedbackHelpClaimDisciplineStrip } from "@/components/help/PilotFeedbackHelpClaimDisciplineStrip";
 import { PilotFeedbackHelpEvidenceOrientationStrip } from "@/components/help/PilotFeedbackHelpEvidenceOrientationStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ import {
 } from "@/lib/design-tokens";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   PILOT_FEEDBACK_HELP_JOB_MATRIX,
@@ -75,6 +76,8 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
     extractHelpMarkdownHeadings(preparedMarkdown),
     PILOT_FEEDBACK_HELP_CLAIM_HEADING_ID,
   );
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
+  const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article
@@ -116,9 +119,11 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
         }
       />
 
+      <PilotFeedbackHelpClaimDisciplineStrip />
+
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+          className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950"
           data-testid="help-pilot-feedback-action-panel"
         >
           <CardHeader className={OPERATOR_CARD.header}>
@@ -128,7 +133,7 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
           </CardHeader>
           <CardContent className={cn(OPERATOR_CARD.content, "space-y-4")}>
             <PilotFeedbackWorkflowStepper />
-            <Button asChild size="sm" variant="primary">
+            <Button asChild size="sm" variant="outline">
               <Link href={PILOT_FEEDBACK_HELP_PRIMARY_ACTION.href}>{PILOT_FEEDBACK_HELP_PRIMARY_ACTION.label}</Link>
             </Button>
           </CardContent>
@@ -136,8 +141,8 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
 
       </div>
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-pilot-feedback-overview">
             {PILOT_FEEDBACK_HELP_OVERVIEW}
           </p>
@@ -189,7 +194,7 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
           <PilotFeedbackHelpEvidenceOrientationStrip />
         </div>
 
-        <HelpTopicTableOfContents headings={headings} />
+        {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
       </div>
     </article>
   );

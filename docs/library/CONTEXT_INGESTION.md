@@ -157,3 +157,4 @@ Both engines read the same ingested properties; premise-conflict findings requir
 - **API body and validation:** `docs/API_CONTRACTS.md` (create run / `ArchitectureRequest`).
 - **Persisted snapshots:** `docs/DATA_MODEL.md` (`ContextSnapshots`).
 - **Architecture overview:** `docs/ARCHITECTURE_CONTEXT.md`.
+- **Ingestion fit-gap Composer prompts (archive):** [`../architecture/INGESTION_FIT_GAP_COMPOSER_PROMPTS.md`](../architecture/INGESTION_FIT_GAP_COMPOSER_PROMPTS.md) (FIT-01–05 shipped; do not re-run).

@@ -56,6 +56,6 @@ describe("SessionExpiredClient buyer-polished shell", () => {
     const orientation = screen.getByTestId("session-expired-orientation-bottom");
     const sessionView = screen.getByTestId("session-expired-view");
 
-    expect(orientation.compareDocumentPosition(sessionView) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(sessionView) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 });

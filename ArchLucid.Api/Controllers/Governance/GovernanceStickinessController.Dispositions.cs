@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -17,6 +18,7 @@ public sealed partial class GovernanceStickinessController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(FindingDispositionEventDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [MutatingAuditExcluded("Audit: IFindingReviewTrailAppendService logs FindingReviewDispositionRecorded via IAuditService.")]
     public async Task<IActionResult> RecordDisposition(
         string findingId,
@@ -48,6 +50,14 @@ public sealed partial class GovernanceStickinessController
 
             return Ok(result);
         }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
@@ -75,8 +85,16 @@ public sealed partial class GovernanceStickinessController
         if (request.FindingIds is null || request.FindingIds.Count == 0)
             return this.BadRequestProblem("At least one FindingId must be provided.", ProblemTypes.ValidationFailed);
 
-        RecordBulkFindingDispositionResponse response =
-            await _facade.RecordBulkDispositionAsync(request, cancellationToken);
+        RecordBulkFindingDispositionResponse response;
+
+        try
+        {
+            response = await _facade.RecordBulkDispositionAsync(request, cancellationToken);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
 
         return Ok(response);
     }
@@ -106,15 +124,22 @@ public sealed partial class GovernanceStickinessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        bool resolved = await _facade.TryResolveFindingMergeConflictAsync(
-            runId,
-            findingId,
-            request,
-            cancellationToken).ConfigureAwait(false);
+        try
+        {
+            bool resolved = await _facade.TryResolveFindingMergeConflictAsync(
+                runId,
+                findingId,
+                request,
+                cancellationToken).ConfigureAwait(false);
 
-        if (!resolved)
-            return this.NotFoundProblem("Finding merge conflict was not found.", ProblemTypes.ResourceNotFound);
+            if (!resolved)
+                return this.NotFoundProblem("Finding merge conflict was not found.", ProblemTypes.ResourceNotFound);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
     }
 }

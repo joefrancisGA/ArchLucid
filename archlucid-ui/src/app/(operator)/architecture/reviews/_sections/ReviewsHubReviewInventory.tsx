@@ -1,36 +1,19 @@
 "use client";
 
-import Link from "next/link";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import type { CSSProperties } from "react";
-import { useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { cn } from "@/lib/utils";
+import { useMemo, useState, useSyncExternalStore } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
-import { ReviewPinGlyph } from "@/components/reviews/ReviewPinGlyph";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
-import {
-  EnterpriseTable,
-  EnterpriseTableBody,
-  EnterpriseTableCell,
-  EnterpriseTableHead,
-  EnterpriseTableHeadRow,
-  EnterpriseTableHeaderCell,
-  EnterpriseTableRow,
-} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchivedReviewsClientCache } from "@/hooks/use-archived-reviews-client-cache";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
@@ -43,39 +26,38 @@ import {
   shouldShowWorkspaceScopeEmptyTeaching,
 } from "@/lib/workspace-scope-empty-teaching";
 import type { RunSummary } from "@/types/authority";
+import { cn } from "@/lib/utils";
 
-import { ReviewsHubInventoryRowActions } from "./ReviewsHubInventoryRowActions";
+import { ReviewsHubInventoryTable } from "./ReviewsHubInventoryTable";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import {
-  REVIEWS_HUB_FILTER_FINALIZED_LABEL,
   REVIEWS_HUB_FILTER_MORE_LABEL,
-  REVIEWS_HUB_FILTER_NEEDS_ATTENTION_LABEL,
   REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
-  REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL,
-  REVIEWS_HUB_RECENT_EMPTY_BODY,
+  REVIEWS_HUB_PAGE_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
-  REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
-  REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
-  REVIEWS_HUB_PAGE_TITLE,
   REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL,
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
-import { reviewsHubOverallStatusTagKind, type ReviewsHubOverallStatus } from "./reviews-hub-review-status";
 import {
-  REVIEWS_LIST_ROW_ESTIMATE_PX,
-  shouldVirtualizeReviewsList,
-} from "./reviews-list-virtualization";
+  emptyInventoryDescription,
+  isArchivedRun,
+  matchesFilter,
+  matchesSearch,
+  mergeRunsWithArchivedCache,
+  MORE_FILTER_OPTIONS,
+  PRIMARY_FILTER_OPTIONS,
+  sortRunsForInventory,
+  type ReviewFilterId,
+} from "./reviews-hub-inventory-filters";
 import type { ReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 
 type ReviewsHubReviewInventoryProps = {
   readonly runs: readonly RunSummary[];
   readonly summary: ReviewsWorkspaceSummary;
 };
-
-const PINNED_COLUMN_CLASS = "w-10 px-2";
 
 function subscribeOperatorScopeRecord(onStoreChange: () => void): () => void {
   if (typeof window === "undefined") {
@@ -93,138 +75,6 @@ function getServerOperatorScopeRecordSnapshot(): OperatorScopeRecord | null {
   return null;
 }
 
-type ReviewFilterId =
-  | "all"
-  | "needs-attention"
-  | "updated-recently"
-  | "finalized"
-  | ReviewsHubOverallStatus;
-
-const PRIMARY_FILTER_OPTIONS: ReadonlyArray<{ id: ReviewFilterId; label: string }> = [
-  { id: "all", label: "All" },
-  { id: "needs-attention", label: REVIEWS_HUB_FILTER_NEEDS_ATTENTION_LABEL },
-  { id: "finalized", label: REVIEWS_HUB_FILTER_FINALIZED_LABEL },
-  { id: "updated-recently", label: REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL },
-];
-
-const MORE_FILTER_OPTIONS: ReadonlyArray<{ id: ReviewFilterId; label: string }> = [
-  { id: "Draft", label: "Draft" },
-  { id: "Active", label: "Active" },
-  { id: "Awaiting approval", label: "Awaiting approval" },
-  { id: "Archived", label: "Archived" },
-];
-
-function matchesSearch(
-  run: RunSummary,
-  query: string,
-  ownerContext: ReviewPackageOwnerResolutionContext,
-  siblingRuns: readonly RunSummary[],
-): boolean {
-  const normalized = query.trim().toLowerCase();
-
-  if (normalized.length === 0) {
-    return true;
-  }
-
-  const row = toReviewsHubReviewRowDisplay(run, ownerContext, siblingRuns);
-  const haystack = [
-    row.reviewTitle,
-    row.reviewTitlePrimary,
-    row.architectureName,
-    row.ownerLabel,
-    run.runId,
-    run.displayName ?? "",
-    run.description ?? "",
-    run.projectId,
-    run.requestId ?? "",
-  ]
-    .join(" ")
-    .toLowerCase();
-
-  return haystack.includes(normalized);
-}
-
-function matchesFilter(
-  run: RunSummary,
-  filter: ReviewFilterId,
-  ownerContext: ReviewPackageOwnerResolutionContext,
-  siblingRuns: readonly RunSummary[],
-): boolean {
-  const row = toReviewsHubReviewRowDisplay(run, ownerContext, siblingRuns);
-
-  if (filter === "all") {
-    return true;
-  }
-
-  if (filter === "needs-attention") {
-    return row.needsAttention;
-  }
-
-  if (filter === "finalized") {
-    return row.overallStatus === "Finalized";
-  }
-
-  if (filter === "updated-recently") {
-    const updatedAt = new Date(run.createdUtc).getTime();
-
-    if (Number.isNaN(updatedAt)) {
-      return false;
-    }
-
-    const fourteenDaysMs = 14 * 24 * 60 * 60 * 1000;
-
-    return Date.now() - updatedAt <= fourteenDaysMs;
-  }
-
-  return row.overallStatus === filter;
-}
-
-function mergeRunsWithArchivedCache(
-  runs: readonly RunSummary[],
-  archivedRuns: readonly RunSummary[],
-): RunSummary[] {
-  const byId = new Map<string, RunSummary>();
-
-  for (const run of runs) {
-    byId.set(run.runId, run);
-  }
-
-  for (const archivedRun of archivedRuns) {
-    if (!byId.has(archivedRun.runId)) {
-      byId.set(archivedRun.runId, archivedRun);
-    }
-  }
-
-  return [...byId.values()];
-}
-
-function isArchivedRun(run: RunSummary): boolean {
-  return run.isArchived === true;
-}
-
-function sortRunsForInventory(
-  runs: readonly RunSummary[],
-  isFavorite: (runId: string) => boolean,
-): RunSummary[] {
-  return [...runs].sort((left, right) => {
-    const leftPinned = isFavorite(left.runId) ? 0 : 1;
-    const rightPinned = isFavorite(right.runId) ? 0 : 1;
-
-    if (leftPinned !== rightPinned) {
-      return leftPinned - rightPinned;
-    }
-
-    const leftUpdated = new Date(left.createdUtc).getTime();
-    const rightUpdated = new Date(right.createdUtc).getTime();
-
-    if (!Number.isNaN(leftUpdated) && !Number.isNaN(rightUpdated) && leftUpdated !== rightUpdated) {
-      return rightUpdated - leftUpdated;
-    }
-
-    return left.runId.localeCompare(right.runId);
-  });
-}
-
 function ReviewFilterChip(props: {
   readonly option: { id: ReviewFilterId; label: string };
   readonly selected: boolean;
@@ -239,201 +89,6 @@ function ReviewFilterChip(props: {
     >
       {props.option.label}
     </FilterChip>
-  );
-}
-
-function emptyInventoryDescription(draftCount: number): string {
-  if (draftCount === 1) {
-    return REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY;
-  }
-
-  if (draftCount > 1) {
-    return REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY;
-  }
-
-  return REVIEWS_HUB_RECENT_EMPTY_BODY;
-}
-
-type InventoryRowProps = {
-  readonly run: RunSummary;
-  readonly ownerContext: ReviewPackageOwnerResolutionContext;
-  readonly siblingRuns: readonly RunSummary[];
-  readonly style?: CSSProperties;
-};
-
-function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
-  const row = toReviewsHubReviewRowDisplay(props.run, props.ownerContext, props.siblingRuns);
-
-  return (
-    <EnterpriseTableRow
-      data-testid={row.isSampleReview ? "reviews-hub-sample-row" : `reviews-hub-row-${row.runId}`}
-      style={props.style}
-    >
-      <EnterpriseTableCell className={PINNED_COLUMN_CLASS}>
-        <FavoriteReviewToggle runId={row.runId} title={row.reviewTitlePrimary} />
-      </EnterpriseTableCell>
-      <EnterpriseTableCell>
-        <div className="min-w-[12rem]">
-          <Link
-            href={row.reviewHref}
-            className={cn(OPERATOR_LINK.nav, "font-medium")}
-            aria-label={`Open review ${row.reviewTitlePrimary}`}
-            data-testid={`reviews-hub-primary-action-${row.runId}`}
-          >
-            {row.reviewTitlePrimary}
-          </Link>
-          {row.reviewTitleKindLabel !== null ? (
-            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {row.reviewTitleKindLabel}
-            </p>
-          ) : null}
-          {row.isSampleReview ? (
-            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Sample review
-            </p>
-          ) : null}
-        </div>
-      </EnterpriseTableCell>
-      <EnterpriseTableCell>
-        <span className="font-medium text-al-text-primary">{row.architectureName}</span>
-      </EnterpriseTableCell>
-      <EnterpriseTableCell>
-        <StatusTag
-          kind={reviewsHubOverallStatusTagKind(row.overallStatus, row.needsAttention)}
-          label={row.overallStatus}
-        />
-      </EnterpriseTableCell>
-      <EnterpriseTableCell>
-        <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{row.governanceState}</span>
-      </EnterpriseTableCell>
-      <EnterpriseTableCell>
-        <span className="text-al-text-primary">{row.lifecycleStage}</span>
-      </EnterpriseTableCell>
-      <EnterpriseTableCell>{row.ownerLabel}</EnterpriseTableCell>
-      <EnterpriseTableCell title={row.lastUpdatedAbsolute}>{row.lastUpdated}</EnterpriseTableCell>
-      <EnterpriseTableCell className="text-right tabular-nums">
-        {finiteIntegerCountDisplay(row.findingsCount)}
-      </EnterpriseTableCell>
-      <EnterpriseTableCell className="text-right tabular-nums">
-        {finiteIntegerCountDisplay(row.riskCount)}
-      </EnterpriseTableCell>
-      <EnterpriseTableCell>
-        <ReviewsHubInventoryRowActions run={props.run} row={row} />
-      </EnterpriseTableCell>
-    </EnterpriseTableRow>
-  );
-}
-
-function ReviewsHubInventoryTableHead(): React.JSX.Element {
-  return (
-    <EnterpriseTableHead>
-      <EnterpriseTableHeadRow>
-        <EnterpriseTableHeaderCell className={PINNED_COLUMN_CLASS}>
-          <span className="sr-only">Pinned</span>
-          <ReviewPinGlyph filled={false} className="h-3.5 w-3.5 text-al-text-secondary" />
-        </EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Architecture</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Approval</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Updated</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Risks</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell className="text-right">Actions</EnterpriseTableHeaderCell>
-      </EnterpriseTableHeadRow>
-    </EnterpriseTableHead>
-  );
-}
-
-type ReviewsHubInventoryTableProps = {
-  readonly runs: readonly RunSummary[];
-  readonly siblingRuns: readonly RunSummary[];
-  readonly ownerContext: ReviewPackageOwnerResolutionContext;
-  readonly ariaLabel: string;
-  readonly tableTestId: string;
-  readonly virtualizedTestId?: string;
-};
-
-function ReviewsHubInventoryTable(props: ReviewsHubInventoryTableProps): React.JSX.Element {
-  const parentRef = useRef<HTMLDivElement>(null);
-  const useVirtualization = shouldVirtualizeReviewsList(props.runs.length);
-
-  const rowVirtualizer = useVirtualizer({
-    count: useVirtualization ? props.runs.length : 0,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => REVIEWS_LIST_ROW_ESTIMATE_PX,
-    overscan: 8,
-  });
-
-  if (props.runs.length === 0) {
-    return (
-      <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-        No reviews match the current search or filters.
-      </p>
-    );
-  }
-
-  if (useVirtualization) {
-    return (
-      <div
-        ref={parentRef}
-        className="max-h-[min(32rem,70vh)] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
-        data-testid={props.virtualizedTestId ?? `${props.tableTestId}-virtualized`}
-      >
-        <EnterpriseTable ariaLabel={props.ariaLabel} data-testid={props.tableTestId} className="border-0">
-          <ReviewsHubInventoryTableHead />
-          <EnterpriseTableBody
-            style={{
-              height: `${rowVirtualizer.getTotalSize()}px`,
-              position: "relative",
-            }}
-          >
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-              const run = props.runs[virtualRow.index];
-              const rowStyle: CSSProperties = {
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                transform: `translateY(${virtualRow.start}px)`,
-                display: "table",
-                tableLayout: "fixed",
-              };
-
-              return (
-                <ReviewsHubInventoryRow
-                  key={run.runId}
-                  run={run}
-                  ownerContext={props.ownerContext}
-                  siblingRuns={props.siblingRuns}
-                  style={rowStyle}
-                />
-              );
-            })}
-          </EnterpriseTableBody>
-        </EnterpriseTable>
-      </div>
-    );
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <EnterpriseTable ariaLabel={props.ariaLabel} data-testid={props.tableTestId}>
-        <ReviewsHubInventoryTableHead />
-        <EnterpriseTableBody>
-          {props.runs.map((run) => (
-            <ReviewsHubInventoryRow
-              key={run.runId}
-              run={run}
-              ownerContext={props.ownerContext}
-              siblingRuns={props.siblingRuns}
-            />
-          ))}
-        </EnterpriseTableBody>
-      </EnterpriseTable>
-    </div>
   );
 }
 

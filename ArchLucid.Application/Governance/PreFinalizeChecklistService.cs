@@ -66,6 +66,13 @@ public sealed partial class PreFinalizeChecklistService(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
+
+        if (run is null)
+        {
+            return MissingRunResult(runId);
+        }
+
         List<PreFinalizeChecklistItem> items = [];
 
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
@@ -167,7 +174,26 @@ public sealed partial class PreFinalizeChecklistService(
         new()
         {
             RunId = runId,
-            ReadyToFinalize = true,
+            ReadyToFinalize = false,
             Items = [],
+        };
+
+    private static PreFinalizeChecklistResult MissingRunResult(string runId) =>
+        new()
+        {
+            RunId = runId,
+            ReadyToFinalize = false,
+            Items =
+            [
+                new PreFinalizeChecklistItem
+                {
+                    ItemId = "run-scope",
+                    Title = "Run in scope",
+                    Detail = "Run was not found in the current workspace/project scope.",
+                    Status = PreFinalizeChecklistItemStatus.Blocking,
+                    Count = 1,
+                },
+            ],
+            BlockingCount = 1,
         };
 }

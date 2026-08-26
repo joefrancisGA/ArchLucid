@@ -24,6 +24,7 @@ public interface IGovernanceWorkflowFacade
         string reviewedBy,
         string reviewedByActorKey,
         string? reviewComment,
+        string? reviewedByMailbox = null,
         CancellationToken cancellationToken = default);
 
     Task<GovernanceApprovalRequest> RejectAsync(
@@ -31,6 +32,7 @@ public interface IGovernanceWorkflowFacade
         string reviewedBy,
         string reviewedByActorKey,
         string? reviewComment,
+        string? reviewedByMailbox = null,
         CancellationToken cancellationToken = default);
 
     Task<GovernancePromotionRecord> PromoteAsync(

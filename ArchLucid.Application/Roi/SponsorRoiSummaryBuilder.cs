@@ -101,6 +101,7 @@ public sealed class SponsorRoiSummaryBuilder(
         List<SponsorRoiSystemicIssueTrendSeries> historicalTrends =
             SponsorRoiSystemicIssueTrendBuilder.Build(trendRuns, TimeProvider.System);
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
+        Guid workspaceId = _scopeContextProvider.GetCurrentScope().WorkspaceId;
         Guid? projectId = _scopeContextProvider.GetCurrentScope().ProjectId;
 
         SponsorRoiBasisBreakdown basisBreakdown = await _runCollector.BuildBasisBreakdownAsync(
@@ -122,6 +123,7 @@ public sealed class SponsorRoiSummaryBuilder(
             _riskExceptionService,
             _tenantSettingsRepository,
             tenantId,
+            workspaceId,
             projectId,
             cancellationToken).ConfigureAwait(false);
 
@@ -145,7 +147,7 @@ public sealed class SponsorRoiSummaryBuilder(
             SponsorBusinessImpactCategoryClassifier.Build(dedupedFindings);
 
         ArchitectureRiskRegisterResponse riskRegister = await _architectureRiskRegisterService
-            .GetRegisterAsync(tenantId, projectId, maxRows: 100, options: null, cancellationToken)
+            .GetRegisterAsync(tenantId, workspaceId, projectId, maxRows: 100, options: null, cancellationToken)
             .ConfigureAwait(false);
 
         int staleArchitectureRiskCount = StaleArchitectureRiskCountCalculator.CountStale(riskRegister);

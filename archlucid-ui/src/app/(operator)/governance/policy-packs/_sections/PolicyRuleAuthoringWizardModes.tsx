@@ -39,6 +39,8 @@ export type PolicyRuleAuthoringWizardModesProps = {
   readonly authoringErrors: readonly string[];
   readonly onApplyGeneratedCuratedDocument: (document: CuratedRulesDocument) => void;
   readonly onSyncGuidedFromCurrentJson: () => void;
+  readonly scopedReviewId?: string;
+  readonly onPickReview?: (reviewId: string) => void;
 };
 
 export function PolicyRuleAuthoringWizardModes(props: PolicyRuleAuthoringWizardModesProps): React.JSX.Element {
@@ -63,6 +65,8 @@ export function PolicyRuleAuthoringWizardModes(props: PolicyRuleAuthoringWizardM
     authoringErrors,
     onApplyGeneratedCuratedDocument,
     onSyncGuidedFromCurrentJson,
+    scopedReviewId,
+    onPickReview,
   } = props;
 
   return (
@@ -116,6 +120,8 @@ export function PolicyRuleAuthoringWizardModes(props: PolicyRuleAuthoringWizardM
               policyContentJson={policyContentJson}
               onPolicyContentJsonSync={onPolicyContentJsonSync}
               selectedPackId={selectedPackId}
+              scopedReviewId={scopedReviewId}
+              onPickReview={onPickReview}
             />
           ) : null}
 

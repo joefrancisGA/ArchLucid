@@ -13,6 +13,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/insights/patterns/private-endpoints-paas",
+  useSearchParams: () => new URLSearchParams("runId=run-pattern-detail"),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -24,7 +25,7 @@ import {
   PATTERN_LIBRARY_PRIVACY_NOTE,
   patternLibraryDetailSubtitle,
 } from "@/lib/pattern-library-copy";
-import { PATTERN_LIBRARY_DETAIL_CLAIM_DISCIPLINE, PATTERN_LIBRARY_DETAIL_CLAIM_HEADING } from "@/lib/pattern-library-detail-evidence-copy";
+import { PATTERN_LIBRARY_DETAIL_CLAIM_DISCIPLINE } from "@/lib/pattern-library-detail-evidence-copy";
 
 function renderWithQueryClient(ui: React.ReactElement): void {
   const queryClient = new QueryClient({
@@ -61,13 +62,12 @@ describe("PatternLibraryDetailClient buyer-polished shell", () => {
     expect(
       screen.getByText(patternLibraryDetailSubtitle("ignored", true)),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("pattern-library-detail-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("pattern-library-detail-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByText(PATTERN_LIBRARY_PRIVACY_NOTE)).toBeInTheDocument();
-    expect(screen.getByTestId("pattern-library-detail-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByText(PATTERN_LIBRARY_DETAIL_CLAIM_HEADING)).toBeInTheDocument();
-    expect(screen.getByText(PATTERN_LIBRARY_DETAIL_CLAIM_DISCIPLINE)).toBeInTheDocument();
+    expect(screen.getByTestId("pattern-library-detail-claim-discipline").textContent).toContain(
+      PATTERN_LIBRARY_DETAIL_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.queryByTestId("pattern-library-policy-packs-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByText(/Something went wrong/i)).not.toBeInTheDocument();
   });

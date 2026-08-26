@@ -3,6 +3,9 @@ using ArchLucid.Api.Models.CustomerSuccess;
 using ArchLucid.Application.CustomerSuccess;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -27,8 +30,10 @@ public sealed class TenantCustomerSuccessControllerTests
     private static TenantCustomerSuccessController BuildSut(
         ITenantCustomerSuccessRepository repo,
         IScopeContextProvider scopeProvider,
+        IRunRepository? runRepository = null,
         IOperatorNextBestActionService? next = null,
-        IOperatorStickinessSnapshotReader? stickiness = null)
+        IOperatorStickinessSnapshotReader? stickiness = null,
+        ITenantRepository? tenantRepository = null)
     {
         Mock<IOperatorNextBestActionService> nextMock = new();
         nextMock.Setup(n => n.GetActionsAsync(It.IsAny<CancellationToken>()))
@@ -40,11 +45,23 @@ public sealed class TenantCustomerSuccessControllerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PilotFunnelSnapshot(null, null, null, null, null, 0, 0, 0));
 
+        Mock<IRunRepository> runMock = new();
+        runMock
+            .Setup(r => r.GetByIdAsync(Scope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<ITenantRepository> tenantMock = new();
+        tenantMock
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId });
+
         return new TenantCustomerSuccessController(
                 repo,
                 next ?? nextMock.Object,
                 stickiness ?? stickinessMock.Object,
-                scopeProvider)
+                scopeProvider,
+                runRepository ?? runMock.Object,
+                tenantRepository ?? tenantMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -121,6 +138,35 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [SkippableFact]
+    public async Task PostProductFeedbackAsync_rejects_out_of_scope_run_id()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object, runs.Object);
+        ProductFeedbackRequest request = new()
+        {
+            RunId = foreignRunId,
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.Verify(
+            r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task PostProductFeedbackAsync_persists_and_returns_no_content()
     {
         ProductFeedbackSubmission? captured = null;
@@ -132,11 +178,17 @@ public sealed class TenantCustomerSuccessControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object);
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object, runs.Object);
         ProductFeedbackRequest request = new()
         {
             FindingRef = "finding-1",
-            RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            RunId = runId,
             Score = 1,
             Comment = "ok"
         };
@@ -155,6 +207,37 @@ public sealed class TenantCustomerSuccessControllerTests
         repo.Verify(
             r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task PostProductFeedbackAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            tenantRepository: tenants.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.Verify(
+            r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -184,5 +267,116 @@ public sealed class TenantCustomerSuccessControllerTests
         body.PilotFunnel.CommittedRunsInScope.Should().Be(2);
         body.ComparisonEventsLast30Days.Should().Be(5);
         body.PendingGovernanceApprovals.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetHealthScoreAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object, tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetHealthScoreAsync(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.Verify(
+            r => r.GetHealthScoreAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task GetNextBestActionsAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        Mock<IOperatorNextBestActionService> next = new();
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            next: next.Object,
+            tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetNextBestActionsAsync(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        next.Verify(n => n.GetActionsAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetFunnelSnapshotAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        Mock<IOperatorStickinessSnapshotReader> stickiness = new();
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            stickiness: stickiness.Object,
+            tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetFunnelSnapshotAsync(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        stickiness.Verify(
+            s => s.GetFunnelSnapshotAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task GetStickinessSnapshotAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        Mock<IOperatorStickinessSnapshotReader> stickiness = new();
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            stickiness: stickiness.Object,
+            tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetStickinessSnapshotAsync(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        stickiness.Verify(
+            s => s.GetFunnelSnapshotAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        stickiness.Verify(
+            s => s.GetOperatorSignalsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

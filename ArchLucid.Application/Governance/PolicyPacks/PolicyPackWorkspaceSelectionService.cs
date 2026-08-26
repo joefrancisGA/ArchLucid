@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.Governance.PolicyPacks;
 
@@ -72,20 +73,20 @@ public sealed class PolicyPackWorkspaceSelectionService(
     }
 
     public async Task<bool> TrySetAssignmentEnabledAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid assignmentId,
         bool isEnabled,
         CancellationToken ct)
     {
         PolicyPackAssignment? assignment =
-            await _assignmentRepository.GetByTenantAndAssignmentIdAsync(tenantId, assignmentId, ct);
+            await _assignmentRepository.GetByTenantAndAssignmentIdAsync(scope.TenantId, assignmentId, ct);
 
-        if (assignment is null)
+        if (!PolicyPackAssignmentScope.IsVisibleInScope(assignment, scope))
             return false;
 
-        PolicyPack? pack = await _packRepository.GetByIdAsync(assignment.PolicyPackId, ct);
+        PolicyPack? pack = await _packRepository.GetByIdAsync(assignment!.PolicyPackId, ct);
 
-        if (pack is null || pack.TenantId != tenantId)
+        if (pack is null || pack.TenantId != scope.TenantId)
             return false;
 
         if (isEnabled && !await _platformAvailability.IsGloballyActiveAsync(pack, ct))
@@ -96,7 +97,7 @@ public sealed class PolicyPackWorkspaceSelectionService(
 
         assignment.IsEnabled = isEnabled;
         await _assignmentRepository.UpdateAsync(assignment, ct);
-        await _resolverCacheInvalidator.InvalidateTenantAsync(tenantId, ct);
+        await _resolverCacheInvalidator.InvalidateTenantAsync(scope.TenantId, ct);
 
         return true;
     }

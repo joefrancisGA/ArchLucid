@@ -266,4 +266,43 @@ public sealed class ReviewResultCacheSingleFlightTests
         waiterResult.PublishBlocked.Should().BeFalse();
         waiterResult.ReviewCompleteBlocked.Should().BeFalse();
     }
+
+    [Fact]
+    public async Task CoalesceAsync_analysis_follower_of_published_leader_keeps_analysis_truth()
+    {
+        ReviewSingleFlightCoordinator coordinator = new();
+        TaskCompletionSource leaderCanFinish = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Task<ClosedLoopReasoningResult> leader = coordinator.CoalesceAsync(
+            "published-leader-key",
+            async cancellationToken =>
+            {
+                await leaderCanFinish.Task.WaitAsync(cancellationToken);
+
+                return new ClosedLoopReasoningResult
+                {
+                    RunId = "leader-run",
+                    PublishedToProduct = true,
+                    ReviewCompleteBlocked = true,
+                    IntegrityPassedFindingIds = ["finding-1"],
+                };
+            },
+            CancellationToken.None);
+
+        await Task.Delay(50);
+
+        Task<ClosedLoopReasoningResult> waiter = coordinator.CoalesceAsync(
+            "published-leader-key",
+            _ => Task.FromException<ClosedLoopReasoningResult>(new InvalidOperationException("not leader")),
+            CancellationToken.None,
+            stripCoalescedFollowerPublishLeaks: true);
+
+        leaderCanFinish.SetResult();
+
+        ClosedLoopReasoningResult waiterResult = await waiter;
+
+        waiterResult.PublishedToProduct.Should().BeTrue();
+        waiterResult.ReviewCompleteBlocked.Should().BeTrue();
+        waiterResult.IntegrityPassedFindingIds.Should().Contain("finding-1");
+    }
 }

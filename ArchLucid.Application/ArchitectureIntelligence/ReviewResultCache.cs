@@ -6,6 +6,8 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 public sealed class ReviewResultCache : IReviewResultCache
 {
     private const int MaxEntries = 128;
+    private const int MaxPinnedRefcountPerKey = 64;
+    private const int MaxTombstonedRunIds = 64;
     private static readonly TimeSpan EntryTtl = TimeSpan.FromHours(4);
 
     private readonly ConcurrentDictionary<string, CacheEntry> _cache = new(StringComparer.Ordinal);
@@ -83,7 +85,9 @@ public sealed class ReviewResultCache : IReviewResultCache
 
             EvictExpiredEntries();
 
-            if (_cache.Count >= MaxEntries && !TryEvictOldestUnpinnedEntry())
+            if (!_cache.ContainsKey(key)
+                && _cache.Count >= MaxEntries
+                && !TryEvictOldestUnpinnedEntry())
                 return;
 
             DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
@@ -105,7 +109,7 @@ public sealed class ReviewResultCache : IReviewResultCache
 
         lock (_evictionLock)
         {
-            _deferredInvalidateRunIds.Add(normalizedRunId);
+            bool anyPinnedMatch = false;
 
             foreach (KeyValuePair<string, CacheEntry> entry in _cache)
             {
@@ -118,14 +122,28 @@ public sealed class ReviewResultCache : IReviewResultCache
                     continue;
 
                 if (IsStorageKeyPinnedUnlocked(entry.Key))
+                {
+                    anyPinnedMatch = true;
                     continue;
+                }
 
                 _cache.TryRemove(entry.Key, out _);
             }
+
+            if (anyPinnedMatch)
+                AddTombstonedRunId(normalizedRunId);
         }
     }
 
-    public string BuildStorageKey(ReviewCacheDependencyManifest manifest)
+    private void AddTombstonedRunId(string normalizedRunId)
+    {
+        while (_deferredInvalidateRunIds.Count >= MaxTombstonedRunIds && _deferredInvalidateRunIds.Count > 0)
+            _deferredInvalidateRunIds.Remove(_deferredInvalidateRunIds.First());
+
+        _deferredInvalidateRunIds.Add(normalizedRunId);
+    }
+
+    internal static string BuildStorageKey(ReviewCacheDependencyManifest manifest)
     {
         ArgumentNullException.ThrowIfNull(manifest);
 
@@ -139,6 +157,21 @@ public sealed class ReviewResultCache : IReviewResultCache
         return new ReviewResultCachePinScope(this, ReviewCacheKeyBuilder.Build(manifest));
     }
 
+    public IDisposable PinScope(
+        ReviewCacheDependencyManifest primaryManifest,
+        ReviewCacheDependencyManifest secondaryManifest)
+    {
+        ArgumentNullException.ThrowIfNull(primaryManifest);
+        ArgumentNullException.ThrowIfNull(secondaryManifest);
+
+        return new ReviewResultCacheCompositePinScope(
+            this,
+            [
+                ReviewCacheKeyBuilder.Build(primaryManifest),
+                ReviewCacheKeyBuilder.Build(secondaryManifest),
+            ]);
+    }
+
     internal void PinStorageKey(string storageKey)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(storageKey);
@@ -146,7 +179,11 @@ public sealed class ReviewResultCache : IReviewResultCache
         lock (_evictionLock)
         {
             _pinnedStorageKeyRefcounts.TryGetValue(storageKey, out int count);
-            _pinnedStorageKeyRefcounts[storageKey] = count + 1;
+
+            if (count >= MaxPinnedRefcountPerKey)
+                _pinnedStorageKeyRefcounts[storageKey] = MaxPinnedRefcountPerKey;
+            else
+                _pinnedStorageKeyRefcounts[storageKey] = count + 1;
         }
     }
 
@@ -164,7 +201,7 @@ public sealed class ReviewResultCache : IReviewResultCache
             else
                 _pinnedStorageKeyRefcounts[storageKey] = count - 1;
 
-            if (!IsStorageKeyPinned(storageKey))
+            if (!IsStorageKeyPinnedUnlocked(storageKey))
                 OnStorageKeyFullyUnpinned();
         }
     }
@@ -248,13 +285,9 @@ public sealed class ReviewResultCache : IReviewResultCache
         if (string.IsNullOrWhiteSpace(runId))
             return false;
 
-        foreach (string tombstonedRunId in _deferredInvalidateRunIds)
-        {
-            if (ClosedLoopRunIdComparer.Equals(runId, tombstonedRunId))
-                return true;
-        }
+        string normalizedRunId = ClosedLoopRunIdComparer.Normalize(runId);
 
-        return false;
+        return _deferredInvalidateRunIds.Contains(normalizedRunId);
     }
 
     private bool IsStorageKeyPinnedUnlocked(string storageKey)

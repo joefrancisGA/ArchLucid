@@ -2,10 +2,13 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.OperatorHome;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
 
@@ -22,7 +25,8 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 public sealed class TenantHomepageSettingsController(
     IFeaturedCompletedSampleService featuredCompletedSampleService,
     IScopeContextProvider scopeProvider,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    ITenantRepository tenantRepository) : ControllerBase
 {
     private readonly IFeaturedCompletedSampleService _featuredCompletedSampleService =
         featuredCompletedSampleService ?? throw new ArgumentNullException(nameof(featuredCompletedSampleService));
@@ -33,11 +37,21 @@ public sealed class TenantHomepageSettingsController(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     [HttpGet]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(TenantHomepageSettingsGetResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         FeaturedCompletedSampleSnapshot snapshot =
             await _featuredCompletedSampleService.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
 
@@ -47,8 +61,15 @@ public sealed class TenantHomepageSettingsController(
     [HttpGet("eligible-samples")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(IReadOnlyList<FeaturedCompletedSampleCandidateResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListEligibleSamplesAsync(CancellationToken cancellationToken)
     {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         IReadOnlyList<FeaturedCompletedSampleCandidate> candidates =
             await _featuredCompletedSampleService.ListEligibleCandidatesAsync(cancellationToken).ConfigureAwait(false);
 
@@ -70,6 +91,7 @@ public sealed class TenantHomepageSettingsController(
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(TenantHomepageSettingsGetResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(
         [FromBody] TenantHomepageSettingsPutRequest? body,
         CancellationToken cancellationToken)
@@ -80,6 +102,11 @@ public sealed class TenantHomepageSettingsController(
         }
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         string actor = User?.Identity?.Name ?? "operator";
         FeaturedCompletedSampleSnapshot snapshot;
 
@@ -108,6 +135,10 @@ public sealed class TenantHomepageSettingsController(
             snapshot = await _featuredCompletedSampleService
                 .SetSelectedRunIdAsync(body.SelectedRunId.Value, cancellationToken)
                 .ConfigureAwait(false);
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (InvalidOperationException ex)
         {

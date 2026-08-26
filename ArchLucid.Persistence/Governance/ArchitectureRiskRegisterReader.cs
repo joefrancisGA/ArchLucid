@@ -13,6 +13,7 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
 {
     public async Task<IReadOnlyList<ArchitectureRiskRegisterEntry>> ListAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         int maxRows,
         ArchitectureRiskRegisterListOptions? options = null,
@@ -20,6 +21,9 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
+        if (workspaceId == Guid.Empty)
+            throw new ArgumentException("Workspace id is required.", nameof(workspaceId));
 
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
@@ -33,7 +37,7 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                           SELECT FindingId, Disposition, RevisitDueUtc, EvidenceRequestText, OccurredAtUtc, ReviewerUserId,
                                  ROW_NUMBER() OVER (PARTITION BY FindingId ORDER BY OccurredAtUtc DESC) AS rn
                           FROM dbo.FindingReviewEvents
-                          WHERE TenantId = @TenantId AND Disposition IS NOT NULL
+                          WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND Disposition IS NOT NULL
                       )
                       SELECT TOP (@MaxRows)
                              fr.FindingId,
@@ -71,14 +75,17 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                       ) AS resourceProp
                       LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.rn = 1
                       LEFT JOIN dbo.RiskExceptions AS re
-                          ON re.TenantId = fr.TenantId AND re.FindingId = fr.FindingId AND re.Status = N'Active'
+                          ON re.TenantId = fr.TenantId
+                         AND re.WorkspaceId = fr.WorkspaceId
+                         AND re.FindingId = fr.FindingId
+                         AND re.Status = N'Active'
                       OUTER APPLY (
                           SELECT STRING_AGG(CONCAT(itsm.Provider, N':', itsm.ExternalKey), N'; ')
                               WITHIN GROUP (ORDER BY itsm.CreatedUtc) AS LinkedTickets
                           FROM dbo.ItsmFindingCorrelations AS itsm
                           WHERE itsm.TenantId = fr.TenantId AND itsm.FindingId = fr.FindingId
                       ) AS itsmAgg
-                      WHERE fr.TenantId = @TenantId{projectFilter}{assigneeFilter}{openFindingsFilter}
+                      WHERE fr.TenantId = @TenantId AND fr.WorkspaceId = @WorkspaceId{projectFilter}{assigneeFilter}{openFindingsFilter}
                       ORDER BY fs.CreatedUtc DESC;
                       """;
 
@@ -90,6 +97,7 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                 new
                 {
                     TenantId = tenantId,
+                    WorkspaceId = workspaceId,
                     ProjectId = projectId,
                     MaxRows = maxRows,
                     AssignedToUserIdsLower = ResolveAssignedToUserIdsLower(options),
@@ -160,12 +168,16 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
 
     public async Task<int> CountAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         ArchitectureRiskRegisterListOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
+        if (workspaceId == Guid.Empty)
+            throw new ArgumentException("Workspace id is required.", nameof(workspaceId));
 
         string projectFilter = projectId.HasValue ? " AND fr.ProjectId = @ProjectId" : string.Empty;
         string assigneeFilter = BuildAssigneeFilter(options);
@@ -176,13 +188,13 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                           SELECT FindingId, Disposition, RevisitDueUtc, EvidenceRequestText, OccurredAtUtc, ReviewerUserId,
                                  ROW_NUMBER() OVER (PARTITION BY FindingId ORDER BY OccurredAtUtc DESC) AS rn
                           FROM dbo.FindingReviewEvents
-                          WHERE TenantId = @TenantId AND Disposition IS NOT NULL
+                          WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND Disposition IS NOT NULL
                       )
                       SELECT COUNT(1)
                       FROM dbo.FindingRecords AS fr
                       INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
                       LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.rn = 1
-                      WHERE fr.TenantId = @TenantId{projectFilter}{assigneeFilter}{openFindingsFilter};
+                      WHERE fr.TenantId = @TenantId AND fr.WorkspaceId = @WorkspaceId{projectFilter}{assigneeFilter}{openFindingsFilter};
                       """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -193,6 +205,7 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                 new
                 {
                     TenantId = tenantId,
+                    WorkspaceId = workspaceId,
                     ProjectId = projectId,
                     AssignedToUserIdsLower = ResolveAssignedToUserIdsLower(options),
                 },

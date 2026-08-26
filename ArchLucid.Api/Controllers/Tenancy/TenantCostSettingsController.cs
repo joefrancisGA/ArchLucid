@@ -8,6 +8,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Roi;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Roi;
 
 using Asp.Versioning;
@@ -30,8 +31,11 @@ public sealed class TenantCostSettingsController(
     ITenantCostSettingsRepository repository,
     IScopeContextProvider scopeProvider,
     IAuditService auditService,
-    IOptions<ValueReportComputationOptions> computationOptions) : ControllerBase
+    IOptions<ValueReportComputationOptions> computationOptions,
+    ITenantRepository tenantRepository) : ControllerBase
 {
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -47,9 +51,15 @@ public sealed class TenantCostSettingsController(
     [HttpGet]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(TenantCostSettingsGetResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         TenantCostSettingsRecord? row = await _repository.TryGetAsync(scope.TenantId, cancellationToken);
 
         return Ok(ProjectResponse(row));
@@ -60,7 +70,7 @@ public sealed class TenantCostSettingsController(
     [HttpPut]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(typeof(TenantCostSettingsGetResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(
         [FromBody] TenantCostSettingsPutRequest? body,
         CancellationToken cancellationToken)
@@ -90,6 +100,11 @@ public sealed class TenantCostSettingsController(
         }
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         string actor = User.Identity?.Name ?? "operator";
         DateTimeOffset updatedUtc = TimeProvider.System.GetUtcNow();
 

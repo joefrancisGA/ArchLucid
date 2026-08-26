@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -203,6 +204,73 @@ public sealed class GovernancePreviewServiceTests
     }
 
     [SkippableFact]
+    public async Task CompareEnvironmentsAsync_WhenActivationManifestRunMismatch_OmitsForeignManifest()
+    {
+        GovernanceEnvironmentActivation srcAct = new()
+        {
+            RunId = "r1", ManifestVersion = "m1", Environment = "dev", IsActive = true
+        };
+        GovernanceEnvironmentActivation tgtAct = new()
+        {
+            RunId = "r2", ManifestVersion = "m2", Environment = "test", IsActive = true
+        };
+
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([srcAct]);
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([tgtAct]);
+
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("m1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("r-foreign", "m1", g => g.CostClassification = "Low"));
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("m2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("r-foreign-2", "m2", g => g.CostClassification = "High"));
+
+        GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(
+            new GovernanceEnvironmentComparisonRequest { SourceEnvironment = "dev", TargetEnvironment = "test" });
+
+        result.Differences.Should().BeEmpty();
+        result.Notes.Should().Contain(n =>
+            n.Contains("does not belong to activation run 'r1'", StringComparison.OrdinalIgnoreCase));
+        result.Notes.Should().Contain(n =>
+            n.Contains("does not belong to activation run 'r2'", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public async Task PreviewActivationAsync_WhenCurrentActivationManifestRunMismatch_OmitsForeignManifest()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-b", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail("run-b"));
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("run-b", "v2", g => g.RiskClassification = "High"));
+
+        GovernanceEnvironmentActivation currentActivation = new()
+        {
+            ActivationId = "act-1",
+            RunId = "run-old",
+            ManifestVersion = "v-old",
+            Environment = "test",
+            IsActive = true
+        };
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GovernanceEnvironmentActivation> { currentActivation });
+
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v-old", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("run-foreign", "v-old", g => g.RiskClassification = "Low"));
+
+        GovernancePreviewResult result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = "run-b", ManifestVersion = "v2", Environment = "test"
+        });
+
+        result.Notes.Should().Contain(n =>
+            n.Contains("does not belong to activation run 'run-old'", StringComparison.OrdinalIgnoreCase));
+        result.Differences.Should().Contain(d =>
+            d.Key == "RiskClassification" && d.ChangeType == GovernanceDiffChangeType.Added);
+        result.Differences.Should().NotContain(d =>
+            d.Key == "RiskClassification" && d.ChangeType == GovernanceDiffChangeType.Changed);
+    }
+
+    [SkippableFact]
     public async Task PreviewActivationAsync_DoesNotMutateActivationRows()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-x", It.IsAny<CancellationToken>()))
@@ -237,5 +305,38 @@ public sealed class GovernancePreviewServiceTests
         });
 
         await act.Should().ThrowAsync<RunNotFoundException>();
+    }
+
+    [SkippableFact]
+    public async Task PreviewActivationAsync_WhenManifestBelongsToAnotherRun_ThrowsGoldenManifestVersionNotFoundException()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-a", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail("run-a"));
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("run-b", "v1"));
+
+        Func<Task<GovernancePreviewResult>> act = () => _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = "run-a", ManifestVersion = "v1", Environment = "dev"
+        });
+
+        await act.Should().ThrowAsync<GoldenManifestVersionNotFoundException>();
+    }
+
+    [SkippableFact]
+    public async Task PreviewActivationAsync_WhenManifestVersionMissing_ThrowsGoldenManifestVersionNotFoundException()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail("run-1"));
+        _unifiedManifestReader
+            .Setup(r => r.GetByVersionAsync("missing-v", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GoldenManifest?)null);
+
+        Func<Task<GovernancePreviewResult>> act = () => _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = "run-1", ManifestVersion = "missing-v", Environment = "dev"
+        });
+
+        await act.Should().ThrowAsync<GoldenManifestVersionNotFoundException>();
     }
 }

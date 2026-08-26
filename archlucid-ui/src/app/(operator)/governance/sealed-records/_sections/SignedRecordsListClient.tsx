@@ -303,7 +303,7 @@ export default function SignedRecordsListClient() {
       {hasRows ? <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="signed-records" /> : null}
 
       {continueLastViewedRow !== null && hasRows ? (
-        <SignedRecordsContinueLastViewedRow row={continueLastViewedRow} />
+        <SignedRecordsContinueLastViewedRow row={continueLastViewedRow} scopedRunId={scopedRunId} />
       ) : null}
 
       {loadFailure !== null ? (

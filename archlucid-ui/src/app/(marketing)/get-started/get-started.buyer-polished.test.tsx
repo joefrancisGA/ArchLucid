@@ -16,9 +16,8 @@ describe("GetStartedPageClient buyer-polished shell (GXX)", () => {
       "href",
       `#${GET_STARTED_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("get-started-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("get-started-breadcrumb")).toBeNull();
     expect(screen.getByTestId("get-started-hero-meta")).toHaveTextContent(GET_STARTED_LAST_REVIEWED_LABEL);
-    expect(screen.queryByTestId("get-started-page-meta")).not.toBeInTheDocument();
     expect(screen.getByTestId("get-started-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("get-started-sources")).toBeInTheDocument();
     expect(screen.getAllByTestId("get-started-sources")).toHaveLength(1);

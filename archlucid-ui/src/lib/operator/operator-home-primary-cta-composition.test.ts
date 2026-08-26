@@ -9,7 +9,7 @@ describe("operator home primary CTA composition (TB-1539)", () => {
   it("omits the cross-page Core Pilot strip on operator home so command center owns the sole primary", () => {
     const source = readFileSync(join(UI_ROOT, "src/components/shell/AppShellMainAffordances.tsx"), "utf8");
 
-    expect(source).toContain("isOperatorHome ? null : <PersistentWorkspaceNextActionStrip />");
+    expect(source).toContain("isOperatorHome || isHelpTopic ? null : <PersistentWorkspaceNextActionStrip />");
     expect(source).not.toMatch(
       /<PersistentWorkspaceNextActionStrip\s*\/>\s*\n\s*\{isOperatorHome \? <RecentReviewsResumeStrip/,
     );

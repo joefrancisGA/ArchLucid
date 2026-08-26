@@ -17,6 +17,8 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +34,7 @@ public sealed partial class GovernanceController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernancePromotionRecord), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Promote(
         [FromBody] CreateGovernancePromotionRequest? request,
         [FromQuery] bool dryRun = false,
@@ -44,6 +47,25 @@ public sealed partial class GovernanceController
 
         if (idempotencyError is not null)
             return idempotencyError;
+
+        IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
+        if (!string.IsNullOrWhiteSpace(request.ApprovalRequestId))
+        {
+            GovernanceApprovalRequest? approval = await approvalRepo
+                .GetByIdAsync(request.ApprovalRequestId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (approval is null)
+            {
+                return this.NotFoundProblem(
+                    $"Approval request '{request.ApprovalRequestId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+        }
 
         string promotedBy = actorContext.GetActor();
 
@@ -73,6 +95,16 @@ public sealed partial class GovernanceController
             logger.LogWarningWithSanitizedUserArg(ex, "Promote failed for run '{RunId}'.", request.RunId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
+        catch (RunNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Promote failed: run not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (GoldenManifestVersionNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Promote failed: manifest version not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
+        }
     }
 
     [HttpPost("activations")]
@@ -92,6 +124,11 @@ public sealed partial class GovernanceController
         if (idempotencyError is not null)
             return idempotencyError;
 
+        IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         try
         {
             GovernanceEnvironmentActivation result = await workflowService.ActivateAsync(
@@ -108,35 +145,82 @@ public sealed partial class GovernanceController
             logger.LogWarning(ex, "Activate failed: run not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (GoldenManifestVersionNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Activate failed: manifest version not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
+        }
     }
     [HttpGet("runs/{runId}/approval-requests")]
     [ProducesResponseType(typeof(IReadOnlyList<GovernanceApprovalRequest>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetApprovalRequests(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? scopeError = await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         IReadOnlyList<GovernanceApprovalRequest> items = await approvalRepo.GetByRunIdAsync(runId, cancellationToken);
         return Ok(items);
     }
 
     [HttpGet("runs/{runId}/promotions")]
     [ProducesResponseType(typeof(IReadOnlyList<GovernancePromotionRecord>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetPromotions(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? scopeError = await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         IReadOnlyList<GovernancePromotionRecord> items = await promotionRepo.GetByRunIdAsync(runId, cancellationToken);
         return Ok(items);
     }
 
     [HttpGet("runs/{runId}/activations")]
     [ProducesResponseType(typeof(IReadOnlyList<GovernanceEnvironmentActivation>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetActivations(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? scopeError = await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         IReadOnlyList<GovernanceEnvironmentActivation> items =
             await activationRepo.GetByRunIdAsync(runId, cancellationToken);
         return Ok(items);
+    }
+
+    private async Task<IActionResult?> RequireScopedRunAsync(string runId, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(runId, out Guid runGuid))
+        {
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found.",
+                ProblemTypes.RunNotFound);
+        }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? run = await _runRepository
+            .GetByIdAsync(scope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+        {
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found.",
+                ProblemTypes.RunNotFound);
+        }
+
+        return null;
     }
 }

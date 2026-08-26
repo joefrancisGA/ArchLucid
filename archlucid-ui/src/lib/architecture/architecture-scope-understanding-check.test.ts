@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   canConfirmScopeUnderstanding,
   deriveScopeUnderstandingBullets,
+  isScopeBulletEditable,
   isScopeBulletRemovable,
   mergeScopeBulletsIntoBrief,
   normalizeScopeUnderstandingBullets,
@@ -17,9 +18,14 @@ import {
   SCOPE_ITEM_TOO_LONG_MESSAGE,
   SCOPE_ITEM_TOO_SHORT_MESSAGE,
   SCOPE_UNDERSTANDING_SECTION_HEADER,
+  extractScopeUnderstandingLinesFromBrief,
+  scopeBulletsFingerprint,
+  scopeUnderstandingFingerprint,
+  persistedScopeMatchesBullets,
   stripScopeUnderstandingSection,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
+import { GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL } from "@/lib/guided-intake-copy";
 
 function bullet(overrides: Partial<ScopeUnderstandingBullet>): ScopeUnderstandingBullet {
   return {
@@ -40,6 +46,12 @@ describe("scopeBulletBehavior", () => {
     expect(isScopeBulletRemovable("systems")).toBe(false);
     expect(isScopeBulletRemovable("gap")).toBe(false);
     expect(isScopeBulletRemovable("custom")).toBe(true);
+  });
+
+  it("keeps people and systems rows read-only mirrors of the actor editor", () => {
+    expect(isScopeBulletEditable("people")).toBe(false);
+    expect(isScopeBulletEditable("systems")).toBe(false);
+    expect(isScopeBulletEditable("system")).toBe(true);
   });
 });
 
@@ -63,6 +75,23 @@ describe("deriveScopeUnderstandingBullets", () => {
     );
     expect(bullets.find((entry) => entry.kind === "people")?.value).toBe("Claims adjuster");
     expect(bullets.find((entry) => entry.kind === "systems")?.value).toBe("Policy API");
+  });
+
+  it("lists every confirmed actor in the mirrored people and systems rows", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [
+        { label: "Internal users", kind: "Human" },
+        { label: "External users", kind: "Human", trustOrigin: "External" },
+        { label: "Machine integration", kind: "Machine" },
+        { label: "External API", kind: "Machine", trustOrigin: "External" },
+      ],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toBe("Internal users, External users");
+    expect(bullets.find((entry) => entry.kind === "systems")?.value).toBe(
+      "Machine integration, External API",
+    );
   });
 
   it("keeps the label out of the editable value so rows stay typed", () => {
@@ -180,6 +209,52 @@ describe("stripScopeUnderstandingSection", () => {
   });
 });
 
+describe("scope persistence helpers", () => {
+  it("extracts persisted scope lines from a brief field", () => {
+    const merged = mergeScopeBulletsIntoBrief(
+      deriveScopeUnderstandingBullets({ systemName: "Vertex", businessOutcome: "Faster" }),
+      "Overview text.",
+    );
+
+    expect(extractScopeUnderstandingLinesFromBrief(merged)).toEqual([
+      "Primary System or Architecture: Vertex",
+      `${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
+    ]);
+  });
+
+  it("matches persisted scope to current bullets", () => {
+    const bullets = deriveScopeUnderstandingBullets({ systemName: "Vertex", businessOutcome: "Faster" });
+    const merged = mergeScopeBulletsIntoBrief(bullets, "Overview text.");
+
+    expect(persistedScopeMatchesBullets(merged, bullets)).toBe(true);
+  });
+
+  it("detects when persisted scope no longer matches current bullets", () => {
+    const persisted = mergeScopeBulletsIntoBrief(
+      deriveScopeUnderstandingBullets({ systemName: "Vertex" }),
+      "Overview text.",
+    );
+    const current = deriveScopeUnderstandingBullets({ systemName: "Vertex 2" });
+
+    expect(persistedScopeMatchesBullets(persisted, current)).toBe(false);
+  });
+
+  it("builds stable fingerprints regardless of line order", () => {
+    expect(
+      scopeUnderstandingFingerprint([
+        "Primary System or Architecture: Vertex",
+        `${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
+      ]),
+    ).toBe(
+      scopeUnderstandingFingerprint([
+        `${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
+        "Primary System or Architecture: Vertex",
+      ]),
+    );
+    expect(scopeBulletsFingerprint(deriveScopeUnderstandingBullets({ systemName: "Vertex" }))).toContain("vertex");
+  });
+});
+
 describe("mergeScopeBulletsIntoBrief", () => {
   it("appends confirmed scope rows as labelled lines", () => {
     const bullets = deriveScopeUnderstandingBullets({
@@ -242,6 +317,26 @@ describe("reconcileScopeUnderstandingBullets", () => {
     const reconciled = reconcileScopeUnderstandingBullets({ inferred, previous, dismissedIds: [] });
 
     expect(reconciled.find((entry) => entry.id === "system")?.value).toBe("Vertex 2");
+  });
+
+  it("refreshes mirrored actor rows even when an older scope edit tried to pin them", () => {
+    const inferred = deriveScopeUnderstandingBullets({
+      systemName: "Vertex",
+      peopleAndSystems: [
+        { label: "Machine integration", kind: "Machine" },
+        { label: "External API", kind: "Machine" },
+      ],
+    });
+    const previous = inferred.map((entry) =>
+      entry.id === "systems"
+        ? { ...entry, value: "Machine integration", source: "user" as const }
+        : entry,
+    );
+    const reconciled = reconcileScopeUnderstandingBullets({ inferred, previous, dismissedIds: [] });
+
+    expect(reconciled.find((entry) => entry.id === "systems")?.value).toBe(
+      "Machine integration, External API",
+    );
   });
 
   it("preserves operator-added rows and keeps removed rows removed", () => {

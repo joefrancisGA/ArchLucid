@@ -54,6 +54,8 @@ export type PolicyRuleAuthoringWizardProps = {
   readonly onPublish: () => void | Promise<void>;
   readonly highlightRuleId?: string;
   readonly initialInputMode?: "guided" | "visual" | "json" | "ai";
+  readonly scopedReviewId?: string;
+  readonly onPickReview?: (reviewId: string) => void;
 };
 
 function resolveInitialInputMode(
@@ -86,6 +88,8 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     onPublish,
     highlightRuleId,
     initialInputMode = "guided",
+    scopedReviewId,
+    onPickReview,
   } = props;
 
   const skipHydrationRef = useRef(false);
@@ -301,6 +305,8 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
           authoringErrors={authoringErrors}
           onApplyGeneratedCuratedDocument={applyGeneratedCuratedDocument}
           onSyncGuidedFromCurrentJson={syncGuidedFromCurrentJson}
+          scopedReviewId={scopedReviewId}
+          onPickReview={onPickReview}
         />
 
         <PolicyRuleAuthoringWizardTestPanel

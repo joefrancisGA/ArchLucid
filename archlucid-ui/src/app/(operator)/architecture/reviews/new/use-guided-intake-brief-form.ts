@@ -112,8 +112,10 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
       architectureOverview: freeTextIntent,
       intentText: freeTextIntent,
       peopleAndSystems: actorSet.actors.map((actor) => ({
-        label: actor.label?.trim() || actor.kind,
+        label: actor.label,
         kind: actor.kind,
+        trustOrigin: actor.trustOrigin,
+        contract: actor.contract,
       })),
     }),
     [actorSet.actors, businessOutcome, freeTextIntent, systemName],

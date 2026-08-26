@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraphViewport";
 import { ProvenanceGraphErrorBoundary } from "@/components/provenance/ProvenanceGraphErrorBoundary";
 import { ProvenanceSectionNav } from "@/components/provenance/ProvenanceSectionNav";
@@ -42,6 +43,10 @@ import {
 import type { ProvenancePageWorkspaceProps } from "./provenance-page-workspace-types";
 import { FILTER_OPTIONS, SEARCH_THRESHOLD, useProvenancePageWorkspace } from "./use-provenance-page-workspace";
 import { ProvenanceNextReviewFooterClient } from "./ProvenanceNextReviewFooterClient";
+import {
+  resolveProvenanceInspectEmphasizedStepId,
+  resolveProvenanceInspectSteps,
+} from "@/lib/provenance-inspect-checklist";
 
 export type { ProvenancePageWorkspaceProps, ProvenanceReviewContext } from "./provenance-page-workspace-types";
 
@@ -93,6 +98,16 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
   } = useProvenancePageWorkspace(props);
   const scopedRunId = runId.trim();
   const hasScopedRun = scopedRunId.length > 0;
+  const provenanceInspectSteps = resolveProvenanceInspectSteps({
+    reviewPicked: hasScopedRun,
+    provenanceLoaded: graph.nodes.length > 0,
+    inspectComplete: selectedNodeId.trim().length > 0,
+  });
+  const provenanceInspectEmphasizedStepId = resolveProvenanceInspectEmphasizedStepId({
+    reviewPicked: hasScopedRun,
+    provenanceLoaded: graph.nodes.length > 0,
+    inspectComplete: selectedNodeId.trim().length > 0,
+  });
 
   const onPickReviewForInspecting = useCallback(
     (reviewId: string) => {
@@ -124,6 +139,15 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
             provenanceTraceId={provenanceTraceId}
             evidenceGraphHref={evidenceGraphHref}
           />
+
+          {hasScopedRun ? (
+            <IntegrationConnectChecklist
+              title="Inspect checklist"
+              steps={provenanceInspectSteps}
+              emphasizedStepId={provenanceInspectEmphasizedStepId}
+              testIdPrefix="provenance-inspect"
+            />
+          ) : null}
 
           {hasScopedRun ? (
             <>

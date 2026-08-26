@@ -20,6 +20,7 @@ internal static class RealizedValueMetricsCalculator
         IRiskExceptionService riskExceptionService,
         ITenantSettingsRepository tenantSettingsRepository,
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         CancellationToken cancellationToken)
     {
@@ -44,7 +45,11 @@ internal static class RealizedValueMetricsCalculator
             await riskExceptionService.ListRetiredSinceAsync(tenantId, projectId, since, cancellationToken).ConfigureAwait(false);
 
         (int retiredCount, int expiryReversionCount) = CountWaiverRetirements(retiredWaivers, since, now);
-        RealizedValueAttestation attestation = await LoadAttestationAsync(tenantSettingsRepository, tenantId, cancellationToken)
+        RealizedValueAttestation attestation = await LoadAttestationAsync(
+                tenantSettingsRepository,
+                tenantId,
+                workspaceId,
+                cancellationToken)
             .ConfigureAwait(false);
 
         return new RealizedValueSummary
@@ -63,10 +68,11 @@ internal static class RealizedValueMetricsCalculator
     internal static async Task<RealizedValueAttestationResponse> LoadAttestationResponseAsync(
         ITenantSettingsRepository tenantSettingsRepository,
         Guid tenantId,
+        Guid workspaceId,
         CancellationToken cancellationToken)
     {
         RealizedValueAttestation attestation =
-            await LoadAttestationAsync(tenantSettingsRepository, tenantId, cancellationToken).ConfigureAwait(false);
+            await LoadAttestationAsync(tenantSettingsRepository, tenantId, workspaceId, cancellationToken).ConfigureAwait(false);
 
         bool hasAttestation = attestation.AttestedIncidentsAvoided is not null
                               || !string.IsNullOrWhiteSpace(attestation.AttestedRevenueOrRetentionImpact)
@@ -84,11 +90,14 @@ internal static class RealizedValueMetricsCalculator
     internal static async Task SaveAttestationAsync(
         ITenantSettingsRepository tenantSettingsRepository,
         Guid tenantId,
+        Guid workspaceId,
         UpsertRealizedValueAttestationRequest request,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tenantSettingsRepository);
         ArgumentNullException.ThrowIfNull(request);
+
+        RealizedValueAttestationUpsertValidation.ValidateOrThrow(request);
 
         RealizedValueAttestation attestation = new()
         {
@@ -98,7 +107,11 @@ internal static class RealizedValueMetricsCalculator
         };
 
         string json = JsonSerializer.Serialize(attestation);
-        await tenantSettingsRepository.UpsertAsync(tenantId, TenantSettingKeys.RealizedValueAttestation, json, cancellationToken)
+        await tenantSettingsRepository.UpsertAsync(
+                tenantId,
+                ResolveAttestationSettingKey(workspaceId),
+                json,
+                cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -179,10 +192,11 @@ internal static class RealizedValueMetricsCalculator
     private static async Task<RealizedValueAttestation> LoadAttestationAsync(
         ITenantSettingsRepository tenantSettingsRepository,
         Guid tenantId,
+        Guid workspaceId,
         CancellationToken cancellationToken)
     {
         string? raw = await tenantSettingsRepository
-            .TryGetAsync(tenantId, TenantSettingKeys.RealizedValueAttestation, cancellationToken)
+            .TryGetAsync(tenantId, ResolveAttestationSettingKey(workspaceId), cancellationToken)
             .ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(raw))
@@ -205,6 +219,9 @@ internal static class RealizedValueMetricsCalculator
 
         return value.Trim();
     }
+
+    private static string ResolveAttestationSettingKey(Guid workspaceId) =>
+        $"{TenantSettingKeys.RealizedValueAttestation}.{workspaceId:D}";
 
     private sealed class RealizedValueAttestation
     {

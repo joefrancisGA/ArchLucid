@@ -84,7 +84,7 @@ describe("ApiKeysSettingsPageClient buyer-polished shell (ADP)", () => {
       "href",
       `#${API_KEYS_SETTINGS_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("api-keys-settings-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("api-keys-settings-page-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByText(API_KEYS_SETTINGS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(API_KEYS_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.queryByText(API_KEYS_ENTERPRISE_ONLY_NOTICE)).not.toBeInTheDocument();

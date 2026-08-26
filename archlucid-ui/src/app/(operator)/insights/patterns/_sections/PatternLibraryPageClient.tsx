@@ -193,7 +193,7 @@ export function PatternLibraryPageClient(): React.JSX.Element {
             <>
           <PatternLibrarySummaryRow summary={summary} />
           {continueLastPattern !== null ? (
-            <PatternLibraryContinueLastViewedRow record={continueLastPattern} />
+            <PatternLibraryContinueLastViewedRow record={continueLastPattern} scopedRunId={scopedRunId} />
           ) : null}
           <PatternLibraryFiltersPanel filters={filters} onChange={setFilters} />
 

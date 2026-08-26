@@ -85,6 +85,20 @@ public sealed class RiskExceptionService(
         return record;
     }
 
+    public Task<RiskExceptionRecord?> GetByIdAsync(
+        Guid tenantId,
+        Guid riskExceptionId,
+        CancellationToken cancellationToken = default)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
+        if (riskExceptionId == Guid.Empty)
+            throw new ArgumentException("Risk exception id is required.", nameof(riskExceptionId));
+
+        return _repository.GetByIdAsync(tenantId, riskExceptionId, cancellationToken);
+    }
+
     public async Task RevokeAsync(
         Guid tenantId,
         Guid riskExceptionId,

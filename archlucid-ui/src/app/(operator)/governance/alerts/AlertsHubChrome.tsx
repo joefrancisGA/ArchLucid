@@ -32,6 +32,7 @@ import Link from "next/link";
 
 import { AlertsHubBreadcrumb } from "./AlertsHubBreadcrumb";
 import { AlertsHubBuyerChrome } from "./AlertsHubBuyerChrome";
+import { ALERTS_INBOX_CLAIM_DISCIPLINE } from "@/lib/alerts-inbox-evidence-copy";
 
 type AlertsHubChromeProps = {
   readonly children: React.ReactNode;
@@ -73,6 +74,8 @@ function AlertsHubChromeInner({
         navHref={GOVERNANCE_ALERTS_PATH}
         title={OPERATOR_NAV_LINK_LABELS.alerts}
         subtitle={alertsPageSubtitle(buyerPolishedShell)}
+        claimDiscipline={ALERTS_INBOX_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="alerts-inbox-claim-discipline"
         titleTestId="alerts-page-title"
         breadcrumb={buyerPolishedShell ? <AlertsHubBreadcrumb /> : undefined}
         actions={

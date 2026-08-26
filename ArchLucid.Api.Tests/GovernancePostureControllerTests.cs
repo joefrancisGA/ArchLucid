@@ -52,27 +52,21 @@ public sealed class GovernancePostureControllerTests
     }
 
     [Fact]
-    public async Task GetPosture_honors_project_id_override()
+    public async Task GetPosture_returns_empty_summary_when_project_id_is_out_of_scope()
     {
-        Guid overrideProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid foreignProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
-        Mock<IArchitecturePostureService> postureService = new();
-        postureService
-            .Setup(service => service.GetSummaryAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                overrideProjectId,
-                true,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ArchitecturePostureSummary());
+        Mock<IArchitecturePostureService> postureService = new(MockBehavior.Strict);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
 
         GovernancePostureController controller = new(postureService.Object, scopeProvider.Object);
 
-        await controller.GetPosture(overrideProjectId, CancellationToken.None);
+        IActionResult result = await controller.GetPosture(foreignProjectId, CancellationToken.None);
 
-        postureService.VerifyAll();
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeOfType<ArchitecturePostureSummary>();
+        postureService.VerifyNoOtherCalls();
     }
 }

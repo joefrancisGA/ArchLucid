@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
@@ -50,6 +51,33 @@ public sealed class TenantExecDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task GetExecDigestPreferences_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantExecDigestPreferencesRepository> repository = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>(),
+            tenantRepository.Object);
+
+        IActionResult action = await controller.GetExecDigestPreferences(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repository.Verify(
+            r => r.GetByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PostExecDigestPreferences_returns_bad_request_when_body_null()
     {
         TenantExecDigestPreferencesController controller = CreateController(
@@ -75,6 +103,25 @@ public sealed class TenantExecDigestPreferencesControllerTests
             Mock.Of<IAuditService>());
 
         ExecDigestPreferencesUpsertRequest body = new() { DayOfWeek = 7 };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task PostExecDigestPreferences_returns_bad_request_when_iana_time_zone_invalid()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            Mock.Of<ITenantExecDigestPreferencesRepository>(),
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new() { IanaTimeZoneId = "Not/AZone" };
 
         IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
 
@@ -111,6 +158,67 @@ public sealed class TenantExecDigestPreferencesControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task PostExecDigestPreferences_returns_bad_request_when_email_enabled_without_recipients()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            Mock.Of<ITenantExecDigestPreferencesRepository>(),
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new() { EmailEnabled = true, RecipientEmails = [] };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task PostExecDigestPreferences_returns_bad_request_when_recipient_email_invalid()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            Mock.Of<ITenantExecDigestPreferencesRepository>(),
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new() { EmailEnabled = true, RecipientEmails = ["not-an-email"] };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task PostExecDigestPreferences_returns_bad_request_when_recipient_email_duplicated()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            Mock.Of<ITenantExecDigestPreferencesRepository>(),
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test", "Exec@contoso.test"]
+        };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -175,9 +283,21 @@ public sealed class TenantExecDigestPreferencesControllerTests
     private static TenantExecDigestPreferencesController CreateController(
         IScopeContextProvider scopeProvider,
         ITenantExecDigestPreferencesRepository preferencesRepository,
-        IAuditService auditService) =>
-        new(scopeProvider, preferencesRepository, auditService)
+        IAuditService auditService,
+        ITenantRepository? tenantRepository = null)
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+
+        return new TenantExecDigestPreferencesController(
+            scopeProvider,
+            preferencesRepository,
+            auditService,
+            tenantRepository ?? tenants.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
+    }
 }

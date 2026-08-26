@@ -70,7 +70,7 @@ public sealed class CachingSponsorRoiSummaryServiceTests
 
         Mock<IArchitectureRiskRegisterService> register = new();
         register
-            .Setup(service => service.GetRegisterAsync(TenantId, ProjectId, 100, It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
+            .Setup(service => service.GetRegisterAsync(TenantId, WorkspaceId, ProjectId, 100, It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new ArchitectureRiskRegisterResponse
                 {

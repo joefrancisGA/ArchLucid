@@ -68,6 +68,16 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (string.IsNullOrWhiteSpace(request.RunId))
+        {
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (request.Content is null)
+        {
+            return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
+        }
+
         string policyPackContentJson =
             JsonSerializer.Serialize(request.Content, ContractJson.CamelCaseIgnoreNullCompact);
 

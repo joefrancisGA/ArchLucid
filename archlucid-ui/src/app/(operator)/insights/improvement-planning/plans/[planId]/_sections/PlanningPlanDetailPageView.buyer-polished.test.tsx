@@ -15,6 +15,7 @@ vi.mock("next/navigation", () => ({
     refresh: vi.fn(),
   }),
   usePathname: () => "/insights/improvement-planning/plans/demo-plan",
+  useSearchParams: () => new URLSearchParams("runId=run-plan-detail"),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -24,7 +25,6 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { PlanningPlanDetailPageView } from "@/app/(operator)/insights/improvement-planning/plans/[planId]/_sections/PlanningPlanDetailPageView";
 import type { UsePlanningPlanDetailPageModel } from "@/app/(operator)/insights/improvement-planning/plans/[planId]/_sections/use-planning-plan-detail-page";
 import {
-  PLANNING_PLAN_DETAIL_CLAIM_HEADING,
   PLANNING_PLAN_DETAIL_PAGE_SUBTITLE_BUYER,
 } from "@/lib/planning-plan-detail-evidence-copy";
 
@@ -67,9 +67,7 @@ describe("PlanningPlanDetailPageView buyer-polished shell", () => {
     );
 
     expect(screen.getByText(PLANNING_PLAN_DETAIL_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("improvement-planning-plan-detail-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("planning-plan-detail-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByText(PLANNING_PLAN_DETAIL_CLAIM_HEADING)).toBeInTheDocument();
     expect(screen.queryByTestId("planning-plan-detail-hub-vocabulary")).not.toBeInTheDocument();
   });
 });

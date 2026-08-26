@@ -4,7 +4,6 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.Decisioning.Tests.GoldenCorpus;
-using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
@@ -16,11 +15,11 @@ namespace ArchLucid.Decisioning.Tests.Services;
 public sealed class DeclarationSignalPolicyFindingEngineTests
 {
     [Fact]
-    public async Task Declaration_security_emits_all_signals_when_pack_has_no_mapped_keys()
+    public async Task Declaration_security_emits_all_signals_when_pack_has_unmapped_prefix()
     {
-        FixedComplianceRulePackProvider provider = new(CreatePack("soc2-001"));
+        FixedComplianceRulePackProvider provider = new(CreatePack("cost-opt-001"));
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
-        GraphSnapshot graph = CreatePublicAccessAndHttpsDisabledGraph();
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
 
@@ -30,11 +29,23 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
     }
 
     [Fact]
+    public async Task Declaration_security_with_soc2_001_only_suppresses_unmapped_themes()
+    {
+        FixedComplianceRulePackProvider provider = new(CreatePack("soc2-001"));
+        DeclarationSecurityBaselineFindingEngine sut = new(provider);
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Declaration_security_with_cis_az_006_only_emits_public_access_not_https()
     {
         FixedComplianceRulePackProvider provider = new(CreatePack("cis-az-006"));
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
-        GraphSnapshot graph = CreatePublicAccessAndHttpsDisabledGraph();
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
 
@@ -49,7 +60,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
     {
         FixedComplianceRulePackProvider provider = new(CreatePack("cis-az-025"));
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
-        GraphSnapshot graph = CreatePublicAccessAndHttpsDisabledGraph();
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
 
@@ -59,11 +70,67 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
     }
 
     [Fact]
+    public async Task Declaration_security_with_soc2_004_only_emits_https_not_public_access()
+    {
+        FixedComplianceRulePackProvider provider = new(CreatePack("soc2-004"));
+        DeclarationSecurityBaselineFindingEngine sut = new(provider);
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().Contain("HTTPS only", because: "transport-security theme");
+        findings[0].PolicyRuleId.Should().Be("soc2-004");
+    }
+
+    [Fact]
+    public async Task Declaration_security_with_soc2_018_only_emits_public_access_not_https()
+    {
+        FixedComplianceRulePackProvider provider = new(CreatePack("soc2-018"));
+        DeclarationSecurityBaselineFindingEngine sut = new(provider);
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().Contain("public network access", because: "data-protection theme");
+        findings[0].PolicyRuleId.Should().Be("soc2-018");
+    }
+
+    [Fact]
+    public async Task Declaration_security_with_hipaa_024_only_emits_transport_not_data_protection()
+    {
+        FixedComplianceRulePackProvider provider = new(CreatePack("hipaa-024"));
+        DeclarationSecurityBaselineFindingEngine sut = new(provider);
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().Contain("HTTPS only", because: "transport-security theme");
+        findings[0].PolicyRuleId.Should().Be("hipaa-024");
+    }
+
+    [Fact]
+    public async Task Declaration_security_with_cis_aws_006_only_emits_public_access_not_https()
+    {
+        FixedComplianceRulePackProvider provider = new(CreatePack("cis-aws-006"));
+        DeclarationSecurityBaselineFindingEngine sut = new(provider);
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().Contain("public network access", because: "data-protection theme");
+        findings[0].PolicyRuleId.Should().Be("cis-aws-006");
+    }
+
+    [Fact]
     public async Task Declaration_security_with_empty_filtered_pack_emits_nothing()
     {
         FixedComplianceRulePackProvider provider = new(CreatePack());
         DeclarationSecurityBaselineFindingEngine sut = new(provider);
-        GraphSnapshot graph = CreatePublicAccessAndHttpsDisabledGraph();
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
 
@@ -75,7 +142,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
     {
         FixedComplianceRulePackProvider provider = new(CreatePack("cis-az-006"));
         DeclarationPremiseConflictFindingEngine sut = new(provider);
-        GraphSnapshot graph = CreatePrivateBaselinePublicDeclarationGraph();
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePrivateBaselinePublicDeclarationGraph();
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
 
@@ -88,7 +155,7 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
     {
         FixedComplianceRulePackProvider provider = new(CreatePack("cis-az-025"));
         DeclarationPremiseConflictFindingEngine sut = new(provider);
-        GraphSnapshot graph = CreatePrivateBaselinePublicDeclarationGraph();
+        GraphSnapshot graph = DeclarationPolicyTestGraphs.CreatePrivateBaselinePublicDeclarationGraph();
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
 
@@ -96,16 +163,23 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
     }
 
     [Fact]
-    public void Declaration_signal_policy_key_map_covers_expected_themes()
+    public void Declaration_signal_policy_key_map_covers_expected_themes_and_prefix_family()
     {
         HashSet<string> cis006 = ["cis-az-006"];
         HashSet<string> cis025 = ["cis-az-025"];
+        HashSet<string> soc2One = ["soc2-001"];
+        HashSet<string> soc2Four = ["soc2-004"];
+        HashSet<string> costOpt = ["cost-opt-001"];
 
         DeclarationSignalPolicyKeyMap.IsThemeEnabled("data-protection", cis006).Should().BeTrue();
         DeclarationSignalPolicyKeyMap.IsThemeEnabled("transport-security", cis006).Should().BeFalse();
         DeclarationSignalPolicyKeyMap.IsThemeEnabled("transport-security", cis025).Should().BeTrue();
         DeclarationSignalPolicyKeyMap.TenantUsesDeclarationVocabulary(cis006).Should().BeTrue();
-        DeclarationSignalPolicyKeyMap.TenantUsesDeclarationVocabulary(new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "soc2-001" }).Should().BeFalse();
+        DeclarationSignalPolicyKeyMap.TenantUsesDeclarationVocabulary(soc2One).Should().BeTrue();
+        DeclarationSignalPolicyKeyMap.TenantUsesDeclarationVocabulary(costOpt).Should().BeFalse();
+        DeclarationSignalPolicyKeyMap.IsThemeEnabled("transport-security", soc2Four).Should().BeTrue();
+        DeclarationSignalPolicyPrefixFamily.RuleIdMatchesFamily("soc2-001").Should().BeTrue();
+        DeclarationSignalPolicyPrefixFamily.RuleIdMatchesFamily("cost-opt-001").Should().BeFalse();
     }
 
     private static ComplianceRulePack CreatePack(params string[] ruleIds) =>
@@ -128,59 +202,4 @@ public sealed class DeclarationSignalPolicyFindingEngineTests
                     })
                 .ToList(),
         };
-
-    private static GraphSnapshot CreatePublicAccessAndHttpsDisabledGraph() => new()
-    {
-        Nodes =
-        [
-            new GraphNode
-            {
-                NodeId = "app-1",
-                NodeType = "TopologyResource",
-                Label = "api",
-                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["tf.public_network_access"] = "enabled",
-                    ["httpsOnly"] = "false",
-                },
-            },
-        ],
-    };
-
-    private static GraphSnapshot CreatePrivateBaselinePublicDeclarationGraph() => new()
-    {
-        Nodes =
-        [
-            new GraphNode
-            {
-                NodeId = "baseline-private",
-                NodeType = GraphNodeTypes.SecurityBaseline,
-                Label = "Private only network access",
-                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["description"] = "Private only network access required",
-                },
-            },
-            new GraphNode
-            {
-                NodeId = "obj-storage",
-                NodeType = GraphNodeTypes.TopologyResource,
-                Label = "docs",
-                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["tf.public_network_access"] = "enabled",
-                },
-            },
-        ],
-        Edges =
-        [
-            new GraphEdge
-            {
-                FromNodeId = "baseline-private",
-                ToNodeId = "obj-storage",
-                EdgeType = GraphEdgeTypes.Protects,
-                Weight = 0.9,
-            },
-        ],
-    };
 }

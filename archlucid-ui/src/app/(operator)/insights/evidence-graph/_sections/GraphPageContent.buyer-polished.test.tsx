@@ -67,9 +67,7 @@ describe("GraphPageContent buyer-polished shell", () => {
     expect(screen.getByTestId("evidence-graph-page-title")).toHaveTextContent(EVIDENCE_GRAPH_PAGE_TITLE);
     expect(screen.getByText(EVIDENCE_GRAPH_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: EVIDENCE_GRAPH_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    // claim discipline folded into page header
     expect(screen.getByRole("heading", { level: 2, name: EVIDENCE_GRAPH_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     expect(screen.queryByTestId("architecture-intelligence-evidence-graph-vocabulary")).toBeNull();

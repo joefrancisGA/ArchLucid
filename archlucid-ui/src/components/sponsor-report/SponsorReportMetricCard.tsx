@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type Props = {
   title: string;
@@ -11,7 +11,7 @@ type Props = {
 export function SponsorReportMetricCard(props: Props) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-      <p className={cn(OPERATOR_TYPOGRAPHY.tab, "uppercase tracking-wide text-al-text-secondary")}>{props.title}</p>
+      <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>{props.title}</p>
       <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
         {props.value}
       </p>

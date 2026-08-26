@@ -66,6 +66,7 @@ Give architects a **linear checklist** for creating the first **architecture rev
 ### Constraints
 
 - This walkthrough does not replace **[`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md)** for HTTP-level scripted parity or **[`onboarding/day-one-developer.md`](../onboarding/day-one-developer.md#following-the-request-past-create-execute--commit--retrieval--ask)** for the request-to-answer narrative spine.
+- **Actor-dependent findings:** Uploading IaC alone (Bicep, Terraform, YAML, rendered Kubernetes manifests) materializes topology resources but not **Actor** nodes. Trust-boundary, privileged-access, and external-exposure engines stay silent until you add people and systems in guided intake (**People, systems, and integrations**).
 
 ### Steps
 

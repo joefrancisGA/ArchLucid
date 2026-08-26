@@ -68,7 +68,16 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             return;
 
         if (resourceType.Equals("Microsoft.Resources/deployments", StringComparison.OrdinalIgnoreCase))
+        {
+            if (TryGetPropertyIgnoreCase(resource, "resources", out JsonElement deploymentChildren)
+                && deploymentChildren.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement childResource in deploymentChildren.EnumerateArray())
+                    TryAddResource(childResource, declaration, results);
+            }
+
             return;
+        }
 
         if (!TryGetPropertyIgnoreCase(resource, "name", out JsonElement nameElement))
             return;

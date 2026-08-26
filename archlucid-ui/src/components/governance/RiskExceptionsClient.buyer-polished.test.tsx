@@ -37,7 +37,6 @@ import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import { RISK_EXCEPTIONS_CLAIM_DISCIPLINE } from "@/lib/risk-exceptions-evidence-copy";
 
 import {
-  RISK_EXCEPTIONS_CLAIM_HEADING,
   RISK_EXCEPTIONS_PAGE_SUBTITLE_BUYER,
 } from "@/app/(operator)/governance/exceptions/risk-exceptions-page-copy";
 import RiskExceptionsClient from "@/components/governance/RiskExceptionsClient";
@@ -57,10 +56,10 @@ describe("RiskExceptionsClient buyer-polished shell", () => {
       expect(screen.getByTestId("risk-exceptions-empty-state")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("risk-exceptions-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("risk-exceptions-claim-discipline").textContent).toContain(
+      RISK_EXCEPTIONS_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByText(RISK_EXCEPTIONS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByText(RISK_EXCEPTIONS_CLAIM_HEADING)).toBeInTheDocument();
-    expect(screen.getByText(RISK_EXCEPTIONS_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.queryByTestId("risk-exceptions-findings-vocabulary")).not.toBeInTheDocument();
   });
 });

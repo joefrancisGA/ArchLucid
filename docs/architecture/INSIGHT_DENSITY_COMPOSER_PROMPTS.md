@@ -1,6 +1,6 @@
 > **Scope:** Copy-paste Composer prompts that raise **Decision-Changing Insight Density** (assessment pillar 1, weight 13). Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Pillar definition:** [`../assessments/ASSESSMENT_PROMPT_SERIES.md`](../assessments/ASSESSMENT_PROMPT_SERIES.md) (Category interpretation) · **V1 boundary:** [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §3
-> **Next batch:** [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) (ID-08–11 — ready to run on feature branches)
+> **Next batch:** [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) (ID-08–11) · then [`WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md`](WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md) (WK-15 wraps ID-11; no new coverage engines)
 
 # Insight density — Composer prompt set
 

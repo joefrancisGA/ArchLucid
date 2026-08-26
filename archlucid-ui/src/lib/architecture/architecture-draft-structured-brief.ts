@@ -424,6 +424,14 @@ export function structuredBriefHasRewriteGrounding(brief: ArchitectureDraftStruc
   );
 }
 
+/**
+ * Stable fingerprint for overview-rewrite gating — any brief edit, including whitespace,
+ * produces a new value so the rewrite button can stay disabled until the brief changes.
+ */
+export function fingerprintStructuredBriefForRewriteGate(brief: ArchitectureDraftStructuredBriefState): string {
+  return JSON.stringify(structuredBriefToPatchPayload(brief));
+}
+
 /** Persists a denied suggestion and removes it from the suggested list. */
 export function denyStructuredBriefSuggestion(
   current: ArchitectureDraftStructuredBriefState,

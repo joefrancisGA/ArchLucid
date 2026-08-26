@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { HelpComparisonReplayHeaderActions } from "@/app/(operator)/help/_sections/HelpComparisonReplayHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { ComparisonReplayHelpClaimDisciplineStrip } from "@/components/help/ComparisonReplayHelpClaimDisciplineStrip";
 import { ComparisonReplayHelpEvidenceOrientationStrip } from "@/components/help/ComparisonReplayHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -54,7 +55,7 @@ import {
 } from "@/lib/design-tokens";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -90,6 +91,8 @@ export function HelpComparisonReplayGuideView(
     extractHelpMarkdownHeadings(preparedMarkdown),
     COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID,
   );
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
+  const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
   const deferredJobDetail = splitComparisonReplayDeferredDetail(preparedMarkdown);
   const validateUnavailable = comparisonReplayValidateReviewUnavailableCopy();
   const validateActionAvailable = isComparisonReplayValidateReviewActionAvailable();
@@ -118,6 +121,8 @@ export function HelpComparisonReplayGuideView(
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<HelpComparisonReplayHeaderActions entry={entry} />}
       />
+
+      <ComparisonReplayHelpClaimDisciplineStrip />
 
       <div
         id={COMPARISON_REPLAY_HELP_PRIMARY_CONTENT_ID}
@@ -233,9 +238,9 @@ export function HelpComparisonReplayGuideView(
           </ul>
         </section>
 
-        <div className={HELP_PAGE_LAYOUT.contentGrid}>
+        <div className={contentGridClass}>
           <div
-            className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn)}
+            className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}
             data-testid="help-comparison-replay-primary"
           >
             {deferredJobDetail.length > 0 ? (
@@ -272,7 +277,7 @@ export function HelpComparisonReplayGuideView(
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={headings} />
+          {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
         </div>
       </div>
     </article>

@@ -4,18 +4,31 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { signedRecordScopedHref } from "@/lib/signed-records-paths";
 import { cn } from "@/lib/utils";
 import type { SignedRecordsListRow } from "@/app/(operator)/governance/sealed-records/_sections/signed-records-list-row";
 
 export type SignedRecordsContinueLastViewedRowProps = {
   readonly row: SignedRecordsListRow;
+  readonly scopedRunId?: string;
 };
+
+function continueLastSignedRecordHref(row: SignedRecordsListRow, scopedRunId: string): string {
+  const scoped = scopedRunId.trim();
+  const manifestId = row.manifestId?.trim() ?? "";
+
+  if (manifestId.length > 0) {
+    return signedRecordScopedHref(manifestId, scoped.length > 0 ? scoped : null);
+  }
+
+  return row.signedRecordHref ?? row.reviewHref;
+}
 
 /** Pinned continue row for the most recently viewed sealed record. */
 export function SignedRecordsContinueLastViewedRow(
   props: SignedRecordsContinueLastViewedRowProps,
 ): React.JSX.Element {
-  const href = props.row.signedRecordHref ?? props.row.reviewHref;
+  const href = continueLastSignedRecordHref(props.row, props.scopedRunId ?? "");
 
   return (
     <section

@@ -58,7 +58,7 @@ describe("GovernanceResolutionPageView buyer-polished shell", () => {
 
     expect(screen.getByTestId("standards-rules-governance-status-banner")).toBeInTheDocument();
 
-    expect(screen.getByTestId("governance-standards-rules-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-standards-rules-breadcrumb")).not.toBeInTheDocument();
 
     expect(screen.getByTestId("operator-demo-static-banner")).toBeInTheDocument();
 

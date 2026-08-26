@@ -24,6 +24,8 @@ import { IntegrationConnectChecklist } from "@/components/integrations/Integrati
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import { Button } from "@/components/ui/button";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
@@ -39,9 +41,15 @@ import {
 } from "@/lib/architecture/architecture-draft-intake-mode";
 import { GuidedIntakeAlreadySubmittedCallout } from "@/app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE } from "@/lib/architectures-draft-evidence-copy";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reviewDetailPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
+import {
+  ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE,
+  ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
+  resolveArchitectureDraftRefineGuidanceSentence,
+} from "@/lib/architecture/architecture-draft-detail-page-copy";
 import type { ReviewStartStageId } from "@/lib/review-start-progress-stages";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
@@ -105,6 +113,10 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly startReviewError: string | null;
   readonly saveState: ArchitectureDraftSaveState;
   readonly scopeUnderstandingInput: Parameters<typeof ArchitectureScopeUnderstandingCheckPanel>[0]["input"];
+  readonly persistedScopeFingerprint: string | null;
+  readonly persistScopeConfirmation: Parameters<
+    typeof ArchitectureScopeUnderstandingCheckPanel
+  >[0]["onConfirm"];
   readonly setScopeBullets: Parameters<typeof ArchitectureScopeUnderstandingCheckPanel>[0]["onBulletsChange"];
   readonly setScopeGateOpen: Parameters<typeof ArchitectureScopeUnderstandingCheckPanel>[0]["onGateChange"];
   readonly setActorSuggestionsUnresolved: (value: boolean) => void;
@@ -169,6 +181,8 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     startReviewError,
     saveState,
     scopeUnderstandingInput,
+    persistedScopeFingerprint,
+    persistScopeConfirmation,
     setScopeBullets,
     setScopeGateOpen,
     setActorSuggestionsUnresolved,
@@ -243,8 +257,25 @@ return (
             className={cn("m-0", OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY.helper)}
             data-testid="architecture-draft-workspace-lead"
           >
-            {workspaceLead}
+            {buyerPolishedShell ? (
+              <>
+                {ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE}{" "}
+                <InlineGuidanceText
+                  text={resolveArchitectureDraftRefineGuidanceSentence(reviewReadiness.isValid)}
+                />{" "}
+                {ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE}
+              </>
+            ) : (
+              workspaceLead
+            )}
           </p>
+          {isDetailDraft && buyerPolishedShell ? (
+            <PageHeaderClaimDiscipline
+              text={ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE}
+              testId="architecture-draft-detail-claim-discipline"
+              className="mt-2 text-left"
+            />
+          ) : null}
           {linkedReviewId !== null ? (
             <Link
               href={reviewDetailPath(linkedReviewId)}
@@ -373,6 +404,8 @@ return (
         input={scopeUnderstandingInput}
         disabled={handoffEditorLocked || exitPending || reviewStartProgress.isPending}
         draftSaveState={saveState}
+        persistedScopeFingerprint={persistedScopeFingerprint}
+        onConfirm={persistScopeConfirmation}
         onBulletsChange={setScopeBullets}
         onGateChange={setScopeGateOpen}
       />

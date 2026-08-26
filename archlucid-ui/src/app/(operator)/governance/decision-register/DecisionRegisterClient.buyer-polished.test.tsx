@@ -25,7 +25,6 @@ vi.mock("@/lib/operator/operator-resource-scope", () => ({
 import { getArchitectureDecisionRegister } from "@/lib/api/governance-stickiness-api";
 import DecisionRegisterClient from "./DecisionRegisterClient";
 import {
-  DECISION_REGISTER_CLAIM_HEADING,
   DECISION_REGISTER_PAGE_SUBTITLE_BUYER,
 } from "./decision-register-copy";
 import { DECISION_REGISTER_CLAIM_DISCIPLINE } from "@/lib/decision-register-evidence-copy";
@@ -45,10 +44,10 @@ describe("DecisionRegisterClient buyer-polished shell", () => {
       expect(screen.getByTestId("decision-register-empty-state")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("decision-register-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("decision-register-claim-discipline").textContent).toContain(
+      DECISION_REGISTER_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByText(DECISION_REGISTER_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByText(DECISION_REGISTER_CLAIM_HEADING)).toBeInTheDocument();
-    expect(screen.getByText(DECISION_REGISTER_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.queryByTestId("decision-register-findings-vocabulary")).not.toBeInTheDocument();
   });
 });

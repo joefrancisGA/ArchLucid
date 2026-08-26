@@ -1,4 +1,5 @@
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { FIRST_REVIEW_HELP_PATH } from "@/lib/first-review-help-route";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -52,3 +53,14 @@ export const FIRST_REVIEW_HELP_SOURCES: readonly FirstReviewHelpSourceLink[] = [
 ] as const;
 
 export const FIRST_REVIEW_HELP_CANONICAL_PATH = FIRST_REVIEW_HELP_PATH;
+
+/** Structured sections rendered outside markdown — included in the on-page TOC. */
+export function buildFirstReviewHelpTocHeadings(
+  markdownHeadings: readonly HelpMarkdownHeading[],
+): readonly HelpMarkdownHeading[] {
+  return [
+    { level: 2, id: "evidence-arc", title: "Evidence arc" },
+    { level: 2, id: "claim-discipline", title: "Claim discipline" },
+    ...markdownHeadings,
+  ];
+}

@@ -51,7 +51,7 @@ public sealed class GovernanceSetupController(
             cancellationToken);
 
         Task<IReadOnlyList<AlertRoutingSubscription>> routingTask =
-            _subscriptionRepository.ListByScopeAsync(
+            _subscriptionRepository.ListEnabledByScopeAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,

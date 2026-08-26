@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { CurrentPrincipal } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
-  ACCESS_DENIED_CLAIM_DISCIPLINE_HEADING,
+  ACCESS_DENIED_CLAIM_DISCIPLINE,
   ACCESS_DENIED_FOLLOW_UPS_TITLE,
 } from "@/lib/access-denied-evidence-copy";
 import {
@@ -71,16 +71,16 @@ describe("OperatorAccessDeniedPageClient buyer-polished shell", () => {
       "href",
       `#${ACCESS_DENIED_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("access-denied-breadcrumb")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: ACCESS_DENIED_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    expect(screen.queryByTestId("access-denied-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.getByTestId("access-denied-claim-discipline").textContent).toContain(
+      ACCESS_DENIED_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByRole("heading", { level: 2, name: ACCESS_DENIED_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const orientation = screen.getByTestId("access-denied-orientation-top");
     const useDifferentAccount = screen.getByTestId("operator-access-denied-use-different-account");
 
-    expect(orientation.compareDocumentPosition(useDifferentAccount) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(useDifferentAccount) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("access-denied-primary-content")).toContainElement(orientation);
   });
 });

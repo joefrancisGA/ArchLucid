@@ -3,12 +3,20 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { PageHeading } from "@/components/PageHeading";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type OperatorPageHeaderProps = {
   title: string;
   /** Plain string or rich lead (e.g. bold label prefix on Overview). */
   subtitle?: ReactNode;
+  /**
+   * Folded claim-discipline negation — replaces mid-page "What this … is not" hero cards.
+   * Renders as helper copy under {@link subtitle}.
+   */
+  claimDiscipline?: string;
+  /** Stable Playwright anchor for {@link claimDiscipline}. */
+  claimDisciplineTestId?: string;
   /** Optional hierarchy label rendered above the title. */
   eyebrow?: string;
   /** Optional classes for the subtitle paragraph (non-`navHref` path). */
@@ -57,6 +65,8 @@ export type OperatorPageHeaderProps = {
 export function OperatorPageHeader({
   title,
   subtitle,
+  claimDiscipline,
+  claimDisciplineTestId,
   eyebrow,
   subtitleClassName,
   navHref,
@@ -77,6 +87,8 @@ export function OperatorPageHeader({
           icon={icon}
           title={title}
           description={subtitle}
+          claimDiscipline={claimDiscipline}
+          claimDisciplineTestId={claimDisciplineTestId}
           eyebrow={eyebrow}
           metadata={metadata}
           statusBadge={statusBadge}
@@ -126,6 +138,10 @@ export function OperatorPageHeader({
           {subtitle}
         </div>
       )}
+
+      {claimDiscipline !== undefined && claimDiscipline.length > 0 ? (
+        <PageHeaderClaimDiscipline text={claimDiscipline} testId={claimDisciplineTestId} />
+      ) : null}
 
       {metadata != null && (
         <div className={cn("mt-2 flex flex-wrap gap-x-4 gap-y-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>

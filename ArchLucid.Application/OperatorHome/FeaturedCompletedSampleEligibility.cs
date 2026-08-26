@@ -1,4 +1,5 @@
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.OperatorHome;
@@ -14,6 +15,11 @@ public static class FeaturedCompletedSampleEligibility
         }
 
         if (!run.GoldenManifestId.HasValue)
+        {
+            return false;
+        }
+
+        if (!string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.Ordinal))
         {
             return false;
         }

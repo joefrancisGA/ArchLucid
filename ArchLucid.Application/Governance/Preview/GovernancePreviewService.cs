@@ -45,17 +45,14 @@ public sealed class GovernancePreviewService(
                 ? runDetail.Manifest
                 : await unifiedGoldenManifestReader.GetByVersionAsync(request.ManifestVersion, cancellationToken);
         if (candidateManifest is null)
-            throw new InvalidOperationException($"Golden manifest version '{request.ManifestVersion}' was not found for run '{request.RunId}'. " +
-                                                "Ensure the manifest version belongs to this run and has been committed.");
+            throw new GoldenManifestVersionNotFoundException(request.ManifestVersion, request.RunId);
         if (!string.Equals(candidateManifest.RunId, request.RunId, StringComparison.Ordinal))
-            throw new InvalidOperationException(
-                $"Manifest version '{request.ManifestVersion}' belongs to run '{candidateManifest.RunId}', not '{request.RunId}'.");
+            throw new GoldenManifestVersionNotFoundException(request.ManifestVersion, request.RunId);
         IReadOnlyList<GovernanceEnvironmentActivation> activationRows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
         GovernanceEnvironmentActivation? active = activationRows.FirstOrDefault(a => a.IsActive);
-        GoldenManifest? currentManifest = null;
-        if (active is not null)
-            currentManifest = await unifiedGoldenManifestReader.GetByVersionAsync(active.ManifestVersion, cancellationToken);
         List<string> notes = [DiffOnlyNote];
+        GoldenManifest? currentManifest = null;
+
         if (active is null)
         {
             notes.Add($"No current active governance activation exists for environment '{environment}'.");
@@ -63,10 +60,9 @@ public sealed class GovernancePreviewService(
         }
         else
         {
+            currentManifest = await LoadManifestForActivationAsync(active, notes, cancellationToken);
             notes.Add(
                 $"Compared current run '{active.RunId}' (manifest '{active.ManifestVersion}') to preview run '{request.RunId}' (manifest '{request.ManifestVersion}').");
-            if (currentManifest is null)
-                notes.Add($"Could not load GoldenManifest for current activation manifest version '{active.ManifestVersion}'.");
         }
 
         List<GovernanceDiffItem> differences = GovernanceManifestComparer.Compare(currentManifest?.Governance, candidateManifest.Governance);
@@ -100,21 +96,41 @@ public sealed class GovernancePreviewService(
         if (targetActive is null)
             notes.Add($"No active governance activation exists for target environment '{target}'.");
         GoldenManifest? sourceManifest = sourceActive is not null
-            ? await unifiedGoldenManifestReader.GetByVersionAsync(sourceActive.ManifestVersion, cancellationToken)
+            ? await LoadManifestForActivationAsync(sourceActive, notes, cancellationToken)
             : null;
         GoldenManifest? targetManifest = targetActive is not null
-            ? await unifiedGoldenManifestReader.GetByVersionAsync(targetActive.ManifestVersion, cancellationToken)
+            ? await LoadManifestForActivationAsync(targetActive, notes, cancellationToken)
             : null;
-        if (sourceActive is not null && sourceManifest is null)
-            notes.Add($"Could not load GoldenManifest for source manifest version '{sourceActive.ManifestVersion}'.");
-        if (targetActive is not null && targetManifest is null)
-            notes.Add($"Could not load GoldenManifest for target manifest version '{targetActive.ManifestVersion}'.");
         if (sourceActive is not null && targetActive is not null && sourceManifest is not null && targetManifest is not null)
             notes.Add($"Compared active governance states for environments '{source}' and '{target}'.");
 
         List<GovernanceDiffItem> differences = GovernanceManifestComparer.Compare(sourceManifest?.Governance, targetManifest?.Governance);
 
         return new GovernanceEnvironmentComparisonResult { SourceEnvironment = source, TargetEnvironment = target, Differences = differences, Notes = notes };
+    }
+
+    private async Task<GoldenManifest?> LoadManifestForActivationAsync(
+        GovernanceEnvironmentActivation activation,
+        List<string> notes,
+        CancellationToken cancellationToken)
+    {
+        GoldenManifest? manifest =
+            await _unifiedGoldenManifestReader.GetByVersionAsync(activation.ManifestVersion, cancellationToken);
+
+        if (manifest is null)
+        {
+            notes.Add($"Could not load GoldenManifest for activation manifest version '{activation.ManifestVersion}'.");
+            return null;
+        }
+
+        if (!string.Equals(manifest.RunId, activation.RunId, StringComparison.Ordinal))
+        {
+            notes.Add(
+                $"Golden manifest version '{activation.ManifestVersion}' does not belong to activation run '{activation.RunId}' for environment '{activation.Environment}'.");
+            return null;
+        }
+
+        return manifest;
     }
 
     private static string NormalizeAndValidateEnvironment(string environment, string paramName)

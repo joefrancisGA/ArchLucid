@@ -282,6 +282,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
             value={queryRunId}
             useBuyerFacingRunLabels={buyerPolishedShell}
             onChange={setQueryRunId}
+            preferAutoPick={false}
           />
           <div className="space-y-1">
             <Button

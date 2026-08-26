@@ -16,6 +16,8 @@ public sealed class DapperComplianceDriftFindingsTrendReader(IReadOnlyDbConnecti
     /// <inheritdoc />
     public async Task<IReadOnlyDictionary<DateTime, ComplianceDriftFindingsBucketCounts>> GetBucketCountsAsync(
         Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
         DateTime fromUtc,
         DateTime toUtc,
         TimeSpan bucketSize,
@@ -54,6 +56,8 @@ public sealed class DapperComplianceDriftFindingsTrendReader(IReadOnlyDbConnecti
                                SUM(CASE WHEN EventType IN @ResolvedTypes THEN 1 ELSE 0 END) AS ResolvedFindingsCount
                            FROM dbo.AuditEvents
                            WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
                              AND OccurredUtc >= @FromUtc
                              AND OccurredUtc < @ToUtc
                              AND EventType IN @AllTypes
@@ -75,6 +79,8 @@ public sealed class DapperComplianceDriftFindingsTrendReader(IReadOnlyDbConnecti
                 new
                 {
                     TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
                     FromUtc = fromUtc,
                     ToUtc = toUtc,
                     BucketSeconds = bucketSeconds,

@@ -7,6 +7,8 @@ public interface IComplianceDriftFindingsTrendReader
 {
     Task<IReadOnlyDictionary<DateTime, ComplianceDriftFindingsBucketCounts>> GetBucketCountsAsync(
         Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
         DateTime fromUtc,
         DateTime toUtc,
         TimeSpan bucketSize,

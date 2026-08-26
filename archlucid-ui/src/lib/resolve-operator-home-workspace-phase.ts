@@ -146,7 +146,10 @@ export function resolveOperatorHomePhaseHeroCopy(
       heading: formatOperatorHomeContinueDraftHeading(displayName),
       lead: pastDrafting
         ? formatOperatorHomePastDraftingLead(displayName)
-        : formatOperatorHomeContinueArchitectureLead(signals.draftCount),
+        : formatOperatorHomeContinueArchitectureLead(
+            signals.draftCount,
+            latestDraft?.customerStatus === "ready-for-review",
+          ),
       requiresAttention,
     };
   }

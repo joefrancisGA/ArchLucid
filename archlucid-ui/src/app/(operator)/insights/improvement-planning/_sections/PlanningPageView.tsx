@@ -159,7 +159,9 @@ export function PlanningPageView(props: Props) {
         </p>
       ) : null}
 
-      {continueLastPlan !== null && !m.empty ? <PlanningContinueLastPlanRow plan={continueLastPlan} /> : null}
+      {continueLastPlan !== null && !m.empty ? (
+        <PlanningContinueLastPlanRow plan={continueLastPlan} scopedRunId={scopedRunId} />
+      ) : null}
 
       {!buyerPolishedShell ? <PlanningReviewsVocabularyRail currentSurfaceId="improvement-planning" /> : null}
       {!buyerPolishedShell ? (

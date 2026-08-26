@@ -54,6 +54,9 @@ public sealed class PolicyPackResolver(
             if (pack is null)
                 continue;
 
+            if (!PolicyPackVisibility.IsVisibleInScope(pack, tenantId, workspaceId, projectId))
+                continue;
+
             if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
                     pack.Name,
                     assignment.IsPinned,

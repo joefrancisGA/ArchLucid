@@ -14,6 +14,8 @@ import {
   type ComplianceJourneyDiligenceLink as ComplianceJourneyDiligenceLinkModel,
 } from "@/lib/compliance-journey-diligence-links";
 import { COMPLIANCE_JOURNEY_REVISION_HISTORY } from "@/lib/compliance-journey-marketing-revision-history";
+import { COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE } from "@/lib/compliance-journey-evidence-copy";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import {
   COMPLIANCE_JOURNEY_HERO_ORIENTATION,
   COMPLIANCE_JOURNEY_LAST_REVIEWED_LABEL,
@@ -77,6 +79,11 @@ export function ComplianceJourneyPageBody(): ReactNode {
             <p className={cn("m-0 max-w-prose text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
               {COMPLIANCE_JOURNEY_HERO_ORIENTATION}
             </p>
+            <PageHeaderClaimDiscipline
+              text={COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE}
+              testId="compliance-journey-claim-discipline"
+              className="max-w-prose text-left"
+            />
             <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="compliance-journey-hero-meta">
               <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
                 Last reviewed{" "}

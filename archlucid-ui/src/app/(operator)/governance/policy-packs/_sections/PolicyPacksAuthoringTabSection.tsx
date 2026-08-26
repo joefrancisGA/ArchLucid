@@ -48,6 +48,8 @@ export function PolicyPacksAuthoringTabSection(props: PolicyPacksAuthoringTabSec
         onPublish={m.onPublish}
         highlightRuleId={m.ruleIdFromUrl}
         initialInputMode={m.authoringWizardInputMode}
+        scopedReviewId={m.pickedReviewId}
+        onPickReview={m.setPickedReviewId}
       />
     </div>
   );

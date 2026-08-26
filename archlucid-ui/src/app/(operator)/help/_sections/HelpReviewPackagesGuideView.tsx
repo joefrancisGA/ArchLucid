@@ -4,6 +4,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { ReviewGuideHelpHeaderAsOfLine } from "@/components/help/ReviewGuideHelpHeaderAsOfLine";
+import { ReviewPackagesHelpClaimDisciplineStrip } from "@/components/help/ReviewPackagesHelpClaimDisciplineStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import {
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   prepareReviewPackagesHelpBodyMarkdown,
@@ -49,6 +50,8 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
     helpTopicSlug: entry.slug,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
+  const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article
@@ -98,36 +101,10 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
         }
       />
 
-      <section
-        className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-        aria-labelledby="help-review-packages-related-heading"
-        data-testid="help-review-packages-related"
-      >
-        <h2
-          id="help-review-packages-related-heading"
-          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-        >
-          Related guides
-        </h2>
-        <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-          {REVIEW_PACKAGES_HELP_RELATED.map((link) => (
-            <li key={link.href}>
-              <Link
-                className={cn(
-                  OPERATOR_LINK.inline,
-                  "inline-flex min-h-6 min-w-6 items-center font-medium underline underline-offset-2",
-                )}
-                href={link.href}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <ReviewPackagesHelpClaimDisciplineStrip />
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-review-packages-overview">
             {REVIEW_PACKAGES_HELP_OVERVIEW}
           </p>
@@ -194,6 +171,34 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
             </p>
           </section>
 
+          <section
+            className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+            aria-labelledby="help-review-packages-related-heading"
+            data-testid="help-review-packages-related"
+          >
+            <h2
+              id="help-review-packages-related-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+            >
+              Related guides
+            </h2>
+            <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+              {REVIEW_PACKAGES_HELP_RELATED.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    className={cn(
+                      OPERATOR_LINK.inline,
+                      "inline-flex min-h-6 min-w-6 items-center font-medium underline underline-offset-2",
+                    )}
+                    href={link.href}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+
           <div
             className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800"
             data-testid="help-review-packages-footer-actions"
@@ -209,7 +214,7 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
           </div>
         </div>
 
-        <HelpTopicTableOfContents headings={headings} />
+        {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
       </div>
     </article>
   );

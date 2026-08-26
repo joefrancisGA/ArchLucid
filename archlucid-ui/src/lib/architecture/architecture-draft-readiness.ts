@@ -2,16 +2,23 @@ import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
 } from "@/lib/guided-intake-copy";
 import { buildDefaultActorSet } from "@/lib/api/draft-intake-api";
+import { isArchitectureCreationBootstrapIntent } from "@/lib/architecture/architecture-creation-bootstrap";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
+import {
+  mergeScopeBulletsIntoBrief,
+  stripScopeUnderstandingSection,
+  type ScopeUnderstandingBullet,
+} from "@/lib/architecture/architecture-scope-understanding-check";
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
 
 import type { ArchitectureReviewReadinessBlockerId } from "./architecture-review-readiness-copy";
 import type { ArchitectureDraftStructuredBriefState } from "./architecture-draft-structured-brief";
 import {
   hasConfirmedActor,
+  structuredBriefFromDocument,
   structuredBriefToPatchPayload,
 } from "./architecture-draft-structured-brief";
-import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
+import type { ActorDescriptor, ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 const MIN_OUTCOME_CHARS = 10;
 
@@ -75,14 +82,19 @@ export type ArchitectureDraftPatchPayload = {
 export function buildArchitectureDraftPatchPayload(
   fields: ArchitectureDraftFieldState,
   actorSet: ActorSet,
+  confirmedScopeBullets?: readonly ScopeUnderstandingBullet[],
 ): ArchitectureDraftPatchPayload {
-  const trimmedIntent = fields.freeTextIntent.trim();
+  const strippedIntent = fields.freeTextIntent.trim();
+  const intentForPatch =
+    confirmedScopeBullets !== undefined && confirmedScopeBullets.length > 0
+      ? mergeScopeBulletsIntoBrief(confirmedScopeBullets, strippedIntent).trim()
+      : strippedIntent;
   const trimmedOutcome = fields.businessOutcome.trim();
   const trimmedSystemName = fields.systemName.trim();
 
   return {
-    ...(trimmedIntent.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS
-      ? { freeTextIntent: trimmedIntent }
+    ...(intentForPatch.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS
+      ? { freeTextIntent: intentForPatch }
       : {}),
     businessOutcome: trimmedOutcome,
     ...(trimmedSystemName.length > 0 ? { systemName: trimmedSystemName } : {}),
@@ -92,6 +104,31 @@ export function buildArchitectureDraftPatchPayload(
     workflowIntent: CREATE_ARCHITECTURE_INTENT,
     structuredBrief: structuredBriefToPatchPayload(fields.structuredBrief),
   };
+}
+
+/** Maps a persisted draft document to workspace field state for readiness checks. */
+export function architectureDraftFieldsFromDocument(draft: DraftRequestResponse): ArchitectureDraftFieldState {
+  const bootstrapIntent = isArchitectureCreationBootstrapIntent(draft.document.freeTextIntent);
+
+  // Drafts saved before the scope block moved out of the form fields can still carry it inline.
+  return {
+    freeTextIntent: bootstrapIntent
+      ? ""
+      : stripScopeUnderstandingSection(draft.document.freeTextIntent),
+    businessOutcome: stripScopeUnderstandingSection(draft.document.businessOutcome ?? ""),
+    systemName: draft.document.systemName ?? "",
+    structuredBrief: structuredBriefFromDocument(draft.document),
+  };
+}
+
+export function reviewReadinessFromDraftDocument(draft: DraftRequestResponse): ArchitectureDraftValidationResult {
+  const fields = architectureDraftFieldsFromDocument(draft);
+  const actors =
+    draft.document.actorSet.actors.length > 0
+      ? draft.document.actorSet.actors
+      : buildDefaultActorSet().actors;
+
+  return validateArchitectureReviewReadiness(fields, actors);
 }
 
 export function validateArchitectureReviewReadiness(

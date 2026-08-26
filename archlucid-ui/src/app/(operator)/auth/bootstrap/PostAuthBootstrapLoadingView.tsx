@@ -4,6 +4,8 @@ import {
   AUTH_BOOTSTRAP_LOADING_DETAIL,
   AUTH_BOOTSTRAP_PAGE_TITLE,
 } from "@/lib/auth/auth-bootstrap-page-copy";
+import { AUTH_BOOTSTRAP_CLAIM_DISCIPLINE } from "@/lib/auth-bootstrap-evidence-copy";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Shared loading chrome for `/auth/bootstrap` Suspense fallback and status fetch. */
@@ -11,6 +13,12 @@ export function PostAuthBootstrapLoadingView(): React.JSX.Element {
   return (
     <div className="max-w-[560px]" data-testid="post-auth-bootstrap-loading">
       <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_BOOTSTRAP_PAGE_TITLE}</h1>
+
+      <PageHeaderClaimDiscipline
+        text={AUTH_BOOTSTRAP_CLAIM_DISCIPLINE}
+        testId="post-auth-bootstrap-claim-discipline"
+        className="mt-3 text-left"
+      />
 
       <Skeleton
         className="mt-3 h-4 w-full max-w-md"

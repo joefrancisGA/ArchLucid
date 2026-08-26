@@ -1,7 +1,9 @@
+import { reviewReadinessFromDraftDocument } from "@/lib/architecture/architecture-draft-readiness";
 import type { ArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
 import {
   architectureDraftDisplayName,
   customerFacingArchitectureDraftTitle,
+  resolveArchitectureDraftCustomerStatus,
 } from "@/lib/architecture/architecture-draft-status";
 import { architectureDraftSpawnedRunId, architectureDraftHasLinkedReview } from "@/lib/architecture/architecture-draft-handoff-gate";
 import type { DraftRequestResponse, DraftRequestStatus } from "@/types/draft-intake";
@@ -160,13 +162,15 @@ function deriveRegistryCustomerStatus(
     readonly linkedReviewId?: string | null;
   },
 ): ArchitectureDraftCustomerStatus {
-  if (options.customerStatus === "archived") {
-    return "archived";
-  }
-
   const linkedReviewId = options.linkedReviewId ?? architectureDraftSpawnedRunId(draft);
+  const reviewReadinessValid = reviewReadinessFromDraftDocument(draft).isValid;
+  const fieldBasedStatus = resolveArchitectureDraftCustomerStatus({
+    linkedReviewId,
+    reviewReadinessValid,
+    registryStatus: options.customerStatus,
+  });
 
-  if (linkedReviewId !== null) {
+  if (fieldBasedStatus === "ready-for-review") {
     return "ready-for-review";
   }
 
@@ -179,7 +183,7 @@ function deriveRegistryCustomerStatus(
     return "ready-for-review";
   }
 
-  return options.customerStatus ?? "draft";
+  return fieldBasedStatus;
 }
 
 export function buildArchitectureDraftRegistryEntry(

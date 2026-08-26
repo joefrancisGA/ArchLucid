@@ -14,6 +14,7 @@ import {
   AUDIT_TRAIL_LAST_UPDATED_PREFIX,
   AUDIT_TRAIL_REFRESHING_ACTION,
 } from "@/lib/audit-trail-page-copy";
+import { AUDIT_TRAIL_CLAIM_DISCIPLINE } from "@/lib/audit-trail-evidence-copy";
 
 export type AuditPageHeaderProps = {
   readonly title: string;
@@ -42,6 +43,8 @@ export function AuditPageHeader(props: AuditPageHeaderProps): React.JSX.Element 
       title={props.title}
       titleTestId="audit-page-title"
       subtitle={props.subtitle}
+      claimDiscipline={AUDIT_TRAIL_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="audit-trail-claim-discipline"
       breadcrumb={props.breadcrumb}
       metadata={
         <>

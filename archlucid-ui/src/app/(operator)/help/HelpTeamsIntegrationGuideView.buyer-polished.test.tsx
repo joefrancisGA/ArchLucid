@@ -21,7 +21,6 @@ import {
   TEAMS_INTEGRATION_HELP_PRIMARY_CONTENT_ID,
   TEAMS_INTEGRATION_HELP_SKIP_LINK_LABEL,
 } from "@/lib/teams-integration-help-guide-content";
-import { TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE } from "@/lib/teams-integration-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpTeamsIntegrationGuideView buyer-polished shell", () => {
@@ -43,9 +42,7 @@ describe("HelpTeamsIntegrationGuideView buyer-polished shell", () => {
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-heading-eyebrow")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-teams-integration-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("help-teams-integration-claim-discipline").textContent).toContain(
-      TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE.slice(0, 40),
-    );
+    expect(screen.queryByTestId("help-teams-integration-claim-discipline")).not.toBeInTheDocument();
 
     const orientationTop = screen.getByTestId("help-teams-integration-orientation-top");
     const overview = screen.getByTestId("help-teams-integration-overview");

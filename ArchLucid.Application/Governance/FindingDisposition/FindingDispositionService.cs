@@ -58,23 +58,28 @@ public sealed class FindingDispositionService(
     }
 
     public async Task<IReadOnlyList<FindingDispositionEventDto>> ListHistoryAsync(
-        Guid tenantId,
+        ScopeContext scope,
         string findingId,
         CancellationToken cancellationToken = default)
     {
-        if (tenantId == Guid.Empty)
-            throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (scope.TenantId == Guid.Empty)
+            throw new ArgumentException("Tenant id is required.", nameof(scope));
 
         if (string.IsNullOrWhiteSpace(findingId))
             throw new ArgumentException("Finding id is required.", nameof(findingId));
 
         IReadOnlyList<FindingReviewEventRecord> events =
-            await _trailRepository.ListByFindingAsync(tenantId, findingId.Trim(), cancellationToken);
+            await _trailRepository.ListByFindingAsync(scope.TenantId, findingId.Trim(), cancellationToken);
 
         List<FindingDispositionEventDto> result = [];
 
         foreach (FindingReviewEventRecord reviewEvent in events)
         {
+            if (reviewEvent.WorkspaceId != scope.WorkspaceId || reviewEvent.ProjectId != scope.ProjectId)
+                continue;
+
             if (reviewEvent.Disposition is null)
                 continue;
 

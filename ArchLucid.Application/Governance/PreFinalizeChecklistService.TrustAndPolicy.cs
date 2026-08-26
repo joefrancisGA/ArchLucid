@@ -63,12 +63,6 @@ public sealed partial class PreFinalizeChecklistService
             findings,
             findingsSnapshot);
 
-        if (!string.Equals(updatedScopeJson, run.GovernanceScopeJson, StringComparison.Ordinal))
-        {
-            run.GovernanceScopeJson = updatedScopeJson;
-            await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
-        }
-
         PolicyPackCoverageProofResult proof = PolicyPackCoverageProofEvaluator.Evaluate(
             updatedScopeJson,
             findings);

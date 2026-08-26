@@ -4,7 +4,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { WHY_ARCHLUCID_CANONICAL_PATH } from "@/lib/why-archlucid-evidence-copy";
+import { WHY_ARCHLUCID_CANONICAL_PATH, WHY_ARCHLUCID_CLAIM_DISCIPLINE } from "@/lib/why-archlucid-evidence-copy";
 import {
   WHY_ARCHLUCID_INTERNAL_PILOT_BADGE_LABEL,
   WHY_ARCHLUCID_MARKETING_WHY_HREF,
@@ -57,6 +57,8 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps): Reac
           )}
         </>
       }
+      claimDiscipline={WHY_ARCHLUCID_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="why-archlucid-claim-discipline"
       statusBadge={
         <StatusTag
           kind="neutral"

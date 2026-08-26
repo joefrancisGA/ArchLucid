@@ -1,4 +1,4 @@
-import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
+import { policyPackDetailHref } from "@/lib/policy/policy-packs-deep-link";
 import type { PolicyPack } from "@/types/policy-packs";
 
 export type PolicyPackDetailNextPackTarget = {
@@ -15,6 +15,7 @@ function policyPackRecencyUtc(pack: PolicyPack): string {
 export function resolveNextPolicyPackInList(
   packs: readonly PolicyPack[],
   currentPolicyPackId: string,
+  reviewId?: string | null,
 ): PolicyPackDetailNextPackTarget | null {
   const normalizedCurrentId = currentPolicyPackId.trim();
   const sorted = [...packs].sort((left, right) =>
@@ -35,6 +36,6 @@ export function resolveNextPolicyPackInList(
   return {
     policyPackId: nextPack.policyPackId,
     name: nextPack.name,
-    href: policyPacksEditHref(nextPack.policyPackId),
+    href: policyPackDetailHref(nextPack.policyPackId, reviewId),
   };
 }

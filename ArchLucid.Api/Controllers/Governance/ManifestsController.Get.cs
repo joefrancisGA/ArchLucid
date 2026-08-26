@@ -4,6 +4,7 @@ using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,8 +19,7 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        GoldenManifest? manifest =
-            await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         return manifest is null
             ? this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound)
             : Ok(manifest);
@@ -32,8 +32,7 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        GoldenManifest? manifest =
-            await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -54,8 +53,7 @@ public sealed partial class ManifestsController
         [FromQuery] string? groupBy = GroupByDefault,
         CancellationToken cancellationToken = default)
     {
-        GoldenManifest? manifest =
-            await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -88,8 +86,7 @@ public sealed partial class ManifestsController
         [FromQuery] int? maxRelationships = null,
         CancellationToken cancellationToken = default)
     {
-        GoldenManifest? manifest =
-            await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -209,5 +206,21 @@ public sealed partial class ManifestsController
         {
             ManifestVersion = manifestVersion, Manifest = manifest, Diagram = diagram, Summary = summary
         });
+    }
+
+    private async Task<GoldenManifest?> GetManifestInScopeAsync(
+        string manifestVersion,
+        CancellationToken cancellationToken)
+    {
+        GoldenManifest? manifest =
+            await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
+
+        if (manifest is null)
+            return null;
+
+        if (!await IsManifestRunInScopeAsync(manifest, cancellationToken))
+            return null;
+
+        return manifest;
     }
 }

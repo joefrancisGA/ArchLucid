@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  AUTH_BOOTSTRAP_CLAIM_DISCIPLINE_HEADING,
+  AUTH_BOOTSTRAP_CLAIM_DISCIPLINE,
   AUTH_BOOTSTRAP_FOLLOW_UPS_TITLE,
 } from "@/lib/auth-bootstrap-evidence-copy";
 import {
@@ -48,15 +48,16 @@ describe("PostAuthBootstrapClient buyer-polished shell", () => {
       "href",
       `#${AUTH_BOOTSTRAP_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("post-auth-bootstrap-breadcrumb")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: AUTH_BOOTSTRAP_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    expect(screen.queryByTestId("post-auth-bootstrap-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.getByTestId("post-auth-bootstrap-claim-discipline").textContent).toContain(
+      AUTH_BOOTSTRAP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.queryByRole("heading", { level: 2, name: /What this/i })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: AUTH_BOOTSTRAP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const orientation = screen.getByTestId("post-auth-bootstrap-orientation-bottom");
     const workspaceStep = screen.getByTestId("bootstrap-select-workspace-step");
 
-    expect(orientation.compareDocumentPosition(workspaceStep) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(workspaceStep) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 });
