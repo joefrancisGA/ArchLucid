@@ -67,6 +67,22 @@ X-Project-Id: {projectId}
 
 ---
 
+## Finding-set toggle (compliance + declaration + extras)
+
+**Goal:** Show that **different assigned packs change which findings fire** on the same architecture — not only pre-finalize gate floors.
+
+| Proof path | What it demonstrates |
+| --- | --- |
+| **Offline (CI)** | `PolicyFilteredGoldenCorpusTests` — SOC 2 vs CIS Azure changes compliance rule ids; `PolicyFilteredDeclarationGoldenCorpusTests` — `soc2-004` vs `cis-az-006` changes declaration titles; `PolicyExpectationCoverageGoldenCorpusTests` — stamped `identity` extra changes topology missing categories |
+| **Talk track** | Same graph, two filtered packs → different finding rule ids / severities; overlay extras (FinOps budget cap, CIS identity) change coverage/cost rows when bundled JSON contains the keys |
+| **Screenshot checklist** | Findings list, severity column, pre-finalize verdict, audit `FindingsSnapshotSealed` / policy assignment rows |
+
+**Honesty:** SOC 2 assignment alone does **not** add topology `identity` unless that pack's `advisoryDefaults` includes `expectation.topologyCategories.add=identity`. See [`docs/quality/policy-filter-golden-delta.md`](../quality/policy-filter-golden-delta.md).
+
+Optional: `.\scripts\demo-policy-pack-delta.ps1 -RunId …` documents gate deltas; finding-set proof remains the golden tests above unless the API exposes a dry-run finding diff without persist.
+
+---
+
 ## Phase B — Stricter enforcement (block path, no persist)
 
 Use **read-only** governance dry-run with enforcement overrides. No pack content or gate logic changes.
