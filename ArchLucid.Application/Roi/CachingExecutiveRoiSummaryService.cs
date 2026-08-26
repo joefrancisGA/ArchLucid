@@ -78,7 +78,7 @@ public sealed class CachingSponsorRoiSummaryService(
             GovernanceWaiverExpiryWindow.DefaultExpiringWithinDays);
 
         ArchitectureRiskRegisterResponse register = await _architectureRiskRegisterService
-            .GetRegisterAsync(scope.TenantId, scope.ProjectId, maxRows: 100, options: null, cancellationToken)
+            .GetRegisterAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, maxRows: 100, options: null, cancellationToken)
             .ConfigureAwait(false);
 
         response.StaleArchitectureRiskCount = StaleArchitectureRiskCountCalculator.CountStale(register);

@@ -207,7 +207,7 @@ public sealed class SponsorRoiSummaryInvariantTests
 
         Mock<IArchitectureRiskRegisterService> architectureRiskRegister = new();
         architectureRiskRegister
-            .Setup(service => service.GetRegisterAsync(TenantId, ProjectId, It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
+            .Setup(service => service.GetRegisterAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRiskRegisterResponse());
 
         CachingSponsorRoiSummaryService cachedRoi = new(
@@ -225,7 +225,7 @@ public sealed class SponsorRoiSummaryInvariantTests
 
         Mock<IArchitectureRiskRegisterService> register = new();
         register
-            .Setup(service => service.GetRegisterAsync(TenantId, ProjectId, It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
+            .Setup(service => service.GetRegisterAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRiskRegisterResponse());
 
         Mock<IFindingReviewTrailRepository> trail = new();
@@ -405,7 +405,7 @@ public sealed class SponsorRoiSummaryInvariantTests
 
         Mock<IArchitectureRiskRegisterService> architectureRiskRegisterForCache = new();
         architectureRiskRegisterForCache
-            .Setup(service => service.GetRegisterAsync(TenantId, ProjectId, It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
+            .Setup(service => service.GetRegisterAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRiskRegisterResponse());
 
         CachingSponsorRoiSummaryService sut = new(

@@ -57,7 +57,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRepository.GetPendingAsync(50, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
-            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, options: null, cancellationToken);
+            _riskRegisterService.GetRegisterAsync(tenantId, workspaceId, projectId, 100, options: null, cancellationToken);
         Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
             _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
         Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
@@ -71,7 +71,10 @@ public sealed class GovernanceDigestDecisionNeededComposer(
             await recentTask,
             workspaceId,
             projectId);
-        IReadOnlyList<RiskExceptionRecord> activeWaivers = await activeWaiversTask;
+        IReadOnlyList<RiskExceptionRecord> activeWaivers = FilterWaiversToScope(
+            await activeWaiversTask,
+            workspaceId,
+            projectId);
 
         if (pending.Count > 0)
         {
@@ -227,7 +230,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRepository.GetPendingAsync(50, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
-            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, options: null, cancellationToken);
+            _riskRegisterService.GetRegisterAsync(tenantId, workspaceId, projectId, 100, options: null, cancellationToken);
         Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
             _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
         Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
@@ -241,7 +244,10 @@ public sealed class GovernanceDigestDecisionNeededComposer(
             await recentTask,
             workspaceId,
             projectId);
-        IReadOnlyList<RiskExceptionRecord> activeWaivers = await activeWaiversTask;
+        IReadOnlyList<RiskExceptionRecord> activeWaivers = FilterWaiversToScope(
+            await activeWaiversTask,
+            workspaceId,
+            projectId);
 
         int staleCount = StaleArchitectureRiskCountCalculator.CountStale(register);
         int unownedHighCount = register.Entries
@@ -387,6 +393,17 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         return events
             .Where(reviewEvent => reviewEvent.WorkspaceId == workspaceId)
             .Where(reviewEvent => projectId is null || projectId == Guid.Empty || reviewEvent.ProjectId == projectId)
+            .ToList();
+    }
+
+    private static IReadOnlyList<RiskExceptionRecord> FilterWaiversToScope(
+        IReadOnlyList<RiskExceptionRecord> waivers,
+        Guid workspaceId,
+        Guid? projectId)
+    {
+        return waivers
+            .Where(waiver => waiver.WorkspaceId == workspaceId)
+            .Where(waiver => projectId is null || projectId == Guid.Empty || waiver.ProjectId == projectId)
             .ToList();
     }
 }

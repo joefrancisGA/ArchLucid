@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 11
-- **bugs-found:** 35
+- **hunts:** 12
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — manifest compare omitted run-scope gate; decisions-needed summary counted foreign-workspace trail events; policy-pack dry-run skipped pack scope preflight
+- **last-bug:** 2026-08-26 — realized-value attestation tenant-wide setting key; decisions-needed summary counted foreign-workspace active waivers; architecture risk register omitted workspace filter on findings/disposition SQL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2258,6 +2258,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ManifestsController` compare endpoints — `LoadAndCompareManifestPairAsync` loaded manifests by version without run-scope gate — **hit 2026-08-26:** use `GetManifestInScopeAsync` for both sides; regression in `ManifestsControllerEvidenceScopeTests.CompareManifests_returns_not_found_when_manifest_run_is_out_of_scope`.
 - [x] (proven) `GovernanceStickinessController.GetDecisionsNeededSummary` / `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — tenant-only `ListSinceUtcAsync` trail inflated `FindingsAwaitingEvidence` and `TotalDecisionItems` with foreign workspace events — **hit 2026-08-26:** `FilterTrailToScope` on workspace/project; regression in `GovernanceDigestDecisionNeededComposerTests.BuildSummaryAsync_excludes_foreign_workspace_disposition_trail_events`.
 - [x] (proven) `GovernanceController.DryRunPolicyPack` / `PolicyPackDryRunService.EvaluateAsync` — route `policyPackId` evaluated without tenant/workspace/project visibility check — **hit 2026-08-26:** `EnsurePolicyPackInScopeAsync` throws `PolicyPackNotFoundException`; regression in `PolicyPackDryRunServiceTests.EvaluateAsync_throws_when_policy_pack_is_out_of_scope`.
+- [x] (proven) `GovernanceStickinessController` realized-value attestation / `RealizedValueAttestationService` — tenant-wide `RealizedValue.Attestation` setting key leaked cross-workspace attestation reads and writes — **hit 2026-08-26:** workspace-scoped setting key via `ResolveAttestationSettingKey`; regression in `RealizedValueAttestationServiceTests`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionsNeededSummary` / `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — tenant-wide `ListActiveAsync` waiver list inflated `WaiversExpiringWithin14Days` and `TotalDecisionItems` with foreign workspace waivers — **hit 2026-08-26:** `FilterWaiversToScope` on workspace/project; regression in `GovernanceDigestDecisionNeededComposerTests.BuildSummaryAsync_excludes_foreign_workspace_active_waivers`.
+- [x] (proven) `GovernanceStickinessController.GetRiskRegister` / `ArchitectureRiskRegisterReader` — risk register SQL filtered findings by tenant/project only, returning foreign-workspace rows within the same tenant — **hit 2026-08-26:** `WorkspaceId` on disposition CTE, findings filter, and waiver join; service/facade pass ambient workspace; regression in `GovernanceStickinessFacadeScopeTests.GetRiskRegisterAsync_passes_caller_workspace_to_risk_register_service`.
+
+2026-08-26 seed hunt #87: proved realized-value attestation workspace setting isolation, decisions-needed waiver scope, architecture risk register workspace SQL filter.
 
 2026-08-26 seed hunt #86: proved manifest compare run scope, decisions-needed trail scope, policy-pack dry-run pack scope.
 

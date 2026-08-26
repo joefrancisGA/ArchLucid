@@ -165,6 +165,31 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task GetRiskRegisterAsync_passes_caller_workspace_to_risk_register_service()
+    {
+        Guid? capturedWorkspaceId = null;
+
+        Mock<IArchitectureRiskRegisterService> riskRegister = new();
+        riskRegister
+            .Setup(service => service.GetRegisterAsync(
+                CallerScope.TenantId,
+                CallerScope.WorkspaceId,
+                CallerScope.ProjectId,
+                It.IsAny<int>(),
+                It.IsAny<ArchitectureRiskRegisterListOptions?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<Guid, Guid, Guid?, int, ArchitectureRiskRegisterListOptions?, CancellationToken>(
+                (_, workspaceId, _, _, _, _) => capturedWorkspaceId = workspaceId)
+            .ReturnsAsync(new ArchitectureRiskRegisterResponse());
+
+        GovernanceStickinessFacade sut = CreateSut(riskRegister: riskRegister.Object);
+
+        await sut.GetRiskRegisterAsync(projectId: null, maxRows: 25, assignedToMe: false, CancellationToken.None);
+
+        capturedWorkspaceId.Should().Be(CallerScope.WorkspaceId);
+    }
+
+    [Fact]
     public async Task GetDecisionRegisterAsync_returns_empty_when_project_id_is_out_of_scope()
     {
         Guid foreignProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

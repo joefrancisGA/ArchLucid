@@ -214,7 +214,7 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        return await _attestationService.GetAttestationAsync(scope.TenantId, ct);
+        return await _attestationService.GetAttestationAsync(scope.TenantId, scope.WorkspaceId, ct);
     }
 
     /// <inheritdoc />
@@ -223,6 +223,6 @@ public sealed partial class GovernanceStickinessFacade
         CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        await _attestationService.SaveAttestationAsync(scope.TenantId, request, ct);
+        await _attestationService.SaveAttestationAsync(scope.TenantId, scope.WorkspaceId, request, ct);
     }
 }

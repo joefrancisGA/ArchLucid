@@ -12,7 +12,7 @@ public sealed class NoOpGovernanceQueryTests
         NoOpArchitectureRiskRegisterQuery sut = new();
 
         IReadOnlyList<ArchitectureRiskRegisterEntry> rows =
-            await sut.ListAsync(Guid.NewGuid(), Guid.NewGuid(), 50, options: null, CancellationToken.None);
+            await sut.ListAsync(Guid.NewGuid(), Guid.NewGuid(), null, 50, options: null, CancellationToken.None);
 
         rows.Should().BeEmpty();
     }

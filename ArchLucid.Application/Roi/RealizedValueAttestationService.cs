@@ -7,10 +7,12 @@ public interface IRealizedValueAttestationService
 {
     Task<RealizedValueAttestationResponse> GetAttestationAsync(
         Guid tenantId,
+        Guid workspaceId,
         CancellationToken cancellationToken = default);
 
     Task SaveAttestationAsync(
         Guid tenantId,
+        Guid workspaceId,
         UpsertRealizedValueAttestationRequest request,
         CancellationToken cancellationToken = default);
 }
@@ -23,12 +25,23 @@ public sealed class RealizedValueAttestationService(ITenantSettingsRepository te
 
     public Task<RealizedValueAttestationResponse> GetAttestationAsync(
         Guid tenantId,
+        Guid workspaceId,
         CancellationToken cancellationToken = default) =>
-        RealizedValueMetricsCalculator.LoadAttestationResponseAsync(_tenantSettingsRepository, tenantId, cancellationToken);
+        RealizedValueMetricsCalculator.LoadAttestationResponseAsync(
+            _tenantSettingsRepository,
+            tenantId,
+            workspaceId,
+            cancellationToken);
 
     public Task SaveAttestationAsync(
         Guid tenantId,
+        Guid workspaceId,
         UpsertRealizedValueAttestationRequest request,
         CancellationToken cancellationToken = default) =>
-        RealizedValueMetricsCalculator.SaveAttestationAsync(_tenantSettingsRepository, tenantId, request, cancellationToken);
+        RealizedValueMetricsCalculator.SaveAttestationAsync(
+            _tenantSettingsRepository,
+            tenantId,
+            workspaceId,
+            request,
+            cancellationToken);
 }

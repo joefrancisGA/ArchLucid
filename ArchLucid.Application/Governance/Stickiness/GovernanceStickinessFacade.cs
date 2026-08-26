@@ -110,6 +110,7 @@ public sealed partial class GovernanceStickinessFacade(
 
         return await _riskRegisterService.GetRegisterAsync(
             scope.TenantId,
+            scope.WorkspaceId,
             resolvedProjectId,
             Math.Clamp(maxRows, 1, 500),
             options,
@@ -138,6 +139,7 @@ public sealed partial class GovernanceStickinessFacade(
 
         return await _riskRegisterService.CountAsync(
             scope.TenantId,
+            scope.WorkspaceId,
             resolvedProjectId,
             options,
             ct);
@@ -182,6 +184,7 @@ public sealed partial class GovernanceStickinessFacade(
 
         Task<ArchitectureRiskRegisterResponse> riskTask = _riskRegisterService.GetRegisterAsync(
             scope.TenantId,
+            scope.WorkspaceId,
             resolvedProjectId,
             take,
             options: null,

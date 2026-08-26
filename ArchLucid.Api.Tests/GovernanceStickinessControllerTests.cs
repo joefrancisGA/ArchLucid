@@ -61,6 +61,7 @@ public sealed class GovernanceStickinessControllerTests
             riskRegisterService
                 .Setup(r => r.GetRegisterAsync(
                     Scope.TenantId,
+                    Scope.WorkspaceId,
                     Scope.ProjectId,
                     It.IsAny<int>(),
                     It.IsAny<ArchitectureRiskRegisterListOptions?>(),
@@ -70,6 +71,7 @@ public sealed class GovernanceStickinessControllerTests
             riskRegisterService
                 .Setup(r => r.CountAsync(
                     Scope.TenantId,
+                    Scope.WorkspaceId,
                     Scope.ProjectId,
                     It.IsAny<ArchitectureRiskRegisterListOptions?>(),
                     It.IsAny<CancellationToken>()))
@@ -185,6 +187,7 @@ public sealed class GovernanceStickinessControllerTests
         riskRegister
             .Setup(r => r.GetRegisterAsync(
                 Scope.TenantId,
+                Scope.WorkspaceId,
                 Scope.ProjectId,
                 200,
                 It.IsAny<ArchitectureRiskRegisterListOptions?>(),
@@ -211,12 +214,13 @@ public sealed class GovernanceStickinessControllerTests
         riskRegister
             .Setup(r => r.GetRegisterAsync(
                 Scope.TenantId,
+                Scope.WorkspaceId,
                 Scope.ProjectId,
                 200,
                 It.IsAny<ArchitectureRiskRegisterListOptions?>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<Guid, Guid?, int, ArchitectureRiskRegisterListOptions?, CancellationToken>(
-                (_, _, _, options, _) => capturedOptions = options)
+            .Callback<Guid, Guid, Guid?, int, ArchitectureRiskRegisterListOptions?, CancellationToken>(
+                (_, _, _, _, options, _) => capturedOptions = options)
             .ReturnsAsync(new ArchitectureRiskRegisterResponse());
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -251,6 +255,7 @@ public sealed class GovernanceStickinessControllerTests
         riskRegister
             .Setup(r => r.CountAsync(
                 Scope.TenantId,
+                Scope.WorkspaceId,
                 Scope.ProjectId,
                 It.IsAny<ArchitectureRiskRegisterListOptions?>(),
                 It.IsAny<CancellationToken>()))
@@ -308,6 +313,7 @@ public sealed class GovernanceStickinessControllerTests
         riskRegister.Verify(
             service => service.CountAsync(
                 It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<ArchitectureRiskRegisterListOptions?>(),
                 It.IsAny<CancellationToken>()),
@@ -343,6 +349,7 @@ public sealed class GovernanceStickinessControllerTests
         body.Entries.Should().BeEmpty();
         riskRegister.Verify(
             service => service.GetRegisterAsync(
+                It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<int>(),

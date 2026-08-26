@@ -6,6 +6,7 @@ public interface IArchitectureRiskRegisterService
 {
     Task<ArchitectureRiskRegisterResponse> GetRegisterAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         int maxRows,
         ArchitectureRiskRegisterListOptions? options = null,
@@ -13,6 +14,7 @@ public interface IArchitectureRiskRegisterService
 
     Task<int> CountAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         ArchitectureRiskRegisterListOptions? options = null,
         CancellationToken cancellationToken = default);
