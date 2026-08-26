@@ -1,0 +1,80 @@
+using System.Collections.Concurrent;
+using ArchLucid.Contracts.ArchitectureIntelligence;
+
+namespace ArchLucid.Application.ArchitectureIntelligence;
+
+/// <summary>
+///     Per-key in-process single-flight for one in-flight map.
+/// </summary>
+internal sealed class ReviewSingleFlightCoordinator
+{
+    private readonly ConcurrentDictionary<string, InFlightEntry> _inFlight = new(StringComparer.Ordinal);
+
+    public async Task<ClosedLoopReasoningResult> CoalesceAsync(
+        string key,
+        Func<CancellationToken, Task<ClosedLoopReasoningResult>> leaderWork,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(key);
+        ArgumentNullException.ThrowIfNull(leaderWork);
+
+        while (true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            InFlightEntry entry = new()
+            {
+                Completion = new TaskCompletionSource<ClosedLoopReasoningResult>(
+                    TaskCreationOptions.RunContinuationsAsynchronously),
+            };
+
+            if (_inFlight.TryAdd(key, entry))
+            {
+                try
+                {
+                    ClosedLoopReasoningResult result = await leaderWork(cancellationToken).ConfigureAwait(false);
+                    entry.Completion.TrySetResult(result);
+
+                    return result;
+                }
+                catch (OperationCanceledException)
+                {
+                    entry.Completion.TrySetException(new ReviewCacheSingleFlightLeaderAbortedException());
+
+                    throw;
+                }
+                catch (Exception exception)
+                {
+                    entry.Completion.TrySetException(exception);
+
+                    throw;
+                }
+                finally
+                {
+                    _inFlight.TryRemove(new KeyValuePair<string, InFlightEntry>(key, entry));
+                }
+            }
+
+            if (!_inFlight.TryGetValue(key, out InFlightEntry? existing))
+                continue;
+
+            try
+            {
+                return await existing.Completion.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (ReviewCacheSingleFlightLeaderAbortedException)
+            {
+                continue;
+            }
+        }
+    }
+
+    private sealed class InFlightEntry
+    {
+        public required TaskCompletionSource<ClosedLoopReasoningResult> Completion
+        {
+            get;
+            init;
+        }
+    }
+}

@@ -24,6 +24,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
     private readonly IMustNotFailEnforcer _mustNotFailEnforcer;
     private readonly ITrustPublishGate _trustPublishGate;
     private readonly IReviewResultCache _reviewResultCache;
+    private readonly ClosedLoopContinueRunSingleFlight _continueRunSingleFlight;
     private readonly IArchitectureIntelligenceReviewTierBudgetGuard _tierBudgetGuard;
     private readonly ClosedLoopArchitectureReasoningPostStageHooks _postStageHooks;
     private readonly IArchitectureIntelligencePersistence? _persistence;
@@ -51,7 +52,8 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         IArchitectureIntelligencePersistence? persistence = null,
         IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
         ITechnologyLedgerRepository? technologyLedgerRepository = null,
-        IScopeContextProvider? scopeContextProvider = null)
+        IScopeContextProvider? scopeContextProvider = null,
+        ClosedLoopContinueRunSingleFlight? continueRunSingleFlight = null)
     {
         _sourceStore = sourceStore ?? throw new ArgumentNullException(nameof(sourceStore));
         _ontologyService = ontologyService ?? throw new ArgumentNullException(nameof(ontologyService));
@@ -67,6 +69,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         _mustNotFailEnforcer = mustNotFailEnforcer ?? throw new ArgumentNullException(nameof(mustNotFailEnforcer));
         _trustPublishGate = trustPublishGate ?? throw new ArgumentNullException(nameof(trustPublishGate));
         _reviewResultCache = reviewResultCache ?? throw new ArgumentNullException(nameof(reviewResultCache));
+        _continueRunSingleFlight = continueRunSingleFlight ?? new ClosedLoopContinueRunSingleFlight();
         _tierBudgetGuard = tierBudgetGuard ?? throw new ArgumentNullException(nameof(tierBudgetGuard));
         _postStageHooks = postStageHooks ?? throw new ArgumentNullException(nameof(postStageHooks));
         _persistence = persistence;
@@ -171,8 +174,11 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 ledgerEntries);
 
         return FinalizeCoalescedReviewResult(
-            await _reviewResultCache.CoalesceAsync(
+            await _continueRunSingleFlight.CoalesceAsync(
+                tenantId,
+                runId,
                 continueManifest,
+                effectiveRequest.PublishToProduct,
                 ct => ExecuteLiveReviewAsync(
                     effectiveRequest,
                     tenantId,
@@ -180,8 +186,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                     budget,
                     null,
                     ct),
-                cancellationToken,
-                effectiveRequest.PublishToProduct),
+                cancellationToken),
             effectiveRequest,
             runId,
             budget);
