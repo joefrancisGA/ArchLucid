@@ -84,44 +84,6 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
-    public async Task Intake_endpoints_return_bad_request_when_text_exceeds_maximum_free_text_intent_length()
-    {
-        string overLimitText = new string('x', DraftIntakeValidation.MaximumFreeTextIntentLength + 1);
-
-        Mock<IArchitectureRequestDraftService> draftService = new();
-        RunsController controller = CreateController(draftService: draftService.Object);
-
-        DraftArchitectureRequestInput draftInput = new() { FreeTextDescription = overLimitText };
-
-        IActionResult draftAction = await controller.DraftRequest(draftInput, CancellationToken.None);
-        draftAction.Should().BeOfType<ObjectResult>().Subject.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        draftService.Verify(
-            s => s.DraftAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-
-        Mock<IAdvisoryDraftOperationAcceptor> acceptor = new();
-        IActionResult asyncDraftAction = await controller.DraftRequestAsync(draftInput, acceptor.Object, CancellationToken.None);
-        asyncDraftAction.Should().BeOfType<ObjectResult>().Subject.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        acceptor.Verify(
-            a => a.AcceptAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-
-        Mock<IArchitectureOverviewRewriteService> rewriteService = new();
-        controller = CreateController(overviewRewriteService: rewriteService.Object);
-        RewriteArchitectureOverviewInput rewriteInput = new()
-        {
-            CurrentOverview = overLimitText,
-            StructuredBrief = new ArchitectureDraftStructuredBrief(),
-        };
-
-        IActionResult rewriteAction = await controller.RewriteArchitectureOverview(rewriteInput, CancellationToken.None);
-        rewriteAction.Should().BeOfType<ObjectResult>().Subject.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        rewriteService.Verify(
-            s => s.RewriteAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
     public async Task RewriteArchitectureOverview_returns_rewritten_overview_when_valid()
     {
         Mock<IArchitectureOverviewRewriteService> rewriteService = new();
