@@ -133,7 +133,7 @@ public sealed class ReviewResultCache : IReviewResultCache
         }
     }
 
-    public string BuildStorageKey(ReviewCacheDependencyManifest manifest)
+    internal static string BuildStorageKey(ReviewCacheDependencyManifest manifest)
     {
         ArgumentNullException.ThrowIfNull(manifest);
 
@@ -187,7 +187,7 @@ public sealed class ReviewResultCache : IReviewResultCache
             else
                 _pinnedStorageKeyRefcounts[storageKey] = count - 1;
 
-            if (!IsStorageKeyPinned(storageKey))
+            if (!IsStorageKeyPinnedUnlocked(storageKey))
                 OnStorageKeyFullyUnpinned();
         }
     }

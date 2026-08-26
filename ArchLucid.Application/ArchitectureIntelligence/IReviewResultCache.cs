@@ -10,8 +10,6 @@ public interface IReviewResultCache
 
     void InvalidateForRun(string runId);
 
-    string BuildStorageKey(ReviewCacheDependencyManifest manifest);
-
     IDisposable PinScope(ReviewCacheDependencyManifest manifest);
 
     IDisposable PinScope(
