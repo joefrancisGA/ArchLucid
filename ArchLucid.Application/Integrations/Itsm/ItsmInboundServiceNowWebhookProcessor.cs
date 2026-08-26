@@ -317,10 +317,21 @@ public sealed class ItsmInboundServiceNowWebhookProcessor(
             externalKey = sid2.GetString();
 
         if (root.TryGetProperty("state", out JsonElement st))
-            state = st.ValueKind == JsonValueKind.String ? st.GetString() : st.GetRawText();
+        {
+            if (st.ValueKind == JsonValueKind.Null)
+                state = null;
+            else if (st.ValueKind == JsonValueKind.String)
+                state = st.GetString();
+            else
+                state = st.GetRawText();
+        }
 
         if (string.IsNullOrWhiteSpace(state) && root.TryGetProperty("incident_state", out JsonElement ist))
-            state = ist.ValueKind == JsonValueKind.String ? ist.GetString() : ist.GetRawText();
+            state = ist.ValueKind == JsonValueKind.Null
+                ? null
+                : ist.ValueKind == JsonValueKind.String
+                    ? ist.GetString()
+                    : ist.GetRawText();
 
         return !string.IsNullOrWhiteSpace(externalKey);
     }

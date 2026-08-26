@@ -1360,13 +1360,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 6
-- **bugs-found:** 8
+- **hunts:** 7
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — ServiceNow inbound webhook ignored `incident_state` when `state` was JSON null
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1379,6 +1379,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Tenant-scoped ITSM webhook routes with `Guid.Empty` skipped tenant credential lookup and used deployment-wide secrets — **hit 2026-08-24:** `ResolveInboundSecretAsync` treated `Guid.Empty` like unscoped; controller now returns HTTP 400 (`InboundWebhookPipelineOrderIntegrationTests.Jira_tenant_scoped_route_with_empty_guid_returns_400`).
 - [x] (proven) `RouteTenantScopeBindingFilter` forbade anonymous `[AllowUnscopedRoute]` ITSM tenant webhook actions — **hit 2026-08-24:** filter compared route `{tenantId}` to empty ambient scope and returned HTTP 403 before controller dispatch; skip unscoped/anonymous endpoints.
 - [x] (proven) ServiceNow inbound webhook ignored `incident_state` when `state` was whitespace — **hit 2026-08-25:** `TryReadServiceNowKeys` only fell back on null `state`, so payloads like `"state":" "` with `"incident_state":"6"` were rejected instead of mapping resolved (`ItsmInboundWebhookSyncServiceTests.ServiceNow_inbound_uses_incident_state_when_state_is_whitespace`).
+- [x] (proven) ServiceNow inbound webhook ignored `incident_state` when `state` was JSON null — **hit 2026-08-26:** `TryReadServiceNowKeys` assigned `state` from `GetRawText()` (`"null"`) for `JsonValueKind.Null`, blocking `incident_state` fallback; fixed by treating null tokens as absent (`ServiceNow_inbound_uses_incident_state_when_state_is_json_null`).
+- [ ] (candidate) Jira inbound payload property lookup is case-sensitive on `issue` / `fields` / `status` / `name` — PascalCase shapes from some integrators may be ignored.
+- [ ] (candidate) `ItsmInboundExternalStatusMapper.TryMapConfiguredDisposition` silently skips invalid disposition enum spellings without audit, unlike human-review map unknown-status handling.
+- [ ] (candidate) `ItsmInboundWebhookReplayEventId.Resolve` preserves delivery-id casing while the replay guard lowercases cache keys — harmless today but synthetic keys remain case-sensitive in the resolved id string stored in audit payloads.
 
 ---
 
