@@ -8,19 +8,16 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperateExecutePageHint } from "@/components/OperateCapabilityHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { AlertRoutingCreateDestinationForm } from "@/components/alerts/AlertRoutingCreateDestinationForm";
 import { AlertRoutingContinueLastViewedRow } from "@/components/alerts/AlertRoutingContinueLastViewedRow";
 import { AlertRoutingPickReviewBeforeRoutingStrip } from "@/components/alerts/AlertRoutingPickReviewBeforeRoutingStrip";
 import { AlertRoutingNextReviewFooterClient } from "@/components/alerts/AlertRoutingNextReviewFooterClient";
-import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
-import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   AlertRoutingSubscriptionDisableDialog,
   type AlertRoutingSubscriptionDisableTarget,
 } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
-import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useAlertRoutingSubscriptionsQuery } from "@/components/alerts/use-alert-rules-hub-queries";
@@ -28,7 +25,6 @@ import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-contex
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
-  alertRoutingCreateSubscriptionButtonLabelReaderRank,
   alertRoutingPageLeadOperator,
   alertRoutingPageLeadOperatorEmpty,
   alertRoutingPageLeadReader,
@@ -44,9 +40,6 @@ import {
   type AlertRoutingCriteria,
 } from "@/lib/alert-routing-criteria";
 import {
-  destinationFieldHelper,
-  destinationFieldLabel,
-  destinationFieldPlaceholder,
   formatAlertRoutingThresholdPreview,
   isAlertRoutingDestinationFormValid,
   isWebhookChannelType,
@@ -59,7 +52,6 @@ import {
   resolveAlertRoutingCreateSteps,
 } from "@/lib/alert-routing-create-checklist";
 import {
-  ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER,
   formatAlertRoutingConfigProvenanceLine,
   summarizeAlertRoutingDeliveryHealth,
 } from "@/lib/alert-routing-presentation";
@@ -383,6 +375,16 @@ export function AlertRoutingContent() {
     void loadAttempts(subscriptionId);
   }
 
+  function resetCreateForm(): void {
+    setName("");
+    setChannelType("Email");
+    setDestination("");
+    setMinimumSeverity("High");
+    setRoutingCriteria({ ...EMPTY_ALERT_ROUTING_CRITERIA });
+    setFieldErrors({});
+    setStatusMessage("Form reset.");
+  }
+
   return (
     <div className={cn(isEmptyComposition ? "max-w-4xl space-y-4" : "space-y-8")}>
       <header className="space-y-2">
@@ -494,182 +496,38 @@ export function AlertRoutingContent() {
         data-testid={isEmptyComposition ? "alert-routing-empty-state" : undefined}
       >
         {scopedRunFilterActive ? (
-        <section
-          ref={formSectionRef}
-          tabIndex={-1}
-          aria-labelledby="alert-routing-form-heading"
-          className={cn(
-            "space-y-6 rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-950",
-            !canEditRouting && "opacity-90",
-          )}
-        >
-          <h3 id="alert-routing-form-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {isEmptyComposition ? "Set up alert delivery" : "Add another destination"}
-          </h3>
-          {isEmptyComposition ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Create your first email or webhook destination. Qualifying findings notify your team when severity
-              thresholds are met.
-            </p>
-          ) : null}
-
-          <IntegrationConnectChecklist
-            title="Destination checklist"
-            steps={alertRoutingCreateSteps}
-            emphasizedStepId={alertRoutingCreateEmphasizedStepId}
-            testIdPrefix="alert-routing-create"
-          />
-
-        <fieldset className="space-y-4 border-0 p-0" disabled={!canEditRouting}>
-          <label className={cn("block text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            Destination name
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={ALERT_ROUTING_DESTINATION_NAME_PLACEHOLDER}
-              disabled={!canEditRouting || creating}
-              aria-invalid={fieldErrors.name !== undefined}
-              aria-describedby={fieldErrors.name ? "alert-routing-name-error" : undefined}
-              className="mt-1 block min-h-11 w-full rounded-md border border-neutral-300 p-2 dark:border-neutral-600"
-            />
-            {fieldErrors.name ? (
-              <span id="alert-routing-name-error" className={cn("mt-1 block text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}>
-                {fieldErrors.name}
-              </span>
-            ) : null}
-          </label>
-          <label className={cn("block text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            Notification channel
-            <select
-              value={channelType}
-              onChange={(e) => {
-                setChannelType(e.target.value);
-                setDestination("");
-                setFieldErrors((prev) => ({ ...prev, destination: undefined }));
-              }}
-              disabled={!canEditRouting || creating}
-              className="mt-1 block min-h-11 w-full rounded-md border border-neutral-300 p-2 dark:border-neutral-600"
-            >
-              <option value="Email">Email</option>
-              <option value="TeamsWebhook">Microsoft Teams</option>
-              <option value="SlackWebhook">Slack</option>
-              <option value="OnCallWebhook">On-call webhook</option>
-            </select>
-          </label>
-          <label className={cn("block text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            {destinationFieldLabel(channelType)}
-            <input
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              placeholder={destinationFieldPlaceholder(channelType)}
-              disabled={!canEditRouting || creating}
-              aria-invalid={fieldErrors.destination !== undefined}
-              aria-describedby={fieldErrors.destination ? "alert-routing-destination-error" : "alert-routing-destination-help"}
-              className={cn(
-                "mt-1 block min-h-11 w-full rounded-md border border-neutral-300 p-2 dark:border-neutral-600",
-                channelType === "Email" ? "" : "font-mono",
-              )}
-              data-testid="alert-routing-destination-input"
-            />
-            <span id="alert-routing-destination-help" className={cn("mt-1 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              {destinationFieldHelper(channelType)}
-            </span>
-            {fieldErrors.destination ? (
-              <span id="alert-routing-destination-error" className={cn("mt-1 block text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}>
-                {fieldErrors.destination}
-              </span>
-            ) : null}
-          </label>
-        </fieldset>
-
-        <fieldset className="space-y-3 border-0 p-0" disabled={!canEditRouting}>
-          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-            Alert threshold
-          </p>
-          <label className={cn("block text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            Minimum severity
-            <select
-              value={minimumSeverity}
-              onChange={(e) => setMinimumSeverity(e.target.value)}
-              disabled={!canEditRouting || creating}
-              className="mt-1 block min-h-11 w-full rounded-md border border-neutral-300 p-2 dark:border-neutral-600"
-              data-testid="alert-routing-minimum-severity"
-            >
-              <option value="Info">Info</option>
-              <option value="Warning">Warning</option>
-              <option value="High">High</option>
-              <option value="Critical">Critical</option>
-            </select>
-          </label>
-          <p
-            className={cn("rounded-md bg-neutral-50 px-3 py-2 text-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="alert-routing-threshold-preview"
-          >
-            {thresholdPreview.preview}
-          </p>
-          {thresholdPreview.criticalExcludedWarning !== null ? (
-            <p
-              className={cn(DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="alert-routing-threshold-critical-warning"
-              role="status"
-            >
-              {thresholdPreview.criticalExcludedWarning}
-            </p>
-          ) : null}
-        </fieldset>
-
-        <AlertRoutingCriteriaFields
-          criteria={routingCriteria}
-          onChange={setRoutingCriteria}
-          disabled={!canEditRouting || creating}
-        />
-
-        <div className="flex flex-col items-start gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-700">
-          <div className="flex flex-wrap items-center gap-3">
-          <Button
-            type="button"
-            variant="primary"
-            onClick={() => void onCreate(false)}
-            disabled={!canEditRouting || creating || !formValid}
-            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
-            data-testid="alert-routing-create-destination"
-          >
-            {creating ? "Creating destination…" : canMutateRouting ? "Create notification destination" : alertRoutingCreateSubscriptionButtonLabelReaderRank}
-          </Button>
-          {isWebhookChannelType(channelType) ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => void onCreate(true)}
-              disabled={!canEditRouting || creating || !formValid}
-            >
-              {creating ? "Working…" : "Send test notification"}
-            </Button>
-          ) : null}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              setName("");
-              setChannelType("Email");
+          <AlertRoutingCreateDestinationForm
+            formSectionRef={formSectionRef}
+            isEmptyComposition={isEmptyComposition}
+            canEditRouting={canEditRouting}
+            canMutateRouting={canMutateRouting}
+            creating={creating}
+            formValid={formValid}
+            name={name}
+            channelType={channelType}
+            destination={destination}
+            minimumSeverity={minimumSeverity}
+            routingCriteria={routingCriteria}
+            fieldErrors={fieldErrors}
+            thresholdPreview={thresholdPreview}
+            alertRoutingCreateSteps={alertRoutingCreateSteps}
+            alertRoutingCreateEmphasizedStepId={alertRoutingCreateEmphasizedStepId}
+            mutationDisabledReason={mutationDisabledReason}
+            mutationDisabledHintId={mutationDisabledHintId}
+            onNameChange={setName}
+            onChannelTypeChange={(value) => {
+              setChannelType(value);
               setDestination("");
-              setMinimumSeverity("High");
-              setRoutingCriteria({ ...EMPTY_ALERT_ROUTING_CRITERIA });
-              setFieldErrors({});
-              setStatusMessage("Form reset.");
+              setFieldErrors((prev) => ({ ...prev, destination: undefined }));
             }}
-            disabled={creating}
-          >
-            Reset form
-          </Button>
-          </div>
-          <WhyDisabledCtaHint
-            id={mutationDisabledHintId}
-            reason={mutationDisabledReason}
-            testId="alert-routing-mutate-disabled-hint"
+            onDestinationChange={setDestination}
+            onMinimumSeverityChange={setMinimumSeverity}
+            onRoutingCriteriaChange={setRoutingCriteria}
+            onCreate={(sendTestAfterSave) => {
+              void onCreate(sendTestAfterSave);
+            }}
+            onResetForm={resetCreateForm}
           />
-        </div>
-      </section>
         ) : null}
 
         {isEmptyComposition && scopedRunFilterActive ? (
