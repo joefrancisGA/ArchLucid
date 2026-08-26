@@ -224,4 +224,82 @@ public sealed class ReviewResultCacheTests
 
         await inflight;
     }
+
+    [Fact]
+    public void PinStorageKey_refcounts_until_last_unpin()
+    {
+        ReviewResultCache cache = new();
+
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "pin-key" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.PinStorageKey(storageKey);
+        cache.PinStorageKey(storageKey);
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = "pinned-run" });
+
+        cache.UnpinStorageKey(storageKey);
+
+        for (int index = 0; index < 150; index++)
+        {
+            cache.Set(
+                new ReviewCacheDependencyManifest { ContentHash = $"overflow-{index}" },
+                new ClosedLoopReasoningResult());
+        }
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
+
+        cache.UnpinStorageKey(storageKey);
+
+        cache.Set(new ReviewCacheDependencyManifest { ContentHash = "overflow-final" }, new ClosedLoopReasoningResult());
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task CoalesceAsync_concurrent_waiters_all_receive_cache_hit_metadata()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-coalesce-hit-broadcast" };
+        ClosedLoopReasoningResult stored = new()
+        {
+            RunId = "stored-run",
+            Model = new ArchitectureKnowledgeModel { RunId = "stored-run", ModelId = "stored-model" },
+        };
+
+        cache.Set(manifest, stored);
+        TaskCompletionSource leaderCanFinish = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Task<ClosedLoopReasoningResult> leader = cache.CoalesceAsync(
+            manifest,
+            async cancellationToken =>
+            {
+                if (!cache.TryGet(manifest, out ClosedLoopReasoningResult? cached) || cached is null)
+                    throw new InvalidOperationException("Expected cached review result.");
+
+                cached.CacheHit = true;
+                cached.CacheReuseReason = "dependency-manifest-match";
+
+                await leaderCanFinish.Task.WaitAsync(cancellationToken);
+
+                return cached;
+            },
+            CancellationToken.None);
+
+        await Task.Delay(50);
+
+        Task<ClosedLoopReasoningResult> waiter = cache.CoalesceAsync(
+            manifest,
+            _ => Task.FromException<ClosedLoopReasoningResult>(new InvalidOperationException("not leader")),
+            CancellationToken.None);
+
+        leaderCanFinish.SetResult();
+
+        ClosedLoopReasoningResult leaderResult = await leader;
+        ClosedLoopReasoningResult waiterResult = await waiter;
+
+        leaderResult.CacheHit.Should().BeTrue();
+        waiterResult.CacheHit.Should().BeTrue();
+        waiterResult.CacheReuseReason.Should().Be("dependency-manifest-match");
+        waiterResult.RunId.Should().Be("stored-run");
+    }
 }

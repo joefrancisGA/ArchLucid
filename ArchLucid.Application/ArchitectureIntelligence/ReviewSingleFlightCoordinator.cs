@@ -33,9 +33,10 @@ internal sealed class ReviewSingleFlightCoordinator
                 try
                 {
                     ClosedLoopReasoningResult result = await leaderWork(cancellationToken).ConfigureAwait(false);
-                    entry.Completion.TrySetResult(result);
+                    ClosedLoopReasoningResult shared = ClosedLoopReasoningResultCloner.Clone(result);
+                    entry.Completion.TrySetResult(shared);
 
-                    return result;
+                    return shared;
                 }
                 catch (OperationCanceledException)
                 {

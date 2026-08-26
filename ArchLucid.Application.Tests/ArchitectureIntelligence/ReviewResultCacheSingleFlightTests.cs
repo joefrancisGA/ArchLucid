@@ -95,28 +95,27 @@ public sealed class ReviewResultCacheSingleFlightTests
         ReviewSingleFlightCoordinator coordinator = new();
         int calls = 0;
         using CancellationTokenSource leaderToken = new();
-        TaskCompletionSource startGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource leaderEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         Task<ClosedLoopReasoningResult> leader = Task.Run(async () =>
         {
-            await startGate.Task;
-
             return await coordinator.CoalesceAsync(
                 "wrapped-abort-key",
                 async ct =>
                 {
                     Interlocked.Increment(ref calls);
+                    leaderEntered.TrySetResult();
 
-                    await Task.Delay(40, ct);
+                    await Task.Delay(Timeout.InfiniteTimeSpan, ct);
 
-                    throw new OperationCanceledException(ct);
+                    return new ClosedLoopReasoningResult { RunId = "leader" };
                 },
                 leaderToken.Token);
         });
 
         Task<ClosedLoopReasoningResult> waiter = Task.Run(async () =>
         {
-            await startGate.Task;
+            await leaderEntered.Task;
 
             return await coordinator.CoalesceAsync(
                 "wrapped-abort-key",
@@ -131,8 +130,8 @@ public sealed class ReviewResultCacheSingleFlightTests
                 CancellationToken.None);
         });
 
-        startGate.SetResult();
-        leaderToken.CancelAfter(10);
+        await leaderEntered.Task;
+        leaderToken.Cancel();
 
         Func<Task> act = async () => await leader;
         await act.Should().ThrowAsync<OperationCanceledException>();

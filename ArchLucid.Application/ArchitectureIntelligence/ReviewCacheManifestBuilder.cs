@@ -121,11 +121,8 @@ public static class ReviewCacheManifestBuilder
             builder.Append(source.Content ?? string.Empty).Append("\n---\n");
         }
 
-        foreach (KeyValuePair<string, string> answer in request.FramingAnswers
-                     .Where(pair => !string.IsNullOrWhiteSpace(pair.Key))
-                     .Select(pair => new KeyValuePair<string, string>(
-                         pair.Key.Trim(),
-                         pair.Value?.Trim() ?? string.Empty))
+        foreach (KeyValuePair<string, string> answer in ClosedLoopFramingAnswersNormalizer
+                     .Normalize(request.FramingAnswers)
                      .OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             builder.Append(answer.Key).Append('=').Append(answer.Value).Append('\n');

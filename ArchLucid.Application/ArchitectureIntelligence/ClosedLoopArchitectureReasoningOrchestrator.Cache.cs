@@ -36,38 +36,38 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
                     continueManifest.ReuseReason ?? "dependency-manifest-match"));
         }
 
-        string continueInFlightKey = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
-            tenantId,
-            runId,
-            continueManifest,
-            effectiveRequest.PublishToProduct);
+        string continueStorageKey = _reviewResultCache.BuildStorageKey(continueManifest);
 
-        ClosedLoopReasoningResult sharedContinue = await _continueRunSingleFlight.CoalesceAsync(
-            tenantId,
-            runId,
-            continueManifest,
-            effectiveRequest.PublishToProduct,
-            ct => CoalesceContinueReviewCacheMissAsync(
-                effectiveRequest,
+        _reviewResultCache.PinStorageKey(continueStorageKey);
+
+        ClosedLoopReasoningResult sharedContinue;
+
+        try
+        {
+            sharedContinue = await _continueRunSingleFlight.CoalesceAsync(
                 tenantId,
                 runId,
-                budget,
                 continueManifest,
-                continueInFlightKey,
-                ct),
-            cancellationToken);
-
-        ReviewCacheHitMetadata? continueCacheHit = null;
-
-        if (_reviewResultCache.TryConsumeCoalesceLeaderReviewCacheHit(continueInFlightKey, out string? continueReuseReason))
-            continueCacheHit = new ReviewCacheHitMetadata(true, continueReuseReason);
+                effectiveRequest.PublishToProduct,
+                ct => CoalesceContinueReviewCacheMissAsync(
+                    effectiveRequest,
+                    tenantId,
+                    runId,
+                    budget,
+                    continueManifest,
+                    ct),
+                cancellationToken);
+        }
+        finally
+        {
+            _reviewResultCache.UnpinStorageKey(continueStorageKey);
+        }
 
         return FinalizeCoalescedReviewResult(
             sharedContinue,
             effectiveRequest,
             runId,
-            budget,
-            continueCacheHit);
+            budget);
     }
 
     private async Task<ClosedLoopReasoningResult> CoalesceReviewCacheMissAsync(
@@ -76,14 +76,14 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         string runId,
         ArchitectureIntelligenceBudgetDecision budget,
         ReviewCacheDependencyManifest cacheManifest,
-        string inFlightKey,
         CancellationToken cancellationToken)
     {
         if (!effectiveRequest.PublishToProduct
             && _reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
             && cached is not null)
         {
-            _reviewResultCache.MarkCoalesceLeaderReviewCacheHit(inFlightKey, cacheManifest.ReuseReason);
+            cached.CacheHit = true;
+            cached.CacheReuseReason = cacheManifest.ReuseReason ?? "dependency-manifest-match";
 
             return cached;
         }
@@ -94,6 +94,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
             runId,
             budget,
             cacheManifest,
+            ReviewCacheStorageKind.FullRun,
             cancellationToken);
     }
 
@@ -103,14 +104,14 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         string runId,
         ArchitectureIntelligenceBudgetDecision budget,
         ReviewCacheDependencyManifest continueManifest,
-        string continueInFlightKey,
         CancellationToken cancellationToken)
     {
         if (!effectiveRequest.PublishToProduct
             && _reviewResultCache.TryGet(continueManifest, out ClosedLoopReasoningResult? cached)
             && cached is not null)
         {
-            _reviewResultCache.MarkCoalesceLeaderReviewCacheHit(continueInFlightKey, continueManifest.ReuseReason);
+            cached.CacheHit = true;
+            cached.CacheReuseReason = continueManifest.ReuseReason ?? "dependency-manifest-match";
 
             return cached;
         }
@@ -121,6 +122,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
             runId,
             budget,
             continueManifest,
+            ReviewCacheStorageKind.ContinueFromExistingRun,
             cancellationToken);
     }
 
@@ -139,22 +141,30 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         ClosedLoopReasoningResult isolated = ClosedLoopReasoningResultCloner.Clone(shared);
         ArchitectureIntelligenceBudgetResultApplier.Apply(isolated, budget);
 
-        if (reviewCacheHit?.IsReviewCacheHit == true)
+        bool isReviewCacheHit = reviewCacheHit?.IsReviewCacheHit == true || shared.CacheHit;
+
+        if (isReviewCacheHit)
         {
             isolated.CacheHit = true;
-            isolated.CacheReuseReason = reviewCacheHit.Value.ReuseReason ?? "dependency-manifest-match";
+            isolated.CacheReuseReason = reviewCacheHit?.ReuseReason
+                ?? shared.CacheReuseReason
+                ?? "dependency-manifest-match";
         }
 
-        if (reviewCacheHit?.IsReviewCacheHit == true
-            && !effectiveRequest.PublishToProduct)
+        if (!effectiveRequest.PublishToProduct
+            && (isReviewCacheHit || shared.PublishedToProduct))
             ClosedLoopCacheHitPublishGuard.ApplyAnalysisOnlyCoalescedIsolation(effectiveRequest, isolated);
+
+        string policyRunId = string.IsNullOrWhiteSpace(effectiveRequest.RunId)
+            ? isolated.RunId ?? runId
+            : runId;
 
         if (ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
                 effectiveRequest,
-                runId,
+                policyRunId,
                 isolated))
         {
-            ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(effectiveRequest, runId, isolated);
+            ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(effectiveRequest, policyRunId, isolated);
         }
 
         return isolated;

@@ -12,9 +12,11 @@ public interface IReviewResultCache
 
     string BuildInFlightKey(ReviewCacheDependencyManifest manifest, bool publishToProduct);
 
-    void MarkCoalesceLeaderReviewCacheHit(string inFlightKey, string? reuseReason);
+    string BuildStorageKey(ReviewCacheDependencyManifest manifest);
 
-    bool TryConsumeCoalesceLeaderReviewCacheHit(string inFlightKey, out string? reuseReason);
+    void PinStorageKey(string storageKey);
+
+    void UnpinStorageKey(string storageKey);
 
     Task<ClosedLoopReasoningResult> CoalesceAsync(
         ReviewCacheDependencyManifest manifest,

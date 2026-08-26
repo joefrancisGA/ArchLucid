@@ -133,9 +133,6 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                         cacheManifest.ReuseReason ?? "dependency-manifest-match"));
             }
 
-            string inFlightKey =
-                _reviewResultCache.BuildInFlightKey(cacheManifest, effectiveRequest.PublishToProduct);
-
             ClosedLoopReasoningResult shared = await _reviewResultCache.CoalesceAsync(
                 cacheManifest,
                 ct => CoalesceReviewCacheMissAsync(
@@ -144,22 +141,15 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                     runId,
                     budget,
                     cacheManifest,
-                    inFlightKey,
                     ct),
                 cancellationToken,
                 effectiveRequest.PublishToProduct);
-
-            ReviewCacheHitMetadata? reviewCacheHit = null;
-
-            if (_reviewResultCache.TryConsumeCoalesceLeaderReviewCacheHit(inFlightKey, out string? reuseReason))
-                reviewCacheHit = new ReviewCacheHitMetadata(true, reuseReason);
 
             return FinalizeCoalescedReviewResult(
                 shared,
                 effectiveRequest,
                 runId,
-                budget,
-                reviewCacheHit);
+                budget);
         }
 
         return await RunContinueFromExistingReviewAsync(
