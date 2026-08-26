@@ -123,4 +123,46 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().ContainSingle(o =>
             o.Name == "allow_https" && o.Properties["terraformType"] == "google_compute_firewall");
     }
+
+    [Fact]
+    public async Task ParseAsync_CapturesScalarAttributesOnTfProperties()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "storage.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_storage_account" "docs" {
+                        public_network_access = "Enabled"
+                        https_only = true
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.public_network_access"].Should().Be("enabled");
+        result[0].Properties["tf.https_only"].Should().Be("true");
+    }
+
+    [Fact]
+    public async Task ParseAsync_RedactsSensitiveAssignments()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "secret.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_storage_account" "docs" {
+                        access_key = "supersecret"
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.access_key"].Should().Be("[REDACTED]");
+    }
 }

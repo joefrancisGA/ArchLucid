@@ -1,18 +1,9 @@
-using System.Text.RegularExpressions;
-
 using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.ContextIngestion.Infrastructure;
 
 public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
 {
-    /// <summary>Lightweight line-based match for <c>resource "type" "name"</c> blocks (not full HCL).</summary>
-    private static readonly Regex ResourceRegex = new(
-        """
-        resource\s+"(?<type>[^"]+)"\s+"(?<name>[^"]+)"
-        """,
-        RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
     public bool CanParse(string format)
     {
         return string.Equals(format?.Trim(), "simple-terraform", StringComparison.OrdinalIgnoreCase);
@@ -24,18 +15,32 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
     {
         ArgumentNullException.ThrowIfNull(declaration);
         _ = ct;
-        MatchCollection matches = ResourceRegex.Matches(declaration.Content);
+
+        if (string.IsNullOrWhiteSpace(declaration.Content))
+            return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
+
+        IReadOnlyList<SimpleTerraformResourceBlockParser.SimpleTerraformResourceBlock> blocks =
+            SimpleTerraformResourceBlockParser.ExtractBlocks(declaration.Content);
+
         List<CanonicalObject> results = [];
 
-        foreach (Match match in matches)
+        foreach (SimpleTerraformResourceBlockParser.SimpleTerraformResourceBlock block in blocks)
         {
-            string terraformType = match.Groups["type"].Value.Trim();
-            string name = match.Groups["name"].Value.Trim();
+            string terraformType = block.TerraformType.Trim();
+            string name = block.Name.Trim();
 
             if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name))
                 continue;
 
             string objectType = ResolveObjectType(terraformType);
+            string canonicalTerraformType = terraformType.ToLowerInvariant();
+
+            Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = canonicalTerraformType
+            };
+
+            SimpleTerraformResourceBlockParser.ParseBodyIntoProperties(block.Body, properties);
 
             results.Add(new CanonicalObject
             {
@@ -43,10 +48,7 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
                 Name = name.ToLowerInvariant(),
                 SourceType = "InfrastructureDeclaration",
                 SourceId = declaration.DeclarationId,
-                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["terraformType"] = terraformType.ToLowerInvariant()
-                }
+                Properties = properties
             });
         }
 

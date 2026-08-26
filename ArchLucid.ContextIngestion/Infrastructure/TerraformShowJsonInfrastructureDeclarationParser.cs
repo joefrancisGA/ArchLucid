@@ -133,10 +133,11 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         {
             foreach (JsonProperty prop in values.EnumerateObject())
             {
-                if (properties.Count >= 24)
+                if (CanonicalInfrastructurePropertyBag.CountTfProperties(properties)
+                    >= CanonicalInfrastructurePropertyBag.MaxTfPropertyCount)
                     break;
 
-                string key = SanitizePropertyKey(prop.Name);
+                string key = CanonicalInfrastructurePropertyBag.SanitizePropertyKey(prop.Name);
 
                 if (string.IsNullOrEmpty(key))
                     continue;
@@ -184,26 +185,6 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             SourceId = declaration.DeclarationId,
             Properties = properties
         });
-    }
-
-    private static string SanitizePropertyKey(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            return string.Empty;
-
-        ReadOnlySpan<char> s = name.AsSpan();
-        Span<char> buffer = stackalloc char[s.Length];
-        int w = 0;
-
-        foreach (char c in s)
-        {
-            if (char.IsLetterOrDigit(c) || c is '_' or '-')
-                buffer[w++] = c;
-            else
-                buffer[w++] = '_';
-        }
-
-        return new string(buffer[..w]).ToLowerInvariant();
     }
 
     private static string CanonicalizeTerraformValueText(JsonElement value)
@@ -305,7 +286,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         JsonElement sensitiveRoot,
         Dictionary<string, string> properties)
     {
-        foreach (string? pk in from sp in sensitiveRoot.EnumerateObject() where sp.Value.ValueKind == JsonValueKind.True select SanitizePropertyKey(sp.Name) into k where !string.IsNullOrEmpty(k) select $"tf.{k}" into pk where properties.ContainsKey(pk) select pk)
+        foreach (string? pk in from sp in sensitiveRoot.EnumerateObject() where sp.Value.ValueKind == JsonValueKind.True select CanonicalInfrastructurePropertyBag.SanitizePropertyKey(sp.Name) into k where !string.IsNullOrEmpty(k) select $"tf.{k}" into pk where properties.ContainsKey(pk) select pk)
         {
             properties[pk] = "[REDACTED]";
         }
