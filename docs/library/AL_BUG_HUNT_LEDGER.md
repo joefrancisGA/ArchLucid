@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 19
-- **bugs-found:** 53
+- **hunts:** 20
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — governance approve/batch 404; renew risk-exception 404; bulk disposition all-fail 400; erasure approve 404
+- **last-bug:** 2026-08-26 — stickiness funnel committed-run SQL status filter
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2281,7 +2281,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessFacade.RecordBulkDispositionAsync` — all out-of-scope `FindingIds` returned HTTP 200 `{ processedCount: 0 }` instead of 400 — **hit 2026-08-26:** throw when zero findings processed; controller maps `ArgumentException` to 400; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
 - [x] (proven) `TenantErasureLegalHoldController.ApproveErasureAsync` — missing tenant row returned HTTP 409 instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantErasureLegalHoldControllerTests.ApproveErasureAsync_returns_not_found_when_tenant_missing`.
 - [x] (invalid) `GovernanceController.Reject` — foreign-workspace `approvalRequestId` 404 parity — **cheap-disproof 2026-08-26:** same `approvalRepo.GetByIdAsync` preflight added with approve in hunt #94.
-- [ ] (candidate) `TenantWorkspacesController` soft-delete restore — foreign-workspace project id within tenant may return 404 vs 400 parity gap on sibling endpoints.
+- [x] (invalid) `TenantWorkspacesController` soft-delete restore foreign-workspace route — **cheap-disproof 2026-08-26:** `RestoreProjectAsync` already requires `workspaceId == scope.WorkspaceId` (same as delete); regression in `TenantWorkspacesControllerTests.RestoreProjectAsync_returns_not_found_when_workspace_id_is_out_of_scope`.
+- [x] (proven) `TenantCustomerSuccessController.GetFunnelSnapshotAsync` / `GetStickinessSnapshotAsync` → `SqlOperatorStickinessSnapshotReader` — `ReadyForCommit` runs with manifest reference counted as committed — **hit 2026-08-26:** filter `LegacyRunStatus = @CommittedStatus` (aligned with `PilotScorecardBuilder` / `PilotValueReportService`); regression in `SqlOperatorStickinessSnapshotReaderTests.CommittedRunsWhereClause_uses_legacy_run_status_not_manifest_reference`.
+- [ ] (candidate) `TenantWorkspaceBaselineArtifactsController.GetAsync` — `HasBaselineArtifacts` workspace-wide `EXISTS` vs project-scoped `ScriptVersion` may return inconsistent `(true, null)` when only a foreign project has packages.
+
+2026-08-26 thorough hunt #95: proved stickiness funnel committed-run SQL filter; cheap-disproved workspace restore 404 parity candidate.
 
 2026-08-26 seed hunt #94: proved governance approve/batch 404, renew risk-exception 404, bulk disposition all-fail 400, erasure approve 404.
 

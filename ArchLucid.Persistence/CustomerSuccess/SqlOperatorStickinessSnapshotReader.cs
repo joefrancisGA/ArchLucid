@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Persistence.Connections;
@@ -15,6 +16,8 @@ public sealed class SqlOperatorStickinessSnapshotReader(
     IReadOnlyDbConnectionFactory connectionFactory)
     : IOperatorStickinessSnapshotReader
 {
+    private const string CommittedLegacyStatus = nameof(ArchitectureRunStatus.Committed);
+
     private readonly IReadOnlyDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
@@ -24,7 +27,7 @@ public sealed class SqlOperatorStickinessSnapshotReader(
         Guid projectId,
         CancellationToken cancellationToken)
     {
-        const string sql = """
+        string sql = $"""
                            SELECT
                                (SELECT COUNT(*)
                                 FROM dbo.Runs r
@@ -38,9 +41,7 @@ public sealed class SqlOperatorStickinessSnapshotReader(
                                   AND r.WorkspaceId = @WorkspaceId
                                   AND r.ScopeProjectId = @ProjectId
                                   AND r.ArchivedUtc IS NULL
-                                  AND (
-                                      NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
-                                      OR r.GoldenManifestId IS NOT NULL)) AS CommittedRuns,
+                                  AND {OperatorStickinessCommittedRunSql.CommittedRunsWhereClause}) AS CommittedRuns,
                                (SELECT TOP (1) r.RunId
                                 FROM dbo.Runs r
                                 WHERE r.TenantId = @TenantId
@@ -68,7 +69,7 @@ public sealed class SqlOperatorStickinessSnapshotReader(
         OperatorSignalsRow row = await connection.QuerySingleAsync<OperatorSignalsRow>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, Comparison = AuditEventTypes.ComparisonSummaryPersisted },
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, Comparison = AuditEventTypes.ComparisonSummaryPersisted, CommittedStatus = CommittedLegacyStatus },
                 cancellationToken: cancellationToken));
 
         return new OperatorStickinessSignals(
@@ -85,7 +86,7 @@ public sealed class SqlOperatorStickinessSnapshotReader(
         Guid projectId,
         CancellationToken cancellationToken)
     {
-        const string sql = """
+        string sql = $"""
                            SELECT
                                (SELECT MIN(r.CreatedUtc)
                                 FROM dbo.Runs r
@@ -130,9 +131,7 @@ public sealed class SqlOperatorStickinessSnapshotReader(
                                   AND r.WorkspaceId = @WorkspaceId
                                   AND r.ScopeProjectId = @ProjectId
                                   AND r.ArchivedUtc IS NULL
-                                  AND (
-                                      NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
-                                      OR r.GoldenManifestId IS NOT NULL)) AS CommittedRuns,
+                                  AND {OperatorStickinessCommittedRunSql.CommittedRunsWhereClause}) AS CommittedRuns,
                                (SELECT COUNT_BIG(1)
                                 FROM dbo.ProductLearningPilotSignals s
                                 WHERE s.TenantId = @TenantId
@@ -154,7 +153,8 @@ public sealed class SqlOperatorStickinessSnapshotReader(
                     Comparison = AuditEventTypes.ComparisonSummaryPersisted,
                     ArtDl = AuditEventTypes.ArtifactDownloaded,
                     BundleDl = AuditEventTypes.BundleDownloaded,
-                    Replay = AuditEventTypes.ReplayExecuted
+                    Replay = AuditEventTypes.ReplayExecuted,
+                    CommittedStatus = CommittedLegacyStatus
                 },
                 cancellationToken: cancellationToken));
 
