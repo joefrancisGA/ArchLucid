@@ -79,4 +79,40 @@ public sealed class ClosedLoopReasoningResultClonerTests
         cloned.CacheHit.Should().BeTrue();
         cloned.CacheReuseReason.Should().Be("dependency-manifest-match");
     }
+
+    [Fact]
+    public void Clone_deep_copies_icloneable_payload_instead_of_using_shallow_clone()
+    {
+        ShallowClonePayload payload = new() { Value = "original" };
+        ClosedLoopReasoningResult source = new()
+        {
+            ProductFindings =
+            [
+                new Finding
+                {
+                    FindingId = "finding-cloneable",
+                    FindingType = "gap",
+                    Category = "security",
+                    EngineType = "specialist",
+                    Severity = FindingSeverity.Error,
+                    Title = "Gap",
+                    Rationale = "Rationale.",
+                    Payload = payload,
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult cloned = ClosedLoopReasoningResultCloner.Clone(source);
+
+        cloned.ProductFindings[0].Payload.Should().BeOfType<ShallowClonePayload>();
+        cloned.ProductFindings[0].Payload.Should().NotBeSameAs(payload);
+        ((ShallowClonePayload)cloned.ProductFindings[0].Payload!).Value.Should().Be("original");
+    }
+
+    private sealed class ShallowClonePayload : ICloneable
+    {
+        public string Value { get; set; } = string.Empty;
+
+        public object Clone() => this;
+    }
 }

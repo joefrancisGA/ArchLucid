@@ -345,9 +345,6 @@ internal static class ClosedLoopReasoningResultCloner
         if (payload is Dictionary<string, string> stringDictionary)
             return new Dictionary<string, string>(stringDictionary, StringComparer.Ordinal);
 
-        if (payload is ICloneable cloneable)
-            return cloneable.Clone();
-
         object? deserialized = JsonSerializer.Deserialize(
             JsonSerializer.Serialize(payload),
             payload.GetType());
