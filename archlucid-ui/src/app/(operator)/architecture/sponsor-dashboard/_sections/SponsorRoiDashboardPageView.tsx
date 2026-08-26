@@ -30,6 +30,11 @@ import { SponsorDashboardBaselineWarningBanner } from "./SponsorDashboardBaselin
 import { SponsorDashboardLatestFinalizedReviewStrip } from "./SponsorDashboardLatestFinalizedReviewStrip";
 import { SponsorDashboardPickReviewBeforeKpisStrip } from "./SponsorDashboardPickReviewBeforeKpisStrip";
 import { SponsorRoiDashboardNextReviewFooterClient } from "./SponsorRoiDashboardNextReviewFooterClient";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import {
+  resolveSponsorDashboardKpiEmphasizedStepId,
+  resolveSponsorDashboardKpiSteps,
+} from "@/lib/sponsor-dashboard-kpi-checklist";
 import {
   BusinessImpactSummaryWidgetDeferred,
   SponsorComplianceDriftTrendSectionDeferred,
@@ -85,6 +90,16 @@ function SponsorRoiDashboardPortfolioSections({
     summary?.systems.find((system) => system.runId === latestFinalizedRunId)?.systemName ?? null;
   const reviewPicked = selectedReviewId.trim().length > 0;
   const showKpiSections = hasCommittedReviews && reviewPicked;
+  const sponsorDashboardKpiChecklistSteps = resolveSponsorDashboardKpiSteps({
+    reviewPicked,
+    kpisReviewed: showKpiSections && dashboardReady,
+    exportReady: showKpiSections && dashboardReady,
+  });
+  const sponsorDashboardKpiChecklistEmphasizedStepId = resolveSponsorDashboardKpiEmphasizedStepId({
+    reviewPicked,
+    kpisReviewed: showKpiSections && dashboardReady,
+    exportReady: showKpiSections && dashboardReady,
+  });
 
   return (
     <div data-testid="sponsor-roi-dashboard-ready" data-ready={dashboardReady ? "true" : "false"}>
@@ -99,6 +114,15 @@ function SponsorRoiDashboardPortfolioSections({
         <SponsorDashboardPickReviewBeforeKpisStrip
           selectedReviewId={selectedReviewId}
           onSelectReview={onSelectReview}
+        />
+      ) : null}
+
+      {!summaryLoading && !dashboardEmpty && reviewPicked ? (
+        <IntegrationConnectChecklist
+          title="KPI checklist"
+          steps={sponsorDashboardKpiChecklistSteps}
+          emphasizedStepId={sponsorDashboardKpiChecklistEmphasizedStepId}
+          testIdPrefix="sponsor-dashboard-kpi"
         />
       ) : null}
 
