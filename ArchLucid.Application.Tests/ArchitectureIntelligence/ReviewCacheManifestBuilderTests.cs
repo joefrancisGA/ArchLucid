@@ -138,6 +138,41 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_changes_content_hash_when_ledger_lock_or_evidence_changes()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-lock";
+
+        TechnologyLedgerEntry unlocked = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = "Amazon Web Services",
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Aws,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+            IsLocked = false,
+            EvidenceRef = null,
+        };
+
+        TechnologyLedgerEntry locked = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = "Amazon Web Services",
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Aws,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+            IsLocked = true,
+            EvidenceRef = "evidence-1",
+        };
+
+        ReviewCacheManifestBuilder.Build(request, null, [unlocked]).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(request, null, [locked]).ContentHash);
+    }
+
+    [Fact]
     public void Build_emits_ledger_fingerprint_when_run_id_set_even_if_ledger_missing()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
