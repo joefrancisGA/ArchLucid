@@ -23,9 +23,9 @@ internal static class KubernetesManifestCanonicalObjectMapper
             if (document.ValueKind is not JsonValueKind.Object)
                 continue;
 
-            if (document.TryGetProperty("kind", out JsonElement kindElement)
+            if (TryGetPropertyIgnoreCase(document, "kind", out JsonElement kindElement)
                 && string.Equals(kindElement.GetString(), "List", StringComparison.OrdinalIgnoreCase)
-                && document.TryGetProperty("items", out JsonElement items)
+                && TryGetPropertyIgnoreCase(document, "items", out JsonElement items)
                 && items.ValueKind is JsonValueKind.Array)
             {
                 foreach (JsonElement item in items.EnumerateArray())
@@ -45,7 +45,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
         InfrastructureDeclarationReference declaration,
         List<CanonicalObject> results)
     {
-        if (!resource.TryGetProperty("kind", out JsonElement kindElement) || kindElement.ValueKind is not JsonValueKind.String)
+        if (!TryGetPropertyIgnoreCase(resource, "kind", out JsonElement kindElement) || kindElement.ValueKind is not JsonValueKind.String)
             return;
 
         string kind = (kindElement.GetString() ?? string.Empty).Trim();
@@ -129,7 +129,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
     private static string? ReadTopLevelString(JsonElement resource, string propertyName)
     {
-        if (!resource.TryGetProperty(propertyName, out JsonElement value) || value.ValueKind is not JsonValueKind.String)
+        if (!TryGetPropertyIgnoreCase(resource, propertyName, out JsonElement value) || value.ValueKind is not JsonValueKind.String)
             return null;
 
         string? text = value.GetString();
@@ -139,14 +139,34 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
     private static string? ReadMetadataString(JsonElement resource, string objectName, string propertyName)
     {
-        if (!resource.TryGetProperty(objectName, out JsonElement objectElement) || objectElement.ValueKind is not JsonValueKind.Object)
+        if (!TryGetPropertyIgnoreCase(resource, objectName, out JsonElement objectElement) || objectElement.ValueKind is not JsonValueKind.Object)
             return null;
 
-        if (!objectElement.TryGetProperty(propertyName, out JsonElement value) || value.ValueKind is not JsonValueKind.String)
+        if (!TryGetPropertyIgnoreCase(objectElement, propertyName, out JsonElement value) || value.ValueKind is not JsonValueKind.String)
             return null;
 
         string? text = value.GetString();
 
         return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+    }
+
+    private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
+    {
+        if (element.TryGetProperty(propertyName, out value))
+            return true;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
