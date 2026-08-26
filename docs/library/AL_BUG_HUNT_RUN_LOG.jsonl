@@ -358,3 +358,4 @@
 {"at":"2026-08-26T07:32:22.7563985Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-08-26T07:38:08.3548524Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-08-26T07:48:41.9934135Z","zoneId":"ui-auth-proxy","outcome":"hit"}
+{"at":"2026-08-26T07:57:14.9102106Z","zoneId":"agent-runtime-evaluation","outcome":"hit"}

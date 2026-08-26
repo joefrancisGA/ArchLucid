@@ -55,7 +55,7 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
 
                         (bool schemaPassed, bool referenceMatched) =
                             await _confidencePipeline
-                                .EvaluateTraceSignalsAsync(traceForAgent, context.Evidence, ct)
+                                .EvaluateTraceSignalsAsync(traceForAgent, context.Evidence, context.CalibratedConfidenceByTaskId, ct)
                                 .ConfigureAwait(false);
 
                         bool touched = false;

@@ -126,6 +126,7 @@ public sealed class AgentArchitectureFindingConfidenceEnricherTests
         AgentEvaluationConfidencePipeline pipeline = new(
             traceRepository.Object,
             new InMemoryAgentEvidencePackageRepository(),
+            resultRepository.Object,
             scopeProvider.Object,
             new AgentOutputEvaluator(),
             semanticFacade,

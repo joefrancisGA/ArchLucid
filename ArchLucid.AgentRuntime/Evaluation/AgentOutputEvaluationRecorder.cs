@@ -116,7 +116,7 @@ public sealed class AgentOutputEvaluationRecorder(
         IReadOnlyList<AgentResult> agentResults = await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
-        Dictionary<string, double?> calibratedByTaskId = BuildCalibratedConfidenceByTaskId(agentResults);
+        Dictionary<string, double?> calibratedByTaskId = AgentCalibratedConfidenceByTaskIdBuilder.Build(agentResults);
 
         IReadOnlyList<AgentExecutionTrace> tracesForEvaluation =
             AgentExecutionTraceLatestPerTaskSelector.Select(traces);
@@ -341,19 +341,6 @@ public sealed class AgentOutputEvaluationRecorder(
                 await _referenceCaseRunEvaluator.EvaluateTraceAsync(trace, runId, cancellationToken)
                     .ConfigureAwait(false);
         }
-    }
-
-    private static Dictionary<string, double?> BuildCalibratedConfidenceByTaskId(IReadOnlyList<AgentResult> agentResults)
-    {
-        Dictionary<string, double?> map = new(StringComparer.Ordinal);
-
-        foreach (AgentResult result in agentResults)
-        {
-            if (result.CalibratedConfidence is { } calibrated)
-                map[result.TaskId] = calibrated;
-        }
-
-        return map;
     }
 
     private async Task TryLogLlmFaithfulnessGateAuditAsync(

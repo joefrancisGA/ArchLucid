@@ -19,6 +19,7 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 public sealed class AgentEvaluationConfidencePipeline(
     IAgentExecutionTraceRepository traceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IAgentResultRepository agentResultRepository,
     IScopeContextProvider scopeContextProvider,
     IAgentOutputEvaluator structuralEvaluator,
     HeuristicOnlyAgentOutputSemanticEvaluator confidenceGateSemanticEvaluator,
@@ -33,6 +34,9 @@ public sealed class AgentEvaluationConfidencePipeline(
 
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
         agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+
+    private readonly IAgentResultRepository _agentResultRepository =
+        agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -85,6 +89,7 @@ public sealed class AgentEvaluationConfidencePipeline(
     public async Task<(bool SchemaPassed, bool ReferenceMatched)> EvaluateTraceSignalsAsync(
         AgentExecutionTrace? trace,
         AgentEvidencePackage? evidence,
+        IReadOnlyDictionary<string, double?> calibratedConfidenceByTaskId,
         CancellationToken cancellationToken)
     {
         if (trace is null)
@@ -98,7 +103,8 @@ public sealed class AgentEvaluationConfidencePipeline(
             _qualityGate,
             cancellationToken,
             evidence,
-            _agentResultEvidenceFaithfulnessChecker).ConfigureAwait(false);
+            _agentResultEvidenceFaithfulnessChecker,
+            calibratedConfidenceByTaskId).ConfigureAwait(false);
 
         bool referenceMatched = await _referenceCaseRunEvaluator
             .ComputeAnyPassingReferenceCaseAsync(trace, cancellationToken)
@@ -185,12 +191,19 @@ public sealed class AgentEvaluationConfidencePipeline(
         Dictionary<string, AgentExecutionTrace> traceByTaskId = latestTraces
             .ToDictionary(static t => t.TaskId, static t => t, StringComparer.OrdinalIgnoreCase);
 
+        IReadOnlyList<AgentResult> agentResults =
+            await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+        Dictionary<string, double?> calibratedConfidenceByTaskId =
+            AgentCalibratedConfidenceByTaskIdBuilder.Build(agentResults);
+
         return new AgentEvaluationConfidenceRunContext
         {
             Scope = scope,
             LatestTraces = latestTraces,
             TraceByAgentType = traceByAgentType,
             TraceByTaskId = traceByTaskId,
+            CalibratedConfidenceByTaskId = calibratedConfidenceByTaskId,
             Evidence = evidence,
         };
     }
