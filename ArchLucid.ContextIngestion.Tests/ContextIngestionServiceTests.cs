@@ -193,6 +193,78 @@ public sealed class ContextIngestionServiceTests
         snapshot.DeltaSummary.Should().Contain("1 unchanged");
     }
 
+    [Fact]
+    public async Task IngestAsync_TopologyHintPaddingAndCasing_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-scope-metadata";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            TopologyHints = ["hub-vnet"]
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            TopologyHints = [" Hub-Vnet "]
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.TopologyHints);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.TopologyHints]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.TopologyHints]);
+    }
+
+    [Fact]
+    public async Task IngestAsync_ConstraintPaddingAndCasing_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-constraint-metadata";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            Constraints = ["monthly budget cap $100"]
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            Constraints = [" Monthly Budget Cap $100 "]
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.Constraints);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.Constraints]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.Constraints]);
+    }
+
     private sealed class CountingConnector : IContextConnector
     {
         public string ConnectorType => "test-connector";

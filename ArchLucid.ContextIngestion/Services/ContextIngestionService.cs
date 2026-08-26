@@ -1,6 +1,7 @@
 using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Topology;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Persistence.Context;
 
@@ -62,13 +63,18 @@ public class ContextIngestionService(
         if (request.TopologyHints is { Count: > 0 })
         {
             snapshot.SourceHashes[ContextScopeMetadataKeys.TopologyHints] =
-                string.Join('|', request.TopologyHints.Where(static h => !string.IsNullOrWhiteSpace(h)));
+                string.Join('|', request.TopologyHints
+                    .Where(static h => !string.IsNullOrWhiteSpace(h))
+                    .Select(static h =>
+                        TopologyHintStableObjectIds.CanonicalizeHintName(h.Trim()).ToLowerInvariant()));
         }
 
         if (request.Constraints is { Count: > 0 })
         {
             snapshot.SourceHashes[ContextScopeMetadataKeys.Constraints] =
-                string.Join('|', request.Constraints.Where(static c => !string.IsNullOrWhiteSpace(c)));
+                string.Join('|', request.Constraints
+                    .Where(static c => !string.IsNullOrWhiteSpace(c))
+                    .Select(static c => c.Trim().ToLowerInvariant()));
         }
 
         List<string> confirmedAssumptions = request.Assumptions

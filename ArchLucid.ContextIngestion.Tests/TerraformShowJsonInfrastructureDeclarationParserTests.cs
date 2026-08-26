@@ -308,6 +308,38 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_CanonicalizesDependsOnReferenceCasing()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-dep",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_storage_account",
+                                "name": "st",
+                                "values": { "name": "s" },
+                                "depends_on": ["azurerm_Resource_Group.Main"]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["terraformDependsOn"].Should().Be("azurerm_resource_group.main");
+    }
+
+    [Fact]
     public async Task ParseAsync_redacts_top_level_sensitive_tf_values()
     {
         InfrastructureDeclarationReference decl = new()

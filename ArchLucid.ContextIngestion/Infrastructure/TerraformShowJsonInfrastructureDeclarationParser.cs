@@ -171,7 +171,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 string? r = dep.GetString();
 
                 if (!string.IsNullOrWhiteSpace(r))
-                    refs.Add(r.Trim());
+                    refs.Add(r.Trim().ToLowerInvariant());
             }
 
             if (refs.Count > 0)
