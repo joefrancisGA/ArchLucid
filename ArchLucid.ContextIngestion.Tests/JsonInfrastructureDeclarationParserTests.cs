@@ -72,4 +72,30 @@ public sealed class JsonInfrastructureDeclarationParserTests
         result[0].Properties["region"].Should().Be("eastus");
         result[0].Properties["subtype"].Should().Be("hub");
     }
+
+    [Fact]
+    public async Task ParseAsync_CustomPropertyValues_AreCanonicalized()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "storage",
+                            "name": "docstorage01",
+                            "properties": { "sku": "Standard_LRS" }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["sku"].Should().Be("standard_lrs");
+    }
 }

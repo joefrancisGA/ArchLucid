@@ -141,7 +141,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
 
                 string valueText = prop.Value.ValueKind switch
                 {
-                    JsonValueKind.String => prop.Value.GetString() ?? string.Empty,
+                    JsonValueKind.String => (prop.Value.GetString() ?? string.Empty).Trim().ToLowerInvariant(),
                     JsonValueKind.Number => prop.Value.GetRawText(),
                     JsonValueKind.True => "true",
                     JsonValueKind.False => "false",

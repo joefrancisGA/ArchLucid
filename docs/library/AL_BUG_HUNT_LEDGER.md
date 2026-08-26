@@ -1801,11 +1801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 12
-- **bugs-found:** 34
+- **hunts:** 14
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — terraform-show-json padded resource names, padded document content types, App Service terraformType expansion
+- **last-bug:** 2026-08-26 — JSON custom property casing, terraform-show-json tf string casing, App Service snake_case IP rules
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1847,9 +1847,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` kept padded resource `name` in `CanonicalObject.Name` — **hit 2026-08-26:** `" core "` vs `"core"` churned infra delta keys; fixed by trimming resource names (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TrimsPaddedResourceName`, `InfrastructureDeclarationConnectorTests.DeltaAsync_PaddedTerraformShowJsonResourceName_ReportsUnchanged`)
 - [x] (proven) `SupportedContextDocumentContentTypes.IsSupported` rejected padded content types — **hit 2026-08-26:** `ContentType = " text/plain "` skipped valid documents; fixed by trimming before list lookup (`SupportedContextDocumentContentTypesTests`, `DocumentConnectorTests.NormalizeAsync_PaddedContentType_ParsesDocument`)
 - [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander.IsAppServiceTopology` ignored `terraformType` — **hit 2026-08-26:** `azurerm_linux_web_app` with `ipSecurityRestrictions` did not spawn network-rule security baselines; fixed by recognizing App Service terraform types (`AppServiceNetworkAccessSecurityBaselineExpanderTests.Expand_terraform_linux_web_app_with_open_internet_rule_creates_security_baseline`)
-- [ ] (candidate) `JsonInfrastructureDeclarationParser` preserves `subtype`/`region` casing in properties — may false-modify infrastructure declaration deltas when only casing changes on those fields.
-- [ ] (candidate) `AppServiceNetworkAccessSecurityBaselineExpander` only reads `ipSecurityRestrictions` top-level key — terraform-show-json emits `tf.ip_security_restrictions` from state values, so network rules may never expand for terraform-sourced App Services.
-- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` keeps `mode`/`providerName` casing in properties — casing-only edits may still report modified infra declaration deltas.
+- [x] (proven) `JsonInfrastructureDeclarationParser` preserved `subtype`/`region` casing in properties — **hit 2026-08-26:** `EastUS`/`Hub` vs `eastus`/`hub` false-modified infrastructure declaration deltas; fixed by lowercasing trimmed `subtype` and `region` (`JsonInfrastructureDeclarationParserTests`, `InfrastructureDeclarationConnectorTests.DeltaAsync_JsonRegionSubtypeCasingChange_ReportsUnchanged`)
+- [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` only read `ipSecurityRestrictions` top-level key — **hit 2026-08-26:** terraform-show-json `tf.ip_security_restrictions` values never expanded into network-rule security baselines; fixed by reading ARM and terraform property keys (`AppServiceNetworkAccessSecurityBaselineExpanderTests.Expand_terraform_tf_ip_security_restrictions_creates_security_baseline`)
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` kept `mode`/`providerName` casing in properties — **hit 2026-08-26:** `Managed`/`Registry.Terraform.IO/...` vs `managed`/lowercase provider false-modified infra declaration deltas; fixed by lowercasing both fields (`TerraformShowJsonInfrastructureDeclarationParserTests`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonModeProviderCasingChange_ReportsUnchanged`)
+- [x] (proven) `JsonInfrastructureDeclarationParser` preserved custom `properties` value casing — **hit 2026-08-26:** `Standard_LRS` vs `standard_lrs` false-modified infrastructure declaration deltas; fixed by lowercasing trimmed custom property values (`JsonInfrastructureDeclarationParserTests.ParseAsync_CustomPropertyValues_AreCanonicalized`)
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` kept `tf.*` string value casing — **hit 2026-08-26:** `EastUS` vs `eastus` in `tf.location` false-modified infra declaration deltas; fixed by lowercasing trimmed terraform value strings (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TfStringValues_AreCanonicalized`, golden corpus `case-07`)
+- [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` ignored snake_case `ip_address` in terraform rule JSON — **hit 2026-08-26:** `tf.ip_security_restrictions` with `ip_address` never detected open-internet rules; fixed with snake_case JSON deserialization fallback (`AppServiceNetworkAccessSecurityBaselineExpanderTests.Expand_terraform_snake_case_ip_address_detects_open_internet`)
+- [ ] (candidate) `SimpleTerraformDeclarationParser` keeps padded HCL resource type tokens — `" azurerm_virtual_network "` in `resource "type" "name"` may churn infra delta keys like padded names did before trim.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` keeps `terraformDependsOn` reference casing — depends_on module address casing may false-modify infra declaration deltas.
+- [ ] (candidate) `ContextIngestionService.ApplyScopeMetadata` joins `TopologyHints`/`Constraints` without trimming or lowercasing — padded or differently-cased scope metadata may churn snapshot `SourceHashes`.
 
 ---
 

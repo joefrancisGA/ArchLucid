@@ -31,7 +31,7 @@
       "mode": "managed",
       "providerName": "registry.terraform.io/hashicorp/google",
       "terraformType": "google_sql_database_instance",
-      "tf.database_version": "POSTGRES_15"
+      "tf.database_version": "postgres_15"
     },
     "sourceId": "ingestion-case-07",
     "sourceType": "InfrastructureDeclaration"
