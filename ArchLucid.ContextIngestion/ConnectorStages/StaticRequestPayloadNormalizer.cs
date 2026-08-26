@@ -25,7 +25,7 @@ public sealed class StaticRequestPayloadNormalizer : IConnectorNormalizer<Static
                 Name = "Primary Request",
                 SourceType = "StaticRequest",
                 SourceId = "description",
-                Properties = new Dictionary<string, string> { ["text"] = trimmed }
+                Properties = new Dictionary<string, string> { ["text"] = trimmed.ToLowerInvariant() }
             });
         }
 

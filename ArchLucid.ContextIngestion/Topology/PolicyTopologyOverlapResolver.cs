@@ -8,8 +8,11 @@ public sealed class PolicyTopologyOverlapResolver : IPolicyTopologyOverlapResolv
         ArgumentException.ThrowIfNullOrWhiteSpace(policyReference);
         ArgumentException.ThrowIfNullOrWhiteSpace(topologyHint);
 
-        return topologyHint.Contains(policyReference, StringComparison.OrdinalIgnoreCase)
-               || policyReference.Contains(topologyHint, StringComparison.OrdinalIgnoreCase);
+        string canonicalPolicy = TopologyHintStableObjectIds.CanonicalizeHintName(policyReference.Trim());
+        string canonicalTopology = TopologyHintStableObjectIds.CanonicalizeHintName(topologyHint.Trim());
+
+        return canonicalTopology.Contains(canonicalPolicy, StringComparison.OrdinalIgnoreCase)
+               || canonicalPolicy.Contains(canonicalTopology, StringComparison.OrdinalIgnoreCase);
     }
 
     public string ResolveStableObjectId(string topologyHintName)

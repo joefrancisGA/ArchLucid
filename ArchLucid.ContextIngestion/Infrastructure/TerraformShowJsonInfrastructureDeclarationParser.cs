@@ -19,7 +19,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
 {
     public bool CanParse(string format)
     {
-        return string.Equals(format, "terraform-show-json", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(format?.Trim(), "terraform-show-json", StringComparison.OrdinalIgnoreCase);
     }
 
     public Task<IReadOnlyList<CanonicalObject>> ParseAsync(
@@ -105,7 +105,12 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
 
         string objectType = ResolveObjectTypeFromTerraformType(tfType);
 
-        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase) { ["terraformType"] = tfType };
+        string normalizedTfType = tfType.ToLowerInvariant();
+
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["terraformType"] = normalizedTfType
+        };
 
         if (res.TryGetProperty("provider_name", out JsonElement prov) && prov.ValueKind == JsonValueKind.String)
         {
@@ -181,7 +186,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         results.Add(new CanonicalObject
         {
             ObjectType = objectType,
-            Name = $"{tfType}.{name}",
+            Name = $"{normalizedTfType}.{name}",
             SourceType = "InfrastructureDeclaration",
             SourceId = declaration.DeclarationId,
             Properties = properties

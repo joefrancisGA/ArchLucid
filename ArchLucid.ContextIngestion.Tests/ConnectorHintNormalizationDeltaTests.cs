@@ -39,6 +39,28 @@ public sealed class ConnectorHintNormalizationDeltaTests
     }
 
     [Fact]
+    public async Task StaticRequestContextConnector_DeltaAsync_DescriptionCaseChange_ReportsUnchanged()
+    {
+        StaticRequestContextConnector connector = new(
+            new StaticRequestPayloadExtractor(),
+            new StaticRequestPayloadNormalizer(),
+            new SetDiffConnectorDeltaComputer());
+
+        ContextSnapshot previous = await SnapshotAsync(
+            connector,
+            new RawContextPayload { Description = "Billing API Redesign" });
+
+        NormalizedContextBatch currentBatch = await connector.NormalizeAsync(
+            new RawContextPayload { Description = "billing api redesign" },
+            CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(currentBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.ModifiedCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task StaticRequestContextConnector_DeltaAsync_PaddedDescription_ReportsUnchanged()
     {
         StaticRequestContextConnector connector = new(
