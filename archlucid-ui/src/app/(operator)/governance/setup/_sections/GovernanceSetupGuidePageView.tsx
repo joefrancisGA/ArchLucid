@@ -1,3 +1,5 @@
+"use client";
+
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
