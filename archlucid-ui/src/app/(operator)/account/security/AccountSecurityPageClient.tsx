@@ -1,36 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { AccountSecurityAuthDomainsVocabularyRail } from "@/components/AccountSecurityAuthDomainsVocabularyRail";
-import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { AccountSecuritySettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
   ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
-  ACCOUNT_SECURITY_EMPTY_METHODS_HELP_CTA,
-  ACCOUNT_SECURITY_EMPTY_METHODS_MESSAGE,
-  ACCOUNT_SECURITY_INACTIVE_METHOD_HELPER,
   ACCOUNT_SECURITY_PAGE_SUBTITLE,
   ACCOUNT_SECURITY_PAGE_TITLE,
-  ACCOUNT_SECURITY_RECENT_AUTH_LIST_UNAVAILABLE,
 } from "@/lib/account-security-page-copy";
 import {
   ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT,
   ACCOUNT_SECURITY_DEMO_BLOCKED_EMPTY_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
-import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
   cancelSignInMethodLinkProposal,
   confirmSignInMethodLinkProposal,
@@ -43,31 +32,25 @@ import {
 } from "@/lib/sign-in-methods-api";
 import {
   classifySignInMethodsUnknownFailure,
-  digitsOnlyMaxLength,
-  formatCountdown,
   isPlausibleEmailAddress,
   isSixDigitVerificationCode,
   msUntilExpiry,
   type SignInMethodsProblem,
 } from "@/lib/sign-in-methods-problem";
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
 import { appSiteHref } from "@/lib/site-urls";
-import { resolveSignInMethodRemoveBlockedReason } from "@/lib/sign-in-method-remove-blocked-copy";
-import { cn } from "@/lib/utils";
 
+import { AccountSecurityAddEmailForm } from "./AccountSecurityAddEmailForm";
+import {
+  AccountSecurityFeedbackCallout,
+  type AccountSecurityCardFeedback,
+} from "./AccountSecurityFeedbackCallout";
 import {
   ACCOUNT_SECURITY_REMOVE_WARNING,
   AccountSecurityRemoveDialog,
 } from "./AccountSecurityRemoveDialog";
-
-type FeedbackTone = "success" | "blocked" | "warn" | "info";
-
-type CardFeedback = {
-  readonly tone: FeedbackTone;
-  readonly message: string;
-};
+import { AccountSecuritySignInMethodsList } from "./AccountSecuritySignInMethodsList";
 
 function accountSecuritySignInHref(): string {
   return appSiteHref(
@@ -86,24 +69,7 @@ function accountSecuritySignInAgainHref(): string {
   );
 }
 
-function calloutClassForTone(tone: FeedbackTone): string {
-  switch (tone) {
-    case "success":
-      return DESIGN_TOKENS.callout.success;
-    case "blocked":
-      return DESIGN_TOKENS.callout.blocked;
-    case "warn":
-      return DESIGN_TOKENS.callout.warn;
-    case "info":
-      return DESIGN_TOKENS.callout.info;
-    default: {
-      const _exhaustive: never = tone;
-      return _exhaustive;
-    }
-  }
-}
-
-function problemToFeedback(problem: SignInMethodsProblem): CardFeedback {
+function problemToFeedback(problem: SignInMethodsProblem): AccountSecurityCardFeedback {
   if (problem.kind === "unauthorized-platform-user" || problem.kind === "recent-auth-required") {
     return { tone: "blocked", message: problem.message };
   }
@@ -115,29 +81,12 @@ function problemToFeedback(problem: SignInMethodsProblem): CardFeedback {
   return { tone: "blocked", message: problem.message };
 }
 
-function FeedbackCallout(props: {
-  readonly feedback: CardFeedback;
-  readonly testId: string;
-  readonly actions?: React.ReactNode;
-}): React.JSX.Element {
-  return (
-    <div
-      className={cn(calloutClassForTone(props.feedback.tone), "px-3 py-2")}
-      role={props.feedback.tone === "success" ? "status" : "alert"}
-      data-testid={props.testId}
-    >
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{props.feedback.message}</p>
-      {props.actions ? <div className="mt-2 flex flex-wrap gap-2">{props.actions}</div> : null}
-    </div>
-  );
-}
-
 export function AccountSecurityPageClient() {
   const [methods, setMethods] = useState<SignInMethodSummary[]>([]);
   const [listLoaded, setListLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [listFeedback, setListFeedback] = useState<CardFeedback | null>(null);
-  const [addFeedback, setAddFeedback] = useState<CardFeedback | null>(null);
+  const [listFeedback, setListFeedback] = useState<AccountSecurityCardFeedback | null>(null);
+  const [addFeedback, setAddFeedback] = useState<AccountSecurityCardFeedback | null>(null);
   const [gateProblem, setGateProblem] = useState<SignInMethodsProblem | null>(null);
 
   const [addEmail, setAddEmail] = useState("");
@@ -150,7 +99,6 @@ export function AccountSecurityPageClient() {
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [resendCooldownUntilMs, setResendCooldownUntilMs] = useState(0);
 
-  const codeInputRef = useRef<HTMLInputElement>(null);
   const frictionless = typeof window !== "undefined" && readFrictionlessTrialSessionEnabled();
   const isDemoSession = frictionless || gateProblem?.kind === "demo-session-blocked";
 
@@ -223,14 +171,6 @@ export function AccountSecurityPageClient() {
       window.clearInterval(id);
     };
   }, [pendingProposal, resendCooldownUntilMs]);
-
-  useEffect(() => {
-    if (challengeId === null) {
-      return;
-    }
-
-    codeInputRef.current?.focus();
-  }, [challengeId]);
 
   function resetAddFlow() {
     setChallengeId(null);
@@ -379,7 +319,7 @@ export function AccountSecurityPageClient() {
       <AccountSecuritySettingsEvidenceOrientationStrip />
       <AccountSecurityAuthDomainsVocabularyRail currentSurfaceId="account-security" />
       {showRecentAuthGateCallout && gateProblem !== null ? (
-        <FeedbackCallout
+        <AccountSecurityFeedbackCallout
           feedback={problemToFeedback(gateProblem)}
           testId="account-security-auth-gate"
           actions={
@@ -390,312 +330,57 @@ export function AccountSecurityPageClient() {
         />
       ) : null}
 
-      <Card data-testid="sign-in-methods-card">
-        <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Sign-in methods</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {listFeedback ? (
-            <FeedbackCallout
-              feedback={listFeedback}
-              testId="account-security-list-feedback"
-              actions={
-                listFeedback.tone === "blocked" && !blockedForAuth ? (
-                  <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => void refreshMethods()}>
-                    Try again
-                  </Button>
-                ) : null
-              }
-            />
-          ) : null}
-
-          {loading ? (
-            <div className="space-y-3" data-testid="sign-in-methods-loading">
-              <Skeleton className="h-16 w-full" />
-              <Skeleton className="h-16 w-full" />
-            </div>
-          ) : blockedForAuth && !showRecentAuthGateCallout ? (
-            <EnterpriseCompactEmptyState {...authBlockedEmptyProps} />
-          ) : showRecentAuthGateCallout && !listLoaded ? (
-            <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="sign-in-methods-recent-auth-unavailable"
-            >
-              {ACCOUNT_SECURITY_RECENT_AUTH_LIST_UNAVAILABLE}
-            </p>
-          ) : listLoaded && methods.length === 0 ? (
-            <div className="space-y-3" data-testid="account-security-empty-methods">
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {ACCOUNT_SECURITY_EMPTY_METHODS_MESSAGE}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Button type="button" size="sm" variant="primary" asChild>
-                  <Link href={inAppHelpHref("authentication-sign-in")}>{ACCOUNT_SECURITY_EMPTY_METHODS_HELP_CTA}</Link>
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={busy}
-                  onClick={() => {
-                    void refreshMethods();
-                  }}
-                >
-                  Try again
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    document.getElementById("link-email")?.focus();
-                  }}
-                >
-                  Add a sign-in method
-                </Button>
-              </div>
-            </div>
-          ) : listLoaded ? (
-            <ul className="m-0 list-none space-y-3 p-0">
-              {methods.map((method) => (
-                <li
-                  key={method.identityId}
-                  className="flex flex-wrap items-start justify-between gap-3 rounded-md border border-al-border p-3"
-                  data-testid={`sign-in-method-${method.identityId}`}
-                >
-                  <div className="min-w-0 space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                        {method.providerLabel}
-                      </p>
-                      <BooleanStatusChip value={method.isActive} />
-                    </div>
-                    {!method.isActive ? (
-                      <p
-                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                        data-testid={`sign-in-method-inactive-helper-${method.identityId}`}
-                      >
-                        {ACCOUNT_SECURITY_INACTIVE_METHOD_HELPER}
-                      </p>
-                    ) : null}
-                    {method.maskedIdentifier ? (
-                      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                        {method.maskedIdentifier}
-                      </p>
-                    ) : null}
-                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      Added {formatInstantForLocale(method.addedUtc)}
-                      {method.lastUsedUtc
-                        ? ` · Last used ${formatInstantForLocale(method.lastUsedUtc)}`
-                        : ""}
-                    </p>
-                    {!method.canRemove ? (
-                      <div className="pt-1">
-                        <StatusTag kind="neutral" label="Cannot remove" />
-                        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                          {resolveSignInMethodRemoveBlockedReason(method, methods)}
-                        </p>
-                      </div>
-                    ) : null}
-                  </div>
-                  {method.canRemove ? (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      disabled={busy || blockedForAuth}
-                      data-testid={`sign-in-method-remove-${method.identityId}`}
-                      onClick={() => {
-                        setMethodToRemove(method);
-                      }}
-                    >
-                      Remove
-                    </Button>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </CardContent>
-      </Card>
+      <AccountSecuritySignInMethodsList
+        loading={loading}
+        listLoaded={listLoaded}
+        methods={methods}
+        blockedForAuth={blockedForAuth}
+        showRecentAuthGateCallout={showRecentAuthGateCallout}
+        busy={busy}
+        listFeedback={listFeedback}
+        authBlockedEmptyProps={authBlockedEmptyProps}
+        onRefresh={() => {
+          void refreshMethods();
+        }}
+        onRemoveMethod={setMethodToRemove}
+      />
 
       {!blockedForAuth ? (
-        <Card data-testid="add-sign-in-method-card">
-          <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Add sign-in method</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Add email-code recovery while signed in through your existing method. A different verified email will
-              require explicit confirmation before linking.
-            </p>
-
-            {addFeedback ? <FeedbackCallout feedback={addFeedback} testId="account-security-add-feedback" /> : null}
-
-            <ol className={cn("m-0 list-decimal space-y-4 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-              <li className="space-y-2">
-                <label
-                  className={cn("block font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-                  htmlFor="link-email"
-                >
-                  Email for one-time code
-                </label>
-                <Input
-                  id="link-email"
-                  type="email"
-                  autoComplete="email"
-                  value={addEmail}
-                  aria-invalid={emailTouched && !emailValid ? true : undefined}
-                  onChange={(event) => {
-                    setAddEmail(event.target.value);
-                  }}
-                  onBlur={() => {
-                    setEmailTouched(true);
-                  }}
-                  placeholder="you@example.com"
-                  disabled={busy || challengeId !== null}
-                />
-                {emailTouched && !emailValid ? (
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-                    Enter a valid email address before sending a code.
-                  </p>
-                ) : null}
-                {challengeId === null ? (
-                  <Button
-                    type="button"
-                    data-testid="account-security-send-code"
-                    onClick={() => void handleRequestEmailChallenge()}
-                    disabled={busy || !emailValid}
-                  >
-                    Send verification code
-                  </Button>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={busy || resendCooldownMs > 0}
-                      data-testid="account-security-resend-code"
-                      onClick={() => void handleRequestEmailChallenge()}
-                    >
-                      {resendCooldownMs > 0
-                        ? `Resend in ${formatCountdown(resendCooldownMs)}`
-                        : "Resend code"}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={busy}
-                      data-testid="account-security-different-email"
-                      onClick={() => {
-                        resetAddFlow();
-                        setAddFeedback(null);
-                      }}
-                    >
-                      Use a different email
-                    </Button>
-                  </div>
-                )}
-              </li>
-
-              {challengeId !== null ? (
-                <li className="space-y-2 border-t border-al-border pt-4">
-                  <label
-                    className={cn("block font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-                    htmlFor="link-code"
-                  >
-                    Verification code
-                  </label>
-                  <Input
-                    ref={codeInputRef}
-                    id="link-code"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    maxLength={6}
-                    value={verificationCode}
-                    onChange={(event) => {
-                      setVerificationCode(digitsOnlyMaxLength(event.target.value, 6));
-                    }}
-                    placeholder="6-digit code"
-                    disabled={busy || pendingProposal !== null}
-                  />
-                  <Button
-                    type="button"
-                    data-testid="account-security-verify-code"
-                    onClick={() => void handleVerifyEmailChallenge()}
-                    disabled={busy || !codeValid || pendingProposal !== null}
-                  >
-                    Verify code
-                  </Button>
-                </li>
-              ) : null}
-            </ol>
-
-            {pendingProposal !== null ? (
-              <div
-                className={cn(DESIGN_TOKENS.callout.warn, "space-y-3 px-3 py-3")}
-                data-testid="account-security-confirm-panel"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <StatusTag kind="needs-attention" label="Confirm link" />
-                  {proposalRemainingMs !== null ? (
-                    <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-                      {proposalExpired
-                        ? "This confirmation expired."
-                        : `Expires in ${formatCountdown(proposalRemainingMs)}`}
-                    </span>
-                  ) : null}
-                </div>
-                <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  Confirm new sign-in method
-                </p>
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                  {pendingProposal.confirmationMessage}
-                </p>
-                {pendingProposal.maskedIdentifier ? (
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                    Identifier: {pendingProposal.maskedIdentifier}
-                  </p>
-                ) : null}
-                <div className="flex flex-wrap gap-2">
-                  {proposalExpired ? (
-                    <Button
-                      type="button"
-                      data-testid="account-security-start-over"
-                      onClick={() => {
-                        resetAddFlow();
-                        setAddFeedback(null);
-                      }}
-                      disabled={busy}
-                    >
-                      Start over
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      data-testid="account-security-confirm-link"
-                      onClick={() => void handleConfirmProposal()}
-                      disabled={busy}
-                    >
-                      Confirm link
-                    </Button>
-                  )}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    data-testid="account-security-cancel-link"
-                    onClick={() => void handleCancelProposal()}
-                    disabled={busy}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
+        <AccountSecurityAddEmailForm
+          busy={busy}
+          addEmail={addEmail}
+          emailTouched={emailTouched}
+          emailValid={emailValid}
+          challengeId={challengeId}
+          verificationCode={verificationCode}
+          codeValid={codeValid}
+          pendingProposal={pendingProposal}
+          proposalRemainingMs={proposalRemainingMs}
+          proposalExpired={proposalExpired}
+          resendCooldownMs={resendCooldownMs}
+          addFeedback={addFeedback}
+          onAddEmailChange={setAddEmail}
+          onEmailBlur={() => {
+            setEmailTouched(true);
+          }}
+          onVerificationCodeChange={setVerificationCode}
+          onRequestEmailChallenge={() => {
+            void handleRequestEmailChallenge();
+          }}
+          onVerifyEmailChallenge={() => {
+            void handleVerifyEmailChallenge();
+          }}
+          onConfirmProposal={() => {
+            void handleConfirmProposal();
+          }}
+          onCancelProposal={() => {
+            void handleCancelProposal();
+          }}
+          onResetAddFlow={resetAddFlow}
+          onClearAddFeedback={() => {
+            setAddFeedback(null);
+          }}
+        />
       ) : null}
 
       <AccountSecurityRemoveDialog
