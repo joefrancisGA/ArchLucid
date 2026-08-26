@@ -14,10 +14,6 @@ public interface IReviewResultCache
 
     IDisposable PinScope(ReviewCacheDependencyManifest manifest);
 
-    void PinStorageKey(string storageKey);
-
-    void UnpinStorageKey(string storageKey);
-
     Task<ClosedLoopReasoningResult> CoalesceAsync(
         ReviewCacheDependencyManifest manifest,
         Func<CancellationToken, Task<ClosedLoopReasoningResult>> leaderWork,

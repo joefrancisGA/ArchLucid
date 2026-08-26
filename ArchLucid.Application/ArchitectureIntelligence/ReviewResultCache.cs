@@ -25,36 +25,41 @@ public sealed class ReviewResultCache : IReviewResultCache
         ArgumentNullException.ThrowIfNull(manifest);
 
         string key = ReviewCacheKeyBuilder.Build(manifest);
+        ClosedLoopReasoningResult? storedResult = null;
 
-        if (!_cache.TryGetValue(key, out CacheEntry? entry))
+        lock (_evictionLock)
         {
-            result = null;
-            return false;
-        }
-
-        DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
-
-        if (entry.ExpiresUtc <= utcNow)
-        {
-            if (!IsStorageKeyPinned(key))
+            if (!_cache.TryGetValue(key, out CacheEntry? entry))
             {
-                _cache.TryRemove(key, out _);
                 result = null;
                 return false;
             }
 
-            lock (_evictionLock)
+            DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
+
+            if (entry.ExpiresUtc <= utcNow)
             {
-                _cache[key] = new CacheEntry
+                if (!IsStorageKeyPinnedUnlocked(key))
+                {
+                    _cache.TryRemove(key, out _);
+                    result = null;
+                    return false;
+                }
+
+                entry = new CacheEntry
                 {
                     Result = entry.Result,
                     CreatedUtc = entry.CreatedUtc,
                     ExpiresUtc = utcNow.Add(EntryTtl),
                 };
+
+                _cache[key] = entry;
             }
+
+            storedResult = entry.Result;
         }
 
-        result = ClosedLoopReasoningResultCloner.Clone(entry.Result);
+        result = ClosedLoopReasoningResultCloner.Clone(storedResult!);
         return true;
     }
 
@@ -63,6 +68,9 @@ public sealed class ReviewResultCache : IReviewResultCache
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNull(result);
 
+        if (IsRunIdTombstoned(result.RunId))
+            return;
+
         ClosedLoopReasoningResult snapshot = ClosedLoopReasoningResultCloner.Clone(result);
         ClosedLoopCacheHitPublishGuard.SanitizeForStorage(snapshot);
 
@@ -70,10 +78,13 @@ public sealed class ReviewResultCache : IReviewResultCache
 
         lock (_evictionLock)
         {
+            if (IsRunIdTombstonedUnlocked(result.RunId))
+                return;
+
             EvictExpiredEntries();
 
-            if (_cache.Count >= MaxEntries)
-                EvictOldestEntry();
+            if (_cache.Count >= MaxEntries && !TryEvictOldestUnpinnedEntry())
+                return;
 
             DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
 
@@ -91,32 +102,25 @@ public sealed class ReviewResultCache : IReviewResultCache
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         string normalizedRunId = ClosedLoopRunIdComparer.Normalize(runId);
-        bool anyPinnedMatch = false;
 
-        foreach (KeyValuePair<string, CacheEntry> entry in _cache)
+        lock (_evictionLock)
         {
-            string? storedRunId = entry.Value.Result.RunId;
+            _deferredInvalidateRunIds.Add(normalizedRunId);
 
-            if (string.IsNullOrWhiteSpace(storedRunId))
-                continue;
-
-            if (!ClosedLoopRunIdComparer.Equals(storedRunId, normalizedRunId))
-                continue;
-
-            if (IsStorageKeyPinned(entry.Key))
+            foreach (KeyValuePair<string, CacheEntry> entry in _cache)
             {
-                anyPinnedMatch = true;
-                continue;
-            }
+                string? storedRunId = entry.Value.Result.RunId;
 
-            _cache.TryRemove(entry.Key, out _);
-        }
+                if (string.IsNullOrWhiteSpace(storedRunId))
+                    continue;
 
-        if (anyPinnedMatch)
-        {
-            lock (_evictionLock)
-            {
-                _deferredInvalidateRunIds.Add(normalizedRunId);
+                if (!ClosedLoopRunIdComparer.Equals(storedRunId, normalizedRunId))
+                    continue;
+
+                if (IsStorageKeyPinnedUnlocked(entry.Key))
+                    continue;
+
+                _cache.TryRemove(entry.Key, out _);
             }
         }
     }
@@ -135,7 +139,7 @@ public sealed class ReviewResultCache : IReviewResultCache
         return new ReviewResultCachePinScope(this, ReviewCacheKeyBuilder.Build(manifest));
     }
 
-    public void PinStorageKey(string storageKey)
+    internal void PinStorageKey(string storageKey)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(storageKey);
 
@@ -146,7 +150,7 @@ public sealed class ReviewResultCache : IReviewResultCache
         }
     }
 
-    public void UnpinStorageKey(string storageKey)
+    internal void UnpinStorageKey(string storageKey)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(storageKey);
 
@@ -175,22 +179,12 @@ public sealed class ReviewResultCache : IReviewResultCache
         ArgumentNullException.ThrowIfNull(leaderWork);
 
         string inFlightKey = ReviewCacheKeyBuilder.BuildInFlight(manifest, publishToProduct);
-        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
 
-        PinStorageKey(storageKey);
-
-        try
-        {
-            return await _inFlight.CoalesceAsync(
-                inFlightKey,
-                leaderWork,
-                cancellationToken,
-                stripCoalescedFollowerPublishLeaks: !publishToProduct);
-        }
-        finally
-        {
-            UnpinStorageKey(storageKey);
-        }
+        return await _inFlight.CoalesceAsync(
+            inFlightKey,
+            leaderWork,
+            cancellationToken,
+            stripCoalescedFollowerPublishLeaks: !publishToProduct);
     }
 
     private void OnStorageKeyFullyUnpinned()
@@ -198,8 +192,9 @@ public sealed class ReviewResultCache : IReviewResultCache
         FlushDeferredInvalidations();
         EvictExpiredEntries();
 
-        while (_cache.Count > MaxEntries)
-            EvictOldestEntry();
+        while (_cache.Count > MaxEntries && TryEvictOldestUnpinnedEntry())
+        {
+        }
     }
 
     private void FlushDeferredInvalidations()
@@ -223,7 +218,7 @@ public sealed class ReviewResultCache : IReviewResultCache
                 if (!ClosedLoopRunIdComparer.Equals(storedRunId, normalizedRunId))
                     continue;
 
-                if (IsStorageKeyPinned(entry.Key))
+                if (IsStorageKeyPinnedUnlocked(entry.Key))
                 {
                     stillPinned = true;
                     continue;
@@ -237,11 +232,41 @@ public sealed class ReviewResultCache : IReviewResultCache
         }
     }
 
+    private bool IsRunIdTombstoned(string? runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return false;
+
+        lock (_evictionLock)
+        {
+            return IsRunIdTombstonedUnlocked(runId);
+        }
+    }
+
+    private bool IsRunIdTombstonedUnlocked(string? runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return false;
+
+        foreach (string tombstonedRunId in _deferredInvalidateRunIds)
+        {
+            if (ClosedLoopRunIdComparer.Equals(runId, tombstonedRunId))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool IsStorageKeyPinnedUnlocked(string storageKey)
+    {
+        return _pinnedStorageKeyRefcounts.TryGetValue(storageKey, out int count) && count > 0;
+    }
+
     private bool IsStorageKeyPinned(string storageKey)
     {
         lock (_evictionLock)
         {
-            return _pinnedStorageKeyRefcounts.TryGetValue(storageKey, out int count) && count > 0;
+            return IsStorageKeyPinnedUnlocked(storageKey);
         }
     }
 
@@ -254,28 +279,32 @@ public sealed class ReviewResultCache : IReviewResultCache
             if (entry.Value.ExpiresUtc > utcNow)
                 continue;
 
-            if (IsStorageKeyPinned(entry.Key))
+            if (IsStorageKeyPinnedUnlocked(entry.Key))
                 continue;
 
             _cache.TryRemove(entry.Key, out _);
         }
     }
 
-    private void EvictOldestEntry()
+    private bool TryEvictOldestUnpinnedEntry()
     {
         KeyValuePair<string, CacheEntry>? oldest = null;
 
         foreach (KeyValuePair<string, CacheEntry> entry in _cache)
         {
-            if (IsStorageKeyPinned(entry.Key))
+            if (IsStorageKeyPinnedUnlocked(entry.Key))
                 continue;
 
             if (oldest is null || entry.Value.CreatedUtc < oldest.Value.Value.CreatedUtc)
                 oldest = entry;
         }
 
-        if (oldest is not null)
-            _cache.TryRemove(oldest.Value.Key, out _);
+        if (oldest is null)
+            return false;
+
+        _cache.TryRemove(oldest.Value.Key, out _);
+
+        return true;
     }
 
     private sealed class CacheEntry

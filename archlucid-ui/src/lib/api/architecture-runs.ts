@@ -5,9 +5,9 @@ import type {
   ManifestSummary,
   PipelineTimelineItem,
   RunDetail,
-  RunExplanationSummary,
   RunSummary,
 } from "@/types/authority";
+import type { RunExplanationSummary } from "@/types/explanation";
 import type { PagedResponse } from "@/types/pagination";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import type {

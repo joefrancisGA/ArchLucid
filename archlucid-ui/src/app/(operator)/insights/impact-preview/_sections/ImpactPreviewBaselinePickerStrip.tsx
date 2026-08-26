@@ -28,7 +28,7 @@ export function ImpactPreviewBaselinePickerStrip(
   }
 
   const latestFinalizedRunId = props.baselineOptions[0]?.runId ?? null;
-  const workspaceRunId = workspaceRun.runId.trim();
+  const workspaceRunId = workspaceRun?.activeRunId?.trim() ?? "";
   const workspaceBaselineAvailable =
     workspaceRunId.length > 0 && props.baselineOptions.some((option) => option.runId === workspaceRunId);
   const pickerValue = props.selectedBaselineId ?? (workspaceBaselineAvailable ? workspaceRunId : "");

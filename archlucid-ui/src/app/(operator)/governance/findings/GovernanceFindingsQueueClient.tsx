@@ -365,7 +365,11 @@ export default function GovernanceFindingsQueueClient({
         sponsorSynopsisPackageTitle={sponsorSynopsisPackageTitle}
         sponsorSynopsisCounts={sponsorSynopsisCounts}
         sponsorHandoffHref={sponsorHandoffHref}
-        scopedRunContextTitle={scopedRunContextQuery.data?.displayTitle ?? null}
+        scopedRunContextTitle={
+          scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.displayName ??
+          scopedRunContextQuery.data?.recentProjectRuns.find((run) => run.runId === scopedRunId)?.runId ??
+          null
+        }
         continueLastFinding={continueLastFinding}
         assignedToMeOldestFindingTarget={assignedToMeOldestFindingTarget}
         firstFindingTriageTarget={firstFindingTriageTarget}

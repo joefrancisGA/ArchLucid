@@ -133,7 +133,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
         <>
           <AuditRecentSavedViewsChips
             onLoadView={(view) => {
-              recordAuditRecentSavedView({ viewId: view.viewId, name: view.name });
+              recordAuditRecentSavedView({ viewId: view.id, name: view.name });
               void loadAuditSavedView(view);
             }}
           />
@@ -142,7 +142,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
             disabled={searching || loadingTypes}
             getCurrentPayload={getAuditSavedViewPayload}
             onLoadView={(view) => {
-              recordAuditRecentSavedView({ viewId: view.viewId, name: view.name });
+              recordAuditRecentSavedView({ viewId: view.id, name: view.name });
               void loadAuditSavedView(view);
             }}
           />

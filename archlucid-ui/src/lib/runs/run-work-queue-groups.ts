@@ -32,7 +32,7 @@ export type RunWorkQueueSection = {
 /**
  * Partitions a date-sorted list into ordered sections; empty sections are omitted.
  */
-export function partitionRunsIntoWorkQueueSections(runs: RunSummary[]): RunWorkQueueSection[] {
+export function partitionRunsIntoWorkQueueSections(runs: readonly RunSummary[]): RunWorkQueueSection[] {
   const buckets: Record<RunWorkQueueGroupId, RunSummary[]> = {
     "needs-attention": [],
     "in-progress": [],

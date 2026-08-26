@@ -153,7 +153,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
       setAllQuestions([...result.questionSelection.allQuestions]);
       setRequiredMustQuestionKeys([...result.questionSelection.requiredMustQuestionKeys]);
       setPendingQuestions([...result.questionSelection.pendingMustQuestions]);
-      applyAdmittedRequiredMustQuestionKeysFromDocument(result.draft);
+      applyAdmittedRequiredMustQuestionKeysFromDocument(result.draft?.document);
     });
   }, [
     applyAdmittedRequiredMustQuestionKeysFromDocument,

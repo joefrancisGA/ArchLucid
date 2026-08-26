@@ -76,10 +76,10 @@ export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps)
       return;
     }
 
-    if (runsQuery.isSuccess && (runsQuery.data?.totalCount ?? 0) === 0) {
+    if (runsQuery.isSuccess && (((runsQuery.data as { totalCount?: number } | undefined)?.totalCount) ?? 0) === 0) {
       setOpen(true);
     }
-  }, [runsQuery.data?.totalCount, runsQuery.isSuccess, serverEligible]);
+  }, [runsQuery.data, runsQuery.isSuccess, serverEligible]);
 
   const dismiss = useCallback(() => {
     persistHasSeenWelcomeOnboarding();

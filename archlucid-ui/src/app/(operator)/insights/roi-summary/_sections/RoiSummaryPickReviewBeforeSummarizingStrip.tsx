@@ -15,7 +15,7 @@ export function RoiSummaryPickReviewBeforeSummarizingStrip(
   props: RoiSummaryPickReviewBeforeSummarizingStripProps,
 ): React.JSX.Element {
   const workspaceRun = useWorkspaceActiveRun();
-  const workspaceRunId = workspaceRun.runId.trim();
+  const workspaceRunId = workspaceRun?.activeRunId?.trim() ?? "";
   const pickerValue =
     props.selectedReviewId.trim().length > 0
       ? props.selectedReviewId

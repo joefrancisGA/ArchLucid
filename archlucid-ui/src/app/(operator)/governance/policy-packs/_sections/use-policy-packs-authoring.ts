@@ -14,7 +14,7 @@ import { usePolicyPackVersionDetailQuery } from "@/hooks/use-policy-pack-version
 import { usePolicyPackVersionsQuery } from "@/hooks/use-policy-pack-versions-query";
 import { policyPackPublishSuccessMessage } from "@/lib/governance/governance-mutation-outcome-copy";
 import { showSuccess } from "@/lib/toast";
-import type { PolicyPack, PolicyPackContentDocument, PolicyPackVersion } from "@/types/policy-packs";
+import type { PolicyPack, PolicyPackContentDocument, PolicyPackVersion, PolicyPackCatalogListItem, PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
 import { POLICY_RULE_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { POLICY_PACKS_REVIEW_ID_QUERY_PARAM } from "@/lib/policy-packs-review-handoff";

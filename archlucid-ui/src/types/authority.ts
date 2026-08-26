@@ -21,6 +21,8 @@ type RunSummaryWireExtensions = {
   isArchived?: boolean | null;
   /** When true, the run was created via an idempotency replay. */
   idempotencyReplayed?: boolean | null;
+  /** When true, pipeline delivery failed permanently for this run. */
+  isDeadLettered?: boolean | null;
   /** Package origin for list badges (`Created` | `Reviewed`). */
   packageOrigin?: string | null;
   /** Synthetic Overview sample row for demo/seeded empty home (TB-1039) — not real tenant activity. */

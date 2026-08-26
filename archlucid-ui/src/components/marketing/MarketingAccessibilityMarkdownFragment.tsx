@@ -34,7 +34,6 @@ import {
 } from "./MarketingAccessibilityMarkdownDetails";
 import { renderInline, type RenderInlineOptions } from "./MarketingAccessibilityMarkdownInline";
 import {
-  isTableRow,
   renderMarketingAccessibilityMarkdownTable,
 } from "./MarketingAccessibilityMarkdownTables";
 

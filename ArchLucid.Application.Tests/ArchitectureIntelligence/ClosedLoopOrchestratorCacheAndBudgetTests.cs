@@ -58,7 +58,7 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
         ClosedLoopReasoningRequest request = new()
         {
             TenantId = "tenant-cache-run-id",
-            RunId = "run-cache-first",
+            RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             DeclaredPriorities = ["Security"],
             SourceTexts =
             [
@@ -77,8 +77,8 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
         ClosedLoopReasoningResult second = await orchestrator.RunAsync(request);
 
         second.CacheHit.Should().BeTrue();
-        second.RunId.Should().Be("run-cache-first");
-        second.Model.RunId.Should().Be("run-cache-first");
+        second.RunId.Should().Be("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        second.Model.RunId.Should().Be("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         second.ModelId.Should().Be(first.ModelId);
         second.Model.ModelId.Should().Be(first.Model.ModelId);
     }

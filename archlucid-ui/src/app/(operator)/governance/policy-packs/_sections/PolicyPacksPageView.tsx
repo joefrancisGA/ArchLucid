@@ -17,6 +17,7 @@ import {
   policyPacksRefreshAssistReaderLineBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
 import { PolicyPacksActivePackSummaryCard } from "./PolicyPacksActivePackSummaryCard";
+import { PolicyPacksBuyerChrome } from "./PolicyPacksBuyerChrome";
 import { PolicyPacksBreadcrumb } from "./PolicyPacksBreadcrumb";
 import { PolicyPacksNextReviewFooterClient } from "./PolicyPacksNextReviewFooterClient";
 import { PolicyPacksCatalogSection } from "./PolicyPacksCatalogSection";

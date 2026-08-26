@@ -15,7 +15,7 @@ export function HelpTopicLoadFailureView(): React.ReactElement {
         retryLabel="Reload page"
       />
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-        <Link href="/help" className={OPERATOR_LINK}>
+        <Link href="/help" className={OPERATOR_LINK.nav}>
           Back to Help
         </Link>
       </p>

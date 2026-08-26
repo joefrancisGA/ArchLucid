@@ -14,6 +14,7 @@ import type {
   IntegrationEventBusStatusDto,
   TenantIntegrationsOperationsDto,
 } from "@/types/operate-rhythm";
+import { normalizeConnectorSurfaceStatus } from "@/types/operate-rhythm";
 
 export type IntegrationReadinessSummaryTile = {
   readonly id: string;
@@ -115,15 +116,16 @@ export const INTEGRATION_READINESS_SUMMARY_TILE_LABELS = [
 export function buildIntegrationReadinessSummaryTiles(
   data: TenantIntegrationsOperationsDto,
 ): readonly IntegrationReadinessSummaryTile[] {
-  const totalIntegrations = data.connectors.length;
-  const readyConnectors = data.connectors.filter((connector) => isConnectorReady(connector)).length;
+  const connectors = data.connectors.map((connector) => normalizeConnectorSurfaceStatus(connector));
+  const totalIntegrations = connectors.length;
+  const readyConnectors = connectors.filter((connector) => isConnectorReady(connector)).length;
 
-  const recommendedRemaining = data.connectors.filter(
+  const recommendedRemaining = connectors.filter(
     (connector) =>
       isRecommendedConnector(connector.connectorKey) && !isConnectorReady(connector) && !isDisabledConnector(connector),
   ).length;
 
-  const optionalNotConfigured = data.connectors.filter((connector) => {
+  const optionalNotConfigured = connectors.filter((connector) => {
     if (!isOptionalConnector(connector.connectorKey) || isDisabledConnector(connector)) {
       return false;
     }
@@ -133,7 +135,7 @@ export function buildIntegrationReadinessSummaryTiles(
     return status === "Not configured" || status === "Optional";
   }).length;
 
-  const disabledCount = data.connectors.filter((connector) => isDisabledConnector(connector)).length;
+  const disabledCount = connectors.filter((connector) => isDisabledConnector(connector)).length;
   const backgroundStatus = resolveIntegrationBackgroundDeliveryLabel(data.integrationEventBus);
 
   return [
@@ -188,17 +190,18 @@ function firstConfigurationHref(
 export function buildIntegrationRecommendedFirstSetup(
   data: TenantIntegrationsOperationsDto,
 ): IntegrationRecommendedFirstSetup | null {
-  const teamsReady = isConnectorReady(data.connectors.find((row) => row.connectorKey === "teams") ?? null);
-  const slackReady = isConnectorReady(data.connectors.find((row) => row.connectorKey === "slack") ?? null);
+  const connectors = data.connectors.map((connector) => normalizeConnectorSurfaceStatus(connector));
+  const teamsReady = isConnectorReady(connectors.find((row) => row.connectorKey === "teams") ?? null);
+  const slackReady = isConnectorReady(connectors.find((row) => row.connectorKey === "slack") ?? null);
 
   if (!teamsReady && !slackReady) {
-    const href = firstConfigurationHref(data.connectors, ["teams", "slack"]);
+    const href = firstConfigurationHref(connectors, ["teams", "slack"]);
 
     return {
       title: "Configure Teams or Slack to send review notifications.",
       detail: "Recommended when stakeholders should receive review outcomes in a collaboration channel.",
       href,
-      actionLabel: recommendedSetupActionLabel(data.connectors, href),
+      actionLabel: recommendedSetupActionLabel(connectors, href),
       configureHelper: "Send review notifications to a channel.",
     };
   }

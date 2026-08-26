@@ -18,7 +18,8 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
         string p = EndToEndComparisonExportProfile.Normalize(profile);
         StringBuilder sb = new();
         AppendHeader(sb, report);
-        sb.AppendLine(summaryFormatter.FormatMarkdown(report).Trim());
+        string summaryMarkdown = summaryFormatter.FormatMarkdown(report).Trim();
+        sb.AppendLine(summaryMarkdown);
         sb.AppendLine();
         if (EndToEndComparisonExportProfile.IsShort(p))
             return sb.ToString();
@@ -33,6 +34,12 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             AppendManifestDiff(sb, report);
             AppendExportDiffs(sb, report);
         }
+
+        if (!summaryMarkdown.Contains("## Interpretation Notes", StringComparison.Ordinal))
+            AppendList(sb, "Interpretation Notes", report.InterpretationNotes);
+
+        if (!summaryMarkdown.Contains("## Warnings", StringComparison.Ordinal))
+            AppendList(sb, "Warnings", report.Warnings);
 
         return sb.ToString();
     }

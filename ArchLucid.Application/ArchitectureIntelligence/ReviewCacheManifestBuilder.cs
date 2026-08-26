@@ -40,7 +40,7 @@ public static class ReviewCacheManifestBuilder
         ClosedLoopReasoningRequest resolvedRequest = new()
         {
             TenantId = request.TenantId,
-            RunId = resolvedRunId.Trim(),
+            RunId = ClosedLoopRunIdNormalizer.NormalizeRequired(resolvedRunId),
             WorkspaceId = request.WorkspaceId,
             ProjectId = request.ProjectId,
             SourceTexts = request.SourceTexts,
@@ -67,12 +67,15 @@ public static class ReviewCacheManifestBuilder
         ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
+        string normalizedTenantId = tenantId.Trim();
+        string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
+
         ReviewCacheDependencyManifest contentManifest =
             Build(request, baselineKnowledgeModel, technologyLedgerEntries);
 
         return new ReviewCacheDependencyManifest
         {
-            ContentHash = Sha256Hex($"continue|{tenantId}|{runId}|{contentManifest.ContentHash}"),
+            ContentHash = Sha256Hex($"continue|{normalizedTenantId}|{normalizedRunId}|{contentManifest.ContentHash}"),
             PromptVersion = contentManifest.PromptVersion,
             ModelVersion = contentManifest.ModelVersion,
             PolicyPackVersion = contentManifest.PolicyPackVersion,

@@ -19,11 +19,14 @@ public sealed class ClosedLoopContinueRunSingleFlight
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(requestManifest);
 
+        string normalizedTenantId = tenantId.Trim();
+        string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
+
         return string.Join(
             '|',
             "continue",
-            tenantId,
-            runId,
+            normalizedTenantId,
+            normalizedRunId,
             requestManifest.ContentHash ?? string.Empty,
             publishToProduct ? "publish=1" : "publish=0");
     }

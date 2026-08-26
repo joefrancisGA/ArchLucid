@@ -30,7 +30,7 @@ def _composition_extension_sources() -> list[Path]:
     startup_dir = _composition_startup_dir()
     if startup_dir is None:
         return []
-    return sorted(startup_dir.glob("ServiceCollectionExtensions*.cs"))
+    return sorted(startup_dir.rglob("*.cs"))
 
 
 def main() -> int:

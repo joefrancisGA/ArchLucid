@@ -200,9 +200,9 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         isolated.PublishBlocked.Should().BeFalse();
         isolated.PublishBlockReasons.Should().BeEmpty();
         isolated.PublishSkipReason.Should().BeNull();
-        isolated.ReviewCompleteBlocked.Should().BeFalse();
-        isolated.IntegrityPassedFindingIds.Should().BeEmpty();
-        isolated.MustNotFailViolations.Should().BeEmpty();
+        isolated.ReviewCompleteBlocked.Should().BeTrue();
+        isolated.IntegrityPassedFindingIds.Should().Contain("finding-1");
+        isolated.MustNotFailViolations.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -246,6 +246,10 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         result.PublishedFindingsSnapshotId.Should().BeNull();
         result.PublishedRecommendationCount.Should().Be(0);
         result.PublishSkipReason.Should().BeNull();
+        result.PublishBlocked.Should().BeFalse();
+        result.PublishBlockReasons.Should().BeEmpty();
+        result.CacheHit.Should().BeFalse();
+        result.CacheReuseReason.Should().BeNull();
         result.ProductFindings.Should().BeEmpty();
         result.ProductRecommendations.Should().BeEmpty();
     }

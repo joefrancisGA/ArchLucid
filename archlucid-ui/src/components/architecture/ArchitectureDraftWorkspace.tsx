@@ -55,6 +55,10 @@ import { type ArchitectureDraftFieldState } from "@/lib/architecture/architectur
 import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import { actorSetFromDraftDocument } from "@/lib/architecture/architecture-creation-init";
 import { reviewDetailPath, startReviewFromArchitectureHref, ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
+import {
+  writeArchitectureCreationDraftId,
+  replaceArchitectureCreationUrlWithoutNavigation,
+} from "@/lib/architecture/architecture-creation-session";
 import { retargetAdvisoryDraftInFlightArchitecture } from "@/lib/operations/advisory-draft-in-flight";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isApiRequestError } from "@/lib/api-request-error";

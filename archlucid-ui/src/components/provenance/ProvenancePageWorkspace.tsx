@@ -118,7 +118,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
             scopedRunId={scopedRunId}
             onPickReviewForInspecting={onPickReviewForInspecting}
             reviewHref={reviewHref}
-            reviewContext={reviewContext}
+            reviewContext={reviewContext ?? null}
             reviewTitle={reviewTitle}
             graph={graph}
             provenanceTraceId={provenanceTraceId}
@@ -133,7 +133,9 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                 filterOptions={FILTER_OPTIONS}
                 activeFilters={activeFilters}
                 filterCounts={filterCounts}
-                onToggleFilter={toggleFilter}
+                onToggleFilter={(filterId) => {
+                  toggleFilter(filterId as (typeof FILTER_OPTIONS)[number]["id"]);
+                }}
                 graphVisibleNodeCount={graphVisibleNodeCount}
                 totalNodeCount={graph.nodes.length}
               />

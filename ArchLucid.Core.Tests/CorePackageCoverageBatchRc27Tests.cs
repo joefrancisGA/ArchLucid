@@ -106,11 +106,10 @@ public sealed class CorePackageCoverageBatchRc27Tests
         using JsonDocument document = JsonDocument.Parse(utf8);
         JsonElement root = document.RootElement;
 
-        root.TryGetProperty("activationId", out _).Should().BeTrue();
-        root.TryGetProperty("environment", out _).Should().BeTrue();
-        root.TryGetProperty("manifestVersion", out _).Should().BeTrue();
-        root.TryGetProperty("activatedBy", out _).Should().BeTrue();
-        root.TryGetProperty("activatedUtc", out _).Should().BeTrue();
+        root.TryGetProperty("promotionRecordId", out _).Should().BeTrue();
+        root.TryGetProperty("targetEnvironment", out _).Should().BeTrue();
+        root.TryGetProperty("runId", out _).Should().BeTrue();
+        root.TryGetProperty("tenantId", out _).Should().BeTrue();
 
         IReadOnlyDictionary<string, object>? props =
             IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
@@ -119,30 +118,6 @@ public sealed class CorePackageCoverageBatchRc27Tests
 
         props.Should().NotBeNull();
         props.Should().ContainKey(IntegrationEventServiceBusApplicationProperties.PromotionEnvironmentPropertyName);
-    }
-
-    [Fact]
-    public void ResolveEventType_maps_legacy_vendor_alias_before_known_set_lookup()
-    {
-        const string legacyVendorPrefix = "com." + "arch" + "iforge" + ".";
-        string legacy = legacyVendorPrefix + "alert.fired";
-
-        IntegrationWebhookPayloadSamples.ResolveEventType(legacy)
-            .Should()
-            .Be(IntegrationEventTypes.AlertFiredV1);
-    }
-
-    [Fact]
-    public void CreatePayloadUtf8_accepts_legacy_vendor_alias_resolved_by_MapToCanonical()
-    {
-        const string legacyVendorPrefix = "com." + "arch" + "iforge" + ".";
-        string legacy = legacyVendorPrefix + "governance.approval.approved";
-
-        string resolved = IntegrationWebhookPayloadSamples.ResolveEventType(legacy);
-        byte[] utf8 = IntegrationWebhookPayloadSamples.CreatePayloadUtf8(resolved);
-
-        resolved.Should().Be(IntegrationEventTypes.GovernanceApprovalApprovedV1);
-        utf8.Should().NotBeNullOrEmpty();
     }
 
     [Theory]

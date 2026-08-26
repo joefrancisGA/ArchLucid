@@ -48,6 +48,7 @@ import { CompareRelatedReviewLinks } from "@/app/(operator)/insights/compare-two
 import { CompareSampleComparisonAction } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSampleComparisonAction";
 import { CompareDemoQuickPick } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareDemoQuickPick";
 import { CompareNaturalPairSuggestion } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareNaturalPairSuggestion";
+import { CompareComparisonDimensionsPreview } from "./CompareComparisonDimensionsPreview";
 import { CompareInsufficientFinalizedEmptyState } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareInsufficientFinalizedEmptyState";
 import { CompareLastRequestOutcomeDetails } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareLastRequestOutcomeDetails";
 import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageIntro";
