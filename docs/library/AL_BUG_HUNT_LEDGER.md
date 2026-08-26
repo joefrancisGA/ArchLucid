@@ -1801,11 +1801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 14
-- **bugs-found:** 40
+- **hunts:** 16
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — JSON custom property casing, terraform-show-json tf string casing, App Service snake_case IP rules
+- **last-bug:** 2026-08-26 — RequiredCapabilities scope metadata casing, terraform-show-json complex tf.* JSON canonicalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1853,9 +1853,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `JsonInfrastructureDeclarationParser` preserved custom `properties` value casing — **hit 2026-08-26:** `Standard_LRS` vs `standard_lrs` false-modified infrastructure declaration deltas; fixed by lowercasing trimmed custom property values (`JsonInfrastructureDeclarationParserTests.ParseAsync_CustomPropertyValues_AreCanonicalized`)
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` kept `tf.*` string value casing — **hit 2026-08-26:** `EastUS` vs `eastus` in `tf.location` false-modified infra declaration deltas; fixed by lowercasing trimmed terraform value strings (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TfStringValues_AreCanonicalized`, golden corpus `case-07`)
 - [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` ignored snake_case `ip_address` in terraform rule JSON — **hit 2026-08-26:** `tf.ip_security_restrictions` with `ip_address` never detected open-internet rules; fixed with snake_case JSON deserialization fallback (`AppServiceNetworkAccessSecurityBaselineExpanderTests.Expand_terraform_snake_case_ip_address_detects_open_internet`)
-- [ ] (candidate) `SimpleTerraformDeclarationParser` keeps padded HCL resource type tokens — `" azurerm_virtual_network "` in `resource "type" "name"` may churn infra delta keys like padded names did before trim.
-- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` keeps `terraformDependsOn` reference casing — depends_on module address casing may false-modify infra declaration deltas.
-- [ ] (candidate) `ContextIngestionService.ApplyScopeMetadata` joins `TopologyHints`/`Constraints` without trimming or lowercasing — padded or differently-cased scope metadata may churn snapshot `SourceHashes`.
+- [x] (proven) `SimpleTerraformDeclarationParser` kept padded HCL resource type tokens — **hit 2026-08-26:** `" azurerm_virtual_network "` vs trimmed type churned infra delta keys; fixed by trimming regex-captured resource type (`SimpleTerraformDeclarationParserTests.ParseAsync_TrimsPaddedResourceType`, `InfrastructureDeclarationConnectorTests.DeltaAsync_PaddedSimpleTerraformResourceType_ReportsUnchanged`)
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` kept `terraformDependsOn` reference casing — **hit 2026-08-26:** `module.Foo` vs `module.foo` false-modified infra declaration deltas; fixed by lowercasing trimmed depends_on references (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_DependsOnReferences_AreCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonDependsOnCasingChange_ReportsUnchanged`)
+- [x] (proven) `ContextIngestionService.ApplyScopeMetadata` joined `TopologyHints`/`Constraints` without trimming or lowercasing — **hit 2026-08-26:** padded or differently-cased scope metadata churned snapshot `SourceHashes`; fixed with shared topology hint canonicalization and trim/lowercase for constraints (`ContextIngestionServiceTests.IngestAsync_TopologyHintPaddingAndCasing_ProducesStableScopeMetadata`, `IngestAsync_ConstraintPaddingAndCasing_ProducesStableScopeMetadata`)
+- [x] (proven) `ContextIngestionService.ApplyScopeMetadata` joined `RequiredCapabilities` without trimming or lowercasing — **hit 2026-08-26:** `" Cost-Analysis "` vs `cost-analysis` churned `SourceHashes`; fixed by trim/lowercase like constraints (`ContextIngestionServiceTests.IngestAsync_RequiredCapabilityPaddingAndCasing_ProducesStableScopeMetadata`)
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` kept non-string `tf.*` JSON blob casing via `GetRawText()` — **hit 2026-08-26:** object/array terraform values preserved string casing and key order, false-modifying infra declaration deltas; fixed with `CanonicalizeTerraformValueText` / sorted-key JSON rewrite (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_CanonicalizesComplexTfJsonCasing`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonComplexTfJsonCasingChange_ReportsUnchanged`)
+- [x] (valid-no-repro) `PolicyReferencePayloadNormalizer` raw `TopologyHints` casing breaks overlap resolution — overlap resolver already canonicalizes hint names before stable id; regression `PolicyReferenceConnectorTopologyTests.NormalizeAsync_WhenPolicyOverlapsDifferentlyCasedTopologyHint_UsesCanonicalTopologyObjectId`
+- [ ] (candidate) `ContextIngestionService.ApplyScopeMetadata` joins confirmed `Assumptions` with trim only — differently-cased assumption text may churn snapshot `SourceHashes` while connector payloads lower-case requirement-like strings.
+- [ ] (candidate) `ContextIngestionService.ApplyScopeMetadata` stores `QualityAttribute`/`FailureModeNote` with trim only — padded casing variants may churn brief scope metadata hashes.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` preserves numeric `tf.*` JSON formatting — `GetRawText()` number literals with differing whitespace/exponent may false-modify infra declaration deltas.
 
 ---
 

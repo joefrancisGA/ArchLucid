@@ -601,6 +601,39 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_CanonicalizesComplexTfJsonCasing()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-tags",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_resource_group",
+                                "name": "main",
+                                "values": {
+                                  "tags": { "Environment": "Prod" }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["tf.tags"].Should().Be("{\"environment\":\"prod\"}");
+    }
+
+    [Fact]
     public void CanParse_TrimsPaddedFormat()
     {
         _sut.CanParse(" terraform-show-json ").Should().BeTrue();

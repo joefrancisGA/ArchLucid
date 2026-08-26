@@ -265,6 +265,42 @@ public sealed class ContextIngestionServiceTests
             .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.Constraints]);
     }
 
+    [Fact]
+    public async Task IngestAsync_RequiredCapabilityPaddingAndCasing_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-capability-metadata";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            RequiredCapabilities = ["cost-analysis"]
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            RequiredCapabilities = [" Cost-Analysis "]
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.RequiredCapabilities);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.RequiredCapabilities]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.RequiredCapabilities]);
+    }
+
     private sealed class CountingConnector : IContextConnector
     {
         public string ConnectorType => "test-connector";

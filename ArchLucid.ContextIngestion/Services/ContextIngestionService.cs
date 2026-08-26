@@ -57,7 +57,9 @@ public class ContextIngestionService(
         if (request.RequiredCapabilities is { Count: > 0 })
         {
             snapshot.SourceHashes[ContextScopeMetadataKeys.RequiredCapabilities] =
-                string.Join('|', request.RequiredCapabilities.Where(static c => !string.IsNullOrWhiteSpace(c)));
+                string.Join('|', request.RequiredCapabilities
+                    .Where(static c => !string.IsNullOrWhiteSpace(c))
+                    .Select(static c => c.Trim().ToLowerInvariant()));
         }
 
         if (request.TopologyHints is { Count: > 0 })
