@@ -39,6 +39,11 @@ import { DecisionRegisterViewSwitcher, type DecisionRegisterViewMode } from "./D
 import { DecisionRegisterWorkspaceActiveApprovalStrip } from "./DecisionRegisterWorkspaceActiveApprovalStrip";
 import { DecisionRegisterPickReviewBeforeFilteringStrip } from "./DecisionRegisterPickReviewBeforeFilteringStrip";
 import { DecisionRegisterNextReviewFooterClient } from "./DecisionRegisterNextReviewFooterClient";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import {
+  resolveDecisionRegisterFilterEmphasizedStepId,
+  resolveDecisionRegisterFilterSteps,
+} from "@/lib/decision-register-filter-checklist";
 import {
   DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE,
   DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES,
@@ -172,6 +177,22 @@ export default function DecisionRegisterClient() {
   const hasWorkspaceDecisions = scopedWorkspaceDecisions.length > 0;
   const hasFilteredResults = filteredDecisions.length > 0;
   const filtersExcludeMatches = hasWorkspaceDecisions && !hasFilteredResults && !loading && loadError === null;
+  const filtersConfigured =
+    category.trim().length > 0 ||
+    minConfidence.trim().length > 0 ||
+    maxConfidence.trim().length > 0 ||
+    confidenceBasis.trim().length > 0 ||
+    datePreset !== DEFAULT_DECISION_REGISTER_DATE_PRESET;
+  const decisionRegisterFilterChecklistSteps = resolveDecisionRegisterFilterSteps({
+    reviewPicked: scopedRunFilterActive,
+    filtersConfigured,
+    registerReviewed: scopedRunFilterActive && hasFilteredResults && !loading,
+  });
+  const decisionRegisterFilterChecklistEmphasizedStepId = resolveDecisionRegisterFilterEmphasizedStepId({
+    reviewPicked: scopedRunFilterActive,
+    filtersConfigured,
+    registerReviewed: scopedRunFilterActive && hasFilteredResults && !loading,
+  });
 
   const onPickReviewForFiltering = useCallback(
     (reviewId: string) => {
@@ -252,6 +273,15 @@ export default function DecisionRegisterClient() {
           onSelectReview={onPickReviewForFiltering}
         />
       )}
+
+      {scopedRunFilterActive ? (
+        <IntegrationConnectChecklist
+          title="Filter checklist"
+          steps={decisionRegisterFilterChecklistSteps}
+          emphasizedStepId={decisionRegisterFilterChecklistEmphasizedStepId}
+          testIdPrefix="decision-register-filter"
+        />
+      ) : null}
 
       {scopedRunFilterActive ? (
         <DecisionRegisterFiltersPanel
