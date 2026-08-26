@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { GraphPageVocabularyRails } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageVocabularyRails";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -69,6 +70,10 @@ import { EvidenceTrailTracePanel } from "@/app/(operator)/insights/evidence-grap
 import { OperatorSavedViewsBar } from "@/components/operator/OperatorSavedViewsBar";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  resolveGraphInspectEmphasizedStepId,
+  resolveGraphInspectSteps,
+} from "@/lib/graph-inspect-checklist";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { GraphSavedViewFilters } from "@/lib/operator/operator-saved-view-types";
 
@@ -406,6 +411,25 @@ export function GraphPageContent() {
 
   const showReviewPickerBeforeCanvas = runId.trim().length === 0;
 
+  const graphInspectSteps = useMemo(
+    () =>
+      resolveGraphInspectSteps({
+        reviewPicked: runId.trim().length > 0,
+        graphLoaded: effectiveGraph !== null,
+        inspectComplete: graphInteractiveReady,
+      }),
+    [effectiveGraph, graphInteractiveReady, runId],
+  );
+  const graphInspectEmphasizedStepId = useMemo(
+    () =>
+      resolveGraphInspectEmphasizedStepId({
+        reviewPicked: runId.trim().length > 0,
+        graphLoaded: effectiveGraph !== null,
+        inspectComplete: graphInteractiveReady,
+      }),
+    [effectiveGraph, graphInteractiveReady, runId],
+  );
+
   const showSavedViews =
     canMutateEnterpriseShell &&
     !buyerPolishedShell &&
@@ -646,6 +670,15 @@ export function GraphPageContent() {
 
       {!buyerPolishedShell && showReviewPickerBeforeCanvas ? (
         <GraphPickReviewBeforeCanvasStrip selectedReviewId={runId} onSelectReview={handleRunIdChange} />
+      ) : null}
+
+      {!buyerPolishedShell && !showReviewPickerBeforeCanvas ? (
+        <IntegrationConnectChecklist
+          title="Inspect checklist"
+          steps={graphInspectSteps}
+          emphasizedStepId={graphInspectEmphasizedStepId}
+          testIdPrefix="graph-inspect"
+        />
       ) : null}
 
       {!buyerPolishedShell && showIdleCard && !showReviewPickerBeforeCanvas ? (
