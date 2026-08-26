@@ -19,11 +19,12 @@ export default async function ManifestDetailPage({
   searchParams,
 }: {
   params: Promise<{ manifestId: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; runId?: string }>;
 }) {
   const { manifestId } = await params;
-  const { tab } = await searchParams;
+  const { tab, runId } = await searchParams;
   const initialTab = resolveManifestDetailSectionTab(tab ?? null);
+  const listScopedRunId = (runId ?? "").trim();
 
   if (isInvalidManifestRouteId(manifestId)) {
     notFound();
@@ -61,5 +62,11 @@ export default async function ManifestDetailPage({
     return <ManifestDetailSummaryMissingView buyerPolishedLayout={result.buyerPolishedLayout} />;
   }
 
-  return <ManifestDetailPageView model={result.model} initialTab={initialTab} />;
+  return (
+    <ManifestDetailPageView
+      model={result.model}
+      initialTab={initialTab}
+      listScopedRunId={listScopedRunId.length > 0 ? listScopedRunId : null}
+    />
+  );
 }

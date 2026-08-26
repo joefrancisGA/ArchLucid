@@ -2,12 +2,13 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { GovernanceSealedRecordDetailBreadcrumb } from "@/components/governance/GovernanceSealedRecordDetailBreadcrumb";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import { SIGNED_RECORDS_LIST_PATH, signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import {
   OperatorEvidenceLimitsFooter,
@@ -56,6 +57,10 @@ import {
 } from "@/lib/sealed-record-detail-page-copy";
 import { MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import type { ManifestDetailSectionTabId } from "@/lib/manifest-detail-section-tabs";
+import {
+  resolveManifestDetailInspectEmphasizedStepId,
+  resolveManifestDetailInspectSteps,
+} from "@/lib/manifest-detail-inspect-checklist";
 import { ManifestDetailBuyerChrome } from "./ManifestDetailBuyerChrome";
 import { ManifestDetailNextRecordFooterClient } from "./ManifestDetailNextRecordFooterClient";
 import { SignedRecordsListNextReviewFooterClient } from "@/app/(operator)/governance/sealed-records/_sections/SignedRecordsListNextReviewFooterClient";
@@ -65,6 +70,7 @@ import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-mode
 type ManifestDetailPageViewProps = {
   readonly model: ManifestDetailPageSuccessModel;
   readonly initialTab?: ManifestDetailSectionTabId;
+  readonly listScopedRunId?: string | null;
 };
 
 /** Server-rendered success layout: header chrome, section tabs, evidence footer. */
@@ -72,6 +78,19 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   const model = props.model;
   const { manifestId, buyerPolishedLayout, summary, artifacts } = model;
   const initialTab = props.initialTab;
+  const listScopedRunId = (props.listScopedRunId ?? "").trim();
+  const listScopedRunFilterActive = listScopedRunId.length > 0;
+  const manifestDetailInspectSteps = resolveManifestDetailInspectSteps({
+    reviewPicked: listScopedRunFilterActive || summary.runId.trim().length > 0,
+    recordLoaded: true,
+    deliverablesReady: artifacts.length > 0,
+  });
+  const manifestDetailInspectEmphasizedStepId = resolveManifestDetailInspectEmphasizedStepId({
+    reviewPicked: listScopedRunFilterActive || summary.runId.trim().length > 0,
+    recordLoaded: true,
+    deliverablesReady: artifacts.length > 0,
+  });
+  const manifestDetailClearScopeHref = signedRecordDetailPath(manifestId);
 
   const showcasePackage =
     summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID ||
@@ -436,6 +455,36 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       />
 
       <ManifestDetailBuyerChrome />
+
+      {listScopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="sealed-record-detail-run-scope-banner"
+        >
+          {"Scoped to review "}
+          <span className="font-mono text-al-text-primary">{listScopedRunId}</span>
+          {" from sealed records list · "}
+          <Link className={OPERATOR_LINK.inline} href={manifestDetailClearScopeHref}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={`/architecture/reviews/${encodeURIComponent(listScopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : null}
+
+      {buyerPolishedLayout ? (
+        <IntegrationConnectChecklist
+          title="Record inspect checklist"
+          steps={manifestDetailInspectSteps}
+          emphasizedStepId={manifestDetailInspectEmphasizedStepId}
+          testIdPrefix="sealed-record-detail-inspect"
+        />
+      ) : null}
 
       {showcaseBuyerManifestHeadline === true ? (
         <section
