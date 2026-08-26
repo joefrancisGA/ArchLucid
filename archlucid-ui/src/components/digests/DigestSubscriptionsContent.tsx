@@ -17,11 +17,13 @@ import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { DigestsHubNextReviewFooterClient } from "@/components/digests/DigestsHubNextReviewFooterClient";
 import { DigestSubscriptionCreateForm } from "@/components/digests/DigestSubscriptionCreateForm";
 import { DigestSubscriptionList } from "@/components/digests/DigestSubscriptionList";
 import { DigestSubscriptionsContinueLastViewedRow } from "@/components/digests/DigestSubscriptionsContinueLastViewedRow";
 import { DigestSubscriptionsPickReviewBeforeCreatingStrip } from "@/components/digests/DigestSubscriptionsPickReviewBeforeCreatingStrip";
 import { DigestSubscriptionsReadinessPanel } from "@/components/digests/DigestSubscriptionsReadinessPanel";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -39,6 +41,10 @@ import {
   DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_HELP_HREF,
   DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_NOTE,
 } from "@/lib/digest-subscriptions-workflow";
+import {
+  resolveDigestSubscriptionsWorkflowEmphasizedStepId,
+  resolveDigestSubscriptionsWorkflowSteps,
+} from "@/lib/digest-subscriptions-workflow-checklist";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 import {
@@ -95,6 +101,18 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
   const createFormVisible = scopedRunFilterActive || !requiresReviewPick;
   const subscriptionsClearScopeHref = digestsHubScopedHref("subscriptions", null);
   const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const subscriptionWorkflowInput = {
+    reviewPicked: scopedRunFilterActive,
+    destinationConfigured: items.length > 0,
+    subscriptionEnabled: items.some((item) => item.isEnabled),
+  };
+  const subscriptionWorkflowSteps =
+    scopedRunFilterActive && createFormVisible
+      ? resolveDigestSubscriptionsWorkflowSteps(subscriptionWorkflowInput)
+      : [];
+  const subscriptionWorkflowEmphasizedStepId = resolveDigestSubscriptionsWorkflowEmphasizedStepId(
+    subscriptionWorkflowInput,
+  );
 
   useEffect(() => {
     if (refreshToken === 0) {
@@ -309,6 +327,15 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         </p>
       ) : null}
 
+      {subscriptionWorkflowSteps.length > 0 ? (
+        <IntegrationConnectChecklist
+          title="Subscription checklist"
+          steps={subscriptionWorkflowSteps}
+          emphasizedStepId={subscriptionWorkflowEmphasizedStepId}
+          testIdPrefix="digest-subscriptions-workflow"
+        />
+      ) : null}
+
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
@@ -363,6 +390,17 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           onFocusCreateForm={focusCreateForm}
         />
       </div>
+
+      {scopedRunFilterActive ? (
+        <DigestsHubNextReviewFooterClient
+          runId={scopedRunId}
+          tab="subscriptions"
+          title="Next review digest subscriptions"
+          actionLabel="Create next subscriptions"
+          ariaLabel="Next review digest subscriptions"
+          testIdPrefix="digest-subscriptions"
+        />
+      ) : null}
 
       <ConfirmationDialog
         open={pendingPause !== null}
