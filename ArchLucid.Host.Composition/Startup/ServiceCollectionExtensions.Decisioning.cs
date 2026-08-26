@@ -81,12 +81,15 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.AzureInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.AwsInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.GcpInventorySecurityBaselineFindingEngine>();
+        services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.OpenCommitmentFindingEngine>();
 
         services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));
         services.Configure<FindingPayloadRemediationOptions>(configuration.GetSection(FindingPayloadRemediationOptions.SectionPath));
         services.PostConfigure<FindingPayloadRemediationOptions>(static o => o.Normalize());
         services.Configure<InsightDensityGateOptions>(configuration.GetSection(InsightDensityGateOptions.SectionPath));
+        services.Configure<ArchLucid.Application.Findings.OpenCommitmentFindingOptions>(
+            configuration.GetSection(ArchLucid.Application.Findings.OpenCommitmentFindingOptions.SectionPath));
         services.AddSingleton<IInsightDensityGate, DeterministicInsightDensityGate>();
         services.TryAddSingleton<IInsightDensityLlmJudge, NoOpInsightDensityLlmJudge>();
 

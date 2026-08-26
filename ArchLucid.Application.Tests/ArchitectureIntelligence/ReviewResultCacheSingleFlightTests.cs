@@ -90,8 +90,6 @@ public sealed class ReviewResultCacheSingleFlightTests
     }
 
     [Fact]
-<<<<<<< HEAD
-=======
     public async Task CoalesceAsync_retries_when_leader_abort_is_wrapped_in_aggregate_exception()
     {
         ReviewSingleFlightCoordinator coordinator = new();
@@ -145,7 +143,6 @@ public sealed class ReviewResultCacheSingleFlightTests
     }
 
     [Fact]
->>>>>>> 869d436700 (Fix Application compile blockers uncovered during export tests.)
     public async Task CoalesceAsync_does_not_share_flight_across_publish_intent()
     {
         ReviewResultCache cache = new();
