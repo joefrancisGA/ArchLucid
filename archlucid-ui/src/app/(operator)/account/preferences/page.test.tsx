@@ -12,6 +12,16 @@ vi.mock("@/components/ThemePreferenceSelector", () => ({
   ThemePreferenceSelector: () => <div data-testid="theme-preference-selector-stub" />,
 }));
 
+vi.mock("@/lib/use-user-appearance-preference", () => ({
+  useUserAppearancePreference: () => ({
+    preference: "system",
+    systemPrefersDark: false,
+    mounted: true,
+    accountSyncState: "idle",
+    setAndPersist: vi.fn(),
+  }),
+}));
+
 vi.mock("@/lib/use-cloud-platform-scope", () => ({
   useCloudPlatformScope: () => ({
     scope: { "evidence-only": true, azure: true, aws: true, gcp: true },
