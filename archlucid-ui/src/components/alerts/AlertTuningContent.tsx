@@ -1,11 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState } from "react";
 import { AlertTuningPickReviewBeforeTuningStrip } from "@/components/alerts/AlertTuningPickReviewBeforeTuningStrip";
 import { AlertTuningNextReviewFooterClient } from "@/components/alerts/AlertTuningNextReviewFooterClient";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +37,11 @@ import {
   alertTuningCurrentTuningHeadingReader,
   alertTuningRecommendButtonTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GOVERNANCE_ALERT_RULES_PATH,
+  governanceAlertRulesTabHref,
+} from "@/lib/governance/governance-route-paths";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import type { ThresholdCandidateEvaluation, ThresholdRecommendationResult } from "@/types/alert-tuning";
 
@@ -105,6 +112,10 @@ function CandidateCard({
 
 export function AlertTuningContent() {
   const canMutateEnterpriseShell = useOperateCapability();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
   const [ruleKind, setRuleKind] = useState<"Simple" | "Composite">("Simple");
   const [ruleType, setRuleType] = useState("CostIncreasePercent");
   const [tunedMetricComposite, setTunedMetricComposite] = useState("CostIncreasePercent");
@@ -130,7 +141,23 @@ export function AlertTuningContent() {
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [result, setResult] = useState<ThresholdRecommendationResult | null>(null);
-  const [pickedReviewId, setPickedReviewId] = useState("");
+
+  const onPickReview = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", "test-alerts");
+      params.set("runId", trimmed);
+
+      router.replace(`${GOVERNANCE_ALERT_RULES_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   async function recommend() {
     setFailure(null);
@@ -253,12 +280,28 @@ export function AlertTuningContent() {
         </div>
       ) : null}
 
-      {pickedReviewId.trim().length === 0 ? (
-        <AlertTuningPickReviewBeforeTuningStrip
-          selectedReviewId={pickedReviewId}
-          onSelectReview={setPickedReviewId}
-        />
-      ) : null}
+      {!scopedRunFilterActive ? (
+        <AlertTuningPickReviewBeforeTuningStrip selectedReviewId="" onSelectReview={onPickReview} />
+      ) : (
+        <p
+          className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="alert-tuning-run-scope-banner"
+        >
+          {"Tuning thresholds for review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={governanceAlertRulesTabHref("test-alerts")}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      )}
 
       <div className="flex flex-col gap-10">
         <section className="min-w-0" aria-labelledby="alert-tuning-current-heading">
@@ -305,6 +348,7 @@ export function AlertTuningContent() {
           )}
         </section>
 
+        {scopedRunFilterActive ? (
         <section className="min-w-0" aria-labelledby="alert-tuning-change-heading">
           <h3 id="alert-tuning-change-heading" className={cn("mb-2 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             {alertToolingChangeConfigurationHeadingOperator}
@@ -607,11 +651,10 @@ export function AlertTuningContent() {
         </div>
       </div>
         </section>
+        ) : null}
       </div>
 
-      {pickedReviewId.trim().length > 0 ? (
-        <AlertTuningNextReviewFooterClient runId={pickedReviewId.trim()} />
-      ) : null}
+      {scopedRunFilterActive ? <AlertTuningNextReviewFooterClient runId={scopedRunId} /> : null}
     </div>
   );
 }

@@ -30,6 +30,23 @@ vi.mock("@/lib/api", () => ({
   recommendAlertThreshold: apiHoisted.recommendAlertThreshold,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useRouter: () => ({
+      replace: vi.fn(),
+      push: vi.fn(),
+      refresh: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+    }),
+    useSearchParams: () => new URLSearchParams("tab=test-alerts&runId=run-tune-1"),
+  };
+});
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
