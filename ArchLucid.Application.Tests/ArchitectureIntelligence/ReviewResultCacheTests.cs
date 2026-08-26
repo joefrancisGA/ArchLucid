@@ -622,4 +622,27 @@ public sealed class ReviewResultCacheTests
 
         cache.UnpinStorageKey(reservedKey);
     }
+
+    [Fact]
+    public void PinScope_deduplicates_identical_keys_in_composite_pin()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "composite-dedupe" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        using (cache.PinScope(manifest, manifest))
+        {
+            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = "deduperun" });
+        }
+
+        for (int index = 0; index < 150; index++)
+        {
+            cache.Set(
+                new ReviewCacheDependencyManifest { ContentHash = $"dedupe-overflow-{index}" },
+                new ClosedLoopReasoningResult());
+        }
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? evicted).Should().BeFalse();
+        evicted.Should().BeNull();
+    }
 }
