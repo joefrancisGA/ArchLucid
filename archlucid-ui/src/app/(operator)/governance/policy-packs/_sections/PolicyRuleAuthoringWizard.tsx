@@ -203,6 +203,14 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     bundledPublishBlocked,
   });
 
+  useEffect(() => {
+    const trimmed = (scopedReviewId ?? "").trim();
+
+    if (trimmed.length > 0) {
+      simulateState.setSimulateRunId(trimmed);
+    }
+  }, [scopedReviewId, simulateState.setSimulateRunId]);
+
   const applyGeneratedCuratedDocument = useCallback(
     (document: CuratedRulesDocument) => {
       const result = applyGeneratedCuratedPolicyPack({
