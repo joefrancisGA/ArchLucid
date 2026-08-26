@@ -21,10 +21,12 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
         CancellationToken ct)
     {
         _ = ct;
-        ResourceDeclarationDocument? doc;
+
+        IReadOnlyList<ResourceDeclarationItem> resources;
+
         try
         {
-            doc = JsonSerializer.Deserialize<ResourceDeclarationDocument>(declaration.Content, JsonOptions);
+            resources = ParseResourceItems(declaration.Content);
         }
         catch (JsonException ex)
         {
@@ -35,12 +37,12 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
         }
 
-        if (doc?.Resources is null || doc.Resources.Count == 0)
+        if (resources.Count == 0)
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
         List<CanonicalObject> results = [];
 
-        foreach (ResourceDeclarationItem resource in doc.Resources)
+        foreach (ResourceDeclarationItem resource in resources)
         {
             if (string.IsNullOrWhiteSpace(resource.Type) || string.IsNullOrWhiteSpace(resource.Name))
                 continue;
@@ -87,6 +89,27 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
         }
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    private static IReadOnlyList<ResourceDeclarationItem> ParseResourceItems(string content)
+    {
+        using JsonDocument document = JsonDocument.Parse(content);
+
+        if (document.RootElement.ValueKind is JsonValueKind.Array)
+        {
+            List<ResourceDeclarationItem>? resources = JsonSerializer.Deserialize<List<ResourceDeclarationItem>>(
+                content,
+                JsonOptions);
+
+            return resources ?? [];
+        }
+
+        ResourceDeclarationDocument? doc = JsonSerializer.Deserialize<ResourceDeclarationDocument>(content, JsonOptions);
+
+        if (doc?.Resources is null || doc.Resources.Count == 0)
+            return [];
+
+        return doc.Resources;
     }
 
     private static string ResolveObjectType(string type)
