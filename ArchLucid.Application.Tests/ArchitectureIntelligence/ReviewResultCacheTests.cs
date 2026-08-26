@@ -382,4 +382,22 @@ public sealed class ReviewResultCacheTests
 
         cache.TryGet(pinnedManifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
     }
+
+    [Fact]
+    public void Set_skips_insert_when_cache_full_and_every_entry_is_pinned()
+    {
+        ReviewResultCache cache = new();
+
+        for (int index = 0; index < 128; index++)
+        {
+            ReviewCacheDependencyManifest manifest = new() { ContentHash = $"pinned-fill-{index}" };
+            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"run-{index}" });
+            cache.PinStorageKey(ReviewCacheKeyBuilder.Build(manifest));
+        }
+
+        ReviewCacheDependencyManifest overflowManifest = new() { ContentHash = "pinned-overflow-rejected" };
+        cache.Set(overflowManifest, new ClosedLoopReasoningResult { RunId = "overflow-run" });
+
+        cache.TryGet(overflowManifest, out ClosedLoopReasoningResult? overflow).Should().BeFalse();
+    }
 }

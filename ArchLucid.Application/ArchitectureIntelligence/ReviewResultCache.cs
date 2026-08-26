@@ -83,8 +83,8 @@ public sealed class ReviewResultCache : IReviewResultCache
 
             EvictExpiredEntries();
 
-            if (_cache.Count >= MaxEntries)
-                EvictOldestEntry();
+            if (_cache.Count >= MaxEntries && !TryEvictOldestUnpinnedEntry())
+                return;
 
             DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
 
@@ -192,8 +192,9 @@ public sealed class ReviewResultCache : IReviewResultCache
         FlushDeferredInvalidations();
         EvictExpiredEntries();
 
-        while (_cache.Count > MaxEntries)
-            EvictOldestEntry();
+        while (_cache.Count > MaxEntries && TryEvictOldestUnpinnedEntry())
+        {
+        }
     }
 
     private void FlushDeferredInvalidations()
@@ -285,7 +286,7 @@ public sealed class ReviewResultCache : IReviewResultCache
         }
     }
 
-    private void EvictOldestEntry()
+    private bool TryEvictOldestUnpinnedEntry()
     {
         KeyValuePair<string, CacheEntry>? oldest = null;
 
@@ -298,8 +299,12 @@ public sealed class ReviewResultCache : IReviewResultCache
                 oldest = entry;
         }
 
-        if (oldest is not null)
-            _cache.TryRemove(oldest.Value.Key, out _);
+        if (oldest is null)
+            return false;
+
+        _cache.TryRemove(oldest.Value.Key, out _);
+
+        return true;
     }
 
     private sealed class CacheEntry
