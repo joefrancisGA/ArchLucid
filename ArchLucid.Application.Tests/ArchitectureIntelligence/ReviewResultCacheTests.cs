@@ -228,10 +228,39 @@ public sealed class ReviewResultCacheTests
 
         cache.Set(
             manifest,
-            new ClosedLoopReasoningResult { RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" });
+            new ClosedLoopReasoningResult { RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" });
 
         cache.TryGet(manifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
         stillPinned!.RunId.Should().Be("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+        cache.UnpinStorageKey(storageKey);
+    }
+
+    [Fact]
+    public void PinStorageKey_caps_refcount_per_key()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "pin-cap-key" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        for (int index = 0; index < 80; index++)
+            cache.PinStorageKey(storageKey);
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = "pinned-run" });
+
+        for (int index = 0; index < 150; index++)
+        {
+            cache.Set(
+                new ReviewCacheDependencyManifest { ContentHash = $"overflow-{index}" },
+                new ClosedLoopReasoningResult());
+        }
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
+
+        for (int index = 0; index < 79; index++)
+            cache.UnpinStorageKey(storageKey);
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeTrue();
 
         cache.UnpinStorageKey(storageKey);
     }
