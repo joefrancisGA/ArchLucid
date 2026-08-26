@@ -4,7 +4,9 @@
  * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
-import { ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE } from "@/lib/architecture/architecture-draft-detail-page-copy";
+import {
+  resolveArchitectureDraftRefineGuidanceSentence,
+} from "@/lib/architecture/architecture-draft-detail-page-copy";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_HEADLINE =
@@ -108,24 +110,29 @@ export function formatOperatorHomeDraftArchitectureEyebrow(
   return eyebrow.length > 0 ? eyebrow : null;
 }
 
-export function formatOperatorHomeContinueArchitectureLead(draftCount: number): string {
+export function formatOperatorHomeContinueArchitectureLead(
+  draftCount: number,
+  reviewReadinessValid = false,
+): string {
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
+  const refineGuidance = resolveArchitectureDraftRefineGuidanceSentence(reviewReadinessValid);
 
   if (safeCount === 1) {
-    return `1 draft saved — ${ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE}`;
+    return `1 draft saved — ${refineGuidance}`;
   }
 
-  return `${safeCount} drafts saved — ${ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE}`;
+  return `${safeCount} drafts saved — ${refineGuidance}`;
 }
 
 /** Single-row draft status beside Resume latest draft on Overview (eval-with-drafts). */
 export function formatOperatorHomeCompactDraftStatusRow(
   draftCount: number,
   draftLastEditedLabel: string | null,
+  reviewReadinessValid = false,
 ): string {
   const headline = formatOperatorHomeDraftStatusHeadline(draftCount, draftLastEditedLabel);
 
-  return `${headline} — ${ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE}`;
+  return `${headline} — ${resolveArchitectureDraftRefineGuidanceSentence(reviewReadinessValid)}`;
 }
 
 /** Status headline for eval-with-drafts hero — count and last-edited only (refine hint is separate). */
