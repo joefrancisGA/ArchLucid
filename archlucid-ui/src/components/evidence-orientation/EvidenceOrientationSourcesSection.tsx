@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   EVIDENCE_ORIENTATION_HEADING_CLASS,
   EVIDENCE_SOURCES_STYLE,
+  SOURCES_LINK_COLUMNS,
   type EvidenceOrientationSourcesStyle,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { useWhereToGoNextVisible } from "@/components/WhereToGoNextPreferenceProvider";
@@ -23,9 +24,12 @@ const SOURCES_LIST_CLASS: Record<Exclude<EvidenceOrientationSourcesLayout, "colu
 };
 
 const SOURCES_COLUMNS_PANEL_CLASS =
-  "md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:gap-x-6 md:gap-y-2";
+  "md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] md:items-start md:gap-x-6 md:gap-y-2";
 
-const SOURCES_COLUMNS_LIST_CLASS = "m-0 mt-2 grid list-none gap-x-3 gap-y-1 p-0 sm:grid-cols-2";
+const SOURCES_COLUMNS_LIST_CLASS =
+  "m-0 mt-2 grid min-w-0 list-none grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-3 gap-y-1 p-0";
+
+const SOURCES_COLUMNS_LIST_ITEM_CLASS = "min-w-0";
 
 /** A single follow-up reads better as a tight stack beside the intro — not a sparse two-column index. */
 const SOURCES_COLUMNS_COMPACT_LIST_CLASS = "m-0 mt-2 flex list-none flex-col gap-y-1 p-0 md:mt-0";
@@ -80,6 +84,7 @@ export function EvidenceOrientationSourcesSection({
   const listClassNameResolved = listClassName ?? OPERATOR_TYPOGRAPHY.body;
   const columnsLinkListClass =
     links.length <= 1 ? SOURCES_COLUMNS_COMPACT_LIST_CLASS : SOURCES_COLUMNS_LIST_CLASS;
+  const columnsLinkClass = layout === "columns" ? SOURCES_LINK_COLUMNS : style.link;
   const linkItems = links.map((link) => {
           const linkLabel = distinguishFollowUpDestinations
             ? formatHelpFollowUpLinkAccessibleName(link.href, link.label)
@@ -87,15 +92,18 @@ export function EvidenceOrientationSourcesSection({
           const isPromoted = promotedSourceHref !== undefined && link.href === promotedSourceHref;
 
           return (
-          <li key={`${link.href}-${link.label}`}>
+          <li
+            key={`${link.href}-${link.label}`}
+            className={layout === "columns" ? SOURCES_COLUMNS_LIST_ITEM_CLASS : undefined}
+          >
             {isPromoted ? (
-              <Button asChild size="sm" variant="outline">
-                <Link className={style.link} href={link.href}>
+              <Button asChild size="sm" variant="outline" className="max-w-full">
+                <Link className={columnsLinkClass} href={link.href}>
                   {linkLabel}
                 </Link>
               </Button>
             ) : (
-              <Link className={style.link} href={link.href}>
+              <Link className={columnsLinkClass} href={link.href}>
                 {linkLabel}
                 {link.adminOnly === true ? (
                   <span className={cn("ml-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>(Admin)</span>

@@ -34,6 +34,15 @@ const SOURCES_INTRO_BODY = cn(SOURCES_INTRO_BASE, OPERATOR_TYPOGRAPHY.body);
 /** Operator Sources links keep a 32px pointer target without inflating the chip row. */
 const SOURCES_LINK_OPERATOR = cn(OPERATOR_LINK.inline, "inline-flex min-h-8 items-center py-1 font-medium");
 
+/**
+ * Columns-layout follow-ups can run long once Read/Open prefixes apply — block + break-words so
+ * adjacent grid cells do not bleed together.
+ */
+export const SOURCES_LINK_COLUMNS = cn(
+  OPERATOR_LINK.inline,
+  "block min-h-8 min-w-0 break-words py-1 font-medium",
+);
+
 const SOURCES_LINK_LEGACY_TEAL = MARKETING_SURFACES.inlineLink;
 
 export const EVIDENCE_SOURCES_STYLE = {
