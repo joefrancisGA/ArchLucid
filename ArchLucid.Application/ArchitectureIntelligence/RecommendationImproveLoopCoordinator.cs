@@ -187,10 +187,6 @@ public sealed class RecommendationImproveLoopCoordinator(
         {
             return new RecommendationImproveLoopResult
             {
-                Diff = ArchitectureModelDiffPayloadSlimmer.WithoutModels(diff),
-                Impact = impact,
-                ReReview = reReview,
-                PartialScopeDisclaimer = reReview.PartialScopeDisclaimer,
                 PublishBlocked = true,
                 PublishBlockReasons = publishDecision.BlockReasons.ToList(),
             };

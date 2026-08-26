@@ -252,6 +252,9 @@ public sealed class RecommendationImproveLoopCoordinatorTests
         result.Should().NotBeNull();
         result!.PublishBlocked.Should().BeTrue();
         result.PublishBlockReasons.Should().NotBeEmpty();
+        result.Diff.Entries.Should().BeEmpty();
+        result.Impact.Should().BeNull();
+        result.ReReview.Should().BeNull();
         knowledgeModelAccess.Verify(
             access => access.SaveForRunAsync(TestScope, runId, after, It.IsAny<CancellationToken>()),
             Times.Never);
