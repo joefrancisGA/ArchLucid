@@ -342,7 +342,7 @@ public sealed class ReviewResultCache : IReviewResultCache
         if (string.IsNullOrWhiteSpace(runId))
             return false;
 
-        string normalizedRunId = ClosedLoopRunIdComparer.Normalize(runId);
+        string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
 
         return _deferredInvalidateRunIds.Contains(normalizedRunId);
     }
