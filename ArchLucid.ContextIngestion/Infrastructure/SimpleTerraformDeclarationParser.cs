@@ -1,3 +1,4 @@
+using System.Globalization;
 using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.ContextIngestion.Infrastructure;
@@ -22,6 +23,8 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
         IReadOnlyList<SimpleTerraformResourceBlockParser.SimpleTerraformResourceBlock> blocks =
             SimpleTerraformResourceBlockParser.ExtractBlocks(declaration.Content);
 
+        Dictionary<string, int> labelTotals = CountResourceLabelOccurrences(blocks);
+        Dictionary<string, int> labelSeen = new(StringComparer.OrdinalIgnoreCase);
         List<CanonicalObject> results = [];
 
         foreach (SimpleTerraformResourceBlockParser.SimpleTerraformResourceBlock block in blocks)
@@ -43,13 +46,23 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
             SimpleTerraformResourceBlockParser.ParseBodyIntoProperties(block.Body, properties);
 
             string canonicalName = name.ToLowerInvariant();
+            string labelKey = $"{canonicalTerraformType}|{canonicalName}";
+            int occurrence = labelSeen.GetValueOrDefault(labelKey) + 1;
+            labelSeen[labelKey] = occurrence;
+
+            string stableIdentity = labelTotals[labelKey] > 1
+                ? $"{labelKey}|occurrence:{occurrence}"
+                : labelKey;
+
+            if (labelTotals[labelKey] > 1)
+                properties["terraformOccurrence"] = occurrence.ToString(CultureInfo.InvariantCulture);
 
             results.Add(new CanonicalObject
             {
                 ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
                     declaration.DeclarationId,
                     objectType,
-                    $"{canonicalTerraformType}|{canonicalName}"),
+                    stableIdentity),
                 ObjectType = objectType,
                 Name = canonicalName,
                 SourceType = "InfrastructureDeclaration",
@@ -59,6 +72,26 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
         }
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    private static Dictionary<string, int> CountResourceLabelOccurrences(
+        IReadOnlyList<SimpleTerraformResourceBlockParser.SimpleTerraformResourceBlock> blocks)
+    {
+        Dictionary<string, int> counts = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (SimpleTerraformResourceBlockParser.SimpleTerraformResourceBlock block in blocks)
+        {
+            string terraformType = block.TerraformType.Trim().ToLowerInvariant();
+            string name = block.Name.Trim().ToLowerInvariant();
+
+            if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name))
+                continue;
+
+            string labelKey = $"{terraformType}|{name}";
+            counts[labelKey] = counts.GetValueOrDefault(labelKey) + 1;
+        }
+
+        return counts;
     }
 
     private static string ResolveObjectType(string terraformType)

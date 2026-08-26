@@ -184,4 +184,28 @@ public sealed class SimpleTerraformDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_DuplicateResourceBlocksSameTypeLabel_EmitsDistinctObjects()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "dup.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-dup",
+            Content = """
+                      resource "azurerm_subnet" "app" {
+                        address_prefixes = ["10.0.1.0/24"]
+                      }
+                      resource "azurerm_subnet" "app" {
+                        address_prefixes = ["10.0.2.0/24"]
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
+    }
 }

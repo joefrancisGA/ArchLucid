@@ -127,7 +127,7 @@ public static class CanonicalInfrastructurePropertyBag
         if (string.IsNullOrWhiteSpace(blockBody))
             return false;
 
-        string sanitizedBlockName = SanitizePropertyKey(blockName);
+        string sanitizedBlockName = SanitizePropertyKey(blockName).ToLowerInvariant();
 
         if (string.IsNullOrEmpty(sanitizedBlockName))
             return false;

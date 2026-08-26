@@ -2,10 +2,20 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 
 /// <summary>
 ///     Shared identity suffixes for JSON infrastructure resources that share
-///     <c>resourceType</c> and <c>Name</c> but differ by <c>subtype</c> or <c>region</c>.
+///     <c>resourceType</c> and <c>Name</c> but differ by <c>subtype</c>, <c>region</c>, or custom properties.
 /// </summary>
 public static class InfrastructureDeclarationResourceIdentity
 {
+    private static readonly HashSet<string> IdentityPropertyExclusions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "resourceType",
+        "subtype",
+        "region",
+        "terraformType",
+        "k8s.kind",
+        "terraformOccurrence",
+    };
+
     public static string ForJsonResource(
         string resourceType,
         string name,
@@ -29,7 +39,7 @@ public static class InfrastructureDeclarationResourceIdentity
         if (TryGetCanonicalProperty(properties, "region", out string? region))
             key += $"|region:{region}";
 
-        return key;
+        return AppendCustomPropertyDisambiguators(key, properties);
     }
 
     public static string BuildResourceTypeFingerprint(IReadOnlyDictionary<string, string> properties)
@@ -41,6 +51,23 @@ public static class InfrastructureDeclarationResourceIdentity
             return string.Empty;
 
         return AppendSubtypeRegionDisambiguators(resourceType.Trim().ToLowerInvariant(), properties);
+    }
+
+    private static string AppendCustomPropertyDisambiguators(
+        string key,
+        IReadOnlyDictionary<string, string> properties)
+    {
+        List<string> segments = properties
+            .Where(static kv => !IdentityPropertyExclusions.Contains(kv.Key))
+            .Where(static kv => !string.IsNullOrWhiteSpace(kv.Value))
+            .OrderBy(static kv => kv.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(static kv => $"{kv.Key.Trim().ToLowerInvariant()}:{kv.Value.Trim().ToLowerInvariant()}")
+            .ToList();
+
+        if (segments.Count == 0)
+            return key;
+
+        return $"{key}|props:{string.Join(',', segments)}";
     }
 
     private static bool TryGetCanonicalProperty(
