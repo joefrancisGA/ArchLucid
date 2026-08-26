@@ -1,15 +1,18 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
+import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { components } from "@/lib/openapi-schemas";
+import { buildPolicyPacksHrefWithReviewId } from "@/lib/policy-packs-review-handoff";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
 
@@ -68,7 +71,10 @@ export function PolicyRuleAuthoringWizardTestPanel(
     | "loadRecentRuns"
     | "runSimulation"
     | "parsedDocumentForSimulate"
-  >,
+  > & {
+    readonly scopedReviewId?: string;
+    readonly onPickReview?: (reviewId: string) => void;
+  },
 ): React.JSX.Element {
   const {
     simulateRunId,
@@ -83,7 +89,14 @@ export function PolicyRuleAuthoringWizardTestPanel(
     loadRecentRuns,
     runSimulation,
     parsedDocumentForSimulate,
+    scopedReviewId = "",
+    onPickReview,
   } = props;
+
+  const scopedReviewIdTrimmed = scopedReviewId.trim();
+  const scopedReviewFilterActive = scopedReviewIdTrimmed.length > 0;
+  const requiresReviewPick = onPickReview !== undefined;
+  const testClearScopeHref = buildPolicyPacksHrefWithReviewId("");
 
   return (
     <div
@@ -102,17 +115,65 @@ export function PolicyRuleAuthoringWizardTestPanel(
         ) : null}
 
         <div className="flex flex-wrap gap-2 items-end">
-          <div className="space-y-1">
-            <label htmlFor="wizard-run-id" className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              Review ID
-            </label>
-            <Input
-              id="wizard-run-id"
-              data-testid="policy-rule-wizard-run-id"
-              value={simulateRunId}
-              onChange={(e) => onSimulateRunIdChange(e.target.value)}
-              className={cn("w-full max-w-xs font-mono", OPERATOR_TYPOGRAPHY.micro)}
-            />
+          <div className="space-y-2">
+            {!scopedReviewFilterActive && requiresReviewPick ? (
+              <>
+                <Label htmlFor="policy-rule-wizard-run-picker">Finalized review</Label>
+                <div className="min-w-[16rem] max-w-xl">
+                  <AskRunIdPicker
+                    value=""
+                    onChange={(value) => {
+                      if (value.trim().length > 0) {
+                        onPickReview?.(value.trim());
+                      }
+                    }}
+                    selectedThreadId=""
+                    committedOnly
+                    preferAutoPick={false}
+                    autoSelectSyntheticSample={false}
+                    label="Review package"
+                    fieldId="policy-rule-wizard-run-picker"
+                    hideFieldHelper
+                  />
+                </div>
+              </>
+            ) : scopedReviewFilterActive ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="policy-rule-wizard-run-scope-banner"
+              >
+                {"Testing policy content for review "}
+                <span className="font-mono text-al-text-primary">{scopedReviewIdTrimmed}</span>
+                {" · "}
+                <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={testClearScopeHref}>
+                  Clear review scope
+                </Link>
+                {" · "}
+                <Link
+                  className={OPERATOR_BODY_INLINE_LINK_CLASS}
+                  href={`/architecture/reviews/${encodeURIComponent(scopedReviewIdTrimmed)}`}
+                >
+                  Open review
+                </Link>
+              </p>
+            ) : (
+              <>
+                <Label htmlFor="policy-rule-wizard-run-picker">Finalized review</Label>
+                <div className="min-w-[16rem] max-w-xl">
+                  <AskRunIdPicker
+                    value={simulateRunId}
+                    onChange={onSimulateRunIdChange}
+                    selectedThreadId=""
+                    committedOnly
+                    preferAutoPick={false}
+                    autoSelectSyntheticSample={false}
+                    label="Review package"
+                    fieldId="policy-rule-wizard-run-picker"
+                    hideFieldHelper
+                  />
+                </div>
+              </>
+            )}
           </div>
           <Button type="button" size="sm" variant="secondary" onClick={() => void loadRecentRuns()}>
             Load recent reviews

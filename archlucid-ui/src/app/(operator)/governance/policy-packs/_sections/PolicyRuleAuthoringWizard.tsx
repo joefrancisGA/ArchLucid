@@ -322,6 +322,8 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
           loadRecentRuns={simulateState.loadRecentRuns}
           runSimulation={simulateState.runSimulation}
           parsedDocumentForSimulate={simulateState.parsedDocumentForSimulate}
+          scopedReviewId={scopedReviewId}
+          onPickReview={onPickReview}
         />
       </div>
 
