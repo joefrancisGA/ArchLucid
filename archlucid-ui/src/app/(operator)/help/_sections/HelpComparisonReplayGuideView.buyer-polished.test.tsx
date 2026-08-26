@@ -37,7 +37,6 @@ import {
   COMPARISON_REPLAY_HELP_PRIMARY_CONTENT_ID,
   COMPARISON_REPLAY_HELP_SKIP_LINK_LABEL,
 } from "@/lib/comparison-replay-help-page-copy";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 describe("HelpComparisonReplayGuideView buyer-polished shell", () => {
@@ -53,9 +52,7 @@ describe("HelpComparisonReplayGuideView buyer-polished shell", () => {
     const skipLink = screen.getByRole("link", { name: COMPARISON_REPLAY_HELP_SKIP_LINK_LABEL });
     expect(skipLink).toHaveAttribute("href", `#${COMPARISON_REPLAY_HELP_PRIMARY_CONTENT_ID}`);
 
-    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb).toHaveTextContent(HELP_TOPIC_BREADCRUMB_HUB_LABEL);
-    expect(breadcrumb).toHaveTextContent(loaded.entry.title);
+    expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).not.toBeInTheDocument();
 
     expect(
       screen.getByRole("heading", { level: 2, name: COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE_HEADING }),

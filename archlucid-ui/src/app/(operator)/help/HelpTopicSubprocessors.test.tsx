@@ -1,9 +1,19 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
 
 import { HelpSubprocessorsGuideView } from "@/app/(operator)/help/_sections/HelpSubprocessorsGuideView";
 import { getHelpCenterTier } from "@/lib/help/help-center-catalog";
@@ -49,7 +59,7 @@ describe("HelpSubprocessorsGuideView", () => {
     expect(screen.getByTestId("help-subprocessors-page-title")).toHaveTextContent(
       SUBPROCESSORS_HELP_PAGE_TITLE,
     );
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByTestId(SUBPROCESSORS_HELP_PRIMARY_ACTIONS.openTrustCenter.testId)).toHaveAttribute(
       "href",
@@ -80,7 +90,7 @@ describe("HelpSubprocessorsGuideView", () => {
     const sources = screen.getByTestId("subprocessors-help-sources");
 
     for (const link of SUBPROCESSORS_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expectFollowUpLink(within(sources), link);
     }
 
     const related = subprocessorsHelpRelatedGuides();

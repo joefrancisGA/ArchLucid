@@ -4,6 +4,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { ProcurementHelpClaimDisciplineStrip } from "@/components/help/ProcurementHelpClaimDisciplineStrip";
 import { ProcurementHelpEvidenceOrientationStrip } from "@/components/help/ProcurementHelpEvidenceOrientationStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -12,7 +13,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import { PROCUREMENT_HELP_CLAIM_DISCIPLINE } from "@/lib/procurement-help-evidence-copy";
 import {
   formatProcurementHelpProvenanceLine,
@@ -48,6 +49,8 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
     helpTopicSlug: entry.slug,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
+  const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
   const provenanceLine = formatProcurementHelpProvenanceLine(entry);
   const relatedGuides = procurementHelpRelatedGuides();
 
@@ -81,6 +84,8 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
           </div>
         }
       />
+
+      <ProcurementHelpClaimDisciplineStrip />
 
       <section
         aria-labelledby="help-procurement-job-matrix-heading"
@@ -116,10 +121,8 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
 
       <HelpTopicExportClaimDiscipline claimDiscipline={PROCUREMENT_HELP_CLAIM_DISCIPLINE} />
 
-      <ProcurementHelpEvidenceOrientationStrip />
-
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-procurement-faq-content">
             <MarketingAccessibilityMarkdownFragment
               markdownBody={bodyMarkdown}
@@ -159,9 +162,11 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
               ))}
             </ul>
           </section>
+
+          <ProcurementHelpEvidenceOrientationStrip />
         </div>
 
-        <HelpTopicTableOfContents headings={headings} enableScrollSpy />
+        {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
       </div>
     </article>
   );
