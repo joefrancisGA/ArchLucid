@@ -41,6 +41,11 @@ vi.mock("@/components/WorkspaceActiveRunContext", () => ({
   useWorkspaceActiveRun: () => ({ runId: "", displayTitle: "" }),
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams("runId=run-sponsor-test"),
+}));
+
 vi.mock("./SponsorReportNextReviewFooterClient", () => ({
   SponsorReportNextReviewFooterClient: () => <div data-testid="sponsor-report-next-review-footer-client" />,
 }));

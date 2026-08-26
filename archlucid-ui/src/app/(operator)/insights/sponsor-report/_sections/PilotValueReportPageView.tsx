@@ -2,16 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo, useRef } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { LayerHeader } from "@/components/LayerHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   OPERATOR_DATE_RANGE_END_LABEL,
   OPERATOR_DATE_RANGE_START_LABEL,
@@ -69,7 +68,6 @@ import { PilotValueReportSeverityBars } from "./PilotValueReportSeverityBars";
 import { SponsorReportFinalizedReviewPickerStrip } from "./SponsorReportFinalizedReviewPickerStrip";
 import { SponsorReportNextReviewFooterClient } from "./SponsorReportNextReviewFooterClient";
 import {
-  readSponsorReportPickedReviewId,
   writeSponsorReportPickedReviewId,
 } from "@/lib/sponsor-report/sponsor-report-picked-review-storage";
 import { ValueReportIncludesSection } from "./ValueReportIncludesSection";
@@ -124,38 +122,29 @@ function exportDisabledReason(
 
 export function PilotValueReportPageView(props: Props) {
   const m = props.model;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
   const periodControlsRef = useRef<HTMLDivElement>(null);
-  const workspaceRun = useWorkspaceActiveRun();
-  const workspaceRunId = workspaceRun.runId.trim();
-  const [selectedReviewId, setSelectedReviewId] = useState("");
 
-  useEffect(() => {
-    const fromStorage = readSponsorReportPickedReviewId();
+  const onPickReviewForReporting = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
 
-    if (fromStorage.length > 0) {
-      setSelectedReviewId(fromStorage);
+      if (trimmed.length === 0) {
+        return;
+      }
 
-      return;
-    }
+      writeSponsorReportPickedReviewId(trimmed);
 
-    if (workspaceRunId.length > 0) {
-      setSelectedReviewId(workspaceRunId);
-    }
-  }, [workspaceRunId]);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
 
-  useEffect(() => {
-    const firstTimelineRunId = m.data?.committedRunsTimeline[0]?.runId?.trim() ?? "";
-
-    if (selectedReviewId.trim().length === 0 && firstTimelineRunId.length > 0) {
-      setSelectedReviewId(firstTimelineRunId);
-    }
-  }, [m.data, selectedReviewId]);
-
-  const onSelectedReviewIdChange = useCallback((reviewId: string) => {
-    const trimmed = reviewId.trim();
-    setSelectedReviewId(trimmed);
-    writeSponsorReportPickedReviewId(trimmed);
-  }, []);
+      router.replace(`${SPONSOR_REPORT_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   const hasFinalizedReviews = pilotOutcomesReportHasFinalizedReviews(m.data);
   const emptyDiagnostics = useMemo(
@@ -211,11 +200,34 @@ export function PilotValueReportPageView(props: Props) {
 
           <PilotValueReportBuyerChrome />
 
-        <SponsorReportFinalizedReviewPickerStrip
-          hasFinalizedReviews={hasFinalizedReviews}
-          selectedReviewId={selectedReviewId}
-          onSelectedReviewIdChange={onSelectedReviewIdChange}
-        />
+        {hasFinalizedReviews && !scopedRunFilterActive ? (
+          <SponsorReportFinalizedReviewPickerStrip
+            hasFinalizedReviews={hasFinalizedReviews}
+            selectedReviewId=""
+            onSelectedReviewIdChange={onPickReviewForReporting}
+          />
+        ) : null}
+
+        {scopedRunFilterActive && hasFinalizedReviews ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="pilot-value-report-run-scope-banner"
+          >
+            {"Sponsor report scoped to review "}
+            <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+            {" · "}
+            <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={SPONSOR_REPORT_PATH}>
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
+              href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            >
+              Open review
+            </Link>
+          </p>
+        ) : null}
 
         <CollapsibleSection
           title={BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE}
@@ -395,7 +407,7 @@ export function PilotValueReportPageView(props: Props) {
           />
         ) : null}
 
-        {m.data !== null && hasFinalizedReviews ? (
+        {m.data !== null && hasFinalizedReviews && scopedRunFilterActive ? (
           <div className={OPERATOR_LAYOUT.sectionStack}>
             {executiveNarrative !== null ? (
               <section
@@ -431,8 +443,8 @@ export function PilotValueReportPageView(props: Props) {
               </div>
             )}
 
-            {m.data.committedRunsTimeline[0]?.runId ? (
-              <PilotRoiValidationHandoffClient runId={m.data.committedRunsTimeline[0].runId} />
+            {scopedRunId.length > 0 ? (
+              <PilotRoiValidationHandoffClient runId={scopedRunId} />
             ) : null}
 
             <section aria-labelledby="review-activity-heading">
@@ -601,8 +613,8 @@ export function PilotValueReportPageView(props: Props) {
               </ul>
             </CollapsibleSection>
 
-            {selectedReviewId.trim().length > 0 ? (
-              <SponsorReportNextReviewFooterClient runId={selectedReviewId.trim()} />
+            {scopedRunFilterActive ? (
+              <SponsorReportNextReviewFooterClient runId={scopedRunId} />
             ) : null}
           </div>
         ) : null}
