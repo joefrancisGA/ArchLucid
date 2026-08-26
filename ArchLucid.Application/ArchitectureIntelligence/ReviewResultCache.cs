@@ -174,22 +174,12 @@ public sealed class ReviewResultCache : IReviewResultCache
         ArgumentNullException.ThrowIfNull(leaderWork);
 
         string inFlightKey = ReviewCacheKeyBuilder.BuildInFlight(manifest, publishToProduct);
-        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
 
-        PinStorageKey(storageKey);
-
-        try
-        {
-            return await _inFlight.CoalesceAsync(
-                inFlightKey,
-                leaderWork,
-                cancellationToken,
-                stripCoalescedFollowerPublishLeaks: !publishToProduct);
-        }
-        finally
-        {
-            UnpinStorageKey(storageKey);
-        }
+        return await _inFlight.CoalesceAsync(
+            inFlightKey,
+            leaderWork,
+            cancellationToken,
+            stripCoalescedFollowerPublishLeaks: !publishToProduct);
     }
 
     private void OnStorageKeyFullyUnpinned()

@@ -209,10 +209,10 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
-    public async Task CoalesceAsync_pins_storage_key_until_leader_completes()
+    public async Task CoalesceAsync_does_not_pin_storage_key_without_outer_pin_scope()
     {
         ReviewResultCache cache = new();
-        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-pinned" };
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-unpinned-coalesce" };
 
         cache.Set(manifest, new ClosedLoopReasoningResult { RunId = "pinned-run" });
         cache.TryGet(manifest, out ClosedLoopReasoningResult? pinned).Should().BeTrue();
@@ -234,8 +234,7 @@ public sealed class ReviewResultCacheTests
                 new ClosedLoopReasoningResult());
         }
 
-        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
-        stillPinned!.RunId.Should().Be("pinned-run");
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
 
         await inflight;
     }
