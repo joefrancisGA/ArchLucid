@@ -66,7 +66,6 @@ import {
   isArchitectureDraftBriefFrozen,
   isArchitectureDraftInReviewIntake,
 } from "@/lib/architecture/architecture-draft-intake-mode";
-import { SCOPE_UNDERSTANDING_JUMP_TO_START_REVIEW_LABEL } from "@/lib/architecture/architecture-scope-understanding-check";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { GuidedIntakeAlreadySubmittedCallout } from "@/app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout";
 import { resolveNextArchitectureDraftInList } from "@/lib/resolve-next-architecture-draft-in-list";
@@ -590,8 +589,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           input={scopeUnderstandingInput}
           disabled={handoffEditorLocked || exitPending || reviewStartProgress.isPending}
           draftSaveState={saveState}
-          nextStepAnchorId="architecture-start-review-action"
-          nextStepAnchorLabel={SCOPE_UNDERSTANDING_JUMP_TO_START_REVIEW_LABEL}
           onBulletsChange={setScopeBullets}
           onGateChange={setScopeGateOpen}
         />
