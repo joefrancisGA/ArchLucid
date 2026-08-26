@@ -25,36 +25,41 @@ public sealed class ReviewResultCache : IReviewResultCache
         ArgumentNullException.ThrowIfNull(manifest);
 
         string key = ReviewCacheKeyBuilder.Build(manifest);
+        ClosedLoopReasoningResult? storedResult = null;
 
-        if (!_cache.TryGetValue(key, out CacheEntry? entry))
+        lock (_evictionLock)
         {
-            result = null;
-            return false;
-        }
-
-        DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
-
-        if (entry.ExpiresUtc <= utcNow)
-        {
-            if (!IsStorageKeyPinned(key))
+            if (!_cache.TryGetValue(key, out CacheEntry? entry))
             {
-                _cache.TryRemove(key, out _);
                 result = null;
                 return false;
             }
 
-            lock (_evictionLock)
+            DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
+
+            if (entry.ExpiresUtc <= utcNow)
             {
-                _cache[key] = new CacheEntry
+                if (!IsStorageKeyPinnedUnlocked(key))
+                {
+                    _cache.TryRemove(key, out _);
+                    result = null;
+                    return false;
+                }
+
+                entry = new CacheEntry
                 {
                     Result = entry.Result,
                     CreatedUtc = entry.CreatedUtc,
                     ExpiresUtc = utcNow.Add(EntryTtl),
                 };
+
+                _cache[key] = entry;
             }
+
+            storedResult = entry.Result;
         }
 
-        result = ClosedLoopReasoningResultCloner.Clone(entry.Result);
+        result = ClosedLoopReasoningResultCloner.Clone(storedResult!);
         return true;
     }
 
