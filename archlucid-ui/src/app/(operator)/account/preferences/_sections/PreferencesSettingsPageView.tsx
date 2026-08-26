@@ -1,6 +1,6 @@
 "use client";
 
-import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import { PreferencesSaveChecklist } from "@/components/preferences/PreferencesSaveChecklist";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { CloudPlatformScopePanel } from "@/components/preferences/CloudPlatformScopePanel";
@@ -32,12 +32,13 @@ import {
 import { useUserAppearancePreference } from "@/lib/use-user-appearance-preference";
 import { useCloudPlatformScope } from "@/lib/use-cloud-platform-scope";
 import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
+import { useUserPreferencesExplicitFlags } from "@/lib/use-user-preferences-explicit-flags";
 import { useSampleReviewsOnOverviewPreference } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { useWhereToGoNextPreference } from "@/components/WhereToGoNextPreferenceProvider";
 import { cn } from "@/lib/utils";
 
 export function PreferencesSettingsPageView() {
-  const { mounted: appearanceMounted } = useUserAppearancePreference();
+  const { mounted: appearanceMounted, accountSyncState: appearanceAccountSyncState } = useUserAppearancePreference();
   const { scope, mounted, accountSyncState, setAndPersist } = useCloudPlatformScope();
   const {
     enabled: whereToGoNextEnabled,
@@ -57,33 +58,36 @@ export function PreferencesSettingsPageView() {
     accountSyncState: timeZoneAccountSyncState,
     setAndPersist: setTimeZoneAndPersist,
   } = useIanaTimeZonePreference();
+  const explicitFlags = useUserPreferencesExplicitFlags();
 
   const preferencesSaveSteps = resolvePreferencesSaveSteps({
-    appearanceConfigured: appearanceMounted,
-    localeScopeSaved:
-      timeZoneMounted &&
-      mounted &&
-      timeZoneAccountSyncState === "synced" &&
-      accountSyncState === "synced",
-    followUpPreferencesSaved:
-      whereToGoNextMounted &&
-      sampleReviewsOnOverviewMounted &&
-      whereToGoNextAccountSyncState === "synced" &&
-      sampleReviewsOnOverviewAccountSyncState === "synced",
+    appearance: {
+      isExplicit: explicitFlags.appearanceIsExplicit,
+      mounted: appearanceMounted,
+      accountSyncState: appearanceAccountSyncState,
+    },
+    timeZone: {
+      isExplicit: explicitFlags.ianaTimeZoneIsExplicit,
+      mounted: timeZoneMounted,
+      accountSyncState: timeZoneAccountSyncState,
+    },
+    cloudPlatforms: {
+      isExplicit: explicitFlags.cloudPlatformScopeIsExplicit,
+      mounted,
+      accountSyncState,
+    },
+    sampleReviewsOnOverview: {
+      isExplicit: explicitFlags.sampleReviewsOnOverviewIsExplicit,
+      mounted: sampleReviewsOnOverviewMounted,
+      accountSyncState: sampleReviewsOnOverviewAccountSyncState,
+    },
+    followUpLinkStrips: {
+      isExplicit: explicitFlags.whereToGoNextIsExplicit,
+      mounted: whereToGoNextMounted,
+      accountSyncState: whereToGoNextAccountSyncState,
+    },
   });
-  const preferencesSaveEmphasizedStepId = resolvePreferencesSaveEmphasizedStepId({
-    appearanceConfigured: appearanceMounted,
-    localeScopeSaved:
-      timeZoneMounted &&
-      mounted &&
-      timeZoneAccountSyncState === "synced" &&
-      accountSyncState === "synced",
-    followUpPreferencesSaved:
-      whereToGoNextMounted &&
-      sampleReviewsOnOverviewMounted &&
-      whereToGoNextAccountSyncState === "synced" &&
-      sampleReviewsOnOverviewAccountSyncState === "synced",
-  });
+  const preferencesSaveEmphasizedStepId = resolvePreferencesSaveEmphasizedStepId(preferencesSaveSteps);
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="preferences-settings-page">
@@ -94,7 +98,7 @@ export function PreferencesSettingsPageView() {
         titleTestId="preferences-settings-page-title"
         actions={<PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />}
       />
-      <IntegrationConnectChecklist
+      <PreferencesSaveChecklist
         title="Save preferences checklist"
         steps={preferencesSaveSteps}
         emphasizedStepId={preferencesSaveEmphasizedStepId}

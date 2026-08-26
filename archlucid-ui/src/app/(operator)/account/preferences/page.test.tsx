@@ -12,6 +12,16 @@ vi.mock("@/components/ThemePreferenceSelector", () => ({
   ThemePreferenceSelector: () => <div data-testid="theme-preference-selector-stub" />,
 }));
 
+vi.mock("@/lib/use-user-appearance-preference", () => ({
+  useUserAppearancePreference: () => ({
+    mounted: true,
+    accountSyncState: "idle",
+    preference: "system",
+    systemPrefersDark: false,
+    setAndPersist: vi.fn(),
+  }),
+}));
+
 vi.mock("@/lib/use-cloud-platform-scope", () => ({
   useCloudPlatformScope: () => ({
     scope: { "evidence-only": true, azure: true, aws: true, gcp: true },
@@ -23,10 +33,21 @@ vi.mock("@/lib/use-cloud-platform-scope", () => ({
 
 vi.mock("@/lib/use-iana-time-zone-preference", () => ({
   useIanaTimeZonePreference: () => ({
-    ianaTimeZoneId: "UTC",
+    ianaTimeZoneId: "America/New_York",
     mounted: true,
     accountSyncState: "idle",
     setAndPersist: vi.fn(),
+  }),
+}));
+
+vi.mock("@/lib/use-user-preferences-explicit-flags", () => ({
+  useUserPreferencesExplicitFlags: () => ({
+    appearanceIsExplicit: false,
+    cloudPlatformScopeIsExplicit: false,
+    ianaTimeZoneIsExplicit: false,
+    whereToGoNextIsExplicit: false,
+    sampleReviewsOnOverviewIsExplicit: false,
+    loaded: true,
   }),
 }));
 
