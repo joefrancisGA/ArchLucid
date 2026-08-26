@@ -199,9 +199,16 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
 
     const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
     expect(within(suggestion).getByText("EU data residency")).toBeInTheDocument();
-    expect(within(suggestion).getByRole("button", { name: "Confirm" })).toBeInTheDocument();
-    expect(within(suggestion).getByRole("button", { name: "Deny" })).toBeInTheDocument();
-    expect(within(suggestion).getByRole("button", { name: /Explain/i })).toBeInTheDocument();
+    const confirmButton = within(suggestion).getByRole("button", { name: "Confirm" });
+    const denyButton = within(suggestion).getByRole("button", { name: "Deny" });
+    const explainButton = within(suggestion).getByRole("button", { name: /Explain/i });
+    expect(confirmButton).toBeInTheDocument();
+    expect(denyButton).toBeInTheDocument();
+    expect(explainButton).toBeInTheDocument();
+    expect(explainButton.className).toContain("text-xs");
+    expect(confirmButton.className).toContain("text-xs");
+    expect(denyButton.className).toContain("text-xs");
+    expect(screen.getByTestId("architecture-draft-constraints-confirm-all-suggestions")).toBeInTheDocument();
     expect(screen.queryByText("Suggested", { selector: "span" })).not.toBeInTheDocument();
   });
 
