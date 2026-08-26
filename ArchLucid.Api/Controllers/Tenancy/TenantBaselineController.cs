@@ -113,6 +113,13 @@ public sealed class TenantBaselineController(
             decimal? prep = body.ManualPrepHoursPerReview ?? existing.BaselineManualPrepHoursPerReview;
             int? people = body.PeoplePerReview ?? existing.BaselinePeoplePerReview;
 
+            if (prep is null)
+            {
+                return this.BadRequestProblem(
+                    "Manual preparation hours per review must be set before people involved per review can be captured.",
+                    ProblemTypes.ValidationFailed);
+            }
+
             if (prep is <= 0m or > 10_000m)
             {
                 return this.BadRequestProblem(
