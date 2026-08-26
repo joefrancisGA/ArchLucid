@@ -56,7 +56,7 @@ public sealed class AgentUserPromptPrefixOrderingTests
         int runHeaderIndex = prompt.IndexOf(AgentUserPromptComposer.RunHeaderMarker, StringComparison.Ordinal);
         int architectureIndex = prompt.IndexOf(AgentUserPromptComposer.ArchitectureRequestMarker, StringComparison.Ordinal);
 
-        guidanceIndex.Should().BeGreaterOrEqualTo(0);
+        guidanceIndex.Should().BeGreaterThanOrEqualTo(0);
         runHeaderIndex.Should().BeGreaterThan(guidanceIndex);
         architectureIndex.Should().BeGreaterThan(runHeaderIndex);
     }
@@ -84,7 +84,7 @@ public sealed class AgentUserPromptPrefixOrderingTests
         int guidanceIndex = prompt.IndexOf(AgentUserPromptComposer.ImportantGuidanceMarker, StringComparison.Ordinal);
         int runHeaderIndex = prompt.IndexOf(AgentUserPromptComposer.RunHeaderMarker, StringComparison.Ordinal);
 
-        guidanceIndex.Should().BeGreaterOrEqualTo(0);
+        guidanceIndex.Should().BeGreaterThanOrEqualTo(0);
         runHeaderIndex.Should().BeGreaterThan(guidanceIndex);
     }
 
@@ -123,7 +123,7 @@ public sealed class AgentUserPromptPrefixOrderingTests
         int guidanceIndex = prompt.IndexOf(AgentUserPromptComposer.ImportantGuidanceMarker, StringComparison.Ordinal);
         int retailIndex = prompt.IndexOf("Azure Retail row", StringComparison.Ordinal);
 
-        guidanceIndex.Should().BeGreaterOrEqualTo(0);
+        guidanceIndex.Should().BeGreaterThanOrEqualTo(0);
         retailIndex.Should().BeGreaterThan(guidanceIndex);
     }
 

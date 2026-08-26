@@ -65,7 +65,7 @@ public sealed class BoundedBatchParallelismTests
             },
             CancellationToken.None);
 
-        peak.Should().BeLessOrEqualTo(configuredMax);
-        peak.Should().BeGreaterOrEqualTo(configuredMax);
+        peak.Should().BeLessThanOrEqualTo(configuredMax);
+        peak.Should().BeGreaterThanOrEqualTo(configuredMax);
     }
 }

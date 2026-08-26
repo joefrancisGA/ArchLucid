@@ -49,8 +49,8 @@ public sealed class InsightDensityEngineDistributionCalculatorTests
         InsightDensityEngineDistributionRow row = distribution.Rows.Single();
         row.EngineType.Should().Be("topology");
         row.FindingCount.Should().Be(2);
-        row.MinScore.Should().BeLessOrEqualTo(row.MedianScore);
-        row.MedianScore.Should().BeLessOrEqualTo(row.MaxScore);
+        row.MinScore.Should().BeLessThanOrEqualTo(row.MedianScore);
+        row.MedianScore.Should().BeLessThanOrEqualTo(row.MaxScore);
     }
 
     [Fact]

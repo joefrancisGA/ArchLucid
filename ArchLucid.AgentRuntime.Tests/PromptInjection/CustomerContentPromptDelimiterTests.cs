@@ -76,7 +76,7 @@ public sealed class CustomerContentPromptDelimiterTests
         int endIndex = prompt.IndexOf(CustomerContentPromptDelimiters.EndMarker, StringComparison.Ordinal);
         int objectiveIndex = prompt.IndexOf("Task Objective:", StringComparison.Ordinal);
 
-        framingIndex.Should().BeGreaterOrEqualTo(0);
+        framingIndex.Should().BeGreaterThanOrEqualTo(0);
         beginIndex.Should().BeGreaterThan(framingIndex);
         architectureIndex.Should().BeGreaterThan(beginIndex);
         endIndex.Should().BeGreaterThan(architectureIndex);
@@ -102,7 +102,7 @@ public sealed class CustomerContentPromptDelimiterTests
         int guidanceIndex = prompt.IndexOf(AgentUserPromptComposer.ImportantGuidanceMarker, StringComparison.Ordinal);
         int beginIndex = prompt.IndexOf(CustomerContentPromptDelimiters.BeginMarker, StringComparison.Ordinal);
 
-        guidanceIndex.Should().BeGreaterOrEqualTo(0);
+        guidanceIndex.Should().BeGreaterThanOrEqualTo(0);
         beginIndex.Should().BeGreaterThan(guidanceIndex);
     }
 

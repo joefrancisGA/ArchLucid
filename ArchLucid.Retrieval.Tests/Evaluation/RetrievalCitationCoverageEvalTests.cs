@@ -24,7 +24,7 @@ public sealed class RetrievalCitationCoverageEvalTests
 
         RetrievalFaithfulnessReport report = RetrievalFaithfulnessEvaluator.Evaluate(hits, agentOutput);
 
-        report.SupportRatio.Should().BeGreaterOrEqualTo(PolicyPackCitationFloor);
+        report.SupportRatio.Should().BeGreaterThanOrEqualTo(PolicyPackCitationFloor);
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public sealed class RetrievalCitationCoverageEvalTests
 
         RetrievalFaithfulnessReport report = RetrievalFaithfulnessEvaluator.Evaluate(hits, agentOutput);
 
-        report.SupportRatio.Should().BeGreaterOrEqualTo(PolicyPackCitationFloor);
+        report.SupportRatio.Should().BeGreaterThanOrEqualTo(PolicyPackCitationFloor);
     }
 
     [Fact]

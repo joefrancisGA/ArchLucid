@@ -53,11 +53,11 @@ public sealed class RetrievalIrEvalTests
         double meanRecall = totalRecall / caseCount;
         double meanMrr = totalMrr / caseCount;
 
-        meanRecall.Should().BeGreaterOrEqualTo(
+        meanRecall.Should().BeGreaterThanOrEqualTo(
             dataset.MinRecallAt5,
             because: $"mean recall@k {meanRecall:F4} must meet floor {dataset.MinRecallAt5} across {caseCount} cases");
 
-        meanMrr.Should().BeGreaterOrEqualTo(
+        meanMrr.Should().BeGreaterThanOrEqualTo(
             dataset.MinMrr,
             because: $"mean MRR {meanMrr:F4} must meet floor {dataset.MinMrr} across {caseCount} cases");
     }

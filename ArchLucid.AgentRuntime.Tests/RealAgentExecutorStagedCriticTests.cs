@@ -409,8 +409,8 @@ public sealed class RealAgentExecutorStagedCriticTests
         Convert.ToInt32(claimsTag).Should().Be(2);
         phases[0].GetTagItem("archlucid.staged_critic.phase_duration_ms").Should().NotBeNull();
         phases[1].GetTagItem("archlucid.staged_critic.phase_duration_ms").Should().NotBeNull();
-        Convert.ToDouble(phases[0].GetTagItem("archlucid.staged_critic.phase_duration_ms")).Should().BeGreaterOrEqualTo(0);
-        Convert.ToDouble(phases[1].GetTagItem("archlucid.staged_critic.phase_duration_ms")).Should().BeGreaterOrEqualTo(0);
+        Convert.ToDouble(phases[0].GetTagItem("archlucid.staged_critic.phase_duration_ms")).Should().BeGreaterThanOrEqualTo(0);
+        Convert.ToDouble(phases[1].GetTagItem("archlucid.staged_critic.phase_duration_ms")).Should().BeGreaterThanOrEqualTo(0);
     }
 
     [SkippableFact]

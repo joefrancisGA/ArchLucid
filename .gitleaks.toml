@@ -113,6 +113,12 @@ paths = [
 ]
 
 [[allowlists]]
+description = "Declaration premise conflict classifier: Kubernetes property key literal k8s.privileged (policy control id, not an API secret); generic-api-key false positive on propertyKey assignment"
+paths = [
+  '''(?:^|/)ArchLucid\.Decisioning/Analysis/DeclarationPremiseConflictClassifier\.cs$''',
+]
+
+[[allowlists]]
 description = "ITSM correlation SQL integration test: Jira external issue id fixture, not an API key (generic-api-key false positive on externalKey assignment)"
 paths = [
   '''(?:^|/)ArchLucid\.Persistence\.Tests/Integrations/SqlItsmFindingCorrelationRepositoryTenantScopedUniqueSqlIntegrationTests\.cs$''',

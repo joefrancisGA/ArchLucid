@@ -75,7 +75,7 @@ public sealed class BuyerScenarioManifestTests
 
         int corpusCount = Directory.GetFiles(corpusDir, "scenario-*.json", SearchOption.TopDirectoryOnly).Length;
 
-        (buyerCount + corpusCount).Should().BeGreaterOrEqualTo(8, because: "assessment requires at least eight buyer-shaped scenarios across eval-corpus");
+        (buyerCount + corpusCount).Should().BeGreaterThanOrEqualTo(8, because: "assessment requires at least eight buyer-shaped scenarios across eval-corpus");
     }
 
     private static string FindRepoRoot()
