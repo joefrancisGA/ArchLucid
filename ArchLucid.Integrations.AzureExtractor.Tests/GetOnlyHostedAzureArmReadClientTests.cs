@@ -114,6 +114,45 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionResourcesAsync_preserves_null_arm_tag_values_as_empty_strings()
+    {
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""
+                                                {
+                                                  "value": [
+                                                    {
+                                                      "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                                                      "name": "sa1",
+                                                      "type": "Microsoft.Storage/storageAccounts",
+                                                      "location": "eastus",
+                                                      "tags": {
+                                                        "env": "prod",
+                                                        "owner": null
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                                """)
+                }));
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> resources = await client.ListSubscriptionResourcesAsync(
+            "token-abc",
+            "11111111-1111-1111-1111-111111111111",
+            CancellationToken.None);
+
+        Assert.Single(resources);
+        Assert.NotNull(resources[0].Tags);
+        Assert.Equal("prod", resources[0].Tags!["env"]);
+        Assert.Equal(string.Empty, resources[0].Tags!["owner"]);
+    }
+
+    [Fact]
     public async Task ListSubscriptionResourcesAsync_throws_when_next_link_targets_different_subscription()
     {
         const string requestedSubscriptionId = "11111111-1111-1111-1111-111111111111";

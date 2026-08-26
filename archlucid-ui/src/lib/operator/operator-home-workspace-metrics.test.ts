@@ -31,6 +31,24 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     });
   });
 
+  it("does not treat a paginated runs page as workspace-wide open findings total", () => {
+    const items: RunSummary[] = [
+      makeRun({
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        hasFindingsSnapshot: true,
+        findingCount: 2,
+      }),
+    ];
+
+    const metrics = deriveOperatorHomeWorkspaceMetrics(items, 10);
+
+    expect(metrics.reviewPackagesTotal).toBe(10);
+    expect(metrics.hasReviews).toBe(true);
+    expect(metrics.openFindings).toBe(0);
+    expect(metrics.reviewPackagesCommitted).toBe(0);
+    expect(metrics.reviewPackagesActive).toBe(0);
+  });
+
   it("aggregates committed, active, findings, warnings, and evidence from runs", () => {
     const items: RunSummary[] = [
       makeRun({

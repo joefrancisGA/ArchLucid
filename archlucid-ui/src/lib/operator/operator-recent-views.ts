@@ -2,8 +2,11 @@
  * Tracks recently visited operator routes in localStorage for quick resume on Home.
  */
 
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_AUDIT_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { isSponsorDashboardPath } from "@/lib/sponsor/sponsor-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -114,11 +117,15 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
     return OPERATOR_NAV_LINK_LABELS.evidenceGraph;
   }
 
+  if (path === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH) {
+    return OPERATOR_NAV_LINK_LABELS.assignedToMeFindings;
+  }
+
   if (path === "/governance/findings") {
     return OPERATOR_NAV_LINK_LABELS.findings;
   }
 
-  if (path === "/audit" || path === GOVERNANCE_AUDIT_PATH) {
+  if (path === GOVERNANCE_AUDIT_PATH || path === "/audit") {
     return "Audit trail";
   }
 
