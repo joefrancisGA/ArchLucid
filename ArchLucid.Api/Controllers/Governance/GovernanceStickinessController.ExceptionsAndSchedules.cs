@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -122,6 +123,10 @@ public sealed partial class GovernanceStickinessController
                 await _facade.CreateRecurrenceScheduleAsync(request, cancellationToken);
 
             return Ok(schedule);
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (ArgumentException ex)
         {

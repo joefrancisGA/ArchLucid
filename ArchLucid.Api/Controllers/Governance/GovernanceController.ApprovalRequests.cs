@@ -114,6 +114,11 @@ public sealed partial class GovernanceController
                 ProblemTypes.ResourceNotFound);
         }
 
+        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
@@ -180,6 +185,11 @@ public sealed partial class GovernanceController
                 $"Approval request '{approvalRequestId}' was not found.",
                 ProblemTypes.ResourceNotFound);
         }
+
+        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
@@ -283,6 +293,22 @@ public sealed partial class GovernanceController
                             Succeeded = false,
                             ErrorCode = ProblemTypes.ResourceNotFound,
                             Message = $"Approval request '{approvalRequestId}' was not found.",
+                        });
+
+                    continue;
+                }
+
+                IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+
+                if (scopeError is not null)
+                {
+                    results.Add(
+                        new GovernanceBatchReviewItemResult
+                        {
+                            ApprovalRequestId = approvalRequestId,
+                            Succeeded = false,
+                            ErrorCode = ProblemTypes.RunNotFound,
+                            Message = $"Run '{approval.RunId}' was not found.",
                         });
 
                     continue;

@@ -395,8 +395,8 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         Func<Task> act = () => sut.CreateRecurrenceScheduleAsync(request, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*not found in the current scope*");
+        await act.Should().ThrowAsync<RunNotFoundException>()
+            .WithMessage($"*'{foreignRunId:D}'*");
     }
 
     [Fact]

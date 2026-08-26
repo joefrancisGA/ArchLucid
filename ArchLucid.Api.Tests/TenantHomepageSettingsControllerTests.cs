@@ -5,6 +5,8 @@ using ArchLucid.Application;
 using ArchLucid.Application.OperatorHome;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
@@ -25,6 +27,22 @@ public sealed class TenantHomepageSettingsControllerTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
+
+    [Fact]
+    public async Task GetAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(
+            service.Object,
+            tenantExists: false);
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        service.VerifyNoOtherCalls();
+    }
 
     [Fact]
     public async Task GetAsync_projects_snapshot_response()
@@ -98,12 +116,23 @@ public sealed class TenantHomepageSettingsControllerTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
-    private static TenantHomepageSettingsController CreateController(IFeaturedCompletedSampleService service)
+    private static TenantHomepageSettingsController CreateController(
+        IFeaturedCompletedSampleService service,
+        bool tenantExists = true)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
 
-        TenantHomepageSettingsController controller = new(service, scopeProvider.Object, Mock.Of<IAuditService>());
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenantExists ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" } : null);
+
+        TenantHomepageSettingsController controller = new(
+            service,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            tenants.Object);
         controller.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext(),

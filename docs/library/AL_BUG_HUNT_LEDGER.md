@@ -2212,8 +2212,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 32
-- **bugs-found:** 88
+- **hunts:** 33
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
 - **last-bug:** 2026-08-26 — funnel first-manifest SQL, preview activation binding, setup bundle, promote linkage
@@ -2319,6 +2319,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Exec/sponsor digest POST — malformed or duplicate recipient emails accepted without server-side validation — **hit 2026-08-26:** `DigestRecipientEmailsValidator` validates format and deduplicates (UI parity); regression in `TenantExecDigestPreferencesControllerTests`.
 - [x] (proven) `GovernanceWorkflowReviewStage` / `GovernanceSegregationRules` — API-key submitter + JWT reviewer with different display names bypassed self-approval block — **hit 2026-08-26:** mailbox bridge when reviewer carries JWT canonical key; regression in `GovernanceSegregationRulesTests.SameActor_api_key_submitter_email_matches_jwt_reviewer_mailbox_returns_true`.
 - [x] (proven) `GovernanceController.Activate` / `SubmitApprovalRequest` — mutating POST lacked controller-level `RequireScopedRunAsync` preflight present on Promote — **hit 2026-08-26:** scoped run preflight before activate/submit workflow; regression in `GovernanceControllerRunHistoryScopeTests`.
+
+- [x] (proven) `GovernanceController.Approve` / `Reject` / `BatchReviewApprovalRequests` — approval row with out-of-scope `RunId` finalized without scoped run preflight — **hit 2026-08-26:** `RequireScopedRunAsync(approval.RunId)` before workflow review (lineage parity); regression in `GovernanceControllerRunHistoryScopeTests.Approve_returns_not_found_when_approval_run_is_out_of_scope`.
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` — out-of-scope `sourceRunId` returned HTTP 400 instead of 404 — **hit 2026-08-26:** facade throws `RunNotFoundException`; controller maps to `ProblemTypes.RunNotFound`; regression in `GovernanceStickinessControllerTests.CreateRecurrenceSchedule_returns_not_found_when_source_run_is_out_of_scope`.
+- [x] (proven) `GovernanceController.Simulate` — missing `runId` or `content` dereferenced before validation (HTTP 500 risk) — **hit 2026-08-26:** explicit 400 guards before `RunId.Trim()`; regression in `GovernanceControllerSimulateTests.Simulate_returns_bad_request_when_run_id_missing`.
+- [x] (proven) `TenantWeeklyDigestHealthController.GetAsync` — missing tenant returned HTTP 200 zeroed snapshot — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantWeeklyDigestHealthControllerTests.GetAsync_returns_not_found_when_tenant_missing`.
+- [x] (proven) `TenantHomepageSettingsController.GetAsync` / `ListEligibleSamplesAsync` — missing tenant returned HTTP 200 unconfigured/empty — **hit 2026-08-26:** tenant preflight on GET paths; regression in `TenantHomepageSettingsControllerTests.GetAsync_returns_not_found_when_tenant_missing`.
+- [ ] (candidate) `TenantCustomerSuccessController` GET reads — ghost tenant returns HTTP 200 empty/`isCalculated: false` instead of 404.
+- [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` — out-of-scope `runId` returns conflict-not-found instead of run-not-found.
+- [ ] (candidate) `GovernanceStickinessController.UpsertRealizedValueAttestation` — negative `attestedIncidentsAvoided` or oversized note persists without validation.
+- [ ] (candidate) `GovernanceController.DryRunPolicyPack` / batch dry-run — foreign `policyPackId` evaluated without scope visibility check (if distinct from prior `PolicyPackDryRunService` fix).
+- [ ] (candidate) `TenantUsageStatusController.GetAsync` — missing tenant returns HTTP 200 default status instead of 404 (if not already guarded).
+
+2026-08-26 seed hunt #108: proved approve/reject run-scope preflight, recurrence schedule 404 parity, governance simulate validation, weekly digest health tenant 404, and homepage settings GET tenant 404; seeded customer-success GET ghost tenant, merge-conflict run miss, realized-value attestation validation, and usage-status tenant parity candidates.
 
 2026-08-26 thorough hunt #107: proved baseline source-note-without-hours 400, digest recipient validation (enabled-without-recipients, malformed, duplicate), SoD mailbox bridge for mixed API-key/JWT review, and activate/submit scoped-run preflight parity.
 

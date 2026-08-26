@@ -595,6 +595,31 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRecurrenceSchedule_returns_not_found_when_source_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchLucid.Persistence.Models.RunRecord?)null);
+
+        GovernanceStickinessController controller = BuildSut(runRepository: runs);
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = foreignRunId,
+            IsEnabled = true,
+            CronExpression = "0 8 * * 1",
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
     public async Task CreateRecurrenceSchedule_returns_bad_request_when_source_run_empty()
     {
         GovernanceStickinessController controller = BuildSut();

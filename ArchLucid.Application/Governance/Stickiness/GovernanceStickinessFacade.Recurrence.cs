@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -35,9 +36,7 @@ public sealed partial class GovernanceStickinessFacade
 
         if (sourceRun is null)
         {
-            throw new ArgumentException(
-                $"Source run '{request.SourceRunId:D}' was not found in the current scope.",
-                nameof(request));
+            throw new RunNotFoundException(request.SourceRunId.ToString("D"));
         }
 
         if (!_recurrenceNextRunCalculator.IsSupportedCronExpression(cronExpression))

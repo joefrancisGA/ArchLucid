@@ -115,6 +115,45 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task Approve_returns_not_found_when_approval_run_is_out_of_scope()
+    {
+        const string approvalRequestId = "apr-approve-stale-run";
+        Guid foreignRunId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        string runId = foreignRunId.ToString("D");
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = approvalRequestId,
+                RunId = runId,
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            approvalRepository: approvals.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Approve(
+            approvalRequestId,
+            new ApproveGovernanceRequest { ReviewComment = "ok" },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Approve_returns_not_found_when_approval_request_is_out_of_scope()
     {
         const string approvalRequestId = "apr-approve-scope";
