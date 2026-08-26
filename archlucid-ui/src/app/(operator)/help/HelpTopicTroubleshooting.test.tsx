@@ -35,10 +35,16 @@ vi.mock("@/components/help/TroubleshootingStartHerePlatformStatus", () => ({
 
 import { HelpTroubleshootingGuideView } from "@/app/(operator)/help/_sections/HelpTroubleshootingGuideView";
 import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   TROUBLESHOOTING_HELP_SUBTITLE,
   TROUBLESHOOTING_PRIMARY_ACTIONS,
 } from "@/lib/troubleshooting-help-guide-content";
-import { TROUBLESHOOTING_SUPPORT_EXPECTATIONS } from "@/lib/troubleshooting-help-evidence-copy";
+import {
+  TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
+  TROUBLESHOOTING_SUPPORT_EXPECTATIONS,
+} from "@/lib/troubleshooting-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_BUYER_COPY = [
@@ -70,6 +76,15 @@ describe("HelpTroubleshootingGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Troubleshooting" })).toBeInTheDocument();
     expect(screen.getByText(TROUBLESHOOTING_HELP_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("troubleshooting-help-orientation")).toBeInTheDocument();
+    expect(screen.getByTestId("help-troubleshooting-claim-discipline-strip")).toHaveTextContent(
+      TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "troubleshooting-help",
+      "troubleshooting-help-claim-discipline",
+      TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
 
     const startHere = screen.getByTestId("troubleshooting-start-here-card");
     expect(within(startHere).getByTestId("troubleshooting-platform-status")).toBeInTheDocument();

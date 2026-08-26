@@ -6,6 +6,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpAdvisoryScansGuideView } from "@/app/(operator)/help/_sections/HelpAdvisoryScansGuideView";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
 import {
   ADVISORY_SCANS_DISPOSITION_ACCEPT,
   ADVISORY_SCANS_DISPOSITION_DEFER,
@@ -70,12 +75,21 @@ describe("HelpAdvisoryScansGuideView", () => {
     expect(screen.getByTestId("help-advisory-scans-start-here-scope-note").textContent?.toLowerCase()).not.toContain(
       "executions",
     );
-    expect(screen.getByRole("heading", { name: ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
-      ADVISORY_SCANS_HELP_CLAIM_HEADING_ID,
-    );
-    expect(screen.getByTestId("help-advisory-scans-claim-discipline").textContent).toContain(
+    expect(screen.queryByRole("heading", { name: ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING })).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-advisory-scans-claim-discipline-strip")).toHaveTextContent(
       ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-advisory-scans",
+      "help-advisory-scans-claim-discipline",
+      ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY.slice(0, 40),
+    );
+    expectClaimDisciplineHeading(
+      screen,
+      "help-advisory-scans",
+      ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING,
+      ADVISORY_SCANS_HELP_CLAIM_HEADING_ID,
     );
     expect(ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE).toBe(ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY);
     expect(screen.getByTestId("help-advisory-scans-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
@@ -196,7 +210,11 @@ describe("HelpAdvisoryScansGuideView", () => {
 
     render(<HelpAdvisoryScansGuideView entry={entry} />);
 
-    for (const heading of ADVISORY_SCANS_HELP_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-advisory-scans",
+      ADVISORY_SCANS_HELP_GUIDE_HEADINGS,
+      ADVISORY_SCANS_HELP_CLAIM_HEADING_ID,
+    )) {
       const resolved = screen.getByRole("heading", { name: heading.title });
       expect(resolved).toHaveAttribute("id", heading.id);
       expect(resolved.className).toContain(OPERATOR_SHELL_SCROLL_OFFSET_CLASS.split(" ")[0]);

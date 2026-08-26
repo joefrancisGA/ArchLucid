@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
+import { GovernanceApprovalHelpClaimDisciplineStrip } from "@/components/help/GovernanceApprovalHelpClaimDisciplineStrip";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpGovernanceApprovalRoleGuide } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalRoleGuide";
@@ -9,7 +10,6 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE,
@@ -35,7 +35,6 @@ import { operatorPageContainerClass } from "@/components/operator/OperatorPageCo
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -205,17 +204,21 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
         <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE}</p>
       </header>
 
+      <GovernanceApprovalHelpClaimDisciplineStrip />
+
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+        <section
+          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="help-governance-approval-action-panel"
+          aria-labelledby="help-governance-approval-action-panel-heading"
         >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle as="h2" className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              {GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+          <h2
+            id="help-governance-approval-action-panel-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            {GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE}
+          </h2>
+          <div className="flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="primary">
               <Link href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openWorkflow.href}>
                 {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openWorkflow.label}
@@ -232,8 +235,8 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
             >
               {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.label}
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
@@ -241,6 +244,8 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
           className={cn("min-w-0 space-y-8", "max-w-[42rem] lg:max-w-none")}
           data-testid="help-governance-approval-primary"
         >
+          <GovernanceApprovalHelpEvidenceOrientationStrip />
+
           <section aria-labelledby="overview" className="space-y-3">
             <HelpSectionHeading id="overview">Overview</HelpSectionHeading>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-governance-approval-overview">
@@ -352,8 +357,6 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
             <HelpSectionHeading id="troubleshooting">Troubleshooting</HelpSectionHeading>
             <TroubleshootingList />
           </section>
-
-          <GovernanceApprovalHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS} enableScrollSpy />

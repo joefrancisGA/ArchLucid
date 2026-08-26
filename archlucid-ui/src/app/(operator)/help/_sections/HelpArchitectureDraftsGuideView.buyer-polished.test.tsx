@@ -43,9 +43,10 @@ describe("HelpArchitectureDraftsGuideView buyer-polished shell", () => {
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-heading-eyebrow")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-architecture-drafts-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("help-architecture-drafts-claim-discipline").textContent).toContain(
-      ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    expect(screen.getByTestId("help-architecture-drafts-claim-discipline-strip")).toHaveTextContent(
+      ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE,
     );
+    expect(screen.queryByTestId("help-architecture-drafts-claim-discipline")).not.toBeInTheDocument();
 
     const primaryContent = screen.getByTestId("help-architecture-drafts-guide");
     const orderedLandmarks = within(primaryContent)

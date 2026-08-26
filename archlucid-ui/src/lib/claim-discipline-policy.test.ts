@@ -32,8 +32,9 @@ describe("claim-discipline-policy", () => {
 
   it("resolveClaimDisciplineForStrip returns undefined for omitted slugs", () => {
     expect(resolveClaimDisciplineForStrip("help-system-health", "not a package.")).toBeUndefined();
-    expect(resolveClaimDisciplineForStrip("findings-help", "not a package.")).toBe("not a package.");
+    expect(resolveClaimDisciplineForStrip("findings-help", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("findings-help", undefined)).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-evidence-graph", "not a package.")).toBe("not a package.");
   });
 
   it("expectsVisibleClaimDisciplineBand mirrors omit policy", () => {

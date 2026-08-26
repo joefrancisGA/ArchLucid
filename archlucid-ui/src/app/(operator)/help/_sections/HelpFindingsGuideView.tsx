@@ -1,18 +1,19 @@
 import Link from "next/link";
 
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
+import { FindingsHelpClaimDisciplineStrip } from "@/components/help/FindingsHelpClaimDisciplineStrip";
 import { FindingsHelpEvidenceOrientationStrip } from "@/components/help/FindingsHelpEvidenceOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpFindingsWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpFindingsWorkspaceReadinessStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   FINDINGS_HELP_ACTIONS,
   FINDINGS_HELP_ACTIONS_INTRO,
   FINDINGS_HELP_ANATOMY_FIELDS,
+  FINDINGS_HELP_CLAIM_HEADING_ID,
   FINDINGS_HELP_RELATED_PRODUCT_DOCS,
   FINDINGS_HELP_EVIDENCE_ACTIONS,
   FINDINGS_HELP_EVIDENCE_INTRO,
@@ -41,12 +42,12 @@ import { operatorPageContainerClass } from "@/components/operator/OperatorPageCo
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -138,6 +139,11 @@ function LifecycleList(): React.ReactElement {
 /** Buyer-safe findings orientation for `/help/findings`. */
 export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.ReactElement {
   void props.entry;
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "findings-help",
+    FINDINGS_HELP_GUIDE_HEADINGS,
+    FINDINGS_HELP_CLAIM_HEADING_ID,
+  );
 
   return (
     <article className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)} data-testid="help-findings-guide">
@@ -146,44 +152,49 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
         <HelpTopicTitleRow title={FINDINGS_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />
         <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{FINDINGS_HELP_PAGE_SUBTITLE}</p>
       </header>
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
-          data-testid="help-findings-action-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle as="h2" className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Go to findings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
-              <Link href={FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.href}>
-                {FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={FINDINGS_HELP_PRIMARY_ACTIONS.searchEvidence.href}>
-                {FINDINGS_HELP_PRIMARY_ACTIONS.searchEvidence.label}
-              </Link>
-            </Button>
-            <Link
-              href={FINDINGS_HELP_PRIMARY_ACTIONS.governanceDecisions.href}
-              className={cn("inline-flex min-h-6 items-center py-1", OPERATOR_BODY_INLINE_LINK_CLASS)}
-            >
-              {FINDINGS_HELP_PRIMARY_ACTIONS.governanceDecisions.label}
-            </Link>
-          </CardContent>
-        </Card>
 
-        <HelpFindingsWorkspaceReadinessStrip />
-      </div>
+      <FindingsHelpClaimDisciplineStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-8", "max-w-[42rem] lg:max-w-none")}>
+          <FindingsHelpEvidenceOrientationStrip />
+
           <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-findings-overview">
             {FINDINGS_HELP_OVERVIEW}
           </p>
+
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-findings-action-panel"
+            aria-labelledby="help-findings-action-panel-heading"
+          >
+            <h2
+              id="help-findings-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              Go to findings
+            </h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="primary">
+                <Link href={FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.href}>
+                  {FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href={FINDINGS_HELP_PRIMARY_ACTIONS.searchEvidence.href}>
+                  {FINDINGS_HELP_PRIMARY_ACTIONS.searchEvidence.label}
+                </Link>
+              </Button>
+              <Link
+                href={FINDINGS_HELP_PRIMARY_ACTIONS.governanceDecisions.href}
+                className={cn("inline-flex min-h-6 items-center py-1", OPERATOR_BODY_INLINE_LINK_CLASS)}
+              >
+                {FINDINGS_HELP_PRIMARY_ACTIONS.governanceDecisions.label}
+              </Link>
+            </div>
+          </section>
+
+          <HelpFindingsWorkspaceReadinessStrip />
 
           <section
             aria-labelledby="what-a-finding-is"
@@ -317,8 +328,6 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
             </div>
           </section>
 
-          <FindingsHelpEvidenceOrientationStrip />
-
           <p className={cn("m-0 pt-2", OPERATOR_TYPOGRAPHY.label)}>
             <Link
               href={FINDINGS_HELP_RELATED_PRODUCT_DOCS.href}
@@ -329,7 +338,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
           </p>
         </div>
 
-        <HelpTopicTableOfContents headings={FINDINGS_HELP_GUIDE_HEADINGS} enableScrollSpy />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
     </article>
   );

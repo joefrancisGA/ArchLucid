@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
+import { TroubleshootingHelpClaimDisciplineStrip } from "@/components/help/TroubleshootingHelpClaimDisciplineStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTroubleshootingAdvancedDiagnostics } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics";
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
@@ -10,7 +11,6 @@ import { TroubleshootingHelpEvidenceOrientationStrip } from "@/components/help/T
 import { TroubleshootingStartHerePlatformStatus } from "@/components/help/TroubleshootingStartHerePlatformStatus";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   TROUBLESHOOTING_BEFORE_CONTACT_ITEMS,
@@ -34,7 +34,6 @@ import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -68,50 +67,57 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
         <HelpTopicTitleRow title={entry.title} actions={<PageContextualHelpButton />} />
         <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{TROUBLESHOOTING_HELP_SUBTITLE}</p>
       </header>
+
+      <TroubleshootingHelpClaimDisciplineStrip />
+
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
-          <Card
+          <TroubleshootingHelpEvidenceOrientationStrip />
+
+          <section
             id="start-here"
             className={cn(
               OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-              "border-neutral-200 bg-al-surface-raised dark:border-neutral-800",
+              "space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40",
             )}
             data-testid="troubleshooting-start-here-card"
+            aria-labelledby="troubleshooting-start-here-heading"
           >
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>Start here</CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-4")}>
-              <TroubleshootingStartHerePlatformStatus />
-              <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                {TROUBLESHOOTING_START_HERE_ITEMS.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={TROUBLESHOOTING_PRIMARY_ACTIONS.systemHealth.href}>
-                    {TROUBLESHOOTING_PRIMARY_ACTIONS.systemHealth.label}
-                  </Link>
-                </Button>
-                <SupportBundleDownloadButton showContentsDisclosure />
-                <Button asChild size="sm" variant="outline">
-                  <a href={TROUBLESHOOTING_PRIMARY_ACTIONS.contactSupport.href}>
-                    {TROUBLESHOOTING_PRIMARY_ACTIONS.contactSupport.label}
-                  </a>
-                </Button>
-              </div>
-              <p
-                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="troubleshooting-support-expectations-start-here"
-              >
-                {TROUBLESHOOTING_SUPPORT_EXPECTATIONS}{" "}
-                <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("report-a-problem")}>
-                  Report a problem
+            <h2
+              id="troubleshooting-start-here-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              Start here
+            </h2>
+            <TroubleshootingStartHerePlatformStatus />
+            <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+              {TROUBLESHOOTING_START_HERE_ITEMS.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild size="sm" variant="primary">
+                <Link href={TROUBLESHOOTING_PRIMARY_ACTIONS.systemHealth.href}>
+                  {TROUBLESHOOTING_PRIMARY_ACTIONS.systemHealth.label}
                 </Link>
-              </p>
-            </CardContent>
-          </Card>
+              </Button>
+              <SupportBundleDownloadButton showContentsDisclosure />
+              <Button asChild size="sm" variant="outline">
+                <a href={TROUBLESHOOTING_PRIMARY_ACTIONS.contactSupport.href}>
+                  {TROUBLESHOOTING_PRIMARY_ACTIONS.contactSupport.label}
+                </a>
+              </Button>
+            </div>
+            <p
+              className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="troubleshooting-support-expectations-start-here"
+            >
+              {TROUBLESHOOTING_SUPPORT_EXPECTATIONS}{" "}
+              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("report-a-problem")}>
+                Report a problem
+              </Link>
+            </p>
+          </section>
 
           <section aria-labelledby="common-issues" className="space-y-3">
             <HelpSectionHeading id="common-issues">Common issues</HelpSectionHeading>
@@ -204,8 +210,6 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
             </p>
             <HelpTroubleshootingAdvancedDiagnostics />
           </HelpLazyDetails>
-
-          <TroubleshootingHelpEvidenceOrientationStrip />
 
           <EvidenceOrientationMetaLine
             testId="troubleshooting-help-freshness"

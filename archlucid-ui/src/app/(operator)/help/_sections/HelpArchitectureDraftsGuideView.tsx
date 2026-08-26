@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { ArchitectureDraftsHelpClaimDisciplineStrip } from "@/components/help/ArchitectureDraftsHelpClaimDisciplineStrip";
 import { ArchitectureDraftsHelpEvidenceOrientationStrip } from "@/components/help/ArchitectureDraftsHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -81,36 +82,45 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
       />
 
+      <ArchitectureDraftsHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div
           id={ARCHITECTURE_DRAFTS_HELP_PRIMARY_CONTENT_ID}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
-          {buyerPolishedShell ? (
-            <div data-testid="help-architecture-drafts-orientation-top">
-              <ArchitectureDraftsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-            </div>
-          ) : null}
+          <div data-testid="help-architecture-drafts-orientation-top">
+            <ArchitectureDraftsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          </div>
 
           <p className={readingBodyClass} data-testid="help-architecture-drafts-overview">
             {ARCHITECTURE_DRAFTS_HELP_OVERVIEW}
           </p>
 
-          <div
-            className="flex flex-wrap items-center gap-2"
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid="help-architecture-drafts-action-panel"
+            aria-labelledby="help-architecture-drafts-action-panel-heading"
           >
-            <Button asChild size="sm" variant="primary">
-              <Link href={ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION.href}>
-                {ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={ARCHITECTURE_DRAFTS_HELP_SECONDARY_ACTION.href}>
-                {ARCHITECTURE_DRAFTS_HELP_SECONDARY_ACTION.label}
-              </Link>
-            </Button>
-          </div>
+            <h2
+              id="help-architecture-drafts-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              Start here
+            </h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="primary">
+                <Link href={ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION.href}>
+                  {ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href={ARCHITECTURE_DRAFTS_HELP_SECONDARY_ACTION.href}>
+                  {ARCHITECTURE_DRAFTS_HELP_SECONDARY_ACTION.label}
+                </Link>
+              </Button>
+            </div>
+          </section>
 
           <section
             aria-labelledby="what-architecture-drafts-do"
@@ -146,12 +156,6 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
               ))}
             </ol>
           </section>
-
-          {!buyerPolishedShell ? (
-            <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-              <ArchitectureDraftsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-            </div>
-          ) : null}
         </div>
 
         <HelpTopicTableOfContents headings={ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS} />

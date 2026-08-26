@@ -1,15 +1,13 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { AdvisoryScansHelpClaimDisciplineStrip } from "@/components/help/AdvisoryScansHelpClaimDisciplineStrip";
 import { AdvisoryScansHelpEvidenceOrientationStrip } from "@/components/help/AdvisoryScansHelpEvidenceOrientationStrip";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientation/EvidenceOrientationClaimCallout";
-import { EVIDENCE_CLAIM_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ADVISORY_SCANS_HELP_AI_USAGE_DISCLOSURE_LEAD,
   ADVISORY_SCANS_HELP_AI_USAGE_DISCLOSURE_TAIL,
@@ -17,7 +15,6 @@ import {
   ADVISORY_SCANS_HELP_BEFORE_YOU_START_BODY,
   ADVISORY_SCANS_HELP_BEFORE_YOU_START_HEADING_ID,
   ADVISORY_SCANS_HELP_BEFORE_YOU_START_TITLE,
-  ADVISORY_SCANS_HELP_CLAIM_HEADING_ID,
   ADVISORY_SCANS_HELP_DISPOSITION_ACTIONS,
   ADVISORY_SCANS_HELP_DISPOSITION_AUDIT_NOTE,
   ADVISORY_SCANS_HELP_DISPOSITION_HEADING_ID,
@@ -53,14 +50,11 @@ import {
 } from "@/lib/advisory-scans-help-guide-content";
 import {
   ADVISORY_SCANS_HELP_CANONICAL_PATH,
-  ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE,
-  ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING,
   ADVISORY_SCANS_HELP_TOPIC_LABEL,
 } from "@/lib/advisory-scans-help-evidence-copy";
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -185,46 +179,36 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
       />
 
+      <AdvisoryScansHelpClaimDisciplineStrip />
+
       {showSectionNav ? (
         <HelpTopicTableOfContents headings={ADVISORY_SCANS_HELP_GUIDE_HEADINGS} placement="header-inline" />
       ) : null}
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <AdvisoryScansHelpEvidenceOrientationStrip />
+
           <p className={readingBodyClass} data-testid="help-advisory-scans-overview">
             {ADVISORY_SCANS_HELP_OVERVIEW}
           </p>
 
-          <section aria-labelledby={ADVISORY_SCANS_HELP_CLAIM_HEADING_ID} className="space-y-3">
-            <HelpSectionHeading id={ADVISORY_SCANS_HELP_CLAIM_HEADING_ID}>
-              {ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING}
-            </HelpSectionHeading>
-            <EvidenceOrientationClaimCallout
-              testId="help-advisory-scans-claim-discipline"
-              body={ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE}
-              style={EVIDENCE_CLAIM_STYLE.operatorNeutral}
-              element="div"
-              bodyClassName={HELP_PAGE_LAYOUT.readingBody}
-            />
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-advisory-scans-action-panel"
+            aria-labelledby={ADVISORY_SCANS_HELP_START_HERE_HEADING_ID}
+          >
+            <h2
+              id={ADVISORY_SCANS_HELP_START_HERE_HEADING_ID}
+              className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <Button asChild size="sm" variant="primary" data-testid="help-advisory-scans-start-here-primary-cta">
+              <Link href={ADVISORY_SCANS_HELP_PRIMARY_ACTION.href}>{ADVISORY_SCANS_HELP_PRIMARY_ACTION.label}</Link>
+            </Button>
+            <AdvisoryScansStartHereScopeNote />
           </section>
-
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-advisory-scans-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle
-                as="h2"
-                id={ADVISORY_SCANS_HELP_START_HERE_HEADING_ID}
-                className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}
-              >
-                {ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <Button asChild size="sm" variant="primary" data-testid="help-advisory-scans-start-here-primary-cta">
-                <Link href={ADVISORY_SCANS_HELP_PRIMARY_ACTION.href}>{ADVISORY_SCANS_HELP_PRIMARY_ACTION.label}</Link>
-              </Button>
-              <AdvisoryScansStartHereScopeNote />
-            </CardContent>
-          </Card>
 
           <section
             aria-labelledby={ADVISORY_SCANS_HELP_BEFORE_YOU_START_HEADING_ID}
@@ -359,10 +343,6 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
             </HelpSectionHeading>
             <AdvisoryScansTroubleshootingList />
           </section>
-
-          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-            <AdvisoryScansHelpEvidenceOrientationStrip />
-          </div>
         </div>
 
         {showSectionNav ? (

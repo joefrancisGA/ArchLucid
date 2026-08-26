@@ -6,6 +6,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpArchitectureDraftsGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
 import {
   ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -28,17 +33,29 @@ describe("HelpArchitectureDraftsGuideView", () => {
     render(<HelpArchitectureDraftsGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-architecture-drafts-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-architecture-drafts-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-architecture-drafts-claim-discipline-strip")).toHaveTextContent(
+      ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-architecture-drafts",
+      "help-architecture-drafts-claim-discipline",
       ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByRole("heading", { name: ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expectClaimDisciplineHeading(
+      screen,
+      "help-architecture-drafts",
+      ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING,
       ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID,
     );
 
     expect(screen.getByRole("heading", { level: 2, name: ARCHITECTURE_DRAFTS_HELP_HOW_TO_SECTION_TITLE })).toBeInTheDocument();
 
-    for (const heading of ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-architecture-drafts",
+      ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS,
+      ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID,
+    )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
   });

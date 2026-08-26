@@ -13,6 +13,9 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpGovernanceApprovalGuideView } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalGuideView";
 import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE,
   GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS,
   GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE,
@@ -26,6 +29,7 @@ import {
   GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS,
 } from "@/lib/governance/governance-approval-help-guide-content";
 import { GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE, GOVERNANCE_APPROVAL_HELP_SOURCES } from "@/lib/governance/governance-approval-help-evidence-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { governanceDomainBadgeClass } from "@/lib/status-pill-domain-classes";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -90,8 +94,14 @@ describe("HelpGovernanceApprovalGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: GOVERNANCE_APPROVAL_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-governance-approval-overview")).toHaveTextContent(GOVERNANCE_APPROVAL_HELP_OVERVIEW);
-    expect(screen.getByTestId("help-governance-approval-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("help-governance-approval-claim-discipline-strip")).toHaveTextContent(
       GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-governance-approval",
+      "help-governance-approval-claim-discipline",
+      GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
 
     const actionPanel = screen.getByTestId("help-governance-approval-action-panel");
@@ -224,8 +234,10 @@ describe("HelpGovernanceApprovalGuideView", () => {
     }
 
     for (const source of GOVERNANCE_APPROVAL_HELP_SOURCES) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+
       expect(
-        within(screen.getByTestId("help-governance-approval-orientation")).getByRole("link", { name: source.label }),
+        within(screen.getByTestId("help-governance-approval-orientation")).getByRole("link", { name: accessibleName }),
       ).toHaveAttribute("href", source.href);
     }
   });

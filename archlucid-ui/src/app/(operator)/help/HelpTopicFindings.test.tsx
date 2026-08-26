@@ -10,6 +10,11 @@ vi.mock("@/app/(operator)/help/_sections/HelpFindingsWorkspaceReadinessStrip", (
 }));
 
 import { HelpFindingsGuideView } from "@/app/(operator)/help/_sections/HelpFindingsGuideView";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
 import {
   FINDINGS_HELP_CLAIM_DISCIPLINE,
   FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -24,6 +29,7 @@ import {
   FINDINGS_HELP_PAGE_TITLE,
   FINDINGS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/findings/findings-help-guide-content";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_DEVELOPER_COPY = [
@@ -69,9 +75,17 @@ describe("HelpFindingsGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: FINDINGS_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(FINDINGS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-findings-workspace-readiness-mock")).toBeInTheDocument();
-    expect(screen.getByTestId("help-findings-claim-discipline")).toHaveTextContent(FINDINGS_HELP_CLAIM_DISCIPLINE);
-    expect(screen.getByRole("heading", { name: FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expect(screen.getByTestId("help-findings-claim-discipline-strip")).toHaveTextContent(FINDINGS_HELP_CLAIM_DISCIPLINE);
+    expectClaimDisciplineBandContent(
+      screen,
+      "findings-help",
+      "help-findings-claim-discipline",
+      FINDINGS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expectClaimDisciplineHeading(
+      screen,
+      "findings-help",
+      FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING,
       FINDINGS_HELP_CLAIM_HEADING_ID,
     );
     expect(screen.getByTestId("help-findings-overview")).toHaveTextContent(FINDINGS_HELP_OVERVIEW);
@@ -110,7 +124,9 @@ describe("HelpFindingsGuideView", () => {
     expect(screen.getByTestId("help-findings-severity-table")).toBeInTheDocument();
 
     for (const source of FINDINGS_HELP_SOURCES) {
-      const matches = screen.getAllByRole("link", { name: source.label });
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      const matches = screen.getAllByRole("link", { name: accessibleName });
+
       expect(matches.some((link) => link.getAttribute("href") === source.href)).toBe(true);
     }
 
@@ -129,16 +145,19 @@ describe("HelpFindingsGuideView", () => {
       "href",
       "#role-guidance",
     );
-    expect(within(desktopToc).getByRole("link", { name: FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "href",
-      `#${FINDINGS_HELP_CLAIM_HEADING_ID}`,
-    );
+    expect(within(desktopToc).queryByRole("link", { name: FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING })).not.toBeInTheDocument();
     expect(within(desktopToc).getByRole("link", { name: "Where to go next" })).toHaveAttribute(
       "href",
       "#where-to-go-next",
     );
 
-    for (const heading of FINDINGS_HELP_GUIDE_HEADINGS) {
+    const guideHeadings = resolveGuideHeadingsForStrip(
+      "findings-help",
+      FINDINGS_HELP_GUIDE_HEADINGS,
+      FINDINGS_HELP_CLAIM_HEADING_ID,
+    );
+
+    for (const heading of guideHeadings) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
   });
