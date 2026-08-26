@@ -18,6 +18,7 @@ public sealed class ReviewResultCache : IReviewResultCache
     private readonly Dictionary<string, int> _pinnedStorageKeyRefcounts = new(StringComparer.Ordinal);
     private readonly HashSet<string> _deferredInvalidateRunIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<string> _tombstoneOrder = [];
+    private readonly HashSet<string> _pinReservationsWithoutCacheEntry = new(StringComparer.Ordinal);
 
     public ReviewResultCache(TimeProvider? timeProvider = null)
     {
@@ -106,6 +107,8 @@ public sealed class ReviewResultCache : IReviewResultCache
                 CreatedUtc = utcNow,
                 ExpiresUtc = utcNow.Add(EntryTtl),
             };
+
+            _pinReservationsWithoutCacheEntry.Remove(key);
         }
     }
 
@@ -196,7 +199,7 @@ public sealed class ReviewResultCache : IReviewResultCache
             ]);
     }
 
-    internal void PinStorageKey(string storageKey)
+    internal bool PinStorageKey(string storageKey)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(storageKey);
 
@@ -204,7 +207,7 @@ public sealed class ReviewResultCache : IReviewResultCache
         {
             if (!_pinnedStorageKeyRefcounts.ContainsKey(storageKey)
                 && _pinnedStorageKeyRefcounts.Count >= MaxDistinctPinnedStorageKeys)
-                return;
+                return false;
 
             _pinnedStorageKeyRefcounts.TryGetValue(storageKey, out int count);
 
@@ -212,6 +215,11 @@ public sealed class ReviewResultCache : IReviewResultCache
                 _pinnedStorageKeyRefcounts[storageKey] = MaxPinnedRefcountPerKey;
             else
                 _pinnedStorageKeyRefcounts[storageKey] = count + 1;
+
+            if (!_cache.ContainsKey(storageKey))
+                _pinReservationsWithoutCacheEntry.Add(storageKey);
+
+            return true;
         }
     }
 
@@ -225,7 +233,10 @@ public sealed class ReviewResultCache : IReviewResultCache
                 return;
 
             if (count <= 1)
+            {
                 _pinnedStorageKeyRefcounts.Remove(storageKey);
+                _pinReservationsWithoutCacheEntry.Remove(storageKey);
+            }
             else
                 _pinnedStorageKeyRefcounts[storageKey] = count - 1;
 
@@ -267,8 +278,13 @@ public sealed class ReviewResultCache : IReviewResultCache
     {
         foreach (string storageKey in _pinnedStorageKeyRefcounts.Keys.ToList())
         {
-            if (!_cache.ContainsKey(storageKey))
-                _pinnedStorageKeyRefcounts.Remove(storageKey);
+            if (_cache.ContainsKey(storageKey))
+                continue;
+
+            if (_pinReservationsWithoutCacheEntry.Contains(storageKey))
+                continue;
+
+            _pinnedStorageKeyRefcounts.Remove(storageKey);
         }
     }
 
