@@ -215,6 +215,9 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
             PublishedFindingsSnapshotId = Guid.NewGuid(),
             PublishedRecommendationCount = 4,
             PublishSkipReason = "already published",
+            ReviewCompleteBlocked = true,
+            IntegrityPassedFindingIds = ["finding-1"],
+            MustNotFailViolations = ["violation-1"],
             ProductFindings =
             [
                 new ArchLucid.Contracts.Findings.Finding
@@ -252,6 +255,9 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         result.CacheHit.Should().BeFalse();
         result.CacheReuseReason.Should().BeNull();
         result.RunId.Should().Be("abcdef");
+        result.ReviewCompleteBlocked.Should().BeFalse();
+        result.IntegrityPassedFindingIds.Should().BeEmpty();
+        result.MustNotFailViolations.Should().BeEmpty();
         result.ProductFindings.Should().BeEmpty();
         result.ProductRecommendations.Should().BeEmpty();
     }
