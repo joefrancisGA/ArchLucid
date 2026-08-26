@@ -1166,4 +1166,43 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
         objects.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
         objects.Should().OnlyContain(static o => o.Properties.ContainsKey("terraformOccurrence"));
     }
+
+    [Fact]
+    public async Task ParseAsync_PascalCasePropertyNames_MapsStorageAccount()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-pascal",
+            Content = """
+                      {
+                        "Values": {
+                          "Root_Module": {
+                            "Resources": [
+                              {
+                                "Type": "azurerm_storage_account",
+                                "Name": "data",
+                                "Provider_Name": "registry.terraform.io/hashicorp/azurerm",
+                                "Mode": "managed",
+                                "Values": { "name": "stacct" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        CanonicalObject storageAccount = objects[0];
+        storageAccount.ObjectType.Should().Be("TopologyResource");
+        storageAccount.Name.Should().Be("azurerm_storage_account.data");
+        storageAccount.Properties["terraformType"].Should().Be("azurerm_storage_account");
+        storageAccount.Properties["providerName"].Should().Be("registry.terraform.io/hashicorp/azurerm");
+        storageAccount.Properties["mode"].Should().Be("managed");
+        storageAccount.Properties["tf.name"].Should().Be("stacct");
+    }
 }

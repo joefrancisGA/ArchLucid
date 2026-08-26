@@ -1821,11 +1821,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 48
-- **bugs-found:** 99
+- **hunts:** 49
+- **bugs-found:** 100
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — arm-json PascalCase `Resources`/`Type`/`Name` keys dropped all resources
+- **last-bug:** 2026-08-26 — terraform-show-json PascalCase `Values`/`Root_Module`/`Resources` keys dropped all resources
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1941,6 +1941,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TopologyHintsPayloadNormalizer` vs document `TOP:` path disagree on long-hint `Name` truncation — **hit 2026-08-26:** connector kept full `canonicalHint` while document path used `BuildDisplayName`, so identical long hints produced mismatched display names and divergent graph labels for the same `ObjectId`; fixed by aligning connector `Name` with `ContextIngestionStableLineNames.BuildDisplayName` (`TopologyHintsPayloadNormalizerTests`).
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ResolveObjectType` matched `kind` case-sensitively — **hit 2026-08-26:** `"kind": "secret"` classified as `TopologyResource` instead of `SecurityBaseline`, skipping secret-handling and misrouting K8s security objects from lowercase exporters; fixed with `ToLowerInvariant()` before kind switch (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_LowercaseKind_ClassifiesSecretAsSecurityBaseline`, `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_LowercaseKindValue_ClassifiesSecretAsSecurityBaseline`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser` read `resources`/`type`/`name`/`properties` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Resources`/`Type`/`Name`/`Properties` returned zero resources; fixed with case-insensitive JSON property reads (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` read `values`/`root_module`/`resources`/`type`/`name` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Values`/`Root_Module`/`Resources`/`Type`/`Name` returned zero resources; fixed with case-insensitive JSON property reads (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
+
+2026-08-26 seed hunt #49: reseeded terraform-show-json casing path; proved PascalCase property reads.
 
 2026-08-26 seed hunt #48: reseeded ARM/K8s parser casing paths; proved arm-json PascalCase property reads.
 

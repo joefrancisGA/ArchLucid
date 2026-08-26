@@ -42,7 +42,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             using JsonDocument doc = JsonDocument.Parse(declaration.Content);
             JsonElement root = doc.RootElement;
 
-            if (!root.TryGetProperty("values", out JsonElement values))
+            if (!TryGetPropertyIgnoreCase(root, "values", out JsonElement values))
             {
                 logger.LogWarning(
                     "Infrastructure declaration '{Name}' (terraform-show-json) has no 'values' root; expected terraform state JSON.",
@@ -51,7 +51,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
             }
 
-            if (values.TryGetProperty("root_module", out JsonElement rootModule))
+            if (TryGetPropertyIgnoreCase(values, "root_module", out JsonElement rootModule))
             {
                 labelTotals = CountTerraformLabelOccurrences(rootModule);
                 CollectFromModule(rootModule, moduleAddress: string.Empty, declaration, results, labelTotals, labelSeen);
@@ -78,13 +78,13 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         IReadOnlyDictionary<string, int> labelTotals,
         Dictionary<string, int> labelSeen)
     {
-        if (module.TryGetProperty("resources", out JsonElement resources) && resources.ValueKind == JsonValueKind.Array)
+        if (TryGetPropertyIgnoreCase(module, "resources", out JsonElement resources) && resources.ValueKind == JsonValueKind.Array)
         {
             foreach (JsonElement res in resources.EnumerateArray())
                 TryAddResource(res, moduleAddress, declaration, results, labelTotals, labelSeen);
         }
 
-        if (!module.TryGetProperty("child_modules", out JsonElement children) ||
+        if (!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children) ||
             children.ValueKind != JsonValueKind.Array)
             return;
 
@@ -105,14 +105,14 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         string moduleAddress,
         Dictionary<string, int> counts)
     {
-        if (module.TryGetProperty("resources", out JsonElement resources) && resources.ValueKind == JsonValueKind.Array)
+        if (TryGetPropertyIgnoreCase(module, "resources", out JsonElement resources) && resources.ValueKind == JsonValueKind.Array)
         {
             foreach (JsonElement res in resources.EnumerateArray())
             {
                 if (TryGetResourceAddress(res, out _))
                     continue;
 
-                if (!res.TryGetProperty("type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
+                if (!TryGetPropertyIgnoreCase(res, "type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
                     continue;
 
                 string tfType = typeEl.GetString() ?? string.Empty;
@@ -120,7 +120,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 if (string.IsNullOrWhiteSpace(tfType))
                     continue;
 
-                if (!res.TryGetProperty("name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
+                if (!TryGetPropertyIgnoreCase(res, "name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
                     continue;
 
                 string name = (nameEl.GetString() ?? string.Empty).Trim();
@@ -133,7 +133,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             }
         }
 
-        if (!module.TryGetProperty("child_modules", out JsonElement children) ||
+        if (!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children) ||
             children.ValueKind != JsonValueKind.Array)
             return;
 
@@ -154,7 +154,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
 
     private static string ResolveModuleAddress(JsonElement module)
     {
-        if (!module.TryGetProperty("address", out JsonElement addressElement) ||
+        if (!TryGetPropertyIgnoreCase(module, "address", out JsonElement addressElement) ||
             addressElement.ValueKind != JsonValueKind.String)
             return string.Empty;
 
@@ -167,7 +167,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
     {
         canonicalAddress = string.Empty;
 
-        if (!res.TryGetProperty("address", out JsonElement addressElement) ||
+        if (!TryGetPropertyIgnoreCase(res, "address", out JsonElement addressElement) ||
             addressElement.ValueKind != JsonValueKind.String)
             return false;
 
@@ -213,7 +213,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         IReadOnlyDictionary<string, int> labelTotals,
         Dictionary<string, int> labelSeen)
     {
-        if (!res.TryGetProperty("type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
+        if (!TryGetPropertyIgnoreCase(res, "type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
             return;
 
         string tfType = typeEl.GetString() ?? string.Empty;
@@ -221,7 +221,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         if (string.IsNullOrWhiteSpace(tfType))
             return;
 
-        if (!res.TryGetProperty("name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
+        if (!TryGetPropertyIgnoreCase(res, "name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
             return;
 
         string name = (nameEl.GetString() ?? string.Empty).Trim();
@@ -237,7 +237,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             ["terraformType"] = canonicalTerraformType
         };
 
-        if (res.TryGetProperty("provider_name", out JsonElement prov) && prov.ValueKind == JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(res, "provider_name", out JsonElement prov) && prov.ValueKind == JsonValueKind.String)
         {
             string? p = prov.GetString();
 
@@ -245,7 +245,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 properties["providerName"] = p.ToLowerInvariant();
         }
 
-        if (res.TryGetProperty("mode", out JsonElement mode) && mode.ValueKind == JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(res, "mode", out JsonElement mode) && mode.ValueKind == JsonValueKind.String)
         {
             string? m = mode.GetString();
 
@@ -253,7 +253,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 properties["mode"] = m.ToLowerInvariant();
         }
 
-        if (res.TryGetProperty("values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
+        if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
             {
@@ -274,11 +274,11 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 properties[$"tf.{key}"] = valueText.Length > 512 ? valueText[..512] : valueText;
             }
 
-            if (res.TryGetProperty("sensitive_values", out JsonElement sensitive) && sensitive.ValueKind == JsonValueKind.Object)
+            if (TryGetPropertyIgnoreCase(res, "sensitive_values", out JsonElement sensitive) && sensitive.ValueKind == JsonValueKind.Object)
                 RedactTopLevelSensitiveTfValues(sensitive, properties);
         }
 
-        if (res.TryGetProperty("depends_on", out JsonElement depOn) && depOn.ValueKind == JsonValueKind.Array)
+        if (TryGetPropertyIgnoreCase(res, "depends_on", out JsonElement depOn) && depOn.ValueKind == JsonValueKind.Array)
         {
             List<string> refs = [];
 
@@ -461,5 +461,25 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 "TopologyResource",
             _ => "TopologyResource"
         };
+    }
+
+    private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
+    {
+        if (element.TryGetProperty(propertyName, out value))
+            return true;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
