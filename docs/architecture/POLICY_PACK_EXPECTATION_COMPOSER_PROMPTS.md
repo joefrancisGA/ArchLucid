@@ -3,7 +3,7 @@
 
 # Policy-pack expectation parameterization — Composer prompts (PP-02–PP-05)
 
-**Created:** 2026-08-26 · **Status:** shipped on `master` (2026-08-26).
+**Created:** 2026-08-26 · **Status:** shipped on `master` (2026-08-26). Follow-on (bundled extras, policy-toggle demo, golden harness): [`WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md`](WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md) WK-04 / WK-05 / WK-06 / WK-12.
 
 **PP-01 is shipped on `master`.** Do **not** re-run declaration-theme mapping. Compliance + declaration-security + declaration-premise-conflict already honor tenant `complianceRuleKeys` (CIS Azure/AWS/GCP, SOC 2, GDPR, HIPAA, ISO, PCI, ZTA, AKS/EKS/GKE). Fail-open remains for FinOps / AI-gov / DORA / OTel / sustainability prefixes.
 
