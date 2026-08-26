@@ -2,8 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -14,41 +12,21 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { LayerHeader } from "@/components/LayerHeader";
-import { useGovernanceReviewContextQuery } from "@/hooks/use-governance-review-context-query";
-import { useGovernanceWorkflowMutations } from "@/hooks/use-governance-workflow-mutations";
-import { useGovernanceWorkflowRunListsQuery } from "@/hooks/use-governance-workflow-run-lists-query";
-import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import {
-  isStaticDemoPayloadFallbackEnabled,
-  STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS,
-  warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce,
-} from "@/lib/operator/operator-static-demo";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import {
   GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER,
   GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION,
-  GOVERNANCE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE,
   GOVERNANCE_OVERVIEW_SAMPLE_OVERVIEW_LINE,
   GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL,
-  governanceOverviewPageLead,
-  GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
 } from "@/lib/governance/governance-overview-copy";
-import { governanceApprovalQueueHref, GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
-import {
-  BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
-  BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
-} from "@/lib/buyer/buyer-polish-copy";
-import { GOVERNANCE_WORKFLOW_LOAD_REVIEW_REQUIRED } from "@/lib/governance/governance-mutation-outcome-copy";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import { BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL } from "@/lib/governance/governance-workflow-release-copy";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
+import { STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS } from "@/lib/operator/operator-static-demo";
 import {
   AdvancedOptionsAccordionDeferred,
   CtoDemoBuyerValueStripDeferred,
@@ -70,66 +48,40 @@ import {
   GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD,
   GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD,
   GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE,
-  governanceWorkflowOutcomeLineForPhase,
 } from "@/lib/governance/governance-workflow-section-copy";
+import { useGovernanceWorkflowPage } from "./use-governance-workflow-page";
 
 export type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
 
 export function GovernanceWorkflowPageContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const workspaceRun = useWorkspaceActiveRun();
-  const canMutateWorkflow = useOperateCapability();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const submitSectionRef = useRef<HTMLDivElement | null>(null);
-  const approvalsSectionRef = useRef<HTMLElement | null>(null);
-  const deepLinkFocusHandledRef = useRef<string | null>(null);
-  const pendingOverviewSubmitScrollRunIdRef = useRef<string | null>(null);
-
-  const [submitRunId, setSubmitRunId] = useState("");
-  const [submitManifestVersion, setSubmitManifestVersion] = useState("");
-  const [submitSource, setSubmitSource] = useState<string>("");
-  const [submitTarget, setSubmitTarget] = useState<string>("");
-  const [submitComment, setSubmitComment] = useState("");
-
-  const [queryRunId, setQueryRunId] = useState("");
-  const [activeRunId, setActiveRunId] = useState<string | null>(null);
-  const [workflowActor, setWorkflowActor] = useState("");
-
-  const runListsQuery = useGovernanceWorkflowRunListsQuery(activeRunId);
-  const reviewContextQuery = useGovernanceReviewContextQuery(activeRunId);
-
   const {
+    canMutateWorkflow,
+    buyerPolishedShell,
+    submitSectionRef,
+    approvalsSectionRef,
+    submitRunId,
+    setSubmitRunId,
+    submitManifestVersion,
+    setSubmitManifestVersion,
+    submitSource,
+    setSubmitSource,
+    submitTarget,
+    setSubmitTarget,
+    submitComment,
+    setSubmitComment,
+    queryRunId,
+    setQueryRunId,
+    activeRunId,
+    workflowActor,
+    setWorkflowActor,
     approvals,
     promotions,
     activations,
     showingStaticDemoGovernanceRecords,
     listFailure,
-    isPending: runListsPending,
-    isFetching: runListsFetching,
-    isFetched: runListsFetched,
-    refetch: refetchRunLists,
-  } = runListsQuery;
-
-  const listsLoading = runListsPending || (runListsFetching && !runListsFetched);
-  const activeReviewDisplayTitle = reviewContextQuery.data?.displayTitle ?? null;
-
-  const mutations = useGovernanceWorkflowMutations({
-    canMutateWorkflow,
-    activeRunId,
-    refetchRunLists,
-    submitRunId,
-    submitManifestVersion,
-    submitSource,
-    submitTarget,
-    submitComment,
-    setSubmitComment,
-    workflowActor,
-  });
-
-  const {
-    setMutationSuccessMessage,
-    setMutationErrorMessage,
+    listsLoading,
+    activeReviewDisplayTitle,
+    mutations,
     submitBusy,
     submitApprovalComplete,
     reviewBusy,
@@ -149,181 +101,23 @@ export function GovernanceWorkflowPageContent() {
     onSubmitApproval,
     onConfirmReview,
     refreshIfActive,
-  } = mutations;
-
-  const isReviewContext = activeRunId !== null;
-  const urlScopedRunId = searchParams.get("runId")?.trim() ?? "";
-  const isShowcaseSampleContext =
-    isReviewContext &&
-    canonicalizeDemoRunId(activeRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
-  const showGovernanceSampleOverviewBanner =
-    !isReviewContext && (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled());
-  const approvalWorkflowState = deriveGovernanceApprovalWorkflowState({
-    activeRunId,
-    approvals,
-    listsLoading,
-  });
-
-  const buyerSuppressGovernanceSubmitChrome =
-    buyerPolishedShell && isReviewContext && approvalWorkflowState.canShowCompletionMessaging;
-
-  const listsLoadingShowsBusyChrome = listsLoading && !(buyerPolishedShell && approvals.length > 0);
-
-  const replaceApprovalQueueUrl = useCallback(
-    (runId: string | null): void => {
-      router.replace(governanceApprovalQueueHref(runId), { scroll: false });
-    },
-    [router],
-  );
-
-  const clearReviewContext = useCallback((): void => {
-    setActiveRunId(null);
-    setPendingReview(null);
-    replaceApprovalQueueUrl(null);
-  }, [replaceApprovalQueueUrl, setPendingReview]);
-
-  useEffect(() => {
-    warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce();
-  }, []);
-
-  const onLoadRun = useCallback(() => {
-    const id = queryRunId.trim();
-
-    if (!id) {
-      setMutationErrorMessage(GOVERNANCE_WORKFLOW_LOAD_REVIEW_REQUIRED);
-      setMutationSuccessMessage(null);
-
-      return;
-    }
-
-    setActiveRunId(id);
-    setSubmitRunId(id);
-    setMutationErrorMessage(null);
-    replaceApprovalQueueUrl(id);
-  }, [queryRunId, replaceApprovalQueueUrl, setMutationErrorMessage, setMutationSuccessMessage]);
-
-  useEffect(() => {
-    const fromQuery = searchParams.get("runId")?.trim() ?? "";
-
-    if (fromQuery.length === 0) {
-      return;
-    }
-
-    setQueryRunId(fromQuery);
-    setActiveRunId(fromQuery);
-
-    // Always adopt the deep-link runId into the submit form — preferAutoPick on the submit
-    // section's AskRunIdPicker must not win the race and silently overwrite it afterward.
-    setSubmitRunId(fromQuery);
-  }, [searchParams]);
-
-  useEffect(() => {
-    const manifestVersion = reviewContextQuery.data?.manifestVersion?.trim() ?? "";
-
-    if (manifestVersion.length > 0) {
-      setSubmitManifestVersion(manifestVersion);
-    }
-  }, [reviewContextQuery.data?.manifestVersion]);
-
-  useEffect(() => {
-    const fromQuery = searchParams.get("runId")?.trim() ?? "";
-
-    if (fromQuery.length === 0) {
-      return;
-    }
-
-    if (listsLoading) {
-      return;
-    }
-
-    if (activeRunId !== fromQuery) {
-      return;
-    }
-
-    if (deepLinkFocusHandledRef.current === fromQuery) {
-      return;
-    }
-
-    deepLinkFocusHandledRef.current = fromQuery;
-
-    const phase = approvalWorkflowState.phase;
-    const focusesApprovals =
-      phase === "pending" || phase === "mixed" || phase === "approved" || phase === "rejected";
-
-    const handle = window.setTimeout(() => {
-      if (focusesApprovals) {
-        approvalsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      } else if (phase === "no_requests") {
-        submitSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }, 50);
-
-    return () => window.clearTimeout(handle);
-  }, [searchParams, listsLoading, activeRunId, approvalWorkflowState.phase]);
-
-  useEffect(() => {
-    const pendingRunId = pendingOverviewSubmitScrollRunIdRef.current;
-
-    if (pendingRunId === null || !isReviewContext || activeRunId !== pendingRunId) {
-      return;
-    }
-
-    if (listsLoading) {
-      return;
-    }
-
-    pendingOverviewSubmitScrollRunIdRef.current = null;
-
-    const handle = window.setTimeout(() => {
-      submitSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
-
-    return () => window.clearTimeout(handle);
-  }, [isReviewContext, activeRunId, listsLoading]);
-
-  const focusPendingApprovals = useCallback((): void => {
-    if (!isReviewContext) {
-      return;
-    }
-
-    approvalsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [isReviewContext]);
-
-  const focusSubmitSection = useCallback((): FocusSubmitSectionResult => {
-    const selectedRunId = queryRunId.trim();
-
-    if (selectedRunId.length === 0) {
-      return { kind: "blocked-empty-review" };
-    }
-
-    if (!isReviewContext) {
-      setActiveRunId(selectedRunId);
-      setSubmitRunId(selectedRunId);
-      replaceApprovalQueueUrl(selectedRunId);
-      pendingOverviewSubmitScrollRunIdRef.current = selectedRunId;
-
-      return { kind: "activated-review", runId: selectedRunId };
-    }
-
-    window.setTimeout(() => {
-      submitSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 0);
-
-    return { kind: "scrolled-to-submit" };
-  }, [isReviewContext, queryRunId, replaceApprovalQueueUrl]);
-
-  const showBuyerApprovalStory =
-    buyerPolishedShell &&
-    isReviewContext &&
-    approvalWorkflowState.canShowCompletionMessaging &&
-    approvalWorkflowState.primaryApprovedRequest !== null;
-  const workflowOutcomeLine = governanceWorkflowOutcomeLineForPhase(approvalWorkflowState.phase);
-  const pageTitle = GOVERNANCE_OVERVIEW_PAGE_TITLE;
-  const pageLead = isReviewContext
-    ? showBuyerApprovalStory
-      ? BUYER_GOVERNANCE_GOVERNED_USE_SCOPE
-      : GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD
-    : governanceOverviewPageLead(buyerPolishedShell);
+    isReviewContext,
+    urlScopedRunId,
+    isShowcaseSampleContext,
+    showGovernanceSampleOverviewBanner,
+    approvalWorkflowState,
+    buyerSuppressGovernanceSubmitChrome,
+    listsLoadingShowsBusyChrome,
+    clearReviewContext,
+    onLoadRun,
+    focusPendingApprovals,
+    focusSubmitSection,
+    showBuyerApprovalStory,
+    workflowOutcomeLine,
+    pageTitle,
+    pageLead,
+    replaceApprovalQueueUrl,
+  } = useGovernanceWorkflowPage();
 
   const overviewHeaderActions = (
     <div className="flex flex-wrap items-center gap-2" data-testid="governance-overview-header-actions">
@@ -414,7 +208,7 @@ export function GovernanceWorkflowPageContent() {
         )
       ) : null}
 
-      {isReviewContext ? (
+      {isReviewContext && activeRunId !== null ? (
         <>
           {isShowcaseSampleContext ? (
             <p
