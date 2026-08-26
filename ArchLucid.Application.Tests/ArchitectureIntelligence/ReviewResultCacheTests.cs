@@ -179,6 +179,21 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void InvalidateForRun_tombstones_run_id_and_skips_set_when_no_prior_entry()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-tombstone-no-entry" };
+
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" });
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
     public void InvalidateForRun_removes_entries_for_matching_run_id_regardless_of_guid_format()
     {
         ReviewResultCache cache = new();

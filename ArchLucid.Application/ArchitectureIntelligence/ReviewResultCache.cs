@@ -63,6 +63,9 @@ public sealed class ReviewResultCache : IReviewResultCache
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNull(result);
 
+        if (IsRunIdTombstoned(result.RunId))
+            return;
+
         ClosedLoopReasoningResult snapshot = ClosedLoopReasoningResultCloner.Clone(result);
         ClosedLoopCacheHitPublishGuard.SanitizeForStorage(snapshot);
 
@@ -91,32 +94,25 @@ public sealed class ReviewResultCache : IReviewResultCache
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         string normalizedRunId = ClosedLoopRunIdComparer.Normalize(runId);
-        bool anyPinnedMatch = false;
 
-        foreach (KeyValuePair<string, CacheEntry> entry in _cache)
+        lock (_evictionLock)
         {
-            string? storedRunId = entry.Value.Result.RunId;
+            _deferredInvalidateRunIds.Add(normalizedRunId);
 
-            if (string.IsNullOrWhiteSpace(storedRunId))
-                continue;
-
-            if (!ClosedLoopRunIdComparer.Equals(storedRunId, normalizedRunId))
-                continue;
-
-            if (IsStorageKeyPinned(entry.Key))
+            foreach (KeyValuePair<string, CacheEntry> entry in _cache)
             {
-                anyPinnedMatch = true;
-                continue;
-            }
+                string? storedRunId = entry.Value.Result.RunId;
 
-            _cache.TryRemove(entry.Key, out _);
-        }
+                if (string.IsNullOrWhiteSpace(storedRunId))
+                    continue;
 
-        if (anyPinnedMatch)
-        {
-            lock (_evictionLock)
-            {
-                _deferredInvalidateRunIds.Add(normalizedRunId);
+                if (!ClosedLoopRunIdComparer.Equals(storedRunId, normalizedRunId))
+                    continue;
+
+                if (IsStorageKeyPinnedUnlocked(entry.Key))
+                    continue;
+
+                _cache.TryRemove(entry.Key, out _);
             }
         }
     }
@@ -223,7 +219,7 @@ public sealed class ReviewResultCache : IReviewResultCache
                 if (!ClosedLoopRunIdComparer.Equals(storedRunId, normalizedRunId))
                     continue;
 
-                if (IsStorageKeyPinned(entry.Key))
+                if (IsStorageKeyPinnedUnlocked(entry.Key))
                 {
                     stillPinned = true;
                     continue;
@@ -237,11 +233,33 @@ public sealed class ReviewResultCache : IReviewResultCache
         }
     }
 
+    private bool IsRunIdTombstoned(string? runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return false;
+
+        lock (_evictionLock)
+        {
+            foreach (string tombstonedRunId in _deferredInvalidateRunIds)
+            {
+                if (ClosedLoopRunIdComparer.Equals(runId, tombstonedRunId))
+                    return true;
+            }
+
+            return false;
+        }
+    }
+
+    private bool IsStorageKeyPinnedUnlocked(string storageKey)
+    {
+        return _pinnedStorageKeyRefcounts.TryGetValue(storageKey, out int count) && count > 0;
+    }
+
     private bool IsStorageKeyPinned(string storageKey)
     {
         lock (_evictionLock)
         {
-            return _pinnedStorageKeyRefcounts.TryGetValue(storageKey, out int count) && count > 0;
+            return IsStorageKeyPinnedUnlocked(storageKey);
         }
     }
 
@@ -254,7 +272,7 @@ public sealed class ReviewResultCache : IReviewResultCache
             if (entry.Value.ExpiresUtc > utcNow)
                 continue;
 
-            if (IsStorageKeyPinned(entry.Key))
+            if (IsStorageKeyPinnedUnlocked(entry.Key))
                 continue;
 
             _cache.TryRemove(entry.Key, out _);
@@ -267,7 +285,7 @@ public sealed class ReviewResultCache : IReviewResultCache
 
         foreach (KeyValuePair<string, CacheEntry> entry in _cache)
         {
-            if (IsStorageKeyPinned(entry.Key))
+            if (IsStorageKeyPinnedUnlocked(entry.Key))
                 continue;
 
             if (oldest is null || entry.Value.CreatedUtc < oldest.Value.Value.CreatedUtc)
