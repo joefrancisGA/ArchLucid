@@ -4,6 +4,7 @@ using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 using ArchLucid.ContextIngestion.Topology;
 
 using FluentAssertions;
@@ -203,6 +204,59 @@ public sealed class ConnectorHintNormalizationDeltaTests
     }
 
     [Fact]
+    public async Task TopologyHintsConnector_DeltaAsync_ThreeSegmentInnerSlashSpacing_ReportsUnchanged()
+    {
+        TopologyHintsConnector connector = CreateTopologyConnector();
+
+        ContextSnapshot previous = await SnapshotAsync(
+            connector,
+            new RawContextPayload { TopologyHints = ["prod/vnet/subnet-a"] });
+
+        NormalizedContextBatch currentBatch = await connector.NormalizeAsync(
+            new RawContextPayload { TopologyHints = ["prod / vnet / subnet-a"] },
+            CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(currentBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task TopologyHintsConnector_DeltaAsync_InternalWhitespaceChange_ReportsUnchanged()
+    {
+        TopologyHintsConnector connector = CreateTopologyConnector();
+
+        ContextSnapshot previous = await SnapshotAsync(
+            connector,
+            new RawContextPayload { TopologyHints = ["hub vnet"] });
+
+        NormalizedContextBatch currentBatch = await connector.NormalizeAsync(
+            new RawContextPayload { TopologyHints = ["hub  vnet"] },
+            CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(currentBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject()
+    {
+        TopologyHintsConnector connector = CreateTopologyConnector();
+
+        NormalizedContextBatch batch = await connector.NormalizeAsync(
+            new RawContextPayload { TopologyHints = ["prod/vnet", " prod/vnet "] },
+            CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle();
+        batch.CanonicalObjects[0].Properties["text"].Should().Be("prod/vnet");
+    }
+
+    [Fact]
     public async Task JsonInfrastructureDeclarationParser_ResourceTypeCasing_IsCanonicalized()
     {
         JsonInfrastructureDeclarationParser parser = new(NullLogger<JsonInfrastructureDeclarationParser>.Instance);
@@ -224,6 +278,48 @@ public sealed class ConnectorHintNormalizationDeltaTests
 
         objects.Should().ContainSingle();
         objects[0].Properties["resourceType"].Should().Be("vnet");
+    }
+
+    [Fact]
+    public async Task SecurityBaselineHintsNormalizer_Reparse_ProducesStableObjectId()
+    {
+        SecurityBaselineHintsPayloadNormalizer sut = new();
+
+        SecurityBaselineHintsPayload payload = new() { SecurityBaselineHints = ["encrypt at rest"] };
+
+        NormalizedContextBatch first = await sut.NormalizeAsync(payload, CancellationToken.None);
+        NormalizedContextBatch second = await sut.NormalizeAsync(payload, CancellationToken.None);
+
+        first.CanonicalObjects.Should().ContainSingle();
+        second.CanonicalObjects[0].ObjectId.Should().Be(first.CanonicalObjects[0].ObjectId);
+    }
+
+    [Fact]
+    public async Task StaticRequestNormalizer_Reparse_ProducesStableObjectId()
+    {
+        StaticRequestPayloadNormalizer sut = new();
+
+        StaticRequestPayload payload = new() { Description = "billing api redesign" };
+
+        NormalizedContextBatch first = await sut.NormalizeAsync(payload, CancellationToken.None);
+        NormalizedContextBatch second = await sut.NormalizeAsync(payload, CancellationToken.None);
+
+        first.CanonicalObjects.Should().ContainSingle();
+        second.CanonicalObjects[0].ObjectId.Should().Be(first.CanonicalObjects[0].ObjectId);
+    }
+
+    [Fact]
+    public async Task PolicyReferenceNormalizer_Reparse_ProducesStableObjectId()
+    {
+        PolicyReferencePayloadNormalizer sut = new(new PolicyTopologyOverlapResolver());
+
+        PolicyReferencePayload payload = new() { PolicyReferences = ["soc2"] };
+
+        NormalizedContextBatch first = await sut.NormalizeAsync(payload, CancellationToken.None);
+        NormalizedContextBatch second = await sut.NormalizeAsync(payload, CancellationToken.None);
+
+        first.CanonicalObjects.Should().ContainSingle();
+        second.CanonicalObjects[0].ObjectId.Should().Be(first.CanonicalObjects[0].ObjectId);
     }
 
     private static TopologyHintsConnector CreateTopologyConnector() =>

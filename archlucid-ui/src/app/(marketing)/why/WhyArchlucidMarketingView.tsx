@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
 import { WhyEvidenceOrientationStrip } from "@/components/marketing/WhyEvidenceOrientationStrip";
 import { WhyMarketingHeroSection } from "@/app/(marketing)/why/WhyMarketingHeroSection";
@@ -153,9 +154,10 @@ export function WhyArchlucidMarketingView({ frontDoorRows }: WhyArchlucidMarketi
       <section className="mt-12" aria-labelledby="why-market-landscape-heading">
         <details className="group rounded-lg border border-neutral-200 dark:border-neutral-800" data-testid="why-market-landscape-disclosure">
           <summary
-            className="cursor-pointer list-none px-4 py-3 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden"
+            className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden"
             data-testid="why-market-landscape-disclosure-trigger"
           >
+            <DisclosureTriangleIndicator />
             <span className={MARKETING_TYPOGRAPHY.sectionTitle}>{WHY_MARKET_LANDSCAPE_DISCLOSURE_LABEL}</span>
           </summary>
           <div className="border-t border-neutral-200 px-4 pb-4 pt-3 dark:border-neutral-800">
@@ -290,9 +292,10 @@ export function WhyArchlucidMarketingView({ frontDoorRows }: WhyArchlucidMarketi
 
         <details className="group mt-6 rounded-lg border border-neutral-200 dark:border-neutral-800" data-testid="why-hard-comparison-disclosure">
           <summary
-            className="cursor-pointer list-none px-4 py-3 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden"
+            className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden"
             data-testid="why-hard-comparison-disclosure-trigger"
           >
+            <DisclosureTriangleIndicator />
             <span className={MARKETING_TYPOGRAPHY.sectionTitle}>{WHY_HARD_COMPARISON_DISCLOSURE_LABEL}</span>
           </summary>
           <div className="border-t border-neutral-200 px-4 pb-4 pt-3 dark:border-neutral-800">

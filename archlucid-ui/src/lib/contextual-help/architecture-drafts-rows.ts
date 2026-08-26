@@ -9,14 +9,14 @@ import { ARCHITECTURE_DRAFTS_HELP_CANONICAL_PATH } from "@/lib/architecture-draf
 
 const ARCHITECTURE_DRAFTS_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Architectures list - browse and resume saved architecture drafts before filing evidence for review.",
+    "Architecture drafts — browse and resume saved drafts before filing evidence for review.",
   whatToDoNext:
     "Open a draft to continue editing, or Create architecture when you need a new brief, then Start a review when ready.",
   whyEmpty: "Drafts appear after the architectures API responds; empty lists mean no drafts are saved yet.",
   whereToConfigurePrerequisite:
     "Drafting uses the workspace and project selected in the header switcher; listing drafts does not start a review.",
   taskSteps: [
-    "Open a draft to continue editing the architecture brief.",
+    "Continue a draft to keep editing the architecture brief.",
     "Create architecture when you need a new draft.",
     "Start a review when the brief is ready for evidence intake.",
   ],

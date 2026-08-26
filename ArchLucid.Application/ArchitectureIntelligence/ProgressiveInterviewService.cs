@@ -230,10 +230,29 @@ public sealed class ProgressiveInterviewService : IProgressiveInterviewService
             return ExtractLineValue(combinedText, "system boundary");
         }
 
-        if (combinedText.Contains("in scope", StringComparison.OrdinalIgnoreCase)
-            && combinedText.Contains("out of scope", StringComparison.OrdinalIgnoreCase))
+        string? inScope = ExtractLineValue(combinedText, "in scope");
+        string? outOfScope = ExtractLineValue(combinedText, "out of scope");
+        List<string> boundaryParts = [];
+
+        if (!string.IsNullOrWhiteSpace(inScope))
         {
-            return "In-scope and out-of-scope boundaries referenced in source material.";
+            boundaryParts.Add($"In scope: {inScope.Trim()}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(outOfScope))
+        {
+            boundaryParts.Add($"Out of scope: {outOfScope.Trim()}");
+        }
+
+        if (boundaryParts.Count > 0)
+        {
+            return string.Join(" ", boundaryParts);
+        }
+
+        if (combinedText.Contains("in scope", StringComparison.OrdinalIgnoreCase)
+            || combinedText.Contains("out of scope", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Scope boundaries referenced in source material.";
         }
 
         return null;
@@ -288,6 +307,18 @@ public sealed class ProgressiveInterviewService : IProgressiveInterviewService
         if (combinedText.Contains("must not fail", StringComparison.OrdinalIgnoreCase))
         {
             return "Must-not-fail constraints referenced in source material.";
+        }
+
+        string? failureMode = ExtractLineValue(combinedText, "failure mode");
+
+        if (!string.IsNullOrWhiteSpace(failureMode))
+        {
+            return failureMode;
+        }
+
+        if (combinedText.Contains("failure mode and recovery", StringComparison.OrdinalIgnoreCase))
+        {
+            return ExtractLineValue(combinedText, "failure mode and recovery");
         }
 
         return null;

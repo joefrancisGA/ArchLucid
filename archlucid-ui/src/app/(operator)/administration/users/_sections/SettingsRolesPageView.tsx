@@ -466,10 +466,7 @@ export function SettingsRolesPageView(props: Props) {
               <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Roles and permissions</CardTitle>
             </CardHeader>
             <CardContent>
-              <SettingsRolesMatrixSection
-                assignmentCountsByRole={roleAssignmentCounts}
-                assignmentCountsReliable={assignmentCountsReliable}
-              />
+              <SettingsRolesMatrixSection />
             </CardContent>
           </Card>
         </TabsContent>

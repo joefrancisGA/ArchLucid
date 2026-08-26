@@ -79,6 +79,7 @@ public sealed class ReviewClarificationQuestionsController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/{runId:guid}/knowledge-model/clarification-answers")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ApplyKnowledgeModelClarificationAnswersResponse), StatusCodes.Status200OK)]

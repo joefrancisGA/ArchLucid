@@ -179,6 +179,7 @@ public sealed class PilotsController(IPilotsApplicationService pilots) : Control
         return Ok(response);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/first-value-report.pdf")]
     [Produces("application/pdf")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
@@ -204,6 +205,7 @@ public sealed class PilotsController(IPilotsApplicationService pilots) : Control
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/sponsor-pack-sent")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -235,6 +237,7 @@ public sealed class PilotsController(IPilotsApplicationService pilots) : Control
         };
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/sponsor-preliminary-share")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -269,6 +272,7 @@ public sealed class PilotsController(IPilotsApplicationService pilots) : Control
         };
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("scorecard")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(PilotScorecardResponse), StatusCodes.Status200OK)]
@@ -306,6 +310,7 @@ public sealed class PilotsController(IPilotsApplicationService pilots) : Control
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/sponsor-one-pager")]
     [RequiresCommercialTenantTier(TenantTier.Standard)]
     [Produces("application/pdf")]
@@ -321,6 +326,7 @@ public sealed class PilotsController(IPilotsApplicationService pilots) : Control
             : File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("closeout")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Produces("application/json")]

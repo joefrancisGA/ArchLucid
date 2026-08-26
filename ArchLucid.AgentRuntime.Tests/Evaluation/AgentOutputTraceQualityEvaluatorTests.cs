@@ -678,6 +678,61 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
             because: "confidence enrichment must mirror PilotStrict faithfulness rejection when evidence is available");
     }
 
+    [Fact]
+    public async Task ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0.5,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t1",
+            RunId = "r",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = MinimalValidTopologyAgentResultJson(),
+        };
+
+        Dictionary<string, double?> calibratedByTaskId = new(StringComparer.Ordinal)
+        {
+            ["task-1"] = 0.2,
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? recorderResult =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None,
+                calibratedConfidenceByTaskId: calibratedByTaskId);
+
+        recorderResult.Should().NotBeNull();
+        recorderResult!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+
+        bool accepted =
+            await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None,
+                calibratedConfidenceByTaskId: calibratedByTaskId);
+
+        accepted.Should().BeFalse(
+            because: "confidence enrichment must mirror recorder gate semantics when calibrated confidence triggers semantic reject");
+    }
+
     [Theory]
     [InlineData("{}")]
     [InlineData("{\"citations\":\"not-an-array\"}")]

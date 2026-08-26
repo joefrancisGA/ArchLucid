@@ -120,4 +120,76 @@ public sealed class JsonInfrastructureDeclarationParserTests
         result.Should().ContainSingle();
         result[0].Properties["sku"].Should().Be("standard_lrs");
     }
+
+    [Fact]
+    public async Task ParseAsync_CustomPropertyKeys_AreCanonicalized()
+    {
+        InfrastructureDeclarationReference firstKeyCasing = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "storage",
+                            "name": "docstorage01",
+                            "properties": { "Sku": "Standard_LRS" }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        InfrastructureDeclarationReference secondKeyCasing = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "storage",
+                            "name": "docstorage01",
+                            "properties": { "sku": "standard_lrs" }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> firstObjects =
+            await _sut.ParseAsync(firstKeyCasing, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondObjects =
+            await _sut.ParseAsync(secondKeyCasing, CancellationToken.None);
+
+        firstObjects.Should().ContainSingle();
+        secondObjects.Should().ContainSingle();
+        secondObjects[0].Properties.Should().BeEquivalentTo(firstObjects[0].Properties);
+    }
+
+    [Fact]
+    public async Task ParseAsync_Reparse_ProducesStableObjectId()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            DeclarationId = "decl-json-stable",
+            Content = """
+                      {
+                        "resources": [
+                          { "type": "vnet", "name": "core-vnet", "region": "eastus" }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> firstParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        firstParse.Should().ContainSingle();
+        secondParse.Should().ContainSingle();
+        secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
+    }
 }

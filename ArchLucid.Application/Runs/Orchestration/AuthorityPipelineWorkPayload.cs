@@ -41,20 +41,23 @@ public sealed class AuthorityPipelineWorkPayload
         if (string.IsNullOrEmpty(value))
             return false;
 
+        bool hasSubstantive = false;
+
         foreach (char character in value)
         {
+
             if (char.IsWhiteSpace(character))
                 continue;
 
             UnicodeCategory category = char.GetUnicodeCategory(character);
 
             if (category is UnicodeCategory.Format or UnicodeCategory.Control)
-                continue;
+                return false;
 
-            return true;
+            hasSubstantive = true;
         }
 
-        return false;
+        return hasSubstantive;
     }
 
     /// <summary>

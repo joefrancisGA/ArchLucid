@@ -34,13 +34,15 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
         List<CanonicalObject> results = [];
+        Dictionary<string, int> labelTotals = [];
+        Dictionary<string, int> labelSeen = new(StringComparer.OrdinalIgnoreCase);
 
         try
         {
             using JsonDocument doc = JsonDocument.Parse(declaration.Content);
             JsonElement root = doc.RootElement;
 
-            if (!root.TryGetProperty("values", out JsonElement values))
+            if (!TryGetPropertyIgnoreCase(root, "values", out JsonElement values))
             {
                 logger.LogWarning(
                     "Infrastructure declaration '{Name}' (terraform-show-json) has no 'values' root; expected terraform state JSON.",
@@ -49,8 +51,11 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
             }
 
-            if (values.TryGetProperty("root_module", out JsonElement rootModule))
-                CollectFromModule(rootModule, declaration, results);
+            if (TryGetPropertyIgnoreCase(values, "root_module", out JsonElement rootModule))
+            {
+                labelTotals = CountTerraformLabelOccurrences(rootModule);
+                CollectFromModule(rootModule, moduleAddress: string.Empty, declaration, results, labelTotals, labelSeen);
+            }
         }
         catch (JsonException ex)
         {
@@ -67,37 +72,156 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
 
     private static void CollectFromModule(
         JsonElement module,
+        string moduleAddress,
         InfrastructureDeclarationReference declaration,
-        List<CanonicalObject> results)
+        List<CanonicalObject> results,
+        IReadOnlyDictionary<string, int> labelTotals,
+        Dictionary<string, int> labelSeen)
     {
-        if (module.TryGetProperty("resources", out JsonElement resources) && resources.ValueKind == JsonValueKind.Array)
+        if (TryGetPropertyIgnoreCase(module, "resources", out JsonElement resources) && resources.ValueKind == JsonValueKind.Array)
         {
             foreach (JsonElement res in resources.EnumerateArray())
-                TryAddResource(res, declaration, results);
+                TryAddResource(res, moduleAddress, declaration, results, labelTotals, labelSeen);
         }
 
-        if (!module.TryGetProperty("child_modules", out JsonElement children) ||
+        if (!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children) ||
             children.ValueKind != JsonValueKind.Array)
             return;
 
         foreach (JsonElement child in children.EnumerateArray())
-            CollectFromModule(child, declaration, results);
+            CollectFromModule(child, ResolveModuleAddress(child), declaration, results, labelTotals, labelSeen);
+    }
+
+    private static Dictionary<string, int> CountTerraformLabelOccurrences(JsonElement rootModule)
+    {
+        Dictionary<string, int> counts = new(StringComparer.OrdinalIgnoreCase);
+        CountModuleLabelOccurrences(rootModule, moduleAddress: string.Empty, counts);
+
+        return counts;
+    }
+
+    private static void CountModuleLabelOccurrences(
+        JsonElement module,
+        string moduleAddress,
+        Dictionary<string, int> counts)
+    {
+        if (TryGetPropertyIgnoreCase(module, "resources", out JsonElement resources) && resources.ValueKind == JsonValueKind.Array)
+        {
+            foreach (JsonElement res in resources.EnumerateArray())
+            {
+                if (TryGetResourceAddress(res, out _))
+                    continue;
+
+                if (!TryGetPropertyIgnoreCase(res, "type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
+                    continue;
+
+                string tfType = (typeEl.GetString() ?? string.Empty).Trim();
+
+                if (string.IsNullOrWhiteSpace(tfType))
+                    continue;
+
+                if (!TryGetPropertyIgnoreCase(res, "name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
+                    continue;
+
+                string name = (nameEl.GetString() ?? string.Empty).Trim();
+
+                if (string.IsNullOrWhiteSpace(name))
+                    continue;
+
+                string labelKey = BuildTerraformLabelKey(moduleAddress, tfType, name);
+                counts[labelKey] = counts.GetValueOrDefault(labelKey) + 1;
+            }
+        }
+
+        if (!TryGetPropertyIgnoreCase(module, "child_modules", out JsonElement children) ||
+            children.ValueKind != JsonValueKind.Array)
+            return;
+
+        foreach (JsonElement child in children.EnumerateArray())
+            CountModuleLabelOccurrences(child, ResolveModuleAddress(child), counts);
+    }
+
+    private static string BuildTerraformLabelKey(string moduleAddress, string terraformType, string label)
+    {
+        string canonicalTerraformType = terraformType.Trim().ToLowerInvariant();
+        string canonicalLabel = label.Trim().ToLowerInvariant();
+
+        if (string.IsNullOrWhiteSpace(moduleAddress))
+            return $"{canonicalTerraformType}|{canonicalLabel}";
+
+        return $"{moduleAddress}|{canonicalTerraformType}|{canonicalLabel}";
+    }
+
+    private static string ResolveModuleAddress(JsonElement module)
+    {
+        if (!TryGetPropertyIgnoreCase(module, "address", out JsonElement addressElement) ||
+            addressElement.ValueKind != JsonValueKind.String)
+            return string.Empty;
+
+        string? address = addressElement.GetString();
+
+        return string.IsNullOrWhiteSpace(address) ? string.Empty : address.Trim().ToLowerInvariant();
+    }
+
+    private static bool TryGetResourceAddress(JsonElement res, out string canonicalAddress)
+    {
+        canonicalAddress = string.Empty;
+
+        if (!TryGetPropertyIgnoreCase(res, "address", out JsonElement addressElement) ||
+            addressElement.ValueKind != JsonValueKind.String)
+            return false;
+
+        string? address = addressElement.GetString();
+
+        if (string.IsNullOrWhiteSpace(address))
+            return false;
+
+        canonicalAddress = address.Trim().ToLowerInvariant();
+
+        return true;
+    }
+
+    private static string BuildTerraformResourceAddress(
+        string moduleAddress,
+        string canonicalTerraformType,
+        string canonicalLabel)
+    {
+        if (!string.IsNullOrWhiteSpace(moduleAddress))
+            return $"{moduleAddress}.{canonicalTerraformType}.{canonicalLabel}";
+
+        return $"{canonicalTerraformType}.{canonicalLabel}";
+    }
+
+    private static string BuildTerraformResourceIdentity(
+        string moduleAddress,
+        string canonicalTerraformType,
+        string canonicalLabel,
+        string canonicalAddress,
+        bool hasExplicitResourceAddress)
+    {
+        if (hasExplicitResourceAddress || !string.IsNullOrWhiteSpace(moduleAddress))
+            return canonicalAddress;
+
+        return $"{canonicalTerraformType}|{canonicalLabel}";
     }
 
     private static void TryAddResource(
         JsonElement res,
+        string moduleAddress,
         InfrastructureDeclarationReference declaration,
-        List<CanonicalObject> results)
+        List<CanonicalObject> results,
+        IReadOnlyDictionary<string, int> labelTotals,
+        Dictionary<string, int> labelSeen)
     {
-        if (!res.TryGetProperty("type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
+        if (!TryGetPropertyIgnoreCase(res, "type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
             return;
 
-        string tfType = typeEl.GetString() ?? string.Empty;
+        string tfType = (typeEl.GetString() ?? string.Empty).Trim();
 
         if (string.IsNullOrWhiteSpace(tfType))
             return;
 
-        if (!res.TryGetProperty("name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
+        if (!TryGetPropertyIgnoreCase(res, "name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
             return;
 
         string name = (nameEl.GetString() ?? string.Empty).Trim();
@@ -113,7 +237,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             ["terraformType"] = canonicalTerraformType
         };
 
-        if (res.TryGetProperty("provider_name", out JsonElement prov) && prov.ValueKind == JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(res, "provider_name", out JsonElement prov) && prov.ValueKind == JsonValueKind.String)
         {
             string? p = prov.GetString();
 
@@ -121,7 +245,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 properties["providerName"] = p.ToLowerInvariant();
         }
 
-        if (res.TryGetProperty("mode", out JsonElement mode) && mode.ValueKind == JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(res, "mode", out JsonElement mode) && mode.ValueKind == JsonValueKind.String)
         {
             string? m = mode.GetString();
 
@@ -129,14 +253,15 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 properties["mode"] = m.ToLowerInvariant();
         }
 
-        if (res.TryGetProperty("values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
+        if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in values.EnumerateObject())
             {
-                if (properties.Count >= 24)
+                if (CanonicalInfrastructurePropertyBag.CountTfProperties(properties)
+                    >= CanonicalInfrastructurePropertyBag.MaxTfPropertyCount)
                     break;
 
-                string key = SanitizePropertyKey(prop.Name);
+                string key = CanonicalInfrastructurePropertyBag.SanitizePropertyKey(prop.Name).ToLowerInvariant();
 
                 if (string.IsNullOrEmpty(key))
                     continue;
@@ -149,11 +274,11 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 properties[$"tf.{key}"] = valueText.Length > 512 ? valueText[..512] : valueText;
             }
 
-            if (res.TryGetProperty("sensitive_values", out JsonElement sensitive) && sensitive.ValueKind == JsonValueKind.Object)
+            if (TryGetPropertyIgnoreCase(res, "sensitive_values", out JsonElement sensitive) && sensitive.ValueKind == JsonValueKind.Object)
                 RedactTopLevelSensitiveTfValues(sensitive, properties);
         }
 
-        if (res.TryGetProperty("depends_on", out JsonElement depOn) && depOn.ValueKind == JsonValueKind.Array)
+        if (TryGetPropertyIgnoreCase(res, "depends_on", out JsonElement depOn) && depOn.ValueKind == JsonValueKind.Array)
         {
             List<string> refs = [];
 
@@ -170,40 +295,55 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
 
             if (refs.Count > 0)
             {
-                string joined = string.Join('|', refs);
+                string joined = string.Join('|', refs.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase));
 
                 properties["terraformDependsOn"] = joined.Length > 2000 ? joined[..2000] : joined;
             }
         }
 
+        string canonicalLabel = name.ToLowerInvariant();
+        bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
+
+        if (!hasExplicitResourceAddress)
+        {
+            canonicalAddress = BuildTerraformResourceAddress(
+                moduleAddress,
+                canonicalTerraformType,
+                canonicalLabel);
+        }
+
+        string resourceIdentity = BuildTerraformResourceIdentity(
+            moduleAddress,
+            canonicalTerraformType,
+            canonicalLabel,
+            canonicalAddress,
+            hasExplicitResourceAddress);
+
+        if (!hasExplicitResourceAddress)
+        {
+            string labelKey = BuildTerraformLabelKey(moduleAddress, canonicalTerraformType, canonicalLabel);
+
+            if (labelTotals.TryGetValue(labelKey, out int total) && total > 1)
+            {
+                int occurrence = labelSeen.GetValueOrDefault(labelKey) + 1;
+                labelSeen[labelKey] = occurrence;
+                resourceIdentity = $"{resourceIdentity}|occurrence:{occurrence}";
+                properties["terraformOccurrence"] = occurrence.ToString(CultureInfo.InvariantCulture);
+            }
+        }
+
         results.Add(new CanonicalObject
         {
+            ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
+                declaration.DeclarationId,
+                objectType,
+                resourceIdentity),
             ObjectType = objectType,
-            Name = $"{canonicalTerraformType}.{name.ToLowerInvariant()}",
+            Name = canonicalAddress,
             SourceType = "InfrastructureDeclaration",
             SourceId = declaration.DeclarationId,
             Properties = properties
         });
-    }
-
-    private static string SanitizePropertyKey(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            return string.Empty;
-
-        ReadOnlySpan<char> s = name.AsSpan();
-        Span<char> buffer = stackalloc char[s.Length];
-        int w = 0;
-
-        foreach (char c in s)
-        {
-            if (char.IsLetterOrDigit(c) || c is '_' or '-')
-                buffer[w++] = c;
-            else
-                buffer[w++] = '_';
-        }
-
-        return new string(buffer[..w]);
     }
 
     private static string CanonicalizeTerraformValueText(JsonElement value)
@@ -284,31 +424,58 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
     }
 
     private static string CanonicalizeTerraformNumberText(JsonElement value)
-    {
-        if (value.TryGetDecimal(out decimal decimalValue))
-        {
-            decimal truncated = decimal.Truncate(decimalValue);
-
-            if (decimalValue == truncated)
-                return truncated.ToString(CultureInfo.InvariantCulture);
-
-            return decimalValue.ToString(CultureInfo.InvariantCulture);
-        }
-
-        if (value.TryGetInt64(out long intValue))
-            return intValue.ToString(CultureInfo.InvariantCulture);
-
-        return value.GetRawText();
-    }
+        => CanonicalInfrastructurePropertyBag.CanonicalizeNumberText(value);
 
     private static void RedactTopLevelSensitiveTfValues(
         JsonElement sensitiveRoot,
         Dictionary<string, string> properties)
     {
-        foreach (string? pk in from sp in sensitiveRoot.EnumerateObject() where sp.Value.ValueKind == JsonValueKind.True select SanitizePropertyKey(sp.Name) into k where !string.IsNullOrEmpty(k) select $"tf.{k}" into pk where properties.ContainsKey(pk) select pk)
+        foreach (JsonProperty sensitiveProperty in sensitiveRoot.EnumerateObject())
         {
-            properties[pk] = "[REDACTED]";
+            string sanitizedKey = CanonicalInfrastructurePropertyBag.SanitizePropertyKey(sensitiveProperty.Name).ToLowerInvariant();
+
+            if (string.IsNullOrEmpty(sanitizedKey))
+                continue;
+
+            string propertyKey = $"tf.{sanitizedKey}";
+
+            if (!properties.ContainsKey(propertyKey))
+                continue;
+
+            if (sensitiveProperty.Value.ValueKind is JsonValueKind.True
+                || ContainsSensitiveMarker(sensitiveProperty.Value))
+            {
+                properties[propertyKey] = "[REDACTED]";
+            }
         }
+    }
+
+    private static bool ContainsSensitiveMarker(JsonElement value)
+    {
+        if (value.ValueKind is JsonValueKind.True)
+            return true;
+
+        if (value.ValueKind is JsonValueKind.Object)
+        {
+            foreach (JsonProperty nestedProperty in value.EnumerateObject())
+            {
+                if (ContainsSensitiveMarker(nestedProperty.Value))
+                    return true;
+            }
+
+            return false;
+        }
+
+        if (value.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement item in value.EnumerateArray())
+            {
+                if (ContainsSensitiveMarker(item))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     private static string ResolveObjectTypeFromTerraformType(string tfType)
@@ -336,5 +503,25 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 "TopologyResource",
             _ => "TopologyResource"
         };
+    }
+
+    private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
+    {
+        if (element.TryGetProperty(propertyName, out value))
+            return true;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }

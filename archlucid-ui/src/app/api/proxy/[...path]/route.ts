@@ -456,6 +456,12 @@ async function passThrough(res: Response, cacheControlPrivateMaxAgeSeconds?: num
     out.headers.set(IDEMPOTENCY_REPLAYED_HEADER, idempotencyReplayed.trim());
   }
 
+  const location = res.headers.get("Location");
+
+  if (location !== null && location.trim().length > 0) {
+    out.headers.set("Location", location.trim());
+  }
+
   if (
     cacheControlPrivateMaxAgeSeconds !== undefined &&
     cacheControlPrivateMaxAgeSeconds >= 0 &&

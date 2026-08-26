@@ -139,4 +139,32 @@ describe("proxy route X-Correlation-ID", () => {
 
     expect(res.headers.get("X-Idempotency-Replayed")).toBe("true");
   });
+
+  it("forwards Location from upstream 202 Accepted on POST", async () => {
+    const operationLocation = "/v1/operations/draft:11111111-1111-1111-1111-111111111111";
+    fetchMock.mockResolvedValueOnce(
+      new Response(null, {
+        status: 202,
+        headers: {
+          Location: operationLocation,
+        },
+      }),
+    );
+
+    const req = new NextRequest(`http://localhost/api/proxy/v1/architecture/request/draft/async`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "content-length": "2",
+      },
+      body: "{}",
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "architecture", "request", "draft", "async"] }),
+    });
+
+    expect(res.status).toBe(202);
+    expect(res.headers.get("Location")).toBe(operationLocation);
+  });
 });

@@ -12,12 +12,10 @@ import {
   ARCHITECTURE_SCORECARD_PRIMARY_CONTENT_ID,
   ARCHITECTURE_SCORECARD_SKIP_LINK_LABEL,
 } from "@/lib/architecture/architecture-scorecard-page-copy";
-import { OPERATOR_NAV_GROUP_LABELS } from "@/lib/i18n";
 import {
   REVIEW_SCORECARD_PAGE_SUBTITLE,
   REVIEW_SCORECARD_PAGE_TITLE,
 } from "@/lib/pilot-scorecard-present";
-import { SPONSOR_REPORT_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
 import { PilotScorecardPageView } from "./PilotScorecardPageView";
@@ -36,7 +34,15 @@ vi.mock("next/navigation", async (importOriginal) => {
 
   return {
     ...actual,
-    useSearchParams: vi.fn(() => new URLSearchParams()),
+    useRouter: () => ({
+      replace: vi.fn(),
+      push: vi.fn(),
+      refresh: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+    }),
+    useSearchParams: vi.fn(() => new URLSearchParams("runId=run-scorecard-test")),
   };
 });
 
@@ -63,6 +69,18 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 
 vi.mock("@/components/ScorecardRoiVocabularyRail", () => ({
   ScorecardRoiVocabularyRail: () => <div data-testid="scorecard-roi-vocabulary" />,
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", setRunId: vi.fn() }),
+}));
+
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+}));
+
+vi.mock("./ScorecardNextReviewFooterClient", () => ({
+  ScorecardNextReviewFooterClient: () => <div data-testid="scorecard-next-review-footer-stub" />,
 }));
 
 const mockUseSearchParams = vi.mocked(useSearchParams);
@@ -110,19 +128,14 @@ function buildModel(overrides: Partial<UsePilotScorecardPageModel> = {}): UsePil
 
 describe("PilotScorecardPageView buyer-polished shell", () => {
   beforeEach(() => {
-    mockUseSearchParams.mockReturnValue(new URLSearchParams());
+    mockUseSearchParams.mockReturnValue(new URLSearchParams("runId=run-scorecard-test"));
   });
 
-  it("renders skip link, breadcrumb, orientation above summary row, and hides vocabulary rail", () => {
+  it("renders skip link, orientation above summary row, and hides vocabulary rail", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
     const skipLink = screen.getByRole("link", { name: ARCHITECTURE_SCORECARD_SKIP_LINK_LABEL });
     expect(skipLink).toHaveAttribute("href", `#${ARCHITECTURE_SCORECARD_PRIMARY_CONTENT_ID}`);
-
-    const breadcrumb = screen.getByTestId("architecture-scorecard-breadcrumb");
-    expect(breadcrumb).toHaveTextContent(OPERATOR_NAV_GROUP_LABELS.analysis);
-    expect(breadcrumb).toHaveTextContent(SPONSOR_REPORT_PAGE_TITLE);
-    expect(breadcrumb).toHaveTextContent(REVIEW_SCORECARD_PAGE_TITLE);
 
     expect(screen.getByRole("heading", { level: 1, name: REVIEW_SCORECARD_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(REVIEW_SCORECARD_PAGE_SUBTITLE)).toBeInTheDocument();

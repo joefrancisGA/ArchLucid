@@ -29,6 +29,7 @@ public sealed class InlineRequirementsPayloadNormalizer : IConnectorNormalizer<I
 
             batch.CanonicalObjects.Add(new CanonicalObject
             {
+                ObjectId = ContextIngestionStableLineNames.StableObjectId("Requirement", canonicalRequirement),
                 ObjectType = "Requirement",
                 Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalRequirement),
                 SourceType = "InlineRequirement",

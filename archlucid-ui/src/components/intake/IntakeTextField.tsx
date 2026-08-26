@@ -15,6 +15,8 @@ type IntakeTextFieldProps = {
   readonly disabled?: boolean;
   readonly invalid?: boolean;
   readonly testId?: string;
+  /** When false, omits the (required)/(optional) suffix — use when section chrome already states requiredness. */
+  readonly showRequirednessSuffix?: boolean;
   readonly onChange: (value: string) => void;
 };
 
@@ -22,7 +24,12 @@ type IntakeTextFieldProps = {
 export function IntakeTextField(props: IntakeTextFieldProps): React.JSX.Element {
   return (
     <div className="space-y-2">
-      <IntakeFieldLabel htmlFor={props.id} label={props.label} required={props.required} />
+      <IntakeFieldLabel
+        htmlFor={props.id}
+        label={props.label}
+        required={props.required}
+        showRequirednessSuffix={props.showRequirednessSuffix}
+      />
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
         {props.hint}
       </p>

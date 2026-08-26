@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceVocabularyRail";
 import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
@@ -21,8 +22,10 @@ import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_FORM_FIELD_LABEL_CLASS,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 import {
   resolveSearchReviewEvidenceEmphasizedStepId,
@@ -150,14 +153,36 @@ export function SearchPageView({ model }: SearchPageViewProps) {
       {scopedRunId.length === 0 ? (
         <SearchPickReviewBeforeSearchStrip selectedReviewId={runId} onSelectReview={setRunId} />
       ) : (
-        <IntegrationConnectChecklist
-          title="Search checklist"
-          steps={searchReviewSteps}
-          emphasizedStepId={searchReviewEmphasizedStepId}
-          testIdPrefix="search-review-evidence"
-        />
+        <>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="search-review-evidence-run-scope-banner"
+          >
+            {"Search evidence for review "}
+            <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={SEARCH_REVIEW_EVIDENCE_PATH}>
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            >
+              Open review
+            </Link>
+          </p>
+          <IntegrationConnectChecklist
+            title="Search checklist"
+            steps={searchReviewSteps}
+            emphasizedStepId={searchReviewEmphasizedStepId}
+            testIdPrefix="search-review-evidence"
+          />
+        </>
       )}
 
+      {scopedRunId.length > 0 ? (
+        <>
       <Card className="max-w-xl border-neutral-200 dark:border-neutral-700" data-testid="search-review-evidence-form">
         <CardContent className="grid gap-4 p-4">
           <div className="space-y-2">
@@ -249,7 +274,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Recent searches</p>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   className="h-auto px-2 py-1"
                   data-testid="search-recent-queries-clear"
@@ -313,6 +338,8 @@ export function SearchPageView({ model }: SearchPageViewProps) {
       </div>
 
       {scopedRunId.length > 0 ? <SearchNextReviewFooterClient runId={scopedRunId} query={query} /> : null}
+        </>
+      ) : null}
     </OperatorPageContainer>
   );
 }

@@ -6,7 +6,7 @@ import {
   deriveFindingsToolbarStatusCounts,
   deriveFindingsToolbarSeverityCounts,
   deriveOpenRootCauseClusterCount,
-} from "./RunDetailFindingsToolbar";
+} from "./run-detail-findings-toolbar-presentation";
 
 function sampleFinding(
   partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,

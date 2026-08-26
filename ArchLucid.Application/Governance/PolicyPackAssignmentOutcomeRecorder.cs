@@ -55,7 +55,10 @@ public static class PolicyPackAssignmentOutcomeRecorder
         if (descriptorNotApplicable(assignment, findingsSnapshot))
             return PolicyPackEvaluationOutcomes.NotApplicable;
 
-        if (!findingsComplete && findingsSnapshot is not null)
+        if (findingsSnapshot is null)
+            return PolicyPackEvaluationOutcomes.Skipped;
+
+        if (!findingsComplete)
         {
             if (findings.Any(finding => PolicyPackFindingMatcher.MatchesAssignment(finding, assignment)))
                 return PolicyPackEvaluationOutcomes.Evaluated;

@@ -60,6 +60,6 @@ export function resolveNextFindingInReviewForRunDetail(
   return {
     findingId: nextFinding.findingId,
     title: nextFinding.title,
-    href: getFindingEvidenceTraceHref(runDetail.runId, nextFinding.findingId),
+    href: getFindingEvidenceTraceHref(runDetail.run.runId, nextFinding.findingId),
   };
 }

@@ -18,4 +18,9 @@ internal static class ReviewCacheKeyBuilder
             manifest.SchemaVersion.ToString(System.Globalization.CultureInfo.InvariantCulture),
             manifest.ReuseReason ?? string.Empty);
     }
+
+    public static string BuildInFlight(ReviewCacheDependencyManifest manifest, bool publishToProduct)
+    {
+        return string.Join('|', Build(manifest), publishToProduct ? "publish=1" : "publish=0");
+    }
 }

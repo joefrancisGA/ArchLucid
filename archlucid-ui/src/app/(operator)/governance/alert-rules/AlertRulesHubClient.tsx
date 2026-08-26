@@ -152,6 +152,7 @@ function AlertRulesHubTabsList(): React.JSX.Element {
 export function AlertRulesHubClient() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get(ALERT_RULES_HUB_TAB_PARAM);
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const [activeTab, setActiveTab] = useState<AlertRulesHubTabId>(() =>
     alertRulesHubTabFromSearchParam(tabParam),
   );
@@ -177,7 +178,11 @@ export function AlertRulesHubClient() {
   return (
     <AlertRulesHubRefreshProvider activeTab={activeTab}>
       <AlertRulesHubTabCountsBootstrap />
-      <AlertRulesHubTabShell activeTab={activeTab} onActiveTabChange={setActiveTab} />
+      <AlertRulesHubTabShell
+        activeTab={activeTab}
+        onActiveTabChange={setActiveTab}
+        scopedRunId={scopedRunId}
+      />
     </AlertRulesHubRefreshProvider>
   );
 }
@@ -185,6 +190,7 @@ export function AlertRulesHubClient() {
 function AlertRulesHubTabShell(props: {
   readonly activeTab: AlertRulesHubTabId;
   readonly onActiveTabChange: (tab: AlertRulesHubTabId) => void;
+  readonly scopedRunId: string;
 }): React.JSX.Element {
   const { tabCounts } = useAlertRulesHubRefresh();
   const rulesCount = tabCounts.rules ?? 0;
@@ -192,9 +198,9 @@ function AlertRulesHubTabShell(props: {
   useEffect(() => {
     if (props.activeTab === "test-alerts" && rulesCount === 0) {
       props.onActiveTabChange("rules");
-      writeAlertRulesHubTabToUrl("rules");
+      writeAlertRulesHubTabToUrl("rules", props.scopedRunId);
     }
-  }, [props.activeTab, props.onActiveTabChange, rulesCount]);
+  }, [props.activeTab, props.onActiveTabChange, props.scopedRunId, rulesCount]);
 
   const onSelectTab = useCallback(
     (id: string) => {
@@ -205,9 +211,9 @@ function AlertRulesHubTabShell(props: {
       }
 
       props.onActiveTabChange(nextTab);
-      writeAlertRulesHubTabToUrl(nextTab);
+      writeAlertRulesHubTabToUrl(nextTab, props.scopedRunId);
     },
-    [props.onActiveTabChange, rulesCount],
+    [props.onActiveTabChange, props.scopedRunId, rulesCount],
   );
 
   return (

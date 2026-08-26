@@ -620,6 +620,7 @@ public static class NaiveTopologyProposalEndpointIndex
             || normalized.Contains("stream_analytics", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("iothub", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("powerbi", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("purview", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("eventgrid", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("redis_enterprise", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("maps_account", StringComparison.OrdinalIgnoreCase)
@@ -720,7 +721,8 @@ public static class NaiveTopologyProposalEndpointIndex
             || normalized.Contains("palo_alto", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("verifiedaccess", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("workloads_orchestrator", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("extended_location", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("extended_location", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("purview", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>

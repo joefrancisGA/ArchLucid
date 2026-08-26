@@ -39,7 +39,7 @@ internal static class ClosedLoopReasoningResultCloner
             PublishedFindingsSnapshotId = source.PublishedFindingsSnapshotId,
             PublishedRecommendationCount = source.PublishedRecommendationCount,
             PublishSkipReason = source.PublishSkipReason,
-            CacheHit = false,
+            CacheHit = source.CacheHit,
             CacheReuseReason = source.CacheReuseReason,
             BudgetRejected = source.BudgetRejected,
             BudgetRejectReason = source.BudgetRejectReason,
@@ -345,12 +345,15 @@ internal static class ClosedLoopReasoningResultCloner
         if (payload is Dictionary<string, string> stringDictionary)
             return new Dictionary<string, string>(stringDictionary, StringComparer.Ordinal);
 
-        if (payload is ICloneable cloneable)
-            return cloneable.Clone();
-
-        return JsonSerializer.Deserialize(
+        object? deserialized = JsonSerializer.Deserialize(
             JsonSerializer.Serialize(payload),
             payload.GetType());
+
+        if (deserialized is null)
+            throw new InvalidOperationException(
+                $"Unable to deep-clone finding payload of type '{payload.GetType().FullName}'.");
+
+        return deserialized;
     }
 
     private static ExplainabilityTrace CloneExplainabilityTrace(ExplainabilityTrace trace)

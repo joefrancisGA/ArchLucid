@@ -130,11 +130,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 51
-- **bugs-found:** 52
+- **hunts:** 52
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_storage_share` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`storage_share` was only listed for datastore aliases)
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — `azurerm_purview_account` Terraform id omitted from `LooksLikeTerraformServiceSourceId` (`purview` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -186,9 +186,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_healthcare_workspace` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `healthcare_workspace` was only in the datastore list; `azurerm_healthcare_workspace.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_backup_vault` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `backup_vault` was only in the datastore list; `azurerm_backup_vault.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_storage_share` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `storage_share` was only in the datastore list; `azurerm_storage_share.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
-- [ ] (hunt-ready) `TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases` (overlay path) with `ManifestService.ServiceId` = full ARM resource id and relationship `SourceId` = normalized ARM form only — overlay omits `AddArmResourceIdResolutionAliases` unlike `AddDeclaredManifestServiceEndpointAliases`, so edge creation fails when the inventoried node stores the id only in a differently indexed property field.
-- [ ] (hunt-ready) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` with relationship endpoint = mixed-case ARM id — gate `EndpointKeyIsKnown` accepts via normalization, but `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` uses raw `declaredBatchEndpointKeys.Contains(relationship.SourceId)` without ARM normalize, dropping batch-local relationships the merge gate would keep.
-- [ ] (hunt-ready) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeSyntheticLabelEndpointKeys` on inventoried node `Category = Data/Storage` and `SourceId` not matching `LooksLikeTerraformServiceSourceId` — only `ds-{label}` is indexed; relationship `SourceId = svc-{label}` passes merge-gate inventory keys only when category is blank (both synthetics), and is filtered out for explicit datastore category nodes.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases` (overlay path) with `ManifestService.ServiceId` = full ARM resource id and relationship `SourceId` = normalized ARM form only — overlay omits `AddArmResourceIdResolutionAliases` unlike `AddDeclaredManifestServiceEndpointAliases`, but endpoint dictionaries use `OrdinalIgnoreCase` and `TryResolveNodeId` normalizes ARM lookups, so mixed/normalized casing does not drop edges on current code.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` with relationship endpoint = mixed-case ARM id — `FilterRelationshipOnlyProposals` uses raw `Contains`, but `declaredBatchEndpointKeys` is case-insensitive and `AddArmResourceIdEndpointKeys` registers normalized ARM aliases during batch declaration, so batch-local relationships are not dropped.
+- [x] (proven) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeSyntheticLabelEndpointKeys` on inventoried node `Category = Data/Storage` and `SourceId` not matching `LooksLikeTerraformServiceSourceId` — **hit 2026-08-26:** `azurerm_purview_account` omitted from service heuristic list; Data-category nodes indexed only `ds-{label}` so `svc-catalog` relationships were filtered and edges dropped; regression in gate + merge tests
 
 ---
 
@@ -343,11 +343,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 6
-- **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `IsValidForProcessing` rejected blank payload `projectId` before worker could overwrite from `dbo.Runs`
+- **hunts:** 7
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — embedded zero-width chars in `EvidenceBundleId` passed worker gate but broke bundle lookup
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -364,8 +364,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-24 dry hunt #6: no open hypotheses; re-tested null-document / gate paths — `MaterializeDocumentList` already filters `[null]` before `IsValidForProcessing`; aligned stale repro test with filter semantics (`Deserialize_filters_null_document_elements_before_worker_gate`).
 - [x] (proven) `IsValidForProcessing` rejects blank payload `projectId` before worker can overwrite from `dbo.Runs` — **hit 2026-08-24:** gate ran before `GetByIdAsync`; whitespace-only `projectId` marked processed instead of resuming; fixed by dropping non-authoritative `ProjectId` from `IsValidForProcessing`; regression in `IsValidForProcessing_allows_blank_project_id_because_worker_overwrites_from_persisted_run` / `ProcessPendingBatchAsync_recovers_blank_payload_project_id_from_persisted_run`
+- [x] (proven) `HasSubstantiveText` allowed embedded format/control characters in `EvidenceBundleId` — **hit 2026-08-26:** `\u200Bbundle-1` passed `IsValidForProcessing` but `EvidenceBundleId.Trim()` left zero-width chars, so post-pipeline bundle lookup failed and retried instead of invalid-payload discard; fixed by rejecting any format/control character in the id; regression in `IsValidForProcessing_rejects_embedded_zero_width_in_evidence_bundle_id`.
+- [ ] (candidate) `MaterializeInfrastructureDeclarationList` filters null references only — empty `{}` declaration objects survive JSON and may yield connector warnings instead of deterministic discard at the gate.
 
----
+2026-08-26 seed hunt #7: proved embedded zero-width evidence bundle ids; reseeded empty infrastructure declaration object candidate.
+
+2026-08-24 dry hunt #6: no open hypotheses; re-tested null-document / gate paths — `MaterializeDocumentList` already filters `[null]` before `IsValidForProcessing`; aligned stale repro test with filter semantics (`Deserialize_filters_null_document_elements_before_worker_gate`).
 
 ## Zone: technology-ledger-merge
 
@@ -435,11 +439,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 4
-- **bugs-found:** 5
+- **hunts:** 5
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — verify response echoed null tenant/workspace while JWT used `TrialLocalJwtScopeDefaults`; verify HTTP logged `EmailOtpCodeRequested`; SSO-blocked verify skipped `EmailOtpVerificationFailed` audit
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — HTTP challenge logged duplicate `EmailOtpCodeRequested` alongside service
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -453,6 +457,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `EmailOtpAuthController.VerifyAsync` JWT/response tenant-workspace desync — **hit 2026-08-25:** response echoed null `result.TenantId`/`WorkspaceId` while JWT fell back to `TrialLocalJwtScopeDefaults`; fixed by returning resolved scope in `EmailOtpVerifyResponse`; regression `VerifyAsync_response_scope_matches_jwt_when_service_returns_null_tenant_workspace`
 - [x] (proven) `EmailOtpAuthController.VerifyAsync` wrong verify audit event — **hit 2026-08-25:** HTTP verify logged `EmailOtpCodeRequested` with `email_otp_verify_http`, conflating challenge and verify telemetry; removed controller audit (service emits `EmailOtpVerificationSucceeded`/`Failed`); `[MutatingAuditExcluded]` + regression `VerifyAsync_does_not_log_email_otp_code_requested_audit`
 - [x] (proven) `EmailOtpAuthService.VerifyCodeAsync` SSO-blocked verify missing audit — **hit 2026-08-25:** `RequireEnterpriseSso` path passed `emailCorrelation: null` to `FailWithAuditAsync`, skipping `EmailOtpVerificationFailed`; fixed by correlating from challenge email before SSO gate; regression `VerifyCodeAsync_audits_sso_required_failure_for_stale_challenge_when_domain_now_requires_sso`
+- [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` duplicate `EmailOtpCodeRequested` audit — **hit 2026-08-26:** HTTP challenge logged `EmailOtpCodeRequested` with `email_otp_challenge_http` before service also logged `EmailOtpCodeRequested`, doubling telemetry for valid emails; removed controller audit, added `[MutatingAuditExcluded]`, and preserved invalid-email audit in `EmailOtpRequestFlow`; regression `RequestChallengeAsync_logs_email_otp_code_requested_once_for_valid_email` + `RequestCodeAsync_returns_neutral_message_for_invalid_email_and_audits_once`
+
+2026-08-26 seed hunt #5: reseeded challenge HTTP audit path; proved duplicate `EmailOtpCodeRequested` on valid challenge requests.
 
 ---
 
@@ -995,11 +1002,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — stale enable/disable toggle failure surfaced in new workspace after scope switch
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1010,6 +1017,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Dry-run control posts to the live endpoint from the settings form (retired: no dry-run on create form; Send test uses /test)
 - [x] (proven) In-flight webhook test or save state survives operator scope switch — **hit 2026-08-21:** scope `useEffect` cleared form rows but not `testingId`/`isSaving`; stale async completions could disable tests or show save success in the new workspace.
 - [x] (proven) Stale subscription list from a previous workspace overwrites rows after scope switch — **hit 2026-08-23:** `load()` in `use-webhooks-settings.ts` lacked `scopeGenerationRef` guards; an in-flight `listAlertRoutingSubscriptions` completion could call `setItems` with the prior workspace's subscriptions after the operator switched scope.
+- [x] (proven) `confirmEnableSubscription` / `confirmDisableSubscription` lacked `scopeGenerationRef` guards on toggle completion — **hit 2026-08-26:** in-flight `toggleAlertRoutingSubscription` could call `setFailure` in the new workspace after scope switch; fixed by threading generation through `executeToggle` and guarding enable/disable busy and error state (`page.test.tsx` `does not show toggle failure in a new workspace when enable completes after scope switch`).
 
 ---
 
@@ -1262,11 +1270,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 5
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — SAML IdP metadata binder picked first SingleLogoutService regardless of HTTPS or Redirect binding
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — SAML scope promotion duplicated conflicting tenant_id claims
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1282,6 +1290,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) SAML inbound normalizer promoted non-GUID tenant/workspace/project values onto canonical scope claims — **hit 2026-08-24:** non-GUID `tenant_id` claims failed `Guid.TryParse` in scope resolution and fell back to headers; fixed by skipping non-GUID promotion (`ArchLucidSamlInboundClaimsNormalizerTests`).
 - [x] (proven) SAML IdP metadata binder picked first SSO endpoint regardless of HTTPS or Redirect binding — **hit 2026-08-24:** `SingleSignOnServices.First()` could select cleartext HTTP-POST before HTTPS Redirect; fixed with ordered selection (`ArchLucidSaml2IdpMetadataBinderTests`).
 - [x] (proven) SAML IdP metadata binder picked first SingleLogoutService regardless of HTTPS or Redirect binding — **hit 2026-08-25:** `SingleLogoutServices.First()` could select cleartext HTTP-POST before HTTPS Redirect; fixed with ordered selection mirroring SSO (`ApplyResolvedEntity_prefers_https_single_logout_endpoint_over_http_post_listed_first`).
+- [x] (proven) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` appended duplicate scope claims when a conflicting canonical value already existed — **hit 2026-08-26:** pre-existing `tenant_id`/`workspace_id` with wrong GUID plus configured IdP attribute produced two claims and `FindFirst` kept the wrong scope; fixed by removing conflicting canonical claims before promoting mapped source values (`ArchLucidSamlInboundClaimsNormalizerTests.Apply_replaces_conflicting_scope_claim_with_configured_source_value`).
 
 ---
 
@@ -1293,11 +1302,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 6
-- **bugs-found:** 10
+- **hunts:** 7
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — HTML architecture review export omitted active-trial notice that PDF/DOCX embed
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — markdown export surfaces omitted demo/trial safety notices
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1315,8 +1324,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArtifactExportController.DownloadTerraformAdvisoryExport` and `CreateTerraformPr` load run detail but omit the committed-manifest guard used by `PushRunExportToBlob` — **hit 2026-08-25:** in-progress runs with `GoldenManifest == null` returned ZIP bytes or opened a PR; aligned with blob-push guard (`ArtifactExportControllerRunExportTests`).
 - [x] (proven) `RunQueryController.ExportRunFindingsCsv` checks run existence and manifest pointer consistency but not `IsCommitted` — **hit 2026-08-25:** ReadyForCommit runs exported findings CSV while sibling buyer exports reject; added `IsCommitted` guard and 409 mapping (`RunFindingsQueryServiceExportTests`, `RunQueryControllerTests`).
 - [x] (proven) HTML architecture review export omits active-trial notice — **hit 2026-08-25:** `BuildMinimalHtml` ignored `activeTrialExportNotice` while PDF/DOCX passed `ActiveTrialExportNoticeFormatter` output; aligned HTML with sibling formats (`GenerateReportAsync_html_includes_active_trial_notice_when_tenant_on_active_trial`).
-- [ ] (hunt-ready) `RunSummaryOnePagerExportService.GenerateMarkdownAsync` — one-pager markdown omits demo-tenant and active-trial safety labeling that board PDF/DOCX/HTML exports embed via `IsDemoTenant` and `ActiveTrialExportNoticeFormatter`.
-- [ ] (hunt-ready) `SponsorReviewPacketBuilder.BuildMarkdownAsync` / `SponsorReviewPacketComposer.ComposeMarkdown` — executive sponsor packet omits active-trial export notice present on board PDF/DOCX paths.
+- [x] (proven) `RunSummaryOnePagerExportService.GenerateMarkdownAsync` omitted demo-tenant and active-trial safety labeling — **hit 2026-08-26:** one-pager markdown ignored `IsDemoTenant` and `ActiveTrialExportNoticeFormatter` while board PDF/DOCX/HTML embed them; fixed model/template plus tenant-scoped notice resolution (`RunSummaryOnePagerExportServiceTests.GenerateMarkdownAsync_includes_demo_and_active_trial_notices`, `RunSummaryOnePagerMarkdownRendererTests.Render_includes_demo_and_active_trial_notices`).
+- [x] (proven) `SponsorReviewPacketBuilder` / `SponsorReviewPacketComposer.ComposeMarkdown` omitted active-trial export notice — **hit 2026-08-26:** executive sponsor packet lacked trial watermark present on board PDF/DOCX paths; fixed with shared `ActiveTrialExportNoticeResolver` and `ExportSafetyNoticeMarkdown` (`SponsorReviewPacketBuilderTests.BuildMarkdownAsync_includes_active_trial_notice_when_tenant_on_trial`, `SponsorReviewPacketComposerTests.ComposeMarkdown_includes_active_trial_notice_when_provided`).
 - [ ] (candidate) `SponsorReviewPacketBuilder.BuildTopDecisionsAsync` — `GetRegisterAsync` is project-scoped with no `runId` filter; per-run executive packet may list decisions from other runs in the same project.
 - [ ] (candidate) `DecisionReceiptService.BuildForRunAsync` — uses `GetRunSummaryAsync` + manifest summary only; may omit `HasBrokenManifestReference` / `IsCommitted` guards used by sibling export services.
 - [ ] (candidate) `TenantReviewBoardCoverLogoStore.TryGetBytesAsync` — returns raw blob bytes without `ArchitectureReviewBoardCoverLogoValidator` re-check at export embed time (upload validates; read path does not).
@@ -1331,11 +1340,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23 — stale-running watchdog skipped MaxRetries=0 jobs and did not re-notify the durable queue after reclaim
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — Integration event DLQ retry used wall clock instead of injected TimeProvider
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1348,7 +1357,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Integration event DLQ auto-retry never requeues eligible dead letters when permanently failed rows fill the first list cap — **hit 2026-08-23:** `IntegrationEventDlqRetryBackgroundWork` listed only the first 100 dead-letter rows; 100 newer permanently failed rows hid an eligible older row from `ResetDeadLetterForRetryAsync`
 - [x] (proven) `MarkCanceledAsync` on a running in-memory job is overwritten by late executor success — **hit 2026-08-23:** `ExecuteAsync` persisted `Succeeded` without re-checking `BackgroundJobState.Canceled` after `ExecuteAsync` returned
 - [x] (proven) Stale-running watchdog never reclaims `MaxRetries=0` export jobs (`RetryCount < MaxRetries` is always false) and leaves reclaimed `Pending` rows without Azure queue notifications — **hit 2026-08-23:** `ResetStaleRunningJobsOlderThanAsync` now allows the zero-retry crash reclaim path, marks exhausted rows `Failed`, and `BackgroundJobStuckRunningWatchdogBackgroundWork` re-sends queue notifications for pending reclaims
-- [ ] (hunt-ready) `IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync` reads `DateTime.UtcNow` directly while `IntegrationEventDlqRetryPolicy` accepts an explicit UTC instant; an NTP clock step during a pass can requeue rows before backoff or leave eligible rows delayed instead of using an injected `TimeProvider`.
+- [x] (proven) `IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync` read `DateTime.UtcNow` directly while `IntegrationEventDlqRetryPolicy` accepts an explicit UTC instant — **hit 2026-08-26:** rows with unexpired backoff were requeued when wall clock advanced past eligibility while tests and policy expected a frozen pass instant; fixed by resolving `TimeProvider` from DI scope (`IntegrationEventDlqRetryBackgroundWorkTests.RunSinglePassAsync_does_not_requeue_before_backoff_when_clock_is_injected`, `RunSinglePassAsync_requeues_after_backoff_when_clock_is_injected`).
 
 ---
 
@@ -1394,11 +1403,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — dot-segment return-path traversal after sign-in
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1412,6 +1421,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Post-sign-in return URLs accept embedded protocol-relative segments — **hit 2026-08-21:** `isSafeReturnPath` only rejected leading `//` and percent-decoded three passes, so `/x%2F%2Fevil.example` and quadruple-encoded `//` payloads passed through `signInHasReturnDestination`.
 - [x] (proven) Nine-level `%2e%2e` proxy segments bypass the eight-pass decode guard and still normalize onto `architecture/draft/*` while `isAnonymousMarketingProxyPath` skips bearer auth — **hit 2026-08-23:** reject proxy segments and return paths that remain percent-encoded after the decode guard.
 - [x] (proven) Post-sign-in return URLs accept backslash path separators that normalize to traversal — **hit 2026-08-25:** `isSafeReturnPath` rejected `/\\evil` but not `/welcome\..\..\operator`; browsers normalize `\` to `/` so dot-segment smuggling bypassed the return-url gate; regression in `safe-return-path.test.ts` and `sign-in-return-destination.test.ts`.
+- [x] (proven) Post-sign-in return URLs accept dot-segment traversal that browsers normalize outside the auth subtree — **hit 2026-08-26:** `/signin/../../administration` and `/%2e%2e/admin` passed `isSafeReturnPath` while resolving to `/administration` and `/admin`; fixed with `containsDotDotSegment` in `safe-return-path.ts`; regressions in `safe-return-path.test.ts` and `sign-in-return-destination.test.ts`.
+- [ ] (candidate) `isAnonymousMarketingProxyPath` allowlist omits `v1/marketing/early-access` and trust-center ZIP/PDF routes — UI posts through `/api/proxy/...` but server bearer may still attach (unlike quick-scan / quote-request).
+
+2026-08-26 seed hunt #7: proved dot-segment return-path traversal; reseeded marketing allowlist bearer candidate.
 
 ---
 
@@ -1479,11 +1492,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 5
-- **bugs-found:** 6
+- **hunts:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — duplicate Interpretation Notes/Warnings in E2E comparison exports
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1496,6 +1509,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Compare quality delta populated on report but omitted from markdown/HTML/DOCX/PDF exports — **hit 2026-08-24:** `AddCompareQualityDeltaAsync` set `CompareQualityDelta` but export formatters never surfaced the stratified counts
 - [x] (proven) Manifest diff skipped when `CurrentManifestVersion` asymmetric — **hit 2026-08-24:** `BuildAsync` gated `IManifestDiffService.Compare` on both runs having non-empty version metadata even when both manifest bodies were loaded
 - [x] (proven) Detailed comparison exports duplicate Compare Quality Delta section — **hit 2026-08-25:** refactor #21 moved delta into `MarkdownEndToEndReplayComparisonSummaryFormatter` but markdown/HTML/DOCX/PDF detailed formatters still appended `CompareQualityDeltaExportFormatter` again (`CompareQualityDeltaExportTests.GenerateMarkdown_detailed_profile_includes_compare_quality_delta_once_with_default_summary_formatter`)
+- [x] (proven) Detailed comparison exports duplicate Interpretation Notes and Warnings — **hit 2026-08-26:** summary formatter already appends notes/warnings but markdown/HTML/DOCX/PDF formatters appended them again; fixed by removing outer duplicate sections (`CompareQualityDeltaExportTests.GenerateMarkdown_detailed_profile_includes_interpretation_notes_once_with_default_summary_formatter`, `CompareQualityDeltaExportTests.GenerateHtml_detailed_profile_includes_interpretation_notes_once_with_default_summary_formatter`).
+- [ ] (candidate) `EndToEndReplayComparisonService.BuildAsync` pairs export diffs by `ExportType` only (`GroupBy` + `First()`), so multiple exports of the same type (e.g. sponsor vs internal consulting DOCX) can mispair across runs when creation order differs.
+- [ ] (candidate) `ComparisonDriftAnalyzer.CompareElement` compares JSON arrays positionally — reordering `["a","b"]` to `["b","a"]` reports value drift at each index.
+- [ ] (candidate) `EndToEndReplayComparisonService.AddInterpretationNotes` skips agent/manifest synergy notes when `ManifestDiff` is null even if `AgentResultDiff` shows material drift.
+
+2026-08-26 seed hunt #6: reseeded export mispairing / array reorder drift / synergy-note candidates; proved duplicate Interpretation Notes and Warnings in E2E exports.
 
 ---
 
@@ -1571,11 +1590,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — confidence enrichment ignored calibrated confidence on semantic reject floor
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1588,6 +1607,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Findings snapshot confidence enrichment uses superseded or wrong trace — **hit 2026-08-19:** `FindingsSnapshotEvaluationConfidenceEnricher` grouped raw traces by `AgentType` and took `First()`, ignoring `AgentExecutionTraceLatestPerTaskSelector` and mis-scoring retried tasks.
 - [x] (proven) PilotStrict sponsor evidence gate evaluates superseded auto-retry traces — **hit 2026-08-21:** `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` iterated all persisted traces; a rejected first attempt blocked sponsor evidence even when the latest retry passed PilotStrict.
 - [x] (proven) Confidence enrichment ignores PilotStrict faithfulness rejection — **hit 2026-08-23:** `ComputeQualityGateAcceptedForConfidenceAsync` and both confidence enrichers evaluated traces without run evidence/faithfulness, so `schemaPassed` stayed true on outputs PilotStrict would reject for low agent-result faithfulness support.
+- [x] (proven) Confidence enrichment ignores calibrated confidence on semantic reject floor — **hit 2026-08-26:** `ComputeQualityGateAcceptedForConfidenceAsync` omitted `calibratedConfidenceByTaskId`, so high heuristic semantic scores accepted traces the batch recorder rejected when `CalibratedConfidence` was below `SemanticRejectBelow`; fixed by threading calibrated lookup through `AgentEvaluationConfidencePipeline` (`AgentOutputTraceQualityEvaluatorTests.ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor`).
+- [ ] (candidate) `ComputeQualityGateAcceptedForConfidenceAsync` omits Phase B LLM faithfulness enforcement — recorder path passes `llmFaithfulnessEvaluator` / options; confidence path does not.
+- [ ] (candidate) `AgentEvaluationConfidencePipeline.TraceByAgentType` uses unordered `g.First()` — engine-type fallback may inherit wrong trace when multiple same-agent tasks lack trace-id linkage.
+
+2026-08-26 seed hunt #5: proved calibrated-confidence parity gap; reseeded LLM Phase B and engine-type fallback candidates.
 
 ---
 
@@ -1599,11 +1623,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — `DeclarationSecurityBaselineClassifier.HasOpenAdminIngressHeuristic` substring-matched port `22` inside `2200`, emitting false admin-ingress findings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1616,6 +1640,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SecurityDeltaRegressionClassifier` treats negated compliant phrases as good status — **hit 2026-08-23:** substring match on `compliant` ranked `Not Compliant` and `Non Compliant` as rank 2, so Compliant→Not Compliant deltas emitted no `SecurityRegression` signal.
 - [x] (proven) `SecurityDeltaRegressionClassifier` substring tokens (`on`, `pass`, `off`) matched inside unrelated words — **hit 2026-08-24:** `Information only` ranked as compliant and `Bypass` as pass, emitting false `SecurityRegression` signals; fixed with whole-token matching.
 - [x] (proven) `NewComplianceGapCount` alert counted security improvements as compliance gaps — **hit 2026-08-25:** `AlertEvaluator` and `AlertMetricSnapshotBuilder` used `SecurityChanges.Count` instead of `SecurityDeltaRegressionClassifier`; fixing controls raised false compliance alerts; regression in `Evaluate_NewComplianceGapCount_SecurityImprovements_NotCounted` and `Build_SecurityImprovements_NotCountedAsComplianceGaps`
+- [x] (proven) `DeclarationSecurityBaselineClassifier.HasOpenAdminIngressHeuristic` substring-matched port tokens — **hit 2026-08-26:** `Contains("22")` flagged `0.0.0.0/0:2200` as SSH admin ingress; fixed with digit-bounded port matching; regression in `Classify_does_not_flag_port_2200_as_admin_ingress`
+- [x] (proven) `DeclarationSecurityBaselineClassifier` / `DeclarationPremiseConflictClassifier.TryGetDeclarationProperty` with ARM-canonical `tf.*` keys from ingestion (`tf.publicnetworkaccess`, `tf.httpsonly`) — fixed 2026-08-26 via `DeclarationSecurityPropertyKeyResolver` and ARM alias dual-write in declaration parsers (`DeclarationSecurityPropertyKeyResolverTests`, `ArmJsonInfrastructureDeclarationParserTests.ParseAsync_PublicNetworkAccess_DualWritesTfAndArmAlias`).
+- [ ] (hunt-ready) `DeclarationPremiseConflictClassifier.IntentMatchesConflictKind` with negated intent phrases (`"do not disable public"`) — substring phrase list matches inside negated requirements and emits false premise-conflict signals.
+- [ ] (hunt-ready) `DeclarationPremiseConflictFindingEngine.ResolveApplicableIntentNodes` with PROTECTS/APPLIES_TO edge weight just below `GraphEdgeDecisioningThresholds.MinWeightForSemanticLink` — sub-threshold edges are dropped, graph-wide intent fallback downgrades severity from Error to Warning.
+- [ ] (hunt-ready) `PortfolioRecurrenceFindingEngine.ResolveCurrentScopeIdentities` when the current system's persisted findings snapshot is empty on first pass — recurrence scan only reads persisted snapshots, missing cross-system identities during in-flight generation.
 
 ---
 
@@ -1801,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 23
-- **bugs-found:** 57
+- **hunts:** 54
+- **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — policy overlap `applicableTopologyNodeIds` churned on overlapping hint list order
+- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1876,6 +1905,78 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PlainTextContextDocumentParser` left default random `CanonicalObject.ObjectId` on prefixed lines — **hit 2026-08-26:** identical document re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` for REQ/POL/SEC and `TopologyHintStableObjectIds.FromHintName` for `TOP:` (`PlainTextContextDocumentParserTests.ParseAsync_TopLine_Reparse_ProducesStableObjectId`, `ParseAsync_RequirementLine_Reparse_ProducesStableObjectId`).
 - [x] (proven) `PlainTextContextDocumentParser` `TOP:` slash hints omitted stable `ObjectId` and `parentNodeId`, and `PolicyReferencePayloadExtractor` ignored document topology — **hit 2026-08-26:** document-only `TOP: parentNet/childSubnet` missed policy overlap with `parentNet`; fixed with `PlainTextDocumentTopologyResourceBuilder` and `PlainTextDocumentTopologyHintExtractor` feeding `PolicyReferencePayloadExtractor` (`PlainTextContextDocumentParserTests.ParseAsync_TopSlashHint_SetsStableObjectIdAndParentNodeId`, `PolicyReferenceConnectorTopologyTests.NormalizeAsync_WhenPolicyOverlapsDocumentTopologyHint_SetsApplicableTopologyNodeIds`).
 - [x] (proven) `PolicyTopologyOverlapResolver.ResolveApplicableTopologyNodeIds` joined overlapping hint ids without sorting — **hit 2026-08-26:** `["prod-vnet","prod-subnet"]` vs `["prod-subnet","prod-vnet"]` produced different `applicableTopologyNodeIds` strings and false modified on policy-reference connector delta; fixed with `OrderBy` before `string.Join` (`PolicyTopologyOverlapResolverTests.ResolveApplicableTopologyNodeIds_is_stable_across_overlapping_hint_list_order`, `PolicyReferenceConnectorTopologyTests.DeltaAsync_OverlappingTopologyHintListOrder_ReportsUnchanged`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` joined `depends_on` references without sorting — **hit 2026-08-26:** `["azurerm_resource_group.main","azurerm_virtual_network.hub"]` vs reversed order produced different `terraformDependsOn` strings and false modified on infrastructure declaration connector delta; fixed with `OrderBy` before `string.Join` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_CanonicalizesDependsOnReferenceOrder`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonDependsOnOrderChange_ReportsUnchanged`).
+- [x] (proven) `SecurityBaselineSensitivityScopeExpander` joined matching topology node ids without sorting — **hit 2026-08-26:** reordering equivalent data-bearing topology resources produced different `protectedTopologyNodeIds` strings on enriched security baselines; fixed with `OrderBy` before `string.Join` (`SecurityBaselineSensitivityScopeExpanderTests.Expand_protected_topology_node_ids_are_stable_across_topology_list_order`).
+- [x] (proven) `JsonInfrastructureDeclarationParser` preserved custom `properties` key casing — **hit 2026-08-26:** `Sku` vs `sku` produced different property keys and false modified on infrastructure declaration connector delta after snapshot reload with ordinal property bags; fixed by lowercasing trimmed custom property keys (`JsonInfrastructureDeclarationParserTests.ParseAsync_CustomPropertyKeys_AreCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_JsonCustomPropertyKeyCasingChange_ReportsUnchanged`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.SanitizePropertyKey` preserved JSON value field casing in `tf.*` keys — **hit 2026-08-26:** `Location` vs `location` produced different `tf.*` property keys and false modified on infrastructure declaration connector delta after snapshot reload with ordinal property bags; fixed by lowercasing sanitized keys (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TfPropertyKeys_AreCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonTfPropertyKeyCasingChange_ReportsUnchanged`).
+- [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` copied parent `SourceType` onto expander-spawned security baselines — **hit 2026-08-26:** enriched `InfrastructureDeclaration` network-rule baselines in prior snapshots were absent from normalized connector output and reported false removed on identical re-ingest; fixed with dedicated `AppServiceNetworkRule` source type (`InfrastructureDeclarationConnectorTests.DeltaAsync_AppServiceExpandedBaselines_ReportsUnchangedOnIdenticalReIngest`).
+- [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` left default random `ObjectId` on network-rule baselines — **hit 2026-08-26:** identical expand passes produced new `obj-{ObjectId}` graph node ids each time; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by app service id and `controlId`, and named-rule `controlId` slots instead of array index (`AppServiceNetworkAccessSecurityBaselineExpanderTests.Expand_reparse_produces_stable_object_ids_for_network_baselines`).
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.TryAddResource` left default random `ObjectId` on K8s resources — **hit 2026-08-26:** identical kubernetes-json re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by declaration id, kind, and canonical name (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_reparse_produces_stable_object_ids_for_deployments`).
+- [x] (invalid) `BicepInfrastructureDeclarationParser.ResourceRegex` silently skips quoted-symbolic resource headers — Bicep resource symbolic names are identifiers, not quoted strings; `resource 'storage' 'Microsoft.Storage/...'` is invalid Bicep and correctly yields zero resources (`BicepInfrastructureDeclarationParserTests.ParseAsync_ignores_quoted_symbolic_names_because_bicep_requires_identifiers`).
+- [x] (proven) `TopologyResourceCanonicalEnricher.InferCategory` ignored `k8s.kind` — **hit 2026-08-26:** kubernetes-json Deployments classified as `general` instead of `compute`; fixed with `k8s.kind` branch before ARM/Terraform heuristics (`CompositeCanonicalEnricherTests.Enrich_classifies_kubernetes_deployment_as_compute`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` preserved numeric `tf.*` JSON formatting — **hit 2026-08-26:** `capacity: 1` vs `capacity: 1.0` false-modified infrastructure declaration connector deltas; fixed with shared `CanonicalInfrastructurePropertyBag.CanonicalizeNumberText` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_EquivalentNumericRepresentations_ProduceSameTfProperties`, `InfrastructureDeclarationConnectorTests.DeltaAsync_ArmJsonEquivalentNumericFormatChange_ReportsUnchanged`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser` / `CanonicalInfrastructurePropertyBag.TryAddTfProperty` preserved `tf.*` property key casing — **hit 2026-08-26:** `allowBlobPublicAccess` vs `allowblobpublicaccess` produced different ordinal snapshot keys and false-modified infra declaration deltas; fixed by lowercasing sanitized keys in `TryAddTfProperty` and `TerraformShowJsonInfrastructureDeclarationParser` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_TfPropertyKeys_AreCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_ArmJsonTfPropertyKeyCasingChange_ReportsUnchanged`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` left default random `ObjectId` on ARM resources — **hit 2026-08-26:** identical arm-json re-parse rotated `obj-{ObjectId}` graph node ids; fixed with shared `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` keyed by declaration id, resource type, and name (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `BicepInfrastructureDeclarationParser` left default random `ObjectId` on Bicep resources — **hit 2026-08-26:** identical bicep re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` (`BicepInfrastructureDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `JsonInfrastructureDeclarationParser` left default random `ObjectId` on JSON infra resources — **hit 2026-08-26:** identical json declaration re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` (`JsonInfrastructureDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `SimpleTerraformDeclarationParser` left default random `ObjectId` on HCL resources — **hit 2026-08-26:** identical simple-terraform re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` (`SimpleTerraformDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` left default random `ObjectId` on terraform-show-json resources — **hit 2026-08-26:** identical terraform-show-json re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `InlineRequirementsPayloadNormalizer` left default random `ObjectId` on inline requirements — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical requirement text (`InlineRequirementsPayloadNormalizerTests.NormalizeAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `SecurityBaselineHintsPayloadNormalizer` left default random `ObjectId` on security baseline hints — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical hint text (`ConnectorHintNormalizationDeltaTests.SecurityBaselineHintsNormalizer_Reparse_ProducesStableObjectId`).
+- [x] (proven) `StaticRequestPayloadNormalizer` left default random `ObjectId` on static request description — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical description text (`ConnectorHintNormalizationDeltaTests.StaticRequestNormalizer_Reparse_ProducesStableObjectId`).
+- [x] (proven) `PolicyReferencePayloadNormalizer` left default random `ObjectId` on policy references — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical policy reference (`ConnectorHintNormalizationDeltaTests.PolicyReferenceNormalizer_Reparse_ProducesStableObjectId`).
+- [x] (proven) `SetDiffConnectorDeltaComputer.BuildInitialDelta` used `current.Count` instead of distinct stable-key count — **hit 2026-08-26:** duplicate `SourceId` in first ingest reported `AddedCount = 2` but second ingest indexed to one key and reported false remove; fixed by indexing current batch before initial delta (`SetDiffConnectorDeltaComputerTests.Compute_NoPrevious_DuplicateStableKeys_CountDistinctKeysAsAdded`).
+- [x] (proven) `InfrastructureDeclarationConnector.DeltaAsync` keyed resources by `SourceId|ObjectType|Name` only — **hit 2026-08-26:** cluster-scoped Kubernetes Deployment and Service both named `api` collapsed to one delta key; fixed with `InfrastructureDeclarationDeltaKey` including `k8s.kind` / `resourceType` / `terraformType` disambiguators (`InfrastructureDeclarationConnectorTests.DeltaAsync_KubernetesDeploymentAndServiceSameClusterName_CountsBothResources`).
+- [x] (proven) `DocumentConnector.DeltaAsync` keyed lines by `SourceId:Name` only — **hit 2026-08-26:** `REQ:` and `POL:` with identical canonical text collapsed to one delta key; fixed by including `ObjectType` in document delta keys (`DocumentConnectorTests.DeltaAsync_RequirementAndPolicyWithSameCanonicalText_CountsBothResources`).
+- [x] (proven) `CanonicalDeduplicator.GetDedupeFingerprint` omitted `k8s.kind` — **hit 2026-08-26:** cluster-scoped Kubernetes Deployment and Service both named `api` collapsed to one snapshot object after enrich/dedupe despite connector delta fix; fixed by fingerprinting `k8s.kind` (`CanonicalDeduplicatorTests.Deduplicate_KeepsKubernetesResourcesWithSameNameDifferentKind`).
+- [x] (proven) `InfrastructureDeclarationDeltaKey` / `CanonicalDeduplicator` / `JsonInfrastructureDeclarationParser` ignored JSON `subtype` and `region` when `resourceType` and `Name` matched — **hit 2026-08-26:** two `vnet` resources both named `hub` with different `subtype`/`region` collapsed to one delta key, deduped to one object, and shared unstable `ObjectId`; fixed with `InfrastructureDeclarationResourceIdentity` disambiguators (`InfrastructureDeclarationConnectorTests.DeltaAsync_JsonSameTypeNameDifferentSubtype_CountsBothResources`, `CanonicalDeduplicatorTests.Deduplicate_KeepsJsonResourcesWithSameTypeNameDifferentSubtype`).
+- [x] (proven) `TopologyHintStableObjectIds.CanonicalizeHintName` only normalized spacing around the first `/` — **hit 2026-08-26:** `prod / vnet / subnet-a` vs `prod/vnet/subnet-a` churned topology-hints connector deltas and `ObjectId`; fixed by trimming all slash segments (`TopologyHintStableObjectIdsTests.CanonicalizeHintName_ThreeSegmentInnerSlashSpacing_EquivalentPathsMatch`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_DeltaAsync_ThreeSegmentInnerSlashSpacing_ReportsUnchanged`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.CollectFromModule` ignored module/resource `address` when sibling child modules declared the same Terraform type + label — **hit 2026-08-26:** two `azurerm_subnet.this` resources in `module.network` and `module.data` collapsed to one `Name`, `ObjectId`, and delta key; fixed by resolving terraform resource addresses from JSON `address` or `moduleAddress.type.label` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_SiblingChildModulesSameResourceLabel_EmitsTwoResources`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonSiblingModulesSameLabel_CountsBothResources`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.ReadName` kept only the first segment of composite ARM `name` arrays — **hit 2026-08-26:** `["hub-vnet","subnet-a"]` and `["hub-vnet","subnet-b"]` both parsed as `hub-vnet`, collapsing delta keys and dedupe fingerprints; fixed by joining array segments with `/` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_CompositeSubnetNames_EmitsDistinctChildNames`, `InfrastructureDeclarationConnectorTests.DeltaAsync_ArmJsonCompositeSubnetNames_CountsBothResources`).
+- [x] (proven) `InfrastructureDeclarationResourceIdentity` / `CanonicalDeduplicator` with JSON resources sharing `type`+`name`+`subtype`+`region` but differing custom `properties` — **hit 2026-08-26:** identity disambiguators stopped at subtype/region so distinct `cidr` values collapsed; fixed by appending sorted custom property segments (`InfrastructureDeclarationConnectorTests.DeltaAsync_JsonSameTypeNameSubtypeRegionDifferentCustomProperties_CountsBothResources`).
+- [x] (proven) `TopologyHintStableObjectIds.CanonicalizeHintName` with internal whitespace (`hub  vnet` vs `hub vnet`) — **hit 2026-08-26:** double-space hints churned topology-hints connector deltas; fixed by collapsing internal whitespace in each segment (`TopologyHintStableObjectIdsTests`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_DeltaAsync_InternalWhitespaceChange_ReportsUnchanged`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` preserves nested block-name casing (`tf.Site_Config` vs `tf.site_config`) — **hit 2026-08-26:** unlike `TryAddTfProperty`, block keys were not lowercased, false-modifying simple-terraform deltas; fixed with `.ToLowerInvariant()` on sanitized block names (`CanonicalInfrastructurePropertyBagTests`, `InfrastructureDeclarationConnectorTests.DeltaAsync_SimpleTerraformNestedBlockNameCasingChange_ReportsUnchanged`).
+- [x] (proven) `SimpleTerraformDeclarationParser` / `InfrastructureDeclarationDeltaKey` with duplicate `resource` blocks sharing type+label — **hit 2026-08-26:** stable identity was `terraformType|label` only so malformed duplicate HCL collapsed in delta; fixed with per-declaration `terraformOccurrence` suffix (`SimpleTerraformDeclarationParserTests.ParseAsync_DuplicateResourceBlocksSameTypeLabel_EmitsDistinctObjects`, `InfrastructureDeclarationConnectorTests.DeltaAsync_DuplicateSimpleTerraformResourceBlocks_CountsBothResources`).
+- [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander.IsAppServiceTopology` matched `Microsoft.Web/sites/config` via `Contains("Microsoft.Web/sites")` — **hit 2026-08-26:** child config resources with `ipSecurityRestrictions` spawned spurious public-endpoint baselines; fixed by exact `Microsoft.Web/sites` match (`AppServiceNetworkAccessSecurityBaselineExpanderTests.Expand_sites_config_child_resource_does_not_create_security_baselines`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` built `ObjectId` from `type|name` only while JSON parser included custom-property disambiguators — **hit 2026-08-26:** duplicate ARM storage accounts with different `properties` shared graph `ObjectId`; fixed with `InfrastructureDeclarationResourceIdentity.AppendSubtypeRegionDisambiguators` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_SameTypeNameDifferentProperties_EmitsDistinctObjectIds`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` duplicate root `type+label` without `address` collapsed `ObjectId` — **hit 2026-08-26:** simple-terraform already had `terraformOccurrence`; show-json path now assigns per-label occurrence suffix (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_DuplicateRootResourceLabelsWithoutAddress_EmitsDistinctObjectIds`).
+- [x] (proven) `TopologyHintsPayloadNormalizer` / `PlainTextDocumentTopologyResourceBuilder` linked `parentNodeId` to first slash segment only — **hit 2026-08-26:** `prod/vnet/subnet-a` parented to `prod` instead of `prod/vnet`; fixed with `LastIndexOf('/')` immediate-parent resolution (`TopologyHintsConnectorParentTests.NormalizeAsync_ThreeSegmentHint_SetsParentNodeIdToImmediateParent`).
+- [x] (proven) `InfrastructureDeclarationDeltaKey.For` terraform branch omitted disambiguators for duplicate show-json root labels — **hit 2026-08-26:** duplicate `azurerm_subnet.this` rows reported `AddedCount = 1`; fixed by emitting `terraformOccurrence` from show-json parser (`InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonDuplicateRootLabel_CountsBothResources`).
+
+2026-08-26 thorough hunt #43: all four hunt-ready rows proved and fixed.
+- [x] (proven) `SecurityBaselineSensitivityScopeExpander` padded `baselineScope` blocked sensitivity match — **hit 2026-08-26:** `" data-bearing "` vs `data-bearing` left baselines without `protectedTopologyNodeIds`; fixed by trimming explicit scope (`SecurityBaselineSensitivityScopeExpanderTests.Expand_padded_baseline_scope_links_matching_topology`).
+- [x] (proven) `KubernetesYamlInfrastructureDeclarationParser` drops PascalCase manifest keys (`Kind`, `Metadata.Name`) after YamlDotNet camelCase serialization — **hit 2026-08-26:** exporter YAML with `Kind`/`Metadata.Name` returned zero resources; fixed with case-insensitive JSON property reads in `KubernetesManifestCanonicalObjectMapper` (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_PascalCaseKeys_MapsDeployment`).
+- [x] (proven) `PolicyTopologyOverlapResolver.Overlaps` uses bidirectional `Contains` — **hit 2026-08-26:** policy `prod` false-positived on topology hint `production-vnet`; fixed with delimited prefix/suffix matching (`PolicyTopologyOverlapResolverTests`, `PolicyReferenceConnectorTopologyTests.NormalizeAsync_prod_policy_does_not_target_production_vnet_hint`).
+- [x] (proven) `TopologyHintsPayloadNormalizer` vs document `TOP:` path disagree on long-hint `Name` truncation — **hit 2026-08-26:** connector kept full `canonicalHint` while document path used `BuildDisplayName`, so identical long hints produced mismatched display names and divergent graph labels for the same `ObjectId`; fixed by aligning connector `Name` with `ContextIngestionStableLineNames.BuildDisplayName` (`TopologyHintsPayloadNormalizerTests`).
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.ResolveObjectType` matched `kind` case-sensitively — **hit 2026-08-26:** `"kind": "secret"` classified as `TopologyResource` instead of `SecurityBaseline`, skipping secret-handling and misrouting K8s security objects from lowercase exporters; fixed with `ToLowerInvariant()` before kind switch (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_LowercaseKind_ClassifiesSecretAsSecurityBaseline`, `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_LowercaseKindValue_ClassifiesSecretAsSecurityBaseline`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser` read `resources`/`type`/`name`/`properties` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Resources`/`Type`/`Name`/`Properties` returned zero resources; fixed with case-insensitive JSON property reads (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` read `values`/`root_module`/`resources`/`type`/`name` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Values`/`Root_Module`/`Resources`/`Type`/`Name` returned zero resources; fixed with case-insensitive JSON property reads (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` kept padded `type` whitespace in `terraformType` and resource `Name` — **hit 2026-08-26:** `" azurerm_virtual_network "` vs `azurerm_virtual_network` false-modified infrastructure declaration deltas and misaligned occurrence keys; fixed by trimming `type` in `TryAddResource` and `CountModuleLabelOccurrences` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TrimsPaddedResourceType`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` dropped JSON array `properties` — **hit 2026-08-26:** `ipSecurityRestrictions` arrays were skipped so `AppServiceNetworkAccessSecurityBaselineExpander` never saw open-internet rules from arm-json declarations; fixed by serializing array/object values via `TryAddTfJsonProperty` and normalizing expander key lookup (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_WebSiteWithIpSecurityRestrictions_PreservesRulesForNetworkExpander`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.RedactTopLevelSensitiveTfValues` ignored nested `sensitive_values` markers — **hit 2026-08-26:** nested `site_config.connection_string` leaked plaintext inside `tf.site_config` JSON blob; fixed by redacting `tf.*` keys when nested sensitive markers are present (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_redacts_nested_sensitive_tf_object_values`).
+- [x] (valid-no-repro) `KubernetesYamlInfrastructureDeclarationParser` YAML `kind: List` path — mapper already expands List items after YamlDotNet round-trip; added YAML-path regression `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_KindList_MapsMultipleItems`.
+- [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
+- [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+
+2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
+
+2026-08-26 thorough hunt #53: proved arm-json array property serialization gap for App Service network rules.
+
+2026-08-26 thorough hunt #52: proved topology-hints within-batch dedupe gap.
+
+2026-08-26 seed hunt #51: reseeded ARM array / nested sensitive_values / K8s YAML List / topology-hint dedupe candidates; proved camelCase sensitive-key redaction gap.
+
+2026-08-26 seed hunt #49: reseeded terraform-show-json casing path; proved PascalCase property reads.
+
+2026-08-26 seed hunt #48: reseeded ARM/K8s parser casing paths; proved arm-json PascalCase property reads.
+
+2026-08-26 seed hunt #47: reseeded from mapper/enricher paths; proved lowercase Kubernetes kind `ObjectType` classification.
+
+2026-08-26 thorough hunt #46: proved long-hint topology display name alignment.
+
+2026-08-26 thorough hunt #45: proved PascalCase kubernetes-yaml parsing and policy/topology overlap delimiter matching.
+
+2026-08-26 seed hunt #44: reseeded three rows; proved sensitivity-scope padding mismatch.
 
 ---
 
@@ -1962,11 +2063,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 3
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — architecture narrative omitted committed topology selected patterns
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — markdown generators hardcoded Assumptions as Not specified
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1980,6 +2081,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArtifactBundleValidator` fail-open on content-hash mismatch — **hit 2026-08-24:** required non-empty hash but never compared to `ArtifactHashing.ComputeHash`; regression in `Validate_when_content_hash_mismatch_throws`
 - [x] (proven) `FileNameSanitizer` allowed Unicode slash homoglyphs in export paths — **hit 2026-08-24:** fullwidth solidus U+FF0F survived sanitization; regression in `FileNameSanitizer_replaces_invalid_windows_characters` (`..／..／manifest.json`)
 - [x] (proven) `ArchitectureNarrativeArtifactGenerator` omitted `Topology.SelectedPatterns` — **hit 2026-08-25:** narrative listed resources/gaps only while `ReferenceArchitectureMarkdownGenerator` and DOCX export emitted `- Pattern:` lines; regression in `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_topology_selected_patterns`
+- [ ] (candidate) `ArchitectureNarrativeArtifactGenerator` omits `manifest.Decisions` — reference-architecture and DOCX include decisions while narrative jumps to unresolved issues
+- [ ] (candidate) `MermaidDiagramArtifactGenerator` ignores typed golden topology — AST built only from `manifest.Decisions`, not `Topology.Services` / `Datastores`
+- [ ] (candidate) `DocxExportService.BuildDocumentAsync` omits Constraints and Assumptions sections present in markdown artifacts
+- [ ] (candidate) `DocxExportService` skips `LlmArtifactFreeTextSanitizer` on manifest posture strings (topology gaps, security/compliance gaps)
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` hardcoded `## Assumptions` as `Not specified.` — **hit 2026-08-26:** committed `manifest.Assumptions` dropped while Constraints were already emitted from manifest; fixed by listing assumptions or `No assumptions were recorded.` (`ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified`, `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified`).
 
 ---
 
@@ -2161,11 +2267,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — curated rule metadata key lookup was case-sensitive after JSON deserialization, rejecting PascalCase pack.curatedRules.v1 entries
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — missing findings snapshot marked pack assignments Evaluated instead of Skipped
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2180,9 +2286,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Waiver expiry reminder swallows provider send failures and counts the reminder as sent — **hit 2026-08-24:** `WaiverExpiryNotificationService.TrySendReminderAsync` reserved the ledger then caught `SendAsync` exceptions without rethrowing, so `RunTenantPassAsync` returned success while recipients received no mail and idempotency blocked resend; fixed by rethrowing after log (ExecDigest pattern)
 - [x] (proven) Synthetic pre-commit simulation reports a missing or foreign scoped run as allowed — **hit 2026-08-24:** `PreCommitGovernanceGate.SimulateSyntheticFindingsInternalAsync` returned `Allowed()` when scoped `GetByIdAsync(runId)` returned null, so the CI simulation endpoint could report a pass without evaluating the requested synthetic Critical finding; simulation now throws `RunNotFoundException` while live evaluation semantics remain unchanged
 - [x] (proven) Curated rule metadata key lookup is case-sensitive after JSON deserialization — **hit 2026-08-25:** `PolicyPackCuratedRuleKeyReader` used `metadata.TryGetValue` for `pack.curatedRules.v1`, so PascalCase `Pack.CuratedRules.V1` from deserialized pack content was ignored and authoring validation warned on tenant-authored rule keys; fixed via `PolicyPackContentMetadataReader`; regression in `ValidateAsync_when_curated_metadata_key_uses_PascalCase_accepts_matching_rule`
-- [ ] (candidate) Pack assignment outcome marks Evaluated when findings snapshot row is missing — `PolicyPackAssignmentOutcomeRecorder` falls through to `Evaluated` when `findingsSnapshot` is null even with zero matching findings
-- [ ] (candidate) Policy pack coverage proof ignores muted findings in outcome recorder mismatch — `PolicyPackCoverageProofEvaluator` and `PolicyPackAssignmentOutcomeRecorder` both filter muted findings but may diverge when snapshot generation status is `PartiallyComplete`
-- [ ] (candidate) Governance dry-run returns null for invalid run id format — `PolicyPackGovernanceDryRunService.EvaluateAsync` returns null on non-GUID `targetRunId` without distinguishing malformed ids from out-of-scope runs
+- [x] (proven) `PolicyPackAssignmentOutcomeRecorder` marked assignments `evaluated` when `findingsSnapshot` was null — **hit 2026-08-26:** pre-finalize coverage refresh with no snapshot row fell through to `Evaluated` even with zero matching findings, overstating pack evaluation proof; fixed by returning `Skipped` when snapshot is absent (`PolicyPackAssignmentOutcomeRecorderTests.ApplyOutcomes_marks_skipped_when_findings_snapshot_is_missing`)
+- [x] (invalid) Policy pack coverage proof ignores muted findings in outcome recorder mismatch — `PolicyPackCoverageProofEvaluator` and `PolicyPackAssignmentOutcomeRecorder` both filter `IsMuted` before matching; `PartiallyComplete` snapshots use the same incomplete branch as `Generating` (muted-only signals → `Skipped`, active signals → `Evaluated`; coverage proof agrees)
+- [x] (invalid) Governance dry-run returns null for invalid run id format — `PolicyPackGovernanceDryRunService.EvaluateAsync` intentionally returns null for non-GUID `targetRunId` so the API surfaces the same 404 as an out-of-scope run (no id-format oracle)
+
+2026-08-26 thorough hunt #7: proved missing-snapshot pack outcome; retired muted-finding divergence and dry-run null-shape candidates.
 
 ---
 
@@ -2247,11 +2355,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — SCIM verify omitted operator scope on ServiceProviderConfig fetch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2265,6 +2373,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Architecture intelligence `getJson`/`postJson` in `architecture-intelligence-client-api.ts` omitted `mergeRegistrationScopeForProxy` — product-run source-context load and reasoning POSTs hit proxy dev-default tenant instead of operator-selected scope (hydrated review context wrong or missing after scope switch) — fixed 2026-08-23 (`architecture-intelligence-client-api.test.tsx`)
 - [x] (proven) `AdminEvidenceProposalsPageClient` GET `/api/proxy/v1/admin/evidence/proposals` and POST promote omitted `mergeRegistrationScopeForProxy` — list/promote hit proxy dev-default tenant instead of operator-selected scope (wrong tenant proposals shown or promote lands on wrong catalog) — fixed 2026-08-23 (`AdminEvidenceProposalsPageClient.test.tsx`)
 - [x] (proven) `PlanningBridgePanel` POST `/api/proxy/v1/learning/planning/materialize` omitted `mergeRegistrationScopeForProxy` — draft plan materialization hit proxy dev-default tenant instead of operator-selected scope — **hit 2026-08-25:** fixed with scoped fetch init; regression in `PlanningBridgePanel.test.tsx`.
+- [x] (proven) `ScimProvisioningSettingsPageClient.verifyConnection` GET `/api/proxy/scim/v2/ServiceProviderConfig` omitted `mergeRegistrationScopeForProxy` — **hit 2026-08-26:** token list/create/revoke were scoped but connectivity verification hit proxy dev-default tenant, so verify could fail or validate the wrong tenant SCIM endpoint after scope switch; fixed by wrapping verify fetch with `mergeRegistrationScopeForProxy` (`ScimProvisioningSettingsPageClient.test.tsx`).
+
+2026-08-26 seed hunt #7: reseeded proxy-scope audit across operator routes; proved SCIM verify connectivity scope gap.
 
 ---
 
@@ -2276,11 +2387,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 4
-- **bugs-found:** 6
+- **hunts:** 5
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — Trust Center `<time dateTime>` used marketing copy when review date absent
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2294,6 +2405,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Sponsor digest `mapResponse` only defaulted missing `signInUrl`; API still returns `/auth/sign-in` (404) — fixed 2026-08-24; normalize legacy path to `/auth/signin` (`exec-digest-sponsor-deep-link-server.test.ts`).
 - [x] (proven) `showcaseTitleForRunId` / `showcaseScenarioRibbonLabel` still called raw `decodeURIComponent` — malformed `%` in route segment throws during metadata/hero render — fixed 2026-08-24; use `decodeShowcaseRunId` (`showcase-page-copy.test.ts`, `showcase-page.test.tsx`).
 - [x] (proven) Showcase API 200 with only `run` + `manifest` crashed render on `payload.artifacts.length` — fixed 2026-08-24; reject thin payloads in `fetchShowcasePayload` and guard snapshot (`ShowcaseWhatThisProves.test.tsx`, `showcase-page.test.tsx`).
+- [x] (proven) `MarketingTrustCenterBuyerBody` / `AssuranceStatusPageHero` set `<time dateTime={reviewedLabel}>` when `lastReviewedUtc` is null or unparsable — **hit 2026-08-26:** `dateTime` received marketing copy instead of ISO-8601; fixed with `formatTrustCenterReviewDate` + `TrustCenterReviewTime` (`trust-center-review-date.test.ts`, `MarketingTrustCenterBuyerBody.test.tsx`).
+- [ ] (hunt-ready) `MarketingShowcasePage` `http_error`/`missing` branches always call `getShowcaseStaticDemoPayload` without `hasCuratedShowcaseStaticPayload` guard — non-curated slug on API 503 renders static demo instead of not-available shell.
+- [ ] (hunt-ready) `QuickScanClient` capacity banner hardcodes `/auth/signin` without `returnUrl` — anonymous limit CTA does not return to `/quick-scan` after sign-in.
+- [ ] (hunt-ready) `ShowcaseQuickNav` + thin API payload missing `manifest.manifestId` — `signedRecordDetailPath` calls `manifestId.trim()` when demo deep-link mode is enabled.
+- [ ] (candidate) `normalizeSignInUrl` in `exec-digest-sponsor-deep-link-server.ts` misses trailing-slash legacy `/auth/sign-in/` paths.
 
 ---
 

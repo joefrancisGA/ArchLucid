@@ -115,6 +115,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", async () => {
 });
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
+import { architectureCreationDefaultActorSet } from "@/lib/architecture/architecture-creation-init";
 import { ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
@@ -644,6 +645,7 @@ describe("ArchitectureDraftWorkspace", () => {
         systemName: "Claims intake",
       }),
       spawnedDraft.updatedUtc,
+      architectureCreationDefaultActorSet(),
     );
   });
 

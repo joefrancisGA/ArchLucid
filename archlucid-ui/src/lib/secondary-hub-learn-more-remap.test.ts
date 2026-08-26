@@ -59,8 +59,6 @@ describe("TB-2050 secondary-hub Learn more remap", () => {
       label: ARCHITECTURE_DRAFTS_LIST_LABEL,
     });
     expect(pageHelpTopicForPathname("/why-archlucid")).toEqual({
-      slug: "getting-started",
-      hashFragment: "how-archlucid-works",
       label: WHY_ARCHLUCID_HELP_TOPIC_LABEL,
     });
   });

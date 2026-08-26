@@ -17,5 +17,7 @@ public sealed class AgentEvaluationConfidenceRunContext
 
     public required IReadOnlyDictionary<string, AgentExecutionTrace> TraceByTaskId { get; init; }
 
+    public required IReadOnlyDictionary<string, double?> CalibratedConfidenceByTaskId { get; init; }
+
     public AgentEvidencePackage? Evidence { get; init; }
 }

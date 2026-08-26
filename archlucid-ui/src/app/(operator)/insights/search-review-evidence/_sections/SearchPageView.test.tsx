@@ -18,6 +18,10 @@ vi.mock("@/components/runs/RunIdPicker", () => ({
   RunIdPicker: () => <div data-testid="search-review-evidence-run-picker" />,
 }));
 
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+}));
+
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
   useWorkspaceActiveRun: () => ({ runId: "", activeRunId: "" }),
 }));
@@ -42,7 +46,7 @@ function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageVie
     recentQueries: [],
     onClearRecentQueries: vi.fn(),
     results: [],
-    runId: "",
+    runId: "run-search-1",
     setQuery: vi.fn(),
     setRunId: vi.fn(),
     ...overrides,
@@ -112,5 +116,22 @@ describe("SearchPageView", () => {
     expect(screen.getByTestId("search-review-evidence-load-failure")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: SEARCH_LOAD_RETRY_LABEL }));
     expect(onSearch).toHaveBeenCalledTimes(1);
+  });
+
+  it("asks the operator to pick a review before searching", () => {
+    render(<SearchPageView model={buildModel({ runId: "" })} />);
+
+    expect(screen.getByTestId("search-pick-review-before-search-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("search-review-evidence-form")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("search-review-evidence-run-scope-banner")).not.toBeInTheDocument();
+  });
+
+  it("shows the search form and checklist when a review is scoped", () => {
+    render(<SearchPageView model={buildModel()} />);
+
+    expect(screen.queryByTestId("search-pick-review-before-search-strip")).not.toBeInTheDocument();
+    expect(screen.getByTestId("search-review-evidence-form")).toBeInTheDocument();
+    expect(screen.getByTestId("search-review-evidence-run-scope-banner")).toHaveTextContent("run-search-1");
+    expect(screen.getByTestId("search-review-evidence-setup-progress")).toBeInTheDocument();
   });
 });

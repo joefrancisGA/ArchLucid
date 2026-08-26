@@ -2,6 +2,7 @@ using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Topology;
 using ArchLucid.Contracts.Persistence.Context;
@@ -275,6 +276,23 @@ public sealed class PolicyReferenceConnectorTopologyTests
         delta.AddedCount.Should().Be(0);
         delta.RemovedCount.Should().Be(0);
         delta.UnchangedCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task NormalizeAsync_prod_policy_does_not_target_production_vnet_hint()
+    {
+        PolicyReferencePayloadNormalizer normalizer = new(new PolicyTopologyOverlapResolver());
+
+        NormalizedContextBatch batch = await normalizer.NormalizeAsync(
+            new PolicyReferencePayload
+            {
+                PolicyReferences = ["prod"],
+                TopologyHints = ["production-vnet"],
+            },
+            CancellationToken.None);
+
+        batch.CanonicalObjects.Single()
+            .Properties.Should().NotContainKey("applicableTopologyNodeIds");
     }
 
     [Fact]

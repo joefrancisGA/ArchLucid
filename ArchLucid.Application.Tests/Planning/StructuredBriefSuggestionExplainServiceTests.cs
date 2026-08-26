@@ -4,6 +4,8 @@ using ArchLucid.Core.Llm;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.Planning;
@@ -34,7 +36,7 @@ public sealed class StructuredBriefSuggestionExplainServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(json);
 
-        StructuredBriefSuggestionExplainService sut = new(client.Object);
+        StructuredBriefSuggestionExplainService sut = new(client.Object, NullLogger<StructuredBriefSuggestionExplainService>.Instance);
 
         ExplainStructuredBriefSuggestionResponse response = await sut.ExplainAsync(
             new ExplainStructuredBriefSuggestionInput
@@ -46,6 +48,41 @@ public sealed class StructuredBriefSuggestionExplainServiceTests
             CancellationToken.None);
 
         response.Explanation.Should().Contain("EU customers");
+    }
+
+    [Fact]
+    public async Task ExplainAsync_strips_markdown_fences_before_parsing()
+    {
+        const string json = """
+                            ```json
+                            {
+                              "explanation": "Markdown fences should not block parsing for EU residency."
+                            }
+                            ```
+                            """;
+
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                400,
+                0.2f,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(json);
+
+        StructuredBriefSuggestionExplainService sut = new(client.Object, NullLogger<StructuredBriefSuggestionExplainService>.Instance);
+
+        ExplainStructuredBriefSuggestionResponse response = await sut.ExplainAsync(
+            new ExplainStructuredBriefSuggestionInput
+            {
+                SourceText = SourceText,
+                SuggestionKind = StructuredBriefSuggestionKind.Constraint,
+                SuggestionText = "EU data residency",
+            },
+            CancellationToken.None);
+
+        response.Explanation.Should().Contain("Markdown fences");
     }
 
     [Fact]
@@ -67,7 +104,7 @@ public sealed class StructuredBriefSuggestionExplainServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(json);
 
-        StructuredBriefSuggestionExplainService sut = new(client.Object);
+        StructuredBriefSuggestionExplainService sut = new(client.Object, NullLogger<StructuredBriefSuggestionExplainService>.Instance);
 
         ExplainStructuredBriefSuggestionInput input = new()
         {
@@ -91,6 +128,62 @@ public sealed class StructuredBriefSuggestionExplainServiceTests
     }
 
     [Fact]
+    public async Task ExplainAsync_uses_deterministic_fallback_when_llm_returns_empty_json()
+    {
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                400,
+                0.2f,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("{}");
+
+        StructuredBriefSuggestionExplainService sut = new(client.Object, NullLogger<StructuredBriefSuggestionExplainService>.Instance);
+
+        ExplainStructuredBriefSuggestionResponse response = await sut.ExplainAsync(
+            new ExplainStructuredBriefSuggestionInput
+            {
+                SourceText = SourceText,
+                SuggestionKind = StructuredBriefSuggestionKind.Assumption,
+                SuggestionText = "Single-region pilot",
+            },
+            CancellationToken.None);
+
+        response.Explanation.Should().Contain("Single-region pilot");
+        response.Explanation.Should().Contain("assumption");
+    }
+
+    [Fact]
+    public async Task ExplainAsync_uses_deterministic_fallback_when_llm_throws()
+    {
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                400,
+                0.2f,
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("LLM unavailable"));
+
+        StructuredBriefSuggestionExplainService sut = new(client.Object, NullLogger<StructuredBriefSuggestionExplainService>.Instance);
+
+        ExplainStructuredBriefSuggestionResponse response = await sut.ExplainAsync(
+            new ExplainStructuredBriefSuggestionInput
+            {
+                SourceText = SourceText,
+                SuggestionKind = StructuredBriefSuggestionKind.RequiredCapability,
+                SuggestionText = "Tenant isolation",
+            },
+            CancellationToken.None);
+
+        response.Explanation.Should().Contain("Tenant isolation");
+        response.Explanation.Should().Contain("required capability");
+    }
+
+    [Fact]
     public void BuildCacheKey_is_case_insensitive_for_suggestion_text()
     {
         string lower = StructuredBriefSuggestionExplainService.BuildCacheKey(
@@ -104,5 +197,18 @@ public sealed class StructuredBriefSuggestionExplainServiceTests
             SourceText);
 
         lower.Should().Be(upper);
+    }
+
+    [Fact]
+    public void NormalizeLlmJsonPayload_strips_markdown_fences()
+    {
+        const string fenced = """
+                                ```json
+                                {"explanation":"ok"}
+                                ```
+                                """;
+
+        StructuredBriefSuggestionExplainService.NormalizeLlmJsonPayload(fenced)
+            .Should().Be("{\"explanation\":\"ok\"}");
     }
 }

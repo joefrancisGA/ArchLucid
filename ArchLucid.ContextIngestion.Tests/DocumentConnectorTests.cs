@@ -314,4 +314,52 @@ public sealed class DocumentConnectorTests
         batch.CanonicalObjects.Should().ContainSingle();
         batch.Warnings.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task DeltaAsync_RequirementAndPolicyWithSameCanonicalText_CountsBothResources()
+    {
+        DocumentConnector connector = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer([new PlainTextContextDocumentParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        RawContextPayload raw = new()
+        {
+            Documents =
+            [
+                new ContextDocumentReference
+                {
+                    DocumentId = "doc-1",
+                    Name = "spec.txt",
+                    ContentType = "text/plain",
+                    Content = "REQ: must encrypt\nPOL: must encrypt",
+                }
+            ],
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        firstBatch.CanonicalObjects.Should().HaveCount(2);
+
+        ContextDelta firstDelta = await connector.DeltaAsync(firstBatch, previous: null, CancellationToken.None);
+
+        firstDelta.AddedCount.Should().Be(2);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "p",
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        ContextDelta secondDelta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        secondDelta.ModifiedCount.Should().Be(0);
+        secondDelta.UnchangedCount.Should().Be(2);
+        secondDelta.AddedCount.Should().Be(0);
+        secondDelta.RemovedCount.Should().Be(0);
+    }
 }

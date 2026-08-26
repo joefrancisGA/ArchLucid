@@ -26,6 +26,19 @@ function containsBackslash(path: string): boolean {
   return path.includes("\\");
 }
 
+function containsDotDotSegment(path: string): boolean {
+  const pathOnly = path.split("?")[0] ?? path;
+
+  for (const segment of pathOnly.split("/")) {
+
+    if (segment === "..") {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /**
  * True when `candidate` is a safe, same-origin relative path suitable for a post-sign-in redirect.
  * Rejects absolute URLs, protocol-relative URLs (`//evil.example`), backslash tricks (`/\evil.example`
@@ -48,6 +61,10 @@ export function isSafeReturnPath(candidate: string | null | undefined): candidat
   }
 
   if (containsBackslash(normalized)) {
+    return false;
+  }
+
+  if (containsDotDotSegment(normalized)) {
     return false;
   }
 
@@ -86,6 +103,10 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
       return false;
     }
 
+    if (containsDotDotSegment(decoded)) {
+      return false;
+    }
+
     working = decoded;
   }
 
@@ -98,6 +119,10 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
   }
 
   if (containsBackslash(working)) {
+    return false;
+  }
+
+  if (containsDotDotSegment(working)) {
     return false;
   }
 

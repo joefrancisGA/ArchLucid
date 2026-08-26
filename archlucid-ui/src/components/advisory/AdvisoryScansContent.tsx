@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -11,6 +12,8 @@ import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdvisoryRecommendationCard } from "@/components/advisory/AdvisoryRecommendationCard";
+import { AdvisoryScanForm } from "@/components/advisory/AdvisoryScanForm";
+import { AdvisoryScansListHeader } from "@/components/advisory/AdvisoryScansListHeader";
 import { RecommendationImproveLoopEvidencePanel } from "@/components/advisory/RecommendationImproveLoopEvidencePanel";
 import { AdvisoryScansTriageFirstPendingStrip } from "@/components/advisory/AdvisoryScansTriageFirstPendingStrip";
 import { AdvisoryRecommendationDispositionDialog } from "@/components/advisory/AdvisoryRecommendationDispositionDialog";
@@ -23,53 +26,36 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
-import { RunIdPicker } from "@/components/runs/RunIdPicker";
-import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
-import { RefreshButton } from "@/components/ui/refresh-button";
 import { applyRecommendationAction, listRecommendations } from "@/lib/advisory-api";
 import { resolveAdvisoryScansTriageFirstPending } from "@/lib/advisory/resolve-advisory-scans-triage-first-pending";
 import { resolveCurrentProjectLabel } from "@/lib/advisory-schedule-page-model";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
-  ADVISORY_SCANS_BASELINE_REVIEW_HELPER,
-  ADVISORY_SCANS_BASELINE_REVIEW_LABEL,
-  ADVISORY_SCANS_BASELINE_REVIEW_PLACEHOLDER,
-  ADVISORY_SCANS_CANT_FIND_REVIEW_BODY,
-  ADVISORY_SCANS_CANT_FIND_REVIEW_SUMMARY,
   ADVISORY_SCANS_DISPOSITION_ACCEPT,
   ADVISORY_SCANS_DISPOSITION_DEFER,
   ADVISORY_SCANS_DISPOSITION_IMPLEMENTED,
   ADVISORY_SCANS_DISPOSITION_REJECT,
-  ADVISORY_SCANS_FINALIZED_REVIEW_LABEL,
-  ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER,
-  ADVISORY_SCANS_FORM_SECTION_TITLE,
-  ADVISORY_SCANS_GENERATE_BUTTON_LABEL,
-  ADVISORY_SCANS_GENERATE_BUTTON_WORKING_LABEL,
   ADVISORY_SCANS_GENERATE_DISABLED_HINT,
-  ADVISORY_SCANS_GENERATE_OUTPUT_HINT,
   ADVISORY_SCANS_HOW_IT_WORKS_BODY,
   ADVISORY_SCANS_HOW_IT_WORKS_TITLE,
-  ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY,
-  ADVISORY_SCANS_LAST_LOADED_PREFIX,
-  ADVISORY_SCANS_LIST_COUNT_LABEL,
-  ADVISORY_SCANS_LIST_HEADING,
-  ADVISORY_SCANS_MANUAL_ID_ADMIN_SUMMARY,
-  ADVISORY_SCANS_MANUAL_ID_BASELINE_PLACEHOLDER,
-  ADVISORY_SCANS_MANUAL_ID_TARGET_PLACEHOLDER,
   ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF,
   ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL,
   ADVISORY_SCANS_RECOMMENDATIONS_SECTION_BODY,
   ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE,
-  ADVISORY_SCANS_REFRESH_SAVED_LABEL,
   ADVISORY_SCANS_VIEW_SAMPLE_LABEL,
 } from "@/lib/advisory-copy";
 import { buildAdvisoryScanSummary } from "@/lib/advisory-scan-summary";
+import {
+  resolveAdvisoryScansScanEmphasizedStepId,
+  resolveAdvisoryScansScanSteps,
+} from "@/lib/advisory-scans-scan-checklist";
 import { getImprovementPlan } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { showSuccess } from "@/lib/toast";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
+import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
 import { isExperimentalAdvisoryPanelsEnabled } from "@/lib/feature-flags";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -95,34 +81,30 @@ function dispositionActionLabel(action: string): string {
   return DISPOSITION_ACTION_LABELS[action] ?? action;
 }
 
-function formatAdvisoryScansLastLoaded(lastLoadedUtc: string | null): string {
-  if (lastLoadedUtc === null) {
-    return " — ";
-  }
-
-  const parsed = new Date(lastLoadedUtc);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return " — ";
-  }
-
-  return parsed.toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZoneName: "short",
-  });
-}
-
 /**
  * Scans tab: governance follow-up workspace for advisory recommendations.
  */
 export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const isAdminCaller = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const bootstrappedRunId = (props.initialRunId ?? "").trim();
+
+  const onPickReview = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      router.push(buildAdvisoryHubHref({ pathname, tab: "scans", runId: trimmed }));
+    },
+    [pathname, router],
+  );
+
+  const scansClearScopeHref = buildAdvisoryHubHref({ pathname, tab: "scans", runId: null });
   const queryClient = useQueryClient();
   const scope = useOperatorScopeQueryKey();
   const generateDisabledHintId = useId();
@@ -190,6 +172,16 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
 
   const reviewSelected = runId.trim().length > 0;
   const hasResults = planSummary !== null || recommendations.length > 0;
+  const advisoryScanChecklistSteps = resolveAdvisoryScansScanSteps({
+    reviewPicked: reviewSelected,
+    scanConfigured: reviewSelected,
+    scanComplete: hasResults || lastLoadedUtc !== null,
+  });
+  const advisoryScanChecklistEmphasizedStepId = resolveAdvisoryScansScanEmphasizedStepId({
+    reviewPicked: reviewSelected,
+    scanConfigured: reviewSelected,
+    scanComplete: hasResults || lastLoadedUtc !== null,
+  });
   const generateDisabledReason: WhyDisabledCtaReason | null = reviewSelected
     ? null
     : { kind: "prerequisite", message: ADVISORY_SCANS_GENERATE_DISABLED_HINT };
@@ -371,197 +363,62 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
     setShowSamplePreview((current) => !current);
   }, []);
 
-  const lastLoadedLabel = formatAdvisoryScansLastLoaded(lastLoadedUtc);
-
-  const listHeader = (
-    <div
-      className="flex flex-wrap items-start justify-between gap-2"
-      data-testid="advisory-scans-list-header"
-    >
-      <div className="min-w-0 space-y-1">
-        <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {ADVISORY_SCANS_LIST_HEADING}
-        </h3>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          <span className="font-medium text-al-text-primary">Project scope:</span> {projectLabel}
-          <span aria-hidden="true"> · </span>
-          <span data-testid="advisory-scans-count">
-            {recommendations.length} {ADVISORY_SCANS_LIST_COUNT_LABEL}
-          </span>
-          <span aria-hidden="true"> · </span>
-          <span data-testid="advisory-scans-last-loaded">
-            {ADVISORY_SCANS_LAST_LOADED_PREFIX}: {lastLoadedLabel}
-          </span>
-        </p>
-      </div>
-      <RefreshButton
-        busy={loading}
-        data-testid="advisory-scans-refresh"
-        onClick={() => {
+  return (
+    <OperatorPageContainer variant="workflow" data-testid="advisory-scans-content">
+      <AdvisoryScansListHeader
+        projectLabel={projectLabel}
+        recommendationCount={recommendations.length}
+        lastLoadedUtc={lastLoadedUtc}
+        loading={loading}
+        onRefresh={() => {
           void refreshPersistedOnly();
         }}
       />
-    </div>
-  );
-
-  return (
-    <OperatorPageContainer variant="workflow" data-testid="advisory-scans-content">
-      {listHeader}
 
       {runId.trim().length === 0 ? (
-        <AdvisoryScansPickReviewBeforeScanningStrip selectedReviewId={runId} onSelectReview={setRunId} />
-      ) : null}
-
-      <section
-        className={cn(DESIGN_TOKENS.surface.card, "mb-6 mt-4 space-y-4 p-5")}
-        aria-label={ADVISORY_SCANS_FORM_SECTION_TITLE}
-        data-testid="advisory-scan-form"
-      >
-        <div className="space-y-1">
-          <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {ADVISORY_SCANS_FORM_SECTION_TITLE}
-          </h3>
-        </div>
-
-        {bootstrappedRunId.length > 0 ? (
+        <AdvisoryScansPickReviewBeforeScanningStrip selectedReviewId="" onSelectReview={onPickReview} />
+      ) : (
+        <>
           <p
-            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="advisory-scans-run-scope-banner"
           >
-            Scoped to review <span className="font-mono text-al-text-primary">{bootstrappedRunId}</span>.
-            Persisted recommendations load automatically; generate a scan if you need a fresh plan.
-          </p>
-        ) : null}
-
-        <div className="grid gap-4">
-          <RunIdPicker
-            label={ADVISORY_SCANS_FINALIZED_REVIEW_LABEL}
-            placeholder={ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER}
-            value={runId}
-            onChange={setRunId}
-            inputId="advisory-run-id"
-            committedOnly
-            preferAutoPick={false}
-            useBuyerFacingRunLabels
-          />
-
-          <div className="space-y-2">
-            <RunIdPicker
-              label={ADVISORY_SCANS_BASELINE_REVIEW_LABEL}
-              placeholder={ADVISORY_SCANS_BASELINE_REVIEW_PLACEHOLDER}
-              value={compareToRunId}
-              onChange={setCompareToRunId}
-              inputId="advisory-compare-run-id"
-              committedOnly
-              preferAutoPick={false}
-              useBuyerFacingRunLabels
-            />
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              {ADVISORY_SCANS_BASELINE_REVIEW_HELPER}
-            </p>
-          </div>
-
-          <details
-            className={cn(
-              "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-          >
-            <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
-              {ADVISORY_SCANS_CANT_FIND_REVIEW_SUMMARY}
-            </summary>
-            <div className="mt-3 space-y-3">
-              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                {ADVISORY_SCANS_CANT_FIND_REVIEW_BODY}
-              </p>
-              <Button asChild size="sm" variant="outline">
-                <Link href={ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF}>{ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL}</Link>
-              </Button>
-
-              {isAdminCaller ? (
-                <details className="rounded border border-dashed border-neutral-300 p-3 dark:border-neutral-600">
-                  <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
-                    {ADVISORY_SCANS_MANUAL_ID_ADMIN_SUMMARY}
-                  </summary>
-                  <div className="mt-3 grid gap-2">
-                    <input
-                      value={runId}
-                      onChange={(event) => {
-                        setRunId(event.target.value);
-                      }}
-                      placeholder={ADVISORY_SCANS_MANUAL_ID_TARGET_PLACEHOLDER}
-                      className={cn(
-                        "rounded-md border border-neutral-300 bg-white p-2 font-mono text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100",
-                        OPERATOR_TYPOGRAPHY.body,
-                      )}
-                    />
-                    <input
-                      value={compareToRunId}
-                      onChange={(event) => {
-                        setCompareToRunId(event.target.value);
-                      }}
-                      placeholder={ADVISORY_SCANS_MANUAL_ID_BASELINE_PLACEHOLDER}
-                      className={cn(
-                        "rounded-md border border-neutral-300 bg-white p-2 font-mono text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100",
-                        OPERATOR_TYPOGRAPHY.body,
-                      )}
-                    />
-                  </div>
-                </details>
-              ) : null}
-            </div>
-          </details>
-        </div>
-
-        <div className="space-y-2">
-          <p
-            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="advisory-scans-inline-boundary"
-          >
-            {ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant={reviewSelected ? "primary" : "outline"}
-              onClick={() => {
-                void loadAdvice();
-              }}
-              disabled={loading || !reviewSelected}
-              aria-describedby={generateDisabledReason === null ? undefined : generateDisabledHintId}
-              data-testid="advisory-generate-scan-button"
+            {"Scanning advisory recommendations for review "}
+            <span className="font-mono text-al-text-primary">{bootstrappedRunId}</span>
+            {" · "}
+            <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={scansClearScopeHref}>
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
+              href={`/architecture/reviews/${encodeURIComponent(bootstrappedRunId)}`}
             >
-              {loading ? ADVISORY_SCANS_GENERATE_BUTTON_WORKING_LABEL : ADVISORY_SCANS_GENERATE_BUTTON_LABEL}
-            </Button>
-
-            {reviewSelected ? (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  void refreshPersistedOnly();
-                }}
-                disabled={loading}
-              >
-                {ADVISORY_SCANS_REFRESH_SAVED_LABEL}
-              </Button>
-            ) : null}
-
-            <WhyDisabledCtaHint
-              id={generateDisabledHintId}
-              reason={generateDisabledReason}
-              testId="advisory-generate-disabled-hint"
-            />
-          </div>
-
-          {reviewSelected ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              {ADVISORY_SCANS_GENERATE_OUTPUT_HINT}
-            </p>
-          ) : null}
-        </div>
-      </section>
+              Open review
+            </Link>
+          </p>
+          <AdvisoryScanForm
+          bootstrappedRunId={bootstrappedRunId}
+          reviewSelected={reviewSelected}
+          loading={loading}
+          runId={runId}
+          setRunId={setRunId}
+          compareToRunId={compareToRunId}
+          setCompareToRunId={setCompareToRunId}
+          isAdminCaller={isAdminCaller}
+          advisoryScanChecklistSteps={advisoryScanChecklistSteps}
+          advisoryScanChecklistEmphasizedStepId={advisoryScanChecklistEmphasizedStepId}
+          generateDisabledHintId={generateDisabledHintId}
+          generateDisabledReason={generateDisabledReason}
+          onGenerate={() => {
+            void loadAdvice();
+          }}
+          onRefreshSaved={() => {
+            void refreshPersistedOnly();
+          }}
+        />
+        </>
+      )}
 
       {!hasResults ? (
         <div className="mb-6 flex flex-wrap items-center gap-2" data-testid="advisory-scans-empty-actions">

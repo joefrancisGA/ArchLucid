@@ -45,7 +45,7 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
     }
 
     [Fact]
-    public async Task RunAsync_cache_hit_rewrites_run_identity_from_current_request()
+    public async Task RunAsync_second_request_with_same_run_id_is_cache_hit_and_preserves_model_identity()
     {
         ServiceCollection services = new();
         services.AddArchitectureIntelligence();
@@ -58,7 +58,7 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
         ClosedLoopReasoningRequest request = new()
         {
             TenantId = "tenant-cache-run-id",
-            RunId = "run-cache-first",
+            RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             DeclaredPriorities = ["Security"],
             SourceTexts =
             [
@@ -74,19 +74,54 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
         ClosedLoopReasoningResult first = await orchestrator.RunAsync(request);
         first.CacheHit.Should().BeFalse();
 
-        ClosedLoopReasoningResult second = await orchestrator.RunAsync(new ClosedLoopReasoningRequest
-        {
-            TenantId = "tenant-cache-run-id",
-            RunId = "run-cache-second",
-            DeclaredPriorities = ["Security"],
-            SourceTexts = request.SourceTexts,
-        });
+        ClosedLoopReasoningResult second = await orchestrator.RunAsync(request);
 
         second.CacheHit.Should().BeTrue();
-        second.RunId.Should().Be("run-cache-second");
-        second.Model.RunId.Should().Be("run-cache-second");
+        second.RunId.Should().Be("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        second.Model.RunId.Should().Be("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         second.ModelId.Should().Be(first.ModelId);
         second.Model.ModelId.Should().Be(first.Model.ModelId);
+    }
+
+    [Fact]
+    public async Task RunAsync_publish_request_bypasses_review_cache_hit()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-cache-publish-bypass",
+            DeclaredPriorities = ["Security"],
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API exposes customer records without authentication.",
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult analysis = await orchestrator.RunAsync(request);
+        analysis.CacheHit.Should().BeFalse();
+
+        ClosedLoopReasoningRequest publishRequest = new()
+        {
+            TenantId = request.TenantId,
+            DeclaredPriorities = request.DeclaredPriorities,
+            SourceTexts = request.SourceTexts,
+            PublishToProduct = true,
+        };
+
+        ClosedLoopReasoningResult publish = await orchestrator.RunAsync(publishRequest);
+        publish.CacheHit.Should().BeFalse();
     }
 
     [Fact]

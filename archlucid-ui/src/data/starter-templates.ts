@@ -47,12 +47,12 @@ export const starterArchitectureTemplates: WizardPreset[] = [
   {
     id: "starter-payment-adjacent-not-chd",
     label: "Payments-adjacent (no card data)",
-    description: "Checkout orchestration touching tokenized payments only — no raw CHD in scope.",
+    description: "Checkout orchestration touching tokenized payments only — no cardholder data in scope.",
     values: {
       systemName: "CheckoutOrchestration",
       description:
-        "Customer checkout orchestration integrating a PCI-DSS certified payment provider via hosted fields/token APIs only; ArchLucid scope excludes raw cardholder data and focuses on service boundaries, webhook integrity, and settlement reconciliation jobs.",
-      constraints: ["No CHD persistence in our services", "Webhook signature verification mandatory"],
+        "Customer checkout orchestration integrating a PCI-DSS certified payment provider via hosted fields/token APIs only; ArchLucid scope excludes cardholder data and focuses on service boundaries, webhook integrity, and settlement reconciliation jobs.",
+      constraints: ["No cardholder data stored in our services", "Webhook signature verification mandatory"],
       requiredCapabilities: ["PSP-hosted capture", "Idempotent order APIs", "Settlement reconciliation reports"],
       securityBaselineHints: ["mTLS or signed webhooks for PSP callbacks", "Immutable audit for money movement events"],
     },

@@ -1,6 +1,7 @@
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
+using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Topology;
 
 namespace ArchLucid.ContextIngestion.ConnectorStages;
@@ -18,6 +19,7 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
         _ = ct;
 
         NormalizedContextBatch batch = new();
+        HashSet<string> seenHints = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string hint in payload.TopologyHints)
         {
@@ -27,16 +29,19 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
                 continue;
 
             string canonicalHint = TopologyHintStableObjectIds.CanonicalizeHintName(trimmed).ToLowerInvariant();
+
+            if (!seenHints.Add(canonicalHint))
+                continue;
+
             Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase) { ["text"] = canonicalHint };
 
-            int slash = canonicalHint.IndexOf('/');
+            int slash = canonicalHint.LastIndexOf('/');
 
             if (slash > 0 && slash < canonicalHint.Length - 1)
             {
                 string parentName = canonicalHint[..slash];
-                string childRemainder = canonicalHint[(slash + 1)..];
 
-                if (parentName.Length > 0 && childRemainder.Length > 0)
+                if (parentName.Length > 0)
                 {
                     // parentNodeId must match GraphNodeFactory: obj-{CanonicalObject.ObjectId}
                     string parentObjId = _overlapResolver.ResolveStableObjectId(parentName);
@@ -48,7 +53,7 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
             {
                 ObjectId = _overlapResolver.ResolveStableObjectId(canonicalHint),
                 ObjectType = "TopologyResource",
-                Name = canonicalHint,
+                Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalHint),
                 SourceType = "TopologyHint",
                 SourceId = "topology-hint",
                 Properties = properties

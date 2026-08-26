@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { RoiTelemetryCard } from "@/components/RoiTelemetryCard";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { useRoiLoadedHourlyUsd } from "@/hooks/use-roi-loaded-hourly-usd";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor-report-pilot-roi-measurement-help";
@@ -50,9 +52,9 @@ import {
   ROI_SUMMARY_SKIP_LINK_LABEL,
 } from "@/lib/roi-summary-page-copy";
 import {
-  readRoiSummaryPickedReviewId,
-  writeRoiSummaryPickedReviewId,
-} from "@/lib/roi-summary/roi-summary-picked-review-storage";
+  resolveRoiSummarySummarizingEmphasizedStepId,
+  resolveRoiSummarySummarizingSteps,
+} from "@/lib/roi-summary-summarizing-checklist";
 
 import { RoiSummaryBuyerChrome } from "./RoiSummaryBuyerChrome";
 import { RoiSummaryHeroStrip } from "./RoiSummaryHeroStrip";
@@ -67,20 +69,29 @@ type Props = {
 
 export function RoiSummaryPageView(props: Props) {
   const m = props.model;
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const hourly = useRoiLoadedHourlyUsd();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const layerHeader = buyerPolishedShell ? null : <LayerHeader pageKey="value-report-roi" />;
-  const [selectedReviewId, setSelectedReviewId] = useState("");
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
 
-  useEffect(() => {
-    setSelectedReviewId(readRoiSummaryPickedReviewId());
-  }, []);
+  const onPickReviewForSummarizing = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
 
-  const onSelectReview = useCallback((reviewId: string) => {
-    const trimmed = reviewId.trim();
-    setSelectedReviewId(trimmed);
-    writeRoiSummaryPickedReviewId(trimmed);
-  }, []);
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+
+      router.replace(`${SPONSOR_REPORT_ROI_SUMMARY_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   if (m.demo) {
     return (
@@ -133,6 +144,16 @@ export function RoiSummaryPageView(props: Props) {
     rolling30.report.fromUtc,
     rolling30.report.toUtc,
   );
+  const roiSummarizingChecklistSteps = resolveRoiSummarySummarizingSteps({
+    reviewPicked: scopedRunFilterActive,
+    metricsReviewed: scopedRunFilterActive && !showZeroState,
+    exportReady: scopedRunFilterActive && !showZeroState,
+  });
+  const roiSummarizingChecklistEmphasizedStepId = resolveRoiSummarySummarizingEmphasizedStepId({
+    reviewPicked: scopedRunFilterActive,
+    metricsReviewed: scopedRunFilterActive && !showZeroState,
+    exportReady: scopedRunFilterActive && !showZeroState,
+  });
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4">
@@ -191,19 +212,49 @@ export function RoiSummaryPageView(props: Props) {
             }
           />
 
-          {selectedReviewId.trim().length === 0 ? (
+          {!scopedRunFilterActive ? (
             <RoiSummaryPickReviewBeforeSummarizingStrip
-              selectedReviewId={selectedReviewId}
-              onSelectReview={onSelectReview}
+              selectedReviewId={scopedRunId}
+              onSelectReview={onPickReviewForSummarizing}
             />
+          ) : (
+            <IntegrationConnectChecklist
+              title="Summarizing checklist"
+              steps={roiSummarizingChecklistSteps}
+              emphasizedStepId={roiSummarizingChecklistEmphasizedStepId}
+              testIdPrefix="roi-summary-summarizing"
+            />
+          )}
+
+          {scopedRunFilterActive ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="roi-summary-run-scope-banner"
+            >
+              {"Summarizing ROI for review "}
+              <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+              {" · "}
+              <Link className={OPERATOR_LINK.inline} href={SPONSOR_REPORT_ROI_SUMMARY_PATH}>
+                Clear review scope
+              </Link>
+              {" · "}
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+              >
+                Open review
+              </Link>
+            </p>
           ) : null}
 
-          <RoiSummaryHeroStrip
-          period={heroPeriod}
-          hourlyUsd={hourly.hourlyUsd}
-          windowLabel={rollingWindowLabel}
-          isDefaultRate={hourly.isDefaultRate}
-        />
+          {scopedRunFilterActive ? (
+            <>
+              <RoiSummaryHeroStrip
+                period={heroPeriod}
+                hourlyUsd={hourly.hourlyUsd}
+                windowLabel={rollingWindowLabel}
+                isDefaultRate={hourly.isDefaultRate}
+              />
 
         {showZeroState ? (
           <section
@@ -317,8 +368,8 @@ export function RoiSummaryPageView(props: Props) {
 
           <RoiSummaryBuyerChrome />
 
-          {selectedReviewId.trim().length > 0 ? (
-            <RoiSummaryNextReviewFooterClient runId={selectedReviewId.trim()} />
+          <RoiSummaryNextReviewFooterClient runId={scopedRunId} />
+            </>
           ) : null}
         </div>
       </DocumentLayout>

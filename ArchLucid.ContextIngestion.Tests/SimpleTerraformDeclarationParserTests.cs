@@ -123,4 +123,89 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().ContainSingle(o =>
             o.Name == "allow_https" && o.Properties["terraformType"] == "google_compute_firewall");
     }
+
+    [Fact]
+    public async Task ParseAsync_CapturesScalarAttributesOnTfProperties()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "storage.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_storage_account" "docs" {
+                        public_network_access = "Enabled"
+                        https_only = true
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.public_network_access"].Should().Be("enabled");
+        result[0].Properties["tf.https_only"].Should().Be("true");
+    }
+
+    [Fact]
+    public async Task ParseAsync_RedactsSensitiveAssignments()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "secret.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_storage_account" "docs" {
+                        access_key = "supersecret"
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.access_key"].Should().Be("[REDACTED]");
+    }
+
+    [Fact]
+    public async Task ParseAsync_Reparse_ProducesStableObjectId()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-stable",
+            Content = "resource \"azurerm_virtual_network\" \"hub-vnet\"\n"
+        };
+
+        IReadOnlyList<CanonicalObject> firstParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        firstParse.Should().ContainSingle();
+        secondParse.Should().ContainSingle();
+        secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
+    }
+
+    [Fact]
+    public async Task ParseAsync_DuplicateResourceBlocksSameTypeLabel_EmitsDistinctObjects()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "dup.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-dup",
+            Content = """
+                      resource "azurerm_subnet" "app" {
+                        address_prefixes = ["10.0.1.0/24"]
+                      }
+                      resource "azurerm_subnet" "app" {
+                        address_prefixes = ["10.0.2.0/24"]
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
+    }
 }

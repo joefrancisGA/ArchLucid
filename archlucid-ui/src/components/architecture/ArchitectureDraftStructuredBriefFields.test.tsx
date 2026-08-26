@@ -199,9 +199,22 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
 
     const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
     expect(within(suggestion).getByText("EU data residency")).toBeInTheDocument();
-    expect(within(suggestion).getByRole("button", { name: "Confirm" })).toBeInTheDocument();
-    expect(within(suggestion).getByRole("button", { name: "Deny" })).toBeInTheDocument();
-    expect(within(suggestion).getByRole("button", { name: /Explain/i })).toBeInTheDocument();
+    const confirmButton = within(suggestion).getByRole("button", { name: "Confirm" });
+    const denyButton = within(suggestion).getByRole("button", { name: "Deny" });
+    const explainButton = within(suggestion).getByRole("button", { name: /Explain/i });
+    expect(confirmButton).toBeInTheDocument();
+    expect(denyButton).toBeInTheDocument();
+    expect(explainButton).toBeInTheDocument();
+    const suggestionButtons = within(suggestion).getAllByRole("button");
+    const confirmButtonIndex = suggestionButtons.findIndex((button) => button.textContent === "Confirm");
+    const denyButtonIndex = suggestionButtons.findIndex((button) => button.textContent === "Deny");
+    expect(confirmButtonIndex).toBeGreaterThanOrEqual(0);
+    expect(denyButtonIndex).toBeGreaterThanOrEqual(0);
+    expect(confirmButtonIndex).toBeLessThan(denyButtonIndex);
+    expect(explainButton.className).toContain("text-xs");
+    expect(confirmButton.className).toContain("text-xs");
+    expect(denyButton.className).toContain("text-xs");
+    expect(screen.getByTestId("architecture-draft-constraints-confirm-all-suggestions")).toBeInTheDocument();
     expect(screen.queryByText("Suggested", { selector: "span" })).not.toBeInTheDocument();
   });
 
@@ -356,6 +369,33 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(confirmedRow.querySelector(".max-w-\\[240px\\]")).toBeNull();
   });
 
+  it("confirms all suggestions in a section when Confirm all is clicked", async () => {
+    mockDraftSuggestResponse({
+      suggestedConstraints: ["EU data residency", "Private networking only"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    expect(await screen.findAllByTestId("architecture-draft-constraints-suggestion")).toHaveLength(2);
+
+    fireEvent.click(screen.getByTestId("architecture-draft-constraints-confirm-all-suggestions"));
+
+    expect(screen.queryByTestId("architecture-draft-constraints-suggestion")).not.toBeInTheDocument();
+
+    const confirmedRows = screen.getAllByTestId("architecture-draft-constraints-confirmed");
+    expect(confirmedRows).toHaveLength(2);
+    expect(within(confirmedRows[0]).getByText("EU data residency")).toBeInTheDocument();
+    expect(within(confirmedRows[1]).getByText("Private networking only")).toBeInTheDocument();
+  });
+
   it("splits multiline LLM suggestion strings into separate confirmable items", async () => {
     mockDraftSuggestResponse({
       suggestedConstraints: ["EU data residency\nPrivate networking only\nAudit logging required"],
@@ -403,6 +443,79 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
       "Added 7 suggestions below",
     );
     expect(screen.queryByTestId("architecture-draft-suggest-structured-brief-empty")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-failure-mode-suggestion")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-failure-mode-input")).toHaveValue("");
+  });
+
+  it("requires confirm before applying a failure mode suggestion", async () => {
+    mockDraftSuggestResponse({
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness
+        freeTextIntent={`# Architecture Review Packet\n\n- RPO is 15 minutes; RTO is 4 hours.\n- Manual migration rollback via backup restore for pilot.`}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    const suggestion = await screen.findByTestId("architecture-draft-failure-mode-suggestion");
+    expect(within(suggestion).getByText(/Extended outage or data loss beyond RPO/i)).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-failure-mode-input")).toHaveValue("");
+
+    fireEvent.click(within(suggestion).getByRole("button", { name: "Confirm" }));
+
+    expect(screen.queryByTestId("architecture-draft-failure-mode-suggestion")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-failure-mode-input")).toHaveValue(
+      "Extended outage or data loss beyond RPO (15 minutes); recover service within RTO (4 hours); Migration failure: manual rollback via backup restore for pilot",
+    );
+  });
+
+  it("does not re-suggest a denied failure mode note", async () => {
+    mockDraftSuggestResponse({
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    function StatefulHarness(): React.JSX.Element {
+      const [structuredBrief, setStructuredBrief] = useState(emptyArchitectureDraftStructuredBrief());
+
+      return (
+        <ArchitectureDraftStructuredBriefFields
+          structuredBrief={structuredBrief}
+          freeTextIntent={`# Architecture Review Packet\n\n- RPO is 15 minutes; RTO is 4 hours.`}
+          onStructuredBriefChange={setStructuredBrief}
+        />
+      );
+    }
+
+    render(<StatefulHarness />);
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+    const suggestion = await screen.findByTestId("architecture-draft-failure-mode-suggestion");
+    fireEvent.click(within(suggestion).getByRole("button", { name: "Deny" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-suggest-structured-brief")).not.toBeDisabled();
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+    });
+
+    await waitFor(() => {
+      expect(mockedDraftArchitectureRequestWithPoll).toHaveBeenCalledTimes(2);
+    });
+
+    expect(screen.queryByTestId("architecture-draft-failure-mode-suggestion")).not.toBeInTheDocument();
   });
 
   it("shows an empty-state message when the API returns no new suggestions", async () => {
@@ -425,28 +538,21 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     );
   });
 
-  it("labels required capabilities as optional for review readiness", () => {
+  it("states optional-but-helpful guidance once at section level instead of per-field labels", () => {
     render(
       <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
     );
 
-    expect(
-      within(screen.getByTestId("architecture-draft-capabilities")).getByText(/^Required capabilities/i),
-    ).toHaveTextContent("(optional)");
+    expect(screen.getByText(/All fields below are optional but help reviewers ground their analysis/i)).toBeInTheDocument();
+    expect(screen.queryByText("(optional)")).not.toBeInTheDocument();
     expect(screen.queryByText(/Required capabilities.*\(required\)/i)).not.toBeInTheDocument();
   });
 
-  it("labels constraints and assumptions as optional and does not offer Mark unknown", () => {
+  it("does not offer Mark unknown on structured brief list fields", () => {
     render(
       <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
     );
 
-    expect(within(screen.getByTestId("architecture-draft-constraints")).getByText(/Constraints/i)).toHaveTextContent(
-      "(optional)",
-    );
-    expect(within(screen.getByTestId("architecture-draft-assumptions")).getByText(/Assumptions/i)).toHaveTextContent(
-      "(optional)",
-    );
     expect(screen.queryByRole("button", { name: /Mark unknown/i })).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-constraints-mark-unknown")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-assumptions-mark-unknown")).not.toBeInTheDocument();
@@ -498,7 +604,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
       <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
     );
 
-    expect(screen.getByTestId("architecture-draft-failure-mode").tagName).toBe("INPUT");
+    expect(screen.getByTestId("architecture-draft-failure-mode-input").tagName).toBe("INPUT");
     expect(screen.getByTestId("architecture-draft-operational-owner").tagName).toBe("INPUT");
   });
 

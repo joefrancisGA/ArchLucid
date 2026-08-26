@@ -14,6 +14,8 @@ import {
   OperatorRecipientSubscriptionsHelperLink,
 } from "@/components/advisory/OperatorRecipientChipField";
 import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
+import { DigestsHubNextReviewFooterClient } from "@/components/digests/DigestsHubNextReviewFooterClient";
+import { ExecDigestPickReviewBeforeSchedulingStrip } from "@/components/digests/ExecDigestPickReviewBeforeSchedulingStrip";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -22,14 +24,14 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import {
   DIGESTS_SCHEDULE_GENERATE_TEST_LABEL,
   DIGESTS_SCHEDULE_PREVIEW_LABEL,
 } from "@/lib/digests-browse-copy";
-import { DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
+import { DIGESTS_SUBSCRIPTIONS_TAB_PATH, digestsHubScopedHref } from "@/lib/digests-route-paths";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   EXEC_DIGEST_DAY_NAMES,
   EXEC_DIGEST_HOUR_OPTIONS,
@@ -132,6 +134,12 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
   const scheduleEmphasizedStepId =
     scheduleChecklistInput !== null ? resolveExecDigestScheduleEmphasizedStepId(scheduleChecklistInput) : "recipients";
 
+  const scopedRunId = (props.scopedRunId ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
+  const requiresReviewPick = props.onPickReview !== undefined;
+  const scheduleUiVisible = scopedRunFilterActive || !requiresReviewPick;
+  const scheduleClearScopeHref = digestsHubScopedHref("schedule", null);
+
   return (
     <div className="w-full space-y-4" data-testid="exec-digest-schedule-content">
       <div>
@@ -151,6 +159,34 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
         )}
       </div>
 
+      {!scopedRunFilterActive && requiresReviewPick ? (
+        <ExecDigestPickReviewBeforeSchedulingStrip
+          selectedReviewId=""
+          onSelectReview={props.onPickReview!}
+        />
+      ) : scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="exec-digest-run-scope-banner"
+        >
+          {"Scheduling sponsor digest for review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={scheduleClearScopeHref}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : null}
+
+      {scheduleUiVisible ? (
+      <>
       {sampleModeBlocked ? (
         <p
           className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
@@ -587,6 +623,19 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
           );
         })()
       )}
+      </>
+      ) : null}
+
+      {scopedRunFilterActive ? (
+        <DigestsHubNextReviewFooterClient
+          runId={scopedRunId}
+          tab="schedule"
+          title="Next review digest schedule"
+          actionLabel="Schedule next digest"
+          ariaLabel="Next review digest schedule"
+          testIdPrefix="exec-digest-schedule"
+        />
+      ) : null}
     </div>
   );
 }

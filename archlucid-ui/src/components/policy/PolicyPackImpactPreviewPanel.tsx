@@ -2,17 +2,18 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { PolicyPackComplianceRuleKeyDiffView } from "@/components/policy/PolicyPackComplianceRuleKeyDiffView";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { simulatePolicyPackAgainstRun } from "@/lib/api/policy-governance-api";
 import { toApiLoadFailure, uiFailureFromMessage, type ApiLoadFailureState } from "@/lib/api-load-failure";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buildPolicyPacksHrefWithReviewId } from "@/lib/policy-packs-review-handoff";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
 import type { components } from "@/lib/openapi-schemas";
 import {
@@ -29,6 +30,8 @@ export type PolicyPackImpactPreviewPanelProps = {
   readonly effectiveContent: PolicyPackContentDocument | null;
   readonly selectedPackId: string;
   readonly packVersions: readonly PolicyPackVersion[];
+  readonly scopedReviewId?: string;
+  readonly onPickReview?: (reviewId: string) => void;
 };
 
 function gateStatusTag(summary: PolicyImpactPreviewGateSummary): React.JSX.Element {
@@ -47,7 +50,10 @@ function gateStatusTag(summary: PolicyImpactPreviewGateSummary): React.JSX.Eleme
  * Prominent policy impact preview — rule-key diff plus pre-commit simulate for the same committed review.
  */
 export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanelProps): React.JSX.Element {
-  const [runId, setRunId] = useState("");
+  const scopedReviewId = (props.scopedReviewId ?? "").trim();
+  const scopedReviewFilterActive = scopedReviewId.length > 0;
+  const requiresReviewPick = props.onPickReview !== undefined;
+  const previewClearScopeHref = buildPolicyPacksHrefWithReviewId("");
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [baselineResult, setBaselineResult] = useState<components["schemas"]["PolicyPackGovernanceDryRunResult"] | null>(
@@ -85,10 +91,8 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
     stricterResult !== null ? summarizePolicyImpactGateResult("block-critical", stricterResult) : null;
 
   const onRunPreview = useCallback(async () => {
-    const trimmedRunId = runId.trim();
-
-    if (trimmedRunId.length === 0) {
-      setFailure(uiFailureFromMessage("Enter a finalized review ID to preview policy impact."));
+    if (scopedReviewId.length === 0) {
+      setFailure(uiFailureFromMessage("Pick a finalized review to preview policy impact."));
       setBaselineResult(null);
       setStricterResult(null);
 
@@ -102,11 +106,11 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
 
     try {
       const proposedPolicyPackId = props.selectedPackId.trim();
-      const baselineRequest = buildPolicyImpactPreviewSimulateRequest(trimmedRunId, "allow", {
+      const baselineRequest = buildPolicyImpactPreviewSimulateRequest(scopedReviewId, "allow", {
         proposedContent,
         proposedPolicyPackId,
       });
-      const stricterRequest = buildPolicyImpactPreviewSimulateRequest(trimmedRunId, "block-critical", {
+      const stricterRequest = buildPolicyImpactPreviewSimulateRequest(scopedReviewId, "block-critical", {
         proposedContent,
         proposedPolicyPackId,
       });
@@ -123,7 +127,14 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
     } finally {
       setBusy(false);
     }
-  }, [proposedContent, props.selectedPackId, runId]);
+  }, [proposedContent, props.selectedPackId, scopedReviewId]);
+
+  useEffect(() => {
+    if (!scopedReviewFilterActive) {
+      setBaselineResult(null);
+      setStricterResult(null);
+    }
+  }, [scopedReviewFilterActive]);
 
   return (
     <section
@@ -146,17 +157,61 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="space-y-2">
-          <Label htmlFor="policy-impact-preview-run-id">Finalized review ID</Label>
-          <Input
-            id="policy-impact-preview-run-id"
-            data-testid="policy-impact-preview-run-id"
-            value={runId}
-            onChange={(event) => {
-              setRunId(event.target.value);
-            }}
-            placeholder="Paste a finalized review ID"
-            autoComplete="off"
-          />
+          {!scopedReviewFilterActive && requiresReviewPick ? (
+            <>
+              <Label htmlFor="policy-impact-preview-run-picker">Finalized review</Label>
+              <div className="min-w-[16rem] max-w-xl">
+                <AskRunIdPicker
+                  value=""
+                  onChange={(value) => {
+                    if (value.trim().length > 0) {
+                      props.onPickReview?.(value.trim());
+                    }
+                  }}
+                  selectedThreadId=""
+                  committedOnly
+                  preferAutoPick={false}
+                  autoSelectSyntheticSample={false}
+                  label="Review package"
+                  fieldId="policy-impact-preview-run-picker"
+                  hideFieldHelper
+                />
+              </div>
+            </>
+          ) : scopedReviewFilterActive ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="policy-impact-preview-run-scope-banner">
+              {"Previewing policy impact for review "}
+              <span className="font-mono text-al-text-primary">{scopedReviewId}</span>
+              {" · "}
+              <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={previewClearScopeHref}>
+                Clear review scope
+              </Link>
+              {" · "}
+              <Link
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
+                href={`/architecture/reviews/${encodeURIComponent(scopedReviewId)}`}
+              >
+                Open review
+              </Link>
+            </p>
+          ) : (
+            <>
+              <Label htmlFor="policy-impact-preview-run-picker">Finalized review</Label>
+              <div className="min-w-[16rem] max-w-xl">
+                <AskRunIdPicker
+                  value={scopedReviewId}
+                  onChange={() => undefined}
+                  selectedThreadId=""
+                  committedOnly
+                  preferAutoPick={false}
+                  autoSelectSyntheticSample={false}
+                  label="Review package"
+                  fieldId="policy-impact-preview-run-picker"
+                  hideFieldHelper
+                />
+              </div>
+            </>
+          )}
           {props.selectedPackId.trim().length > 0 && latestPublishedVersion !== null ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               After snapshot includes keys from selected pack{" "}
@@ -169,7 +224,12 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
             </p>
           )}
         </div>
-        <Button type="button" onClick={onRunPreview} disabled={busy} data-testid="policy-impact-preview-run">
+        <Button
+          type="button"
+          onClick={() => void onRunPreview()}
+          disabled={busy || (requiresReviewPick && !scopedReviewFilterActive)}
+          data-testid="policy-impact-preview-run"
+        >
           {busy ? "Running preview…" : "Run policy impact preview"}
         </Button>
       </div>

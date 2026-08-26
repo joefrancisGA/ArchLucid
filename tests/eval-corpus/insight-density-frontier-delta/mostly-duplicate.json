@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "id": "mostly-duplicate",
+  "inputSummary": "Standard three-tier web workload with Key Vault and Monitor.",
+  "archlucidFindings": [
+    {
+      "findingId": "m1",
+      "engineType": "compliance",
+      "category": "Security",
+      "title": "Enable Azure Monitor diagnostics for application tier",
+      "policyRuleId": null,
+      "classification": "DecisionGradeFinding"
+    },
+    {
+      "findingId": "m2",
+      "engineType": "compliance",
+      "category": "Security",
+      "title": "Store application secrets in Azure Key Vault",
+      "policyRuleId": null,
+      "classification": "DecisionGradeFinding"
+    },
+    {
+      "findingId": "m3",
+      "engineType": "declaration-security-baseline",
+      "category": "Security",
+      "title": "Encrypt storage with customer-managed keys",
+      "policyRuleId": "storage.cmk-required",
+      "classification": "DecisionGradeFinding"
+    }
+  ],
+  "frontierBaseline": {
+    "model": "baseline-a",
+    "capturedUtc": "2026-08-26T00:00:00Z",
+    "promptRef": "docs/quality/insight-density-frontier-delta-fixture-authorship",
+    "findings": [
+      {
+        "category": "Security",
+        "title": "Enable Azure Monitor diagnostics for application tier",
+        "ruleId": null
+      },
+      {
+        "category": "Security",
+        "title": "Store application secrets in Azure Key Vault",
+        "ruleId": null
+      },
+      {
+        "category": "Security",
+        "title": "Encrypt storage with customer-managed keys",
+        "ruleId": "storage.cmk-required"
+      }
+    ]
+  },
+  "expectedNoveltyPercentage": 0.0
+}

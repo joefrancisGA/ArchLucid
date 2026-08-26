@@ -11,8 +11,39 @@ public sealed class PolicyTopologyOverlapResolver : IPolicyTopologyOverlapResolv
         string canonicalPolicy = TopologyHintStableObjectIds.CanonicalizeHintName(policyReference.Trim());
         string canonicalHint = TopologyHintStableObjectIds.CanonicalizeHintName(topologyHint.Trim());
 
-        return canonicalHint.Contains(canonicalPolicy, StringComparison.OrdinalIgnoreCase)
-               || canonicalPolicy.Contains(canonicalHint, StringComparison.OrdinalIgnoreCase);
+        if (string.Equals(canonicalPolicy, canonicalHint, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return IsDelimitedPrefix(canonicalPolicy, canonicalHint)
+               || IsDelimitedPrefix(canonicalHint, canonicalPolicy)
+               || IsDelimitedSuffix(canonicalPolicy, canonicalHint)
+               || IsDelimitedSuffix(canonicalHint, canonicalPolicy);
+    }
+
+    private static bool IsDelimitedPrefix(string prefix, string value)
+    {
+        if (value.Length <= prefix.Length)
+            return false;
+
+        if (!value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        char boundary = value[prefix.Length];
+
+        return boundary is '/' or '-';
+    }
+
+    private static bool IsDelimitedSuffix(string suffix, string value)
+    {
+        if (value.Length <= suffix.Length)
+            return false;
+
+        if (!value.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        char boundary = value[value.Length - suffix.Length - 1];
+
+        return boundary is '/' or '-';
     }
 
     public string ResolveStableObjectId(string topologyHintName)

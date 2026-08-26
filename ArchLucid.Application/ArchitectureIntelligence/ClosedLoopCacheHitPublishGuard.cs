@@ -34,6 +34,53 @@ public static class ClosedLoopCacheHitPublishGuard
             cached.PublishSkipReason = SkipReason;
     }
 
+    public static bool ShouldApplyCacheHitPolicyOnCoalescedResult(
+        ClosedLoopReasoningRequest request,
+        string runId,
+        ClosedLoopReasoningResult result)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(runId);
+        ArgumentNullException.ThrowIfNull(result);
+
+        return !request.PublishToProduct
+            || !result.PublishedToProduct
+            || string.IsNullOrWhiteSpace(result.RunId)
+            || !ClosedLoopRunIdComparer.Equals(result.RunId, runId);
+    }
+
+    public static void ApplyAnalysisOnlyCoalescedIsolation(
+        ClosedLoopReasoningRequest request,
+        ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(isolated);
+
+        if (request.PublishToProduct)
+            return;
+
+        ClearAnalysisOnlyPublishIsolation(isolated);
+    }
+
+    public static void ClearAnalysisOnlyPublishIsolation(ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(isolated);
+
+        isolated.PublishBlocked = false;
+        isolated.PublishBlockReasons = [];
+        isolated.PublishSkipReason = null;
+    }
+
+    public static void ClearCoalescedFollowerPublishLeaks(ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(isolated);
+
+        ClearAnalysisOnlyPublishIsolation(isolated);
+        isolated.ReviewCompleteBlocked = false;
+        isolated.IntegrityPassedFindingIds = [];
+        isolated.MustNotFailViolations = [];
+    }
+
     public static void SanitizeForStorage(ClosedLoopReasoningResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
@@ -42,6 +89,10 @@ public static class ClosedLoopCacheHitPublishGuard
         result.PublishedFindingsSnapshotId = null;
         result.PublishedRecommendationCount = 0;
         result.PublishSkipReason = null;
+        result.PublishBlocked = false;
+        result.PublishBlockReasons = [];
+        result.CacheHit = false;
+        result.CacheReuseReason = null;
         StripProductPayloads(result);
     }
 

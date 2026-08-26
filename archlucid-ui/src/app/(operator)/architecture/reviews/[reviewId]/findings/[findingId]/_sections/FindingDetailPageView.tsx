@@ -58,6 +58,7 @@ import { FindingInspectRecommendedActionSection } from "../FindingInspectRecomme
 import { FindingInspectWhyMattersSection } from "../FindingInspectWhyMattersSection";
 import { FindingDetailDecisionSummary } from "./FindingDetailDecisionSummary";
 import { FindingDetailNextFindingFooter } from "./FindingDetailNextFindingFooter";
+import { RunDetailNextReviewFooterClient } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailNextReviewFooterClient";
 import { FindingDetailOperationalActions } from "./FindingDetailOperationalActions";
 import { FindingDetailWayfinding } from "./FindingDetailWayfinding";
 import { FindingDetailBreadcrumb } from "./FindingDetailBreadcrumb";
@@ -634,6 +635,8 @@ export function FindingDetailPageView(props: Props) {
       ) : null}
 
       {nextFindingInReview !== null ? <FindingDetailNextFindingFooter target={nextFindingInReview} /> : null}
+
+      <RunDetailNextReviewFooterClient runId={runId} />
 
       <OperatorEvidenceLimitsFooter
         runId={runId}

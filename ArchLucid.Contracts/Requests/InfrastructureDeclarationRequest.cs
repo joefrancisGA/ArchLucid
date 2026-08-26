@@ -8,7 +8,7 @@ public class InfrastructureDeclarationRequest
         set;
     } = null!;
 
-    /// <summary>Supported v1: <c>json</c>, <c>simple-terraform</c>.</summary>
+    /// <summary>Supported v1: <c>json</c>, <c>simple-terraform</c>, <c>terraform-show-json</c>, <c>bicep</c>, <c>arm-json</c>, <c>kubernetes-json</c>, <c>kubernetes-yaml</c>.</summary>
     public string Format
     {
         get;

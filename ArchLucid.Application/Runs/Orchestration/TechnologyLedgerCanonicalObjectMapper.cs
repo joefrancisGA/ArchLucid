@@ -215,7 +215,12 @@ public static class TechnologyLedgerCanonicalObjectMapper
     private static string ResolveIacTargetTechnologyName(string declarationFormat) => declarationFormat switch
     {
         "terraform-show-json" => "Terraform",
+        "simple-terraform" => "Terraform",
         "json" => "ArchLucid JSON infrastructure declaration",
+        "bicep" => "Bicep",
+        "arm-json" => "ARM template",
+        "kubernetes-json" => "Kubernetes",
+        "kubernetes-yaml" => "Kubernetes",
         _ => declarationFormat,
     };
 

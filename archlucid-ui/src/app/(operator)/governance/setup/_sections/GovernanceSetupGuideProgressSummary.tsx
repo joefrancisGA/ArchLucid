@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 
+import { StepProgressMeter } from "@/components/ui/step-progress-meter";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { GovernanceSetupProgressSummary } from "./governance-setup-guide-steps";
@@ -41,7 +42,6 @@ function buildProgressVisibleText(summary: GovernanceSetupProgressSummary): stri
 }
 
 export function GovernanceSetupGuideProgressSummary({ summary }: GovernanceSetupGuideProgressSummaryProps) {
-  const progressPercent = Math.round(summary.progressFraction * 100);
   const coach = resolveProgressCoach(summary);
   const trackedLabel = formatGovernanceSetupTrackedProgressLabel(
     summary.completedCount,
@@ -67,20 +67,13 @@ export function GovernanceSetupGuideProgressSummary({ summary }: GovernanceSetup
         </span>
         <span data-testid="governance-setup-progress-coach">{coach}</span>
       </p>
-      <div
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={progressPercent}
-        aria-valuetext={ariaValueText}
-        aria-label="Approval setup progress"
-        className="h-1.5 w-full max-w-md overflow-hidden rounded-full border border-neutral-300 bg-neutral-200 dark:border-neutral-700 dark:bg-neutral-800"
-      >
-        <div
-          className="h-full rounded-full bg-[var(--al-accent-interactive)] transition-[width] duration-300"
-          style={{ width: `${progressPercent}%` }}
-        />
-      </div>
+      <StepProgressMeter
+        completedCount={summary.completedCount}
+        totalCount={summary.totalCount}
+        label="Approval setup progress"
+        valueText={ariaValueText}
+        className="border border-neutral-300 dark:border-neutral-700"
+      />
     </div>
   );
 }

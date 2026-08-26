@@ -23,10 +23,6 @@ import {
 } from "@/lib/architecture/architecture-draft-structured-brief-suggestions";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
 import {
-  estimateStructuredBriefSuggestDuration,
-  formatStructuredBriefSuggestDurationBand,
-} from "@/lib/architecture/structured-brief-suggest-duration-estimate";
-import {
   findTrackedAdvisoryDraftForArchitecture,
   markAdvisoryDraftInFlightConsumed,
 } from "@/lib/operations/advisory-draft-in-flight";
@@ -137,9 +133,6 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
     && input.blocksLlmExecution !== true
     && !suggestBusy
     && !failureModeSuggestBusy;
-
-  const suggestDurationBand = estimateStructuredBriefSuggestDuration(overviewTrimmedLength);
-  const suggestDurationHint = formatStructuredBriefSuggestDurationBand(suggestDurationBand);
 
   useEffect(() => {
     setEvidenceContradictedAssumptions({});
@@ -402,7 +395,6 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
     suggestEmpty,
     suggestAddedCount,
     suggestError,
-    suggestDurationHint,
     evidenceContradictedAssumptions,
     setEvidenceContradictedAssumptions,
     onSuggestFromOverview,

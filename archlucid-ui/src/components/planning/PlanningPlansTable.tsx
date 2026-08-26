@@ -14,13 +14,14 @@ import {
 } from "@/components/ui/enterprise-table";
 import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import { IMPROVEMENT_PLANNING_PLANS_EMPTY_MESSAGE, IMPROVEMENT_PLANNING_THEME_ID_LABEL } from "@/lib/planning-page-copy";
-import { planningPlanDetailPath } from "@/lib/planning-route";
+import { planningPlanDetailHref } from "@/lib/planning-route";
 import type { LearningPlanListItemResponse } from "@/types/learning";
 import { planningNumericCellCls, planningThTdCls } from "./planning-table-styles";
 
 type PlanningPlansTableProps = {
   plans: LearningPlanListItemResponse[];
   themeTitleById: Map<string, string>;
+  scopedRunId?: string;
 };
 
 const mutedNoteCls = cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper);
@@ -73,7 +74,7 @@ export function PlanningPlansTable(props: PlanningPlansTableProps) {
           <EnterpriseTableRow key={p.planId}>
             <EnterpriseTableCell className={planningNumericCellCls}>{p.priorityScore}</EnterpriseTableCell>
             <EnterpriseTableCell className={planningThTdCls}>
-              <Link href={planningPlanDetailPath(p.planId)} className={OPERATOR_LINK.nav}>
+              <Link href={planningPlanDetailHref(p.planId, props.scopedRunId)} className={OPERATOR_LINK.nav}>
                 {p.title}
               </Link>
             </EnterpriseTableCell>

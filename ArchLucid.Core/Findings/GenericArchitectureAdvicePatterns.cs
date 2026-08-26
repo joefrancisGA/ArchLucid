@@ -9,6 +9,7 @@ public static partial class GenericArchitectureAdvicePatterns
 {
     private static readonly string[] ObviousPhraseFragments =
     [
+        // Provider-neutral
         "enable mfa",
         "enable multi-factor",
         "multi-factor authentication",
@@ -28,13 +29,9 @@ public static partial class GenericArchitectureAdvicePatterns
         "enable monitoring",
         "add monitoring",
         "ensure scalability",
-        "use azure monitor",
-        "enable defender",
         "implement backup",
         "disaster recovery plan",
         "use private endpoint",
-        "use key vault",
-        "azure key vault",
         "enable rbac",
         "role-based access control",
         "rotate secrets",
@@ -42,11 +39,85 @@ public static partial class GenericArchitectureAdvicePatterns
         "follow best practice",
         "security best practice",
         "cloud best practice",
-        "well-architected framework",
         "defense in depth",
         "zero trust posture",
         "ensure compliance",
         "meet compliance requirement",
+        // Azure
+        "use azure monitor",
+        "enable defender",
+        "use key vault",
+        "azure key vault",
+        "well-architected framework",
+        // AWS
+        "cloudtrail",
+        "enable cloudtrail",
+        "use cloudtrail",
+        "guardduty",
+        "enable guardduty",
+        "use guardduty",
+        "security hub",
+        "enable security hub",
+        "use security hub",
+        "aws kms",
+        "use aws kms",
+        "enable kms encryption",
+        "iam roles",
+        "use iam roles",
+        "iam policies",
+        "use iam policies",
+        "security groups",
+        "restrict security groups",
+        "s3 public access block",
+        "enable s3 public access block",
+        "block s3 public access",
+        "vpc flow logs",
+        "enable vpc flow logs",
+        "use vpc flow logs",
+        "secrets manager",
+        "use secrets manager",
+        "aws waf",
+        "enable aws waf",
+        "use aws waf",
+        // GCP
+        "cloud audit logs",
+        "enable cloud audit logs",
+        "use cloud audit logs",
+        "security command center",
+        "enable security command center",
+        "use security command center",
+        "cloud kms",
+        "use cloud kms",
+        "enable cloud kms",
+        "vpc service controls",
+        "use vpc service controls",
+        "enable vpc service controls",
+        "use iam conditions",
+        "enable iam conditions",
+        "secret manager",
+        "use secret manager",
+        "cloud armor",
+        "enable cloud armor",
+        "use cloud armor",
+        // Kubernetes
+        "use network policies",
+        "enable network policies",
+        "implement network policies",
+        "use pod security standards",
+        "enable pod security admission",
+        "implement pod security",
+        "enforce rbac",
+        "set resource limits",
+        "set resource requests",
+        "encrypt kubernetes secrets",
+        "enable secrets encryption",
+        "read-only root filesystem",
+        "run as non-root",
+        "use non-root user",
+        "enable image scanning",
+        "scan container images",
+        "enable service mesh mtls",
+        "use service mesh mtls",
     ];
 
     /// <summary>
@@ -176,7 +247,11 @@ public static partial class GenericArchitectureAdvicePatterns
     private static partial Regex ConflictFindingPattern();
 
     [GeneratedRegex(
-        @"^(enable|use|implement|ensure|consider|apply|adopt|configure|turn on|set up)\s+(mfa|https|tls|ssl|encryption|logging|monitoring|firewall|rbac|backups?|key vault|private endpoints?|managed identit)",
+        @"^(enable|use|implement|ensure|consider|apply|adopt|configure|turn on|set up)\s+("
+        + "mfa|https|tls|ssl|encryption|logging|monitoring|firewall|rbac|backups?|key vault|private endpoints?|managed identit"
+        + "|cloudtrail|guardduty|security hub|kms|iam roles?|iam policies?|security groups?|secrets manager|secret manager"
+        + "|waf|cloud armor|network polic|pod security|resource limits?|resource requests?|image scanning|service mesh mtls"
+        + ")",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     private static partial Regex ImperativeGenericAdvice();
 }

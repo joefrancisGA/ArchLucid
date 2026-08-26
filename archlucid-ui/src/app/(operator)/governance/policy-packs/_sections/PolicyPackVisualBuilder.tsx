@@ -108,12 +108,12 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
   }, [selectedPackId, policyContentJson]);
 
   useEffect(() => {
-    const firstRunId = defaultRunQuery.data?.items[0]?.runId;
+    const firstRunId = (defaultRunQuery.data as { items?: Array<{ runId?: string }> } | undefined)?.items?.[0]?.runId;
 
     if (firstRunId && simulateRunId.trim().length === 0) {
       setSimulateRunId(firstRunId);
     }
-  }, [defaultRunQuery.data?.items, simulateRunId]);
+  }, [defaultRunQuery.data, simulateRunId]);
 
   const syncFromBuilder = useCallback(
     (nextState: VisualBuilderState) => {

@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.Contracts.Persistence.Context;
 
 namespace ArchLucid.ContextIngestion.Canonicalization;
@@ -19,6 +21,12 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
 
     /// <summary>Matches <see cref="ArchLucid.KnowledgeGraph.CanonicalGraphPropertyKeys.ProtectedTopologyNodeIds"/>.</summary>
     private const string ProtectedTopologyNodeIdsKey = "protectedTopologyNodeIds";
+
+    /// <summary>
+    ///     Enricher-spawned network-rule baselines use a dedicated source type so infrastructure declaration
+    ///     connector deltas compare normalized parser output only (not post-enrichment expansions).
+    /// </summary>
+    private const string ExpandedBaselineSourceType = "AppServiceNetworkRule";
 
     public static IReadOnlyList<CanonicalObject> Expand(IReadOnlyList<CanonicalObject> items)
     {
@@ -49,8 +57,7 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
     {
         foreach (string key in properties.Keys)
         {
-            if (!key.Equals("ipSecurityRestrictions", StringComparison.OrdinalIgnoreCase)
-                && !key.Equals("tf.ip_security_restrictions", StringComparison.OrdinalIgnoreCase))
+            if (!IsIpSecurityRestrictionsPropertyKey(key))
                 continue;
 
             rulesJson = properties[key];
@@ -63,13 +70,24 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
         return false;
     }
 
+    private static bool IsIpSecurityRestrictionsPropertyKey(string key)
+    {
+        string normalized = key.StartsWith("tf.", StringComparison.OrdinalIgnoreCase)
+            ? key[3..]
+            : key;
+
+        normalized = normalized.Replace("_", string.Empty, StringComparison.Ordinal);
+
+        return normalized.Equals("ipsecurityrestrictions", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static bool IsAppServiceTopology(CanonicalObject item)
     {
         if (!string.Equals(item.ObjectType, "TopologyResource", StringComparison.OrdinalIgnoreCase))
             return false;
 
         if (item.Properties.TryGetValue("resourceType", out string? resourceType)
-            && resourceType.Contains("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase))
+            && resourceType.Equals("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (item.Properties.TryGetValue("resourceType", out string? type)
@@ -104,15 +122,18 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
 
         if (hasOpenInternet)
         {
+            const string publicControlId = "app-service-public-endpoint";
+
             expanded.Add(new CanonicalObject
             {
+                ObjectId = BuildStableBaselineObjectId(appService.ObjectId, publicControlId),
                 ObjectType = "SecurityBaseline",
                 Name = $"{appService.Name} public network access",
-                SourceType = appService.SourceType,
+                SourceType = ExpandedBaselineSourceType,
                 SourceId = appService.SourceId,
                 Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["controlId"] = "app-service-public-endpoint",
+                    ["controlId"] = publicControlId,
                     ["status"] = "missing",
                     [ProtectedTopologyNodeIdsKey] = parentNodeId,
                     ["parentNodeId"] = parentNodeId,
@@ -130,15 +151,22 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
                     ? "IPRule"
                     : "VirtualNetworkRule";
 
+            string ruleSlot = !string.IsNullOrWhiteSpace(rule.Name)
+                ? rule.Name.Trim().ToLowerInvariant()
+                : i.ToString(CultureInfo.InvariantCulture);
+
+            string controlId = $"app-service-{ruleKind.ToLowerInvariant()}-{ruleSlot}";
+
             expanded.Add(new CanonicalObject
             {
+                ObjectId = BuildStableBaselineObjectId(appService.ObjectId, controlId),
                 ObjectType = "SecurityBaseline",
                 Name = $"{appService.Name} {ruleKind} {rule.Name ?? i.ToString()}",
-                SourceType = appService.SourceType,
+                SourceType = ExpandedBaselineSourceType,
                 SourceId = appService.SourceId,
                 Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["controlId"] = $"app-service-{ruleKind.ToLowerInvariant()}-{i}",
+                    ["controlId"] = controlId,
                     ["status"] = "present",
                     [ProtectedTopologyNodeIdsKey] = parentNodeId,
                     ["parentNodeId"] = parentNodeId,
@@ -148,6 +176,13 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
                 },
             });
         }
+    }
+
+    private static string BuildStableBaselineObjectId(string appServiceObjectId, string controlId)
+    {
+        return ContextIngestionStableLineNames.StableObjectId(
+            "AppServiceNetworkRule",
+            $"{appServiceObjectId}|{controlId}");
     }
 
     private static List<AppServiceAccessRule>? DeserializeAccessRules(string rulesJson)

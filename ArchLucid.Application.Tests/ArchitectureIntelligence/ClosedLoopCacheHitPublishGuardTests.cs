@@ -97,6 +97,115 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
     }
 
     [Fact]
+    public void ShouldApplyCacheHitPolicyOnCoalescedResult_when_run_id_differs_or_publish_not_satisfied()
+    {
+        ClosedLoopReasoningRequest publishRequest = new() { PublishToProduct = true };
+        ClosedLoopReasoningResult published = new()
+        {
+            RunId = "leader-run",
+            PublishedToProduct = true,
+        };
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                publishRequest,
+                "follower-run",
+                published)
+            .Should().BeTrue();
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                publishRequest,
+                "leader-run",
+                published)
+            .Should().BeFalse();
+
+        ClosedLoopReasoningResult notPublished = new()
+        {
+            RunId = "leader-run",
+            PublishedToProduct = false,
+        };
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                publishRequest,
+                "leader-run",
+                notPublished)
+            .Should().BeTrue();
+
+        ClosedLoopReasoningRequest analysisRequest = new() { PublishToProduct = false };
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                analysisRequest,
+                "leader-run",
+                notPublished)
+            .Should().BeTrue();
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                analysisRequest,
+                "leader-run",
+                published)
+            .Should().BeTrue();
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                publishRequest,
+                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                new ClosedLoopReasoningResult
+                {
+                    RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    PublishedToProduct = true,
+                })
+            .Should().BeFalse();
+    }
+
+    [Fact]
+    public void ShouldApplyCacheHitPolicyOnCoalescedResult_treats_hyphenated_run_ids_as_equal()
+    {
+        ClosedLoopReasoningRequest publishRequest = new() { PublishToProduct = true };
+        ClosedLoopReasoningResult published = new()
+        {
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            PublishedToProduct = true,
+        };
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                publishRequest,
+                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                published)
+            .Should().BeFalse();
+    }
+
+    [Fact]
+    public void ApplyAnalysisOnlyCoalescedIsolation_clears_publish_block_metadata_for_analysis_callers()
+    {
+        ClosedLoopReasoningRequest request = new() { PublishToProduct = false };
+        ClosedLoopReasoningResult isolated = new()
+        {
+            PublishBlocked = true,
+            PublishBlockReasons = ["MustNotFailClass: blocked"],
+            PublishSkipReason = "skip",
+            ReviewCompleteBlocked = true,
+            IntegrityPassedFindingIds = ["finding-1"],
+            MustNotFailViolations =
+            [
+                new MustNotFailViolation
+                {
+                    Class = MustNotFailClass.FabricatedCitation,
+                    Message = "Blocked",
+                    Blocked = true,
+                    FindingId = "finding-1",
+                },
+            ],
+        };
+
+        ClosedLoopCacheHitPublishGuard.ApplyAnalysisOnlyCoalescedIsolation(request, isolated);
+
+        isolated.PublishBlocked.Should().BeFalse();
+        isolated.PublishBlockReasons.Should().BeEmpty();
+        isolated.PublishSkipReason.Should().BeNull();
+        isolated.ReviewCompleteBlocked.Should().BeTrue();
+        isolated.IntegrityPassedFindingIds.Should().Contain("finding-1");
+        isolated.MustNotFailViolations.Should().NotBeEmpty();
+    }
+
+    [Fact]
     public void SanitizeForStorage_strips_publish_side_effects_from_result()
     {
         ClosedLoopReasoningResult result = new()
@@ -137,6 +246,10 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         result.PublishedFindingsSnapshotId.Should().BeNull();
         result.PublishedRecommendationCount.Should().Be(0);
         result.PublishSkipReason.Should().BeNull();
+        result.PublishBlocked.Should().BeFalse();
+        result.PublishBlockReasons.Should().BeEmpty();
+        result.CacheHit.Should().BeFalse();
+        result.CacheReuseReason.Should().BeNull();
         result.ProductFindings.Should().BeEmpty();
         result.ProductRecommendations.Should().BeEmpty();
     }

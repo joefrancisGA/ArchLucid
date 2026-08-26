@@ -2,7 +2,8 @@ import Link from "next/link";
 
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
 import { ArchitectureIntelligenceResultSection } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceResultSection";
-import { formatReasoningSpendSummary } from "@/app/(operator)/architecture/architecture-intelligence/_sections/architecture-intelligence-client-api";
+import { ArchitectureIntelligenceRunSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRunSummary";
+import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import type {
   ClosedLoopReasoningResult,
   FramingQuestion,
@@ -44,10 +45,9 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
     runId.length > 0 && adversarialChallengeCount > 0
       ? buildReviewFindingsTabHref(runId, "verify-hypotheses")
       : null;
-  const integrityPassedCount = props.result.integrityPassedFindingIds?.length ?? 0;
-
   return (
     <div className="space-y-4" data-testid="architecture-intelligence-reasoning-results">
+      <SimulatorModeAiOperationNotice testId="architecture-intelligence-reasoning-simulator-notice" />
       {props.result.publishBlocked ? (
         <p
           role="alert"
@@ -74,29 +74,14 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
         </p>
       ) : null}
 
-      {buyerPolishedShell ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-element-count">
-          Integrity-passed findings: {integrityPassedCount}
-          {props.result.runId ? (
-            <>
-              {" · "}
-              <TechnicalIdDisclosure label="Run" value={props.result.runId} />
-            </>
-          ) : null}
-        </p>
-      ) : (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-element-count">
-          Model elements: {props.result.model?.elements?.length ?? 0} · Integrity-passed findings: {integrityPassedCount}
-          {props.result.runId ? ` · Run: ${props.result.runId}` : ""}
-        </p>
-      )}
+      <ArchitectureIntelligenceRunSummary
+        result={props.result}
+        testIdPrefix="architecture-intelligence"
+      />
 
-      {!buyerPolishedShell ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-economics">
-          {props.result.cacheHit
-            ? `Cache hit${props.result.cacheReuseReason ? ` (${props.result.cacheReuseReason})` : ""}`
-            : "Cache miss"}
-          {formatReasoningSpendSummary(props.result)}
+      {buyerPolishedShell && props.result.runId ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-run-id">
+          <TechnicalIdDisclosure label="Run" value={props.result.runId} />
         </p>
       ) : null}
 

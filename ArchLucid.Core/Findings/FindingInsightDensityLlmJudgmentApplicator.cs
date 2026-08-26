@@ -41,6 +41,20 @@ public static class FindingInsightDensityLlmJudgmentApplicator
         }
     }
 
+    /// <summary>
+    ///     Applies enrichment fields only — typed-engine-protected findings must not be demoted by judge output.
+    /// </summary>
+    public static void ApplyEnrichmentToFinding(Finding finding, InsightDensityLlmJudgment judgment)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+        ArgumentNullException.ThrowIfNull(judgment);
+
+        finding.WhyThisIsNotGeneric = judgment.WhyThisIsNotGeneric;
+        finding.PrincipalArchitectValue = judgment.PrincipalArchitectValue;
+        finding.DecisionConsequence = judgment.DecisionConsequence;
+        finding.InsightDensityScore = RefineScore(finding.InsightDensityScore, judgment.InsightDensityScore);
+    }
+
     private static int RefineScore(int? existingScore, int llmScore)
     {
         int clampedLlmScore = Math.Clamp(llmScore, 0, 100);

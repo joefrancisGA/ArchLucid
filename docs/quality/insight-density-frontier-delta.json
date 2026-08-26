@@ -1,0 +1,85 @@
+{
+  "schema": "archlucid.insight-density-frontier-delta-summary.v1",
+  "generatedUtc": "2026-08-26T05:17:16.095740+00:00",
+  "rollup": "PASS",
+  "scenarioCount": 3,
+  "matchSimilarityThreshold": 0.6,
+  "hasZeroPercentScenario": true,
+  "hasPositivePercentScenario": true,
+  "allScenariosMatchExpected": true,
+  "claimBoundary": "Offline eval-corpus fixtures only. Hand-authored baseline transcripts are a regression instrument \u2014 not evidence that ArchLucid beats any named frontier model.",
+  "scenarios": [
+    {
+      "scenarioId": "empty-baseline",
+      "file": "empty-baseline.json",
+      "totalFindingCount": 2,
+      "coveredByBaselineCount": 0,
+      "novelFindingCount": 2,
+      "noveltyPercentage": 100.0,
+      "expectedNoveltyPercentage": 100.0,
+      "matchesExpected": true,
+      "byEngine": [
+        {
+          "engineType": "topology",
+          "findingCount": 2,
+          "novelFindingCount": 2,
+          "noveltyPercentage": 100.0
+        }
+      ]
+    },
+    {
+      "scenarioId": "highly-novel",
+      "file": "highly-novel.json",
+      "totalFindingCount": 4,
+      "coveredByBaselineCount": 1,
+      "novelFindingCount": 3,
+      "noveltyPercentage": 75.0,
+      "expectedNoveltyPercentage": 75.0,
+      "matchesExpected": true,
+      "byEngine": [
+        {
+          "engineType": "compliance",
+          "findingCount": 1,
+          "novelFindingCount": 0,
+          "noveltyPercentage": 0.0
+        },
+        {
+          "engineType": "declaration-security-baseline",
+          "findingCount": 1,
+          "novelFindingCount": 1,
+          "noveltyPercentage": 100.0
+        },
+        {
+          "engineType": "topology",
+          "findingCount": 2,
+          "novelFindingCount": 2,
+          "noveltyPercentage": 100.0
+        }
+      ]
+    },
+    {
+      "scenarioId": "mostly-duplicate",
+      "file": "mostly-duplicate.json",
+      "totalFindingCount": 3,
+      "coveredByBaselineCount": 3,
+      "novelFindingCount": 0,
+      "noveltyPercentage": 0.0,
+      "expectedNoveltyPercentage": 0.0,
+      "matchesExpected": true,
+      "byEngine": [
+        {
+          "engineType": "compliance",
+          "findingCount": 2,
+          "novelFindingCount": 0,
+          "noveltyPercentage": 0.0
+        },
+        {
+          "engineType": "declaration-security-baseline",
+          "findingCount": 1,
+          "novelFindingCount": 0,
+          "noveltyPercentage": 0.0
+        }
+      ]
+    }
+  ]
+}

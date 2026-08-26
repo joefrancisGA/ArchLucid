@@ -10,6 +10,19 @@ public sealed class PolicyTopologyOverlapResolverTests
     private readonly PolicyTopologyOverlapResolver _sut = new();
 
     [Fact]
+    public void Overlaps_does_not_match_prod_prefix_inside_unrelated_hint()
+    {
+        _sut.Overlaps("prod", "production-vnet").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Overlaps_matches_delimited_prod_prefix_in_hint()
+    {
+        _sut.Overlaps("prod", "prod-vnet").Should().BeTrue();
+        _sut.Overlaps("prod", "prod/vnet").Should().BeTrue();
+    }
+
+    [Fact]
     public void Overlaps_canonicalizes_slash_spacing_on_policy_reference()
     {
         _sut.Overlaps("parentNet / childSubnet", "parentNet/childSubnet").Should().BeTrue();

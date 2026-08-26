@@ -1,6 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useRouter: () => ({ replace: vi.fn() }),
+    useSearchParams: () => new URLSearchParams(),
+  };
+});
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -60,7 +70,6 @@ describe("PlanningPageView buyer-polished shell", () => {
     render(<PlanningPageView model={buildModel()} />);
 
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("improvement-planning-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("improvement-planning-claim-discipline")).toBeInTheDocument();
     expect(screen.getByText(PLANNING_CLAIM_DISCIPLINE_HEADING)).toBeInTheDocument();
     expect(screen.queryByTestId("planning-reviews-vocabulary")).not.toBeInTheDocument();

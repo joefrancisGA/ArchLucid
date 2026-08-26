@@ -52,6 +52,7 @@ public sealed partial class PolicyPacksController(
         assignPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(assignPolicyPackRequestValidator));
 
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
@@ -80,6 +81,7 @@ public sealed partial class PolicyPacksController(
     }
 
     /// <summary>Publishes or upserts a version for the pack and marks the pack active.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{policyPackId:guid}/publish")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
@@ -113,6 +115,7 @@ public sealed partial class PolicyPacksController(
     }
 
     /// <summary>Assigns an existing published version to a governance tier for the current scope.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{policyPackId:guid}/assign")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPackAssignment), StatusCodes.Status200OK)]
@@ -156,6 +159,7 @@ public sealed partial class PolicyPacksController(
     }
 
     /// <summary>Soft-deletes a policy pack assignment for the current tenant (row retained for audit).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("assignments/{assignmentId:guid}/archive")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -190,6 +194,7 @@ public sealed partial class PolicyPacksController(
     }
 
     /// <summary>Duplicates a policy pack and its latest version content.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{policyPackId:guid}/duplicate")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]

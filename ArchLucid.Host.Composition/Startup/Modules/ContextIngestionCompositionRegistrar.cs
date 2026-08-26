@@ -93,6 +93,10 @@ internal static class ContextIngestionCompositionRegistrar
         services.AddSingleton<IInfrastructureDeclarationParser, JsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, SimpleTerraformDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, TerraformShowJsonInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, BicepInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, ArmJsonInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, KubernetesJsonInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, KubernetesYamlInfrastructureDeclarationParser>();
 
         // Typed connector stages (Phase 1 — composable extract + normalize; connectors remain IContextConnector facades).
         services.AddSingleton<IConnectorInput<StaticRequestPayload>, StaticRequestPayloadExtractor>();

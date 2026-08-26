@@ -146,7 +146,8 @@ describe("ReviewsHubReviewInventory", () => {
     render(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
 
     expect(screen.getByText("No reviews yet")).toBeInTheDocument();
-    expect(screen.getByText(/Continue editing from the header/i)).toBeInTheDocument();
+    expect(screen.getByText(/Continue the draft from the header/i)).toBeInTheDocument();
+    expect(screen.getByText(/start a review from a description or imported documents/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start an architecture review" })).toHaveAttribute(
       "href",
       "/architecture/reviews/new",

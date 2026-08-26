@@ -3,10 +3,12 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 import type { ReactNode } from "react";
+import { useState } from "react";
 import type { FieldPath } from "react-hook-form";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -170,8 +172,9 @@ function CollapsibleSection(props: {
   children: ReactNode;
 }) {
   return (
-    <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30">
-      <summary className="cursor-pointer list-none font-medium text-neutral-900 dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
+    <details className="group rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30">
+      <summary className="flex cursor-pointer list-none items-center gap-2 font-medium text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
+        <DisclosureTriangleIndicator />
         <span className="flex flex-wrap items-center gap-2">
           <span>{props.title}</span>
           {props.count > 0 ? (

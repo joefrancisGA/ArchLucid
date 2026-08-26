@@ -14,7 +14,7 @@ internal static class ClosedLoopReasoningRequestSnapshot
         return new ClosedLoopReasoningRequest
         {
             TenantId = request.TenantId,
-            RunId = request.RunId,
+            RunId = ClosedLoopRunIdNormalizer.NormalizeOptional(request.RunId),
             WorkspaceId = request.WorkspaceId,
             ProjectId = request.ProjectId,
             SourceTexts = request.SourceTexts
@@ -25,8 +25,8 @@ internal static class ClosedLoopReasoningRequestSnapshot
                     Content = source.Content,
                 })
                 .ToList(),
-            DeclaredPriorities = request.DeclaredPriorities.ToList(),
-            FramingAnswers = new Dictionary<string, string>(request.FramingAnswers, StringComparer.Ordinal),
+            DeclaredPriorities = ClosedLoopDeclaredPrioritiesNormalizer.Normalize(request.DeclaredPriorities),
+            FramingAnswers = ClosedLoopFramingAnswersNormalizer.Normalize(request.FramingAnswers),
             UseGoldenFixture = request.UseGoldenFixture,
             ContinueFromExistingRun = request.ContinueFromExistingRun,
             PublishToProduct = request.PublishToProduct,

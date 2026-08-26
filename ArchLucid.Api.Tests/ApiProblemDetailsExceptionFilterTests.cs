@@ -99,7 +99,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
             .BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.BadRequest);
         p.Extensions.Should().ContainKey("supportHint");
-        ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("swagger");
+        ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("validation");
+        ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().NotContain("swagger");
     }
 
     [SkippableFact]

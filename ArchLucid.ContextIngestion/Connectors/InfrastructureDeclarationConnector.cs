@@ -47,7 +47,7 @@ public sealed class InfrastructureDeclarationConnector(
             current,
             previous,
             sourceType: "InfrastructureDeclaration",
-            static o => $"{o.SourceId}|{o.ObjectType}|{o.Name}",
+            InfrastructureDeclarationDeltaKey.For,
             deltaComputer,
             ct);
     }

@@ -50,4 +50,16 @@ public sealed class RunSummaryOnePagerDocumentModel
         get;
         init;
     } = [];
+
+    public bool IsDemoTenant
+    {
+        get;
+        init;
+    }
+
+    public string? ActiveTrialExportNotice
+    {
+        get;
+        init;
+    }
 }

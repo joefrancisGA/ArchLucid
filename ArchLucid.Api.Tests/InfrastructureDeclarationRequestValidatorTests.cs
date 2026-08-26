@@ -41,6 +41,10 @@ public sealed class InfrastructureDeclarationRequestValidatorTests
     [InlineData("simple-terraform")]
     [InlineData("terraform-show-json")]
     [InlineData("Terraform-Show-JSON")]
+    [InlineData("bicep")]
+    [InlineData("arm-json")]
+    [InlineData("kubernetes-json")]
+    [InlineData("kubernetes-yaml")]
     public void Validate_Succeeds_for_each_supported_format_case_insensitive(string format)
     {
         InfrastructureDeclarationRequest decl = ValidDecl();

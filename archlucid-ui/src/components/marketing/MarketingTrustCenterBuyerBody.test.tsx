@@ -7,6 +7,24 @@ import { TRUST_ASSURANCE_CLASSIFICATIONS } from "@/lib/trust-center-buyer-conten
 import { TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF } from "@/lib/trust-center-public-assurance";
 
 describe("MarketingTrustCenterBuyerBody", () => {
+  it("renders last-reviewed fallback without an invalid time dateTime attribute", () => {
+    render(<MarketingTrustCenterBuyerBody lastReviewedUtc={null} />);
+
+    const heroMeta = screen.getByTestId("trust-center-hero-meta");
+    const label = within(heroMeta).getByText("Updated with each assurance-cycle refresh");
+    expect(label.tagName).toBe("SPAN");
+    expect(label).not.toHaveAttribute("dateTime");
+  });
+
+  it("renders ISO last-reviewed metadata with a machine-readable dateTime", () => {
+    render(<MarketingTrustCenterBuyerBody lastReviewedUtc="2026-05-01T12:00:00.000Z" />);
+
+    const heroMeta = screen.getByTestId("trust-center-hero-meta");
+    const time = within(heroMeta).getByText("2026-05-01");
+    expect(time.tagName).toBe("TIME");
+    expect(time).toHaveAttribute("dateTime", "2026-05-01");
+  });
+
   it("renders hero hierarchy with one primary diligence action and secondary links", () => {
     render(<MarketingTrustCenterBuyerBody lastReviewedUtc="2026-05-01" />);
 

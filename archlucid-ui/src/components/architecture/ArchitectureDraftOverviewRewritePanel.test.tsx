@@ -7,10 +7,21 @@ import {
 } from "@/components/architecture/ArchitectureDraftOverviewRewritePanel";
 import { rewriteArchitectureOverviewFromBrief } from "@/lib/api/architecture-overview-rewrite-api";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
-import { GUIDED_INTAKE_OVERVIEW_REWRITE_BUTTON } from "@/lib/guided-intake-copy";
+import {
+  GUIDED_INTAKE_OVERVIEW_REWRITE_BUTTON,
+  GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_GROUNDING_HINT,
+} from "@/lib/guided-intake-copy";
 
 vi.mock("@/components/compare/ArchitectureManifestUnifiedDiffView", () => ({
   ArchitectureManifestUnifiedDiffView: () => <div data-testid="overview-rewrite-diff">diff</div>,
+}));
+
+vi.mock("@/components/ai-budget/AiBudgetSpendNotice", () => ({
+  AiBudgetSpendNotice: () => <div data-testid="overview-rewrite-budget-notice" />,
+}));
+
+vi.mock("@/components/usability/SimulatorModeAiOperationNotice", () => ({
+  SimulatorModeAiOperationNotice: () => null,
 }));
 
 vi.mock("@/lib/api/architecture-overview-rewrite-api", () => ({
@@ -25,7 +36,7 @@ const overview =
   "Tenant migration platform with private networking and EU residency goals for architecture reviews.";
 
 describe("canOfferArchitectureOverviewRewrite", () => {
-  it("requires confirm/deny activity, grounding facts, and minimum overview length", () => {
+  it("requires grounding facts and minimum overview length", () => {
     const brief = {
       ...emptyArchitectureDraftStructuredBrief(),
       confirmedConstraints: ["EU data residency"],
@@ -33,15 +44,6 @@ describe("canOfferArchitectureOverviewRewrite", () => {
 
     expect(
       canOfferArchitectureOverviewRewrite({
-        briefConfirmOrDenyCount: 0,
-        currentOverview: overview,
-        structuredBrief: brief,
-      }),
-    ).toBe(false);
-
-    expect(
-      canOfferArchitectureOverviewRewrite({
-        briefConfirmOrDenyCount: 1,
         currentOverview: "too short",
         structuredBrief: brief,
       }),
@@ -49,7 +51,6 @@ describe("canOfferArchitectureOverviewRewrite", () => {
 
     expect(
       canOfferArchitectureOverviewRewrite({
-        briefConfirmOrDenyCount: 1,
         currentOverview: overview,
         structuredBrief: emptyArchitectureDraftStructuredBrief(),
       }),
@@ -57,7 +58,6 @@ describe("canOfferArchitectureOverviewRewrite", () => {
 
     expect(
       canOfferArchitectureOverviewRewrite({
-        briefConfirmOrDenyCount: 1,
         currentOverview: overview,
         structuredBrief: brief,
       }),
@@ -66,34 +66,21 @@ describe("canOfferArchitectureOverviewRewrite", () => {
 });
 
 describe("ArchitectureDraftOverviewRewritePanel", () => {
-  it("does not render until the operator confirms or denies a suggestion", () => {
-    const { container } = render(
-      <ArchitectureDraftOverviewRewritePanel
-        currentOverview={overview}
-        structuredBrief={{
-          ...emptyArchitectureDraftStructuredBrief(),
-          confirmedConstraints: ["EU data residency"],
-        }}
-        briefConfirmOrDenyCount={0}
-        onOverviewAccepted={() => undefined}
-      />,
-    );
-
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  it("disables rewrite until grounding facts exist", () => {
+  it("renders disabled with guidance before structured brief grounding exists", () => {
     render(
       <ArchitectureDraftOverviewRewritePanel
         currentOverview={overview}
         structuredBrief={emptyArchitectureDraftStructuredBrief()}
-        briefConfirmOrDenyCount={1}
         onOverviewAccepted={() => undefined}
       />,
     );
 
+    expect(screen.getByTestId("architecture-draft-overview-rewrite-panel")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-overview-rewrite")).toBeDisabled();
-    expect(screen.getByTestId("architecture-draft-overview-rewrite-disabled-hint")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-overview-rewrite-disabled-hint")).toHaveTextContent(
+      GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_GROUNDING_HINT,
+    );
+    expect(screen.getByTestId("overview-rewrite-budget-notice")).toBeInTheDocument();
   });
 
   it("previews and accepts a rewritten overview without mutating until accept", async () => {
@@ -109,7 +96,6 @@ describe("ArchitectureDraftOverviewRewritePanel", () => {
           ...emptyArchitectureDraftStructuredBrief(),
           confirmedConstraints: ["EU data residency"],
         }}
-        briefConfirmOrDenyCount={1}
         onOverviewAccepted={onOverviewAccepted}
       />,
     );
@@ -141,7 +127,6 @@ describe("ArchitectureDraftOverviewRewritePanel", () => {
           ...emptyArchitectureDraftStructuredBrief(),
           confirmedConstraints: ["EU data residency"],
         }}
-        briefConfirmOrDenyCount={1}
         onOverviewAccepted={onOverviewAccepted}
         onRequestResuggestFromOverview={onRequestResuggestFromOverview}
       />,

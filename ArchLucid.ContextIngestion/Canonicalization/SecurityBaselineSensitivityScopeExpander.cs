@@ -39,7 +39,7 @@ public static class SecurityBaselineSensitivityScopeExpander
 
             string baselineScope = item.Properties.TryGetValue(CanonicalGraphPropertyKeys.BaselineScope, out string? scope)
                                    && !string.IsNullOrWhiteSpace(scope)
-                ? scope
+                ? scope.Trim()
                 : TopologySensitivityClassifier.ClassifyBaselineScope(
                     item.Properties.TryGetValue("controlId", out string? controlId) ? controlId : null,
                     item.Name);
@@ -47,6 +47,7 @@ public static class SecurityBaselineSensitivityScopeExpander
             List<string> matchingNodeIds = sensitivityByNodeId
                 .Where(pair => string.Equals(pair.Value, baselineScope, StringComparison.OrdinalIgnoreCase))
                 .Select(static pair => pair.Key)
+                .OrderBy(static id => id, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
             if (matchingNodeIds.Count == 0)

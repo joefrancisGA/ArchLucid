@@ -5,6 +5,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { ArchitectureDraftStructuredBriefConfirmableChipList } from "@/components/architecture/ArchitectureDraftStructuredBriefConfirmableChipList";
 import {
   addConfirmedListItem,
+  confirmAllSuggestedListItems,
   confirmSuggestedListItem,
   denySuggestedListItem,
   removeConfirmedListItem,
@@ -13,11 +14,14 @@ import {
 import { useStructuredBriefSuggestions } from "@/components/architecture/use-structured-brief-suggestions";
 import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 import { StructuredBriefCapabilitiesQualityVocabularyRail } from "@/components/StructuredBriefCapabilitiesQualityVocabularyRail";
 import { IntakeTextField } from "@/components/intake/IntakeTextField";
 import { Button } from "@/components/ui/button";
 import { ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
 import {
+  confirmFailureModeSuggestion,
+  denyFailureModeSuggestion,
   joinQualityAttributeEntries,
   mergeUniqueStrings,
   parseQualityAttributeEntries,
@@ -26,12 +30,15 @@ import {
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON,
+  GUIDED_INTAKE_DENY_SUGGESTION_BUTTON,
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_PLACEHOLDER,
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_OPTIONAL_FIELDS_NOTE,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER,
@@ -41,6 +48,7 @@ import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_IN_PROGRESS_HINT,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_VIEW_IN_PROGRESS_BUTTON,
   guidedIntakeStructuredBriefSuggestDisabledHint,
   guidedIntakeStructuredBriefSuggestSuccess,
@@ -101,13 +109,19 @@ export function ArchitectureDraftStructuredBriefFields(
   };
 
   return (
-    <div className="space-y-6" data-testid="architecture-draft-structured-brief-fields">
+    <div
+      id="architecture-draft-structured-brief-fields"
+      className="space-y-6"
+      data-testid="architecture-draft-structured-brief-fields"
+    >
       <div className="space-y-2">
         <p className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}>
           {GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL}
         </p>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
           Confirm constraints and assumptions so review engines do not invent them from free text alone.
+          {" "}
+          {GUIDED_INTAKE_STRUCTURED_BRIEF_OPTIONAL_FIELDS_NOTE}
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <Button
@@ -115,24 +129,24 @@ export function ArchitectureDraftStructuredBriefFields(
             variant="secondary"
             size="sm"
             disabled={!suggestions.canSuggestFromOverview}
+            aria-busy={suggestions.suggestBusy}
             onClick={suggestions.onSuggestFromOverview}
             data-testid="architecture-draft-suggest-structured-brief"
+            data-loading={suggestions.suggestBusy ? "true" : "false"}
           >
-            {suggestions.suggestBusy ? "Suggesting…" : "Suggest from overview"}
+            {suggestions.suggestBusy ? (
+              <>
+                <ReviewStartInlineSpinner className="h-3.5 w-3.5" />
+                <span>Suggesting…</span>
+              </>
+            ) : (
+              "Suggest from overview"
+            )}
           </Button>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
             Suggestions stay unconfirmed until you add or confirm them.
           </p>
         </div>
-        {suggestions.canSuggestFromOverview && !suggestions.suggestBusy ? (
-          <p
-            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
-            role="status"
-            data-testid="architecture-draft-suggest-structured-brief-duration-hint"
-          >
-            {suggestions.suggestDurationHint}
-          </p>
-        ) : null}
         <LongOperationWaitNotice
           active={suggestions.suggestBusy}
           operationLabel="Structured brief suggestions"
@@ -250,6 +264,15 @@ export function ArchitectureDraftStructuredBriefFields(
         onDenySuggested={(value) => {
           denySuggested("suggestedConstraints", value);
         }}
+        onConfirmAllSuggested={() => {
+          confirmAllSuggestedListItems(
+            props.onStructuredBriefChange,
+            "confirmedConstraints",
+            "suggestedConstraints",
+            brief.suggestedConstraints,
+          );
+          props.onBriefConfirmOrDeny?.();
+        }}
       />
 
       <ArchitectureDraftStructuredBriefConfirmableChipList
@@ -282,6 +305,15 @@ export function ArchitectureDraftStructuredBriefFields(
         onDenySuggested={(value) => {
           denySuggested("suggestedAssumptions", value);
         }}
+        onConfirmAllSuggested={() => {
+          confirmAllSuggestedListItems(
+            props.onStructuredBriefChange,
+            "confirmedAssumptions",
+            "suggestedAssumptions",
+            brief.suggestedAssumptions,
+          );
+          props.onBriefConfirmOrDeny?.();
+        }}
         evidenceContradictionNotes={suggestions.evidenceContradictedAssumptions}
       />
 
@@ -313,6 +345,15 @@ export function ArchitectureDraftStructuredBriefFields(
         }}
         onDenySuggested={(value) => {
           denySuggested("suggestedRequiredCapabilities", value);
+        }}
+        onConfirmAllSuggested={() => {
+          confirmAllSuggestedListItems(
+            props.onStructuredBriefChange,
+            "confirmedRequiredCapabilities",
+            "suggestedRequiredCapabilities",
+            brief.suggestedRequiredCapabilities,
+          );
+          props.onBriefConfirmOrDeny?.();
         }}
       />
 
@@ -352,25 +393,74 @@ export function ArchitectureDraftStructuredBriefFields(
         onDenySuggested={() => undefined}
       />
 
-      <IntakeTextField
-        id="architecture-draft-failure-mode"
-        label={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL}
-        hint={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT}
-        required={false}
-        value={brief.failureModeNote}
-        placeholder={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_PLACEHOLDER}
-        disabled={props.disabled === true}
-        testId="architecture-draft-failure-mode"
-        onChange={(value) => {
-          updateBrief({ failureModeNote: value });
-        }}
-      />
+      <div className="space-y-2" data-testid="architecture-draft-failure-mode">
+        <IntakeTextField
+          id="architecture-draft-failure-mode"
+          label={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL}
+          hint={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT}
+          required={false}
+          showRequirednessSuffix={false}
+          value={brief.failureModeNote}
+          placeholder={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_PLACEHOLDER}
+          disabled={props.disabled === true}
+          testId="architecture-draft-failure-mode-input"
+          onChange={(value) => {
+            updateBrief({
+              failureModeNote: value,
+              suggestedFailureModeNote:
+                value.trim().length > 0 ? "" : brief.suggestedFailureModeNote,
+            });
+          }}
+        />
+        {brief.suggestedFailureModeNote.trim().length > 0 ? (
+          <div className="space-y-2">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+              {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING}
+            </p>
+            <div
+              className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
+              data-testid="architecture-draft-failure-mode-suggestion"
+            >
+              <p className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+                {brief.suggestedFailureModeNote}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={props.disabled === true}
+                  onClick={() => {
+                    props.onStructuredBriefChange((current) => denyFailureModeSuggestion(current));
+                    props.onBriefConfirmOrDeny?.();
+                  }}
+                >
+                  {GUIDED_INTAKE_DENY_SUGGESTION_BUTTON}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={props.disabled === true}
+                  onClick={() => {
+                    props.onStructuredBriefChange((current) => confirmFailureModeSuggestion(current));
+                    props.onBriefConfirmOrDeny?.();
+                  }}
+                >
+                  {GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON}
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
 
       <IntakeTextField
         id="architecture-draft-operational-owner"
         label={GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL}
         hint={GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT}
         required={false}
+        showRequirednessSuffix={false}
         value={brief.operationalOwner}
         placeholder={GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER}
         disabled={props.disabled === true}

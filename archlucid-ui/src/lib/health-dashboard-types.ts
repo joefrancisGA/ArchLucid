@@ -6,6 +6,8 @@
  */
 export type HealthReadyResponse = {
   status: string;
+  /** Host `AgentExecution:Mode` when the readiness writer includes it (`DetailedHealthCheckResponseWriter`). */
+  agentExecutionMode?: string;
   entries: ReadonlyArray<{
     name: string;
     status: string;

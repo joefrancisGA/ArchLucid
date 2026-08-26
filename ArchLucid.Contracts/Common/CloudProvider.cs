@@ -12,9 +12,9 @@ public enum CloudProvider
     /// <summary>Microsoft Azure — V1 deep cloud-analysis provider.</summary>
     Azure = 1,
 
-    /// <summary>Amazon Web Services — Phase 1 intent capture; deep cloud-aware analysis ships in V1.1.</summary>
+    /// <summary>Amazon Web Services — V1 GA target-cloud analysis (inventory ZIP, Tier 2 poll, Terraform ingest). Deepest costing remains Azure-first.</summary>
     Aws = 2,
 
-    /// <summary>Google Cloud Platform — Phase 1 intent capture; deep cloud-aware analysis ships in V1.1.</summary>
+    /// <summary>Google Cloud Platform — V1 GA target-cloud analysis (inventory ZIP, Tier 2 poll, Terraform ingest). Deepest costing remains Azure-first.</summary>
     Gcp = 3,
 }

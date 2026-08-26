@@ -107,10 +107,6 @@ public static class EndToEndReplayComparisonDocxExportFormatter
                 }
             }
 
-            AddHeading(body, "Interpretation Notes", 2);
-            AddDiffSection(body, "Notes", report.InterpretationNotes);
-            AddHeading(body, "Warnings", 2);
-            AddDiffSection(body, "Warnings", report.Warnings);
             mainPart.Document.Save();
         }
 

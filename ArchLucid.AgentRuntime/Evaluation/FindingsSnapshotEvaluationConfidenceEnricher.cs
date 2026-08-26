@@ -44,7 +44,7 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
                             AgentEvaluationConfidencePipeline.ResolveTraceForSnapshotFinding(finding, context);
 
                         (bool schemaPassed, bool referenceMatched) =
-                            await _confidencePipeline.EvaluateTraceSignalsAsync(trace, context.Evidence, ct)
+                            await _confidencePipeline.EvaluateTraceSignalsAsync(trace, context.Evidence, context.CalibratedConfidenceByTaskId, ct)
                                 .ConfigureAwait(false);
 
                         FindingConfidenceCalculationResult calculated = _confidencePipeline.ComputeFindingConfidence(

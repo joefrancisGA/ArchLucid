@@ -15,6 +15,19 @@ export function digestsHubTabPath(tab: DigestsHubTabId): string {
   return `${DIGESTS_HUB_PATH}?tab=${encodeURIComponent(tab)}`;
 }
 
+/** Builds a hub deep link preserving optional review scope. */
+export function digestsHubScopedHref(tab: DigestsHubTabId, runId?: string | null): string {
+  const params = new URLSearchParams();
+  params.set("tab", tab);
+  const trimmed = (runId ?? "").trim();
+
+  if (trimmed.length > 0) {
+    params.set("runId", trimmed);
+  }
+
+  return `${DIGESTS_HUB_PATH}?${params.toString()}`;
+}
+
 /** Canonical Digests Schedule tab (traffic row ARS). */
 export const DIGESTS_SCHEDULE_TAB_PATH = digestsHubTabPath("schedule");
 

@@ -1,9 +1,30 @@
 import {
+  ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE,
+  ARCHITECTURE_RISK_REGISTER_PAGE_TITLE,
   computeArchitectureRiskRegisterSummary,
   matchesGovernanceFindingsRunScope,
   matchesRiskRegisterFilter,
   type RiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
+import {
+  BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD,
+  BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
+} from "@/lib/buyer/buyer-polish-copy";
+import {
+  comparePageHrefWithLifecycleAnchor,
+  COMPARE_FINDING_LIFECYCLE_ANCHOR,
+} from "@/lib/compare-finding-lifecycle";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_FILTER_NO_MATCH_COMPACT,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_LOAD_FAILED_COMPACT,
+  GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT,
+  GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT,
+} from "@/lib/enterprise-compact-empty-state-presets";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-last-governance-finding";
 import {
@@ -187,3 +208,71 @@ export function hasAssignedToMeCountMismatch(options: {
 }
 
 export { EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS };
+
+export function resolveGovernanceFindingsPageTitle(
+  isAssignedToMe: boolean,
+  buyerPolishedShell: boolean,
+): string {
+  if (isAssignedToMe) {
+    return "Assigned to me";
+  }
+
+  return buyerPolishedShell ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE : ARCHITECTURE_RISK_REGISTER_PAGE_TITLE;
+}
+
+export function resolveGovernanceFindingsPageSubtitle(
+  isAssignedToMe: boolean,
+  buyerPolishedShell: boolean,
+): string {
+  if (isAssignedToMe) {
+    return "Open findings assigned to you for remediation across reviews in this workspace.";
+  }
+
+  return buyerPolishedShell
+    ? BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD
+    : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
+}
+
+export function resolveGovernanceFindingsNavHref(isAssignedToMe: boolean): string {
+  return isAssignedToMe ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH;
+}
+
+export function resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe: boolean) {
+  return isAssignedToMe
+    ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_LOAD_FAILED_COMPACT
+    : GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT;
+}
+
+export function resolveGovernanceFindingsFilterNoMatchPreset(isAssignedToMe: boolean) {
+  return isAssignedToMe
+    ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_FILTER_NO_MATCH_COMPACT
+    : GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT;
+}
+
+export function resolveScopedFindingLifecycleCompareHref(
+  scopedRunId: string | null,
+  priorCommittedRunId: string | null | undefined,
+): string | null {
+  if (scopedRunId === null || scopedRunId.length === 0) {
+    return null;
+  }
+
+  const laterOnlyHref = `${comparePageHrefAdaptive("", scopedRunId)}#${COMPARE_FINDING_LIFECYCLE_ANCHOR}`;
+  const priorRunId = priorCommittedRunId?.trim() ?? "";
+
+  if (priorRunId.length === 0) {
+    return laterOnlyHref;
+  }
+
+  return comparePageHrefWithLifecycleAnchor(priorRunId, scopedRunId);
+}
+
+export function resolveGovernanceFindingsSponsorHandoffHref(
+  scopedRunId: string | null,
+): string | null {
+  if (scopedRunId === null || scopedRunId.length === 0) {
+    return null;
+  }
+
+  return `/architecture/reviews/${encodeURIComponent(scopedRunId)}?reviewTab=review-package`;
+}

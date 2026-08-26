@@ -22,7 +22,7 @@ const ORIENTATION_FOOTER_PATH = join(
   "(operator)",
   "help",
   "_sections",
-  "CorePilotHelpOrientationFooter.tsx",
+  "CorePilotHelpClosingPanel.tsx",
 );
 
 /** Customer-facing Core Pilot help must not leak internal roadmap, version, or implementation jargon. */

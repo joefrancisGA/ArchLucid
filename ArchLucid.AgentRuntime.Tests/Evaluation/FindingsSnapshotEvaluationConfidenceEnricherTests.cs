@@ -213,6 +213,7 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricherTests
         AgentEvaluationConfidencePipeline pipeline = new(
             traceRepository,
             new InMemoryAgentEvidencePackageRepository(),
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             scopeProvider,
             new AgentOutputEvaluator(),
             semanticFacade,

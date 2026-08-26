@@ -1,10 +1,11 @@
 "use client";
 
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
-import {
-  formatArchitectureIntelligenceSpendSummary,
-  type ClosedLoopReasoningResult,
-} from "@/lib/architecture/architecture-intelligence-api";
+import { ArchitectureIntelligenceFindingsPreview } from "@/components/architecture-intelligence/ArchitectureIntelligenceFindingsPreview";
+import { ArchitectureIntelligenceRefineNextSteps } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineNextSteps";
+import { ArchitectureIntelligenceRunSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRunSummary";
+import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
+import type { ClosedLoopReasoningResult } from "@/lib/architecture/architecture-intelligence-api";
 import { resolvePublishBlockedAlertMessage } from "@/lib/architecture/architecture-intelligence-framing-interview";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,8 @@ import { cn } from "@/lib/utils";
 export type ArchitectureIntelligenceRefineResultSummaryProps = {
   readonly result: ClosedLoopReasoningResult;
   readonly testIdPrefix?: string;
+  readonly linkedReviewId?: string | null;
+  readonly canPublish?: boolean;
 };
 
 /** Compact post-run economics, trust-gate, and product round-trip for in-place refine panels. */
@@ -23,6 +26,7 @@ export function ArchitectureIntelligenceRefineResultSummary(
 
   return (
     <div className="space-y-2" data-testid={`${prefix}-results`}>
+      <SimulatorModeAiOperationNotice testId={`${prefix}-simulator-notice`} />
       {result.budgetRejected ? (
         <p
           role="alert"
@@ -50,14 +54,18 @@ export function ArchitectureIntelligenceRefineResultSummary(
         </p>
       ) : null}
 
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        Model elements: {result.model?.elements?.length ?? 0} · Integrity-passed findings:{" "}
-        {result.integrityPassedFindingIds?.length ?? 0}
-        {result.cacheHit
-          ? ` · Cache hit${result.cacheReuseReason ? ` (${result.cacheReuseReason})` : ""}`
-          : " · Cache miss"}
-        {formatArchitectureIntelligenceSpendSummary(result)}
-      </p>
+      <ArchitectureIntelligenceRunSummary result={result} testIdPrefix={prefix} />
+
+      {!result.budgetRejected ? (
+        <ArchitectureIntelligenceFindingsPreview result={result} testIdPrefix={prefix} />
+      ) : null}
+
+      <ArchitectureIntelligenceRefineNextSteps
+        result={result}
+        canPublish={props.canPublish}
+        linkedReviewId={props.linkedReviewId}
+        testIdPrefix={prefix}
+      />
 
       <ArchitectureIntelligenceProductRoundTrip
         runId={result.runId ?? undefined}

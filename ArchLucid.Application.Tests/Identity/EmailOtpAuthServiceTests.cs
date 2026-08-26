@@ -626,6 +626,35 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task RequestCodeAsync_returns_neutral_message_for_invalid_email_and_audits_once()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IAuditService> audit);
+
+        EmailOtpChallengeRequestResult result = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "not-an-email" },
+            CancellationToken.None);
+
+        Assert.Contains("If that address can receive email", result.Message);
+        Assert.Null(result.ChallengeId);
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(evt =>
+                    evt.EventType == AuditEventTypes.EmailOtpCodeRequested
+                    && evt.DataJson.Contains("invalid_email", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task RequestCodeAsync_returns_neutral_message_when_email_delivery_fails()
     {
         EmailOtpAuthService sut = CreateSut(

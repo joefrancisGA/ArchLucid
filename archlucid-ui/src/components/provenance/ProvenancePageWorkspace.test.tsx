@@ -7,6 +7,14 @@ import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-proven
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/reviews/demo-run/provenance",
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  }),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -23,6 +31,14 @@ vi.mock("@/components/operator/OperatorDemoStaticBanner", () => ({
 
 vi.mock("./ProvenanceNextReviewFooterClient", () => ({
   ProvenanceNextReviewFooterClient: () => <div data-testid="provenance-next-review-footer-stub" />,
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", displayTitle: "" }),
+}));
+
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
 }));
 
 const graph: ArchitectureRunProvenanceGraph = {
@@ -89,6 +105,7 @@ describe("ProvenancePageWorkspace", () => {
     expect(screen.getByTestId("provenance-wayfinding")).toBeInTheDocument();
     expect(screen.queryByTestId("provenance-sources")).toBeNull(); // TB-2092
     expectClaimDisciplineBand(screen, "provenance", "provenance-claim-discipline");
+    expect(screen.getByTestId("provenance-pick-review-before-inspecting-strip")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Review provenance" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Provenance graph" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open Evidence graph" })).toHaveAttribute(
@@ -193,5 +210,13 @@ describe("ProvenancePageWorkspace", () => {
     const highlightedRow = within(edgesTable).getByText(/Reviewed source context → PHI minimization risk/).closest("tr");
 
     expect(highlightedRow?.className).toMatch(/color-mix/);
+  });
+
+  it("hides the provenance canvas when no review is scoped", () => {
+    render(<ProvenancePageWorkspace runId="" graph={graph} provenanceTraceId={null} />);
+
+    expect(screen.getByTestId("provenance-pick-review-before-inspecting-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("provenance-graph-viewport")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("provenance-next-review-footer-stub")).not.toBeInTheDocument();
   });
 });

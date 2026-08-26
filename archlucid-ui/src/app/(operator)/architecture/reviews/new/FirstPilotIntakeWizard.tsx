@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -15,10 +15,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
-import {
-  proofScopeToRequiredCapabilities,
-  type QuickReviewProofScopeId,
-} from "@/components/usability/QuickReviewProofScopeField";
 import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
@@ -27,16 +23,11 @@ import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/Wizard
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useInferredUniversalIntakeAnswers } from "@/hooks/use-inferred-universal-intake-answers";
+import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
-import {
-  REVIEW_CREATION_PROGRESS_TIMEOUT_MS,
-  useReviewCreationProgress,
-} from "@/hooks/use-review-creation-progress";
-import { deriveGuidedIntakeCloudTargetForMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
-import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
+import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
+import { type CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
-import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
-import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
 import {
   mergeScopeBulletsIntoBrief,
@@ -50,8 +41,7 @@ import {
   ARCHITECTURE_DOCUMENT_TEXT_EXTRACTION_IN_PROGRESS_HELPER,
   evidenceFilesIncludeBinaryArchitectureDocument,
 } from "@/lib/evidence-readable-text";
-import { EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX } from "@/lib/evidence-upload-accepted-formats";
-import { REVIEW_START_CREATION_FAILED_MESSAGE } from "@/lib/review-start-progress-copy";
+import { QUICK_START_EVIDENCE_UPLOAD_DESCRIPTION } from "@/lib/evidence-upload-accepted-formats";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL } from "@/lib/architecture/architecture-draft-structured-brief";
@@ -65,10 +55,13 @@ import {
 } from "@/lib/second-review-prior-package";
 import { REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 
 import { FirstPilotIntakeStartFooter } from "./FirstPilotIntakeStartFooter";
-import { reviewPipelineOperationId } from "@/lib/operations/review-pipeline-in-flight";
+import { buildFirstPilotPayload, FIRST_PILOT_REQUIRED_CAPABILITIES } from "./first-pilot-intake-payload";
+import {
+  useFirstPilotIntakeSubmit,
+  FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE,
+} from "./use-first-pilot-intake-submit";
 import {
   buildEvidenceBackedIntakeBrief,
   describeFirstPilotStartBlocker,
@@ -82,31 +75,13 @@ import {
   type QuickStartAnalyzableEvidenceInput,
 } from "@/lib/first-pilot-analyzable-evidence";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator/operator-home-example-request";
-import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { recheckUnresolvedArchitectureReviewCreate } from "@/lib/review-start-unresolved-recheck";
 import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
-import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
-import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
-import { getOrCreateWizardRequestId } from "@/lib/wizard-idempotency-key";
 import { projectUniversalIntakeAnswersOntoCreateRunPayload } from "@/lib/universal-intake-answer-projection";
 import { buildIntakeTransparencyTrail } from "@/lib/universal-intake-must-completeness";
 
 import { WIZARD_SESSION_IDS, wizardSessionHasTextContent } from "@/lib/wizard-session-persistence";
 
 import { WizardEvidenceUploadZone } from "./QuickReviewWizardDeferredPanels";
-
-const V1_DEFAULT_CLOUD_PROVIDER: CreateArchitectureRunRequestPayload["cloudProvider"] = "None";
-
-/**
- * First-run intake sends every proof dimension. The former operator-facing selector was removed because
- * no pipeline stage branches on these capability tokens, so narrowing them changed nothing a buyer could see.
- */
-const DEFAULT_PROOF_SCOPE: QuickReviewProofScopeId[] = ["cost", "compliance", "topology"];
-const FIRST_PILOT_REQUIRED_CAPABILITIES: string[] = proofScopeToRequiredCapabilities(DEFAULT_PROOF_SCOPE);
-
-/** Create + multipart evidence upload can exceed the default soft-fail budget on slow links. */
-const FIRST_PILOT_WITH_UPLOAD_TIMEOUT_MS =
-  REVIEW_CREATION_PROGRESS_TIMEOUT_MS + PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS;
 
 type FirstPilotIntakeSessionState = {
   readonly runTitle: string;
@@ -116,8 +91,7 @@ type FirstPilotIntakeSessionState = {
   readonly l0SkippedQuestionKeys: readonly string[];
 };
 
-export const FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE =
-  "Add a review title and either attach architecture evidence or provide enough context in the description.";
+export { FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE };
 
 type IntakeFieldLabelProps = {
   readonly htmlFor: string;
@@ -136,25 +110,6 @@ function IntakeFieldLabel(props: IntakeFieldLabelProps): React.JSX.Element {
   );
 }
 
-function buildFirstPilotPayload(
-  title: string,
-  brief: string,
-  requiredCapabilities: string[],
-  focusedPilotModeEnabled: boolean,
-): CreateArchitectureRunRequestPayload {
-  return {
-    requestId: getOrCreateWizardRequestId(),
-    description: brief.trim(),
-    systemName: normalizeFirstPilotReviewTitle(title),
-    environment: "staging",
-    cloudProvider: V1_DEFAULT_CLOUD_PROVIDER,
-    constraints: [],
-    requiredCapabilities,
-    assumptions: [],
-    policyReferences: applyFocusedPilotModePolicyReferences([], focusedPilotModeEnabled),
-  };
-}
-
 export type FirstPilotIntakeWizardProps = {
   readonly onRunCreatedNavigate?: (runId: string) => void;
 };
@@ -162,7 +117,6 @@ export type FirstPilotIntakeWizardProps = {
 /** Single-screen first-pilot intake: review title, evidence upload, optional brief, advanced settings collapsed. */
 export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const { onRunCreatedNavigate } = props;
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const exampleTemplatePrefillAppliedRef = useRef(false);
@@ -201,7 +155,6 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       onAnswersChange: setL0Answers,
       blocksLlmRephrase: blocksLlmExecution,
     });
-  const [clientValidationMessage, setClientValidationMessage] = useState<string | null>(null);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
   const [writeDestination, setWriteDestination] = useState(() =>
@@ -233,6 +186,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       wizardSessionHasTextContent(state.runTitle) || wizardSessionHasTextContent(state.briefText),
     onRestore: handleSessionRestore,
   });
+  const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
 
   useEffect(() => {
     const refreshWriteDestination = () => {
@@ -400,152 +354,23 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     ],
   );
 
-  const submitRun = async () => {
-    const submitBlocker = describeFirstPilotStartBlocker(startBlockerInput);
-
-    if (submitBlocker !== null) {
-      setClientValidationMessage(submitBlocker);
-
-      return;
-    }
-
-    if (!canStart) {
-      setClientValidationMessage(FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE);
-
-      return;
-    }
-
-    if (resolvedBrief.length > ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH) {
-      setClientValidationMessage(
-        `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`,
-      );
-
-      return;
-    }
-
-    setClientValidationMessage(null);
-
-    const filesToUpload = [...evidenceFiles];
-    creationProgress.begin({
-      hasTemplate: exampleTemplate !== null,
-      timeoutMs: filesToUpload.length > 0 ? FIRST_PILOT_WITH_UPLOAD_TIMEOUT_MS : undefined,
+  const { clientValidationMessage, setClientValidationMessage, submitRun, recheckUnresolvedRun } =
+    useFirstPilotIntakeSubmit({
+      startBlockerInput,
+      canStart,
+      resolvedBrief,
+      evidenceFiles,
+      setEvidenceFiles,
+      exampleTemplate,
+      buildSubmitBody,
+      onRunCreatedNavigate,
+      clearWizardSession: wizardSession.clearSession,
+      creationProgress,
     });
-
-    try {
-      const body = buildSubmitBody(filesToUpload);
-      const res = await createArchitectureRun(body);
-      const id = res.run?.runId ?? null;
-
-      if (id === null) {
-        creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
-
-        return;
-      }
-
-      creationProgress.bindOperation(reviewPipelineOperationId(id));
-
-      if (filesToUpload.length > 0) {
-        const uploadResult = await uploadWizardPendingDocumentEvidence(id, filesToUpload);
-
-        if (!uploadResult.ok) {
-          creationProgress.fail(uploadResult.message);
-
-          return;
-        }
-
-        setEvidenceFiles([]);
-      }
-
-      recordFirstTenantFunnelEvent("first_run_started");
-      creationProgress.markPreparingQuestions();
-      creationProgress.markOpeningReview();
-      creationProgress.succeed();
-      wizardSession.clearSession();
-
-      if (onRunCreatedNavigate !== undefined) {
-        onRunCreatedNavigate(id);
-        creationProgress.reset();
-
-        return;
-      }
-
-      router.push(buildReviewGenerationRedirect(id, "quick-review"));
-    } catch (error) {
-      if (isArchitectureRequestCreateUnresolvedError(error)) {
-        creationProgress.markUnresolved();
-
-        return;
-      }
-
-      const message =
-        isApiRequestError(error) && error.message.trim().length > 0
-          ? error.message
-          : REVIEW_START_CREATION_FAILED_MESSAGE;
-      creationProgress.fail(message);
-    }
-  };
-
-  const recheckUnresolvedRun = async () => {
-    if (creationProgress.outcome?.kind !== "unresolved") {
-      return;
-    }
-
-    creationProgress.beginRecheck();
-
-    try {
-      const filesToUpload = [...evidenceFiles];
-      const body = buildSubmitBody(filesToUpload);
-      const result = await recheckUnresolvedArchitectureReviewCreate(body);
-
-      if (result.status === "still-unresolved") {
-        creationProgress.endRecheck();
-
-        return;
-      }
-
-      if (result.status === "failed") {
-        creationProgress.fail(result.message);
-        creationProgress.endRecheck();
-
-        return;
-      }
-
-      const id = result.runId;
-      creationProgress.markResumed();
-      creationProgress.bindOperation(reviewPipelineOperationId(id));
-
-      if (filesToUpload.length > 0) {
-        const uploadResult = await uploadWizardPendingDocumentEvidence(id, filesToUpload);
-
-        if (!uploadResult.ok) {
-          creationProgress.fail(uploadResult.message);
-          creationProgress.endRecheck();
-
-          return;
-        }
-
-        setEvidenceFiles([]);
-      }
-
-      wizardSession.clearSession();
-
-      if (onRunCreatedNavigate !== undefined) {
-        onRunCreatedNavigate(id);
-        creationProgress.reset();
-
-        return;
-      }
-
-      router.push(buildReviewGenerationRedirect(id, "quick-review"));
-    } catch {
-      creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
-      creationProgress.endRecheck();
-    }
-  };
 
   return (
     <div className="space-y-5" data-testid="first-pilot-intake-wizard">
-      {wizardSession.pendingRestore !== null ? (
+      {wizardSession.pendingRestore !== null && !suppressWizardResumePrompt ? (
         <WizardSessionResumePrompt
           onResume={wizardSession.acceptRestore}
           onDismiss={wizardSession.dismissRestore}
@@ -610,7 +435,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           <WizardEvidenceUploadZone
             labelId="first-pilot-evidence"
             title="Attach architecture evidence"
-            description={`Diagram, PDF export, or architecture document. ${EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX}.`}
+            description={QUICK_START_EVIDENCE_UPLOAD_DESCRIPTION}
             attachmentSummarySuffix="architecture context optional"
             onFilesSelected={(files: File[]) => {
               setEvidenceFiles(files);

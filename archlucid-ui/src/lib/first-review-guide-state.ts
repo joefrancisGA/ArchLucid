@@ -13,6 +13,7 @@ import {
 } from "@/lib/finish-setup-wizard-steps";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { formatStepProgressCompleteLabel } from "@/lib/step-progress-label";
 
 export type FirstReviewGuideStepUiStatus = "not-started" | "current" | "complete" | "blocked";
 
@@ -281,7 +282,7 @@ export function resolveFirstReviewGuideProgress(
   const completedStepCount = countCompletedSteps(commitContext);
   const totalStepCount = FIRST_REVIEW_GUIDE_STEP_COUNT;
   const progressFraction = completedStepCount / totalStepCount;
-  const stepProgressLabel = `${completedStepCount} of ${totalStepCount} steps complete`;
+  const stepProgressLabel = formatStepProgressCompleteLabel(completedStepCount, totalStepCount);
 
   if (commitContext.hasCommittedManifest) {
     return {

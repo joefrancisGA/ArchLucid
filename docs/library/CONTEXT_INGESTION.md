@@ -22,7 +22,7 @@ HTTP clients send **`ArchitectureRequest`** (see `ArchLucid.Contracts.Requests`)
 | `PolicyReferences` | `PolicyReferences` | Short strings → `PolicyControl` objects (`reference` + `status=referenced`). |
 | `TopologyHints` | `TopologyHints` | → `TopologyResource` objects. |
 | `SecurityBaselineHints` | `SecurityBaselineHints` | → `SecurityBaseline` objects. |
-| `InfrastructureDeclarations` | `InfrastructureDeclarations` | Structured IaC snippets (`json`, `simple-terraform`, or `terraform-show-json`) → **`InfrastructureDeclarationConnector`**. |
+| `InfrastructureDeclarations` | `InfrastructureDeclarations` | Structured IaC snippets (`json`, `simple-terraform`, `terraform-show-json`, `bicep`, `arm-json`, `kubernetes-json`, `kubernetes-yaml`) → **`InfrastructureDeclarationConnector`**. |
 
 `RunId` is assigned by **`AuthorityRunOrchestrator`** immediately before **`IContextIngestionService.IngestAsync`**.
 
@@ -44,7 +44,7 @@ Connectors implement **`IContextConnector`**. **Code source of truth:** **`Conte
 4. **`PolicyReferenceConnector`**
 5. **`TopologyHintsConnector`**
 6. **`SecurityBaselineHintsConnector`**
-7. **`InfrastructureDeclarationConnector`** — **`InfrastructureDeclarationReference`** items parsed by **`IInfrastructureDeclarationParser`** implementations (`json`, `simple-terraform`, `terraform-show-json`).
+7. **`InfrastructureDeclarationConnector`** — **`InfrastructureDeclarationReference`** items parsed by **`IInfrastructureDeclarationParser`** implementations (`json`, `simple-terraform`, `terraform-show-json`, `bicep`, `arm-json`, `kubernetes-json`, `kubernetes-yaml`).
 
 Each connector’s **`DeltaAsync`** returns a short base summary; **`IContextDeltaSummaryBuilder`** (default: **`DefaultContextDeltaSummaryBuilder`**) enriches it with normalized object counts, a per-type breakdown (e.g. `Requirement×2`), and a one-time baseline clause against the **latest persisted `ContextSnapshot` for `ProjectId`** (if any). The enriched segments are joined into **`ContextSnapshot.DeltaSummary`**.
 
@@ -84,7 +84,7 @@ Prefix matching is case-insensitive. Lines without a recognized prefix are ignor
 
 ## Infrastructure declarations (IaC seam)
 
-DTO: **`InfrastructureDeclarationReference`** (`Name`, **`Format`**, `Content`). Supported v1 **`Format`** values: **`json`**, **`simple-terraform`**, **`terraform-show-json`** (output of `terraform show -json`).
+DTO: **`InfrastructureDeclarationReference`** (`Name`, **`Format`**, `Content`). Supported v1 **`Format`** values: **`json`**, **`simple-terraform`**, **`terraform-show-json`** (output of `terraform show -json`), **`bicep`**, **`arm-json`**, **`kubernetes-json`**, **`kubernetes-yaml`**.
 
 ### `json`
 
@@ -92,7 +92,19 @@ Body deserializes to **`ResourceDeclarationDocument`** with a **`resources`** ar
 
 ### `simple-terraform`
 
-Lightweight regex over lines like **`resource "azurerm_virtual_network" "core"`** (not a full HCL parser). **`terraformType`** is stored on the canonical object; **`ResolveObjectType`** maps vault / firewall / NSG → **`SecurityBaseline`**, `policy` → **`PolicyControl`**, else **`TopologyResource`**.
+Lightweight line-based parser over **`resource "azurerm_virtual_network" "core"`** blocks (not a full HCL compiler). **`terraformType`** is stored on the canonical object; top-level scalar assignments and one shallow nested block per resource are copied to **`tf.*`** keys with the same truncation, redaction, and per-resource caps as **`terraform-show-json`**. **`ResolveObjectType`** maps vault / firewall / NSG → **`SecurityBaseline`**, `policy` → **`PolicyControl`**, else **`TopologyResource`**.
+
+### `bicep`
+
+Line-based match for **`resource symbolicName 'Microsoft.Provider/types@api-version'`** declarations (not a Bicep compiler). Stores **`resourceType`**, **`bicepSymbolicName`**, optional **`apiVersion`**, and a bounded set of resource-body scalars from **`properties:`** / **`siteConfig:`** blocks under **`tf.*`** keys (with ARM camelCase aliases for security fields). **`CanonicalInfrastructurePropertyBag`** compacts camelCase keys (e.g. **`publicNetworkAccess`** → **`tf.publicnetworkaccess`**); **`declaration-security-baseline`** and **`declaration-premise-conflict`** resolve aliases via **`DeclarationSecurityPropertyKeyResolver`**.
+
+### `arm-json`
+
+Parses an ARM template JSON **`resources`** array. Skips **`Microsoft.Resources/deployments`** nested templates. Copies a bounded set of scalar **`properties`** fields onto **`tf.*`** keys and dual-writes ARM camelCase aliases for known security fields.
+
+### `kubernetes-json` / `kubernetes-yaml`
+
+Parses **`kubectl get -o json`** output or multi-document YAML manifests into **`TopologyResource`** / **`SecurityBaseline`** rows with **`k8s.*`** metadata plus security-relevant spec fields (**`k8s.privileged`**, **`k8s.hostNetwork`**, **`k8s.servicetype`**, etc.) for **`declaration-security-baseline`**. Secret **`data`** / **`stringData`** payloads are not ingested.
 
 ### `terraform-show-json`
 
@@ -128,6 +140,15 @@ After **`ContextSnapshot`** is saved, **`ArchLucid.KnowledgeGraph`** builds a ty
 
 See **`docs/KNOWLEDGE_GRAPH.md`** for pipeline, **`EdgeType`** semantics, DI registration, persistence JSON aliases, and manifest integration.
 
+### Declaration security signals
+
+Ingested **`tf.*`** / ARM scalar properties on topology resources feed two graph-pure security engines:
+
+- **`declaration-security-baseline`** — reports unsafe declaration values in isolation (e.g. public network access enabled).
+- **`declaration-premise-conflict`** — reports contradictions when the same declaration property conflicts with a linked **`SecurityBaseline`** or **`PolicyControl`** requirement on the graph (e.g. private-only baseline vs public-access declaration).
+
+Both engines read the same ingested properties; premise-conflict findings require intent nodes linked by **`PROTECTS`** / **`APPLIES_TO`** (or graph-wide fallback) and use conflict phrasing in titles.
+
 ---
 
 ## Further reading
@@ -136,4 +157,4 @@ See **`docs/KNOWLEDGE_GRAPH.md`** for pipeline, **`EdgeType`** semantics, DI reg
 - **API body and validation:** `docs/API_CONTRACTS.md` (create run / `ArchitectureRequest`).
 - **Persisted snapshots:** `docs/DATA_MODEL.md` (`ContextSnapshots`).
 - **Architecture overview:** `docs/ARCHITECTURE_CONTEXT.md`.
-- **Composer prompts to deepen this seam:** [`../architecture/INGESTION_FIT_GAP_COMPOSER_PROMPTS.md`](../architecture/INGESTION_FIT_GAP_COMPOSER_PROMPTS.md).
+- **Ingestion fit-gap Composer prompts (archive):** [`../architecture/INGESTION_FIT_GAP_COMPOSER_PROMPTS.md`](../architecture/INGESTION_FIT_GAP_COMPOSER_PROMPTS.md) (FIT-01–05 shipped; do not re-run).

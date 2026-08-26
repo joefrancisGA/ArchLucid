@@ -79,15 +79,15 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves nested paths from the longest matching prefix", () => {
     expect(contextualHelpForPathname("/architecture/reviews/new")?.whatIsThisPage).toContain(
-      "Start an architecture review",
+      "Review architecture",
     );
     expect(contextualHelpForPathname("/architecture/reviews")?.whatIsThisPage).toContain("architecture reviews");
-    expect(contextualHelpForPathname("/reviews/new")?.whatIsThisPage).toContain("Start an architecture review");
+    expect(contextualHelpForPathname("/reviews/new")?.whatIsThisPage).toContain("Review architecture");
     expect(contextualHelpForPathname("/architecture/architectures/new")?.whatIsThisPage).toContain(
       "Create architecture",
     );
     expect(contextualHelpForPathname("/architecture/architectures")?.whatIsThisPage).toContain(
-      "Architectures list",
+      "Architecture drafts",
     );
     expect(contextualHelpForPathname("/architecture/architectures/draft-abc")?.whatIsThisPage).toContain(
       "Architecture draft workspace",
@@ -107,6 +107,8 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves Home without stealing other routes (HOM / TB-1667)", () => {
     expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Home");
+    expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("create or review");
+    expect(contextualHelpForPathname("/")?.whatToDoNext).toContain("Create architecture");
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatIsThisPage).toContain("Portfolio KPI");
   });
 

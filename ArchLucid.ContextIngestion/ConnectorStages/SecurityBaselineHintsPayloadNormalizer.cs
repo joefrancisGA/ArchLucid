@@ -4,6 +4,7 @@ using System.Text;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
+using ArchLucid.ContextIngestion.Parsing;
 
 namespace ArchLucid.ContextIngestion.ConnectorStages;
 
@@ -28,6 +29,7 @@ public sealed class SecurityBaselineHintsPayloadNormalizer : IConnectorNormalize
 
             batch.CanonicalObjects.Add(new CanonicalObject
             {
+                ObjectId = ContextIngestionStableLineNames.StableObjectId("SecurityBaseline", canonicalHint),
                 ObjectType = "SecurityBaseline",
                 Name = canonicalHint,
                 SourceType = "SecurityBaselineHint",

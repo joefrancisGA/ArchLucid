@@ -76,8 +76,7 @@ public sealed class EmailOtpAuthControllerVerifyTests
         EmailOtpAuthController controller = new(
             Options.Create(new EmailOtpAuthOptions { Enabled = true, AccessTokenLifetimeMinutes = 60 }),
             emailOtpAuth.Object,
-            jwtIssuer.Object,
-            audit.Object)
+            jwtIssuer.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -120,8 +119,7 @@ public sealed class EmailOtpAuthControllerVerifyTests
         EmailOtpAuthController controller = new(
             Options.Create(new EmailOtpAuthOptions { Enabled = true }),
             emailOtpAuth.Object,
-            jwtIssuer.Object,
-            audit.Object)
+            jwtIssuer.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

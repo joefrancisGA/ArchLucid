@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -17,23 +15,13 @@ export function PlanningPickReviewBeforePlanningStrip(
   props: PlanningPickReviewBeforePlanningStripProps,
 ): React.JSX.Element {
   const workspaceRun = useWorkspaceActiveRun();
-  const workspaceRunId = workspaceRun.runId.trim();
+  const workspaceRunId = workspaceRun?.activeRunId?.trim() ?? "";
   const pickerValue =
     props.selectedReviewId.trim().length > 0
       ? props.selectedReviewId
       : workspaceRunId.length > 0
         ? workspaceRunId
         : "";
-
-  useEffect(() => {
-    if (props.selectedReviewId.trim().length > 0) {
-      return;
-    }
-
-    if (workspaceRunId.length > 0) {
-      props.onSelectReview(workspaceRunId);
-    }
-  }, [props.onSelectReview, props.selectedReviewId, workspaceRunId]);
 
   return (
     <section

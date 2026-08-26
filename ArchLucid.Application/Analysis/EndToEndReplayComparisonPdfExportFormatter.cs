@@ -36,12 +36,7 @@ public static class EndToEndReplayComparisonPdfExportFormatter
                     column.Item().PaddingBottom(5).Text("Summary").Bold().FontSize(12);
                     column.Item().PaddingBottom(10).Text(summaryFormatter.FormatMarkdown(report).Trim());
 
-                    if (EndToEndComparisonExportProfile.IsShort(p))
-                    {
-                        column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
-                        column.Item().PaddingTop(5).Text("Interpretation Notes").Bold();
-                    }
-                    else
+                    if (!EndToEndComparisonExportProfile.IsShort(p))
                     {
                         column.Item().PaddingTop(5).Text("Key counts").Bold().FontSize(12);
                         column.Item().Text(
@@ -62,18 +57,7 @@ public static class EndToEndReplayComparisonPdfExportFormatter
                                 $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
 
                         column.Item().Text($"Export diffs: {report.ExportDiffs.Count}");
-
-                        column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
-                        column.Item().PaddingTop(5).Text("Interpretation Notes").Bold();
                     }
-
-                    foreach (string note in report.InterpretationNotes)
-                        column.Item().Text($"• {note}");
-
-                    column.Item().PaddingTop(5).Text("Warnings").Bold();
-
-                    foreach (string w in report.Warnings)
-                        column.Item().Text($"• {w}");
                 });
             });
         });

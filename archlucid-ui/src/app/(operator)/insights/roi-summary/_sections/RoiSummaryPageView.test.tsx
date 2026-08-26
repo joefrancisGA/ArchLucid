@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { LAYER_PAGE_GUIDANCE } from "@/lib/layer-guidance";
@@ -9,6 +9,13 @@ import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
 import { RoiSummaryPageView } from "./RoiSummaryPageView";
 import type { RoiSummaryPageViewModel } from "./roi-summary-page-view-model";
+
+const searchParamsState = { value: "runId=run-roi-1" };
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(searchParamsState.value),
+}));
 
 vi.mock("@/components/LayerHeader", () => ({
   LayerHeader: () => <div data-testid="layer-header" />,
@@ -115,6 +122,10 @@ function buildModel(overrides: Partial<RoiSummaryPageViewModel> = {}): RoiSummar
 }
 
 describe("RoiSummaryPageView", () => {
+  beforeEach(() => {
+    searchParamsState.value = "runId=run-roi-1";
+  });
+
   it("mounts contextual help on ready state (TB-1973)", () => {
     render(<RoiSummaryPageView model={buildModel()} />);
 
@@ -133,13 +144,20 @@ describe("RoiSummaryPageView", () => {
   });
 
   it("asks the operator to pick a review before summarizing", () => {
+    searchParamsState.value = "";
+
     render(<RoiSummaryPageView model={buildModel()} />);
 
     expect(screen.getByTestId("roi-summary-pick-review-before-summarizing-strip")).toBeInTheDocument();
+    searchParamsState.value = "runId=run-roi-1";
   });
 });
 
 describe("RoiSummaryPageView buyer-polished chrome (TB-1974)", () => {
+  beforeEach(() => {
+    searchParamsState.value = "runId=run-roi-1";
+  });
+
   it("shows one page hero — no LayerHeader guidance above the metrics strip", async () => {
     const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
     vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(true);

@@ -137,8 +137,8 @@ describe("RunDetailAiRefinePanel", () => {
         reviewTier: "Standard",
       }),
     );
-    expect(screen.getByTestId("run-detail-ai-refine-results")).toHaveTextContent(
-      "Integrity-passed findings: 2",
+    expect(screen.getByTestId("run-detail-ai-refine-headline")).toHaveTextContent(
+      "Analysis complete · 2 evidence-backed findings",
     );
     expect(screen.getByTestId("architecture-intelligence-product-round-trip")).toBeInTheDocument();
   });

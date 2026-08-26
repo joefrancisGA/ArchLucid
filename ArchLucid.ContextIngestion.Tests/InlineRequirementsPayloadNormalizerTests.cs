@@ -30,4 +30,19 @@ public sealed class InlineRequirementsPayloadNormalizerTests
         batch.CanonicalObjects.Should().OnlyContain(o => o.Name.StartsWith(sharedPrefix, StringComparison.Ordinal));
         batch.CanonicalObjects.Should().OnlyContain(o => o.Name.Contains('#', StringComparison.Ordinal));
     }
+
+    [Fact]
+    public async Task NormalizeAsync_Reparse_ProducesStableObjectId()
+    {
+        InlineRequirementsPayloadNormalizer sut = new();
+
+        InlineRequirementsPayload payload = new() { InlineRequirements = ["must encrypt data at rest"] };
+
+        NormalizedContextBatch first = await sut.NormalizeAsync(payload, CancellationToken.None);
+        NormalizedContextBatch second = await sut.NormalizeAsync(payload, CancellationToken.None);
+
+        first.CanonicalObjects.Should().ContainSingle();
+        second.CanonicalObjects.Should().ContainSingle();
+        second.CanonicalObjects[0].ObjectId.Should().Be(first.CanonicalObjects[0].ObjectId);
+    }
 }

@@ -40,6 +40,8 @@ export type ExecDigestScheduleContentProps = {
   readonly healthSnap?: WeeklyDigestHealthDto | null;
   readonly onRefresh?: () => void;
   readonly refreshing?: boolean;
+  readonly scopedRunId?: string | null;
+  readonly onPickReview?: (reviewId: string) => void;
 };
 
 export type UseExecDigestScheduleResult = {

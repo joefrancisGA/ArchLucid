@@ -114,6 +114,7 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IRecommendationImproveLoopEvidencePersister, RecommendationImproveLoopEvidencePersister>();
         services.AddScoped<IRecommendationImproveLoopCoordinator, RecommendationImproveLoopCoordinator>();
         services.AddSingleton<IReviewResultCache, ReviewResultCache>();
+        services.AddSingleton<ClosedLoopContinueRunSingleFlight>();
         services.AddScoped<IArchitectureIntelligenceReviewTierBudgetGuard, ArchitectureIntelligenceReviewTierBudgetGuard>();
         services.AddScoped<IArchitectureIntelligenceProductRunSourceContextLoader,
             ArchitectureIntelligenceProductRunSourceContextLoader>();

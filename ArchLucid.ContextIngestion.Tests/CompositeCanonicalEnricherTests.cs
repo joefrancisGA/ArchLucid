@@ -42,6 +42,32 @@ public sealed class CompositeCanonicalEnricherTests
     }
 
     [Fact]
+    public void Enrich_classifies_kubernetes_deployment_as_compute()
+    {
+        List<CanonicalObject> items =
+        [
+            new()
+            {
+                ObjectType = "TopologyResource",
+                Name = "prod/api",
+                SourceType = "InfrastructureDeclaration",
+                SourceId = "decl-k8s",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["k8s.kind"] = "deployment",
+                    ["k8s.apiVersion"] = "apps/v1",
+                    ["k8s.name"] = "api",
+                    ["k8s.namespace"] = "prod",
+                }
+            }
+        ];
+
+        IReadOnlyList<CanonicalObject> enriched = _sut.Enrich(items);
+
+        enriched[0].Properties["category"].Should().Be("compute");
+    }
+
+    [Fact]
     public void Enrich_AddsCategory_AndStatus_ForTerraformAndSecurity()
     {
         List<CanonicalObject> items =

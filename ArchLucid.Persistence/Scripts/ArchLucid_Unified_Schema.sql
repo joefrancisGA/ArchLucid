@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 330_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 333_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -3876,18 +3876,6 @@ BEGIN
         CONSTRAINT PK_ArchitectureRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash),
         CONSTRAINT FK_ArchitectureRunIdempotency_Runs_RunId FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId)
     );
-END;
-
-GO
-
-IF NOT EXISTS (
-    SELECT 1
-    FROM sys.indexes
-    WHERE name = 'IX_ArchitectureRunIdempotency_Scope_Fingerprint_CreatedUtc'
-      AND object_id = OBJECT_ID(N'dbo.ArchitectureRunIdempotency'))
-BEGIN
-    CREATE NONCLUSTERED INDEX IX_ArchitectureRunIdempotency_Scope_Fingerprint_CreatedUtc
-        ON dbo.ArchitectureRunIdempotency (TenantId, WorkspaceId, ProjectId, RequestFingerprint, CreatedUtc DESC);
 END;
 
 GO
@@ -7850,6 +7838,29 @@ BEGIN
 
     CREATE INDEX IX_DraftRequests_Scope_Status_UpdatedUtc
         ON dbo.DraftRequests (TenantId, WorkspaceId, ProjectId, Status, UpdatedUtc DESC);
+END;
+
+GO
+
+/* Migration 331 parity: pre-serialized GET snapshot for architecture intake drafts. */
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DraftRequests', N'ReadModelJson') IS NULL
+BEGIN
+    ALTER TABLE dbo.DraftRequests
+        ADD ReadModelJson NVARCHAR(MAX) NULL,
+            ReadModelSchemaVersion INT NOT NULL
+                CONSTRAINT DF_DraftRequests_ReadModelSchemaVersion DEFAULT (0);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DraftRequests', N'ReadModelJson') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_DraftRequests_ReadModelJson')
+BEGIN
+    ALTER TABLE dbo.DraftRequests
+        ADD CONSTRAINT CK_DraftRequests_ReadModelJson
+            CHECK (ReadModelJson IS NULL OR ISJSON(ReadModelJson) = 1);
 END;
 
 GO

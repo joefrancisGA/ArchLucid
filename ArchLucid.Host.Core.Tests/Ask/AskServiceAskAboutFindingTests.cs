@@ -1,22 +1,13 @@
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application.Ask;
 using ArchLucid.Core.Ask;
-using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Configuration;
-using ArchLucid.Application.Ask;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Persistence.Queries;
-using ArchLucid.Provenance;
-using ArchLucid.Core.Retrieval;
-using ArchLucid.Retrieval.Indexing;
 
 using FluentAssertions;
-
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -84,30 +75,10 @@ public sealed class AskServiceAskAboutFindingTests
                           }
                           """);
 
-        Mock<IOptionsMonitor<AskComparisonNarrativeOptions>> askOptions = new();
-        askOptions.Setup(monitor => monitor.CurrentValue).Returns(new AskComparisonNarrativeOptions());
-
-        Mock<IOptionsMonitor<ConversationContextOptions>> contextOptions = new();
-        contextOptions.Setup(monitor => monitor.CurrentValue).Returns(new ConversationContextOptions());
-
-        Mock<IOptionsMonitor<AskRetrievalOptions>> askRetrievalOptions = new();
-        askRetrievalOptions.Setup(monitor => monitor.CurrentValue).Returns(new AskRetrievalOptions());
-
-        AskService sut = new(
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IProvenanceQueryService>(),
-            Mock.Of<IComparisonService>(),
-            llm.Object,
-            conversationService.Object,
-            findingRepository.Object,
-            Mock.Of<IRetrievalQueryService>(),
-            Mock.Of<IRetrievalDocumentBuilder>(),
-            Mock.Of<IRetrievalIndexingService>(),
-            askOptions.Object,
-            Mock.Of<IConversationContextCompressor>(),
-            contextOptions.Object,
-            askRetrievalOptions.Object,
-            NullLogger<AskService>.Instance);
+        AskService sut = AskServiceTestFactory.Create(
+            llm: llm.Object,
+            conversationService: conversationService.Object,
+            findingInspectReadRepository: findingRepository.Object);
 
         AskResponse response = await sut.AskAboutFindingAsync(
             new FindingAskRequest

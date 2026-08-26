@@ -28,25 +28,87 @@ public static class ReviewCacheManifestBuilder
         };
     }
 
+    public static ReviewCacheDependencyManifest BuildWithResolvedRunId(
+        ClosedLoopReasoningRequest request,
+        string resolvedRunId,
+        ArchitectureKnowledgeModel? baselineKnowledgeModel = null,
+        IReadOnlyList<TechnologyLedgerEntry>? technologyLedgerEntries = null)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentException.ThrowIfNullOrWhiteSpace(resolvedRunId);
+
+        ClosedLoopReasoningRequest resolvedRequest = new()
+        {
+            TenantId = request.TenantId,
+            RunId = ClosedLoopRunIdNormalizer.NormalizeRequired(resolvedRunId),
+            WorkspaceId = request.WorkspaceId,
+            ProjectId = request.ProjectId,
+            SourceTexts = request.SourceTexts,
+            DeclaredPriorities = request.DeclaredPriorities,
+            FramingAnswers = request.FramingAnswers,
+            UseGoldenFixture = request.UseGoldenFixture,
+            ContinueFromExistingRun = request.ContinueFromExistingRun,
+            PublishToProduct = request.PublishToProduct,
+            ReviewTier = request.ReviewTier,
+            ModelAliasId = request.ModelAliasId,
+        };
+
+        return Build(resolvedRequest, baselineKnowledgeModel, technologyLedgerEntries);
+    }
+
+    public static ReviewCacheDependencyManifest BuildContinueFromExistingRunCoalesceManifest(
+        ClosedLoopReasoningRequest request,
+        string tenantId,
+        string runId,
+        ArchitectureKnowledgeModel? baselineKnowledgeModel = null,
+        IReadOnlyList<TechnologyLedgerEntry>? technologyLedgerEntries = null)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        string normalizedTenantId = tenantId.Trim();
+        string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
+
+        ReviewCacheDependencyManifest contentManifest =
+            Build(request, baselineKnowledgeModel, technologyLedgerEntries);
+
+        return new ReviewCacheDependencyManifest
+        {
+            ContentHash = Sha256Hex($"continue|{normalizedTenantId}|{normalizedRunId}|{contentManifest.ContentHash}"),
+            PromptVersion = contentManifest.PromptVersion,
+            ModelVersion = contentManifest.ModelVersion,
+            PolicyPackVersion = contentManifest.PolicyPackVersion,
+            RubricVersion = contentManifest.RubricVersion,
+            TenantConfigurationHash = contentManifest.TenantConfigurationHash,
+            DeclaredPrioritiesHash = contentManifest.DeclaredPrioritiesHash,
+            SchemaVersion = contentManifest.SchemaVersion,
+            ReuseReason = "closed-loop-continue-existing",
+        };
+    }
+
     private static string HashContent(
         ClosedLoopReasoningRequest request,
         ArchitectureKnowledgeModel? baselineKnowledgeModel,
         IReadOnlyList<TechnologyLedgerEntry>? technologyLedgerEntries)
     {
         StringBuilder builder = new();
-        builder.Append("continue=").Append(request.ContinueFromExistingRun ? '1' : '0').Append('|');
+
+        if (request.ContinueFromExistingRun)
+            builder.Append("continue=1|");
+
         builder.Append("tier=").Append(request.ReviewTier.ToString()).Append('|');
         builder.Append("golden=").Append(request.UseGoldenFixture ? '1' : '0').Append('|');
         builder.Append("alias=").Append(request.ModelAliasId ?? string.Empty).Append('|');
 
-        if (!string.IsNullOrWhiteSpace(request.RunId) && baselineKnowledgeModel is not null)
+        if (!string.IsNullOrWhiteSpace(request.RunId))
         {
             builder.Append("modelfp=")
-                .Append(ReviewCacheModelFingerprint.Compute(baselineKnowledgeModel))
+                .Append(ReviewCacheModelFingerprint.Compute(baselineKnowledgeModel ?? new ArchitectureKnowledgeModel()))
                 .Append('|');
         }
 
-        if (!string.IsNullOrWhiteSpace(request.RunId) && technologyLedgerEntries is not null)
+        if (!string.IsNullOrWhiteSpace(request.RunId))
         {
             builder.Append("ledgerfp=")
                 .Append(ReviewCacheLedgerFingerprint.Compute(technologyLedgerEntries))
@@ -62,7 +124,8 @@ public static class ReviewCacheManifestBuilder
             builder.Append(source.Content ?? string.Empty).Append("\n---\n");
         }
 
-        foreach (KeyValuePair<string, string> answer in request.FramingAnswers
+        foreach (KeyValuePair<string, string> answer in ClosedLoopFramingAnswersNormalizer
+                     .Normalize(request.FramingAnswers)
                      .OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             builder.Append(answer.Key).Append('=').Append(answer.Value).Append('\n');
@@ -86,10 +149,7 @@ public static class ReviewCacheManifestBuilder
     {
         string payload = string.Join(
             '|',
-            priorities
-                .Where(priority => !string.IsNullOrWhiteSpace(priority))
-                .Select(priority => priority.Trim())
-                .OrderBy(priority => priority, StringComparer.Ordinal));
+            ClosedLoopDeclaredPrioritiesNormalizer.Normalize(priorities));
 
         return Sha256Hex(payload);
     }

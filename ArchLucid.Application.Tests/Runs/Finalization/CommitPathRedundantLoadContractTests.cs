@@ -21,11 +21,21 @@ public sealed class CommitPathRedundantLoadContractTests
             "Runs",
             "Orchestration",
             "AuthorityDrivenArchitectureRunCommitOrchestrator.cs");
-        string text = File.ReadAllText(orchestratorPath, Encoding.UTF8);
+        string orchestratorText = File.ReadAllText(orchestratorPath, Encoding.UTF8);
 
-        text.Should().Contain("PreCommitGovernancePreloadedData");
-        text.Should().Contain("PreloadedFindingsSnapshot = findingsForFinalization");
-        text.Should().Contain("PreloadedScopePolicyPackAssignments = scopePolicyPackAssignments");
+        orchestratorText.Should().Contain("PreCommitGovernancePreloadedData");
+
+        string persistenceStagePath = Path.Combine(
+            repoRoot,
+            "ArchLucid.Application",
+            "Runs",
+            "Orchestration",
+            "Commit",
+            "AuthorityCommitPersistenceStage.cs");
+        string persistenceText = File.ReadAllText(persistenceStagePath, Encoding.UTF8);
+
+        persistenceText.Should().Contain("PreloadedFindingsSnapshot = materialization.FindingsForFinalization");
+        persistenceText.Should().Contain("PreloadedScopePolicyPackAssignments = materialization.ScopePolicyPackAssignments");
     }
 
     [Fact]

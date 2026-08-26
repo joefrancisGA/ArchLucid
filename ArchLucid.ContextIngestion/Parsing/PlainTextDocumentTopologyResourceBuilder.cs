@@ -9,14 +9,13 @@ internal static class PlainTextDocumentTopologyResourceBuilder
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase) { ["text"] = canonicalHint };
 
-        int slash = canonicalHint.IndexOf('/');
+        int slash = canonicalHint.LastIndexOf('/');
 
         if (slash > 0 && slash < canonicalHint.Length - 1)
         {
             string parentName = canonicalHint[..slash];
-            string childRemainder = canonicalHint[(slash + 1)..];
 
-            if (parentName.Length > 0 && childRemainder.Length > 0)
+            if (parentName.Length > 0)
             {
                 string parentObjectId = TopologyHintStableObjectIds.FromHintName(parentName);
                 properties["parentNodeId"] = $"obj-{parentObjectId}";

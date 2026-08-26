@@ -17,6 +17,7 @@ import {
   policyPacksRefreshAssistReaderLineBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
 import { PolicyPacksActivePackSummaryCard } from "./PolicyPacksActivePackSummaryCard";
+import { PolicyPacksBuyerChrome } from "./PolicyPacksBuyerChrome";
 import { PolicyPacksBreadcrumb } from "./PolicyPacksBreadcrumb";
 import { PolicyPacksNextReviewFooterClient } from "./PolicyPacksNextReviewFooterClient";
 import { PolicyPacksCatalogSection } from "./PolicyPacksCatalogSection";
@@ -222,6 +223,8 @@ export function PolicyPacksPageView(props: Props) {
               effectiveContent={m.effectiveContent}
               selectedPackId={m.selectedPackId}
               packVersions={m.packVersions}
+              scopedReviewId={m.pickedReviewId}
+              onPickReview={m.setPickedReviewId}
             />
           ) : null}
 

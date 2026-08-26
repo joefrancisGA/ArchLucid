@@ -8,7 +8,7 @@ const UI_ROOT = join(process.cwd());
 /** Highest-traffic TB-2010 surfaces; recurrence / architecture-intelligence deferred (lower traffic). */
 const TB_2010_SOURCE_ROOTS = [
   "src/components/marketing/SignupForm.tsx",
-  "src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx",
+  "src/app/(operator)/integrations/webhooks/WebhooksCreateSubscriptionForm.tsx",
   "src/components/alerts/AlertRoutingContent.tsx",
   "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizard.tsx",
   "src/app/(operator)/architecture/reviews/new/NewRunWizardClient.tsx",

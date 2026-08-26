@@ -55,6 +55,11 @@ import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { RiskExceptionsTriageFirstExpiringStrip } from "@/components/governance/RiskExceptionsTriageFirstExpiringStrip";
 import { RiskExceptionsPickReviewBeforeRenewStrip } from "@/components/governance/RiskExceptionsPickReviewBeforeRenewStrip";
 import { RiskExceptionsNextReviewFooterClient } from "@/components/governance/RiskExceptionsNextReviewFooterClient";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import {
+  resolveRiskExceptionsRenewEmphasizedStepId,
+  resolveRiskExceptionsRenewSteps,
+} from "@/lib/risk-exceptions-renew-checklist";
 import { RiskExceptionsContinueLastViewedRow } from "@/components/governance/RiskExceptionsContinueLastViewedRow";
 import { resolveRiskExceptionsTriageFirstExpiring } from "@/lib/governance/resolve-risk-exceptions-triage-first-expiring";
 import {
@@ -194,6 +199,16 @@ export default function RiskExceptionsClient() {
     () => (scopedRunFilterActive ? resolveContinueLastRiskException(scopedRecords) : null),
     [scopedRecords, scopedRunFilterActive],
   );
+  const riskExceptionsRenewChecklistSteps = resolveRiskExceptionsRenewSteps({
+    reviewPicked: scopedRunFilterActive,
+    expiringReviewed: scopedRunFilterActive && (expiringSoonCount === 0 || triageFirstExpiringTarget === null),
+    renewReady: scopedRunFilterActive && scopedRecords.length > 0 && !loading,
+  });
+  const riskExceptionsRenewChecklistEmphasizedStepId = resolveRiskExceptionsRenewEmphasizedStepId({
+    reviewPicked: scopedRunFilterActive,
+    expiringReviewed: scopedRunFilterActive && (expiringSoonCount === 0 || triageFirstExpiringTarget === null),
+    renewReady: scopedRunFilterActive && scopedRecords.length > 0 && !loading,
+  });
 
   const onPickReviewForRenew = useCallback(
     (reviewId: string) => {
@@ -362,6 +377,14 @@ export default function RiskExceptionsClient() {
                 onSelectReview={onPickReviewForRenew}
               />
             )}
+            {scopedRunFilterActive ? (
+              <IntegrationConnectChecklist
+                title="Renew checklist"
+                steps={riskExceptionsRenewChecklistSteps}
+                emphasizedStepId={riskExceptionsRenewChecklistEmphasizedStepId}
+                testIdPrefix="risk-exceptions-renew"
+              />
+            ) : null}
             {scopedRunFilterActive ? (
               <>
             {continueLastException !== null ? (

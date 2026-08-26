@@ -1,5 +1,13 @@
 /** Home and architecture review routes (`/`, `/architecture/**`). */
 
+import {
+  ARCHITECTURES_NEW_PATH,
+  REVIEWS_NEW_PATH,
+} from "@/lib/architecture/architecture-routes";
+import {
+  CREATE_ARCHITECTURE_LABEL,
+  START_REVIEW_LABEL,
+} from "@/lib/architecture/architecture-workflow-labels";
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -9,28 +17,40 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
     prefix: "/",
     entry: {
       whatIsThisPage:
-        `${OPERATOR_NAV_LINK_LABELS.home} — start or resume architecture reviews and see recent activity from one command center.`,
-      whatToDoNext: "Start a review, resume a draft, or explore a sample workspace.",
-      whyEmpty: "Recent reviews and metrics appear after you create or finalize architecture reviews.",
-      whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher when you work across teams.",
+        `${OPERATOR_NAV_LINK_LABELS.home} — create or review an architecture and see recent workspace activity from one command center.`,
+      whatToDoNext:
+        "Create architecture, start a review, resume a draft, or explore a completed sample.",
+      whyEmpty: "Recent reviews appear after you create or finalize architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Switch workspace or project scope from the header switcher when you work across teams.",
+      whatToDoNextAction: {
+        label: CREATE_ARCHITECTURE_LABEL,
+        href: ARCHITECTURES_NEW_PATH,
+      },
+      whereToConfigureAction: {
+        label: START_REVIEW_LABEL,
+        href: REVIEWS_NEW_PATH,
+      },
       taskSteps: [
-        "Start a review when you have a system to evaluate.",
-        "Resume a draft if a brief is already in progress.",
-        "Switch workspace or project from the header when you work across teams.",
+        "Create architecture from a description, briefs, or connected cloud inventory.",
+        "Start a review when you already have diagrams, documents, or inventory to evaluate.",
+        "Resume a draft or open a sample review from the cards below.",
       ],
     },
   },
   {
     prefix: "/architecture/reviews",
     entry: {
-      whatIsThisPage: "Create, refine, evaluate, and approve architecture reviews from one hub.",
-      whatToDoNext: "Start a review, resume a draft, or explore a sample workspace.",
+      whatIsThisPage:
+        "Architecture packages hub — start, resume, and manage active and finalized architecture reviews.",
+      whatToDoNext:
+        "Start a review, create architecture when you need a draft first, resume a draft, or explore a sample workspace.",
       whyEmpty: "Summary metrics populate after you start or finalize architecture reviews.",
       whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher.",
       taskSteps: [
-        "Start a review when you have a system ready for evaluation.",
-        "Resume a draft or open a recent review from the list.",
-        "Switch workspace or project from the header when scope changes.",
+        "Create architecture when you need to draft before filing evidence for review.",
+        "Start a review when you already have architecture evidence ready to evaluate.",
+        "Open a recent architecture package or switch workspace from the header when scope changes.",
       ],
     },
   },
@@ -38,7 +58,7 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
     prefix: "/architecture/reviews/new",
     entry: {
       whatIsThisPage:
-        "Start an architecture review by choosing an intake path and submitting evidence for analysis.",
+        "Review architecture — choose an intake path and submit evidence for analysis.",
       whatToDoNext:
         "Pick quick, guided, or detailed intake, complete the required fields, then submit to create the review.",
       whyEmpty: "Path choices appear immediately; review results appear after you submit intake.",
@@ -55,17 +75,17 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
     prefix: "/architecture/architectures/new",
     entry: {
       whatIsThisPage:
-        "Create architecture - start a new architecture draft or continue a saved draft before filing evidence for review.",
+        "Create architecture — start a new architecture draft or continue a saved draft before filing evidence for review.",
       whatToDoNext:
-        "Start a new draft or resume a recent one, then open Start a review when the brief is ready for evidence intake.",
+        "Describe the system and save a draft, or start a review separately when you already have architecture evidence.",
       whyEmpty:
         "Recent drafts appear after the architectures API responds; empty lists mean no drafts are saved yet.",
       whereToConfigurePrerequisite:
-        "Drafting uses the workspace and project selected in the header switcher; creating a draft does not start a review.",
+        "Drafting uses the workspace and project selected in the header switcher; saving a draft does not start a review.",
       taskSteps: [
         "Start a new draft or resume a recent saved brief.",
         "Complete required architecture fields before saving.",
-        "Open Start a review when the brief is ready for evidence intake.",
+        "Optionally start a review when the brief is ready, or review existing evidence without a draft.",
       ],
     },
   },
@@ -73,16 +93,25 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
     prefix: "/architecture/first-review-guide",
     entry: {
       whatIsThisPage:
-        "First review guide - checklist onboarding for your first architecture review, including required setup and optional workspace steps.",
+        "First review guide — checklist onboarding for your first architecture draft or review, including required setup and optional workspace steps.",
       whatToDoNext:
-        "Clear required setup blockers, follow the walkthrough next step, then Start a review when the workspace is ready for evidence intake.",
-      whyEmpty: "Progress updates as you complete walkthrough steps; empty optional setup means those integrations are not required yet.",
+        "Clear required setup blockers, then create architecture or start a review when the workspace is ready.",
+      whyEmpty:
+        "Progress updates as you complete walkthrough steps; empty optional setup means those integrations are not required yet.",
       whereToConfigurePrerequisite:
         "Required setup uses the current workspace and project scope from the header switcher.",
+      whatToDoNextAction: {
+        label: CREATE_ARCHITECTURE_LABEL,
+        href: ARCHITECTURES_NEW_PATH,
+      },
+      whereToConfigureAction: {
+        label: START_REVIEW_LABEL,
+        href: REVIEWS_NEW_PATH,
+      },
       taskSteps: [
         "Clear required setup blockers on the checklist.",
-        "Follow the walkthrough next step until optional setup is understood.",
-        "Start a review when the workspace is ready for evidence intake.",
+        "Create architecture when you need a draft before filing evidence.",
+        "Start a review when you already have architecture evidence to evaluate.",
       ],
     },
   },

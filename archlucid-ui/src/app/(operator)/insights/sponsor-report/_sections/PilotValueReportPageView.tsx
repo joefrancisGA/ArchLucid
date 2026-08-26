@@ -21,6 +21,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { firstWhyDisabledCtaReason, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import {
@@ -70,6 +71,10 @@ import { SponsorReportNextReviewFooterClient } from "./SponsorReportNextReviewFo
 import {
   writeSponsorReportPickedReviewId,
 } from "@/lib/sponsor-report/sponsor-report-picked-review-storage";
+import {
+  resolveValueReportReportingEmphasizedStepId,
+  resolveValueReportReportingSteps,
+} from "@/lib/value-report-reporting-checklist";
 import { ValueReportIncludesSection } from "./ValueReportIncludesSection";
 import { PilotRoiValidationHandoffClient } from "@/components/pilots/PilotRoiValidationHandoffCard";
 import { formatPilotValueReportAvgCompletion } from "./pilot-value-report-page-helpers";
@@ -168,6 +173,16 @@ export function PilotValueReportPageView(props: Props) {
   };
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const valueReportReportingChecklistSteps = resolveValueReportReportingSteps({
+    reviewPicked: scopedRunFilterActive,
+    reportReviewed: hasFinalizedReviews && m.data !== null,
+    exportReady: canExport,
+  });
+  const valueReportReportingChecklistEmphasizedStepId = resolveValueReportReportingEmphasizedStepId({
+    reviewPicked: scopedRunFilterActive,
+    reportReviewed: hasFinalizedReviews && m.data !== null,
+    exportReady: canExport,
+  });
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4 print:w-full" data-testid="pilot-outcomes-page">
@@ -225,8 +240,17 @@ export function PilotValueReportPageView(props: Props) {
               href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
             >
               Open review
-            </Link>
-          </p>
+          </Link>
+        </p>
+      ) : null}
+
+        {scopedRunFilterActive ? (
+          <IntegrationConnectChecklist
+            title="Reporting checklist"
+            steps={valueReportReportingChecklistSteps}
+            emphasizedStepId={valueReportReportingChecklistEmphasizedStepId}
+            testIdPrefix="value-report-reporting"
+          />
         ) : null}
 
         <CollapsibleSection

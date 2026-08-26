@@ -1,13 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   IntegrationEventsDlqBulkRetryConfirmDialog,
   IntegrationEventsDlqSuppressConfirmDialog,
 } from "@/app/(operator)/internal/failed-integration-messages/_sections/IntegrationEventsDlqConfirmDialogs";
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { IntegrationEventsDlqTable } from "@/app/(operator)/internal/failed-integration-messages/_sections/IntegrationEventsDlqTable";
+import {
+  rowMatchesFilters,
+  type IntegrationEventOutboxDeadLetterRow,
+} from "@/app/(operator)/internal/failed-integration-messages/_sections/integration-events-dlq-presentation";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
@@ -15,15 +18,6 @@ import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuth
 import { WebhooksVsDlqVocabularyRail } from "@/components/WebhooksVsDlqVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  EnterpriseTable,
-  EnterpriseTableBody,
-  EnterpriseTableCell,
-  EnterpriseTableHead,
-  EnterpriseTableHeaderCell,
-  EnterpriseTableHeadRow,
-  EnterpriseTableRow,
-} from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -33,7 +27,6 @@ import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { INTERNAL_INTEGRATION_EVENTS_DLQ_PATH } from "@/lib/internal-ops-route-paths";
-import type { components } from "@/lib/api-types.generated";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -52,10 +45,7 @@ import {
   INTEGRATION_EVENTS_DLQ_EMPTY_COMPACT,
   INTEGRATION_EVENTS_DLQ_FILTER_EMPTY_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
-import { truncateMiddle } from "@/lib/truncate-middle";
 import { cn } from "@/lib/utils";
-
-type IntegrationEventOutboxDeadLetterRow = components["schemas"]["IntegrationEventOutboxDeadLetterRow"];
 
 type LoadState =
   | { status: "idle" }
@@ -65,69 +55,6 @@ type LoadState =
 
 const listPath = "/api/proxy/v1/admin/integration-outbox/dead-letters?maxRows=100";
 const bulkRetryPath = "/api/proxy/v1/internal/integrations/outbox/retry-dead-letter";
-
-function formatAgeUtc(deadLetteredUtc: string | undefined | null): string {
-  if (deadLetteredUtc === undefined || deadLetteredUtc === null || deadLetteredUtc === "") {
-    return " — ";
-  }
-
-  const deadLetteredMs = Date.parse(deadLetteredUtc);
-
-  if (Number.isNaN(deadLetteredMs)) {
-    return " — ";
-  }
-
-  const ageMs = Math.max(0, Date.now() - deadLetteredMs);
-  const minutes = Math.floor(ageMs / 60_000);
-
-  if (minutes < 60) {
-    return `${minutes}m`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-
-  if (hours < 48) {
-    return `${hours}h`;
-  }
-
-  const days = Math.floor(hours / 24);
-
-  return `${days}d`;
-}
-
-function truncateErrorMessage(message: string | undefined | null): string {
-  if (message === undefined || message === null || message.trim() === "") {
-    return " — ";
-  }
-
-  return truncateMiddle(message, 96);
-}
-
-function resolveReviewHref(runId: string | undefined | null): string | null {
-  if (runId === undefined || runId === null || runId.trim() === "") {
-    return null;
-  }
-
-  return `/architecture/reviews/${encodeURIComponent(runId)}`;
-}
-
-function rowMatchesFilters(
-  row: IntegrationEventOutboxDeadLetterRow,
-  eventTypeFilter: string,
-  tenantFilter: string,
-): boolean {
-  if (eventTypeFilter !== "all" && row.eventType !== eventTypeFilter) {
-    return false;
-  }
-
-  if (tenantFilter.trim() === "") {
-    return true;
-  }
-
-  const tenantId = row.tenantId ?? "";
-
-  return tenantId.toLowerCase().includes(tenantFilter.trim().toLowerCase());
-}
 
 /** Admin operator view for failed integration event outbox rows with manual retry. */
 export function IntegrationEventsDlqPageClient() {
@@ -483,131 +410,21 @@ export function IntegrationEventsDlqPageClient() {
             <EnterpriseCompactEmptyState {...INTEGRATION_EVENTS_DLQ_FILTER_EMPTY_COMPACT} />
           ) : null}
           {state.status === "ready" && filteredRows.length > 0 ? (
-            <EnterpriseTable ariaLabel="Failed integration messages">
-              <EnterpriseTableHead>
-                <EnterpriseTableHeadRow>
-                  <EnterpriseTableHeaderCell>Tenant</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Event</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Age</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Dead-lettered (UTC)</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Retries</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Last error</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Action</EnterpriseTableHeaderCell>
-                </EnterpriseTableHeadRow>
-              </EnterpriseTableHead>
-              <EnterpriseTableBody>
-                {filteredRows.map((row) => {
-                  const reviewHref = resolveReviewHref(row.runId);
-                  const tenantLabel =
-                    row.tenantId === undefined || row.tenantId === null || row.tenantId === ""
-                      ? " — "
-                      : truncateMiddle(row.tenantId, 18);
-                  const lastError = row.lastErrorMessage ?? " — ";
-
-                  return (
-                    <EnterpriseTableRow key={row.outboxId}>
-                      <EnterpriseTableCell>
-                        <span
-                          className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}
-                          aria-label={row.tenantId ?? undefined}
-                        >
-                          {tenantLabel}
-                        </span>
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
-                          {row.eventType}
-                        </span>
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell data-testid={`integration-events-dlq-review-cell-${row.outboxId}`}>
-                        {reviewHref === null ? (
-                          <span className={OPERATOR_TYPOGRAPHY.helper}>—</span>
-                        ) : (
-                          <Link
-                            href={reviewHref}
-                            className={cn("font-mono underline-offset-2 hover:underline", OPERATOR_TYPOGRAPHY.micro)}
-                            aria-label={row.runId ?? undefined}
-                          >
-                            {truncateMiddle(row.runId ?? "", 18)}
-                          </Link>
-                        )}
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <span className={OPERATOR_TYPOGRAPHY.helper}>{formatAgeUtc(row.deadLetteredUtc)}</span>
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <span className={OPERATOR_TYPOGRAPHY.helper}>{row.deadLetteredUtc}</span>
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <span className={OPERATOR_TYPOGRAPHY.helper}>{row.retryCount}</span>
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <span className={OPERATOR_TYPOGRAPHY.helper} aria-label={lastError === " — " ? undefined : lastError}>
-                          {truncateErrorMessage(row.lastErrorMessage)}
-                        </span>
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <div className="flex flex-col gap-2">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="primary"
-                            disabled={retryingId === row.outboxId || suppressingId === row.outboxId || !canMutate}
-                            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
-                            onClick={() => {
-                              if (row.outboxId === undefined || row.outboxId === null) {
-                                return;
-                              }
-
-                              void retry(row.outboxId);
-                            }}
-                          >
-                            {retryingId === row.outboxId ? "Retrying…" : "Retry"}
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            disabled={retryingId === row.outboxId || suppressingId === row.outboxId || !canMutate}
-                            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
-                            onClick={() => {
-                              if (row.outboxId === undefined || row.outboxId === null) {
-                                return;
-                              }
-
-                              setSuppressTargetId(row.outboxId);
-                            }}
-                          >
-                            {suppressingId === row.outboxId ? "Suppressing…" : "Suppress"}
-                          </Button>
-                          <HelpLazyDetails
-                            summary="Advanced"
-                            data-testid={`integration-events-dlq-advanced-${row.outboxId}`}
-                            bodyTestId={`integration-events-dlq-advanced-body-${row.outboxId}`}
-                          >
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                if (row.outboxId === undefined || row.outboxId === null) {
-                                  return;
-                                }
-
-                                void copyCurl(row.outboxId);
-                              }}
-                            >
-                              Copy as cURL
-                            </Button>
-                          </HelpLazyDetails>
-                        </div>
-                      </EnterpriseTableCell>
-                    </EnterpriseTableRow>
-                  );
-                })}
-              </EnterpriseTableBody>
-            </EnterpriseTable>
+            <IntegrationEventsDlqTable
+              rows={filteredRows}
+              canMutate={canMutate}
+              retryingId={retryingId}
+              suppressingId={suppressingId}
+              mutationDisabledHintId={mutationDisabledHintId}
+              mutationDisabledReason={mutationDisabledReason}
+              onRetry={(outboxId) => {
+                void retry(outboxId);
+              }}
+              onSuppressRequest={setSuppressTargetId}
+              onCopyCurl={(outboxId) => {
+                void copyCurl(outboxId);
+              }}
+            />
           ) : null}
         </CardContent>
       </Card>

@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-27
+> **Reviewed:** 2026-08-26
 
 > **Scope:** ArchLucid buyer personas and ideal customer profile (ICP) — who buys, firmographic fit, and how they evaluate — plus buyer self-routing / should-you-evaluate (formerly `SHOULD_YOU_EVALUATE.md`), and the design-partner / pilot recruiting pipeline (formerly the body of `PILOT_RECRUITING_PIPELINE.md`; that filename remains a path-stable alias). Full detail in the sections below.
 
@@ -9,7 +9,7 @@
 
 **Audience:** Product, sales, and marketing teams who need a shared understanding of who buys ArchLucid, why, and how they evaluate it.
 
-**Last reviewed:** 2026-07-27
+**Last reviewed:** 2026-08-26
 
 **Grounding rule:** Capabilities and limitations referenced here reflect the V1 codebase per [V1_SCOPE.md](../library/V1_SCOPE.md) and [CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md). ICP thresholds also ground in [ROI_MODEL.md](ROI_MODEL.md) (break-even at ~180 architect-hours/year) and [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md).
 
@@ -60,7 +60,7 @@ The ICP describes the **company profile** where ArchLucid delivers **maximum val
 | **Industry verticals** | Financial services, technology, healthcare | Compliance pressure (FS, HC) drives governance adoption; technology companies value speed and consistency |
 | **Geography** | English-speaking markets (US, UK, ANZ, Western Europe) | V1 is English-only; Azure presence is strong in these regions |
 | **Architecture team size** | 3+ architects | Below 3, the ROI model break-even (180 hours/year) is difficult to reach; above 3, each additional architect multiplies savings |
-| **Cloud posture** | Azure-primary or Azure-significant | V1 topology, cost, and compliance engines are Azure-focused; AWS/GCP-only organizations are a poor fit until multi-cloud support ships |
+| **Cloud posture** | Azure-primary or Azure-significant | V1 topology, cost, and compliance engines are deepest on Azure; AWS/GCP-target reviews ship in V1 with inventory ZIP / Tier 2 poll / Terraform ingest and thinner heuristic costing |
 | **Architecture practice maturity** | Established (not aspirational) | Active reviews happening today — even if manual and inconsistent. ArchLucid improves existing practice; it does not create one |
 
 ### Behavioral / situational criteria
@@ -77,7 +77,6 @@ The ICP describes the **company profile** where ArchLucid delivers **maximum val
 
 | Disqualifier | Reason |
 |-------------|--------|
-| **AWS-only or GCP-only** | V1 finding engines and infrastructure are Azure-focused |
 | **No established architecture practice** | ArchLucid accelerates reviews; it does not teach architecture from scratch |
 | **Require air-gapped / on-premises without a documented equivalent** | Default delivery is SaaS; forks must own operational burden (see [not-a-fit](#when-archlucid-is-not-a-fit)) |
 | **Fewer than 3 architects** | ROI threshold unlikely to be met per the model (< 180 architect-hours/year) |
@@ -93,7 +92,7 @@ Use this to qualify leads in < 5 minutes.
 | **Company size** | 2 | 500–10K | 200–500 or 10K–50K | < 200 or > 50K | — |
 | **Industry** | 2 | FS, tech, healthcare | Other regulated | Consumer, media | — |
 | **Architecture team** | 3 | 5+ architects | 3–4 architects | 1–2 architects | 0 architects |
-| **Cloud posture** | 2 | Azure-primary | Azure + other | Multi-cloud no Azure | AWS/GCP only |
+| **Cloud posture** | 2 | Azure-primary | Azure + other | Multi-cloud no Azure | No cloud evidence / IaC |
 | **Review practice** | 3 | Active, > 10/year | Active, 5–10/year | Aspirational | None planned |
 | **Compliance pressure** | 2 | Regulatory mandate | Internal audit | Optional | None |
 | **Pain articulation** | 1 | Champion names specific pain | General interest | "Just exploring AI" | — |
@@ -132,7 +131,7 @@ Work through the questions in order.
 
 **Q2.** Do you run workloads on Azure (or plan to within 6 months)?
 
-- **No** → ArchLucid V1 targets Azure workloads. If your workloads are on AWS or GCP, [contact us](https://archlucid.net/contact) about our multi-cloud roadmap.
+- **No** → ArchLucid V1 can review **AWS/GCP-target** architectures when you supply Terraform state JSON, inventory ZIP, or equivalent evidence. **Azure-primary** remains the deepest path (cost catalog, classification). [Contact us](https://archlucid.net/contact) if you need a unified multi-cloud graph in a single review — that is not offered today.
 - **Yes** → Continue.
 
 **Q3.** Do you spend 20+ hours per architecture review cycle?
@@ -244,10 +243,10 @@ Blunt filter — save buyers and our team time. Disqualify early; do **not** pro
 
 ### What would make them reject ArchLucid
 
-- Cannot import existing ArchiMate/TOGAF models (currently no import connectors)
+- Cannot import existing ArchiMate/TOGAF models (no modeling-tool import; IaC declaration ingest is not a substitute)
 - Findings are generic or low-quality compared to their expert judgment
-- Cannot integrate with their existing CMDB or ServiceNow instance
-- Azure-only when their organization is AWS-primary or multi-cloud
+- Needs CMDB/CSDM as the architecture system of record (ServiceNow **ticket** connectors exist; CMDB import does not)
+- AWS-primary FinOps that needs Azure-catalog cost depth (AWS/GCP-target reviews ship; costing is thinner)
 - The UI is too rough for them to present to non-technical stakeholders
 
 ### Key objections and responses
@@ -256,7 +255,7 @@ Blunt filter — save buyers and our team time. Disqualify early; do **not** pro
 |-----------|----------|
 | "We already have LeanIX/Ardoq for architecture management" | ArchLucid does not replace your architecture repository — it adds **AI-driven analysis and governance** on top of your architecture decisions. LeanIX catalogs what you have; ArchLucid evaluates whether what you plan is sound. |
 | "Can AI really do architecture review?" | ArchLucid's agents are not replacing architects — they are automating the repetitive parts (checking coverage, identifying policy gaps, flagging cost constraints) and providing a structured starting point. Every finding is explainable and traceable, not a black-box suggestion. |
-| "We need ArchiMate import" | V1 accepts structured architecture requests with infrastructure declarations, documents, and policy references. ArchiMate and Terraform import connectors are on the roadmap. The API and CLI support integration from existing toolchains. |
+| "We need ArchiMate import" | V1 does **not** import ArchiMate or TOGAF models. It accepts structured architecture requests with **infrastructure declarations** (`json`, Terraform, Bicep, ARM, rendered Kubernetes), documents, inventory ZIP, and policy references. LeanIX/ArchiMate remain the catalog; ArchLucid reviews a package you submit. |
 
 ### Demo priorities (what to show first)
 
@@ -385,7 +384,7 @@ Blunt filter — save buyers and our team time. Disqualify early; do **not** pro
 
 - No SOC 2 Type II report or equivalent third-party attestation
 - No GDPR/CCPA data processing agreement
-- Single-vendor SSO (Entra-only) when their organization uses Okta or Ping
+- Single-vendor identity that is **neither** OIDC **nor** SAML (Okta/Auth0/Ping via OIDC or SAML SP are in V1; Entra remains the default hosted path)
 - No SLA commitment (only aspirational targets)
 - Vendor is too small / too early to bet on for a regulated environment
 - No on-premises deployment option (some regulated industries cannot use cloud)
@@ -395,7 +394,7 @@ Blunt filter — save buyers and our team time. Disqualify early; do **not** pro
 | Objection | Response |
 |-----------|----------|
 | "Do you have SOC 2?" | ArchLucid is **vendor-operated SaaS** on Azure. We publish a Trust Center, DPA-aligned subprocessors, and an interim SOC 2 posture (self-assessment today; external Type I/II when funded — see **`docs/PENDING_QUESTIONS.md`**). The product includes RBAC, **database-per-tenant** catalog isolation (ADR 0037), append-only audit enforcement, and private endpoint patterns in our hosted stack. We provide security architecture and STRIDE threat-model documentation for your review team. |
-| "We use Okta, not Entra" | V1 supports Entra ID JWT and API key authentication. Generic OIDC support (for Okta, Auth0, Ping) is on the near-term roadmap. In the interim, API key authentication provides a functional integration path. |
+| "We use Okta, not Entra" | V1 workforce SSO is **Entra JWT by default**, plus **generic OIDC** (`ArchLucidAuth:Authority` against a standards-compliant issuer — Okta, Auth0, Ping, Keycloak-style) and a **SAML 2.0 SP**. Map IdP claims to `ArchLucidRoles`. API keys remain an automation path where the environment allows them. |
 | "How do we know you will be around in 2 years?" | ArchLucid is **operated as SaaS**; tenant data is processed in **contracted Azure regions** with clear data-processing terms. The codebase and documentation are structured for long-term maintainability (ADRs, Trust Center, CI). If procurement needs stronger assurance, we can discuss **source escrow** and roadmap commitments. |
 | "Can this satisfy our compliance framework?" | ArchLucid's findings can be mapped to compliance controls. Policy packs are configurable to match your specific regulatory requirements. The governance workflow provides the approval chain evidence that auditors expect. We are working on pre-built control mappings for SOC 2 and ISO 27001. |
 

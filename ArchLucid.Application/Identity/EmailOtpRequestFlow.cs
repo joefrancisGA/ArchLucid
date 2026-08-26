@@ -62,6 +62,14 @@ public sealed class EmailOtpRequestFlow(
         {
             ArchLucidInstrumentation.RecordEmailOtpChallengeRequested("invalid_email");
 
+            await AuthAuditEmitter.LogIdentityEventAsync(
+                    _auditService,
+                    AuditEventTypes.EmailOtpCodeRequested,
+                    "invalid-email",
+                    new { emailCorrelation = "invalid-email", reason = "invalid_email" },
+                    cancellationToken)
+                .ConfigureAwait(false);
+
             return NeutralResult();
         }
 

@@ -54,6 +54,17 @@ public sealed class SetDiffConnectorDeltaComputerTests
         delta.Summary.Should().Contain("Initial ingestion");
     }
 
+    [Fact]
+    public void Compute_NoPrevious_DuplicateStableKeys_CountDistinctKeysAsAdded()
+    {
+        IReadOnlyList<CanonicalObject> current = MakePolicies("soc2", "soc2");
+
+        ContextDelta delta = _sut.Compute(current, [], static o => o.SourceId);
+
+        delta.AddedCount.Should().Be(1);
+        delta.Summary.Should().Contain("Initial ingestion: 1 item(s)");
+    }
+
     // ──────────────────────────────────────────────────────────────────
     // Added items
     // ──────────────────────────────────────────────────────────────────

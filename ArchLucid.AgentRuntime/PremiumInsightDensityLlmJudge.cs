@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 
 using ArchLucid.AgentRuntime.Prompts;
@@ -5,6 +6,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Findings;
 
 using Microsoft.Extensions.Configuration;
@@ -18,16 +20,19 @@ namespace ArchLucid.AgentRuntime;
 /// </summary>
 public sealed class PremiumInsightDensityLlmJudge(
     IAgentTierCompletionRouter tierCompletionRouter,
-    IOptionsMonitor<InsightDensityGateOptions> gateOptions,
     IOptionsMonitor<AgentModelTierOptions> tierOptions,
+    IInsightDensityGateOptionsResolver gateOptionsResolver,
     IConfiguration configuration,
     ILogger<PremiumInsightDensityLlmJudge> logger) : IInsightDensityLlmJudge
 {
+    private const string JudgePathEngine = "engine";
+    private const string JudgePathArchitecture = "architecture";
+
     private readonly IAgentTierCompletionRouter _tierCompletionRouter =
         tierCompletionRouter ?? throw new ArgumentNullException(nameof(tierCompletionRouter));
 
-    private readonly IOptionsMonitor<InsightDensityGateOptions> _gateOptions =
-        gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
+    private readonly IInsightDensityGateOptionsResolver _gateOptionsResolver =
+        gateOptionsResolver ?? throw new ArgumentNullException(nameof(gateOptionsResolver));
 
     private readonly IOptionsMonitor<AgentModelTierOptions> _tierOptions =
         tierOptions ?? throw new ArgumentNullException(nameof(tierOptions));
@@ -39,12 +44,60 @@ public sealed class PremiumInsightDensityLlmJudge(
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
-    public Task ApplyToFindingsAsync(
+    public async Task ApplyToFindingsAsync(
         IReadOnlyList<Finding> findings,
         CancellationToken cancellationToken = default)
     {
-        // Engine findings lack an evidence package in the orchestrator — Phase 2 judge requires agent evidence context.
-        return Task.CompletedTask;
+        ArgumentNullException.ThrowIfNull(findings);
+
+        InsightDensityGateOptions options = _gateOptionsResolver.Resolve(cancellationToken);
+
+        if (!IsLlmJudgeOperational() || !options.EnableLlmJudgeForEngineFindings)
+        {
+            return;
+        }
+
+        List<Finding> candidates = findings
+            .Where(IsEngineJudgeCandidate)
+            .ToList();
+
+        if (candidates.Count == 0)
+        {
+            return;
+        }
+
+        (IReadOnlyList<Finding> judgedFindings, int skippedByCap) = SelectJudgedCandidates(
+            candidates,
+            options.MaxJudgedFindingsPerSnapshot);
+
+        if (skippedByCap > 0)
+        {
+            RecordSkippedByCap(JudgePathEngine, skippedByCap);
+        }
+
+        if (judgedFindings.Count == 0)
+        {
+            return;
+        }
+
+        (IAgentCompletionClient completionClient, _) = _tierCompletionRouter.ResolveForAgentTypeName(
+            InsightDensityJudgeAgentTypeNames.Judge,
+            taskTierOverride: null);
+
+        string systemPrompt = InsightDensityJudgeSystemPromptTemplate.GetText();
+
+        foreach (Finding finding in judgedFindings)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await JudgeOneEngineFindingAsync(
+                finding,
+                completionClient,
+                systemPrompt,
+                cancellationToken);
+
+            RecordJudgeCompletion(JudgePathEngine);
+        }
     }
 
     /// <inheritdoc />
@@ -63,11 +116,27 @@ public sealed class PremiumInsightDensityLlmJudge(
             return;
         }
 
-        List<ArchitectureFinding> promoted = findings
+        InsightDensityGateOptions options = _gateOptionsResolver.Resolve(cancellationToken);
+
+        List<ArchitectureFinding> candidates = findings
             .Where(static finding => finding.Treatment == FindingTreatment.Promote)
             .ToList();
 
-        if (promoted.Count == 0)
+        if (candidates.Count == 0)
+        {
+            return;
+        }
+
+        (IReadOnlyList<ArchitectureFinding> judgedFindings, int skippedByCap) = SelectJudgedArchitectureCandidates(
+            candidates,
+            options.MaxJudgedFindingsPerSnapshot);
+
+        if (skippedByCap > 0)
+        {
+            RecordSkippedByCap(JudgePathArchitecture, skippedByCap);
+        }
+
+        if (judgedFindings.Count == 0)
         {
             return;
         }
@@ -78,7 +147,7 @@ public sealed class PremiumInsightDensityLlmJudge(
 
         string systemPrompt = InsightDensityJudgeSystemPromptTemplate.GetText();
 
-        foreach (ArchitectureFinding finding in promoted)
+        foreach (ArchitectureFinding finding in judgedFindings)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -88,7 +157,61 @@ public sealed class PremiumInsightDensityLlmJudge(
                 request,
                 completionClient,
                 systemPrompt,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
+
+            RecordJudgeCompletion(JudgePathArchitecture);
+        }
+    }
+
+    private async Task JudgeOneEngineFindingAsync(
+        Finding finding,
+        IAgentCompletionClient completionClient,
+        string systemPrompt,
+        CancellationToken cancellationToken)
+    {
+        string userPrompt = BuildEngineFindingUserPrompt(finding);
+        HashSet<string> allowedRefs = InsightDensityEngineFindingEvidenceSummary.CollectAllowedEvidenceRefs(finding);
+
+        try
+        {
+            string rawJson = await completionClient
+                .CompleteJsonAsync(systemPrompt, userPrompt, maxTokens: null, cancellationToken: cancellationToken);
+
+            InsightDensityLlmJudgment? judgment = InsightDensityLlmJudgmentParser.TryParse(rawJson, finding.FindingId);
+
+            if (judgment is null)
+            {
+                _logger.LogDebug(
+                    "Insight-density LLM judge returned unparsable output for engine finding {FindingId}.",
+                    finding.FindingId);
+
+                return;
+            }
+
+            if (!InsightDensityLlmJudgmentFaithfulnessValidator.IsFaithfulForEngineFinding(
+                    judgment,
+                    finding,
+                    allowedRefs))
+            {
+                _logger.LogWarning(
+                    "Insight-density LLM judge output failed faithfulness for engine finding {FindingId}; retaining Phase 1 output.",
+                    finding.FindingId);
+
+                return;
+            }
+
+            FindingInsightDensityLlmJudgmentApplicator.ApplyEnrichmentToFinding(finding, judgment);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Insight-density LLM judge failed for engine finding {FindingId}; retaining Phase 1 gate output.",
+                finding.FindingId);
         }
     }
 
@@ -105,8 +228,7 @@ public sealed class PremiumInsightDensityLlmJudge(
         try
         {
             string rawJson = await completionClient
-                .CompleteJsonAsync(systemPrompt, userPrompt, maxTokens: null, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+                .CompleteJsonAsync(systemPrompt, userPrompt, maxTokens: null, cancellationToken: cancellationToken);
 
             InsightDensityLlmJudgment? judgment = InsightDensityLlmJudgmentParser.TryParse(rawJson, finding.FindingId);
 
@@ -145,10 +267,95 @@ public sealed class PremiumInsightDensityLlmJudge(
         }
     }
 
+    private static bool IsEngineJudgeCandidate(Finding finding)
+    {
+        if (finding.Treatment != FindingTreatment.Promote)
+        {
+            return false;
+        }
+
+        return finding.Classification is null
+            || finding.Classification == FindingClassification.DecisionGradeFinding;
+    }
+
+    private static (IReadOnlyList<Finding> Judged, int SkippedByCap) SelectJudgedCandidates(
+        IReadOnlyList<Finding> candidates,
+        int maxJudgedFindingsPerSnapshot)
+    {
+        List<Finding> ordered = candidates
+            .OrderByDescending(static finding => finding.Severity)
+            .ThenBy(static finding => finding.InsightDensityScore ?? int.MaxValue)
+            .ThenBy(static finding => finding.FindingId, StringComparer.Ordinal)
+            .ToList();
+
+        if (ordered.Count <= maxJudgedFindingsPerSnapshot)
+        {
+            return (ordered, 0);
+        }
+
+        int skipped = ordered.Count - maxJudgedFindingsPerSnapshot;
+
+        return (ordered.Take(maxJudgedFindingsPerSnapshot).ToList(), skipped);
+    }
+
+    private static (IReadOnlyList<ArchitectureFinding> Judged, int SkippedByCap) SelectJudgedArchitectureCandidates(
+        IReadOnlyList<ArchitectureFinding> candidates,
+        int maxJudgedFindingsPerSnapshot)
+    {
+        List<ArchitectureFinding> ordered = candidates
+            .OrderByDescending(static finding => finding.Severity)
+            .ThenBy(static finding => finding.InsightDensityScore ?? int.MaxValue)
+            .ThenBy(static finding => finding.FindingId, StringComparer.Ordinal)
+            .ToList();
+
+        if (ordered.Count <= maxJudgedFindingsPerSnapshot)
+        {
+            return (ordered, 0);
+        }
+
+        int skipped = ordered.Count - maxJudgedFindingsPerSnapshot;
+
+        return (ordered.Take(maxJudgedFindingsPerSnapshot).ToList(), skipped);
+    }
+
+    private static void RecordJudgeCompletion(string path)
+    {
+        TagList tags = new() { { "path", path } };
+        ArchLucidInstrumentation.InsightDensityJudgeCompletionsTotal.Add(1, tags);
+    }
+
+    private static void RecordSkippedByCap(string path, int skippedCount)
+    {
+        TagList tags = new() { { "path", path } };
+        ArchLucidInstrumentation.InsightDensityJudgeSkippedByCapTotal.Add(skippedCount, tags);
+    }
+
     private static void DemoteForUnfaithfulJudgment(ArchitectureFinding finding)
     {
         finding.Treatment = FindingTreatment.DemoteToChecklist;
         finding.Classification = FindingClassification.ChecklistCoverage;
+    }
+
+    private static string BuildEngineFindingUserPrompt(Finding finding)
+    {
+        StringBuilder builder = new();
+
+        builder.AppendLine("Judge this ONE deterministic engine finding for insight density.");
+        builder.AppendLine();
+        builder.AppendLine("Candidate finding JSON:");
+        builder.AppendLine("{");
+        builder.AppendLine($"  \"findingId\": \"{finding.FindingId}\",");
+        builder.AppendLine($"  \"engineType\": \"{EscapeJson(finding.EngineType)}\",");
+        builder.AppendLine($"  \"severity\": \"{finding.Severity}\",");
+        builder.AppendLine($"  \"title\": \"{EscapeJson(finding.Title)}\",");
+        builder.AppendLine($"  \"rationale\": \"{EscapeJson(finding.Rationale)}\",");
+        builder.AppendLine($"  \"category\": \"{EscapeJson(finding.Category)}\"");
+        builder.AppendLine("}");
+        builder.AppendLine();
+        builder.AppendLine("Engine evidence summary (cite ONLY refs present here):");
+        builder.AppendLine(InsightDensityEngineFindingEvidenceSummary.Build(finding));
+
+        return builder.ToString();
     }
 
     private static string BuildUserPrompt(
@@ -183,7 +390,7 @@ public sealed class PremiumInsightDensityLlmJudge(
 
     private bool IsLlmJudgeOperational()
     {
-        if (!_gateOptions.CurrentValue.EnableLlmJudge)
+        if (!_gateOptionsResolver.Resolve().EnableLlmJudge)
         {
             return false;
         }

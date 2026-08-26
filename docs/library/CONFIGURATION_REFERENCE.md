@@ -41,6 +41,41 @@ Per-key **When required** / host-role hints in the table below do **not** replac
 |-----|---------|---------|
 | `ArchLucid:Testing:SimulateLlmBudgetExhausted` | `false` | When `true` and the host is **not** Production, monthly LLM dollar budget enforcement treats the tenant as hard-capped before real usage is evaluated — use to demo budget-exhaustion UX without SQL manipulation. Ignored in Production. See [`LLM_COST_ESTIMATION.md`](../runbooks/LLM_COST_ESTIMATION.md). |
 
+## Insight-density gate (TB-382)
+
+Premium-tier judge calls are metered and capped. Each judged finding is one Reasoning deployment completion.
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `ArchLucid:Findings:InsightDensityGate:DemotionThreshold` | `50` | Scores below this demote **agent architecture** findings lacking anchors/evidence. Typed engine findings remain protected (`typed-engine-protected`) — the score is advisory for engines, not a production control. |
+| `ArchLucid:Findings:InsightDensityGate:EnableLlmJudge` | `false` | Enables Premium judge for **agent architecture** findings (Critic path). |
+| `ArchLucid:Findings:InsightDensityGate:EnableLlmJudgeForEngineFindings` | `false` | When `true` with `EnableLlmJudge`, also judges deterministic engine findings after snapshot build (authority pipeline). |
+| `ArchLucid:Findings:InsightDensityGate:MaxJudgedFindingsPerSnapshot` | `12` | Hard per-snapshot ceiling on judge completions — cost guard for large finding sets. |
+
+Tenant administrators may override `EnableLlmJudge`, `EnableLlmJudgeForEngineFindings`, and portfolio recurrence `Enabled` per workspace via **Workspace settings → Advanced → Finding engines** (`PUT /v1/admin/settings/finding-engine-controls`). Stored in `dbo.TenantSettings` (`Findings.InsightDensityLlmJudge.Enabled`, `Findings.InsightDensityLlmJudge.EngineFindingsEnabled`, `Findings.PortfolioRecurrence.Enabled`).
+
+## Open-commitment finding engine (ID-05)
+
+Surfaces overdue deferrals, unanswered evidence requests, and waiver expiry from the disposition trail on every review when enabled. **Default on** — disable per tenant when trail fan-out or finding volume is undesirable.
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `ArchLucid:Findings:OpenCommitment:Enabled` | `true` | When `false`, `OpenCommitmentFindingEngine` returns empty with **zero** trail repository calls. |
+| `ArchLucid:Findings:OpenCommitment:Lookback` | *(trail basis window)* | How far back to scan disposition trail events (defaults to `FindingDispositionTrailWindow.BasisBreakdownLookback`). |
+| `ArchLucid:Findings:OpenCommitment:WaiverExpiryWarningDays` | `30` | Emit expiring-waiver signals when waiver end is within this many days. |
+| `ArchLucid:Findings:OpenCommitment:MaxFindings` | `25` | Maximum open-commitment findings emitted per review (ordered by signal priority). |
+
+## Portfolio recurrence finding engine (ID-06)
+
+Cross-run portfolio scan on every review when enabled. **Default off** so tenants do not incur `IRunDetailQueryService` / `IFindingsSnapshotRepository` fan-out until operators opt in and measure cost.
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `ArchLucid:Findings:PortfolioRecurrence:Enabled` | `false` | When `false`, `PortfolioRecurrenceFindingEngine` returns empty with **zero** repository calls. |
+| `ArchLucid:Findings:PortfolioRecurrence:MinSystemCountToReport` | `3` | Minimum distinct systems sharing a finding identity before emitting a portfolio recurrence finding. |
+| `ArchLucid:Findings:PortfolioRecurrence:MaxSystemsScanned` | `50` | Cap on distinct systems whose latest committed runs are scanned per review. |
+| `ArchLucid:Findings:PortfolioRecurrence:MaxFindings` | `10` | Maximum recurrence findings emitted per review (ordered by descending system count). |
+
 ## Tenant data residency (administrator)
 
 Buyer-facing residency messaging lives in **[Data handling](/help/data-handling)** and the Procurement FAQ — not here. Platform operators configure regional allowlists and blob service URIs at provision time:

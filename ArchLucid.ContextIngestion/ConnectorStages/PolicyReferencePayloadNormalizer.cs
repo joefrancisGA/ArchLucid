@@ -3,6 +3,7 @@ using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
+using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Topology;
 
 namespace ArchLucid.ContextIngestion.ConnectorStages;
@@ -49,6 +50,7 @@ public sealed class PolicyReferencePayloadNormalizer(IPolicyTopologyOverlapResol
 
             batch.CanonicalObjects.Add(new CanonicalObject
             {
+                ObjectId = ContextIngestionStableLineNames.StableObjectId("PolicyControl", canonicalReference),
                 ObjectType = "PolicyControl",
                 Name = canonicalReference,
                 SourceType = "PolicyReference",

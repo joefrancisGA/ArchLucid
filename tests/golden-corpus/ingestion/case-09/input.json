@@ -1,0 +1,8 @@
+{
+  "infrastructureDeclaration": {
+    "name": "cluster.json",
+    "format": "kubernetes-json",
+    "declarationId": "ingestion-case-09",
+    "content": "{\"apiVersion\":\"v1\",\"kind\":\"List\",\"items\":[{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"name\":\"api\",\"namespace\":\"prod\"},\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"api\",\"securityContext\":{\"privileged\":true}}]}}}},{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"name\":\"api-lb\",\"namespace\":\"prod\"},\"spec\":{\"type\":\"LoadBalancer\"}}]}"
+  }
+}

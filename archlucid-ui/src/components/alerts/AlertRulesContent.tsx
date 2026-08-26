@@ -5,37 +5,17 @@ import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
-import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { AlertRulesCreateForm } from "@/components/alerts/AlertRulesCreateForm";
 import { AlertRulesPickReviewBeforeCreatingStrip } from "@/components/alerts/AlertRulesPickReviewBeforeCreatingStrip";
 import { AlertRulesNextReviewFooterClient } from "@/components/alerts/AlertRulesNextReviewFooterClient";
+import { AlertRulesTable } from "@/components/alerts/AlertRulesTable";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
-import { AlertRuleListRow } from "@/components/alerts/AlertRuleListRow";
-import { AlertRulesContinueLastViewedRow } from "@/components/alerts/AlertRulesContinueLastViewedRow";
 import { AlertRuleLivePreviewPanel } from "@/components/alerts/AlertRuleLivePreviewPanel";
 import { AlertRuleNotificationReadinessPanel } from "@/components/alerts/AlertRuleNotificationReadinessPanel";
 import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateModal";
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
-import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
-import {
-  EnterpriseTable,
-  EnterpriseTableBody,
-  EnterpriseTableHead,
-  EnterpriseTableHeaderCell,
-  EnterpriseTableHeadRow,
-} from "@/components/ui/enterprise-table";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import {
@@ -46,11 +26,8 @@ import { createAlertRule } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
-  ALERT_PRIORITY_OPTIONS,
   ALERT_RULE_FORM_DEFAULT_DRAFT,
-  ALERT_RULE_TYPE_OPTIONS,
   alertRuleFormDiffersFromDefaultDraft,
-  describeThresholdComparison,
   isAlertRuleFormValid,
   resolveAlertRuleScopePreviewProjectId,
   usesIntegerThreshold,
@@ -63,21 +40,11 @@ import {
   shouldPinLivePreviewReadinessRail,
 } from "@/lib/operator/operator-live-preview-readiness-rail";
 import {
-  ALERT_RULES_ALERT_PRIORITY_HELP,
-  ALERT_RULES_ALERT_PRIORITY_LABEL,
-  ALERT_RULES_CREATE_BLOCKED_HINT,
   ALERT_RULES_CREATE_BUTTON_LABEL,
-  ALERT_RULES_CREATE_HEADING,
-  ALERT_RULES_CREATE_PENDING_LABEL,
   ALERT_RULES_CREATE_SUCCESS_MESSAGE,
-  ALERT_RULES_FORM_SECTION_ARIA_LABEL,
   ALERT_RULES_LIST_EMPTY_BODY,
-  ALERT_RULES_LIST_HEADING,
-  ALERT_RULES_NAME_LABEL,
   ALERT_RULES_NOTIFICATION_EXTERNAL_NOT_CONFIGURED,
   ALERT_RULES_NOTIFICATIONS_TAB_LINK_LABEL,
-  ALERT_RULES_RULE_TYPE_HELP,
-  ALERT_RULES_RULE_TYPE_LABEL,
   ALERT_RULES_SAMPLE_MODE_BANNER,
   ALERT_RULES_SAMPLE_MODE_CTA_HREF,
   ALERT_RULES_SAMPLE_MODE_CTA_LABEL,
@@ -88,41 +55,20 @@ import {
   resolveAlertRulesCreateEmphasizedStepId,
   resolveAlertRulesCreateSteps,
 } from "@/lib/alert-rules-create-checklist";
-import { ALERT_RULES_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
-  OPERATOR_FORM_FIELD_HELPER_CLASS,
-  OPERATOR_FORM_FIELD_STACK_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { governanceAlertRulesTabHref, GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
-import {
-  alertRulesCreateButtonLabelReaderRank,
-} from "@/lib/enterprise-controls-context-copy";
-import { whyDisabledEnterpriseMutationControl, whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import type { AlertRule } from "@/types/alerts";
 import {
   resolveContinueLastAlertRule,
   writeAlertRuleLastViewedId,
 } from "@/lib/resolve-continue-last-alert-rule";
-
-function AlertRulesListLoadingSkeleton(): React.JSX.Element {
-  return (
-    <div
-      className="grid gap-3"
-      data-testid="alert-rules-list-loading-skeleton"
-      aria-busy="true"
-      aria-label="Loading alert rules"
-    >
-      <Skeleton className="h-10 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
-      <Skeleton className="h-10 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
-      <Skeleton className="h-10 w-full rounded-lg border border-neutral-200 dark:border-neutral-700" />
-    </div>
-  );
-}
 
 export function AlertRulesContent() {
   const router = useRouter();
@@ -419,213 +365,48 @@ export function AlertRulesContent() {
         data-empty-intro={showEmptyCard && canEdit ? "true" : "false"}
       >
         <div className={cn("flex min-w-0 flex-col", sectionGap)}>
-          {listInitialLoading ? <AlertRulesListLoadingSkeleton /> : null}
-
-          {!listInitialLoading && items.length > 0 ? (
-            <section aria-labelledby="alert-rules-list-heading">
-              <h2 id="alert-rules-list-heading" className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                {ALERT_RULES_LIST_HEADING}
-              </h2>
-
-              {continueLastRule !== null ? (
-                <AlertRulesContinueLastViewedRow target={continueLastRule} onOpen={openRule} />
-              ) : null}
-
-              <EnterpriseTable ariaLabel="Alert rules">
-                <EnterpriseTableHead>
-                  <EnterpriseTableHeadRow>
-                    <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Condition</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Scope</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Alert priority</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Notifications</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
-                  </EnterpriseTableHeadRow>
-                </EnterpriseTableHead>
-                <EnterpriseTableBody>
-                  {items.map((rule) => (
-                    <AlertRuleListRow
-                      key={rule.ruleId}
-                      rule={rule}
-                      routingSubscriptions={routingSubscriptions}
-                      onSimulate={(selected) => {
-                        rememberRule(selected.ruleId);
-                        setSimulateForRule(selected);
-                      }}
-                    />
-                  ))}
-                </EnterpriseTableBody>
-              </EnterpriseTable>
-            </section>
-          ) : null}
-
-          {showEmptyCard ? (
-            <EnterpriseCompactEmptyState
-              {...ALERT_RULES_LIST_EMPTY_COMPACT}
-              description={emptyStateDescription}
-              footer={emptyStateFooter}
-            />
-          ) : null}
+          <AlertRulesTable
+            listInitialLoading={listInitialLoading}
+            items={items}
+            continueLastRule={continueLastRule}
+            routingSubscriptions={routingSubscriptions}
+            showEmptyCard={showEmptyCard}
+            emptyStateDescription={emptyStateDescription}
+            emptyStateFooter={emptyStateFooter}
+            onOpenRule={openRule}
+            onSimulate={(selected) => {
+              rememberRule(selected.ruleId);
+              setSimulateForRule(selected);
+            }}
+          />
 
           {showCreateForm ? (
-            <section aria-labelledby="alert-rules-create-heading" aria-label={ALERT_RULES_FORM_SECTION_ARIA_LABEL}>
-              <h2 id="alert-rules-create-heading" className={cn("mb-3 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                {ALERT_RULES_CREATE_HEADING}
-              </h2>
-
-              {canEdit ? (
-                <div className="mb-4 max-w-2xl">
-                  <IntegrationConnectChecklist
-                    title="Create checklist"
-                    steps={alertRulesCreateSteps}
-                    emphasizedStepId={alertRulesCreateEmphasizedStepId}
-                    testIdPrefix="alert-rules-create"
-                  />
-                </div>
-              ) : null}
-
-              <div className="grid max-w-2xl gap-4">
-              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-                <Label htmlFor="alert-rule-name">{ALERT_RULES_NAME_LABEL}</Label>
-                <Input
-                  ref={nameInputRef}
-                  id="alert-rule-name"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  onBlur={() => setFieldTouched((current) => ({ ...current, name: true }))}
-                  disabled={!canEdit || creating}
-                />
-                {fieldTouched.name && fieldErrors.name ? (
-                  <p className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-red-600 dark:text-red-400")} role="alert">
-                    {fieldErrors.name}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-                <Label htmlFor="alert-rule-type">{ALERT_RULES_RULE_TYPE_LABEL}</Label>
-                <Select
-                  value={ruleType}
-                  onValueChange={setRuleType}
-                  disabled={!canEdit || creating}
-                >
-                  <SelectTrigger
-                    id="alert-rule-type"
-                    aria-label={ALERT_RULES_RULE_TYPE_LABEL}
-                    data-testid="alert-rule-type-select"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ALERT_RULE_TYPE_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-al-text-secondary")}>
-                  {ALERT_RULES_RULE_TYPE_HELP}
-                </p>
-              </div>
-
-              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-                <Label htmlFor="alert-rule-priority">{ALERT_RULES_ALERT_PRIORITY_LABEL}</Label>
-                <Select
-                  value={alertPriority}
-                  onValueChange={setAlertPriority}
-                  disabled={!canEdit || creating}
-                >
-                  <SelectTrigger
-                    id="alert-rule-priority"
-                    aria-label={ALERT_RULES_ALERT_PRIORITY_LABEL}
-                    data-testid="alert-rule-priority-select"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ALERT_PRIORITY_OPTIONS.map((priority) => (
-                      <SelectItem key={priority} value={priority}>
-                        {priority}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-al-text-secondary")}>
-                  {ALERT_RULES_ALERT_PRIORITY_HELP}
-                </p>
-              </div>
-
-              {ruleType !== "RejectedSecurityRecommendation" ? (
-                <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-                  <Label htmlFor="alert-rule-threshold">{describeThresholdComparison(ruleType)}</Label>
-                  <Input
-                    id="alert-rule-threshold"
-                    type="number"
-                    step={thresholdStep}
-                    min={1}
-                    value={Number.isFinite(threshold) ? threshold : ""}
-                    onChange={(event) => {
-                      const parsed = Number(event.target.value);
-
-                      if (Number.isFinite(parsed)) {
-                        setThreshold(parsed);
-                      }
-                    }}
-                    onBlur={() => setFieldTouched((current) => ({ ...current, threshold: true }))}
-                    disabled={!canEdit || creating}
-                  />
-                  {fieldTouched.threshold && fieldErrors.thresholdValue ? (
-                    <p className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-red-600 dark:text-red-400")} role="alert">
-                      {fieldErrors.thresholdValue}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-
-              <div className="grid gap-2">
-                <div className="flex flex-col items-start gap-2">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <Button
-                      type="button"
-                      variant="primary"
-                      onClick={() => void onCreate()}
-                      disabled={loading || creating || !canEdit || !formValid}
-                      aria-describedby={
-                        canEdit
-                          ? formValid
-                            ? undefined
-                            : "alert-rules-create-readiness"
-                          : mutationDisabledHintId
-                      }
-                      data-testid="alert-rules-create-button"
-                    >
-                      {creating
-                        ? ALERT_RULES_CREATE_PENDING_LABEL
-                        : canEdit
-                          ? ALERT_RULES_CREATE_BUTTON_LABEL
-                          : alertRulesCreateButtonLabelReaderRank}
-                    </Button>
-                    {canEdit ? <MutatingInWorkspaceChip /> : null}
-
-                    {canEdit ? (
-                      <WhyDisabledCtaHint
-                        id="alert-rules-create-readiness"
-                        testId="alert-rules-create-readiness"
-                        reason={formValid ? null : whyDisabledIncompleteInput(ALERT_RULES_CREATE_BLOCKED_HINT)}
-                      />
-                    ) : null}
-                  </div>
-                  <WhyDisabledCtaHint
-                    id={mutationDisabledHintId}
-                    reason={mutationDisabledReason}
-                    testId="alert-rules-mutate-disabled-hint"
-                  />
-                </div>
-              </div>
-              </div>
-            </section>
+            <AlertRulesCreateForm
+              canEdit={canEdit}
+              loading={loading}
+              creating={creating}
+              formValid={formValid}
+              fieldErrors={fieldErrors}
+              fieldTouched={fieldTouched}
+              setFieldTouched={setFieldTouched}
+              name={name}
+              setName={setName}
+              ruleType={ruleType}
+              setRuleType={setRuleType}
+              alertPriority={alertPriority}
+              setAlertPriority={setAlertPriority}
+              threshold={threshold}
+              setThreshold={setThreshold}
+              thresholdStep={thresholdStep}
+              nameInputRef={nameInputRef}
+              alertRulesCreateSteps={alertRulesCreateSteps}
+              alertRulesCreateEmphasizedStepId={alertRulesCreateEmphasizedStepId}
+              mutationDisabledReason={mutationDisabledReason}
+              mutationDisabledHintId={mutationDisabledHintId}
+              onCreate={() => {
+                void onCreate();
+              }}
+            />
           ) : null}
         </div>
 
@@ -656,4 +437,3 @@ export function AlertRulesContent() {
     </div>
   );
 }
-

@@ -73,7 +73,7 @@ public sealed class ProblemSupportHintsTests
     }
 
     [SkippableFact]
-    public void AttachForProblemType_WhenValidationFailed_adds_swagger_hint()
+    public void AttachForProblemType_WhenValidationFailed_adds_validation_hint_without_swagger()
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.ValidationFailed };
 
@@ -81,7 +81,8 @@ public sealed class ProblemSupportHintsTests
 
         problem.Extensions.Should().ContainKey("supportHint");
         string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
-        hint.ToLowerInvariant().Should().Contain("swagger");
+        hint.ToLowerInvariant().Should().Contain("validation");
+        hint.ToLowerInvariant().Should().NotContain("swagger");
     }
 
     [SkippableFact]

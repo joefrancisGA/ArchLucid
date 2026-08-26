@@ -18,7 +18,7 @@ class TestStickinessBatchTb057(unittest.TestCase):
             / "(operator)"
             / "governance"
             / "findings"
-            / "GovernanceFindingsQueueClient.tsx"
+            / "governance-findings-queue-presentation.ts"
         )
         findings_query = (
             REPO_ROOT

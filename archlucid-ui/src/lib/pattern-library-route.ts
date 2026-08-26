@@ -5,6 +5,17 @@ export function patternLibraryDetailPath(patternKey: string): string {
   return `${PATTERN_LIBRARY_PATH}/${encodeURIComponent(patternKey)}`;
 }
 
+export function patternLibraryDetailHref(patternKey: string, runId?: string | null): string {
+  const base = patternLibraryDetailPath(patternKey);
+  const trimmed = (runId ?? "").trim();
+
+  if (trimmed.length === 0) {
+    return base;
+  }
+
+  return `${base}?runId=${encodeURIComponent(trimmed)}`;
+}
+
 export function isPatternLibraryPath(pathname: string): boolean {
   return pathname === PATTERN_LIBRARY_PATH || pathname.startsWith(`${PATTERN_LIBRARY_PATH}/`);
 }

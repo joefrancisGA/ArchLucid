@@ -35,6 +35,20 @@ public sealed class ProblemSupportHintsAudienceTests
     }
 
     [Fact]
+    public void Validation_hint_never_mentions_swagger_for_buyer_or_operator()
+    {
+        MvcProblemDetails buyerProblem = new() { Type = ProblemTypes.ValidationFailed };
+        ProblemSupportHints.AttachForProblemType(buyerProblem, ProblemDetailsAudience.Buyer);
+        string buyerHint = buyerProblem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        buyerHint.ToLowerInvariant().Should().NotContain("swagger");
+
+        MvcProblemDetails operatorProblem = new() { Type = ProblemTypes.ValidationFailed };
+        ProblemSupportHints.AttachForProblemType(operatorProblem, ProblemDetailsAudience.Operator);
+        string operatorHint = operatorProblem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        operatorHint.ToLowerInvariant().Should().NotContain("swagger");
+    }
+
+    [Fact]
     public void Buyer_tier_packaging_hint_does_not_contain_checkout_route()
     {
         MvcProblemDetails problem = new() { Type = ProblemTypes.PackagingTierInsufficient };

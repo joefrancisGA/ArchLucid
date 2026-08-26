@@ -82,7 +82,7 @@ export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE = "No reviews yet";
 
 /** Empty inventory when exactly one draft — header Continue owns the draft chooser. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY =
-  "Architecture reviews are where findings, evidence, approvals, and approval decisions are recorded. Continue editing from the header, then start a review when ready.";
+  "Architecture reviews are where findings, evidence, approvals, and approval decisions are recorded. Continue the draft from the header, or start a review from a description or imported documents.";
 
 /** Empty inventory when multiple drafts — supporting strip lists architectures ready for review. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY =
@@ -91,7 +91,7 @@ export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY =
 /** @deprecated Prefer sole/multi bodies; kept for callers that only know drafts exist. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY = REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY;
 
-export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL = "Continue editing draft";
+export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL = "Continue editing architecture draft";
 
 export const REVIEWS_HUB_INCLUDES_TITLE = "What each review contains";
 

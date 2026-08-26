@@ -1,9 +1,16 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DIGESTS_HUB_GET_STARTED_TAB_ID } from "@/lib/digests-hub-tab";
+import { digestsHubScopedHref } from "@/lib/digests-route-paths";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
+
+import { DigestsBrowseContinueLastViewedRow } from "@/components/digests/DigestsBrowseContinueLastViewedRow";
+import { DigestsBrowseNextReviewFooterClient } from "@/components/digests/DigestsBrowseNextReviewFooterClient";
+import { DigestsBrowsePickReviewBeforeBrowsingStrip } from "@/components/digests/DigestsBrowsePickReviewBeforeBrowsingStrip";
 
 import { useArchitectureDigestsBrowseQuery } from "@/hooks/use-architecture-digests-browse-query";
 import { useDigestDeliveryAttemptsBatchQuery } from "@/hooks/use-digest-delivery-attempts-batch-query";
@@ -13,7 +20,6 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
-import { DigestsBrowseContinueLastViewedRow } from "@/components/digests/DigestsBrowseContinueLastViewedRow";
 import { DigestsBrowseHistorySkeleton } from "@/components/digests/DigestsBrowseHistorySkeleton";
 import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowseIncludesPreview";
 import { DigestsBrowseSetupChecklist } from "@/components/digests/DigestsBrowseSetupChecklist";
@@ -82,6 +88,9 @@ export type DigestsBrowseContentProps = {
   readonly hidePageHeader?: boolean;
   /** Weekly health snapshot for setup checklist and browse guidance. */
   readonly healthSnap?: WeeklyDigestHealthDto | null;
+  /** Optional review scope from `?runId=` deep links. */
+  readonly scopedRunId?: string | null;
+  readonly onPickReview?: (reviewId: string) => void;
 };
 
 function uniqueRecipients(attempts: readonly DigestDeliveryAttempt[]): string {
@@ -221,6 +230,9 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
     setupChecklist !== null ? digestSetupHasIncompleteActionableStep(setupChecklist) : false;
   const showEmptyComposition: boolean = !loading && digests.length === 0 && failure === null;
   const continueLastDigest = useMemo(() => resolveContinueLastDigestBrowse(digests), [digests]);
+  const scopedRunId = (props.scopedRunId ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
+  const browseClearScopeHref = digestsHubScopedHref(DIGESTS_HUB_GET_STARTED_TAB_ID, null);
 
   const openContinueLastDigest = useCallback(
     (digestId: string) => {
@@ -248,6 +260,29 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
             Send scheduled summaries of review activity, approval signals, findings, and advisory scans.
           </p>
         </>
+      ) : null}
+
+      {!scopedRunFilterActive && props.onPickReview !== undefined ? (
+        <DigestsBrowsePickReviewBeforeBrowsingStrip selectedReviewId="" onSelectReview={props.onPickReview} />
+      ) : scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="digests-browse-run-scope-banner"
+        >
+          {"Browsing digests for review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={browseClearScopeHref}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
       ) : null}
 
       {failure !== null ? (
@@ -535,6 +570,8 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
           </section>
         </div>
       ) : null}
+
+      {scopedRunFilterActive ? <DigestsBrowseNextReviewFooterClient runId={scopedRunId} /> : null}
     </div>
   );
 }

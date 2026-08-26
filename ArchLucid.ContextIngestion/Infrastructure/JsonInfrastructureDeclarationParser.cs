@@ -54,7 +54,8 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
                 if (string.IsNullOrWhiteSpace(property.Value))
                     continue;
 
-                properties[property.Key] = property.Value.Trim().ToLowerInvariant();
+                string canonicalKey = property.Key.Trim().ToLowerInvariant();
+                properties[canonicalKey] = property.Value.Trim().ToLowerInvariant();
             }
 
             if (!string.IsNullOrWhiteSpace(resource.Subtype))
@@ -65,10 +66,20 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
 
             properties["resourceType"] = resource.Type.Trim().ToLowerInvariant();
 
+            string canonicalName = resource.Name.Trim().ToLowerInvariant();
+            string canonicalResourceType = resource.Type.Trim().ToLowerInvariant();
+
             results.Add(new CanonicalObject
             {
+                ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
+                    declaration.DeclarationId,
+                    objectType,
+                    InfrastructureDeclarationResourceIdentity.ForJsonResource(
+                        canonicalResourceType,
+                        canonicalName,
+                        properties)),
                 ObjectType = objectType,
-                Name = resource.Name.Trim().ToLowerInvariant(),
+                Name = canonicalName,
                 SourceType = "InfrastructureDeclaration",
                 SourceId = declaration.DeclarationId,
                 Properties = properties

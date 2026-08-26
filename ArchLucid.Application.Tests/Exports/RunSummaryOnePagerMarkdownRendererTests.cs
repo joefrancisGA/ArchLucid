@@ -35,4 +35,29 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         markdown.Should().Contain("- Stale DR plan");
         markdown.Should().Contain("generated with AI assistance");
     }
+
+    [Fact]
+    public void Render_includes_demo_and_active_trial_notices()
+    {
+        RunSummaryOnePagerDocumentModel model = new()
+        {
+            RunId = "run-abc",
+            SystemName = "Payments",
+            CriticalCount = 1,
+            HighCount = 0,
+            MediumCount = 0,
+            LowCount = 0,
+            SponsorReport = "Summary.",
+            TopFindingTitles = ["Gap"],
+            IsDemoTenant = true,
+            ActiveTrialExportNotice = ActiveTrialExportNoticeFormatter.BaseSuffix
+        };
+
+        string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
+
+        markdown.Should().Contain("Demo notice");
+        markdown.Should().Contain(ArchitectureReviewBoardCoverPageContent.DemoTenantNotice);
+        markdown.Should().Contain("Trial notice");
+        markdown.Should().Contain(ActiveTrialExportNoticeFormatter.BaseSuffix);
+    }
 }

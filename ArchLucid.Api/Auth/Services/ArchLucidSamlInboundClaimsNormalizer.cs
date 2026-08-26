@@ -98,6 +98,13 @@ internal static class ArchLucidSamlInboundClaimsNormalizer
         if (identity.HasClaim(targetClaimType, trimmed))
             return;
 
+        foreach (Claim existing in identity.Claims
+                     .Where(c => string.Equals(c.Type, targetClaimType, StringComparison.OrdinalIgnoreCase))
+                     .ToList())
+        {
+            identity.RemoveClaim(existing);
+        }
+
         identity.AddClaim(new Claim(targetClaimType, trimmed));
     }
 

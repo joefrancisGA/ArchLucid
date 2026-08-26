@@ -7,16 +7,16 @@ export const MARKETING_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = 
     prefix: "/why-archlucid",
     entry: {
       whatIsThisPage:
-        "Why ArchLucid — internal demo/proof page with seeded telemetry, sponsor pack, and first-value report for the demo review.",
+        "Pilot proof telemetry — seeded demo counters, sponsor pack, and first-value report for the demo architecture package.",
       whatToDoNext:
-        "Inspect snapshot and sponsor pack sections, open marketing /why for buyer comparison, or Assurance status for assurance orientation.",
+        "Open the sample architecture package, inspect sponsor pack sections, or open public /why for buyer comparison.",
       whyEmpty: "Sections populate after the demo tenant snapshot and related read endpoints load.",
       whereToConfigurePrerequisite:
         "A seeded demo review is required; Claims/Retail labels stay withheld until the demo identity is unambiguous.",
       taskSteps: [
         "Inspect snapshot and sponsor pack sections.",
-        "Open marketing /why for buyer comparison context.",
-        "Open Assurance status when diligence orientation is needed.",
+        "Open the sample architecture package to see findings and evidence.",
+        "Open public /why when buyer comparison context is needed.",
       ],
     },
   },

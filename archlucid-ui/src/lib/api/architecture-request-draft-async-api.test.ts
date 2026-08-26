@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as http from "@/lib/api/http";
 import * as operationsApi from "@/lib/api/operations-api";
-import { draftArchitectureRequestWithPoll } from "@/lib/api/architecture-request-draft-async-api";
+import {
+  acceptDraftArchitectureRequestAsync,
+  draftArchitectureRequestWithPoll,
+} from "@/lib/api/architecture-request-draft-async-api";
 import { ADVISORY_DRAFT_IN_FLIGHT_TITLE } from "@/lib/operations/advisory-draft-in-flight";
 import {
   getInFlightOperations,
@@ -76,5 +79,18 @@ describe("draftArchitectureRequestWithPoll", () => {
     await pollPromise;
 
     expect(getInFlightOperations()).toHaveLength(1);
+  });
+
+  it("throws when async accept returns 202 without a Location operation handle", async () => {
+    vi.spyOn(http, "apiPostAcceptedWithLocation").mockResolvedValue({
+      location: null,
+      status: 202,
+    });
+
+    await expect(
+      acceptDraftArchitectureRequestAsync({
+        freeTextDescription: "Customer-facing API with private networking and EU residency.",
+      }),
+    ).rejects.toThrow("Draft suggest accepted but no operation id was returned.");
   });
 });

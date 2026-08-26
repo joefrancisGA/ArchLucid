@@ -5,6 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useEffect, useState } from "react";
 
 import { ArchitectureManifestUnifiedDiffView } from "@/components/compare/ArchitectureManifestUnifiedDiffView";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import {
   BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL,
@@ -99,11 +100,12 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
         {buyerPolished ? BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL : "Review record diff appendix"}
       </h2>
       <details
-        className="mt-3"
+        className="group mt-3"
         open={open}
         onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
       >
-        <summary className={cn("cursor-pointer list-none font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.helper)}>
+        <summary className={cn("flex cursor-pointer list-none items-center gap-2 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.helper)}>
+          <DisclosureTriangleIndicator />
           {open ? "Hide review record diff" : "Show review record diff"}
         </summary>
       <div className="mt-3 space-y-3">

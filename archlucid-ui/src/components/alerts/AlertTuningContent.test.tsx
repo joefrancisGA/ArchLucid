@@ -8,10 +8,47 @@ import {
   ALERT_TUNING_RANKING_FACTORS_HEADING,
   ALERT_TUNING_SCORE_AXIS_LABELS,
 } from "@/lib/alert-tuning-score-labels";
+import { GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import type { ThresholdRecommendationResult } from "@/types/alert-tuning";
+
+const searchParamsState = { value: "tab=test-alerts&runId=run-tune-1" };
+const replaceMock = vi.fn();
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useRouter: () => ({
+      replace: replaceMock,
+      push: vi.fn(),
+      refresh: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+    }),
+    useSearchParams: () => new URLSearchParams(searchParamsState.value),
+  };
+});
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ activeRunId: "" }),
+}));
+
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: (props: { onChange: (value: string) => void }) => (
+    <button type="button" data-testid="ask-run-id-picker" onClick={() => props.onChange("run-picked-1")}>
+      pick
+    </button>
+  ),
+}));
+
+vi.mock("@/components/alerts/AlertTuningNextReviewFooterClient", () => ({
+  AlertTuningNextReviewFooterClient: () => <div data-testid="alert-tuning-next-review-footer-stub" />,
 }));
 
 const apiHoisted = vi.hoisted(() => ({
@@ -51,6 +88,8 @@ const sampleResult: ThresholdRecommendationResult = {
 
 describe("AlertTuningContent TB-1593", () => {
   beforeEach(() => {
+    searchParamsState.value = "tab=test-alerts&runId=run-tune-1";
+    replaceMock.mockReset();
     apiHoisted.recommendAlertThreshold.mockReset();
     apiHoisted.recommendAlertThreshold.mockResolvedValue({
       ...sampleResult,
@@ -92,6 +131,11 @@ describe("AlertTuningContent TB-1593", () => {
 });
 
 describe("AlertTuningContent TB-1590", () => {
+  beforeEach(() => {
+    searchParamsState.value = "tab=test-alerts&runId=run-tune-1";
+    replaceMock.mockReset();
+  });
+
   it("uses design-system Input fields and a primary recommend Button on the tuning form", () => {
     render(<AlertTuningContent />);
 
@@ -106,7 +150,7 @@ describe("AlertTuningContent TB-1590", () => {
 
   it("tuning form source avoids raw html input and button elements", () => {
     const source = readFileSync(
-      join(process.cwd(), "src", "components", "alerts", "AlertTuningContent.tsx"),
+      join(process.cwd(), "src", "components", "alerts", "AlertTuningForm.tsx"),
       "utf8",
     );
 
@@ -114,5 +158,50 @@ describe("AlertTuningContent TB-1590", () => {
     expect(source).not.toMatch(/<button\b/);
     expect(source).toContain('data-testid="alert-tuning-recommend-submit"');
     expect(source).toContain('variant="primary"');
+  });
+});
+
+describe("AlertTuningContent URL-scoped pick", () => {
+  beforeEach(() => {
+    searchParamsState.value = "";
+    replaceMock.mockReset();
+  });
+
+  it("asks the operator to pick a review before tuning", () => {
+    render(<AlertTuningContent />);
+
+    expect(screen.getByTestId("alert-tuning-pick-review-before-tuning-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("alert-tuning-run-scope-banner")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("alert-tuning-recommend-setup-progress")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Recommend threshold" })).not.toBeInTheDocument();
+  });
+
+  it("writes the picked review into the test-alerts URL", () => {
+    render(<AlertTuningContent />);
+
+    fireEvent.click(screen.getByTestId("ask-run-id-picker"));
+
+    expect(replaceMock).toHaveBeenCalledWith(`${GOVERNANCE_ALERT_RULES_PATH}?tab=test-alerts&runId=run-picked-1`, {
+      scroll: false,
+    });
+  });
+
+  it("shows the recommend checklist when runId is in the URL", () => {
+    searchParamsState.value = "tab=test-alerts&runId=run-tune-1";
+
+    render(<AlertTuningContent />);
+
+    expect(screen.queryByTestId("alert-tuning-pick-review-before-tuning-strip")).not.toBeInTheDocument();
+    expect(screen.getByTestId("alert-tuning-run-scope-banner")).toHaveTextContent("run-tune-1");
+    expect(screen.getByRole("link", { name: "Clear review scope" })).toHaveAttribute(
+      "href",
+      "/governance/alert-rules?tab=test-alerts",
+    );
+    expect(screen.getByRole("link", { name: "Open review" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-tune-1",
+    );
+    expect(screen.getByTestId("alert-tuning-recommend-setup-progress")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-tuning-next-review-footer-stub")).toBeInTheDocument();
   });
 });

@@ -24,6 +24,7 @@ import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { LlmUsageBandHint } from "@/components/llm/LlmUsageBandHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
@@ -388,6 +389,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
       wizardSessionHasTextContent(state.description),
     onRestore: handleTemplateWizardRestore,
   });
+  const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
   clearWizardSessionRef.current = templateWizardSession.clearSession;
 
   const postCreateEvidencePanel = runId === null ? null : (
@@ -493,7 +495,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
 
           {showFullWizardShell ? (
             <>
-          {templateWizardSession.pendingRestore !== null ? (
+          {templateWizardSession.pendingRestore !== null && !suppressWizardResumePrompt ? (
             <WizardSessionResumePrompt
               onResume={templateWizardSession.acceptRestore}
               onDismiss={templateWizardSession.dismissRestore}

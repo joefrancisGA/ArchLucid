@@ -21,8 +21,9 @@ public static class IntegrationEventDlqRetryBackgroundWork
         await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
         IIntegrationEventOutboxRepository repository =
             scope.ServiceProvider.GetRequiredService<IIntegrationEventOutboxRepository>();
+        TimeProvider clock = scope.ServiceProvider.GetRequiredService<TimeProvider>();
 
-        DateTime utcNow = DateTime.UtcNow;
+        DateTime utcNow = clock.GetUtcNow().UtcDateTime;
         int requeued = 0;
         int permanentlyFailed = 0;
         const int batchSize = 100;

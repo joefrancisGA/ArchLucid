@@ -10,24 +10,23 @@ describe("resolveOperatorHelpRequestForPathname", () => {
     });
   });
 
-  it("includes hash fragments when the topic map specifies one", () => {
+  it("opens the drawer when the route has no job-matched help slug", () => {
     expect(resolveOperatorHelpRequestForPathname("/why-archlucid")).toEqual({
-      kind: "navigate",
-      href: "/help/getting-started#how-archlucid-works",
+      kind: "drawer",
+    });
+    expect(resolveOperatorHelpRequestForPathname("/")).toEqual({
+      kind: "drawer",
+    });
+    expect(resolveOperatorHelpRequestForPathname("/architecture/first-review-guide")).toEqual({
+      kind: "drawer",
+    });
+    expect(resolveOperatorHelpRequestForPathname("/administration/settings")).toEqual({
+      kind: "drawer",
     });
   });
 
   it("opens the drawer on in-app help routes instead of reloading the same article", () => {
     expect(resolveOperatorHelpRequestForPathname("/help/findings")).toEqual({
-      kind: "drawer",
-    });
-  });
-
-  it("opens the drawer when the route has no job-matched help slug", () => {
-    expect(resolveOperatorHelpRequestForPathname("/governance/decision-register")).toEqual({
-      kind: "drawer",
-    });
-    expect(resolveOperatorHelpRequestForPathname("/administration/settings")).toEqual({
       kind: "drawer",
     });
   });

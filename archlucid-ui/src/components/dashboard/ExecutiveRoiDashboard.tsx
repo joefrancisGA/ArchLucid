@@ -55,7 +55,7 @@ export function SponsorRoiDashboard() {
     );
   }
 
-  if (data === null) {
+  if (data === null || data === undefined) {
     return (
       <section
         aria-labelledby="exec-roi-dashboard-heading"

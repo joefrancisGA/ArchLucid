@@ -7,6 +7,8 @@ using System.Text.Json.Serialization;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Llm;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Planning;
 
 /// <summary>
@@ -14,7 +16,8 @@ namespace ArchLucid.Application.Planning;
 /// Results are cached in-process by suggestion text and source hash so repeat clicks are cheap.
 /// </summary>
 public sealed class StructuredBriefSuggestionExplainService(
-    IAgentCompletionClient completionClient) : IStructuredBriefSuggestionExplainService
+    IAgentCompletionClient completionClient,
+    ILogger<StructuredBriefSuggestionExplainService> logger) : IStructuredBriefSuggestionExplainService
 {
     private const int MaxExplanationWords = 120;
 
@@ -40,6 +43,9 @@ public sealed class StructuredBriefSuggestionExplainService(
     private readonly IAgentCompletionClient _completionClient = completionClient
                                                                   ?? throw new ArgumentNullException(nameof(completionClient));
 
+    private readonly ILogger<StructuredBriefSuggestionExplainService> _logger = logger
+        ?? throw new ArgumentNullException(nameof(logger));
+
     // Shared across requests in this process — keyed by tenant-agnostic content hash only (no PII in key).
     private readonly ConcurrentDictionary<string, CacheEntry> _cache = new();
 
@@ -62,25 +68,103 @@ public sealed class StructuredBriefSuggestionExplainService(
         if (_cache.TryGetValue(cacheKey, out CacheEntry? cached) && !cached.IsExpired)
             return new ExplainStructuredBriefSuggestionResponse { Explanation = cached.Explanation };
 
-        string userPrompt = BuildUserPrompt(input.SuggestionKind, trimmedSuggestion, trimmedSource);
+        string? explanation = await TryLoadLlmExplanationAsync(
+            input.SuggestionKind,
+            trimmedSuggestion,
+            trimmedSource,
+            cancellationToken);
 
-        string responseJson = await _completionClient.CompleteJsonAsync(
-            ExplainSystemPrompt,
-            userPrompt,
-            maxTokens: 400,
-            temperature: 0.2f,
-            cancellationToken: cancellationToken);
+        if (string.IsNullOrWhiteSpace(explanation))
+        {
+            _logger.LogWarning(
+                "Structured brief suggestion explain returned empty output; using deterministic fallback for kind {SuggestionKind}.",
+                input.SuggestionKind);
 
-        ExplainResponseShape? shape = JsonSerializer.Deserialize<ExplainResponseShape>(responseJson, JsonOptions);
+            explanation = BuildDeterministicFallbackExplanation(input.SuggestionKind, trimmedSuggestion);
+        }
 
-        if (shape is null || string.IsNullOrWhiteSpace(shape.Explanation))
-            throw new InvalidOperationException("Explain response was empty.");
-
-        string explanation = CapWordCount(shape.Explanation.Trim());
+        explanation = CapWordCount(explanation.Trim());
 
         _cache[cacheKey] = new CacheEntry(explanation, TimeProvider.System.GetUtcNow().Add(CacheTtl));
 
         return new ExplainStructuredBriefSuggestionResponse { Explanation = explanation };
+    }
+
+    private async Task<string?> TryLoadLlmExplanationAsync(
+        StructuredBriefSuggestionKind kind,
+        string suggestionText,
+        string sourceText,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            string userPrompt = BuildUserPrompt(kind, suggestionText, sourceText);
+
+            string responseJson = await _completionClient.CompleteJsonAsync(
+                ExplainSystemPrompt,
+                userPrompt,
+                maxTokens: 400,
+                temperature: 0.2f,
+                cancellationToken: cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(responseJson))
+                return null;
+
+            string normalizedJson = NormalizeLlmJsonPayload(responseJson);
+            ExplainResponseShape? shape = JsonSerializer.Deserialize<ExplainResponseShape>(normalizedJson, JsonOptions);
+
+            if (shape is null || string.IsNullOrWhiteSpace(shape.Explanation))
+                return null;
+
+            return shape.Explanation.Trim();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Structured brief suggestion explain LLM call failed for kind {SuggestionKind}; using fallback.",
+                kind);
+
+            return null;
+        }
+    }
+
+    internal static string BuildDeterministicFallbackExplanation(
+        StructuredBriefSuggestionKind kind,
+        string suggestionText)
+    {
+        string kindLabel = KindLabel(kind);
+
+        return
+            $"ArchLucid suggested this {kindLabel} from your architecture overview: \"{suggestionText}\". " +
+            $"Confirming adds it to your confirmed {kindLabel} list so review engines treat it as stated scope. " +
+            $"Denying removes the suggestion without recording it. " +
+            "A detailed rationale could not be loaded right now — confirm or deny based on whether your overview supports it.";
+    }
+
+    internal static string NormalizeLlmJsonPayload(string raw)
+    {
+        string trimmed = raw.Trim();
+
+        if (!trimmed.StartsWith("```", StringComparison.Ordinal))
+            return trimmed;
+
+        int firstNewline = trimmed.IndexOf('\n');
+
+        if (firstNewline < 0)
+            return trimmed;
+
+        int contentStart = firstNewline + 1;
+        int fenceEnd = trimmed.LastIndexOf("```", StringComparison.Ordinal);
+
+        if (fenceEnd <= contentStart)
+            return trimmed;
+
+        return trimmed.Substring(contentStart, fenceEnd - contentStart).Trim();
     }
 
     internal static string BuildCacheKey(
@@ -99,13 +183,7 @@ public sealed class StructuredBriefSuggestionExplainService(
         string suggestionText,
         string sourceText)
     {
-        string kindLabel = kind switch
-        {
-            StructuredBriefSuggestionKind.Constraint => "constraint",
-            StructuredBriefSuggestionKind.Assumption => "assumption",
-            StructuredBriefSuggestionKind.RequiredCapability => "required capability",
-            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown suggestion kind."),
-        };
+        string kindLabel = KindLabel(kind);
 
         return $"""
                 Suggestion kind: {kindLabel}
@@ -114,6 +192,17 @@ public sealed class StructuredBriefSuggestionExplainService(
                 Architecture overview and context:
                 {sourceText}
                 """;
+    }
+
+    private static string KindLabel(StructuredBriefSuggestionKind kind)
+    {
+        return kind switch
+        {
+            StructuredBriefSuggestionKind.Constraint => "constraint",
+            StructuredBriefSuggestionKind.Assumption => "assumption",
+            StructuredBriefSuggestionKind.RequiredCapability => "required capability",
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown suggestion kind."),
+        };
     }
 
     private static string CapWordCount(string text)

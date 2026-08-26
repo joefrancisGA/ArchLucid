@@ -40,8 +40,8 @@ export type RunsDashboardRecentTabProps = {
   readonly showInitialLoadingSkeleton: boolean;
   readonly failure: ApiLoadFailureState | null;
   readonly runListError: boolean;
-  readonly filteredItems: RunSummary[];
-  readonly effectiveItems: RunSummary[];
+  readonly filteredItems: readonly RunSummary[];
+  readonly effectiveItems: readonly RunSummary[];
   readonly buyerPolishedShell: boolean;
   readonly showcaseDemoRun: RunSummary | undefined;
   readonly showcasePrimaryCta: { href: string; label: string } | null;

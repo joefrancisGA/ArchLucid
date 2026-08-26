@@ -33,12 +33,18 @@ const committedTenant: CorePilotCommitContext = {
 };
 
 describe("resolveCorePilotHelpWorkflowStepStatus", () => {
-  it("marks every step Not started on an empty workspace", () => {
-    for (const step of CORE_PILOT_HELP_WORKFLOW_STEPS) {
-      expect(resolveCorePilotHelpWorkflowStepStatus(step, emptyCtx)).toMatchObject({
-        label: "Not started",
-      });
-    }
+  it("marks steps 3–5 Available after review starts on an empty workspace", () => {
+    const labels = CORE_PILOT_HELP_WORKFLOW_STEPS.map((step) =>
+      resolveCorePilotHelpWorkflowStepStatus(step, emptyCtx).label,
+    );
+
+    expect(labels).toEqual([
+      "Not started",
+      "Not started",
+      "Available after review starts",
+      "Available after review starts",
+      "Available after review starts",
+    ]);
   });
 
   it("marks finalize Ready to finalize when findings are ready", () => {
@@ -55,7 +61,7 @@ describe("resolveCorePilotHelpWorkflowStepStatus", () => {
       resolveCorePilotHelpWorkflowStepStatus(step, committedTenant).label,
     );
 
-    expect(labels).toEqual(["Complete", "Complete", "Complete", "Complete", "In progress"]);
+    expect(labels).toEqual(["Complete", "Complete", "Complete", "Complete", "Complete"]);
   });
 
   it("does not mark steps 2–4 Complete when a newer in-progress review exists", () => {

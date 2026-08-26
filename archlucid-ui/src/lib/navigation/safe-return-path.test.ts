@@ -106,6 +106,12 @@ describe("isSafeReturnPath", () => {
     expect(isSafeReturnPath("/architecture\\reviews")).toBe(false);
   });
 
+  it("rejects dot-segment traversal that normalizes outside the intended subtree after sign-in", () => {
+    expect(isSafeReturnPath("/signin/../../administration")).toBe(false);
+    expect(isSafeReturnPath("/app/foo/../bar")).toBe(false);
+    expect(isSafeReturnPath("/%2e%2e/admin")).toBe(false);
+  });
+
   it("rejects percent-encoded backslash segments after decoding", () => {
     expect(isSafeReturnPath("/welcome%5c..%5c..%5coperator")).toBe(false);
   });

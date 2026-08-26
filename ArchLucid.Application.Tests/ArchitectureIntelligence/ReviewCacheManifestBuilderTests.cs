@@ -137,6 +137,121 @@ public sealed class ReviewCacheManifestBuilderTests
             .NotBe(ReviewCacheManifestBuilder.Build(request, null, [azureEntry]).ContentHash);
     }
 
+    [Fact]
+    public void Build_changes_content_hash_when_ledger_lock_or_evidence_changes()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-lock";
+
+        TechnologyLedgerEntry unlocked = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = "Amazon Web Services",
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Aws,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+            IsLocked = false,
+            EvidenceRef = null,
+        };
+
+        TechnologyLedgerEntry locked = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = "Amazon Web Services",
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Aws,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+            IsLocked = true,
+            EvidenceRef = "evidence-1",
+        };
+
+        ReviewCacheManifestBuilder.Build(request, null, [unlocked]).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(request, null, [locked]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_emits_ledger_fingerprint_when_run_id_set_even_if_ledger_missing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-without-ledger";
+
+        ReviewCacheManifestBuilder.Build(request, null, null).ContentHash
+            .Should()
+            .Be(        ReviewCacheManifestBuilder.Build(request, null, []).ContentHash);
+    }
+
+    [Fact]
+    public void Build_emits_model_fingerprint_when_run_id_set_even_if_model_missing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-without-model";
+
+        ReviewCacheManifestBuilder.Build(request, null).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, new ArchitectureKnowledgeModel()).ContentHash);
+    }
+
+    [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_changes_hash_when_source_text_changes()
+    {
+        ClosedLoopReasoningRequest baseline = CreateRequest("Public API without auth.");
+        ClosedLoopReasoningRequest changed = CreateRequest("Public API without auth. Added billing worker.");
+
+        ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                baseline,
+                "tenant-cache",
+                "run-continue")
+            .ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                changed,
+                "tenant-cache",
+                "run-continue").ContentHash);
+    }
+
+    [Fact]
+    public void Build_normalizes_framing_answer_keys_and_values()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
+        spaced.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [" scope "] = "  security  ",
+        };
+
+        ClosedLoopReasoningRequest normalized = CreateRequest("Architecture note.");
+        normalized.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["scope"] = "security",
+        };
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(normalized).ContentHash);
+    }
+
+    [Fact]
+    public void BuildWithResolvedRunId_emits_model_fingerprint_for_assigned_run_id()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-assigned",
+            RunId = "assigned-run-id",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.BuildWithResolvedRunId(
+                request,
+                "assigned-run-id",
+                model).ContentHash);
+    }
+
     private static ClosedLoopReasoningRequest CreateRequest(string content)
     {
         return new ClosedLoopReasoningRequest

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
@@ -11,17 +12,21 @@ public static class RunSummaryOnePagerDocumentFactory
     public static RunSummaryOnePagerDocumentModel Create(
         ArchitectureRunDetail detail,
         string SponsorReport,
-        IReadOnlyList<string> topFindingTitles)
+        IReadOnlyList<string> topFindingTitles,
+        string? activeTrialExportNotice = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);
         ArgumentNullException.ThrowIfNull(topFindingTitles);
 
         SeverityCounts counts = CountBySeverity(detail);
+        string runId = detail.Run.RunId ?? string.Empty;
+        bool isDemoTenant = ContosoRetailDemoIdentifiers.IsDemoRunId(runId)
+            || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run.RequestId);
 
         return new RunSummaryOnePagerDocumentModel
         {
-            RunId = detail.Run.RunId ?? string.Empty,
+            RunId = runId,
             SystemName = detail.Manifest?.SystemName,
             CriticalCount = counts.Critical,
             HighCount = counts.High,
@@ -31,7 +36,11 @@ public static class RunSummaryOnePagerDocumentFactory
             TopFindingTitles = topFindingTitles
                 .Where(static title => !string.IsNullOrWhiteSpace(title))
                 .Select(static title => title.Trim())
-                .ToArray()
+                .ToArray(),
+            IsDemoTenant = isDemoTenant,
+            ActiveTrialExportNotice = string.IsNullOrWhiteSpace(activeTrialExportNotice)
+                ? null
+                : activeTrialExportNotice.Trim(),
         };
     }
 

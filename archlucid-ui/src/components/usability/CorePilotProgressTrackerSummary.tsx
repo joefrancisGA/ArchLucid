@@ -10,6 +10,9 @@ import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-re
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { FIRST_VALUE_20_HELP_PATH } from "@/lib/first-value-20-help-route";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { PERSISTENT_WORKSPACE_FIRST_REVIEW_HEADLINE } from "@/lib/persistent-workspace-next-action";
+import { formatStepProgressCompleteLabel } from "@/lib/step-progress-label";
+import { StepProgressMeter } from "@/components/ui/step-progress-meter";
 import { resolveCorePilotStepPresentation } from "@/lib/core-pilot-step-presentation";
 import {
   FIRST_VALUE_MINUTES_ESTIMATE,
@@ -58,17 +61,32 @@ export function CorePilotProgressTrackerSummary(props: CorePilotProgressTrackerS
     5,
     Math.round((remainingSteps / progressSnapshot.totalCount) * FIRST_VALUE_MINUTES_ESTIMATE),
   );
+  const progressCountLabel = formatStepProgressCompleteLabel(
+    progressSnapshot.completedCount,
+    progressSnapshot.totalCount,
+  );
 
   return (
     <div className={cn("space-y-2", props.className)} data-testid="core-pilot-progress-tracker-summary">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
-          <p
-            id={props.headingId}
-            className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            First review progress — {progressSnapshot.completedCount} of {progressSnapshot.totalCount} steps
-          </p>
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <p
+              id={props.headingId}
+              className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}
+            >
+              {PERSISTENT_WORKSPACE_FIRST_REVIEW_HEADLINE}
+            </p>
+            <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.dataValue)}>
+              {progressCountLabel}
+            </p>
+          </div>
+          <StepProgressMeter
+            completedCount={progressSnapshot.completedCount}
+            totalCount={progressSnapshot.totalCount}
+            label={PERSISTENT_WORKSPACE_FIRST_REVIEW_HEADLINE}
+            valueText={progressCountLabel}
+          />
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             About {estimatedMinutes} minutes remaining
             <>

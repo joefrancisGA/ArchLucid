@@ -16,8 +16,17 @@ class TestDecisionExplainabilityBatch(unittest.TestCase):
         self.assertIn("DecisionConfidenceSource ConfidenceSource", text)
 
     def test_tb_050_manifest_projector_wired(self) -> None:
-        builder = REPO_ROOT / "ArchLucid.Decisioning" / "Manifest" / "Builders" / "DefaultGoldenManifestBuilder.cs"
-        self.assertIn("ManifestDecisionConfidenceProjector.ApplyTo", builder.read_text(encoding="utf-8"))
+        securityPopulator = (
+            REPO_ROOT
+            / "ArchLucid.Decisioning"
+            / "Manifest"
+            / "Builders"
+            / "TopologySecurityCostManifestSectionPopulators.cs"
+        )
+        self.assertIn(
+            "ManifestDecisionConfidenceProjector.ApplyTo",
+            securityPopulator.read_text(encoding="utf-8"),
+        )
 
     def test_tb_051_calibrated_prior_resolver(self) -> None:
         resolver = REPO_ROOT / "ArchLucid.Decisioning" / "Merge" / "DecisionStrategyAgentConfidenceResolver.cs"

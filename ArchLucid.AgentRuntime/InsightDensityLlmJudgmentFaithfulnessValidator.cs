@@ -52,4 +52,34 @@ public static class InsightDensityLlmJudgmentFaithfulnessValidator
 
         return true;
     }
+
+    public static bool IsFaithfulForEngineFinding(
+        InsightDensityLlmJudgment judgment,
+        Finding finding,
+        IReadOnlySet<string> allowedRefs)
+    {
+        ArgumentNullException.ThrowIfNull(judgment);
+        ArgumentNullException.ThrowIfNull(finding);
+        ArgumentNullException.ThrowIfNull(allowedRefs);
+
+        if (judgment.EvidenceRefs.Count == 0)
+        {
+            return allowedRefs.Count > 0;
+        }
+
+        foreach (string reference in judgment.EvidenceRefs)
+        {
+            if (string.IsNullOrWhiteSpace(reference))
+            {
+                continue;
+            }
+
+            if (!allowedRefs.Contains(reference.Trim()))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

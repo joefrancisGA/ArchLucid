@@ -84,6 +84,8 @@ All rows below are seeded as **`PlatformDefault`** (Architect workspace: **Bundl
 
 Assignments seed **cloud-neutral + Azure baseline** packs **enabled** by default (`PolicyPackAssignments.IsEnabled = true` for `DefaultPolicyPackCatalog.ResolveStandardBaselineDisplayNames(CloudProvider.Azure)`); AWS/GCP-specific baselines auto-enable when a run targets `CloudProvider.Aws` or `CloudProvider.Gcp` via `DefaultPolicyPackCloudBaselineApplicator`. Merges participate in **`PolicyPackResolver`** like any other activated assignment.
 
+**Declaration-security coupling:** CIS Azure curated keys such as **`cis-az-006`** (storage public access), **`cis-az-025`** (App Service HTTPS/TLS), **`cis-az-018`**, **`cis-az-019`**, **`cis-az-027`**, and **`sec-base-028`** also gate **`declaration-security-baseline`** and **`declaration-premise-conflict`** findings when those keys survive tenant **`complianceRuleKeys`** filtering. This extends the compliance moat to declaration findings operators argue about; it does **not** mean all 39 finding engines are policy-aware.
+
 ### Organization Private vs Review Engine Knowledge
 
 | Knowledge class | `PackType` (origin) | `DistributionScope` | Buyer meaning |

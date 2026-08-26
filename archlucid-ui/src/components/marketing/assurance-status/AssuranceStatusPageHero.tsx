@@ -11,15 +11,17 @@ import {
 import { TRUST_CENTER_PUBLIC_EVIDENCE_VERSION } from "@/lib/trust-center-buyer-content";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { SECURITY_TRUST_PAGE_PURPOSE } from "@/lib/trust-center-public-assurance";
+import type { TrustCenterReviewDateDisplay } from "@/lib/trust-center-review-date";
 import { cn } from "@/lib/utils";
+import { TrustCenterReviewTime } from "@/components/marketing/TrustCenterReviewTime";
 
 type AssuranceStatusPageHeroProps = {
-  readonly reviewedLabel: string;
+  readonly reviewDate: TrustCenterReviewDateDisplay;
 };
 
 /** Hero for `/assurance-status` — breadcrumb, title, diligence CTAs, and last-reviewed meta. */
 export function AssuranceStatusPageHero(props: AssuranceStatusPageHeroProps): ReactNode {
-  const { reviewedLabel } = props;
+  const { reviewDate } = props;
 
   return (
     <section
@@ -49,7 +51,7 @@ export function AssuranceStatusPageHero(props: AssuranceStatusPageHeroProps): Re
         <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="assurance-status-hero-meta">
           <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
             Last reviewed{" "}
-            <time dateTime={reviewedLabel}>{reviewedLabel}</time>
+            <TrustCenterReviewTime reviewDate={reviewDate} />
           </span>
           <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
             Evidence pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}

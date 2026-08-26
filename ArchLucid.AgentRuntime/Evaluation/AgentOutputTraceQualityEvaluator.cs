@@ -272,7 +272,8 @@ public static class AgentOutputTraceQualityEvaluator
         IAgentOutputQualityGate qualityGate,
         CancellationToken cancellationToken,
         AgentEvidencePackage? evidencePackage = null,
-        IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker = null) =>
+        IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker = null,
+        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId = null) =>
         ComputeQualityGateAcceptedForConfidenceAsyncCore(
             trace,
             options,
@@ -281,7 +282,8 @@ public static class AgentOutputTraceQualityEvaluator
             qualityGate,
             cancellationToken,
             evidencePackage,
-            agentResultFaithfulnessChecker);
+            agentResultFaithfulnessChecker,
+            calibratedConfidenceByTaskId);
 
     private static async Task<bool> ComputeQualityGateAcceptedForConfidenceAsyncCore(
         AgentExecutionTrace trace,
@@ -291,7 +293,8 @@ public static class AgentOutputTraceQualityEvaluator
         IAgentOutputQualityGate qualityGate,
         CancellationToken cancellationToken,
         AgentEvidencePackage? evidencePackage,
-        IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker)
+        IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker,
+        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId)
     {
         TraceQualityEvaluationResult? result =
             await TryEvaluateTraceAsync(
@@ -302,7 +305,8 @@ public static class AgentOutputTraceQualityEvaluator
                 qualityGate,
                 cancellationToken,
                 evidencePackage,
-                agentResultFaithfulnessChecker).ConfigureAwait(false);
+                agentResultFaithfulnessChecker,
+                calibratedConfidenceByTaskId: calibratedConfidenceByTaskId).ConfigureAwait(false);
 
         return result is { GateOutcome: not AgentOutputQualityGateOutcome.Rejected };
     }

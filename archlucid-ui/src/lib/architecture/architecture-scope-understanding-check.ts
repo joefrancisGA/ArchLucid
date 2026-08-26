@@ -78,7 +78,6 @@ export const SCOPE_UNDERSTANDING_SAVE_ERROR_HINT =
 export const SCOPE_UNDERSTANDING_SAVING_HINT = "Saving scope to draft…";
 export const SCOPE_UNDERSTANDING_STALE_HINT =
   "Scope changed — re-confirm before starting a review.";
-export const SCOPE_UNDERSTANDING_JUMP_TO_START_REVIEW_LABEL = "Jump to start review";
 /** Ready line for wizards that confirm scope on an earlier step. */
 export const SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT = "You can continue.";
 

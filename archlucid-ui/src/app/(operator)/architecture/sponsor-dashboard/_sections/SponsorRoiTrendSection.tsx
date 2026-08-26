@@ -24,9 +24,17 @@ import { RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL } from "@/lib/usability/canonical-
 
 import { SponsorRoiSavingsTrendSvgChart } from "./SponsorRoiSavingsTrendSvgChart";
 
-type HistoryPoint = SponsorRoiHistoryPoint;
+type NormalizedHistoryPoint = SponsorRoiHistoryPoint & { snapshotUtc: string };
 
-function formatMonth(isoUtc: string): string {
+function isNormalizedHistoryPoint(point: SponsorRoiHistoryPoint): point is NormalizedHistoryPoint {
+  return (point.snapshotUtc?.trim() ?? "").length > 0;
+}
+
+function formatMonth(isoUtc: string | undefined): string {
+  if (isoUtc === undefined || isoUtc.trim().length === 0) {
+    return " — ";
+  }
+
   const date = new Date(isoUtc);
 
   if (Number.isNaN(date.getTime())) {
@@ -36,11 +44,11 @@ function formatMonth(isoUtc: string): string {
   return date.toLocaleDateString(undefined, { month: "short", year: "2-digit", timeZone: "UTC" });
 }
 
-function chartIncludesMixedMode(points: HistoryPoint[]): boolean {
+function chartIncludesMixedMode(points: NormalizedHistoryPoint[]): boolean {
   return points.some((point) => point.isMixedMode);
 }
 
-function buildCriticalBarTitle(point: HistoryPoint, buyerPolished: boolean): string {
+function buildCriticalBarTitle(point: NormalizedHistoryPoint, buyerPolished: boolean): string {
   const monthLabel = formatMonth(point.snapshotUtc);
 
   if (buyerPolished) {
@@ -50,8 +58,8 @@ function buildCriticalBarTitle(point: HistoryPoint, buyerPolished: boolean): str
   return `${point.criticalSecurityFindings} critical findings — ${monthLabel} · ${point.realRunCount} Real · ${point.simulatorRunCount} Simulator`;
 }
 
-function isSimulatorOnlyPeriod(point: HistoryPoint): boolean {
-  return point.realRunCount === 0 && point.simulatorRunCount > 0;
+function isSimulatorOnlyPeriod(point: NormalizedHistoryPoint): boolean {
+  return (point.realRunCount ?? 0) === 0 && (point.simulatorRunCount ?? 0) > 0;
 }
 
 export type SponsorRoiTrendSectionProps = {
@@ -82,7 +90,10 @@ export function SponsorRoiTrendSection({
 }: SponsorRoiTrendSectionProps) {
   const [timeRange, setTimeRange] = useState<SponsorTimeRange>(defaultTimeRange);
   const historyQuery = useSponsorRoiSummaryHistoryQuery();
-  const allPoints: HistoryPoint[] = useMemo(() => historyQuery.data ?? [], [historyQuery.data]);
+  const allPoints: NormalizedHistoryPoint[] = useMemo(
+    () => (historyQuery.data ?? []).filter(isNormalizedHistoryPoint),
+    [historyQuery.data],
+  );
   const loading = historyQuery.isPending;
   const error = historyQuery.isError;
 
@@ -91,7 +102,7 @@ export function SponsorRoiTrendSection({
     [allPoints, timeRange],
   );
 
-  const maxCritical = Math.max(...points.map((point) => point.criticalSecurityFindings), 1);
+  const maxCritical = Math.max(...points.map((point) => point.criticalSecurityFindings ?? 0), 1);
   const showMixedModeFootnote = chartIncludesMixedMode(points);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
@@ -146,8 +157,16 @@ export function SponsorRoiTrendSection({
           <div className="space-y-4" data-testid="exec-roi-trend-chart">
             <SponsorRoiSavingsTrendSvgChart
               points={points.map((point) => ({
-                snapshotUtc: point.snapshotUtc,
-                totalEstimatedUsdSavings: resolveExecutiveTrendSavingsUsd(point, buyerPolished),
+                snapshotUtc: point.snapshotUtc ?? "",
+                totalEstimatedUsdSavings: resolveExecutiveTrendSavingsUsd(
+                  {
+                    totalEstimatedUsdSavings: Number(point.totalEstimatedUsdSavings) || 0,
+                    realModeSavingsUsd: Number(point.realModeSavingsUsd) || 0,
+                    realRunCount: point.realRunCount ?? 0,
+                    simulatorRunCount: point.simulatorRunCount ?? 0,
+                  },
+                  buyerPolished,
+                ),
               }))}
             />
             <div>
@@ -173,7 +192,7 @@ export function SponsorRoiTrendSection({
                     ) : null}
                     <div
                       className="w-full rounded-sm bg-amber-500/80"
-                      style={{ height: `${Math.max(8, Math.round((point.criticalSecurityFindings / maxCritical) * 120))}px` }}
+                      style={{ height: `${Math.max(8, Math.round(((point.criticalSecurityFindings ?? 0) / maxCritical) * 120))}px` }}
                     />
                     <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.navHelper)}>{formatMonth(point.snapshotUtc)}</span>
                   </div>

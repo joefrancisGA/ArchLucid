@@ -12,6 +12,7 @@ import { CompareVerdictSummary } from "@/components/compare/CompareVerdictSummar
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
 import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import {
   OperatorLoadingNotice,
@@ -233,8 +234,9 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             . Click <strong>Compare</strong> or <strong>{summarizeCue}</strong> again after fixing selections, or
             restore the previous values.
           </p>
-          <details className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+          <details className={cn("group mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <summary className={cn("flex cursor-pointer items-center gap-2 font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+              <DisclosureTriangleIndicator />
               Technical review IDs
             </summary>
             <p className="m-0 mt-1 font-mono">
@@ -465,9 +467,10 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
         {result !== null ? (
           <details
             id="compare-technical"
-            className="mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 p-4 dark:border-neutral-600 dark:bg-neutral-900/30"
+            className="group mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 p-4 dark:border-neutral-600 dark:bg-neutral-900/30"
           >
-            <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+            <summary className={cn("flex cursor-pointer items-center gap-2 text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+              <DisclosureTriangleIndicator />
               <h2 className={cn("m-0 inline text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 {buyerPolished ? BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL : "Technical details — supplementary review-level comparison"}
               </h2>
@@ -481,9 +484,10 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
         {aiExplanation !== null ? (
           <details
             id="compare-ai"
-            className="mt-6 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
+            className="group mt-6 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
           >
-            <summary className={cn("cursor-pointer list-none px-4 py-3 text-al-text-primary outline-none ring-offset-2 marker:content-none focus-visible:ring-2 focus-visible:ring-teal-600 [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+            <summary className={cn("flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-al-text-primary outline-none ring-offset-2 marker:content-none focus-visible:ring-2 focus-visible:ring-teal-600 [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+              <DisclosureTriangleIndicator />
               <h2 className={cn("m-0 inline text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 {buyerPolished
                   ? "Sponsor narrative (AI-generated)"

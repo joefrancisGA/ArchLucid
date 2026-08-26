@@ -92,6 +92,23 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void IsValidForProcessing_rejects_embedded_zero_width_in_evidence_bundle_id()
+    {
+        AuthorityPipelineWorkPayload payload = new()
+        {
+            ContextIngestionRequest = new ContextIngestionRequest
+            {
+                RunId = Guid.NewGuid(),
+                ProjectId = "default",
+            },
+            EvidenceBundleId = "\u200Bbundle-1",
+        };
+
+        payload.IsValidForProcessing().Should().BeFalse(
+            "embedded format characters survive Trim() and break evidence bundle lookup after the worker gate");
+    }
+
+    [SkippableFact]
     public void Deserialize_materializes_null_list_properties()
     {
         Guid runId = Guid.Parse("22222222-2222-2222-2222-222222222222");

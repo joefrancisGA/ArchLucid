@@ -11,6 +11,7 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import {
   BUYER_COMPARE_STRUCTURED_HEADING,
   BUYER_COMPARE_STRUCTURED_LEAD,
@@ -76,9 +77,10 @@ function ComparisonFoldSection(props: {
   children: ReactNode;
 }) {
   return (
-    <details className={sectionBoxCls} open={props.defaultOpen}>
-      <summary className={cn("cursor-pointer list-none font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.helper)}>
-        <span className={cn("mr-2 inline-flex items-center rounded-full bg-neutral-200 px-2 py-0 font-bold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+    <details className={cn(sectionBoxCls, "group")} open={props.defaultOpen}>
+      <summary className={cn("flex cursor-pointer list-none items-center gap-2 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.helper)}>
+        <DisclosureTriangleIndicator />
+        <span className={cn("inline-flex items-center rounded-full bg-neutral-200 px-2 py-0 font-bold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
           {props.countBadge}
         </span>
         {props.title}

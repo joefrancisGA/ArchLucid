@@ -49,6 +49,9 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 ["DataConsistency:InitialDelaySeconds"] = "0",
                 ["HostLeaderElection:Enabled"] = "false",
                 ["AgentExecution:Mode"] = "Simulator",
+                // appsettings.Development.json sets AllowAgentExecutionModeHeaderOverride=true, which forces Real-mode
+                // handler DI at startup; FakeAgentCompletionClient then returns Topology for every agent type.
+                ["DeveloperExperience:AllowAgentExecutionModeHeaderOverride"] = "false",
                 ["AzureOpenAI:Endpoint"] = "",
                 ["AzureOpenAI:ApiKey"] = "",
                 ["AzureOpenAI:DeploymentName"] = "",

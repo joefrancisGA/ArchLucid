@@ -340,6 +340,54 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_CanonicalizesDependsOnReferenceOrder()
+    {
+        const string baseJson = """
+                                {
+                                  "values": {
+                                    "root_module": {
+                                      "resources": [
+                                        {
+                                          "type": "azurerm_storage_account",
+                                          "name": "st",
+                                          "values": { "name": "s" },
+                                          "depends_on": ["azurerm_resource_group.main", "azurerm_virtual_network.hub"]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                                """;
+
+        InfrastructureDeclarationReference firstOrder = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-dep-order",
+            Content = baseJson,
+        };
+
+        InfrastructureDeclarationReference reversedOrder = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-dep-order",
+            Content = baseJson.Replace(
+                """["azurerm_resource_group.main", "azurerm_virtual_network.hub"]""",
+                """["azurerm_virtual_network.hub", "azurerm_resource_group.main"]"""),
+        };
+
+        IReadOnlyList<CanonicalObject> firstObjects = await _sut.ParseAsync(firstOrder, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> reversedObjects = await _sut.ParseAsync(reversedOrder, CancellationToken.None);
+
+        firstObjects.Should().ContainSingle();
+        reversedObjects.Should().ContainSingle();
+        reversedObjects[0].Properties["terraformDependsOn"]
+            .Should()
+            .Be(firstObjects[0].Properties["terraformDependsOn"]);
+    }
+
+    [Fact]
     public async Task ParseAsync_redacts_top_level_sensitive_tf_values()
     {
         InfrastructureDeclarationReference decl = new()
@@ -369,6 +417,46 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
 
         objects.Should().ContainSingle();
         objects[0].Properties["tf.admin_secret"].Should().Be("[REDACTED]");
+    }
+
+    [Fact]
+    public async Task ParseAsync_redacts_nested_sensitive_tf_object_values()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-nested-sensitive",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_linux_web_app",
+                                "name": "app",
+                                "values": {
+                                  "site_config": {
+                                    "connection_string": "postgres://user:pass@host/db"
+                                  }
+                                },
+                                "sensitive_values": {
+                                  "site_config": {
+                                    "connection_string": true
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["tf.site_config"].Should().Be("[REDACTED]");
     }
 
     [Fact]
@@ -598,6 +686,51 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
 
         objects.Should().ContainSingle();
         objects[0].Properties["tf.location"].Should().Be("eastus");
+    }
+
+    [Fact]
+    public async Task ParseAsync_TfPropertyKeys_AreCanonicalized()
+    {
+        const string baseJson = """
+                                {
+                                  "values": {
+                                    "root_module": {
+                                      "resources": [
+                                        {
+                                          "type": "azurerm_resource_group",
+                                          "name": "main",
+                                          "values": { "Location": "EastUS", "Sku": "Standard_LRS" }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                                """;
+
+        InfrastructureDeclarationReference firstKeyCasing = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-tf-keys",
+            Content = baseJson,
+        };
+
+        InfrastructureDeclarationReference secondKeyCasing = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-tf-keys",
+            Content = baseJson
+                .Replace("\"Location\"", "\"location\"")
+                .Replace("\"Sku\"", "\"sku\""),
+        };
+
+        IReadOnlyList<CanonicalObject> firstObjects = await _sut.ParseAsync(firstKeyCasing, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondObjects = await _sut.ParseAsync(secondKeyCasing, CancellationToken.None);
+
+        firstObjects.Should().ContainSingle();
+        secondObjects.Should().ContainSingle();
+        secondObjects[0].Properties.Should().BeEquivalentTo(firstObjects[0].Properties);
     }
 
     [Fact]
@@ -940,5 +1073,208 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
         IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
 
         objects.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ParseAsync_Reparse_ProducesStableObjectId()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "show.json",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tfshow-stable",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_virtual_network",
+                                "name": "hub-vnet",
+                                "values": { "location": "eastus" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> firstParse = await _sut.ParseAsync(decl, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondParse = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        firstParse.Should().ContainSingle();
+        secondParse.Should().ContainSingle();
+        secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
+    }
+
+    [Fact]
+    public async Task ParseAsync_SiblingChildModulesSameResourceLabel_EmitsTwoResources()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tfshow-sibling-modules",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [],
+                            "child_modules": [
+                              {
+                                "address": "module.network",
+                                "resources": [
+                                  {
+                                    "address": "module.network.azurerm_subnet.this",
+                                    "type": "azurerm_subnet",
+                                    "name": "this",
+                                    "mode": "managed",
+                                    "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                    "values": { "name": "subnet-a" }
+                                  }
+                                ]
+                              },
+                              {
+                                "address": "module.data",
+                                "resources": [
+                                  {
+                                    "address": "module.data.azurerm_subnet.this",
+                                    "type": "azurerm_subnet",
+                                    "name": "this",
+                                    "mode": "managed",
+                                    "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                    "values": { "name": "subnet-b" }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().HaveCount(2);
+        objects.Select(static o => o.Name).Should().BeEquivalentTo(
+        [
+            "module.network.azurerm_subnet.this",
+            "module.data.azurerm_subnet.this",
+        ]);
+        objects[0].ObjectId.Should().NotBe(objects[1].ObjectId);
+    }
+
+    [Fact]
+    public async Task ParseAsync_DuplicateRootResourceLabelsWithoutAddress_EmitsDistinctObjectIds()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tfshow-duplicate-root-label",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_subnet",
+                                "name": "this",
+                                "mode": "managed",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "address_prefix": "10.0.1.0/24" }
+                              },
+                              {
+                                "type": "azurerm_subnet",
+                                "name": "this",
+                                "mode": "managed",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "address_prefix": "10.0.2.0/24" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().HaveCount(2);
+        objects.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
+        objects.Should().OnlyContain(static o => o.Properties.ContainsKey("terraformOccurrence"));
+    }
+
+    [Fact]
+    public async Task ParseAsync_TrimsPaddedResourceType()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-pad-type",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": " azurerm_virtual_network ",
+                                "name": "core",
+                                "values": {}
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["terraformType"].Should().Be("azurerm_virtual_network");
+        objects[0].Name.Should().Be("azurerm_virtual_network.core");
+    }
+
+    [Fact]
+    public async Task ParseAsync_PascalCasePropertyNames_MapsStorageAccount()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-pascal",
+            Content = """
+                      {
+                        "Values": {
+                          "Root_Module": {
+                            "Resources": [
+                              {
+                                "Type": "azurerm_storage_account",
+                                "Name": "data",
+                                "Provider_Name": "registry.terraform.io/hashicorp/azurerm",
+                                "Mode": "managed",
+                                "Values": { "name": "stacct" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        CanonicalObject storageAccount = objects[0];
+        storageAccount.ObjectType.Should().Be("TopologyResource");
+        storageAccount.Name.Should().Be("azurerm_storage_account.data");
+        storageAccount.Properties["terraformType"].Should().Be("azurerm_storage_account");
+        storageAccount.Properties["providerName"].Should().Be("registry.terraform.io/hashicorp/azurerm");
+        storageAccount.Properties["mode"].Should().Be("managed");
+        storageAccount.Properties["tf.name"].Should().Be("stacct");
     }
 }

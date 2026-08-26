@@ -1,36 +1,33 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
 import { Button } from "@/components/ui/button";
+import { REVIEWS_NEW_PRIMARY_CONTENT_ID } from "@/app/(operator)/architecture/reviews/new/reviews-new-page-surface-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
   clearResumableReviewsNewWizardSession,
   dismissReviewsNewWizardResumeStrip,
-  findResumableReviewsNewWizardSession,
-  isReviewsNewWizardResumeStripDismissed,
+  dispatchReviewsNewWizardContinueRequested,
+  findVisibleReviewsNewPageLevelResumeSession,
   requestReviewsNewWizardAutoRestore,
+  reviewsNewWizardPathIsActive,
   reviewsNewWizardResumeHref,
   type ReviewsNewResumableWizardSession,
 } from "@/lib/reviews-new-wizard-session-resume";
 import { cn } from "@/lib/utils";
 
 function readVisibleResumableSession(): ReviewsNewResumableWizardSession | null {
-  const session = findResumableReviewsNewWizardSession();
-
-  if (session === null || isReviewsNewWizardResumeStripDismissed(session)) {
-    return null;
-  }
-
-  return session;
+  return findVisibleReviewsNewPageLevelResumeSession();
 }
 
 /** Dismissible resume strip for incomplete new-review wizard sessions on the RNX hub. */
 export function ReviewsNewWizardResumeStrip(): React.JSX.Element | null {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [session, setSession] = useState<ReviewsNewResumableWizardSession | null>(null);
 
   useEffect(() => {
@@ -56,8 +53,24 @@ export function ReviewsNewWizardResumeStrip(): React.JSX.Element | null {
     }
 
     requestReviewsNewWizardAutoRestore(session.wizardId);
+    dismissReviewsNewWizardResumeStrip(session);
+    refreshSession();
+
+    const pathQuery = searchParams?.get("path")?.trim() ?? "";
+    const alreadyOnTargetPath = reviewsNewWizardPathIsActive(pathQuery, session.pathMode);
+
+    if (alreadyOnTargetPath) {
+      dispatchReviewsNewWizardContinueRequested(session.wizardId);
+      document.getElementById(REVIEWS_NEW_PRIMARY_CONTENT_ID)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+
+      return;
+    }
+
     router.push(reviewsNewWizardResumeHref(session.pathMode));
-  }, [router, session]);
+  }, [refreshSession, router, searchParams, session]);
 
   const onStartOver = useCallback(() => {
     if (session === null) {

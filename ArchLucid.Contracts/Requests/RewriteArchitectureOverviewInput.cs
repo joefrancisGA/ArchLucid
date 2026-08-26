@@ -12,6 +12,7 @@ public sealed class RewriteArchitectureOverviewInput
 {
     [Required]
     [MinLength(20)]
+    [MaxLength(DraftIntakeValidation.MaximumFreeTextIntentLength)]
     public string CurrentOverview
     {
         get;

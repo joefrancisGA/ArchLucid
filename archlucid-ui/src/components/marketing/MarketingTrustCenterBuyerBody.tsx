@@ -28,6 +28,8 @@ import {
   TRUST_CENTER_RELATED_HELP_LINKS,
   TRUST_PUBLIC_ASSURANCE_ARTIFACTS,
 } from "@/lib/trust-center-public-assurance";
+import { formatTrustCenterReviewDate } from "@/lib/trust-center-review-date";
+import { TrustCenterReviewTime } from "@/components/marketing/TrustCenterReviewTime";
 
 export type MarketingTrustCenterBuyerBodyProps = {
   readonly lastReviewedUtc: string | null;
@@ -57,24 +59,10 @@ function AssuranceClassificationTag(props: {
   );
 }
 
-function formatTrustReviewDate(lastReviewedUtc: string | null): string {
-  if (lastReviewedUtc === null) {
-    return "Updated with each assurance-cycle refresh";
-  }
-
-  const parsed: Date = new Date(lastReviewedUtc);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return lastReviewedUtc;
-  }
-
-  return parsed.toISOString().slice(0, 10);
-}
-
 /** Public Trust Center structured layout (marketing route). Does not imply SOC 2 CPA attestation or completed third-party penetration tests unless a published summary states otherwise. */
 export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBodyProps): ReactNode {
   const { lastReviewedUtc } = props;
-  const reviewedLabel: string = formatTrustReviewDate(lastReviewedUtc);
+  const reviewDate = formatTrustCenterReviewDate(lastReviewedUtc);
 
   return (
     <div className={cn("space-y-12", TRUST_CENTER_PUBLIC_LAYOUT.page)} data-testid="trust-center-body">
@@ -102,7 +90,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="trust-center-hero-meta">
             <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
               Last reviewed{" "}
-              <time dateTime={reviewedLabel}>{reviewedLabel}</time>
+              <TrustCenterReviewTime reviewDate={reviewDate} />
             </span>
             <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
               Evidence pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
@@ -364,7 +352,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           <div>
             <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>Last reviewed</dt>
             <dd className={cn("m-0 mt-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="trust-evidence-reviewed">
-              {reviewedLabel}
+              {reviewDate.label}
             </dd>
           </div>
           <div>

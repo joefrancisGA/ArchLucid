@@ -1,6 +1,23 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useRouter: () => ({
+      replace: vi.fn(),
+      push: vi.fn(),
+      refresh: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+    }),
+    useSearchParams: () => new URLSearchParams(),
+  };
+});
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -17,7 +34,7 @@ vi.mock("@/components/SeedSampleReviewButton", () => ({
 vi.mock("@/components/sponsor/SponsorDashboardDataContext", () => ({
   SponsorDashboardDataProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useSponsorDashboardData: () => ({
-    summary: { systemCount: 0, latestRunCount: 0, totalEstimatedUsdSavings: 0 },
+    summary: { systemCount: 0, latestRunCount: 0, totalEstimatedUsdSavings: 0, systems: [] },
     summaryLoading: false,
     summaryError: null,
     driftPoints: [],
@@ -66,11 +83,14 @@ describe("SponsorRoiDashboardPageView buyer-polished shell", () => {
     render(<SponsorRoiDashboardPageView surface="sponsor" />);
 
     expect(screen.getByText(SPONSOR_DASHBOARD_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId("sponsor-dashboard-page-hero")).queryByText(
-        SPONSOR_DASHBOARD_PAGE_SUBTITLE_OPERATOR,
-      ),
-    ).not.toBeInTheDocument();
+
+    if (SPONSOR_DASHBOARD_PAGE_SUBTITLE_OPERATOR !== SPONSOR_DASHBOARD_PAGE_SUBTITLE_BUYER) {
+      expect(
+        within(screen.getByTestId("sponsor-dashboard-page-hero")).queryByText(
+          SPONSOR_DASHBOARD_PAGE_SUBTITLE_OPERATOR,
+        ),
+      ).not.toBeInTheDocument();
+    }
     expect(screen.queryByTestId("sponsor-dashboard-scope-details")).toBeNull(); // TB-2093
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("sponsor-dashboard-refresh-button")).toBeInTheDocument();

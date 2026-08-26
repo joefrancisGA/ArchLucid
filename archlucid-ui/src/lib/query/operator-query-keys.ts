@@ -10,6 +10,7 @@ export const operatorQueryKeys = {
     ["operator", "tenant", "workspaces", scope] as const,
   tenantCostSettings: ["operator", "tenant", "cost-settings"] as const,
   agentOutputQualityGateMode: ["operator", "admin", "agent-output-quality-gate-mode"] as const,
+  findingEngineControls: ["operator", "admin", "finding-engine-controls"] as const,
   tenantUsageStatus: ["operator", "tenant", "usage-status"] as const,
   billingSubscriptionStatus: ["operator", "tenant", "billing-subscription-status"] as const,
   operatorStickinessSnapshot: ["operator", "tenant", "stickiness-snapshot"] as const,
