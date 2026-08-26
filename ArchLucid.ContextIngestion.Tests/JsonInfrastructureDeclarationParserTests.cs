@@ -192,4 +192,30 @@ public sealed class JsonInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_NumericCustomProperty_MapsResource()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "compute",
+                            "name": "api-vm",
+                            "properties": { "instanceCount": 2 }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["instancecount"].Should().Be("2");
+    }
 }

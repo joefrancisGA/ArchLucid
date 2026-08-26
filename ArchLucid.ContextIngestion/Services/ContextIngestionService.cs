@@ -150,6 +150,17 @@ public class ContextIngestionService(
                 return actorsJson.Trim();
 
             List<ActorDescriptor> orderedActors = actors
+                .Select(static actor => new ActorDescriptor
+                {
+                    Label = string.IsNullOrWhiteSpace(actor.Label)
+                        ? actor.Label
+                        : actor.Label.Trim().ToLowerInvariant(),
+                    Kind = actor.Kind,
+                    TrustOrigin = actor.TrustOrigin,
+                    Contract = actor.Contract,
+                    Origin = actor.Origin,
+                    Confidence = actor.Confidence,
+                })
                 .OrderBy(static actor => actor.Label ?? string.Empty, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(static actor => actor.Kind)
                 .ThenBy(static actor => actor.TrustOrigin)

@@ -299,4 +299,39 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
 
         baseline.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task ParseAsync_NestedChildResources_MapsBlobService()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-nested-blobservice",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "sa",
+                            "properties": {},
+                            "resources": [
+                              {
+                                "type": "Microsoft.Storage/storageAccounts/blobServices",
+                                "name": "default",
+                                "properties": {}
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(o => o.Name == "sa");
+        result.Should().ContainSingle(o => o.Name == "sa/default");
+    }
 }

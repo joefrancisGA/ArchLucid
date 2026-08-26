@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 54
-- **bugs-found:** 105
+- **hunts:** 55
+- **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
+- **last-bug:** 2026-08-26 — policy topology hints duplicated across request and document paths
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1957,6 +1957,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `KubernetesYamlInfrastructureDeclarationParser` YAML `kind: List` path — mapper already expands List items after YamlDotNet round-trip; added YAML-path regression `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_KindList_MapsMultipleItems`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+
+- [x] (proven) `PolicyReferencePayloadExtractor` duplicated topology hints when request hints overlapped document `TOP:` lines — **hit 2026-08-26:** `TopologyHints = ["prod/vnet"]` plus document `TOP: prod/vnet` emitted duplicate hints for overlap resolution; fixed with `AddTopologyHint` dedupe via `TopologyHintStableObjectIds.CanonicalizeHintName` (`ConnectorPayloadStageContractTests.PolicyReferencePayloadExtractor_Extract_DeduplicatesDocumentTopologyHints`).
+- [x] (proven) `ContextIngestionService.CanonicalizeActorsJson` preserved actor `label` value casing — **hit 2026-08-26:** `"Ops Engineer"` vs `"ops engineer"` churned `SourceHashes`; fixed by trim/lowercase labels before serialize (`ContextIngestionServiceTests.IngestAsync_ActorsJsonLabelValueCasing_ProducesStableScopeMetadata`).
+- [x] (proven) `JsonInfrastructureDeclarationParser` failed to deserialize numeric `properties` values — **hit 2026-08-26:** `instanceCount: 2` threw on `Dictionary<string,string>` deserialize and dropped the resource; fixed with `JsonDocument` scalar reads (`JsonInfrastructureDeclarationParserTests.ParseAsync_NumericCustomProperty_MapsResource`).
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.TryAddResource` required `metadata.name` and dropped `generateName`-only manifests — **hit 2026-08-26:** batch Job with only `generateName` returned zero resources; fixed by falling back to `generateName` when `name` absent (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_GenerateNameOnly_MapsJob`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` ignored inline nested `resources[]` children — **hit 2026-08-26:** storage account `blobServices` child under parent `resources` array was not mapped; fixed with recursive child traversal and `parentNamePrefix` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_NestedChildResources_MapsBlobService`).
+
+2026-08-26 seed hunt #76: proved policy-hint dedupe, actor label casing, JSON numeric props, K8s generateName, and ARM nested child resources.
 
 2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
 
