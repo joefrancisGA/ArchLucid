@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { useArchitectureDraftQuery } from "@/hooks/use-architecture-draft-query";
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
+import { reviewReadinessFromDraftDocument } from "@/lib/architecture/architecture-draft-readiness";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -190,10 +192,30 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     latestDraft !== null &&
     latestDraft !== undefined &&
     isArchitectureDraftPastDraftingOnRegistryEntry(latestDraft);
+  const shouldResolveLatestDraftReadiness =
+    workspacePhase === "eval-with-drafts" &&
+    latestDraft !== null &&
+    latestDraft !== undefined &&
+    !latestDraftPastDrafting;
+  const latestDraftQuery = useArchitectureDraftQuery(
+    latestDraft?.architectureId ?? "",
+    shouldResolveLatestDraftReadiness,
+  );
+  const latestDraftReviewReadinessValid = useMemo(() => {
+    if (!shouldResolveLatestDraftReadiness || latestDraft === null) {
+      return false;
+    }
+
+    if (latestDraftQuery.data !== undefined) {
+      return reviewReadinessFromDraftDocument(latestDraftQuery.data).isValid;
+    }
+
+    return latestDraft.customerStatus === "ready-for-review";
+  }, [latestDraft, latestDraftQuery.data, shouldResolveLatestDraftReadiness]);
   const draftRefineGuidanceSentence =
     latestDraftPastDrafting || latestDraft === null
       ? null
-      : resolveArchitectureDraftRefineGuidanceSentence(latestDraft.customerStatus === "ready-for-review");
+      : resolveArchitectureDraftRefineGuidanceSentence(latestDraftReviewReadinessValid);
   const showLeadCopy = props.suppressLeadCopy !== true;
   const showContextualHelp = props.showContextualHelp !== false;
 

@@ -43,7 +43,7 @@ describe("architecture-draft-detail-page-copy", () => {
       ARCHITECTURE_DRAFT_REFINE_OPTIONAL_BEFORE_REVIEW_SENTENCE,
     );
     expect(ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE).toContain("Required before review");
-    expect(ARCHITECTURE_DRAFT_REFINE_OPTIONAL_BEFORE_REVIEW_SENTENCE).toContain("Refining is optional");
+    expect(ARCHITECTURE_DRAFT_REFINE_OPTIONAL_BEFORE_REVIEW_SENTENCE).toContain("start a review now");
   });
 
   it("uses readiness-aware refine bridge on buyer subtitle", () => {

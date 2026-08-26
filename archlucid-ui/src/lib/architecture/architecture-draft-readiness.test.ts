@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  architectureDraftFieldsFromDocument,
   buildArchitectureDraftPatchPayload,
   hasArchitectureDraftSaveableContent,
+  reviewReadinessFromDraftDocument,
   validateArchitectureDraftIntegrity,
   validateArchitectureReviewReadiness,
 } from "@/lib/architecture/architecture-draft-readiness";
@@ -10,7 +12,7 @@ import {
   ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
   emptyArchitectureDraftStructuredBrief,
 } from "@/lib/architecture/architecture-draft-structured-brief";
-import type { ActorDescriptor } from "@/types/draft-intake";
+import type { ActorDescriptor, DraftRequestResponse } from "@/types/draft-intake";
 
 const assertedActor: ActorDescriptor = {
   label: "Primary operator",
@@ -23,6 +25,26 @@ const assertedActor: ActorDescriptor = {
 
 const readyOverview =
   "We are designing a structured workflow platform for analysts with authentication, auditable evidence trails, and exportable architecture reviews.";
+
+function reviewReadyDraftDocument(): DraftRequestResponse {
+  return {
+    draftId: "draft-ready",
+    tenantId: "tenant",
+    workspaceId: "ws",
+    projectId: "default",
+    status: "Drafting",
+    document: {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for architecture reviews.",
+      systemName: "Claims intake",
+      actorSet: {
+        actors: [assertedActor],
+      },
+    },
+    createdUtc: "2026-01-01T00:00:00.000Z",
+    updatedUtc: "2026-01-01T00:00:00.000Z",
+  };
+}
 
 function readyStructuredBrief() {
   return {
@@ -199,5 +221,23 @@ describe("architecture-draft-readiness", () => {
     };
 
     expect(buildArchitectureDraftPatchPayload(withOverview, actorSet).freeTextIntent).toBe(readyOverview);
+  });
+
+  it("derives review readiness from persisted draft documents", () => {
+    const readyDraft = reviewReadyDraftDocument();
+
+    expect(architectureDraftFieldsFromDocument(readyDraft).systemName).toBe("Claims intake");
+    expect(reviewReadinessFromDraftDocument(readyDraft).isValid).toBe(true);
+
+    const incompleteDraft: DraftRequestResponse = {
+      ...readyDraft,
+      document: {
+        ...readyDraft.document,
+        systemName: "",
+      },
+    };
+
+    expect(reviewReadinessFromDraftDocument(incompleteDraft).isValid).toBe(false);
+    expect(reviewReadinessFromDraftDocument(incompleteDraft).blockers).toContain("system-name");
   });
 });
