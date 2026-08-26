@@ -47,7 +47,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
 
         GovernanceWorkflowService sut = CreateSutWithSubmittedRequest(requestedBy: actor);
 
-        Action act = () => sut.ApproveAsync("ar1", actor, actor, null, CancellationToken.None).GetAwaiter().GetResult();
+        Action act = () => sut.ApproveAsync("ar1", actor, actor, null, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
 
         act.Should().Throw<GovernanceSelfApprovalException>()
             .Which.ApprovalRequestId.Should().Be("ar1");
@@ -66,7 +66,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
 
         GovernanceWorkflowService sut = CreateSutWithSubmittedRequest(requestedBy: actor);
 
-        Action act = () => sut.RejectAsync("ar1", actor, actor, null, CancellationToken.None).GetAwaiter().GetResult();
+        Action act = () => sut.RejectAsync("ar1", actor, actor, null, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
 
         act.Should().Throw<GovernanceSelfApprovalException>();
     }
@@ -91,7 +91,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
 
         GovernanceWorkflowService sut = CreateSutWithSubmittedRequest(requestedBy: submitter);
 
-        Action act = () => sut.ApproveAsync("ar1", reviewer, reviewer, null, CancellationToken.None).GetAwaiter().GetResult();
+        Action act = () => sut.ApproveAsync("ar1", reviewer, reviewer, null, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
 
         act.Should().NotThrow();
     }
@@ -107,7 +107,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             requestedByActorKey: sharedKey);
 
         Action act = () =>
-            sut.ApproveAsync("ar1", "ci-sp-display-name", sharedKey, null, CancellationToken.None).GetAwaiter()
+            sut.ApproveAsync("ar1", "ci-sp-display-name", sharedKey, null, cancellationToken: CancellationToken.None).GetAwaiter()
                 .GetResult();
 
         act.Should().Throw<GovernanceSelfApprovalException>();

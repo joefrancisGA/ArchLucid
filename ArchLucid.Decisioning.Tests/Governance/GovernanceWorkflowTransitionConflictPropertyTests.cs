@@ -82,7 +82,7 @@ public sealed class GovernanceWorkflowTransitionConflictPropertyTests
         GovernanceWorkflowService sut = GovernanceWorkflowTestFactory.CreateWithApprovalRepo(approvalRepo);
 
         Action act = () =>
-            sut.ApproveAsync(approvalRequestId, "bob", "bob", null, CancellationToken.None).GetAwaiter().GetResult();
+            sut.ApproveAsync(approvalRequestId, "bob", "bob", null, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
 
         act.Should().Throw<GovernanceApprovalReviewConflictException>()
             .Which.ApprovalRequestId.Should().Be(approvalRequestId);
@@ -136,7 +136,7 @@ public sealed class GovernanceWorkflowTransitionConflictPropertyTests
         GovernanceWorkflowService sut = GovernanceWorkflowTestFactory.CreateWithApprovalRepo(approvalRepo);
 
         Action act = () =>
-            sut.RejectAsync(approvalRequestId, "bob", "bob", null, CancellationToken.None).GetAwaiter().GetResult();
+            sut.RejectAsync(approvalRequestId, "bob", "bob", null, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
 
         act.Should().Throw<GovernanceApprovalReviewConflictException>()
             .Which.ApprovalRequestId.Should().Be(approvalRequestId);

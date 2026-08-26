@@ -274,7 +274,7 @@ public sealed class PostCommitProjectionOutboxProcessorTests
 
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
 
-        scopeCreates.Should().BeGreaterOrEqualTo(entries.Count + 1);
+        scopeCreates.Should().BeGreaterThanOrEqualTo(entries.Count + 1);
         outbox.Verify(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Exactly(entries.Count));
     }
 
