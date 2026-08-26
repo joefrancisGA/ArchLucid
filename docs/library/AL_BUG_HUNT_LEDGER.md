@@ -2025,13 +2025,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 10
-- **bugs-found:** 13
+- **hunts:** 11
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — GCP WIF pool provider project not validated against connection project
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — ARM nextLink followed into different subscription
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -2050,6 +2050,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AwsIamRoleArn.TryGetAccountId` rejects GovCloud IAM role ARNs — **hit 2026-08-25:** prefix check required `arn:aws:iam::` so `arn:aws-us-gov:iam::123456789012:role/ReadOnly` failed validation and blocked GovCloud extractor runs; fixed by locating account id via `:iam::` infix across partitions; regression in `TryGetAccountId_accepts_aws_us_gov_partition_role_arn`
 - [x] (proven) `AwsResourceExplorerInventoryCollector.CollectAsync` follows repeating `NextToken` indefinitely — **hit 2026-08-25:** pagination loop had no visited-token guard or page cap; regression in `CollectAsync_throws_when_next_token_repeats`
 - [x] (proven) `HostedGcpExtractorClient.CollectZipAsync` validates service-account email project but not WIF provider path project; mismatched pool provider `projects/other-project/...` passes validation while Asset search scopes `projects/my-project` — **hit 2026-08-25:** added `GcpWorkloadIdentityPoolProvider.EnsureProjectMatches` dual-path guard vs `GcpServiceAccountEmail` (`GcpWorkloadIdentityPoolProviderTests`, `HostedGcpExtractorClientTests.CollectZipAsync_rejects_workload_identity_pool_provider_project_mismatch`).
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` follows ARM `nextLink` without validating subscription id — **hit 2026-08-26:** malicious or mis-issued `nextLink` to `/subscriptions/{other}/resources` pulled cross-subscription inventory; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsSubscription`; regression in `ListSubscriptionResourcesAsync_throws_when_next_link_targets_different_subscription`.
+- [ ] (candidate) `AwsResourceExplorerQueryString.ResolveForRegion` China partition (`cn-*`) untested — GovCloud branch proven; `arn:aws-cn:*` path has no regression test.
+- [ ] (candidate) `GetOnlyHostedAzureArmReadClient` ARM HTTP failures throw via `EnsureSuccessStatusCode` without warning log — 401/403/429 responses give no structured operator signal before throw.
+- [ ] (candidate) GCP `HostedGcpExtractorClient.SearchResourcesAsync` uses Google SDK async enumerator without explicit page cap — parity gap vs AWS/Azure `MaxPaginationRequests` guards.
 
 ---
 

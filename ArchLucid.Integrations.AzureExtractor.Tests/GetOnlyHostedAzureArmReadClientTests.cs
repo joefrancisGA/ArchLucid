@@ -114,6 +114,85 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionResourcesAsync_throws_when_next_link_targets_different_subscription()
+    {
+        const string requestedSubscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string otherSubscriptionId = "22222222-2222-2222-2222-222222222222";
+        const string crossSubscriptionNextLink =
+            $"https://management.azure.com/subscriptions/{otherSubscriptionId}/resources?api-version=2021-04-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                                     "name": "sa1",
+                                     "type": "Microsoft.Storage/storageAccounts",
+                                     "location": "eastus"
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_SUBSCRIPTION_LINK"
+                               }
+                               """.Replace("CROSS_SUBSCRIPTION_LINK", crossSubscriptionNextLink, StringComparison.Ordinal);
+
+        string secondPageBody = """
+                                {
+                                  "value": [
+                                    {
+                                      "id": "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa2",
+                                      "name": "sa2",
+                                      "type": "Microsoft.Storage/storageAccounts",
+                                      "location": "westus"
+                                    }
+                                  ]
+                                }
+                                """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                if (current == 2)
+                {
+                    Assert.Equal(crossSubscriptionNextLink, request.RequestUri?.AbsoluteUri);
+
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(secondPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: ARM resource listing did not stop on cross-subscription nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListSubscriptionResourcesAsync(
+                "token-abc",
+                requestedSubscriptionId,
+                CancellationToken.None));
+
+        Assert.Contains("subscription", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListSubscriptionResourcesAsync_logs_when_arm_row_missing_id_or_type()
     {
         Mock<ILogger<GetOnlyHostedAzureArmReadClient>> logger = new();
