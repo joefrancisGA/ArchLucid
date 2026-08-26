@@ -9,8 +9,9 @@ internal static class ClosedLoopDeclaredPrioritiesNormalizer
         return priorities
             .Where(priority => !string.IsNullOrWhiteSpace(priority))
             .Select(priority => priority.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(priority => priority, StringComparer.Ordinal)
+            .GroupBy(priority => priority, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.OrderBy(priority => priority, StringComparer.Ordinal).First())
             .ToList();
     }
 }
