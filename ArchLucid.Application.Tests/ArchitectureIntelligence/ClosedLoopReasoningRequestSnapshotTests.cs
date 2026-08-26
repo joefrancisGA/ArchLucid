@@ -42,4 +42,22 @@ public sealed class ClosedLoopReasoningRequestSnapshotTests
         request.FramingAnswers["goal"].Should().Be("original-changed");
         source.Content.Should().Be("original-changed");
     }
+
+    [Fact]
+    public void Capture_uses_ordinal_comparer_for_framing_answers()
+    {
+        ClosedLoopReasoningRequest request = new()
+        {
+            FramingAnswers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Goal"] = "scale",
+            },
+        };
+
+        ClosedLoopReasoningRequest snapshot = ClosedLoopReasoningRequestSnapshot.Capture(request);
+
+        snapshot.FramingAnswers.ContainsKey("goal").Should().BeFalse();
+        snapshot.FramingAnswers.ContainsKey("Goal").Should().BeTrue();
+        snapshot.FramingAnswers.Comparer.Should().BeSameAs(StringComparer.Ordinal);
+    }
 }

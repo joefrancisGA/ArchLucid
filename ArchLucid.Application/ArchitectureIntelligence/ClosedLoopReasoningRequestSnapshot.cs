@@ -26,7 +26,7 @@ internal static class ClosedLoopReasoningRequestSnapshot
                 })
                 .ToList(),
             DeclaredPriorities = request.DeclaredPriorities.ToList(),
-            FramingAnswers = new Dictionary<string, string>(request.FramingAnswers),
+            FramingAnswers = new Dictionary<string, string>(request.FramingAnswers, StringComparer.Ordinal),
             UseGoldenFixture = request.UseGoldenFixture,
             ContinueFromExistingRun = request.ContinueFromExistingRun,
             PublishToProduct = request.PublishToProduct,
