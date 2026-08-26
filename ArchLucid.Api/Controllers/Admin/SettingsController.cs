@@ -1,6 +1,7 @@
 using ArchLucid.Application.Admin;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
