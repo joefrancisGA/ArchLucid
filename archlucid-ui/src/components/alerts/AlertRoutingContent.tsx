@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
@@ -10,6 +11,7 @@ import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { AlertRoutingContinueLastViewedRow } from "@/components/alerts/AlertRoutingContinueLastViewedRow";
+import { AlertRoutingPickReviewBeforeRoutingStrip } from "@/components/alerts/AlertRoutingPickReviewBeforeRoutingStrip";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -68,7 +70,11 @@ import {
 } from "@/lib/alert-rule-conditions-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_AUDIT_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_ALERT_RULES_PATH,
+  GOVERNANCE_AUDIT_PATH,
+  governanceAlertRulesTabHref,
+} from "@/lib/governance/governance-route-paths";
 import {
   resolveContinueLastAlertRoutingSubscription,
   writeAlertRoutingSubscriptionLastViewedId,
@@ -86,6 +92,28 @@ import {
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 
 export function AlertRoutingContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
+
+  const onPickReviewForRouting = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", "notifications");
+      params.set("runId", trimmed);
+
+      router.replace(`${GOVERNANCE_ALERT_RULES_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
   const canMutateRouting = useOperateCapability();
   const sampleModeBlocked: boolean =
     isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
@@ -437,10 +465,34 @@ export function AlertRoutingContent() {
         </section>
       ) : null}
 
+      {!scopedRunFilterActive ? (
+        <AlertRoutingPickReviewBeforeRoutingStrip selectedReviewId="" onSelectReview={onPickReviewForRouting} />
+      ) : (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="alert-routing-run-scope-banner"
+        >
+          {"Routing destinations scoped to review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={governanceAlertRulesTabHref("notifications")}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      )}
+
       <div
         className={cn(isEmptyComposition && "space-y-4")}
         data-testid={isEmptyComposition ? "alert-routing-empty-state" : undefined}
       >
+        {scopedRunFilterActive ? (
         <section
           ref={formSectionRef}
           tabIndex={-1}
@@ -617,8 +669,9 @@ export function AlertRoutingContent() {
           />
         </div>
       </section>
+        ) : null}
 
-        {isEmptyComposition ? (
+        {isEmptyComposition && scopedRunFilterActive ? (
           <GettingStartedSteps
             {...(canMutateRouting ? alertRoutingEmptyGettingStartedOperator : alertRoutingEmptyGettingStartedReader)}
             className="border-0 bg-transparent px-0 py-0"

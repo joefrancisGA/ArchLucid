@@ -26,6 +26,11 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => mutateCapability.current,
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams("tab=notifications&runId=run-routing-test"),
+}));
+
 vi.mock("@/lib/api", () => ({
   listAlertRoutingSubscriptions: apiHoisted.listAlertRoutingSubscriptions,
   createAlertRoutingSubscription: apiHoisted.createAlertRoutingSubscription,
@@ -167,10 +172,15 @@ describe("AlertRoutingContent", () => {
     const emptyState = await screen.findByTestId("alert-routing-empty-state");
 
     const formHeading = screen.getByRole("heading", { name: "Set up alert delivery", level: 3 });
-    const gettingStartedSteps = screen.getByRole("list");
+    const gettingStartedSteps = screen.getAllByRole("list").find((list) =>
+      list.classList.contains("list-decimal"),
+    );
+
+    expect(gettingStartedSteps).toBeDefined();
 
     expect(emptyState).toContainElement(formHeading);
-    expect(formHeading.compareDocumentPosition(gettingStartedSteps) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(gettingStartedSteps).not.toBeNull();
+    expect(formHeading.compareDocumentPosition(gettingStartedSteps!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByRole("link", { name: "Test alerts" })).toHaveAttribute(
       "href",
       "/governance/alert-rules?tab=test-alerts",
