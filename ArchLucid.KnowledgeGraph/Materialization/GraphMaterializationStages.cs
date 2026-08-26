@@ -18,6 +18,7 @@ public static class GraphMaterializationStages
         "canonical-objects",
         "request-cost-constraints",
         "request-actors",
+        "declaration-identity-actors",
         "request-assumptions",
         "request-quality-attributes",
         "request-failure-modes",
@@ -32,6 +33,7 @@ public static class GraphMaterializationStages
             new CanonicalObjectMaterializationStage(nodeFactory),
             new RequestCostConstraintMaterializationStage(),
             new RequestActorMaterializationStage(),
+            new DeclarationIdentityActorMaterializationStage(),
             new RequestAssumptionMaterializationStage(),
             new RequestQualityAttributeMaterializationStage(),
             new RequestFailureModeMaterializationStage(),
@@ -139,6 +141,41 @@ public static class GraphMaterializationStages
                 RequestActorMaterializer.MaterializeFromActorsJson(
                     actorsJson,
                     context.Snapshot.SnapshotId));
+
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class DeclarationIdentityActorMaterializationStage : IGraphMaterializationStage
+    {
+        public string Name => "declaration-identity-actors";
+
+        public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
+        {
+            if (context.HasCanonicalActors)
+            {
+                context.MarkStageSkipped();
+                return Task.CompletedTask;
+            }
+
+            if (context.Nodes.Any(static node =>
+                    string.Equals(node.NodeType, GraphNodeTypes.Actor, StringComparison.OrdinalIgnoreCase)))
+            {
+                context.MarkStageSkipped();
+                return Task.CompletedTask;
+            }
+
+            IReadOnlyList<GraphNode> actors = DeclarationIdentityActorMaterializer.MaterializeFromNodes(
+                context.Nodes,
+                context.Snapshot.SnapshotId);
+
+            if (actors.Count == 0)
+            {
+                context.MarkStageSkipped();
+                return Task.CompletedTask;
+            }
+
+            context.Nodes.AddRange(actors);
 
             return Task.CompletedTask;
         }

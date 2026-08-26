@@ -105,6 +105,49 @@ public sealed class GraphMaterializationStageTests
     }
 
     [Fact]
+    public async Task DeclarationIdentityActorsStage_materializes_from_k8s_service_account_when_intake_missing()
+    {
+        ContextSnapshot snapshot = CreateSnapshot();
+        snapshot.CanonicalObjects =
+        [
+            new CanonicalObject
+            {
+                ObjectId = "sa-1",
+                ObjectType = GraphNodeTypes.SecurityBaseline,
+                Name = "payments/worker",
+                SourceType = "InfrastructureDeclaration",
+                SourceId = "decl-1",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["k8s.kind"] = "serviceaccount",
+                    ["k8s.name"] = "worker",
+                    ["k8s.namespace"] = "payments",
+                },
+            },
+        ];
+
+        GraphMaterializationRunResult result = await RunThroughStage(snapshot, "declaration-identity-actors");
+
+        result.StageOutcomes.Should().ContainSingle(o => o.StageName == "declaration-identity-actors")
+            .Which.Should().Match<GraphMaterializationStageOutcome>(o => o.Skipped == false && o.NodesAdded == 1);
+    }
+
+    [Fact]
+    public async Task DeclarationIdentityActorsStage_skips_when_request_actors_materialized()
+    {
+        ContextSnapshot snapshot = CreateSnapshot();
+        snapshot.SourceHashes[ContextScopeMetadataKeys.Actors] =
+            """
+            [{"label":"Ops engineer","kind":"Human","trustOrigin":"Internal","contract":"Sync","origin":"Asserted","confidence":100}]
+            """;
+
+        GraphMaterializationRunResult result = await RunThroughStage(snapshot, "declaration-identity-actors");
+
+        result.StageOutcomes.Should().ContainSingle(o => o.StageName == "declaration-identity-actors")
+            .Which.Skipped.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task RequestActorsStage_skips_when_canonical_actors_exist()
     {
         ContextSnapshot snapshot = CreateSnapshot();
