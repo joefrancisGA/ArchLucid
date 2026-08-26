@@ -73,6 +73,9 @@ public sealed class ReviewResultCache : IReviewResultCache
 
         lock (_evictionLock)
         {
+            if (IsRunIdTombstonedUnlocked(result.RunId))
+                return;
+
             EvictExpiredEntries();
 
             if (_cache.Count >= MaxEntries)
@@ -240,14 +243,22 @@ public sealed class ReviewResultCache : IReviewResultCache
 
         lock (_evictionLock)
         {
-            foreach (string tombstonedRunId in _deferredInvalidateRunIds)
-            {
-                if (ClosedLoopRunIdComparer.Equals(runId, tombstonedRunId))
-                    return true;
-            }
-
-            return false;
+            return IsRunIdTombstonedUnlocked(runId);
         }
+    }
+
+    private bool IsRunIdTombstonedUnlocked(string? runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return false;
+
+        foreach (string tombstonedRunId in _deferredInvalidateRunIds)
+        {
+            if (ClosedLoopRunIdComparer.Equals(runId, tombstonedRunId))
+                return true;
+        }
+
+        return false;
     }
 
     private bool IsStorageKeyPinnedUnlocked(string storageKey)
