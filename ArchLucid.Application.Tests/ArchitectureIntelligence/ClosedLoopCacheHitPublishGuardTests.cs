@@ -246,6 +246,10 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         result.PublishedFindingsSnapshotId.Should().BeNull();
         result.PublishedRecommendationCount.Should().Be(0);
         result.PublishSkipReason.Should().BeNull();
+        result.PublishBlocked.Should().BeFalse();
+        result.PublishBlockReasons.Should().BeEmpty();
+        result.CacheHit.Should().BeFalse();
+        result.CacheReuseReason.Should().BeNull();
         result.ProductFindings.Should().BeEmpty();
         result.ProductRecommendations.Should().BeEmpty();
     }

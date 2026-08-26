@@ -175,6 +175,8 @@ public sealed class ReviewResultCacheTests
         cached.PublishedFindingsSnapshotId.Should().BeNull();
         cached.PublishedRecommendationCount.Should().Be(0);
         cached.PublishSkipReason.Should().BeNull();
+        cached.PublishBlocked.Should().BeFalse();
+        cached.CacheHit.Should().BeFalse();
         cached.ProductFindings.Should().BeEmpty();
     }
 
