@@ -121,7 +121,8 @@ export function formatOperatorHomeCompactDraftStatusRow(
   draftLastEditedLabel: string | null,
 ): string {
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
-  const countLabel = safeCount === 1 ? "1 draft" : `${safeCount} drafts`;
+  const countLabel =
+    safeCount === 1 ? "1 architecture draft" : `${safeCount} architecture drafts`;
   const trimmedEditedLabel =
     draftLastEditedLabel !== null && draftLastEditedLabel.trim().length > 0
       ? draftLastEditedLabel.trim()
