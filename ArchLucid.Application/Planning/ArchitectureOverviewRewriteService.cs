@@ -52,7 +52,11 @@ public sealed class ArchitectureOverviewRewriteService(
             temperature: null,
             cancellationToken: cancellationToken);
 
-        RewriteResponseShape? response = JsonSerializer.Deserialize<RewriteResponseShape>(responseJson, JsonOptions);
+        if (string.IsNullOrWhiteSpace(responseJson))
+            throw new InvalidOperationException("Rewrite response was empty.");
+
+        string normalizedJson = NormalizeLlmJsonPayload(responseJson);
+        RewriteResponseShape? response = JsonSerializer.Deserialize<RewriteResponseShape>(normalizedJson, JsonOptions);
 
         if (response is null || string.IsNullOrWhiteSpace(response.RewrittenOverview))
             throw new InvalidOperationException("Rewrite response was empty.");
@@ -112,6 +116,27 @@ public sealed class ArchitectureOverviewRewriteService(
             builder.AppendLine($"- {item}");
 
         builder.AppendLine();
+    }
+
+    internal static string NormalizeLlmJsonPayload(string raw)
+    {
+        string trimmed = raw.Trim();
+
+        if (!trimmed.StartsWith("```", StringComparison.Ordinal))
+            return trimmed;
+
+        int firstNewline = trimmed.IndexOf('\n');
+
+        if (firstNewline < 0)
+            return trimmed;
+
+        int contentStart = firstNewline + 1;
+        int fenceEnd = trimmed.LastIndexOf("```", StringComparison.Ordinal);
+
+        if (fenceEnd <= contentStart)
+            return trimmed;
+
+        return trimmed.Substring(contentStart, fenceEnd - contentStart).Trim();
     }
 
     private sealed class RewriteResponseShape

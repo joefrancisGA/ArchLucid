@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime.Planning;
 using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentSimulator.Services;
@@ -46,6 +47,9 @@ internal static class FakeAgentCompletionPipelineRegistrar
                            None (offline completion).
                            """;
                 }
+
+                if (systemPrompt.Contains(ArchitectureOverviewRewriteLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
+                    return FakeArchitectureOverviewRewriteCompletionJson.Build(userPrompt);
 
                 if (systemPrompt.Contains("senior enterprise architect", StringComparison.OrdinalIgnoreCase))
                 {

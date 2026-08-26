@@ -85,4 +85,39 @@ public sealed class ArchitectureOverviewRewriteServiceTests
         prompt.Should().NotContain("Confirmed constraints:");
         prompt.Should().NotContain("Denied constraints");
     }
+
+    [Fact]
+    public void NormalizeLlmJsonPayload_strips_markdown_fences()
+    {
+        const string fenced = """
+                              ```json
+                              {"rewrittenOverview":"Grounded overview."}
+                              ```
+                              """;
+
+        string normalized = ArchitectureOverviewRewriteService.NormalizeLlmJsonPayload(fenced);
+
+        normalized.Should().Be("""{"rewrittenOverview":"Grounded overview."}""");
+    }
+
+    [Fact]
+    public async Task RewriteAsync_throws_when_llm_returns_empty_json()
+    {
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("   ");
+
+        ArchitectureOverviewRewriteService sut = new(client.Object);
+
+        Func<Task> act = () => sut.RewriteAsync(
+            new RewriteArchitectureOverviewInput
+            {
+                CurrentOverview = "Tenant migration platform with private networking and EU residency goals.",
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Rewrite response was empty*");
+    }
 }
