@@ -122,4 +122,25 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_NdjsonLines_MapsMultipleResources()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "cluster.ndjson",
+            Format = "kubernetes-json",
+            DeclarationId = "decl-k8s-ndjson",
+            Content = """
+                      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"name":"api","namespace":"prod"}}
+                      {"apiVersion":"v1","kind":"Secret","metadata":{"name":"db","namespace":"prod"}}
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(o => o.Name == "prod/api" && o.ObjectType == "TopologyResource");
+        result.Should().ContainSingle(o => o.Name == "prod/db" && o.ObjectType == "SecurityBaseline");
+    }
 }

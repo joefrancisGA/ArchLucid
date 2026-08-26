@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 54
-- **bugs-found:** 105
+- **hunts:** 55
+- **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
+- **last-bug:** 2026-08-26 — Bicep module declarations ignored by line parser
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1957,6 +1957,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `KubernetesYamlInfrastructureDeclarationParser` YAML `kind: List` path — mapper already expands List items after YamlDotNet round-trip; added YAML-path regression `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_KindList_MapsMultipleItems`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+
+- [x] (proven) `BicepInfrastructureDeclarationParser` ignored `module` declarations — **hit 2026-08-26:** only `resource` regex matched so Bicep modules never entered topology; fixed with `ModuleRegex` and `bicepModuleSource` property (`BicepInfrastructureDeclarationParserTests.ParseAsync_ExtractsBicepModules`).
+- [x] (proven) `BicepInfrastructureDeclarationParser` duplicate symbolic names collapsed `ObjectId` — **hit 2026-08-26:** two `resource stg` blocks shared identity; fixed with per-declaration `bicepOccurrence` suffix (`BicepInfrastructureDeclarationParserTests.ParseAsync_DuplicateResourceSymbolicNames_EmitsDistinctObjectIds`).
+- [x] (proven) `KubernetesJsonInfrastructureDeclarationParser` only parsed single JSON documents — **hit 2026-08-26:** NDJSON line-delimited manifests returned zero resources; fixed with per-line fallback when whole-content parse fails (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_NdjsonLines_MapsMultipleResources`).
+- [x] (proven) `KubernetesYamlInfrastructureDeclarationParser` split on literal `\n---` only — **hit 2026-08-26:** padded ` --- ` document separators merged multi-doc YAML into one invalid object; fixed with multiline `^\s*---\s*$` regex split (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_PaddedDocumentSeparators_MapsMultipleDocuments`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` ingested `mode: "data"` resources as topology — **hit 2026-08-26:** data sources appeared in infrastructure declaration connector output; fixed with early return skip (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_skips_mode_data_resources`).
+
+2026-08-26 seed hunt #78: proved Bicep modules/occurrence, K8s NDJSON, K8s YAML padded separators, and terraform data-mode skip.
 
 2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
 
