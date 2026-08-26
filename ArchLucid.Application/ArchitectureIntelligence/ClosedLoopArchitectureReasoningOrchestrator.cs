@@ -116,7 +116,8 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 baselineKnowledgeModel,
                 baselineLedgerEntries);
 
-            if (_reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
+            if (!effectiveRequest.PublishToProduct
+                && _reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
                 && cached is not null)
             {
                 cached.CacheHit = true;
@@ -160,7 +161,8 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         ReviewCacheDependencyManifest cacheManifest,
         CancellationToken cancellationToken)
     {
-        if (_reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
+        if (!effectiveRequest.PublishToProduct
+            && _reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
             && cached is not null)
         {
             cached.CacheHit = true;
