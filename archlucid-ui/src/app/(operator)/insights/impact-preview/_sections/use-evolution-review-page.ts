@@ -50,7 +50,10 @@ function mergeBaselineOptions(
   return Array.from(byId.values());
 }
 
-export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad): EvolutionReviewPageViewModel {
+export function useEvolutionReviewPage(
+  serverLoad: EvolutionReviewPageServerLoad,
+  scopedRunId: string,
+): EvolutionReviewPageViewModel {
   const isDemo = serverLoad.mode === "demo";
 
   const [candidates, setCandidates] = useState<EvolutionCandidateChangeSetResponse[]>(
@@ -243,7 +246,16 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
       return;
     }
 
+    const trimmedScopedRunId = scopedRunId.trim();
+
     setSelectedBaselineId((prev) => {
+      if (
+        trimmedScopedRunId.length > 0 &&
+        baselineOptions.some((option) => option.runId === trimmedScopedRunId)
+      ) {
+        return trimmedScopedRunId;
+      }
+
       if (prev !== null && baselineOptions.some((option) => option.runId === prev)) {
         return prev;
       }
@@ -256,9 +268,9 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
         return seeded;
       }
 
-      return baselineOptions[0]?.runId ?? null;
+      return null;
     });
-  }, [baselineOptions]);
+  }, [baselineOptions, scopedRunId]);
 
   const toggleComparisonScope = useCallback((key: keyof ImpactPreviewComparisonScope) => {
     setComparisonScope((prev) => ({ ...prev, [key]: !prev[key] }));

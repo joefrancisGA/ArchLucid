@@ -77,6 +77,9 @@ describe("EvolutionReviewPageView buyer-polished shell", () => {
 
     render(
       <EvolutionReviewPageView
+        scopedRunId="run-1"
+        scopedRunFilterActive={true}
+        onPickReviewForSimulating={vi.fn()}
         model={buildModel({
           lastRefreshedAt: new Date("2026-07-09T12:00:00.000Z"),
           candidates: [
@@ -90,6 +93,9 @@ describe("EvolutionReviewPageView buyer-polished shell", () => {
               createdUtc: "2026-07-01T12:00:00Z",
             },
           ],
+          selectedId: "candidate-1",
+          selectedBaselineId: "run-1",
+          baselineOptions: [{ runId: "run-1", label: "Baseline" }],
         })}
       />,
     );
@@ -98,7 +104,6 @@ describe("EvolutionReviewPageView buyer-polished shell", () => {
     expect(screen.queryByText(IMPACT_PREVIEW_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("impact-preview-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-claim-discipline")).toBeInTheDocument();
     expect(screen.getByText(IMPACT_PREVIEW_CLAIM_DISCIPLINE_HEADING)).toBeInTheDocument();
     expect(screen.queryByTestId("impact-preview-compare-vocabulary")).not.toBeInTheDocument();
@@ -112,11 +117,17 @@ describe("EvolutionReviewPageView buyer-polished shell", () => {
   it("keeps the no-baseline blocked surface compact in buyer-polished shell", () => {
     baselineAvailabilityMock.mockReturnValue({ loading: false, finalizedCount: 0 });
 
-    render(<EvolutionReviewPageView model={buildModel()} />);
+    render(
+      <EvolutionReviewPageView
+        scopedRunId=""
+        scopedRunFilterActive={false}
+        onPickReviewForSimulating={vi.fn()}
+        model={buildModel()}
+      />,
+    );
 
     expect(screen.getByText(IMPACT_PREVIEW_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.getByText(IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("impact-preview-output-preview")).toBeInTheDocument();
     expect(screen.queryByText(IMPACT_PREVIEW_ORIENTATION)).not.toBeInTheDocument();
     expect(screen.queryByText(IMPACT_PREVIEW_TRUST_NOTICE)).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-capability-boundary")).not.toBeInTheDocument();

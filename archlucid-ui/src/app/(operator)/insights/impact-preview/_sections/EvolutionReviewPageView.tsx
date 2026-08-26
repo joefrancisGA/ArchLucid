@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useLayoutEffect } from "react";
 
 import { cn } from "@/lib/utils";
@@ -12,7 +13,8 @@ import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessag
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { impactPreviewHref } from "@/lib/impact-preview-route";
 import {
   IMPACT_PREVIEW_DETAIL_LOAD_RETRY_LABEL,
   IMPACT_PREVIEW_LIST_LOAD_RETRY_LABEL,
@@ -28,6 +30,7 @@ import { resolveImpactPreviewPageState } from "@/lib/resolve-impact-preview-page
 import { resolveImpactPreviewRecommendation } from "@/lib/resolve-impact-preview-recommendation";
 import { resolveImpactPreviewSummaryMetrics } from "@/lib/resolve-impact-preview-summary-metrics";
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
+import { ImpactPreviewPickReviewBeforeSimulatingStrip } from "./ImpactPreviewPickReviewBeforeSimulatingStrip";
 import { ImpactPreviewBaselinePickerStrip } from "./ImpactPreviewBaselinePickerStrip";
 import { ImpactPreviewBuyerChrome } from "./ImpactPreviewBuyerChrome";
 import { ImpactPreviewContinueLastBaselinePairRow } from "./ImpactPreviewContinueLastBaselinePairRow";
@@ -50,6 +53,9 @@ import { useIsOperatorNavHrefReachable } from "./use-is-operator-nav-href-reacha
 
 type Props = {
   readonly model: EvolutionReviewPageViewModel;
+  readonly scopedRunId: string;
+  readonly scopedRunFilterActive: boolean;
+  readonly onPickReviewForSimulating: (reviewId: string) => void;
 };
 
 function impactPreviewHeaderStatus(pageState: ImpactPreviewPageState): EnterpriseStatusKind | null {
@@ -127,10 +133,12 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
     m.detailLoading &&
     (hasSimulationResults || (m.detail?.simulationRuns.length ?? 0) > 0);
   const showBaselinePickerStrip =
+    props.scopedRunFilterActive &&
     (pageState === "no_candidates" || pageReady) &&
     m.baselineOptions.length > 0 &&
     (m.selectedBaselineId === null || pageState === "no_candidates");
-  const showImpactPreviewWorkspace = pageReady && m.selectedBaselineId !== null;
+  const showImpactPreviewWorkspace =
+    props.scopedRunFilterActive && pageReady && m.selectedBaselineId !== null;
   const showContinueLastPair =
     m.continueLastPair !== null &&
     (m.selectedBaselineId !== m.continueLastPair.baselineRunId ||
@@ -203,6 +211,34 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
       ) : null}
 
       <ImpactPreviewEmptyState pageState={pageState} planningReachable={planningReachable} />
+
+      {pageReady && !props.scopedRunFilterActive ? (
+        <ImpactPreviewPickReviewBeforeSimulatingStrip
+          selectedReviewId=""
+          onSelectReview={props.onPickReviewForSimulating}
+        />
+      ) : null}
+
+      {pageReady && props.scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="impact-preview-run-scope-banner"
+        >
+          {"Simulating impact for review "}
+          <span className="font-mono text-al-text-primary">{props.scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={impactPreviewHref()}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(props.scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : null}
 
       {showBaselinePickerStrip ? (
         <ImpactPreviewBaselinePickerStrip

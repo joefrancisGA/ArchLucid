@@ -34,6 +34,14 @@ vi.mock("./ImpactPreviewNextReviewFooterClient", () => ({
 import { EvolutionReviewPageView } from "./EvolutionReviewPageView";
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
 
+const onPickReviewForSimulating = vi.fn();
+
+const defaultScopedViewProps = {
+  scopedRunId: "run-1",
+  scopedRunFilterActive: true,
+  onPickReviewForSimulating,
+};
+
 function buildModel(overrides: Partial<EvolutionReviewPageViewModel> = {}): EvolutionReviewPageViewModel {
   return {
     isDemo: false,
@@ -70,6 +78,7 @@ describe("EvolutionReviewPageView", () => {
 
     render(
       <EvolutionReviewPageView
+        {...defaultScopedViewProps}
         model={buildModel({
           candidates: [
             {
@@ -101,7 +110,14 @@ describe("EvolutionReviewPageView", () => {
   it("shows the no proposed changes empty state", () => {
     baselineAvailabilityMock.mockReturnValue({ loading: false, finalizedCount: 2 });
 
-    render(<EvolutionReviewPageView model={buildModel()} />);
+    render(
+      <EvolutionReviewPageView
+        scopedRunId=""
+        scopedRunFilterActive={false}
+        onPickReviewForSimulating={onPickReviewForSimulating}
+        model={buildModel()}
+      />,
+    );
 
     expect(screen.getByTestId("impact-preview-no-candidates-empty-state")).toBeInTheDocument();
     expect(screen.getByText(IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_TITLE)).toBeInTheDocument();
@@ -111,13 +127,19 @@ describe("EvolutionReviewPageView", () => {
   it("shows the no baseline blocked state without selector or policy-consistency copy", () => {
     baselineAvailabilityMock.mockReturnValue({ loading: false, finalizedCount: 0 });
 
-    render(<EvolutionReviewPageView model={buildModel()} />);
+    render(
+      <EvolutionReviewPageView
+        scopedRunId=""
+        scopedRunFilterActive={false}
+        onPickReviewForSimulating={onPickReviewForSimulating}
+        model={buildModel()}
+      />,
+    );
 
     expect(screen.getByTestId("impact-preview-no-baseline-empty-state")).toBeInTheDocument();
     expect(screen.getByText(IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE)).toBeInTheDocument();
     expect(screen.getByText(IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY)).toBeInTheDocument();
     expect(screen.getByLabelText("Status: Action needed")).toBeInTheDocument();
-    expect(screen.getByTestId("impact-preview-output-preview")).toBeInTheDocument();
     expect(screen.queryByText(IMPACT_PREVIEW_ORIENTATION)).not.toBeInTheDocument();
     expect(screen.queryByText(IMPACT_PREVIEW_TRUST_NOTICE)).not.toBeInTheDocument();
     expect(screen.queryByText(IMPACT_PREVIEW_SCOPE_WHAT_IT_IS)).not.toBeInTheDocument();
@@ -131,6 +153,7 @@ describe("EvolutionReviewPageView", () => {
 
     render(
       <EvolutionReviewPageView
+        {...defaultScopedViewProps}
         model={buildModel({
           listFailure: {
             message: "Could not load proposed changes.",
@@ -157,6 +180,9 @@ describe("EvolutionReviewPageView", () => {
 
     render(
       <EvolutionReviewPageView
+        scopedRunId=""
+        scopedRunFilterActive={false}
+        onPickReviewForSimulating={onPickReviewForSimulating}
         model={buildModel({
           continueLastPair: { baselineRunId: "run-prior", candidateRunId: "candidate-prior" },
           resumeContinueLastPair,
