@@ -64,4 +64,19 @@ public sealed class ClosedLoopReasoningResultClonerTests
         cloned.ProductFindings[0].Payload.Should().BeOfType<JsonElement>();
         ((JsonElement)cloned.ProductFindings[0].Payload!).GetProperty("key").GetString().Should().Be("value");
     }
+
+    [Fact]
+    public void Clone_preserves_cache_hit_flag_and_reuse_reason()
+    {
+        ClosedLoopReasoningResult source = new()
+        {
+            CacheHit = true,
+            CacheReuseReason = "dependency-manifest-match",
+        };
+
+        ClosedLoopReasoningResult cloned = ClosedLoopReasoningResultCloner.Clone(source);
+
+        cloned.CacheHit.Should().BeTrue();
+        cloned.CacheReuseReason.Should().Be("dependency-manifest-match");
+    }
 }
