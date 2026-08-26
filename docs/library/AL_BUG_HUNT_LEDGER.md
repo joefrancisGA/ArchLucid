@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 20
-- **bugs-found:** 54
+- **hunts:** 21
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — stickiness funnel committed-run SQL status filter
+- **last-bug:** 2026-08-26 — workspace baseline artifacts project-scope presence SQL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2283,7 +2283,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.Reject` — foreign-workspace `approvalRequestId` 404 parity — **cheap-disproof 2026-08-26:** same `approvalRepo.GetByIdAsync` preflight added with approve in hunt #94.
 - [x] (invalid) `TenantWorkspacesController` soft-delete restore foreign-workspace route — **cheap-disproof 2026-08-26:** `RestoreProjectAsync` already requires `workspaceId == scope.WorkspaceId` (same as delete); regression in `TenantWorkspacesControllerTests.RestoreProjectAsync_returns_not_found_when_workspace_id_is_out_of_scope`.
 - [x] (proven) `TenantCustomerSuccessController.GetFunnelSnapshotAsync` / `GetStickinessSnapshotAsync` → `SqlOperatorStickinessSnapshotReader` — `ReadyForCommit` runs with manifest reference counted as committed — **hit 2026-08-26:** filter `LegacyRunStatus = @CommittedStatus` (aligned with `PilotScorecardBuilder` / `PilotValueReportService`); regression in `SqlOperatorStickinessSnapshotReaderTests.CommittedRunsWhereClause_uses_legacy_run_status_not_manifest_reference`.
-- [ ] (candidate) `TenantWorkspaceBaselineArtifactsController.GetAsync` — `HasBaselineArtifacts` workspace-wide `EXISTS` vs project-scoped `ScriptVersion` may return inconsistent `(true, null)` when only a foreign project has packages.
+- [x] (proven) `TenantWorkspaceBaselineArtifactsController.GetAsync` / `SqlAzureExtractorPackageRepository.GetWorkspaceBaselineArtifactsAsync` — workspace-wide `EXISTS` vs project-scoped `ScriptVersion` returned inconsistent `(true, null)` when only a sibling project had packages — **hit 2026-08-26:** filter baseline presence by `ProjectId` (aligned with script version and other in-scope probes); regression in `SqlAzureExtractorPackageRepositoryScopeIsolationSqlIntegrationTests`.
+
+2026-08-26 thorough hunt #96: proved workspace baseline artifacts project-scope presence SQL.
 
 2026-08-26 thorough hunt #95: proved stickiness funnel committed-run SQL filter; cheap-disproved workspace restore 404 parity candidate.
 

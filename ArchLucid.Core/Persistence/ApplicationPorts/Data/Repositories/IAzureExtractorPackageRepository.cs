@@ -17,10 +17,10 @@ public interface IAzureExtractorPackageRepository
         ScopeContext scope,
         CancellationToken cancellationToken = default);
 
-    /// <summary>True when at least one persisted extractor package exists for the scoped tenant and workspace.</summary>
+    /// <summary>True when at least one persisted extractor package exists for the scoped tenant, workspace, and project.</summary>
     Task<bool> HasAnyInWorkspaceAsync(ScopeContext scope, CancellationToken cancellationToken = default);
 
-    /// <summary>Workspace baseline presence and latest scoped script version in one round trip.</summary>
+    /// <summary>Project-scoped baseline presence and latest script version in one round trip.</summary>
     Task<WorkspaceBaselineExtractorArtifacts> GetWorkspaceBaselineArtifactsAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default);
