@@ -127,16 +127,20 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 return cached;
             }
 
-            return await ReviewResultCacheSingleFlight.CoalesceAsync(
-                ReviewCacheKeyBuilder.Build(cacheManifest),
-                ct => CoalesceReviewCacheMissAsync(
-                    effectiveRequest,
-                    tenantId,
-                    runId,
-                    budget,
-                    cacheManifest,
-                    ct),
-                cancellationToken);
+            return FinalizeCoalescedReviewResult(
+                await ReviewResultCacheSingleFlight.CoalesceAsync(
+                    ReviewCacheKeyBuilder.Build(cacheManifest),
+                    ct => CoalesceReviewCacheMissAsync(
+                        effectiveRequest,
+                        tenantId,
+                        runId,
+                        budget,
+                        cacheManifest,
+                        ct),
+                    cancellationToken),
+                effectiveRequest,
+                runId,
+                budget);
         }
 
         return await ExecuteLiveReviewAsync(
@@ -161,21 +165,42 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         {
             cached.CacheHit = true;
             cached.CacheReuseReason = cacheManifest.ReuseReason ?? "dependency-manifest-match";
-            ArchitectureIntelligenceBudgetResultApplier.Apply(cached, budget);
-            ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(effectiveRequest, runId, cached);
 
-            return ClosedLoopReasoningResultCloner.Clone(cached);
+            return cached;
         }
 
-        ClosedLoopReasoningResult liveResult = await ExecuteLiveReviewAsync(
+        return await ExecuteLiveReviewAsync(
             effectiveRequest,
             tenantId,
             runId,
             budget,
             cacheManifest,
             cancellationToken);
+    }
 
-        return ClosedLoopReasoningResultCloner.Clone(liveResult);
+    private static ClosedLoopReasoningResult FinalizeCoalescedReviewResult(
+        ClosedLoopReasoningResult shared,
+        ClosedLoopReasoningRequest effectiveRequest,
+        string runId,
+        ArchitectureIntelligenceBudgetDecision budget)
+    {
+        ArgumentNullException.ThrowIfNull(shared);
+        ArgumentNullException.ThrowIfNull(effectiveRequest);
+        ArgumentNullException.ThrowIfNull(runId);
+        ArgumentNullException.ThrowIfNull(budget);
+
+        ClosedLoopReasoningResult isolated = ClosedLoopReasoningResultCloner.Clone(shared);
+        ArchitectureIntelligenceBudgetResultApplier.Apply(isolated, budget);
+
+        if (ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                effectiveRequest,
+                runId,
+                isolated))
+        {
+            ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(effectiveRequest, runId, isolated);
+        }
+
+        return isolated;
     }
 
     private async Task<ClosedLoopReasoningResult> ExecuteLiveReviewAsync(

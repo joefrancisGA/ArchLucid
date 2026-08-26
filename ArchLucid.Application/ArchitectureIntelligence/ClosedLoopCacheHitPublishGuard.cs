@@ -34,6 +34,19 @@ public static class ClosedLoopCacheHitPublishGuard
             cached.PublishSkipReason = SkipReason;
     }
 
+    public static bool ShouldApplyCacheHitPolicyOnCoalescedResult(
+        ClosedLoopReasoningRequest request,
+        string runId,
+        ClosedLoopReasoningResult result)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(runId);
+        ArgumentNullException.ThrowIfNull(result);
+
+        return !string.Equals(result.RunId, runId, StringComparison.Ordinal)
+            || (request.PublishToProduct && !result.PublishedToProduct);
+    }
+
     public static void SanitizeForStorage(ClosedLoopReasoningResult result)
     {
         ArgumentNullException.ThrowIfNull(result);

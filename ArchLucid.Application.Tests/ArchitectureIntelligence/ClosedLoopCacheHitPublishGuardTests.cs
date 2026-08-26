@@ -97,6 +97,49 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
     }
 
     [Fact]
+    public void ShouldApplyCacheHitPolicyOnCoalescedResult_when_run_id_differs_or_publish_not_satisfied()
+    {
+        ClosedLoopReasoningRequest publishRequest = new() { PublishToProduct = true };
+        ClosedLoopReasoningResult published = new()
+        {
+            RunId = "leader-run",
+            PublishedToProduct = true,
+        };
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                publishRequest,
+                "follower-run",
+                published)
+            .Should().BeTrue();
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                publishRequest,
+                "leader-run",
+                published)
+            .Should().BeFalse();
+
+        ClosedLoopReasoningResult notPublished = new()
+        {
+            RunId = "leader-run",
+            PublishedToProduct = false,
+        };
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                publishRequest,
+                "leader-run",
+                notPublished)
+            .Should().BeTrue();
+
+        ClosedLoopReasoningRequest analysisRequest = new() { PublishToProduct = false };
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                analysisRequest,
+                "leader-run",
+                notPublished)
+            .Should().BeFalse();
+    }
+
+    [Fact]
     public void SanitizeForStorage_strips_publish_side_effects_from_result()
     {
         ClosedLoopReasoningResult result = new()
