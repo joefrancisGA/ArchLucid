@@ -77,4 +77,18 @@ public sealed class CanonicalInfrastructurePropertyBagTests
 
         properties.ContainsKey("tf.site_config").Should().BeTrue();
     }
+
+    [Fact]
+    public void TryAddTfBlockProperty_redacts_sensitive_assignments_in_block_body()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+
+        CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(
+                properties,
+                "site_config",
+                "connection_string = \"postgres://user:pass@host/db\"")
+            .Should().BeTrue();
+
+        properties["tf.site_config"].Should().Be("[REDACTED]");
+    }
 }

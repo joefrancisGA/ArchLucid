@@ -20,6 +20,17 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         foreach (JsonElement document in documents)
         {
+            if (document.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement item in document.EnumerateArray())
+                {
+                    if (item.ValueKind is JsonValueKind.Object)
+                        TryAddResource(item, declaration, results);
+                }
+
+                continue;
+            }
+
             if (document.ValueKind is not JsonValueKind.Object)
                 continue;
 
@@ -75,7 +86,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
             properties["k8s.namespace"] = namespaceValue.ToLowerInvariant();
 
         string objectType = ResolveObjectType(kind);
-        string stableObjectId = BuildStableObjectId(objectType, declaration, kind, canonicalName);
+        string stableObjectId = BuildStableObjectId(objectType, declaration, kind, canonicalName, apiVersion);
 
         if (string.Equals(kind, "Secret", StringComparison.OrdinalIgnoreCase))
         {
@@ -109,12 +120,17 @@ internal static class KubernetesManifestCanonicalObjectMapper
         string objectType,
         InfrastructureDeclarationReference declaration,
         string kind,
-        string canonicalName)
+        string canonicalName,
+        string apiVersion)
     {
+        string identity = string.IsNullOrWhiteSpace(apiVersion)
+            ? $"{kind.ToLowerInvariant()}|{canonicalName}"
+            : $"{kind.ToLowerInvariant()}|{apiVersion.ToLowerInvariant()}|{canonicalName}";
+
         return InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
             declaration.DeclarationId,
             objectType,
-            $"{kind.ToLowerInvariant()}|{canonicalName}");
+            identity);
     }
 
     private static string ResolveObjectType(string kind)

@@ -208,4 +208,27 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().HaveCount(2);
         result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
     }
+
+    [Fact]
+    public async Task ParseAsync_NestedBlockSensitiveScalar_IsRedacted()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-nested-sensitive",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          connection_string = "postgres://user:pass@host/db"
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.site_config"].Should().Be("[REDACTED]");
+    }
 }

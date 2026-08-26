@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 54
-- **bugs-found:** 105
+- **hunts:** 55
+- **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
+- **last-bug:** 2026-08-26 — K8s apiVersion omitted from stable ObjectId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1957,6 +1957,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `KubernetesYamlInfrastructureDeclarationParser` YAML `kind: List` path — mapper already expands List items after YamlDotNet round-trip; added YAML-path regression `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_KindList_MapsMultipleItems`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.BuildStableObjectId` omitted `k8s.apiVersion` — **hit 2026-08-26:** `apps/v1` and `apps/v1beta1` Deployments both named `prod/api` collapsed to one `ObjectId`; fixed by including apiVersion in stable identity (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_SameNameDifferentApiVersion_EmitsDistinctObjectIds`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` never redacted nested HCL block assignments — **hit 2026-08-26:** `site_config { connection_string = "..." }` leaked plaintext into `tf.site_config`; fixed by scanning block bodies for sensitive keys (`CanonicalInfrastructurePropertyBagTests.TryAddTfBlockProperty_redacts_sensitive_assignments_in_block_body`, `SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlockSensitiveScalar_IsRedacted`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty` preserved raw JSON inner-key casing via `GetRawText()` — **hit 2026-08-26:** `ipAddress` vs `IpAddress` in `ipSecurityRestrictions` arrays false-modified infra declaration deltas; fixed with shared `CanonicalInfrastructureJsonValue` rewrite (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_ArrayPropertyInnerKeyCasing_IsCanonicalized`).
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.MapDocuments` skipped bare YAML array roots — **hit 2026-08-26:** multi-item `- kind: Pod` / `- kind: Service` array returned zero resources; fixed by expanding array documents (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_BareYamlArrayRoot_MapsBothItems`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` last-write-wins on case-variant duplicate property keys — **hit 2026-08-26:** `allowBlobPublicAccess` vs `AllowBlobPublicAccess` order flipped `tf.allowblobpublicaccess`; fixed by grouping properties case-insensitively (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_DuplicatePropertyKeyCasing_UsesFirstValue`).
+
+2026-08-26 seed hunt #55: reseeded K8s apiVersion identity / nested HCL block redaction / arm-json array JSON casing / bare YAML array root / arm-json duplicate property keys; proved all five hunt-ready rows.
 
 2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
 

@@ -299,4 +299,95 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
 
         baseline.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task ParseAsync_ArrayPropertyInnerKeyCasing_IsCanonicalized()
+    {
+        const string camelCaseJson = """
+                                     {
+                                       "resources": [
+                                         {
+                                           "type": "Microsoft.Web/sites",
+                                           "name": "web-app",
+                                           "properties": {
+                                             "ipSecurityRestrictions": [
+                                               { "ipAddress": "0.0.0.0/0" }
+                                             ]
+                                           }
+                                         }
+                                       ]
+                                     }
+                                     """;
+
+        string pascalCaseJson = camelCaseJson.Replace("\"ipAddress\"", "\"IpAddress\"");
+
+        InfrastructureDeclarationReference camelCaseDeclaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-array-casing",
+            Content = camelCaseJson,
+        };
+
+        InfrastructureDeclarationReference pascalCaseDeclaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-array-casing",
+            Content = pascalCaseJson,
+        };
+
+        IReadOnlyList<CanonicalObject> camelCaseObjects = await _sut.ParseAsync(camelCaseDeclaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> pascalCaseObjects = await _sut.ParseAsync(pascalCaseDeclaration, CancellationToken.None);
+
+        camelCaseObjects.Should().ContainSingle();
+        pascalCaseObjects.Should().ContainSingle();
+        pascalCaseObjects[0].Properties.Should().BeEquivalentTo(camelCaseObjects[0].Properties);
+    }
+
+    [Fact]
+    public async Task ParseAsync_DuplicatePropertyKeyCasing_UsesFirstValue()
+    {
+        const string firstOrderJson = """
+                                      {
+                                        "resources": [
+                                          {
+                                            "type": "Microsoft.Storage/storageAccounts",
+                                            "name": "docs",
+                                            "properties": {
+                                              "allowBlobPublicAccess": true,
+                                              "AllowBlobPublicAccess": false
+                                            }
+                                          }
+                                        ]
+                                      }
+                                      """;
+
+        string secondOrderJson = firstOrderJson
+            .Replace("\"allowBlobPublicAccess\": true,\n              \"AllowBlobPublicAccess\": false",
+                "\"AllowBlobPublicAccess\": false,\n              \"allowBlobPublicAccess\": true");
+
+        InfrastructureDeclarationReference firstOrder = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-dup-keys",
+            Content = firstOrderJson,
+        };
+
+        InfrastructureDeclarationReference secondOrder = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-dup-keys",
+            Content = secondOrderJson,
+        };
+
+        IReadOnlyList<CanonicalObject> firstObjects = await _sut.ParseAsync(firstOrder, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondObjects = await _sut.ParseAsync(secondOrder, CancellationToken.None);
+
+        firstObjects.Should().ContainSingle();
+        secondObjects.Should().ContainSingle();
+        secondObjects[0].Properties.Should().BeEquivalentTo(firstObjects[0].Properties);
+    }
 }
