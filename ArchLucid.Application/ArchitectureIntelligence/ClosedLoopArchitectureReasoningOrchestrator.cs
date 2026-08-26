@@ -81,15 +81,17 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        ClosedLoopReasoningRequest effectiveRequest = ClosedLoopReasoningRequestSnapshot.Capture(request);
+
         // Local effective ids: do not mutate the caller's request instance.
-        string tenantId = RequireTenantId(request);
-        string runId = string.IsNullOrWhiteSpace(request.RunId)
+        string tenantId = RequireTenantId(effectiveRequest);
+        string runId = string.IsNullOrWhiteSpace(effectiveRequest.RunId)
             ? Guid.NewGuid().ToString("N")
-            : request.RunId.Trim();
+            : effectiveRequest.RunId.Trim();
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        ArchitectureIntelligenceBudgetDecision budget = await _tierBudgetGuard.EvaluateAsync(request, cancellationToken);
+        ArchitectureIntelligenceBudgetDecision budget = await _tierBudgetGuard.EvaluateAsync(effectiveRequest, cancellationToken);
 
         if (!budget.Permitted)
         {
@@ -98,14 +100,14 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
         ReviewCacheDependencyManifest? cacheManifest = null;
 
-        if (!request.ContinueFromExistingRun)
+        if (!effectiveRequest.ContinueFromExistingRun)
         {
             ArchitectureKnowledgeModel? baselineKnowledgeModel = null;
 
-            if (!string.IsNullOrWhiteSpace(request.RunId))
+            if (!string.IsNullOrWhiteSpace(effectiveRequest.RunId))
                 baselineKnowledgeModel = await TryLoadExistingModelAsync(tenantId, runId, cancellationToken);
 
-            cacheManifest = ReviewCacheManifestBuilder.Build(request, baselineKnowledgeModel);
+            cacheManifest = ReviewCacheManifestBuilder.Build(effectiveRequest, baselineKnowledgeModel);
 
             if (_reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
                 && cached is not null)
@@ -113,7 +115,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 cached.CacheHit = true;
                 cached.CacheReuseReason = cacheManifest.ReuseReason ?? "dependency-manifest-match";
                 ArchitectureIntelligenceBudgetResultApplier.Apply(cached, budget);
-                ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(request, runId, cached);
+                ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(effectiveRequest, runId, cached);
 
                 return cached;
             }
@@ -122,7 +124,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         ArchitectureKnowledgeModel model;
         List<string> storedArtifactIds = [];
 
-        if (request.ContinueFromExistingRun
+        if (effectiveRequest.ContinueFromExistingRun
             && !string.IsNullOrWhiteSpace(runId))
         {
             ArchitectureKnowledgeModel? existing = await TryLoadExistingModelAsync(tenantId, runId, cancellationToken);
@@ -135,7 +137,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
             model = ArchitectureKnowledgeModelCloner.Clone(existing);
 
-            if (request.SourceTexts.Count > 0)
+            if (effectiveRequest.SourceTexts.Count > 0)
             {
                 await AppendSourceTextsToModelAsync(model, request, tenantId, cancellationToken);
             }
@@ -147,20 +149,20 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         }
 
         model.RunId = runId;
-        model.DeclaredPriorities = request.DeclaredPriorities.Count > 0
-            ? request.DeclaredPriorities.ToList()
+        model.DeclaredPriorities = effectiveRequest.DeclaredPriorities.Count > 0
+            ? effectiveRequest.DeclaredPriorities.ToList()
             : model.DeclaredPriorities.ToList();
 
-        ProgressiveInterviewState interview = _interviewService.BuildFramingState(model, request.SourceTexts);
+        ProgressiveInterviewState interview = _interviewService.BuildFramingState(model, effectiveRequest.SourceTexts);
 
-        if (request.FramingAnswers.Count > 0)
+        if (effectiveRequest.FramingAnswers.Count > 0)
         {
-            interview = _interviewService.ApplyAnswers(model, interview, request.FramingAnswers);
+            interview = _interviewService.ApplyAnswers(model, interview, effectiveRequest.FramingAnswers);
         }
 
         List<SpecialistReviewResult> specialistReviews = await RunSpecialistReviewsAsync(
             model,
-            request.DeclaredPriorities,
+            effectiveRequest.DeclaredPriorities,
             cancellationToken);
 
         if (!interview.IsFramingComplete)
@@ -181,9 +183,9 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
             .DeriveEvidenceDrivenQuestions(specialistReviews)
             .ToList();
 
-        if (request.FramingAnswers.Count > 0)
+        if (effectiveRequest.FramingAnswers.Count > 0)
         {
-            interview = _interviewService.ApplyAnswers(model, interview, request.FramingAnswers);
+            interview = _interviewService.ApplyAnswers(model, interview, effectiveRequest.FramingAnswers);
         }
 
         // No fallback artifact/quote injection — stage-1 must fail closed when citations are absent.
@@ -248,6 +250,12 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         IncrementalReReviewResult? reReview = null;
         SpecialistFindingsSubstantiationResult? reReviewSubstantiation = null;
         ArchitectureKnowledgeModel? modelBeforeRecommendationApply = null;
+        int allFindingsCountBeforeIntegrate = allFindings.Count;
+        HashSet<string> validationFindingIdsBeforeIntegrate = validationResults
+            .Select(result => result.FindingId)
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .ToHashSet(StringComparer.Ordinal);
+        bool reReviewIntegrated = false;
 
         if (interview.IsFramingComplete)
         {
@@ -255,13 +263,18 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 .BuildRecommendationsAsync(
                     model,
                     recommendationSourceFindings,
-                    request.DeclaredPriorities,
+                    effectiveRequest.DeclaredPriorities,
                     cancellationToken))
                 .ToList();
 
             if (recommendations.Count > 0)
             {
                 modelBeforeRecommendationApply = ArchitectureKnowledgeModelCloner.Clone(model);
+                allFindingsCountBeforeIntegrate = allFindings.Count;
+                validationFindingIdsBeforeIntegrate = validationResults
+                    .Select(result => result.FindingId)
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .ToHashSet(StringComparer.Ordinal);
 
                 ClosedLoopRecommendationBatchApplyResult applied =
                     new ClosedLoopRecommendationBatchApplier(_modelDiffApplier, _changeImpactAnalyzer)
@@ -284,6 +297,9 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                     validationResults,
                     validationByFindingId,
                     cancellationToken).ConfigureAwait(false);
+
+                if (reReviewSubstantiation is not null)
+                    reReviewIntegrated = true;
             }
         }
 
@@ -320,10 +336,42 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
             modelDiffs = [];
             reReview = null;
             reReviewSubstantiation = null;
+
+            if (reReviewIntegrated)
+            {
+                ClosedLoopReReviewPublishIntegrator.RollbackIntegratorMutations(
+                    allFindingsCountBeforeIntegrate,
+                    validationFindingIdsBeforeIntegrate,
+                    allFindings,
+                    validationResults,
+                    validationByFindingId);
+
+                gateFindings = BuildPublishGateFindings(adversarial, allFindings, null);
+
+                mustNotFailViolations = _mustNotFailEnforcer
+                    .Evaluate(
+                        gateFindings,
+                        recommendations,
+                        await TryLoadLedgerEntriesAsync(runId, cancellationToken))
+                    .ToList();
+
+                publishDecision = _trustPublishGate.Decide(
+                    gateFindings,
+                    recommendations,
+                    validationResults,
+                    mustNotFailViolations);
+
+                if (!interview.IsFramingComplete)
+                {
+                    publishDecision = ArchitectureFramingMustGate.MergeFramingIncompletePublishBlock(
+                        interview,
+                        publishDecision);
+                }
+            }
         }
 
         if (!publishDecision.PublishBlocked
-            && request.PublishToProduct
+            && effectiveRequest.PublishToProduct
             && reReviewSubstantiation is not null
             && reReview is not null)
         {
@@ -336,8 +384,8 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
         await SaveModelAsync(runId, model, cancellationToken);
 
-        string workspaceId = request.WorkspaceId ?? tenantId;
-        string projectId = request.ProjectId ?? tenantId;
+        string workspaceId = effectiveRequest.WorkspaceId ?? tenantId;
+        string projectId = effectiveRequest.ProjectId ?? tenantId;
 
         ClosedLoopReasoningResult result = new()
         {
@@ -373,10 +421,10 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
         ArchitectureIntelligenceBudgetResultApplier.Apply(result, budget);
 
-        if (request.PublishToProduct)
+        if (effectiveRequest.PublishToProduct && !publishDecision.PublishBlocked)
         {
             await _postStageHooks.ApplyProductPublishAsync(
-                request,
+                effectiveRequest,
                 result,
                 tenantId,
                 runId,
@@ -387,10 +435,10 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         {
             _reviewResultCache.Set(cacheManifest, result);
 
-            if (!string.IsNullOrWhiteSpace(request.RunId))
+            if (!string.IsNullOrWhiteSpace(effectiveRequest.RunId))
             {
                 ReviewCacheDependencyManifest postSaveManifest =
-                    ReviewCacheManifestBuilder.Build(request, model);
+                    ReviewCacheManifestBuilder.Build(effectiveRequest, model);
 
                 if (!string.Equals(
                         postSaveManifest.ContentHash,
