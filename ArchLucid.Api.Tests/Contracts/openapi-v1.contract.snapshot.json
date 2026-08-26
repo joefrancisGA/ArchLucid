@@ -1437,6 +1437,27 @@
         },
         "type": "object"
       },
+      "AdvisoryRunRecommendationsListResponse": {
+        "properties": {
+          "improveLoopEvidence": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RecommendationImproveLoopEvidenceResponse"
+              }
+            ]
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationRecordResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "AdvisoryScanExecution": {
         "properties": {
           "completedUtc": {
@@ -3600,6 +3621,39 @@
         },
         "type": "object"
       },
+      "ApplyKnowledgeModelClarificationAnswersRequest": {
+        "properties": {
+          "answers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "ApplyKnowledgeModelClarificationAnswersResponse": {
+        "properties": {
+          "appliedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "mergedFindingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "partialScopeDisclaimer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reReviewTriggered": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ApproveGovernanceRequest": {
         "properties": {
           "reviewComment": {
@@ -4796,6 +4850,12 @@
               "string"
             ]
           },
+          "priorRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "qualityAttributeSnapshot": {
             "type": [
               "null",
@@ -4884,6 +4944,13 @@
       },
       "ArchitectureReviewRecurrenceSchedule": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "consecutiveFailureCount": {
             "format": "int32",
             "type": "integer"
@@ -6917,6 +6984,27 @@
         },
         "type": "object"
       },
+      "ClarificationAnswerRephraseItem": {
+        "properties": {
+          "extractedAnswer": {
+            "minLength": 3,
+            "type": "string"
+          },
+          "questionKey": {
+            "type": "string"
+          },
+          "questionPrompt": {
+            "minLength": 10,
+            "type": "string"
+          }
+        },
+        "required": [
+          "extractedAnswer",
+          "questionKey",
+          "questionPrompt"
+        ],
+        "type": "object"
+      },
       "ClientErrorReport": {
         "properties": {
           "context": {
@@ -7216,27 +7304,6 @@
         },
         "type": "object"
       },
-      "ClarificationAnswerRephraseItem": {
-        "properties": {
-          "extractedAnswer": {
-            "minLength": 3,
-            "type": "string"
-          },
-          "questionKey": {
-            "type": "string"
-          },
-          "questionPrompt": {
-            "minLength": 10,
-            "type": "string"
-          }
-        },
-        "required": [
-          "extractedAnswer",
-          "questionKey",
-          "questionPrompt"
-        ],
-        "type": "object"
-      },
       "CloudPlatformScopeDto": {
         "properties": {
           "aws": {
@@ -7409,6 +7476,18 @@
       },
       "CommittedGovernancePackAssignmentSnapshot": {
         "properties": {
+          "complianceRuleKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "evaluationOutcome": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "policyPackId": {
             "format": "uuid",
             "type": "string"
@@ -13631,6 +13710,14 @@
         },
         "type": "object"
       },
+      "FindingMergeConflictResolutionAction": {
+        "enum": [
+          "AcceptPrimary",
+          "AcceptAlternate",
+          "KeepBoth"
+        ],
+        "type": "string"
+      },
       "FindingMuteRequest": {
         "properties": {
           "expiresAtUtc": {
@@ -15847,6 +15934,12 @@
           "globalInvariantResults": {
             "items": {
               "$ref": "#/components/schemas/GlobalInvariantCheckResult"
+            },
+            "type": "array"
+          },
+          "mergedFindingIds": {
+            "items": {
+              "type": "string"
             },
             "type": "array"
           },
@@ -21524,6 +21617,63 @@
         ],
         "type": "object"
       },
+      "PreFinalizeChecklistItem": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PreFinalizeChecklistItemStatus"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PreFinalizeChecklistItemStatus": {
+        "enum": [
+          "Clear",
+          "Advisory",
+          "Blocking"
+        ],
+        "type": "string"
+      },
+      "PreFinalizeChecklistResult": {
+        "properties": {
+          "advisoryCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "blockingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PreFinalizeChecklistItem"
+            },
+            "type": "array"
+          },
+          "readyToFinalize": {
+            "type": "boolean"
+          },
+          "runId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PreviewRecurrenceScheduleRunsRequest": {
         "properties": {
           "count": {
@@ -22598,6 +22748,24 @@
         },
         "type": "object"
       },
+      "RecommendationActionResponse": {
+        "properties": {
+          "improveLoop": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RecommendationImproveLoopEvidenceResponse"
+              }
+            ]
+          },
+          "recommendation": {
+            "$ref": "#/components/schemas/RecommendationRecordResponse"
+          }
+        },
+        "type": "object"
+      },
       "RecommendationAlternative": {
         "properties": {
           "path": {
@@ -22611,6 +22779,42 @@
       },
       "RecommendationConfidence": {
         "type": "integer"
+      },
+      "RecommendationImproveLoopEvidenceResponse": {
+        "properties": {
+          "diffEntries": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureModelDiffEntry"
+            },
+            "type": "array"
+          },
+          "fullReReviewTriggered": {
+            "type": "boolean"
+          },
+          "impact": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChangeImpactResult"
+              }
+            ]
+          },
+          "mergedFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "partialScopeDisclaimer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
       },
       "RecommendationLearningOperationalStatusResponse": {
         "properties": {
@@ -23594,6 +23798,32 @@
         ],
         "type": "object"
       },
+      "RephraseClarificationAnswersInput": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ClarificationAnswerRephraseItem"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "RephraseClarificationAnswersResponse": {
+        "properties": {
+          "rephrasedAnswers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
       "ReplayComparisonMetadataResponse": {
         "properties": {
           "comparisonRecordId": {
@@ -23925,32 +24155,6 @@
         },
         "type": "object"
       },
-      "RephraseClarificationAnswersInput": {
-        "properties": {
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/ClarificationAnswerRephraseItem"
-            },
-            "minItems": 1,
-            "type": "array"
-          }
-        },
-        "required": [
-          "items"
-        ],
-        "type": "object"
-      },
-      "RephraseClarificationAnswersResponse": {
-        "properties": {
-          "rephrasedAnswers": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "type": "object"
-          }
-        },
-        "type": "object"
-      },
       "ReplayValidationResponse": {
         "properties": {
           "artifactBundlePresentAfterReplay": {
@@ -24170,6 +24374,14 @@
               "$ref": "#/components/schemas/RequirementCoverageItem"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ResolveFindingMergeConflictRequest": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/FindingMergeConflictResolutionAction"
           }
         },
         "type": "object"
@@ -26418,6 +26630,13 @@
       },
       "RunRecord": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "architectureRequestId": {
             "type": [
               "null",
@@ -26514,6 +26733,12 @@
           "hasWarnings": {
             "type": "boolean"
           },
+          "improveLoopEvidenceJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "isDeadLettered": {
             "type": "boolean"
           },
@@ -26528,6 +26753,12 @@
           },
           "isSample": {
             "type": "boolean"
+          },
+          "knowledgeModelId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "lastFailureReason": {
             "type": [
@@ -56807,17 +57038,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecommendationRecordResponse"
+                  "$ref": "#/components/schemas/RecommendationActionResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecommendationRecordResponse"
+                  "$ref": "#/components/schemas/RecommendationActionResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecommendationRecordResponse"
+                  "$ref": "#/components/schemas/RecommendationActionResponse"
                 }
               }
             },
@@ -57162,26 +57393,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/RecommendationRecordResponse"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/AdvisoryRunRecommendationsListResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/RecommendationRecordResponse"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/AdvisoryRunRecommendationsListResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/RecommendationRecordResponse"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/AdvisoryRunRecommendationsListResponse"
                 }
               }
             },
@@ -73569,7 +73791,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/request/draft/overview-rewrite": {
+    "/v1/architecture/request/draft/clarification-answers/rephrase": {
       "post": {
         "requestBody": {
           "content": {
@@ -73580,7 +73802,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
+                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
                   }
                 ]
               }
@@ -73592,7 +73814,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
+                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
                   }
                 ]
               }
@@ -73604,7 +73826,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
+                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
                   }
                 ]
               }
@@ -73616,17 +73838,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
+                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
+                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
+                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
                 }
               }
             },
@@ -73794,7 +74016,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/request/draft/clarification-answers/rephrase": {
+    "/v1/architecture/request/draft/overview-rewrite": {
       "post": {
         "requestBody": {
           "content": {
@@ -73805,7 +74027,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
+                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
                   }
                 ]
               }
@@ -73817,7 +74039,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
+                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
                   }
                 ]
               }
@@ -73829,7 +74051,7 @@
                     "type": "null"
                   },
                   {
-                    "$ref": "#/components/schemas/RephraseClarificationAnswersInput"
+                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
                   }
                 ]
               }
@@ -73841,17 +74063,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
+                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
+                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/RephraseClarificationAnswersResponse"
+                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
                 }
               }
             },
@@ -83002,6 +83224,242 @@
         },
         "tags": [
           "RunQuery"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/review/{runId}/knowledge-model/clarification-answers": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyKnowledgeModelClarificationAnswersResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "ReviewClarificationQuestions"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -122347,6 +122805,201 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/governance/pre-finalize/checklist/{runId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreFinalizeChecklistResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreFinalizeChecklistResult"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreFinalizeChecklistResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "GovernancePreCommitSimulation"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/governance/pre-finalize/simulate": {
       "post": {
         "requestBody": {
@@ -125497,6 +126150,203 @@
         },
         "tags": [
           "Governance"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/governance/runs/{runId}/finding-merge-conflicts/{findingId}/resolve": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "findingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ResolveFindingMergeConflictRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ResolveFindingMergeConflictRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ResolveFindingMergeConflictRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
         ],
         "x-archlucid-audience": "operator"
       }

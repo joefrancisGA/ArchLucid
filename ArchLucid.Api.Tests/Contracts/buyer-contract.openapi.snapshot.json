@@ -1437,6 +1437,27 @@
         },
         "type": "object"
       },
+      "AdvisoryRunRecommendationsListResponse": {
+        "properties": {
+          "improveLoopEvidence": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RecommendationImproveLoopEvidenceResponse"
+              }
+            ]
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationRecordResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "AdvisoryScanExecution": {
         "properties": {
           "completedUtc": {
@@ -3600,6 +3621,39 @@
         },
         "type": "object"
       },
+      "ApplyKnowledgeModelClarificationAnswersRequest": {
+        "properties": {
+          "answers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "ApplyKnowledgeModelClarificationAnswersResponse": {
+        "properties": {
+          "appliedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "mergedFindingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "partialScopeDisclaimer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reReviewTriggered": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ApproveGovernanceRequest": {
         "properties": {
           "reviewComment": {
@@ -4796,6 +4850,12 @@
               "string"
             ]
           },
+          "priorRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "qualityAttributeSnapshot": {
             "type": [
               "null",
@@ -4884,6 +4944,13 @@
       },
       "ArchitectureReviewRecurrenceSchedule": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "consecutiveFailureCount": {
             "format": "int32",
             "type": "integer"
@@ -6917,6 +6984,27 @@
         },
         "type": "object"
       },
+      "ClarificationAnswerRephraseItem": {
+        "properties": {
+          "extractedAnswer": {
+            "minLength": 3,
+            "type": "string"
+          },
+          "questionKey": {
+            "type": "string"
+          },
+          "questionPrompt": {
+            "minLength": 10,
+            "type": "string"
+          }
+        },
+        "required": [
+          "extractedAnswer",
+          "questionKey",
+          "questionPrompt"
+        ],
+        "type": "object"
+      },
       "ClientErrorReport": {
         "properties": {
           "context": {
@@ -7388,6 +7476,18 @@
       },
       "CommittedGovernancePackAssignmentSnapshot": {
         "properties": {
+          "complianceRuleKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "evaluationOutcome": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "policyPackId": {
             "format": "uuid",
             "type": "string"
@@ -13610,6 +13710,14 @@
         },
         "type": "object"
       },
+      "FindingMergeConflictResolutionAction": {
+        "enum": [
+          "AcceptPrimary",
+          "AcceptAlternate",
+          "KeepBoth"
+        ],
+        "type": "string"
+      },
       "FindingMuteRequest": {
         "properties": {
           "expiresAtUtc": {
@@ -15826,6 +15934,12 @@
           "globalInvariantResults": {
             "items": {
               "$ref": "#/components/schemas/GlobalInvariantCheckResult"
+            },
+            "type": "array"
+          },
+          "mergedFindingIds": {
+            "items": {
+              "type": "string"
             },
             "type": "array"
           },
@@ -21503,6 +21617,63 @@
         ],
         "type": "object"
       },
+      "PreFinalizeChecklistItem": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PreFinalizeChecklistItemStatus"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PreFinalizeChecklistItemStatus": {
+        "enum": [
+          "Clear",
+          "Advisory",
+          "Blocking"
+        ],
+        "type": "string"
+      },
+      "PreFinalizeChecklistResult": {
+        "properties": {
+          "advisoryCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "blockingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PreFinalizeChecklistItem"
+            },
+            "type": "array"
+          },
+          "readyToFinalize": {
+            "type": "boolean"
+          },
+          "runId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PreviewRecurrenceScheduleRunsRequest": {
         "properties": {
           "count": {
@@ -22577,6 +22748,24 @@
         },
         "type": "object"
       },
+      "RecommendationActionResponse": {
+        "properties": {
+          "improveLoop": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RecommendationImproveLoopEvidenceResponse"
+              }
+            ]
+          },
+          "recommendation": {
+            "$ref": "#/components/schemas/RecommendationRecordResponse"
+          }
+        },
+        "type": "object"
+      },
       "RecommendationAlternative": {
         "properties": {
           "path": {
@@ -22590,6 +22779,42 @@
       },
       "RecommendationConfidence": {
         "type": "integer"
+      },
+      "RecommendationImproveLoopEvidenceResponse": {
+        "properties": {
+          "diffEntries": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureModelDiffEntry"
+            },
+            "type": "array"
+          },
+          "fullReReviewTriggered": {
+            "type": "boolean"
+          },
+          "impact": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChangeImpactResult"
+              }
+            ]
+          },
+          "mergedFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "partialScopeDisclaimer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
       },
       "RecommendationLearningOperationalStatusResponse": {
         "properties": {
@@ -23573,6 +23798,32 @@
         ],
         "type": "object"
       },
+      "RephraseClarificationAnswersInput": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ClarificationAnswerRephraseItem"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "RephraseClarificationAnswersResponse": {
+        "properties": {
+          "rephrasedAnswers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
       "ReplayComparisonMetadataResponse": {
         "properties": {
           "comparisonRecordId": {
@@ -24123,6 +24374,14 @@
               "$ref": "#/components/schemas/RequirementCoverageItem"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ResolveFindingMergeConflictRequest": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/FindingMergeConflictResolutionAction"
           }
         },
         "type": "object"
@@ -26371,6 +26630,13 @@
       },
       "RunRecord": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "architectureRequestId": {
             "type": [
               "null",
@@ -26467,6 +26733,12 @@
           "hasWarnings": {
             "type": "boolean"
           },
+          "improveLoopEvidenceJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "isDeadLettered": {
             "type": "boolean"
           },
@@ -26481,6 +26753,12 @@
           },
           "isSample": {
             "type": "boolean"
+          },
+          "knowledgeModelId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "lastFailureReason": {
             "type": [
@@ -27225,6 +27503,15 @@
       },
       "SelectiveExecuteRunRequest": {
         "properties": {
+          "affectedElementIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
           "agentTypes": {
             "items": {
               "type": "string"
@@ -38502,6 +38789,9 @@
     },
     {
       "name": "AuthorityQuery"
+    },
+    {
+      "name": "AuthorityReads"
     },
     {
       "name": "AuthorityReplay"
