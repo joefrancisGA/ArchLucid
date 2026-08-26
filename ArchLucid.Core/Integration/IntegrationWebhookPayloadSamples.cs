@@ -32,7 +32,9 @@ public static class IntegrationWebhookPayloadSamples
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(eventTypeAlias);
 
-        string normalized = eventTypeAlias.Trim();
+        // Match IntegrationEventServiceBusMessageDispatch / outbox priority: legacy com.archiforge.* aliases
+        // must resolve before the friendly-name switch and KnownEventTypes membership check.
+        string normalized = IntegrationEventTypes.MapToCanonical(eventTypeAlias);
 
         return normalized switch
         {
@@ -255,12 +257,15 @@ public static class IntegrationWebhookPayloadSamples
         return new
         {
             schemaVersion = 1,
-            promotionRecordId = Guid.NewGuid().ToString("D"),
-            runId = Guid.NewGuid(),
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
-            targetEnvironment = "production"
+            activationId = Guid.NewGuid().ToString("D"),
+            runId = Guid.NewGuid().ToString("D"),
+            manifestVersion = "v1",
+            environment = "production",
+            activatedBy = "cli-simulator@archlucid.local",
+            activatedUtc = TimeProvider.System.GetUtcNow().ToString("O")
         };
     }
 
