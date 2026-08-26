@@ -1935,4 +1935,71 @@ public sealed class InfrastructureDeclarationConnectorTests
         delta.AddedCount.Should().Be(0);
         delta.RemovedCount.Should().Be(0);
     }
+
+    [Fact]
+    public async Task DeltaAsync_KubernetesDeploymentAndServiceSameClusterName_CountsBothResources()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([
+                new KubernetesJsonInfrastructureDeclarationParser(
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger<KubernetesJsonInfrastructureDeclarationParser>.Instance),
+            ]),
+            new SetDiffConnectorDeltaComputer());
+
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "cluster.json",
+            Format = "kubernetes-json",
+            DeclarationId = "decl-k8s-collision",
+            Content = """
+                      {
+                        "apiVersion": "v1",
+                        "kind": "List",
+                        "items": [
+                          {
+                            "apiVersion": "apps/v1",
+                            "kind": "Deployment",
+                            "metadata": { "name": "api" }
+                          },
+                          {
+                            "apiVersion": "v1",
+                            "kind": "Service",
+                            "metadata": { "name": "api" }
+                          }
+                        ]
+                      }
+                      """,
+        };
+
+        RawContextPayload raw = new()
+        {
+            InfrastructureDeclarations = [declaration],
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        firstBatch.CanonicalObjects.Should().HaveCount(2);
+
+        ContextDelta firstDelta = await connector.DeltaAsync(firstBatch, previous: null, CancellationToken.None);
+
+        firstDelta.AddedCount.Should().Be(2);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "p",
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        ContextDelta secondDelta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        secondDelta.ModifiedCount.Should().Be(0);
+        secondDelta.UnchangedCount.Should().Be(2);
+        secondDelta.AddedCount.Should().Be(0);
+        secondDelta.RemovedCount.Should().Be(0);
+    }
 }

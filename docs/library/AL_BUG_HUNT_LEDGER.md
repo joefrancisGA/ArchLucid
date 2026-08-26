@@ -1802,11 +1802,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 34
-- **bugs-found:** 77
+- **hunts:** 35
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — initial-ingestion delta counted duplicate stable keys as separate adds
+- **last-bug:** 2026-08-26 — infrastructure declaration delta keys omitted k8s.kind for same-name resources
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1898,6 +1898,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `StaticRequestPayloadNormalizer` left default random `ObjectId` on static request description — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical description text (`ConnectorHintNormalizationDeltaTests.StaticRequestNormalizer_Reparse_ProducesStableObjectId`).
 - [x] (proven) `PolicyReferencePayloadNormalizer` left default random `ObjectId` on policy references — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical policy reference (`ConnectorHintNormalizationDeltaTests.PolicyReferenceNormalizer_Reparse_ProducesStableObjectId`).
 - [x] (proven) `SetDiffConnectorDeltaComputer.BuildInitialDelta` used `current.Count` instead of distinct stable-key count — **hit 2026-08-26:** duplicate `SourceId` in first ingest reported `AddedCount = 2` but second ingest indexed to one key and reported false remove; fixed by indexing current batch before initial delta (`SetDiffConnectorDeltaComputerTests.Compute_NoPrevious_DuplicateStableKeys_CountDistinctKeysAsAdded`).
+- [x] (proven) `InfrastructureDeclarationConnector.DeltaAsync` keyed resources by `SourceId|ObjectType|Name` only — **hit 2026-08-26:** cluster-scoped Kubernetes Deployment and Service both named `api` collapsed to one delta key; fixed with `InfrastructureDeclarationDeltaKey` including `k8s.kind` / `resourceType` / `terraformType` disambiguators (`InfrastructureDeclarationConnectorTests.DeltaAsync_KubernetesDeploymentAndServiceSameClusterName_CountsBothResources`).
 
 ---
 
