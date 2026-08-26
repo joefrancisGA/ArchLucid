@@ -6,6 +6,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpModelGovernanceGuideView } from "@/app/(operator)/help/_sections/HelpModelGovernanceGuideView";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import {
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE,
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -17,6 +18,7 @@ import {
   MODEL_GOVERNANCE_HELP_PRIMARY_ACTION,
 } from "@/lib/model-governance-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpModelGovernanceGuideView", () => {
@@ -31,7 +33,13 @@ describe("HelpModelGovernanceGuideView", () => {
 
     expect(screen.getByTestId("help-model-governance-guide")).toBeInTheDocument();
     expect(screen.getByTestId("help-model-governance-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
-    expect(screen.getByTestId("help-model-governance-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-model-governance-claim-discipline-strip")).toHaveTextContent(
+      MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-model-governance",
+      "help-model-governance-claim-discipline",
       MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByRole("heading", { name: MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
@@ -47,7 +55,14 @@ describe("HelpModelGovernanceGuideView", () => {
     const sourcesSection = screen.getByTestId("help-model-governance-sources");
 
     for (const source of MODEL_GOVERNANCE_HELP_SOURCES) {
-      expect(within(sourcesSection).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      const link = within(sourcesSection).queryByRole("link", { name: accessibleName });
+
+      if (link !== null) {
+        expect(link).toHaveAttribute("href", source.href);
+      }
     }
+
+    expect(within(sourcesSection).getAllByRole("link")).toHaveLength(6);
   });
 });

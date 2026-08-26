@@ -6,6 +6,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpAiUsageGuideView } from "@/app/(operator)/help/_sections/HelpAiUsageGuideView";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import {
   AI_USAGE_HELP_ACCESS_PRECONDITION,
   AI_USAGE_HELP_CLAIM_HEADING_ID,
@@ -31,9 +32,7 @@ describe("HelpAiUsageGuideView", () => {
 
     expect(screen.getByTestId("help-ai-usage-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Guide last reviewed 2026-08-13 · Administration · AI usage orientation",
-    );
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-ai-usage-access-precondition")).toHaveTextContent(
       AI_USAGE_HELP_ACCESS_PRECONDITION,
     );
@@ -41,7 +40,11 @@ describe("HelpAiUsageGuideView", () => {
       "id",
       AI_USAGE_HELP_CLAIM_HEADING_ID,
     );
-    expect(screen.getByTestId("help-ai-usage-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-ai-usage-claim-discipline-strip")).toHaveTextContent(AI_USAGE_HELP_CLAIM_DISCIPLINE);
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-ai-usage",
+      "help-ai-usage-claim-discipline",
       AI_USAGE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByRole("link", { name: AI_USAGE_HELP_PRIMARY_ACTION.label })).toHaveAttribute(

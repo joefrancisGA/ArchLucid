@@ -1,17 +1,19 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { DigestsHelpClaimDisciplineStrip } from "@/components/help/DigestsHelpClaimDisciplineStrip";
+import { DigestsHelpEvidenceOrientationStrip } from "@/components/help/DigestsHelpEvidenceOrientationStrip";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { DigestsHelpEvidenceOrientationStrip } from "@/components/help/DigestsHelpEvidenceOrientationStrip";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   DIGESTS_HELP_CONTENT_ITEMS,
   DIGESTS_HELP_CONTENT_SECTION_TITLE,
   DIGESTS_HELP_DESTINATION_CARDS,
+  DIGESTS_HELP_CLAIM_HEADING_ID,
   DIGESTS_HELP_GUIDE_HEADINGS,
   DIGESTS_HELP_HOW_DIGESTS_WORK_STEPS,
   DIGESTS_HELP_OVERVIEW,
@@ -33,7 +35,6 @@ import {
 import { DIGESTS_BROWSE_TAB_PATH } from "@/lib/digests-route-paths";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -148,7 +149,12 @@ function DigestsHelpSubscriptionConstraintsBlock(): React.ReactElement {
 /** Operator Digests orientation for `/help/digests` (TB-2049). */
 export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(DIGESTS_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-digests",
+    DIGESTS_HELP_GUIDE_HEADINGS,
+    DIGESTS_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
 
   return (
     <article
@@ -167,22 +173,31 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
         actions={<PageContextualHelpButton />}
       />
 
+      <DigestsHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <DigestsHelpEvidenceOrientationStrip />
+
           <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-digests-overview">
             {DIGESTS_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-digests-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Manage digests</CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={DIGESTS_HELP_PRIMARY_ACTION.href}>{DIGESTS_HELP_PRIMARY_ACTION.label}</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-digests-action-panel"
+            aria-labelledby="help-digests-action-panel-heading"
+          >
+            <h2
+              id="help-digests-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              Manage digests
+            </h2>
+            <Button asChild size="sm" variant="primary">
+              <Link href={DIGESTS_HELP_PRIMARY_ACTION.href}>{DIGESTS_HELP_PRIMARY_ACTION.label}</Link>
+            </Button>
+          </section>
 
           <DigestsHelpContentSection />
 
@@ -201,26 +216,25 @@ export function HelpDigestsGuideView(props: HelpDigestsGuideViewProps): React.Re
             <HelpSectionHeading id="where-digests-are-managed">Where digests are managed</HelpSectionHeading>
             <div className="grid items-stretch gap-3 sm:grid-cols-3" data-testid="help-digests-destination-cards">
               {DIGESTS_HELP_DESTINATION_CARDS.map((card) => (
-                <Card key={card.id} className="flex h-full min-w-0 flex-col border-neutral-200 dark:border-neutral-800">
-                  <CardHeader className={cn(OPERATOR_CARD.header, "flex-1")}>
-                    <CardTitle as="h3" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{card.title}</CardTitle>
+                <div
+                  key={card.id}
+                  className="flex h-full min-w-0 flex-col space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                >
+                  <div className="flex-1 space-y-1">
+                    <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{card.title}</h3>
                     <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{card.description}</p>
-                  </CardHeader>
-                  <CardContent className={OPERATOR_CARD.content}>
-                    <Button asChild className="w-full" size="sm" variant="outline">
-                      <Link href={card.href}>{card.actionLabel}</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <Button asChild className="w-full" size="sm" variant="outline">
+                    <Link href={card.href}>{card.actionLabel}</Link>
+                  </Button>
+                </div>
               ))}
             </div>
             <DigestsHelpSubscriptionConstraintsBlock />
           </section>
-
-          <DigestsHelpEvidenceOrientationStrip />
         </div>
 
-        <HelpTopicTableOfContents headings={DIGESTS_HELP_GUIDE_HEADINGS} enableScrollSpy />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
     </article>
   );

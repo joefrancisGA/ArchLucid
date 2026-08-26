@@ -97,6 +97,7 @@ describe("HelpApiKeysGuideView", () => {
 
     render(<HelpApiKeysGuideView entry={entry} />);
 
+    expect(screen.getByTestId("help-api-keys-claim-discipline-strip")).toHaveTextContent(API_KEYS_HELP_CLAIM_DISCIPLINE);
     expect(screen.getByRole("heading", { name: API_KEYS_HELP_INSTEAD_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-api-keys-how-stepper")).toBeInTheDocument();
     expect(screen.queryByTestId("help-api-keys-step-follow-ups")).toBeNull();
@@ -118,6 +119,9 @@ describe("HelpApiKeysGuideView", () => {
     if (claimDiscipline !== null) {
       expect(claimDiscipline.textContent?.toLowerCase()).not.toContain("not available");
     }
+    expect(screen.getByTestId("help-api-keys-claim-discipline-strip").textContent?.toLowerCase()).not.toContain(
+      "not available",
+    );
     expect(screen.getByRole("heading", { name: API_KEYS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const followUps = screen.getByTestId("help-api-keys-sources");

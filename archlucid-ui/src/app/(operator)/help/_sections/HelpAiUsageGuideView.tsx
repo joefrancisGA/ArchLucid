@@ -1,15 +1,17 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { AiUsageHelpClaimDisciplineStrip } from "@/components/help/AiUsageHelpClaimDisciplineStrip";
 import { AiUsageHelpEvidenceOrientationStrip } from "@/components/help/AiUsageHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   AI_USAGE_HELP_ACCESS_PRECONDITION,
+  AI_USAGE_HELP_CLAIM_HEADING_ID,
   AI_USAGE_HELP_GUIDE_HEADINGS,
   AI_USAGE_HELP_HOW_IT_WORKS_SECTION_TITLE,
   AI_USAGE_HELP_HOW_TO_READ_STEPS,
@@ -22,7 +24,6 @@ import {
 } from "@/lib/ai-usage-help-guide-content";
 import { AI_USAGE_HELP_CANONICAL_PATH } from "@/lib/ai-usage-help-evidence-copy";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -51,7 +52,12 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Operator AI usage orientation for `/help/ai-usage`. */
 export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(AI_USAGE_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-ai-usage",
+    AI_USAGE_HELP_GUIDE_HEADINGS,
+    AI_USAGE_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -68,32 +74,39 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
         actions={<PageContextualHelpButton />}
       />
 
+      <AiUsageHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <AiUsageHelpEvidenceOrientationStrip />
+
           <p className={readingBodyClass} data-testid="help-ai-usage-overview">
             {AI_USAGE_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-ai-usage-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {AI_USAGE_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-ai-usage-access-precondition"
-              >
-                {AI_USAGE_HELP_ACCESS_PRECONDITION}
-              </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={AI_USAGE_HELP_PRIMARY_ACTION.href}>{AI_USAGE_HELP_PRIMARY_ACTION.label}</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-ai-usage-action-panel"
+            aria-labelledby="help-ai-usage-action-panel-heading"
+          >
+            <h2
+              id="help-ai-usage-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {AI_USAGE_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-ai-usage-access-precondition"
+            >
+              {AI_USAGE_HELP_ACCESS_PRECONDITION}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="primary">
+                <Link href={AI_USAGE_HELP_PRIMARY_ACTION.href}>{AI_USAGE_HELP_PRIMARY_ACTION.label}</Link>
+              </Button>
+            </div>
+          </section>
 
           <section
             aria-labelledby="what-ai-usage-shows"
@@ -131,11 +144,9 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
               ))}
             </ol>
           </section>
-
-          <AiUsageHelpEvidenceOrientationStrip />
         </div>
 
-        <HelpTopicTableOfContents headings={AI_USAGE_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );

@@ -1,15 +1,15 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { ModelGovernanceHelpClaimDisciplineStrip } from "@/components/help/ModelGovernanceHelpClaimDisciplineStrip";
 import { ModelGovernanceHelpEvidenceOrientationStrip } from "@/components/help/ModelGovernanceHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -17,11 +17,11 @@ import {
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import {
-  MODEL_GOVERNANCE_HELP_BREADCRUMB_TOPIC_TITLE,
   MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_EMBEDDINGS,
   MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_LEAD,
   MODEL_GOVERNANCE_HELP_DATA_HANDLING_HREF,
   MODEL_GOVERNANCE_HELP_FEATURE_ITEMS,
+  MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID,
   MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS,
   MODEL_GOVERNANCE_HELP_HOW_TO_READ_STEPS,
   MODEL_GOVERNANCE_HELP_OVERVIEW,
@@ -55,7 +55,12 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Operator model governance orientation for `/help/model-governance`. */
 export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-model-governance",
+    MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS,
+    MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -75,26 +80,33 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
         actions={<PageContextualHelpButton />}
       />
 
+      <ModelGovernanceHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <ModelGovernanceHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+
           <p className={readingBodyClass} data-testid="help-model-governance-overview">
             {MODEL_GOVERNANCE_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-model-governance-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {MODEL_GOVERNANCE_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={MODEL_GOVERNANCE_HELP_PRIMARY_ACTION.href}>
-                  {MODEL_GOVERNANCE_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-model-governance-action-panel"
+            aria-labelledby="help-model-governance-action-panel-heading"
+          >
+            <h2
+              id="help-model-governance-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {MODEL_GOVERNANCE_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <Button asChild size="sm" variant="primary">
+              <Link href={MODEL_GOVERNANCE_HELP_PRIMARY_ACTION.href}>
+                {MODEL_GOVERNANCE_HELP_PRIMARY_ACTION.label}
+              </Link>
+            </Button>
+          </section>
 
           <section
             aria-labelledby="data-boundary"
@@ -154,11 +166,9 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
               ))}
             </ol>
           </section>
-
-          <ModelGovernanceHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
         </div>
 
-        <HelpTopicTableOfContents headings={MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );

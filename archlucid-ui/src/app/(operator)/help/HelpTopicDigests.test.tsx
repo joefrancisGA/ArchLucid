@@ -45,7 +45,7 @@ describe("HelpDigestsGuideView", () => {
     expect(entry?.releaseApplicability).toBe("architecture digests orientation");
   });
 
-  it("shows overview first and buyer-safe section order", () => {
+  it("shows orientation above overview and buyer-safe section order", () => {
     if (entry === undefined) {
       throw new Error("Expected digests documentation entry.");
     }
@@ -55,13 +55,12 @@ describe("HelpDigestsGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: DIGESTS_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(DIGESTS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
-    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const overview = screen.getByTestId("help-digests-overview");
     const followUpsHeading = screen.getByRole("heading", { name: DIGESTS_HELP_FOLLOW_UPS_TITLE });
 
     expect(overview).toHaveTextContent(DIGESTS_HELP_OVERVIEW);
-    expect(overview.compareDocumentPosition(followUpsHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(followUpsHeading.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expectClaimDisciplineBand(screen, "help-digests", "help-digests-claim-discipline");
   });
 
@@ -105,6 +104,7 @@ describe("HelpDigestsGuideView", () => {
 
     render(<HelpDigestsGuideView entry={entry} />);
 
+    expect(screen.getByTestId("help-digests-claim-discipline-strip")).toHaveTextContent(DIGESTS_HELP_CLAIM_DISCIPLINE);
     expectClaimDisciplineBandContent(
       screen,
       "help-digests",
