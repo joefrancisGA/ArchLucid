@@ -59,6 +59,7 @@ describe("PatternLibraryPageClient buyer-polished shell", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("pattern-library-run-scope-banner")).toBeInTheDocument();
+      expect(screen.getByTestId("pattern-library-browse-setup-progress")).toBeInTheDocument();
       expect(screen.getByTestId("pattern-library-empty-state")).toBeInTheDocument();
     });
 

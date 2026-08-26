@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -28,6 +29,10 @@ import {
 import type { PatternLibraryFiltersState } from "@/lib/pattern-library-types";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { patternLibraryHref } from "@/lib/pattern-library-route";
+import {
+  resolvePatternLibraryBrowseEmphasizedStepId,
+  resolvePatternLibraryBrowseSteps,
+} from "@/lib/pattern-library-browse-checklist";
 import { resolveContinueLastPatternLibraryRecord } from "@/lib/resolve-continue-last-pattern-library-record";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
@@ -106,6 +111,17 @@ export function PatternLibraryPageClient(): React.JSX.Element {
     [router],
   );
 
+  const patternLibraryBrowseChecklistSteps = resolvePatternLibraryBrowseSteps({
+    reviewPicked: scopedRunFilterActive,
+    catalogReviewed: allRecords.length > 0,
+    browseComplete: filteredRecords.length > 0,
+  });
+  const patternLibraryBrowseChecklistEmphasizedStepId = resolvePatternLibraryBrowseEmphasizedStepId({
+    reviewPicked: scopedRunFilterActive,
+    catalogReviewed: allRecords.length > 0,
+    browseComplete: filteredRecords.length > 0,
+  });
+
   return (
     <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.majorSectionGap} data-testid="pattern-library-page">
       <PatternLibraryPageHeader
@@ -163,6 +179,15 @@ export function PatternLibraryPageClient(): React.JSX.Element {
               onSelectReview={onPickReviewForBrowsing}
             />
           )}
+
+          {scopedRunFilterActive ? (
+            <IntegrationConnectChecklist
+              title="Browse checklist"
+              steps={patternLibraryBrowseChecklistSteps}
+              emphasizedStepId={patternLibraryBrowseChecklistEmphasizedStepId}
+              testIdPrefix="pattern-library-browse"
+            />
+          ) : null}
 
           {scopedRunFilterActive ? (
             <>

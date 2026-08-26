@@ -52,6 +52,7 @@ describe("PatternLibraryPageClient", () => {
     expect(screen.getByText(PATTERN_LIBRARY_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId("pattern-library-run-scope-banner")).toBeInTheDocument();
+      expect(screen.getByTestId("pattern-library-browse-setup-progress")).toBeInTheDocument();
       expect(screen.getByTestId("pattern-library-empty-state")).toBeInTheDocument();
     });
 
