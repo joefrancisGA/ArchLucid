@@ -18,7 +18,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { PolicyPacksActivePackSummaryCard } from "./PolicyPacksActivePackSummaryCard";
 import { PolicyPacksBreadcrumb } from "./PolicyPacksBreadcrumb";
-import { PolicyPacksBuyerChrome } from "./PolicyPacksBuyerChrome";
+import { PolicyPacksNextReviewFooterClient } from "./PolicyPacksNextReviewFooterClient";
 import { PolicyPacksCatalogSection } from "./PolicyPacksCatalogSection";
 import { PolicyPacksEnforcedRulesTable } from "./PolicyPacksEnforcedRulesTable";
 import { PolicyPacksInspectSection } from "./PolicyPacksInspectSection";
@@ -323,6 +323,10 @@ export function PolicyPacksPageView(props: Props) {
           </div>
         </TabsContent>
       </Tabs>
+
+      {m.pickedReviewId.trim().length > 0 ? (
+        <PolicyPacksNextReviewFooterClient runId={m.pickedReviewId.trim()} />
+      ) : null}
 
       {m.buyerPolishedShell ? <PolicyPacksBuyerChrome /> : null}
     </OperatorPageContainer>
