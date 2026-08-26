@@ -167,4 +167,40 @@ public sealed class AppServiceNetworkAccessSecurityBaselineExpanderTests
 
         baseline.Should().NotBeNull();
     }
+
+    [Fact]
+    public void Expand_reparse_produces_stable_object_ids_for_network_baselines()
+    {
+        CanonicalObject appService = new()
+        {
+            ObjectId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            ObjectType = "TopologyResource",
+            Name = "web-app",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_linux_web_app",
+                ["tf.ip_security_restrictions"] =
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> firstExpand =
+            AppServiceNetworkAccessSecurityBaselineExpander.Expand([appService]);
+        IReadOnlyList<CanonicalObject> secondExpand =
+            AppServiceNetworkAccessSecurityBaselineExpander.Expand([appService]);
+
+        List<string> firstBaselineIds = firstExpand
+            .Where(static o => string.Equals(o.ObjectType, "SecurityBaseline", StringComparison.OrdinalIgnoreCase))
+            .Select(static o => o.ObjectId)
+            .ToList();
+        List<string> secondBaselineIds = secondExpand
+            .Where(static o => string.Equals(o.ObjectType, "SecurityBaseline", StringComparison.OrdinalIgnoreCase))
+            .Select(static o => o.ObjectId)
+            .ToList();
+
+        secondBaselineIds.Should().Equal(firstBaselineIds);
+        firstBaselineIds.Should().OnlyContain(static id => !string.IsNullOrWhiteSpace(id));
+    }
 }

@@ -1801,11 +1801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 28
-- **bugs-found:** 62
+- **hunts:** 29
+- **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — App Service expander baselines false-removed on infra declaration re-ingest delta
+- **last-bug:** 2026-08-26 — App Service network-rule baselines rotated random ObjectId on re-expand
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1881,6 +1881,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `JsonInfrastructureDeclarationParser` preserved custom `properties` key casing — **hit 2026-08-26:** `Sku` vs `sku` produced different property keys and false modified on infrastructure declaration connector delta after snapshot reload with ordinal property bags; fixed by lowercasing trimmed custom property keys (`JsonInfrastructureDeclarationParserTests.ParseAsync_CustomPropertyKeys_AreCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_JsonCustomPropertyKeyCasingChange_ReportsUnchanged`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.SanitizePropertyKey` preserved JSON value field casing in `tf.*` keys — **hit 2026-08-26:** `Location` vs `location` produced different `tf.*` property keys and false modified on infrastructure declaration connector delta after snapshot reload with ordinal property bags; fixed by lowercasing sanitized keys (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TfPropertyKeys_AreCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonTfPropertyKeyCasingChange_ReportsUnchanged`).
 - [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` copied parent `SourceType` onto expander-spawned security baselines — **hit 2026-08-26:** enriched `InfrastructureDeclaration` network-rule baselines in prior snapshots were absent from normalized connector output and reported false removed on identical re-ingest; fixed with dedicated `AppServiceNetworkRule` source type (`InfrastructureDeclarationConnectorTests.DeltaAsync_AppServiceExpandedBaselines_ReportsUnchangedOnIdenticalReIngest`).
+- [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` left default random `ObjectId` on network-rule baselines — **hit 2026-08-26:** identical expand passes produced new `obj-{ObjectId}` graph node ids each time; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by app service id and `controlId`, and named-rule `controlId` slots instead of array index (`AppServiceNetworkAccessSecurityBaselineExpanderTests.Expand_reparse_produces_stable_object_ids_for_network_baselines`).
 
 ---
 
