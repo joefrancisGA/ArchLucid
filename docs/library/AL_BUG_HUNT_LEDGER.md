@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 10
-- **bugs-found:** 32
+- **hunts:** 11
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — governance coverage GET enriched foreign pack metadata; manifest reads returned body for out-of-scope runs
+- **last-bug:** 2026-08-26 — manifest compare omitted run-scope gate; decisions-needed summary counted foreign-workspace trail events; policy-pack dry-run skipped pack scope preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2255,6 +2255,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ManifestsController.GetManifest` / diagram / summary — plain manifest reads lacked run-scope gate — **hit 2026-08-26:** `GetManifestInScopeAsync`; regression in `ManifestsControllerEvidenceScopeTests.GetManifest_returns_not_found_when_run_is_out_of_scope`.
 - [x] (proven) `FeaturedCompletedSampleService` — tenant-wide `Homepage.FeaturedCompletedSampleRunId` setting leaked cross-workspace selection and allowed foreign-workspace overwrite — **hit 2026-08-26:** workspace-scoped setting key + out-of-scope run projects as unconfigured; regression in `FeaturedCompletedSampleServiceTests`.
 - [x] (proven) `GovernanceCoverageController.GetScopeCoverage` — `GetByIdsAsync` pack enrichment ignored workspace/project, leaking foreign `QualityDimension` metadata — **hit 2026-08-26:** filter pack lookup to ambient scope before mapping; regression in `GovernanceCoverageControllerScopeTests`.
+- [x] (proven) `ManifestsController` compare endpoints — `LoadAndCompareManifestPairAsync` loaded manifests by version without run-scope gate — **hit 2026-08-26:** use `GetManifestInScopeAsync` for both sides; regression in `ManifestsControllerEvidenceScopeTests.CompareManifests_returns_not_found_when_manifest_run_is_out_of_scope`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionsNeededSummary` / `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — tenant-only `ListSinceUtcAsync` trail inflated `FindingsAwaitingEvidence` and `TotalDecisionItems` with foreign workspace events — **hit 2026-08-26:** `FilterTrailToScope` on workspace/project; regression in `GovernanceDigestDecisionNeededComposerTests.BuildSummaryAsync_excludes_foreign_workspace_disposition_trail_events`.
+- [x] (proven) `GovernanceController.DryRunPolicyPack` / `PolicyPackDryRunService.EvaluateAsync` — route `policyPackId` evaluated without tenant/workspace/project visibility check — **hit 2026-08-26:** `EnsurePolicyPackInScopeAsync` throws `PolicyPackNotFoundException`; regression in `PolicyPackDryRunServiceTests.EvaluateAsync_throws_when_policy_pack_is_out_of_scope`.
+
+2026-08-26 seed hunt #86: proved manifest compare run scope, decisions-needed trail scope, policy-pack dry-run pack scope.
 
 2026-08-26 seed hunt #85: proved manifest body scope on read/export paths, featured-sample workspace setting isolation, governance coverage pack metadata scope.
 

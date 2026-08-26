@@ -41,7 +41,7 @@ public sealed class RoiSponsorFacingSemanticsTests
 
         Mock<IGovernanceDigestDecisionNeededComposer> decisions = new();
         decisions
-            .Setup(composer => composer.BuildSummaryAsync(TenantId, ProjectId, It.IsAny<CancellationToken>()))
+            .Setup(composer => composer.BuildSummaryAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Contracts.Governance.GovernanceDecisionsNeededSummaryResponse());
 
         SponsorReportsSummaryService sut = new(scope.Object, roiService.Object, decisions.Object);

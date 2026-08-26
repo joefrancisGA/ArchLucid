@@ -17,7 +17,7 @@ public sealed class SponsorReportsSummaryService(
         SponsorRoiSummaryResponse roi = await roiSummaryService.BuildAsync(cancellationToken);
 
         Contracts.Governance.GovernanceDecisionsNeededSummaryResponse decisions =
-            await decisionsNeededComposer.BuildSummaryAsync(scope.TenantId, scope.ProjectId, cancellationToken);
+            await decisionsNeededComposer.BuildSummaryAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
 
         int securityCount = roi.TopSystemicIssues
             .Count(static i => string.Equals(i.Category, "Security", StringComparison.OrdinalIgnoreCase));

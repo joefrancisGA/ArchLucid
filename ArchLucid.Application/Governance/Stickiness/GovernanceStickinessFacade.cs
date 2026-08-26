@@ -163,6 +163,7 @@ public sealed partial class GovernanceStickinessFacade(
 
         return await _governanceDigestDecisionNeededComposer.BuildSummaryAsync(
             scope.TenantId,
+            scope.WorkspaceId,
             resolvedProjectId,
             ct);
     }

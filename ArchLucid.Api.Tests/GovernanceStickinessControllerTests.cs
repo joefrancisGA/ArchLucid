@@ -111,7 +111,7 @@ public sealed class GovernanceStickinessControllerTests
 
         Mock<IGovernanceDigestDecisionNeededComposer> digestComposer = new();
         digestComposer
-            .Setup(c => c.BuildSummaryAsync(Scope.TenantId, Scope.ProjectId, It.IsAny<CancellationToken>()))
+            .Setup(c => c.BuildSummaryAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GovernanceDecisionsNeededSummaryResponse());
 
         Mock<IReviewsAwaitingActionQueryService> reviewsAwaiting = new();

@@ -50,7 +50,7 @@ public sealed class SponsorRoiSummaryInvariantTests
 
         Mock<IGovernanceDigestDecisionNeededComposer> decisions = new();
         decisions
-            .Setup(composer => composer.BuildSummaryAsync(TenantId, ProjectId, It.IsAny<CancellationToken>()))
+            .Setup(composer => composer.BuildSummaryAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GovernanceDecisionsNeededSummaryResponse { TotalDecisionItems = 20 });
 
         SponsorReportsSummaryService sut = new(scope.Object, roi.Object, decisions.Object);
@@ -81,7 +81,7 @@ public sealed class SponsorRoiSummaryInvariantTests
 
         Mock<IGovernanceDigestDecisionNeededComposer> decisions = new();
         decisions
-            .Setup(composer => composer.BuildSummaryAsync(TenantId, ProjectId, It.IsAny<CancellationToken>()))
+            .Setup(composer => composer.BuildSummaryAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GovernanceDecisionsNeededSummaryResponse());
 
         SponsorReportsSummaryService sut = new(scope.Object, roi.Object, decisions.Object);
@@ -242,7 +242,7 @@ public sealed class SponsorRoiSummaryInvariantTests
             cachedRoi);
 
         GovernanceDecisionsNeededSummaryResponse decisions =
-            await composer.BuildSummaryAsync(TenantId, ProjectId, CancellationToken.None);
+            await composer.BuildSummaryAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
 
         roi.ExpiringWaiversCount14Days.Should().Be(1);
         decisions.WaiversExpiringWithin14Days.Should().Be(1);

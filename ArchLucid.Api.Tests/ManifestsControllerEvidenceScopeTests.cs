@@ -111,6 +111,50 @@ public sealed class ManifestsControllerEvidenceScopeTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    [Fact]
+    public async Task CompareManifests_returns_not_found_when_manifest_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        GoldenManifest manifest = new()
+        {
+            RunId = foreignRunId.ToString("N"),
+            SystemName = "payments",
+            Metadata = new ManifestMetadata { ManifestVersion = ManifestVersion },
+            Governance = new ManifestGovernance(),
+        };
+
+        Mock<IUnifiedGoldenManifestReader> reader = new();
+        reader
+            .Setup(r => r.GetByVersionAsync(ManifestVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(manifest);
+        reader
+            .Setup(r => r.GetByVersionAsync("golden-v2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(manifest);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        ManifestsController controller = CreateController(
+            reader.Object,
+            scopeProvider.Object,
+            runs.Object,
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IManifestSummaryGenerator>());
+
+        IActionResult action = await controller.CompareManifests(
+            ManifestVersion,
+            "golden-v2",
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
     private static ManifestsController CreateController(
         IUnifiedGoldenManifestReader manifestReader,
         IScopeContextProvider scopeProvider,

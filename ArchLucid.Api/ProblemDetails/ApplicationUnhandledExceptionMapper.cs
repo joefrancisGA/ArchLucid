@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
@@ -165,6 +166,18 @@ internal static class ApplicationUnhandledExceptionMapper
                 "Run Not Found",
                 rnf.Message,
                 ProblemTypes.RunNotFound,
+                instance,
+                httpContext);
+            return true;
+        }
+
+        if (ex is PolicyPackNotFoundException pnf)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status404NotFound,
+                "Policy Pack Not Found",
+                pnf.Message,
+                ProblemTypes.ResourceNotFound,
                 instance,
                 httpContext);
             return true;
