@@ -12,6 +12,14 @@ import {
   QUICK_SCAN_PRIMARY_CONTENT_ID,
 } from "@/app/(marketing)/quick-scan/quick-scan-page-content";
 import { QuickScanForm, type QuickScanFormFieldName } from "@/app/(marketing)/quick-scan/QuickScanForm";
+import {
+  ensureBrowserId,
+  ensureSessionId,
+  environmentLabel,
+  filterVisibleFieldErrors,
+  tryReadErrorCode,
+  tryReadProblemDetail,
+} from "@/app/(marketing)/quick-scan/quick-scan-session";
 import { SeeItDeliverablePreview } from "@/app/(marketing)/see-it/SeeItDeliverablePreview";
 import { QuickScanEvidenceOrientationStrip } from "@/components/marketing/QuickScanEvidenceOrientationStrip";
 import { QuickScanScopeDisclosure } from "@/components/marketing/quick-scan/QuickScanScopeDisclosure";
@@ -37,126 +45,11 @@ import {
   buildQuickScanRequestBody,
   quickScanIncompleteReason,
   validateQuickScanForm,
-  type QuickScanFieldErrors,
   type QuickScanFormValues,
 } from "@/lib/quick-scan/quick-scan-validation";
 import { TRUST_CENTER_PUBLIC_EVIDENCE_VERSION } from "@/lib/trust-center-buyer-content";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { cn } from "@/lib/utils";
-
-const SESSION_STORAGE_KEY = "al_quick_scan_session";
-const BROWSER_STORAGE_KEY = "al_quick_scan_browser";
-
-function ensureSessionId(): string {
-  if (typeof window === "undefined") {
-    return "server";
-  }
-
-  const existing = window.localStorage.getItem(SESSION_STORAGE_KEY);
-
-  if (existing && existing.trim().length > 0) {
-    return existing;
-  }
-
-  const created = crypto.randomUUID();
-  window.localStorage.setItem(SESSION_STORAGE_KEY, created);
-
-  return created;
-}
-
-function ensureBrowserId(): string {
-  if (typeof window === "undefined") {
-    return "server";
-  }
-
-  const existing = window.localStorage.getItem(BROWSER_STORAGE_KEY);
-
-  if (existing && existing.trim().length > 0) {
-    return existing;
-  }
-
-  const created = crypto.randomUUID();
-  window.localStorage.setItem(BROWSER_STORAGE_KEY, created);
-
-  return created;
-}
-
-function tryReadErrorCode(body: string): string | null {
-  if (body.trim().length === 0) {
-    return null;
-  }
-
-  try {
-    const parsed = JSON.parse(body) as { errorCode?: unknown; extensions?: { errorCode?: unknown } };
-    const direct = typeof parsed.errorCode === "string" ? parsed.errorCode : null;
-    const nested =
-      parsed.extensions && typeof parsed.extensions.errorCode === "string" ? parsed.extensions.errorCode : null;
-
-    return direct ?? nested;
-  } catch {
-    return null;
-  }
-}
-
-function tryReadProblemDetail(body: string): string | null {
-  if (body.trim().length === 0) {
-    return null;
-  }
-
-  try {
-    const parsed = JSON.parse(body) as { detail?: unknown };
-
-    return typeof parsed.detail === "string" && parsed.detail.trim().length > 0 ? parsed.detail : null;
-  } catch {
-    return null;
-  }
-}
-
-function environmentLabel(value: string): string {
-  const labels: Record<string, string> = {
-    Azure: "Azure",
-    AWS: "AWS",
-    GoogleCloud: "Google Cloud",
-    Multicloud: "Multicloud",
-    HybridCloud: "Hybrid cloud",
-    OnPremises: "On-premises",
-    ProviderNeutral: "Provider-neutral",
-    Other: "Other",
-    NotSure: "Not sure",
-  };
-
-  return labels[value] ?? value;
-}
-
-function filterVisibleFieldErrors(
-  errors: QuickScanFieldErrors,
-  touchedFields: ReadonlySet<QuickScanFormFieldName>,
-  attemptedSubmit: boolean,
-): QuickScanFieldErrors {
-  if (attemptedSubmit) {
-    return errors;
-  }
-
-  const visible: QuickScanFieldErrors = {};
-
-  if (touchedFields.has("systemName") && errors.systemName) {
-    visible.systemName = errors.systemName;
-  }
-
-  if (touchedFields.has("primaryEnvironment") && errors.primaryEnvironment) {
-    visible.primaryEnvironment = errors.primaryEnvironment;
-  }
-
-  if (touchedFields.has("description") && errors.description) {
-    visible.description = errors.description;
-  }
-
-  if (touchedFields.has("architectureConcerns") && errors.architectureConcerns) {
-    visible.architectureConcerns = errors.architectureConcerns;
-  }
-
-  return visible;
-}
 
 /**
  * No-sign-in Quick Scan: POST /v1/marketing/quick-scan via same-origin proxy (no privileged bearer).
