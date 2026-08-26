@@ -70,7 +70,7 @@ public sealed class CliPackageCoverageBatch2Tests
             RunGit(tempRoot, "config user.name ArchLucid Cli Test");
             File.WriteAllText(Path.Combine(tempRoot, "README.md"), "clean");
             RunGit(tempRoot, "add README.md");
-            RunGit(tempRoot, "commit -m init");
+            RunGit(tempRoot, "commit -m \"init\"");
 
             bool? dirty = DeploymentEvidenceGitReader.TryReadDirty(tempRoot);
 

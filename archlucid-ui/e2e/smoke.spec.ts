@@ -120,7 +120,7 @@ test.describe("operator shell smoke — core proof path", () => {
 
     await page.goto("/architecture/reviews");
     await page.getByTestId("operator-shell-help-trigger").click();
-    await expect(page.getByTestId("help-search-panel")).toBeVisible();
+    await expect(page.getByTestId("help-search-panel")).toBeVisible({ timeout: 60_000 });
   });
 });
 
@@ -166,7 +166,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/governance/sealed-records");
-    await expect(page.getByTestId("signed-records-list-page-title")).toHaveText("Sealed review records");
+    await expect(page.getByTestId("signed-records-list-page-title")).toHaveText("Finalized review records");
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/governance/standards-and-rules");

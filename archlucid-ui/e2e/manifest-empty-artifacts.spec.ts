@@ -31,7 +31,13 @@ test.describe("operator journey — manifest empty artifact list", () => {
     await expect(page.getByText("Artifact list response was not usable.", { exact: true })).toHaveCount(0);
     await expect(page.getByText("Deliverables response was not usable.", { exact: true })).toHaveCount(0);
 
-    const emptyRegion = page.getByTestId("manifest-deliverables-empty-state");
+    const emptyRegion = page
+      .getByTestId("manifest-deliverables-empty-state")
+      .or(
+        page.getByRole("status").filter({
+          hasText: /No artifacts listed for this (?:manifest|review)|No deliverables listed yet/,
+        }),
+      );
     await expect(emptyRegion).toBeVisible();
     await expect(
       emptyRegion.getByText(

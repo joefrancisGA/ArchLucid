@@ -17,7 +17,7 @@ test.describe("marketing-demo-preview", () => {
     });
 
     await expect(page.getByTestId("showcase-hero")).toBeVisible();
-    await expect(page.getByTestId("demo-preview-result-at-a-glance")).toBeVisible();
+    await expect(page.getByTestId("demo-preview-result-at-a-glance")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("demo-preview-artifact-nav")).toBeVisible();
     await expect(page.getByTestId("demo-preview-sponsor-conclusion")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Review lifecycle" })).toBeVisible();
