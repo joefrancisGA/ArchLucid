@@ -67,7 +67,7 @@ public static class ReviewCacheManifestBuilder
         builder.Append("golden=").Append(request.UseGoldenFixture ? '1' : '0').Append('|');
         builder.Append("alias=").Append(request.ModelAliasId ?? string.Empty).Append('|');
 
-        if (!string.IsNullOrWhiteSpace(request.RunId) && baselineKnowledgeModel is not null)
+        if (!string.IsNullOrWhiteSpace(request.RunId))
         {
             builder.Append("modelfp=")
                 .Append(ReviewCacheModelFingerprint.Compute(baselineKnowledgeModel))
