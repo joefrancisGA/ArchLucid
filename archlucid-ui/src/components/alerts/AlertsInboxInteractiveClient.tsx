@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AlertsInboxPickReviewBeforeTriageStrip } from "@/components/alerts/AlertsInboxPickReviewBeforeTriageStrip";
 import { AlertsInboxNextReviewFooterClient } from "@/components/alerts/AlertsInboxNextReviewFooterClient";
 import { AlertsInboxAlertListSection } from "@/components/alerts/AlertsInboxAlertListSection";
@@ -15,6 +16,10 @@ import { AlertsInboxSummaryRow } from "@/components/alerts/AlertsInboxSummaryRow
 import { useAlertsInboxController } from "@/components/alerts/use-alerts-inbox-controller";
 import type { AlertsInboxPageModel } from "@/app/(operator)/governance/alerts/_sections/alerts-inbox-page-model";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  resolveAlertsInboxTriageEmphasizedStepId,
+  resolveAlertsInboxTriageSteps,
+} from "@/lib/alerts-inbox-triage-checklist";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -79,6 +84,20 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
 
       {controller.scopedRunFilterActive ? (
         <>
+          <IntegrationConnectChecklist
+            title="Triage checklist"
+            steps={resolveAlertsInboxTriageSteps({
+              reviewPicked: true,
+              alertSelected: controller.selectedAlertIds.length > 0,
+              triageActionComplete: controller.visibleAlerts.some((alert) => alert.status !== "Open"),
+            })}
+            emphasizedStepId={resolveAlertsInboxTriageEmphasizedStepId({
+              reviewPicked: true,
+              alertSelected: controller.selectedAlertIds.length > 0,
+              triageActionComplete: controller.visibleAlerts.some((alert) => alert.status !== "Open"),
+            })}
+            testIdPrefix="alerts-inbox-triage"
+          />
       <AlertsInboxControls
         status={controller.status}
         page={controller.page}
