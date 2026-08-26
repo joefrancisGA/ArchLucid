@@ -19,7 +19,7 @@ export const ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE =
 
 /** Draft meets minimum review-readiness — further refinement is optional. */
 export const ARCHITECTURE_DRAFT_REFINE_OPTIONAL_BEFORE_REVIEW_SENTENCE =
-  "Refining is optional. You can start a review when you are ready, or keep editing this draft first." as const;
+  "You can start a review now, or keep refining this draft if you want." as const;
 
 /**
  * @deprecated Prefer {@link resolveArchitectureDraftRefineGuidanceSentence} — static copy implied refinement was always required.
