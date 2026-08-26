@@ -1834,7 +1834,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
+- **last-bug:** 2026-08-26 — arm-json tf blob canonicalization and nested sensitive redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
