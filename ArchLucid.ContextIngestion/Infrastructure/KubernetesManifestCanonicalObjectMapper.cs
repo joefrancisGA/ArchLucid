@@ -20,6 +20,17 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         foreach (JsonElement document in documents)
         {
+            if (document.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement item in document.EnumerateArray())
+                {
+                    if (item.ValueKind is JsonValueKind.Object)
+                        TryAddResource(item, declaration, results);
+                }
+
+                continue;
+            }
+
             if (document.ValueKind is not JsonValueKind.Object)
                 continue;
 

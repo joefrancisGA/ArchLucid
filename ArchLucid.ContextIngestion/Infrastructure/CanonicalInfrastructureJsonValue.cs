@@ -65,6 +65,13 @@ public static class CanonicalInfrastructureJsonValue
                              .Select(static group => group.First())
                              .OrderBy(static property => property.Name, StringComparer.OrdinalIgnoreCase))
                 {
+                    if (CanonicalInfrastructurePropertyBag.ShouldRedactKey(property.Name))
+                    {
+                        writer.WritePropertyName(property.Name.ToLowerInvariant());
+                        writer.WriteStringValue("[REDACTED]");
+                        continue;
+                    }
+
                     writer.WritePropertyName(property.Name.ToLowerInvariant());
                     WriteCanonicalJsonValue(writer, property.Value);
                 }

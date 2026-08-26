@@ -192,4 +192,24 @@ public sealed class JsonInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_TopLevelResourceArray_MapsVnet()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            DeclarationId = "decl-json-top-array",
+            Content = """
+                      [
+                        { "type": "vnet", "name": "hub-vnet", "region": "eastus", "properties": {} }
+                      ]
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle(o => o.Name == "hub-vnet" && o.ObjectType == "TopologyResource");
+    }
 }

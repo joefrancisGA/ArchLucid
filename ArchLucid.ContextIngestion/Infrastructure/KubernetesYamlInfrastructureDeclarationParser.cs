@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 using ArchLucid.ContextIngestion.Models;
 
@@ -15,6 +16,10 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 public sealed class KubernetesYamlInfrastructureDeclarationParser(
     ILogger<KubernetesYamlInfrastructureDeclarationParser> logger) : IInfrastructureDeclarationParser
 {
+    private static readonly Regex DocumentSeparatorRegex = new(
+        @"^\s*---\s*$",
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
     private static readonly IDeserializer YamlDeserializer = new DeserializerBuilder()
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
         .IgnoreUnmatchedProperties()
@@ -36,9 +41,7 @@ public sealed class KubernetesYamlInfrastructureDeclarationParser(
 
         try
         {
-            string[] documents = declaration.Content.Split(
-                new[] { "\n---", "\r\n---" },
-                StringSplitOptions.RemoveEmptyEntries);
+            string[] documents = DocumentSeparatorRegex.Split(declaration.Content);
 
             List<JsonElement> jsonDocuments = [];
 

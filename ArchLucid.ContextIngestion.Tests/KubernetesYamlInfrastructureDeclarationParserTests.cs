@@ -116,4 +116,58 @@ public sealed class KubernetesYamlInfrastructureDeclarationParserTests
             && o.Properties["k8s.kind"] == "pod"
             && o.Properties["k8s.generateName"] == "api-");
     }
+
+    [Fact]
+    public async Task ParseAsync_BareYamlArrayRoot_MapsBothItems()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "bundle.yaml",
+            Format = "kubernetes-yaml",
+            DeclarationId = "decl-k8s-yaml-bare-array",
+            Content = """
+                      - apiVersion: v1
+                        kind: Pod
+                        metadata:
+                          name: pod-a
+                      - apiVersion: v1
+                        kind: Service
+                        metadata:
+                          name: svc-a
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(o => o.Name == "pod-a" && o.Properties["k8s.kind"] == "pod");
+        result.Should().ContainSingle(o => o.Name == "svc-a" && o.Properties["k8s.kind"] == "service");
+    }
+
+    [Fact]
+    public async Task ParseAsync_SpacePrefixedDocumentSeparator_MapsBothPods()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "pods.yaml",
+            Format = "kubernetes-yaml",
+            DeclarationId = "decl-k8s-yaml-padded-separator",
+            Content = """
+                      apiVersion: v1
+                      kind: Pod
+                      metadata:
+                        name: pod-a
+                       ---
+                      apiVersion: v1
+                      kind: Pod
+                      metadata:
+                        name: pod-b
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(o => o.Name).Should().BeEquivalentTo(["pod-a", "pod-b"]);
+    }
 }

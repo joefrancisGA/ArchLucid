@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 56
-- **bugs-found:** 115
+- **hunts:** 57
+- **bugs-found:** 120
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — simple-terraform nested HCL blocks leaked sensitive scalars
+- **last-bug:** 2026-08-26 — kubernetes-yaml bare array root dropped manifests
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1967,6 +1967,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.BuildStableObjectId` omitted `k8s.apiVersion` — **hit 2026-08-26:** `apps/v1` and `apps/v1beta1` Deployments both named `prod/api` collapsed to one `ObjectId` and delta key; fixed by including apiVersion in stable identity and connector keys (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_SameNameDifferentApiVersion_EmitsDistinctObjectIds`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.TryAddResource` ingested `mode: "data"` resources — **hit 2026-08-26:** `azurerm_client_config` data sources appeared as topology resources alongside managed resources; fixed by skipping `mode: data` rows (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_ModeDataResources_AreExcluded`).
 - [x] (proven) `SimpleTerraformResourceBlockParser.ResourceHeaderRegex` accepted only double-quoted resource headers — **hit 2026-08-26:** `resource 'azurerm_virtual_network' 'core'` returned zero resources; fixed with single-quoted header alternation (`SimpleTerraformDeclarationParserTests.ParseAsync_SingleQuotedResourceHeader_MapsResource`).
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.MapDocuments` skipped bare YAML array roots — **hit 2026-08-26:** multi-item `- kind: Pod` / `- kind: Service` array returned zero resources; fixed by expanding array documents (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_BareYamlArrayRoot_MapsBothItems`).
+- [x] (proven) `KubernetesYamlInfrastructureDeclarationParser` split only on `\n---` without leading whitespace — **hit 2026-08-26:** ` ---` padded document separators failed YAML parse and returned zero resources; fixed with multiline `^\s*---\s*$` regex split (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_SpacePrefixedDocumentSeparator_MapsBothPods`).
+- [x] (proven) `JsonInfrastructureDeclarationParser` accepted only `{ "resources": [...] }` shape — **hit 2026-08-26:** top-level resource array `[{ "type": "vnet", ... }]` returned zero resources; fixed by parsing root arrays (`JsonInfrastructureDeclarationParserTests.ParseAsync_TopLevelResourceArray_MapsVnet`).
+- [x] (proven) `CanonicalInfrastructureJsonValue` did not redact nested sensitive keys in arm-json object blobs — **hit 2026-08-26:** `siteConfig.connectionString` leaked plaintext inside `tf.siteconfig`; fixed by scanning nested property names with `ShouldRedactKey` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_NestedConnectionStringInSiteConfig_IsRedacted`).
+- [x] (proven) `ContextIngestionService.CanonicalizeActorsJson` preserved actor `label` value casing — **hit 2026-08-26:** `"Ops Engineer"` vs `"ops engineer"` churned `SourceHashes[Actors]`; fixed by trim/lowercase label values before serialize (`ContextIngestionServiceTests.IngestAsync_ActorsJsonLabelValueCasing_ProducesStableScopeMetadata`).
+
+2026-08-26 seed hunt #63: reseeded K8s YAML array/separator / JSON top-level array / arm-json nested sensitive / actor label casing; proved all five hunt-ready rows.
 
 2026-08-26 seed hunt #62: reseeded nested HCL redaction / inline comments / K8s apiVersion identity / terraform data sources / single-quoted headers; proved all five hunt-ready rows.
 

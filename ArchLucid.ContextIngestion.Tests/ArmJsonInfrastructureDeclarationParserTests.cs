@@ -380,4 +380,35 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
         pascalCaseObjects.Should().ContainSingle();
         pascalCaseObjects[0].Properties.Should().BeEquivalentTo(camelCaseObjects[0].Properties);
     }
+
+    [Fact]
+    public async Task ParseAsync_NestedConnectionStringInSiteConfig_IsRedacted()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-nested-sensitive",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Web/sites",
+                            "name": "app",
+                            "properties": {
+                              "siteConfig": {
+                                "connectionString": "postgres://user:pass@host/db"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.siteconfig"].Should().Be("{\"connectionstring\":\"[REDACTED]\"}");
+    }
 }
