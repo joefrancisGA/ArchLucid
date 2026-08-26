@@ -48,44 +48,38 @@ public sealed class ReviewResultCacheSingleFlightTests
         ReviewCacheDependencyManifest manifest = new() { ContentHash = "cancel-flight-hash" };
         int calls = 0;
         using CancellationTokenSource leaderToken = new();
-        TaskCompletionSource startGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource leaderEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         Task<ClosedLoopReasoningResult> leader = Task.Run(async () =>
         {
-            await startGate.Task;
-
             return await cache.CoalesceAsync(
                 manifest,
                 async ct =>
                 {
                     Interlocked.Increment(ref calls);
+                    leaderEntered.TrySetResult();
 
-                    await Task.Delay(40, ct);
+                    await Task.Delay(Timeout.InfiniteTimeSpan, ct);
 
-                    throw new OperationCanceledException(ct);
+                    return new ClosedLoopReasoningResult { RunId = "leader" };
                 },
                 leaderToken.Token);
         });
 
-        Task<ClosedLoopReasoningResult> waiter = Task.Run(async () =>
-        {
-            await startGate.Task;
+        await leaderEntered.Task;
 
-            return await cache.CoalesceAsync(
-                manifest,
-                async ct =>
-                {
-                    Interlocked.Increment(ref calls);
+        Task<ClosedLoopReasoningResult> waiter = cache.CoalesceAsync(
+            manifest,
+            async _ =>
+            {
+                Interlocked.Increment(ref calls);
 
-                    await Task.Yield();
+                return new ClosedLoopReasoningResult { RunId = "waiter-run" };
+            },
+            CancellationToken.None);
 
-                    return new ClosedLoopReasoningResult { RunId = "waiter-run" };
-                },
-                CancellationToken.None);
-        });
-
-        startGate.SetResult();
-        leaderToken.CancelAfter(10);
+        await Task.Delay(20);
+        leaderToken.Cancel();
 
         Func<Task> act = async () => await leader;
         await act.Should().ThrowAsync<OperationCanceledException>();
