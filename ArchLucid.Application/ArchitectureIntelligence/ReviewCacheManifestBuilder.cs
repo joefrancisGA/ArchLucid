@@ -116,11 +116,12 @@ public static class ReviewCacheManifestBuilder
         }
 
         foreach (ClosedLoopReasoningSourceText source in request.SourceTexts
+                     .Select(ClosedLoopReasoningSourceTextNormalizer.Normalize)
                      .OrderBy(item => item.FileName, StringComparer.Ordinal)
                      .ThenBy(item => item.ContentType, StringComparer.Ordinal))
         {
-            builder.Append(source.FileName ?? string.Empty).Append('\n');
-            builder.Append(source.ContentType ?? string.Empty).Append('\n');
+            builder.Append(source.FileName).Append('\n');
+            builder.Append(source.ContentType).Append('\n');
             builder.Append(source.Content ?? string.Empty).Append("\n---\n");
         }
 
@@ -138,9 +139,9 @@ public static class ReviewCacheManifestBuilder
     {
         string payload = string.Join(
             '|',
-            request.TenantId ?? string.Empty,
-            request.WorkspaceId ?? string.Empty,
-            request.ProjectId ?? string.Empty);
+            request.TenantId?.Trim() ?? string.Empty,
+            request.WorkspaceId?.Trim() ?? string.Empty,
+            request.ProjectId?.Trim() ?? string.Empty);
 
         return Sha256Hex(payload);
     }

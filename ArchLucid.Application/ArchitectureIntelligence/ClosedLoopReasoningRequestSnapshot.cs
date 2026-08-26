@@ -13,17 +13,12 @@ internal static class ClosedLoopReasoningRequestSnapshot
 
         return new ClosedLoopReasoningRequest
         {
-            TenantId = request.TenantId,
+            TenantId = request.TenantId?.Trim(),
             RunId = ClosedLoopRunIdNormalizer.NormalizeOptional(request.RunId),
-            WorkspaceId = request.WorkspaceId,
-            ProjectId = request.ProjectId,
+            WorkspaceId = request.WorkspaceId?.Trim(),
+            ProjectId = request.ProjectId?.Trim(),
             SourceTexts = request.SourceTexts
-                .Select(source => new ClosedLoopReasoningSourceText
-                {
-                    FileName = source.FileName,
-                    ContentType = source.ContentType,
-                    Content = source.Content,
-                })
+                .Select(ClosedLoopReasoningSourceTextNormalizer.Normalize)
                 .ToList(),
             DeclaredPriorities = ClosedLoopDeclaredPrioritiesNormalizer.Normalize(request.DeclaredPriorities),
             FramingAnswers = ClosedLoopFramingAnswersNormalizer.Normalize(request.FramingAnswers),
@@ -31,7 +26,7 @@ internal static class ClosedLoopReasoningRequestSnapshot
             ContinueFromExistingRun = request.ContinueFromExistingRun,
             PublishToProduct = request.PublishToProduct,
             ReviewTier = request.ReviewTier,
-            ModelAliasId = request.ModelAliasId,
+            ModelAliasId = request.ModelAliasId?.Trim(),
         };
     }
 }
