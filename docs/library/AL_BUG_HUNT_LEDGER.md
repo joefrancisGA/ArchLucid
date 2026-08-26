@@ -1824,11 +1824,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 49
-- **bugs-found:** 100
+- **hunts:** 50
+- **bugs-found:** 101
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — terraform-show-json PascalCase `Values`/`Root_Module`/`Resources` keys dropped all resources
+- **last-bug:** 2026-08-26 — terraform-show-json padded `type` preserved whitespace in `terraformType` and resource `Name`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1945,6 +1945,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper.ResolveObjectType` matched `kind` case-sensitively — **hit 2026-08-26:** `"kind": "secret"` classified as `TopologyResource` instead of `SecurityBaseline`, skipping secret-handling and misrouting K8s security objects from lowercase exporters; fixed with `ToLowerInvariant()` before kind switch (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_LowercaseKind_ClassifiesSecretAsSecurityBaseline`, `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_LowercaseKindValue_ClassifiesSecretAsSecurityBaseline`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser` read `resources`/`type`/`name`/`properties` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Resources`/`Type`/`Name`/`Properties` returned zero resources; fixed with case-insensitive JSON property reads (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` read `values`/`root_module`/`resources`/`type`/`name` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Values`/`Root_Module`/`Resources`/`Type`/`Name` returned zero resources; fixed with case-insensitive JSON property reads (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` kept padded `type` whitespace in `terraformType` and resource `Name` — **hit 2026-08-26:** `" azurerm_virtual_network "` vs `azurerm_virtual_network` false-modified infrastructure declaration deltas and misaligned occurrence keys; fixed by trimming `type` in `TryAddResource` and `CountModuleLabelOccurrences` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TrimsPaddedResourceType`).
+
+2026-08-26 seed hunt #50: reseeded terraform-show-json identity canonicalization; proved padded resource `type` trimming gap.
 
 2026-08-26 seed hunt #49: reseeded terraform-show-json casing path; proved PascalCase property reads.
 

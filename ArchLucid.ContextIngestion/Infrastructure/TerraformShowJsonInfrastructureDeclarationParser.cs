@@ -115,7 +115,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 if (!TryGetPropertyIgnoreCase(res, "type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
                     continue;
 
-                string tfType = typeEl.GetString() ?? string.Empty;
+                string tfType = (typeEl.GetString() ?? string.Empty).Trim();
 
                 if (string.IsNullOrWhiteSpace(tfType))
                     continue;
@@ -216,7 +216,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         if (!TryGetPropertyIgnoreCase(res, "type", out JsonElement typeEl) || typeEl.ValueKind != JsonValueKind.String)
             return;
 
-        string tfType = typeEl.GetString() ?? string.Empty;
+        string tfType = (typeEl.GetString() ?? string.Empty).Trim();
 
         if (string.IsNullOrWhiteSpace(tfType))
             return;

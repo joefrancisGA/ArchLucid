@@ -1168,6 +1168,38 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_TrimsPaddedResourceType()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-pad-type",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": " azurerm_virtual_network ",
+                                "name": "core",
+                                "values": {}
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["terraformType"].Should().Be("azurerm_virtual_network");
+        objects[0].Name.Should().Be("azurerm_virtual_network.core");
+    }
+
+    [Fact]
     public async Task ParseAsync_PascalCasePropertyNames_MapsStorageAccount()
     {
         InfrastructureDeclarationReference decl = new()
