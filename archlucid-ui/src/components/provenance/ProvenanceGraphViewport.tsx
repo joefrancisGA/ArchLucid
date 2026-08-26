@@ -3,14 +3,6 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  Expand,
-  Maximize2,
-  Minus,
-  Plus,
-  RefreshCw,
-  Shrink,
-} from "lucide-react";
-import {
   useCallback,
   useEffect,
   useId,
@@ -44,6 +36,14 @@ import {
 } from "@/lib/provenance-node-presentation";
 import type { ArchitectureLinkageEdge, ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
+import { ProvenanceGraphLegend } from "./ProvenanceGraphLegend";
+import { ProvenanceNodeShape } from "./ProvenanceNodeShape";
+import {
+  ProvenanceGraphViewportControls,
+  ProvenanceGraphViewportFocusStyles,
+  ProvenanceGraphViewportFooterHint,
+} from "./ProvenanceGraphViewportChrome";
+
 export type ProvenanceGraphViewportProps = {
   readonly nodes: readonly ArchitectureLinkageNode[];
   readonly edges: readonly ArchitectureLinkageEdge[];
@@ -64,62 +64,6 @@ function prefersReducedMotion(): boolean {
   }
 
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function ProvenanceNodeShape(props: {
-  readonly node: ProvenanceLayoutNode;
-  readonly selected: boolean;
-  readonly dimmed: boolean;
-  readonly connected: boolean;
-}): React.JSX.Element {
-  const { node, selected, dimmed, connected } = props;
-  const r = selected ? node.radius + 4 : node.radius;
-  const stroke = selected
-    ? "var(--al-accent-interactive)"
-    : connected
-      ? "var(--al-accent-border-focus)"
-      : node.stroke;
-  const strokeWidth = selected ? 2.5 : connected ? 2 : 1.25;
-
-  if (node.shape === "square") {
-    return (
-      <rect
-        x={node.x - r}
-        y={node.y - r}
-        width={r * 2}
-        height={r * 2}
-        rx={4}
-        fill={node.fill}
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-        className={dimmed ? "prov-graph-node-dimmed" : undefined}
-      />
-    );
-  }
-
-  if (node.shape === "diamond") {
-    return (
-      <polygon
-        points={`${node.x},${node.y - r} ${node.x + r},${node.y} ${node.x},${node.y + r} ${node.x - r},${node.y}`}
-        fill={node.fill}
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-        className={dimmed ? "prov-graph-node-dimmed" : undefined}
-      />
-    );
-  }
-
-  return (
-    <circle
-      cx={node.x}
-      cy={node.y}
-      r={r}
-      fill={node.fill}
-      stroke={stroke}
-      strokeWidth={strokeWidth}
-      className={dimmed ? "prov-graph-node-dimmed" : undefined}
-    />
-  );
 }
 
 export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): React.JSX.Element {
@@ -613,115 +557,22 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
           </g>
         </svg>
 
-        <div
-          className="absolute right-2 top-2 flex flex-wrap items-center justify-end gap-1"
-          data-provenance-graph-controls="true"
-          data-testid="provenance-graph-controls"
-        >
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 bg-white/95 dark:bg-neutral-950/95"
-            aria-label="Zoom in (Ctrl + scroll)"
-            onClick={() => zoomBy(PROVENANCE_GRAPH_ZOOM_STEP)}
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 bg-white/95 dark:bg-neutral-950/95"
-            aria-label="Zoom out (Ctrl + scroll)"
-            onClick={() => zoomBy(1 / PROVENANCE_GRAPH_ZOOM_STEP)}
-          >
-            <Minus className="h-4 w-4" aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 bg-white/95 dark:bg-neutral-950/95"
-            aria-label="Fit graph to view"
-            onClick={() => fitToView()}
-          >
-            <Maximize2 className="h-4 w-4" aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 bg-white/95 dark:bg-neutral-950/95"
-            aria-label="Reset graph layout"
-            onClick={resetLayout}
-          >
-            <RefreshCw className="h-4 w-4" aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 bg-white/95 dark:bg-neutral-950/95"
-            aria-label={expanded ? "Exit expanded graph view" : "Expand graph view"}
-            onClick={() => setExpanded((value) => !value)}
-          >
-            {expanded ? <Shrink className="h-4 w-4" aria-hidden="true" /> : <Expand className="h-4 w-4" aria-hidden="true" />}
-          </Button>
-        </div>
+        <ProvenanceGraphViewportControls
+          expanded={expanded}
+          onExpandedChange={setExpanded}
+          onZoomBy={zoomBy}
+          onFitToView={() => fitToView()}
+          onResetLayout={resetLayout}
+        />
 
-        <div className="absolute bottom-2 left-2 max-w-[min(100%,20rem)]">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-8 bg-white/95 dark:bg-neutral-950/95"
-            aria-expanded={legendOpen}
-            aria-controls="provenance-graph-legend-panel"
-            onClick={() => setLegendOpen((value) => !value)}
-          >
-            Legend
-          </Button>
-          {legendOpen ? (
-            <div
-              id="provenance-graph-legend-panel"
-              className="mt-2 rounded-md border border-neutral-200 bg-white/95 p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-950/95"
-              data-testid="provenance-graph-legend"
-            >
-              <ul className={cn("m-0 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.micro)}>
-                {legendEntries.map((entry) => (
-                  <li key={entry.key} className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                    <span
-                      className="inline-block h-3 w-3 shrink-0 border"
-                      style={{
-                        backgroundColor: entry.fill,
-                        borderColor: entry.stroke,
-                        borderRadius: entry.shape === "circle" ? "9999px" : entry.shape === "diamond" ? "2px" : "3px",
-                        transform: entry.shape === "diamond" ? "rotate(45deg)" : undefined,
-                      }}
-                      aria-hidden="true"
-                    />
-                    <span>{entry.label}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-        </div>
+        <ProvenanceGraphLegend
+          legendOpen={legendOpen}
+          onLegendOpenChange={setLegendOpen}
+          legendEntries={legendEntries}
+        />
       </div>
-      <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
-        Drag to pan. Ctrl + scroll to zoom. Tab to select nodes; Enter opens node details.
-      </p>
-      <style>{`
-        .prov-graph-node-dimmed,
-        .prov-graph-edge-dimmed {
-          opacity: 0.28;
-        }
-
-        [data-provenance-node="true"]:focus-visible .prov-node-focus-indicator {
-          opacity: 1;
-        }
-      `}</style>
+      <ProvenanceGraphViewportFooterHint />
+      <ProvenanceGraphViewportFocusStyles />
     </div>
   );
 }
