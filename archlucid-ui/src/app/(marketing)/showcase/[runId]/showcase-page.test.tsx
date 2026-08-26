@@ -49,6 +49,21 @@ describe("MarketingShowcasePage", () => {
     });
   });
 
+  it("shows not-available instead of static demo when API is unreachable for a non-curated run id", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    fetchMock.mockRejectedValue(new Error("network down"));
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+    expect(getShowcaseStaticDemoPayloadMock).not.toHaveBeenCalled();
+  });
+
   it("treats API payloads missing artifact arrays as invalid", async () => {
     vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
 

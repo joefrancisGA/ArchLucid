@@ -2320,11 +2320,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 4
-- **bugs-found:** 6
+- **hunts:** 5
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2338,8 +2338,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Sponsor digest `mapResponse` only defaulted missing `signInUrl`; API still returns `/auth/sign-in` (404) — fixed 2026-08-24; normalize legacy path to `/auth/signin` (`exec-digest-sponsor-deep-link-server.test.ts`).
 - [x] (proven) `showcaseTitleForRunId` / `showcaseScenarioRibbonLabel` still called raw `decodeURIComponent` — malformed `%` in route segment throws during metadata/hero render — fixed 2026-08-24; use `decodeShowcaseRunId` (`showcase-page-copy.test.ts`, `showcase-page.test.tsx`).
 - [x] (proven) Showcase API 200 with only `run` + `manifest` crashed render on `payload.artifacts.length` — fixed 2026-08-24; reject thin payloads in `fetchShowcasePayload` and guard snapshot (`ShowcaseWhatThisProves.test.tsx`, `showcase-page.test.tsx`).
+- [x] (proven) Showcase `http_error`/`missing` served Claims Intake static demo for non-curated run ids — `not_found`/`invalid` gated on `hasCuratedShowcaseStaticPayload` but outage branches always called `getShowcaseStaticDemoPayload` — fixed 2026-08-26; show `DemoPreviewNotAvailable` for unknown slugs (`showcase-page.test.tsx`).
+- [ ] (hunt-ready) Trust Center / assurance-status `<time dateTime>` binds fallback prose when `lastReviewedUtc` is null — `formatTrustReviewDate(null)` returns human copy reused as machine-readable `dateTime` (`MarketingTrustCenterBuyerBody.tsx`, `AssuranceStatusPageHero.tsx`).
+- [ ] (hunt-ready) Quick Scan `SampleOnly` auto-sample `useEffect` overwrites a real analysis when capacity status loads after submit — `isQuickScanAiSubmitAllowed(null)` is optimistic and effect lacks `result !== null` guard (`QuickScanClient.tsx`, `quick-scan-capacity-state.ts`).
+- [ ] (hunt-ready) Static-first showcase slugs skip API but pass `renderMode="api"` and `banner={null}` when API base is configured — conflates “API configured” with “served from API” (`showcase/[runId]/page.tsx` early branch).
+- [ ] (hunt-ready) Showcase `bad_json` hard-fails curated static-first run ids while `not_found`/`invalid` fall back to curated static payload — inconsistent resilience (`showcase/[runId]/page.tsx` switch).
 
----
+2026-08-26 seed hunt #5: reseeded four hunt-ready rows from marketing source read; proved showcase outage fallback asymmetry.
 
 ## Zone: capabilities-cost-mcp
 
