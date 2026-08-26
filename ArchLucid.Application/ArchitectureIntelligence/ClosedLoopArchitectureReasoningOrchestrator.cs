@@ -139,13 +139,13 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
             if (effectiveRequest.SourceTexts.Count > 0)
             {
-                await AppendSourceTextsToModelAsync(model, request, tenantId, cancellationToken);
+                await AppendSourceTextsToModelAsync(model, effectiveRequest, tenantId, cancellationToken);
             }
         }
         else
         {
-            storedArtifactIds = await StoreSourcesAsync(request, tenantId, cancellationToken);
-            model = await BuildModelAsync(request, tenantId, runId, storedArtifactIds, cancellationToken);
+            storedArtifactIds = await StoreSourcesAsync(effectiveRequest, tenantId, cancellationToken);
+            model = await BuildModelAsync(effectiveRequest, tenantId, runId, storedArtifactIds, cancellationToken);
         }
 
         model.RunId = runId;
