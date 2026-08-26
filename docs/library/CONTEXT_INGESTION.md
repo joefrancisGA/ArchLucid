@@ -22,7 +22,7 @@ HTTP clients send **`ArchitectureRequest`** (see `ArchLucid.Contracts.Requests`)
 | `PolicyReferences` | `PolicyReferences` | Short strings → `PolicyControl` objects (`reference` + `status=referenced`). |
 | `TopologyHints` | `TopologyHints` | → `TopologyResource` objects. |
 | `SecurityBaselineHints` | `SecurityBaselineHints` | → `SecurityBaseline` objects. |
-| `InfrastructureDeclarations` | `InfrastructureDeclarations` | Structured IaC snippets (`json`, `simple-terraform`, or `terraform-show-json`) → **`InfrastructureDeclarationConnector`**. |
+| `InfrastructureDeclarations` | `InfrastructureDeclarations` | Structured IaC snippets (`json`, `simple-terraform`, `terraform-show-json`, `bicep`, `arm-json`, `kubernetes-json`, `kubernetes-yaml`) → **`InfrastructureDeclarationConnector`**. |
 
 `RunId` is assigned by **`AuthorityRunOrchestrator`** immediately before **`IContextIngestionService.IngestAsync`**.
 
@@ -44,7 +44,7 @@ Connectors implement **`IContextConnector`**. **Code source of truth:** **`Conte
 4. **`PolicyReferenceConnector`**
 5. **`TopologyHintsConnector`**
 6. **`SecurityBaselineHintsConnector`**
-7. **`InfrastructureDeclarationConnector`** — **`InfrastructureDeclarationReference`** items parsed by **`IInfrastructureDeclarationParser`** implementations (`json`, `simple-terraform`, `terraform-show-json`).
+7. **`InfrastructureDeclarationConnector`** — **`InfrastructureDeclarationReference`** items parsed by **`IInfrastructureDeclarationParser`** implementations (`json`, `simple-terraform`, `terraform-show-json`, `bicep`, `arm-json`, `kubernetes-json`, `kubernetes-yaml`).
 
 Each connector’s **`DeltaAsync`** returns a short base summary; **`IContextDeltaSummaryBuilder`** (default: **`DefaultContextDeltaSummaryBuilder`**) enriches it with normalized object counts, a per-type breakdown (e.g. `Requirement×2`), and a one-time baseline clause against the **latest persisted `ContextSnapshot` for `ProjectId`** (if any). The enriched segments are joined into **`ContextSnapshot.DeltaSummary`**.
 
@@ -84,7 +84,7 @@ Prefix matching is case-insensitive. Lines without a recognized prefix are ignor
 
 ## Infrastructure declarations (IaC seam)
 
-DTO: **`InfrastructureDeclarationReference`** (`Name`, **`Format`**, `Content`). Supported v1 **`Format`** values: **`json`**, **`simple-terraform`**, **`terraform-show-json`** (output of `terraform show -json`).
+DTO: **`InfrastructureDeclarationReference`** (`Name`, **`Format`**, `Content`). Supported v1 **`Format`** values: **`json`**, **`simple-terraform`**, **`terraform-show-json`** (output of `terraform show -json`), **`bicep`**, **`arm-json`**, **`kubernetes-json`**, **`kubernetes-yaml`**.
 
 ### `json`
 
@@ -92,7 +92,19 @@ Body deserializes to **`ResourceDeclarationDocument`** with a **`resources`** ar
 
 ### `simple-terraform`
 
-Lightweight regex over lines like **`resource "azurerm_virtual_network" "core"`** (not a full HCL parser). **`terraformType`** is stored on the canonical object; **`ResolveObjectType`** maps vault / firewall / NSG → **`SecurityBaseline`**, `policy` → **`PolicyControl`**, else **`TopologyResource`**.
+Lightweight line-based parser over **`resource "azurerm_virtual_network" "core"`** blocks (not a full HCL compiler). **`terraformType`** is stored on the canonical object; top-level scalar assignments and one shallow nested block per resource are copied to **`tf.*`** keys with the same truncation, redaction, and per-resource caps as **`terraform-show-json`**. **`ResolveObjectType`** maps vault / firewall / NSG → **`SecurityBaseline`**, `policy` → **`PolicyControl`**, else **`TopologyResource`**.
+
+### `bicep`
+
+Line-based match for **`resource symbolicName 'Microsoft.Provider/types@api-version'`** declarations (not a Bicep compiler). Stores **`resourceType`**, **`bicepSymbolicName`**, and optional **`apiVersion`** on each canonical object.
+
+### `arm-json`
+
+Parses an ARM template JSON **`resources`** array. Skips **`Microsoft.Resources/deployments`** nested templates. Copies a bounded set of scalar **`properties`** fields onto **`tf.*`** keys.
+
+### `kubernetes-json` / `kubernetes-yaml`
+
+Parses **`kubectl get -o json`** output or multi-document YAML manifests into **`TopologyResource`** / **`SecurityBaseline`** rows with **`k8s.*`** metadata. Secret **`data`** payloads are not ingested.
 
 ### `terraform-show-json`
 

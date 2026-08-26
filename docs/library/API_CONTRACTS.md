@@ -324,7 +324,7 @@ Swashbuckle schema **ids** use the CLR **full type name** so colliding short nam
 | `policyReferences` | `string[]` | Max **100** items, each max **500** chars → **PolicyControl** objects. |
 | `topologyHints` | `string[]` | Max **100** items, each max **2000** chars. |
 | `securityBaselineHints` | `string[]` | Max **100** items, each max **2000** chars. |
-| `infrastructureDeclarations` | object[] | Max **50** items. Each: **`name`**, **`format`** (`json` \| `simple-terraform`), **`content`** (payload string; JSON document or Terraform-like `resource "type" "name"` lines). Validated by **`InfrastructureDeclarationRequestValidator`**. |
+| `infrastructureDeclarations` | object[] | Max **50** items. Each: **`name`**, **`format`** (`json` \| `simple-terraform` \| `terraform-show-json` \| `bicep` \| `arm-json` \| `kubernetes-json` \| `kubernetes-yaml`), **`content`** (payload string). Validated by **`InfrastructureDeclarationRequestValidator`**. |
 
 Validation is performed with **FluentValidation** (`ArchitectureRequestValidator`, `ContextDocumentRequestValidator`, **`InfrastructureDeclarationRequestValidator`**). Invalid payloads return **400** with problem details.
 

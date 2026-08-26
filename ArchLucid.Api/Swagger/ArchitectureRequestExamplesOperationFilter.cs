@@ -54,7 +54,7 @@ public sealed class ArchitectureRequestExamplesOperationFilter : IOperationFilte
 
         const string extra = "**Context ingestion (optional):** "
                              + "`inlineRequirements`, `documents` (inline `name` + `contentType` + `content` — see supported types in `SupportedContextDocumentContentTypes`), "
-                             + "`policyReferences`, `topologyHints`, `securityBaselineHints`, `infrastructureDeclarations` (`format`: `json` | `simple-terraform`). "
+                             + "`policyReferences`, `topologyHints`, `securityBaselineHints`, `infrastructureDeclarations` (`format`: `json` | `simple-terraform` | `terraform-show-json` | `bicep` | `arm-json` | `kubernetes-json` | `kubernetes-yaml`). "
                              + "Plain-text/markdown documents may use line prefixes `REQ:`, `POL:`, `TOP:`, `SEC:` (see `docs/CONTEXT_INGESTION.md`). "
                              + "Structured IaC snippets become canonical topology/security objects before graph build.";
 

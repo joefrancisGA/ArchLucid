@@ -60,7 +60,7 @@ The ICP describes the **company profile** where ArchLucid delivers **maximum val
 | **Industry verticals** | Financial services, technology, healthcare | Compliance pressure (FS, HC) drives governance adoption; technology companies value speed and consistency |
 | **Geography** | English-speaking markets (US, UK, ANZ, Western Europe) | V1 is English-only; Azure presence is strong in these regions |
 | **Architecture team size** | 3+ architects | Below 3, the ROI model break-even (180 hours/year) is difficult to reach; above 3, each additional architect multiplies savings |
-| **Cloud posture** | Azure-primary or Azure-significant | V1 topology, cost, and compliance engines are Azure-focused; AWS/GCP-only organizations are a poor fit until multi-cloud support ships |
+| **Cloud posture** | Azure-primary or Azure-significant | V1 topology, cost, and compliance engines are deepest on Azure; AWS/GCP-target reviews ship in V1 with inventory ZIP / Tier 2 poll / Terraform ingest and thinner heuristic costing |
 | **Architecture practice maturity** | Established (not aspirational) | Active reviews happening today — even if manual and inconsistent. ArchLucid improves existing practice; it does not create one |
 
 ### Behavioral / situational criteria
@@ -77,7 +77,6 @@ The ICP describes the **company profile** where ArchLucid delivers **maximum val
 
 | Disqualifier | Reason |
 |-------------|--------|
-| **AWS-only or GCP-only** | V1 finding engines and infrastructure are Azure-focused |
 | **No established architecture practice** | ArchLucid accelerates reviews; it does not teach architecture from scratch |
 | **Require air-gapped / on-premises without a documented equivalent** | Default delivery is SaaS; forks must own operational burden (see [not-a-fit](#when-archlucid-is-not-a-fit)) |
 | **Fewer than 3 architects** | ROI threshold unlikely to be met per the model (< 180 architect-hours/year) |
@@ -93,7 +92,7 @@ Use this to qualify leads in < 5 minutes.
 | **Company size** | 2 | 500–10K | 200–500 or 10K–50K | < 200 or > 50K | — |
 | **Industry** | 2 | FS, tech, healthcare | Other regulated | Consumer, media | — |
 | **Architecture team** | 3 | 5+ architects | 3–4 architects | 1–2 architects | 0 architects |
-| **Cloud posture** | 2 | Azure-primary | Azure + other | Multi-cloud no Azure | AWS/GCP only |
+| **Cloud posture** | 2 | Azure-primary | Azure + other | Multi-cloud no Azure | No cloud evidence / IaC |
 | **Review practice** | 3 | Active, > 10/year | Active, 5–10/year | Aspirational | None planned |
 | **Compliance pressure** | 2 | Regulatory mandate | Internal audit | Optional | None |
 | **Pain articulation** | 1 | Champion names specific pain | General interest | "Just exploring AI" | — |
@@ -132,7 +131,7 @@ Work through the questions in order.
 
 **Q2.** Do you run workloads on Azure (or plan to within 6 months)?
 
-- **No** → ArchLucid V1 targets Azure workloads. If your workloads are on AWS or GCP, [contact us](https://archlucid.net/contact) about our multi-cloud roadmap.
+- **No** → ArchLucid V1 can review **AWS/GCP-target** architectures when you supply Terraform state JSON, inventory ZIP, or equivalent evidence. **Azure-primary** remains the deepest path (cost catalog, classification). [Contact us](https://archlucid.net/contact) if you need a unified multi-cloud graph in a single review — that is not offered today.
 - **Yes** → Continue.
 
 **Q3.** Do you spend 20+ hours per architecture review cycle?

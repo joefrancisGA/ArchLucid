@@ -14,7 +14,7 @@ public class InfrastructureDeclarationReference
         set;
     } = null!;
 
-    /// <summary>Supported v1 values: <c>json</c>, <c>simple-terraform</c>, <c>terraform-show-json</c>.</summary>
+    /// <summary>Supported v1 values: <c>json</c>, <c>simple-terraform</c>, <c>terraform-show-json</c>, <c>bicep</c>, <c>arm-json</c>, <c>kubernetes-json</c>, <c>kubernetes-yaml</c>.</summary>
     public string Format
     {
         get;

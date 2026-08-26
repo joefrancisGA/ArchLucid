@@ -92,7 +92,7 @@ A **201** (or idempotent **200** with the right headers) on create and a **200**
 | Symptom | What to check |
 |--------|----------------|
 | **400** on create | `description` length, `requestId` uniqueness, `cloudProvider` = `Azure` in V1 |
-| **400** on `infrastructureDeclarations` | **`format`** must be **`json`**, **`simple-terraform`**, or **`terraform-show-json`** (case-insensitive); inner JSON expectations depend on **`format`** (see **`CONTEXT_INGESTION.md`**) |
+| **400** on `infrastructureDeclarations` | **`format`** must be **`json`**, **`simple-terraform`**, **`terraform-show-json`**, **`bicep`**, **`arm-json`**, **`kubernetes-json`**, or **`kubernetes-yaml`** (case-insensitive); inner payload expectations depend on **`format`** (see **`CONTEXT_INGESTION.md`**) |
 | **403** on POST | **Execute** policy missing for this key (Reader-only keys can list runs but not create) |
 
 **Correlation:** record `requestId` from the create response; it appears in `GET /v1/architecture/review/{runId}.run` as part of the run metadata. Match `runId` to your CI logs and Application Insights.

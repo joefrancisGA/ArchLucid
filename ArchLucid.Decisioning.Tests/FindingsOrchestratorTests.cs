@@ -546,9 +546,21 @@ public sealed class FindingsOrchestratorTests
         FindingsSnapshot first = await RunPayloadConflictAsync();
         FindingsSnapshot second = await RunPayloadConflictAsync();
 
-        Finding surviving = first.Findings.Should().ContainSingle().Subject;
-        surviving.FindingId.Should().Be("finding-alpha");
-        surviving.FindingId.Should().Be(second.Findings.Single().FindingId);
+        first.Findings.Should().HaveCount(2);
+        Finding surviving = first.Findings.Should().ContainSingle(f => f.FindingId == "finding-alpha").Subject;
+        surviving.EngineType.Should().Be("alpha");
+        second.Findings.Should().ContainSingle(f => f.FindingId == "finding-alpha");
+
+        Finding conflictFinding = first.Findings.Should().ContainSingle(f => f.FindingType == "FindingMergeConflict").Subject;
+        conflictFinding.EngineType.Should().Be(FindingSnapshotConfluentMerger.ConflictEngineType);
+        conflictFinding.Rationale.Should().Contain("alpha");
+        conflictFinding.Rationale.Should().Contain("zulu");
+        conflictFinding.Rationale.Should().Contain("finding-alpha");
+        conflictFinding.Rationale.Should().Contain("finding-zulu");
+
+        Finding secondConflictFinding = second.Findings.Should().ContainSingle(f => f.FindingType == "FindingMergeConflict").Subject;
+        secondConflictFinding.Rationale.Should().Be(conflictFinding.Rationale);
+        secondConflictFinding.EngineType.Should().Be(conflictFinding.EngineType);
 
         FindingEngineFailure firstConflict = first.EngineFailures.Should().ContainSingle().Subject;
         FindingEngineFailure secondConflict = second.EngineFailures.Should().ContainSingle().Subject;

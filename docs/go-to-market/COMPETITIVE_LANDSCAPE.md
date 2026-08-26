@@ -110,7 +110,7 @@ ArchLucid operates at the intersection of two established markets and one emergi
 | ArchLucid does better | AWS WAT does better |
 |-----------------------|---------------------|
 | **Depth of analysis:** AI agents analyze topology, cost, compliance, and produce structured findings with traces. WAT is a questionnaire with pillar-based scoring. | **Zero friction:** Free, built into the AWS Console, no deployment required. ArchLucid requires infrastructure setup. |
-| **Governance and audit:** Full governance workflow, pre-finalize gates, durable audit. WAT has milestone tracking only. | **AWS-native integration:** Direct access to AWS resources, cost data, and service catalog. ArchLucid is Azure-native and cannot analyze AWS architectures in V1. |
+| **Governance and audit:** Full governance workflow, pre-finalize gates, durable audit. WAT has milestone tracking only. | **AWS Console-native friction:** WAT is free inside the AWS Console for AWS-only estates. ArchLucid AWS-target reviews need Terraform JSON or inventory ZIP and do not match Azure cost-catalog depth. |
 
 ### 4.4 ArchLucid vs. ChatGPT / Copilot (ad-hoc)
 
@@ -136,7 +136,7 @@ These are the competitive weaknesses most likely to lose deals in the current ma
 | Rank | Gap | Impact | Effort |
 |------|-----|--------|--------|
 | 1 | **No inbound data connectors** (cannot import from Terraform, ArchiMate, CMDB, cloud APIs) | Prospects cannot start from existing infrastructure; must re-describe everything manually | Medium-high |
-| 2 | **Azure-only cloud support** | Disqualifies AWS-primary and GCP-primary organizations (>50% of market) | High |
+| 2 | **AWS/GCP cost/classification depth vs Azure** | AWS/GCP-target reviews are in V1, but live public pricing is narrow (compute SKUs) and classification is thinner than Azure | Medium (TB-874 remainder) |
 | 3 | **No pre-built integrations** (Jira, ServiceNow, Slack, Teams) | Finding triage stays inside ArchLucid instead of flowing into existing workflows | Medium |
 | 4 | **Thin UI / no design system** | Loses visual comparison against LeanIX and Ardoq in evaluations where non-technical buyers see the UI | Medium |
 | 5 | **Entra-only SSO** | Blocks adoption at non-Microsoft-stack enterprises (Okta, Auth0, Ping) | Low-medium |
@@ -159,9 +159,9 @@ No current competitor delivers all three. Incumbents have governance but no AI. 
 - Consulting firms that need repeatable, evidence-backed architecture assessments with branded exports
 
 **Worst-fit scenarios (today):**
-- AWS-primary or GCP-primary organizations
-- Teams that need extensive CMDB/ITSM integration out of the box
-- Organizations without Azure infrastructure or willingness to self-host
+- Teams that need **only** ad-hoc drafting with no finalized review package
+- Teams that need extensive CMDB/ITSM integration out of the box (first-party connectors exist; deep CMDB SoR replacement is not the product)
+- Organizations that cannot use Azure for hosting/identity and will not accept vendor-operated SaaS or BYO-Azure evaluation
 
 ---
 
