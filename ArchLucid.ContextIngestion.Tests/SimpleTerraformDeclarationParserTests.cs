@@ -14,6 +14,22 @@ public sealed class SimpleTerraformDeclarationParserTests
     private readonly SimpleTerraformDeclarationParser _sut = new();
 
     [Fact]
+    public async Task ParseAsync_TerraformTypeCasing_IsCanonicalized()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            Content = "resource \"azurerm_Virtual_Network\" \"core\"\n"
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["terraformType"].Should().Be("azurerm_virtual_network");
+    }
+
+    [Fact]
     public async Task ParseAsync_ExtractsResourceBlocks()
     {
         InfrastructureDeclarationReference declaration = new()

@@ -15,7 +15,7 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
 
     public bool CanParse(string format)
     {
-        return string.Equals(format, "simple-terraform", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(format?.Trim(), "simple-terraform", StringComparison.OrdinalIgnoreCase);
     }
 
     public Task<IReadOnlyList<CanonicalObject>> ParseAsync(
@@ -45,7 +45,7 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
                 SourceId = declaration.DeclarationId,
                 Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["terraformType"] = terraformType
+                    ["terraformType"] = terraformType.ToLowerInvariant()
                 }
             });
         }

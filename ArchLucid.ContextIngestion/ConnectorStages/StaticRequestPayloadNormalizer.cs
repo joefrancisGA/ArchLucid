@@ -16,6 +16,8 @@ public sealed class StaticRequestPayloadNormalizer : IConnectorNormalizer<Static
         NormalizedContextBatch batch = new();
 
         if (!string.IsNullOrWhiteSpace(payload.Description))
+        {
+            string trimmed = payload.Description!.Trim();
 
             batch.CanonicalObjects.Add(new CanonicalObject
             {
@@ -23,9 +25,9 @@ public sealed class StaticRequestPayloadNormalizer : IConnectorNormalizer<Static
                 Name = "Primary Request",
                 SourceType = "StaticRequest",
                 SourceId = "description",
-                Properties = new Dictionary<string, string> { ["text"] = payload.Description! }
+                Properties = new Dictionary<string, string> { ["text"] = trimmed }
             });
-
+        }
 
         return Task.FromResult(batch);
     }

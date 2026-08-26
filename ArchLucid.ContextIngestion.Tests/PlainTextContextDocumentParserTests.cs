@@ -41,6 +41,26 @@ public sealed class PlainTextContextDocumentParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_BlankPrefixedLine_SkipsEntry()
+    {
+        ContextDocumentReference doc = new()
+        {
+            Name = "spec.txt",
+            ContentType = "text/plain",
+            Content = """
+                      REQ: Must scale horizontally
+                      REQ:
+                      REQ:   
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(doc, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["text"].Should().Be("Must scale horizontally");
+    }
+
+    [Fact]
     public async Task ParseAsync_Utf8BomReqLine_ExtractsRequirement()
     {
         ContextDocumentReference doc = new()

@@ -1781,11 +1781,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 9
-- **bugs-found:** 20
+- **hunts:** 10
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — enriched snapshot vs normalized delta, policy overlap slash ids, padded infrastructure names
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — blank prefixed document lines, static request padding, terraform/json format normalization, App Service expander false positive
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1813,6 +1813,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SetDiffConnectorDeltaComputer` compared normalized batches to enriched previous snapshot objects — **hit 2026-08-25:** enricher-added `category` / `topologySensitivity` on saved snapshots made identical topology re-ingest report false modified; fixed by comparing only current-object property keys (`SetDiffConnectorDeltaComputerTests.Compute_SameKeyExtraPropertyInPrevious_CountsAsUnchanged`, `ContextIngestionServiceTests.IngestAsync_IdenticalTopologyHintOnSecondIngest_ReportsUnchangedDelta`)
 - [x] (proven) `PolicyTopologyOverlapResolver.ResolveApplicableTopologyNodeIds` did not canonicalize slash spacing before stable id — **hit 2026-08-25:** `parentNet / childSubnet` overlap id mismatched topology hint `ObjectId` after normalizer collapsed slash spacing; fixed with shared `TopologyHintStableObjectIds.CanonicalizeHintName` (`PolicyReferenceConnectorTopologyTests.NormalizeAsync_WhenPolicyOverlapsSlashSpacedTopologyHint_UsesCanonicalTopologyObjectId`)
 - [x] (proven) `JsonInfrastructureDeclarationParser` preserved padded `name` in `CanonicalObject.Name` — **hit 2026-08-25:** `" hub-vnet "` vs `"hub-vnet"` false-churned infrastructure declaration connector delta keys; fixed by trimming resource names (`InfrastructureDeclarationConnectorTests`)
+- [x] (proven) `PlainTextContextDocumentParser` threw on blank prefixed lines — **hit 2026-08-26:** `REQ:` / `REQ:   ` lines called `BuildDisplayName("")` and threw; fixed by skipping whitespace-only bodies after prefix (`PlainTextContextDocumentParserTests.ParseAsync_BlankPrefixedLine_SkipsEntry`)
+- [x] (proven) `StaticRequestPayloadNormalizer` kept padded description text — **hit 2026-08-26:** `" billing api redesign "` vs trimmed text reported false modified on static-request connector delta; fixed by trimming before emit (`ConnectorHintNormalizationDeltaTests.StaticRequestContextConnector_DeltaAsync_PaddedDescription_ReportsUnchanged`)
+- [x] (proven) `SimpleTerraformDeclarationParser` preserved `terraformType` casing in properties — **hit 2026-08-26:** `azurerm_virtual_network` vs `azurerm_Virtual_Network` false-modified infrastructure declaration deltas; fixed by lowercasing `terraformType` (`SimpleTerraformDeclarationParserTests`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformTypeCasingChange_ReportsUnchanged`)
+- [x] (proven) `JsonInfrastructureDeclarationParser.CanParse` rejected padded `format` — **hit 2026-08-26:** `Format = " json "` skipped valid JSON declarations despite stable declaration ids; fixed by trimming format in `CanParse` (`InfrastructureDeclarationConnectorTests.NormalizeAsync_PaddedJsonFormat_ParsesDeclaration`)
+- [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` matched non-App-Service names containing `app` — **hit 2026-08-26:** `application-gateway` with `ipSecurityRestrictions` spawned spurious security baselines; fixed by requiring explicit App Service `resourceType` (`AppServiceNetworkAccessSecurityBaselineExpanderTests.Expand_application_gateway_with_ip_rules_does_not_create_security_baselines`)
 
 ---
 

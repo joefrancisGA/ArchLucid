@@ -35,6 +35,9 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
             {
                 string text = line[4..].Trim();
 
+                if (string.IsNullOrWhiteSpace(text))
+                    continue;
+
                 results.Add(new CanonicalObject
                 {
                     ObjectType = "Requirement",
@@ -47,6 +50,9 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
             else if (line.StartsWith("POL:", StringComparison.OrdinalIgnoreCase))
             {
                 string text = line[4..].Trim();
+
+                if (string.IsNullOrWhiteSpace(text))
+                    continue;
 
                 results.Add(new CanonicalObject
                 {
@@ -61,6 +67,9 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
             {
                 string text = line[4..].Trim();
 
+                if (string.IsNullOrWhiteSpace(text))
+                    continue;
+
                 results.Add(new CanonicalObject
                 {
                     ObjectType = "TopologyResource",
@@ -73,6 +82,9 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
             else if (line.StartsWith("SEC:", StringComparison.OrdinalIgnoreCase))
             {
                 string text = line[4..].Trim();
+
+                if (string.IsNullOrWhiteSpace(text))
+                    continue;
 
                 results.Add(new CanonicalObject
                 {

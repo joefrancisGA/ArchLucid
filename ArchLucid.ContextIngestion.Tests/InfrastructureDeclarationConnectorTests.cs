@@ -258,6 +258,96 @@ public sealed class InfrastructureDeclarationConnectorTests
         delta.RemovedCount.Should().Be(0);
     }
 
+    [Fact]
+    public async Task DeltaAsync_TerraformTypeCasingChange_ReportsUnchanged()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([new SimpleTerraformDeclarationParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        RawContextPayload firstRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-1",
+                    Name = "core.tf",
+                    Format = "simple-terraform",
+                    Content = "resource \"azurerm_virtual_network\" \"core\"\n"
+                }
+            ]
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString("D"),
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-1",
+                    Name = "core.tf",
+                    Format = "simple-terraform",
+                    Content = "resource \"azurerm_Virtual_Network\" \"core\"\n"
+                }
+            ]
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task NormalizeAsync_PaddedJsonFormat_ParsesDeclaration()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([new JsonInfrastructureDeclarationParser(Microsoft.Extensions.Logging.Abstractions.NullLogger<JsonInfrastructureDeclarationParser>.Instance)]),
+            new SetDiffConnectorDeltaComputer());
+
+        RawContextPayload raw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-1",
+                    Name = "network.json",
+                    Format = " json ",
+                    Content = """
+                              {
+                                "resources": [
+                                  { "type": "vnet", "name": "hub-vnet" }
+                                ]
+                              }
+                              """
+                }
+            ]
+        };
+
+        NormalizedContextBatch batch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle();
+        batch.Warnings.Should().BeEmpty();
+        batch.CanonicalObjects[0].Name.Should().Be("hub-vnet");
+    }
+
     private static CanonicalObject MakeInfraResource(string declarationId, string name, string resourceType)
         => new()
         {

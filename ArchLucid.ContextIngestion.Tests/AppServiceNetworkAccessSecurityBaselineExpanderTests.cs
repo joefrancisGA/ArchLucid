@@ -60,4 +60,26 @@ public sealed class AppServiceNetworkAccessSecurityBaselineExpanderTests
             && e.FromNodeId == $"obj-{baseline.ObjectId}"
             && e.ToNodeId == $"obj-{appService.ObjectId}");
     }
+
+    [Fact]
+    public void Expand_application_gateway_with_ip_rules_does_not_create_security_baselines()
+    {
+        CanonicalObject gateway = new()
+        {
+            ObjectType = "TopologyResource",
+            Name = "application-gateway",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["resourceType"] = "Microsoft.Network/applicationGateways",
+                ["ipSecurityRestrictions"] =
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand([gateway]);
+
+        expanded.Should().ContainSingle();
+    }
 }

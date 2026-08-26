@@ -51,8 +51,7 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
             && type.Contains("appservice", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        return item.Name.Contains("app", StringComparison.OrdinalIgnoreCase)
-            && item.Properties.ContainsKey("ipSecurityRestrictions");
+        return false;
     }
 
     private static void AppendNetworkRuleObjects(

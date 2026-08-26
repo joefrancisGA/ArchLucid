@@ -13,7 +13,7 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
 
     public bool CanParse(string format)
     {
-        return string.Equals(format, "json", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(format?.Trim(), "json", StringComparison.OrdinalIgnoreCase);
     }
 
     public Task<IReadOnlyList<CanonicalObject>> ParseAsync(
