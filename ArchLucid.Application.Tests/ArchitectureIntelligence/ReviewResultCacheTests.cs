@@ -181,7 +181,7 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
-    public void InvalidateForRun_tombstones_run_id_and_skips_set_when_no_prior_entry()
+    public void InvalidateForRun_without_entries_allows_subsequent_set()
     {
         ReviewResultCache cache = new();
         ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-tombstone-no-entry" };
@@ -192,7 +192,8 @@ public sealed class ReviewResultCacheTests
             manifest,
             new ClosedLoopReasoningResult { RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" });
 
-        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+        cached!.RunId.Should().Be("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     }
 
     [Fact]
