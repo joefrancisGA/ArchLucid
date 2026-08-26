@@ -33,9 +33,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import {
-  ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_DESCRIPTION,
   ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE,
+  resolveArchitectureDraftStartReviewChecklistDescription,
 } from "@/lib/architecture-draft-start-review-checklist";
+import { usePersistentWorkspaceNextActionStripVisible } from "@/lib/use-persistent-workspace-next-action-strip-visible";
 import { useArchitectureDraftStartReview } from "@/hooks/use-architecture-draft-start-review";
 import { useArchitectureDraftWorkspace } from "@/hooks/use-architecture-draft-workspace";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
@@ -263,6 +264,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     conflictMessage,
     saveDraft,
   });
+
+  const showWorkspaceFirstReviewProgress = usePersistentWorkspaceNextActionStripVisible();
+  const draftStartReviewChecklistDescription = resolveArchitectureDraftStartReviewChecklistDescription(
+    showWorkspaceFirstReviewProgress,
+  );
 
   const hasUnsavedChanges = saveState === "unsaved" || saveState === "saving" || saveState === "error";
   useUnsavedChangesGuard({ when: hasUnsavedChanges && !editorLocked });
@@ -548,7 +554,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
       <IntegrationConnectChecklist
         title={ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE}
-        description={ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_DESCRIPTION}
+        description={draftStartReviewChecklistDescription}
         steps={draftStartReviewSteps}
         emphasizedStepId={draftStartReviewEmphasizedStepId}
         testIdPrefix="architecture-draft-start-review"
