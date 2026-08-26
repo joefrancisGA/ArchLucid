@@ -1808,11 +1808,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 43
-- **bugs-found:** 93
+- **hunts:** 44
+- **bugs-found:** 94
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — ARM ObjectId, topology parent links, terraform show-json duplicate labels
+- **last-bug:** 2026-08-26 — padded `baselineScope` blocked sensitivity-scope baseline linking
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1922,6 +1922,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InfrastructureDeclarationDeltaKey.For` terraform branch omitted disambiguators for duplicate show-json root labels — **hit 2026-08-26:** duplicate `azurerm_subnet.this` rows reported `AddedCount = 1`; fixed by emitting `terraformOccurrence` from show-json parser (`InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonDuplicateRootLabel_CountsBothResources`).
 
 2026-08-26 thorough hunt #43: all four hunt-ready rows proved and fixed.
+- [x] (proven) `SecurityBaselineSensitivityScopeExpander` padded `baselineScope` blocked sensitivity match — **hit 2026-08-26:** `" data-bearing "` vs `data-bearing` left baselines without `protectedTopologyNodeIds`; fixed by trimming explicit scope (`SecurityBaselineSensitivityScopeExpanderTests.Expand_padded_baseline_scope_links_matching_topology`).
+- [ ] (hunt-ready) `KubernetesYamlInfrastructureDeclarationParser` drops PascalCase manifest keys (`Kind`, `Metadata.Name`) after YamlDotNet camelCase serialization — parser returns zero resources for common exporter YAML.
+- [ ] (hunt-ready) `PolicyTopologyOverlapResolver.Overlaps` uses bidirectional `Contains` — policy `prod` false-positives on topology hint `production-vnet`.
+- [ ] (candidate) `TopologyHintsPayloadNormalizer` vs document `TOP:` path disagree on long-hint `Name` truncation — same `ObjectId` with different display names after dedupe.
+
+2026-08-26 seed hunt #44: reseeded three rows; proved sensitivity-scope padding mismatch.
 
 ---
 

@@ -39,7 +39,7 @@ public static class SecurityBaselineSensitivityScopeExpander
 
             string baselineScope = item.Properties.TryGetValue(CanonicalGraphPropertyKeys.BaselineScope, out string? scope)
                                    && !string.IsNullOrWhiteSpace(scope)
-                ? scope
+                ? scope.Trim()
                 : TopologySensitivityClassifier.ClassifyBaselineScope(
                     item.Properties.TryGetValue("controlId", out string? controlId) ? controlId : null,
                     item.Name);
