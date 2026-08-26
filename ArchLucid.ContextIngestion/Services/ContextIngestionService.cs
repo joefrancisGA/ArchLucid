@@ -81,7 +81,7 @@ public class ContextIngestionService(
 
         List<string> confirmedAssumptions = request.Assumptions
             .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
-            .Select(static a => a.Trim())
+            .Select(static a => a.Trim().ToLowerInvariant())
             .ToList();
 
         if (confirmedAssumptions.Count > 0)
@@ -91,10 +91,12 @@ public class ContextIngestionService(
             snapshot.SourceHashes[ContextScopeMetadataKeys.Actors] = request.ActorsJson;
 
         if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(request.QualityAttribute))
-            snapshot.SourceHashes[ContextScopeMetadataKeys.QualityAttribute] = request.QualityAttribute!.Trim();
+            snapshot.SourceHashes[ContextScopeMetadataKeys.QualityAttribute] =
+                request.QualityAttribute!.Trim().ToLowerInvariant();
 
         if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(request.FailureModeNote))
-            snapshot.SourceHashes[ContextScopeMetadataKeys.FailureModeNote] = request.FailureModeNote!.Trim();
+            snapshot.SourceHashes[ContextScopeMetadataKeys.FailureModeNote] =
+                request.FailureModeNote!.Trim().ToLowerInvariant();
 
         if (previous is null)
             return;

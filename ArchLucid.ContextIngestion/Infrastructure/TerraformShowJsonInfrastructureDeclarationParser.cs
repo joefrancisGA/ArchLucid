@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 
@@ -210,7 +211,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         return value.ValueKind switch
         {
             JsonValueKind.String => (value.GetString() ?? string.Empty).Trim().ToLowerInvariant(),
-            JsonValueKind.Number => value.GetRawText(),
+            JsonValueKind.Number => CanonicalizeTerraformNumberText(value),
             JsonValueKind.True => "true",
             JsonValueKind.False => "false",
             JsonValueKind.Null => string.Empty,
@@ -239,7 +240,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 break;
 
             case JsonValueKind.Number:
-                writer.WriteRawValue(value.GetRawText());
+                writer.WriteRawValue(CanonicalizeTerraformNumberText(value));
                 break;
 
             case JsonValueKind.True:
@@ -280,6 +281,24 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 writer.WriteRawValue(value.GetRawText());
                 break;
         }
+    }
+
+    private static string CanonicalizeTerraformNumberText(JsonElement value)
+    {
+        if (value.TryGetDecimal(out decimal decimalValue))
+        {
+            decimal truncated = decimal.Truncate(decimalValue);
+
+            if (decimalValue == truncated)
+                return truncated.ToString(CultureInfo.InvariantCulture);
+
+            return decimalValue.ToString(CultureInfo.InvariantCulture);
+        }
+
+        if (value.TryGetInt64(out long intValue))
+            return intValue.ToString(CultureInfo.InvariantCulture);
+
+        return value.GetRawText();
     }
 
     private static void RedactTopLevelSensitiveTfValues(

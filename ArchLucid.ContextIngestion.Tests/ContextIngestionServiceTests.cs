@@ -301,6 +301,114 @@ public sealed class ContextIngestionServiceTests
             .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.RequiredCapabilities]);
     }
 
+    [Fact]
+    public async Task IngestAsync_AssumptionPaddingAndCasing_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-assumption-metadata";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            Assumptions = ["existing sql database reused"]
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            Assumptions = [" Existing SQL Database Reused "]
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.Assumptions);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.Assumptions]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.Assumptions]);
+    }
+
+    [Fact]
+    public async Task IngestAsync_QualityAttributePaddingAndCasing_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-quality-metadata";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            QualityAttribute = "high availability"
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            QualityAttribute = " High Availability "
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.QualityAttribute);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.QualityAttribute]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.QualityAttribute]);
+    }
+
+    [Fact]
+    public async Task IngestAsync_FailureModeNotePaddingAndCasing_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-failure-mode-metadata";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            FailureModeNote = "region outage"
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            FailureModeNote = " Region Outage "
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.FailureModeNote);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.FailureModeNote]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.FailureModeNote]);
+    }
+
     private sealed class CountingConnector : IContextConnector
     {
         public string ConnectorType => "test-connector";

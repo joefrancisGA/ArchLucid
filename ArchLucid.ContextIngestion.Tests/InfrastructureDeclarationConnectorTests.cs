@@ -951,6 +951,81 @@ public sealed class InfrastructureDeclarationConnectorTests
         delta.RemovedCount.Should().Be(0);
     }
 
+    [Fact]
+    public async Task DeltaAsync_TerraformShowJsonEquivalentNumericFormatChange_ReportsUnchanged()
+    {
+        TerraformShowJsonInfrastructureDeclarationParser parser =
+            new(Microsoft.Extensions.Logging.Abstractions.NullLogger<TerraformShowJsonInfrastructureDeclarationParser>.Instance);
+
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([parser]),
+            new SetDiffConnectorDeltaComputer());
+
+        const string stateJson = """
+                                 {
+                                   "values": {
+                                     "root_module": {
+                                       "resources": [
+                                         {
+                                           "type": "azurerm_service_plan",
+                                           "name": "main",
+                                           "values": {
+                                             "worker_count": 1
+                                           }
+                                         }
+                                       ]
+                                     }
+                                   }
+                                 }
+                                 """;
+
+        RawContextPayload firstRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-1",
+                    Name = "state.json",
+                    Format = "terraform-show-json",
+                    Content = stateJson
+                }
+            ]
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString("D"),
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    DeclarationId = "decl-1",
+                    Name = "state.json",
+                    Format = "terraform-show-json",
+                    Content = stateJson.Replace("\"worker_count\": 1", "\"worker_count\": 1.0")
+                }
+            ]
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+    }
+
     private static CanonicalObject MakeInfraResource(string declarationId, string name, string resourceType)
         => new()
         {

@@ -634,6 +634,82 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_CanonicalizesEquivalentTfNumericFormats()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-capacity",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_service_plan",
+                                "name": "main",
+                                "values": { "worker_count": 1 }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["tf.worker_count"].Should().Be("1");
+    }
+
+    [Fact]
+    public async Task ParseAsync_EquivalentNumericRepresentations_ProduceSameTfProperties()
+    {
+        const string jsonInt = """
+                               {
+                                 "values": {
+                                   "root_module": {
+                                     "resources": [
+                                       {
+                                         "type": "azurerm_service_plan",
+                                         "name": "main",
+                                         "values": { "worker_count": 1 }
+                                       }
+                                     ]
+                                   }
+                                 }
+                               }
+                               """;
+
+        string jsonDecimal = jsonInt.Replace("\"worker_count\": 1", "\"worker_count\": 1.0");
+
+        InfrastructureDeclarationReference declInt = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-int",
+            Content = jsonInt
+        };
+
+        InfrastructureDeclarationReference declDecimal = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-decimal",
+            Content = jsonDecimal
+        };
+
+        IReadOnlyList<CanonicalObject> intObjects = await _sut.ParseAsync(declInt, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> decimalObjects = await _sut.ParseAsync(declDecimal, CancellationToken.None);
+
+        intObjects.Should().ContainSingle();
+        decimalObjects.Should().ContainSingle();
+        decimalObjects[0].Properties.Should().BeEquivalentTo(intObjects[0].Properties);
+    }
+
+    [Fact]
     public void CanParse_TrimsPaddedFormat()
     {
         _sut.CanParse(" terraform-show-json ").Should().BeTrue();
