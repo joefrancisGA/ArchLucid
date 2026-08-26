@@ -16,6 +16,7 @@ public sealed class ContractsPackageCoverageBatchRc30Tests
     public void DraftIntakeValidation_and_pilot_headers_expose_canonical_constants()
     {
         DraftIntakeValidation.MinimumFreeTextIntentLength.Should().Be(100);
+        DraftIntakeValidation.MaximumFreeTextIntentLength.Should().Be(2_000_000);
         PilotTryRealModeHeaders.PilotTryRealMode.Should().Be("X-ArchLucid-Pilot-Try-Real-Mode");
     }
 

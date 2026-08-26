@@ -29,7 +29,7 @@ public static class FakeArchitectureOverviewRewriteCompletionJson
 
         if (currentOverview.Length > 0)
         {
-            // Keep the full overview. Intake already rejects text above 50,000 characters;
+            // Keep the full overview. Intake rejects text above DraftIntakeValidation.MaximumFreeTextIntentLength;
             // a 4,000-character clip made realistic review packets look like a successful shorter rewrite.
             rewritten.AppendLine();
             rewritten.AppendLine();

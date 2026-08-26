@@ -16,10 +16,10 @@ public sealed class ArchitectureOverviewRewriteService(
     IAgentCompletionClient completionClient) : IArchitectureOverviewRewriteService
 {
     /// <summary>
-    ///     Output budget for a full-document overview rewrite. Intake allows 50,000 characters;
-    ///     ~4 characters per token plus JSON wrapping still fits in 16,384, the typical Azure OpenAI
-    ///     gpt-4o output cap. Passing null would fall back to the host default of 4,096 tokens and
-    ///     silently truncate customer overviews.
+    ///     Output budget for a full-document overview rewrite. Intake allows up to
+    ///     <see cref="DraftIntakeValidation.MaximumFreeTextIntentLength" /> characters; ~4 characters per token
+    ///     plus JSON wrapping still fits in 16,384, the typical Azure OpenAI gpt-4o output cap. Passing null
+    ///     would fall back to the host default of 4,096 tokens and silently truncate customer overviews.
     /// </summary>
     internal const int RewriteMaxCompletionTokens = 16_384;
 

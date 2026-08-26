@@ -3,6 +3,7 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Planning.AdvisoryDraft;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Operations;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
@@ -24,8 +25,8 @@ public sealed partial class RunsController
     /// <summary>Minimum free-text length accepted by the intake endpoints, in characters.</summary>
     private const int MinimumIntakeTextLength = 20;
 
-    /// <summary>Upper bound on chat intake text so a paste cannot drive an unbounded parse.</summary>
-    private const int MaximumChatIntakeTextLength = 50_000;
+    /// <summary>Upper bound on advisory intake paste size (aligned with <see cref="DraftIntakeValidation.MaximumFreeTextIntentLength" />).</summary>
+    private const int MaximumIntakeTextLength = DraftIntakeValidation.MaximumFreeTextIntentLength;
 
     [HttpPost("request/draft")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -47,9 +48,9 @@ public sealed partial class RunsController
                 $"FreeTextDescription must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
-        if (input.FreeTextDescription.Trim().Length > MaximumChatIntakeTextLength)
+        if (input.FreeTextDescription.Trim().Length > MaximumIntakeTextLength)
             return this.BadRequestProblem(
-                $"FreeTextDescription must not exceed {MaximumChatIntakeTextLength} characters.",
+                $"FreeTextDescription must not exceed {MaximumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
         DraftArchitectureRequestResponse response = await architectureRequestDraftService.DraftAsync(input, cancellationToken);
@@ -79,9 +80,9 @@ public sealed partial class RunsController
                 $"FreeTextDescription must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
-        if (input.FreeTextDescription.Trim().Length > MaximumChatIntakeTextLength)
+        if (input.FreeTextDescription.Trim().Length > MaximumIntakeTextLength)
             return this.BadRequestProblem(
-                $"FreeTextDescription must not exceed {MaximumChatIntakeTextLength} characters.",
+                $"FreeTextDescription must not exceed {MaximumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
         string operationId = await advisoryDraftOperationAcceptor.AcceptAsync(
@@ -165,9 +166,9 @@ public sealed partial class RunsController
                 $"CurrentOverview must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
-        if (input.CurrentOverview.Trim().Length > MaximumChatIntakeTextLength)
+        if (input.CurrentOverview.Trim().Length > MaximumIntakeTextLength)
             return this.BadRequestProblem(
-                $"CurrentOverview must not exceed {MaximumChatIntakeTextLength} characters.",
+                $"CurrentOverview must not exceed {MaximumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
         RewriteArchitectureOverviewResponse response =
@@ -237,6 +238,11 @@ public sealed partial class RunsController
                 $"SourceText must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
+        if (input.SourceText.Trim().Length > MaximumIntakeTextLength)
+            return this.BadRequestProblem(
+                $"SourceText must not exceed {MaximumIntakeTextLength} characters.",
+                ProblemTypes.ValidationFailed);
+
         if (string.IsNullOrWhiteSpace(input.SuggestionText))
             return this.BadRequestProblem("SuggestionText is required.", ProblemTypes.ValidationFailed);
 
@@ -267,9 +273,9 @@ public sealed partial class RunsController
                 $"RawText must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
-        if (input.RawText.Trim().Length > MaximumChatIntakeTextLength)
+        if (input.RawText.Trim().Length > MaximumIntakeTextLength)
             return this.BadRequestProblem(
-                $"RawText must not exceed {MaximumChatIntakeTextLength} characters.",
+                $"RawText must not exceed {MaximumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
         ArchitectureRequest parsed;

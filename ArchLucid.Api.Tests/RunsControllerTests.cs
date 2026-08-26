@@ -89,7 +89,10 @@ public sealed class RunsControllerTests
         Mock<IArchitectureRequestDraftService> draftService = new();
         RunsController controller = CreateController(draftService: draftService.Object);
 
-        DraftArchitectureRequestInput input = new() { FreeTextDescription = new string('x', 50_001) };
+        DraftArchitectureRequestInput input = new()
+        {
+            FreeTextDescription = new string('x', DraftIntakeValidation.MaximumFreeTextIntentLength + 1),
+        };
 
         IActionResult action = await controller.DraftRequest(input, CancellationToken.None);
 
@@ -106,7 +109,10 @@ public sealed class RunsControllerTests
         Mock<IAdvisoryDraftOperationAcceptor> acceptor = new();
         RunsController controller = CreateController();
 
-        DraftArchitectureRequestInput input = new() { FreeTextDescription = new string('x', 50_001) };
+        DraftArchitectureRequestInput input = new()
+        {
+            FreeTextDescription = new string('x', DraftIntakeValidation.MaximumFreeTextIntentLength + 1),
+        };
 
         IActionResult action = await controller.DraftRequestAsync(input, acceptor.Object, CancellationToken.None);
 
@@ -156,7 +162,7 @@ public sealed class RunsControllerTests
 
         RewriteArchitectureOverviewInput input = new()
         {
-            CurrentOverview = new string('x', 50_001),
+            CurrentOverview = new string('x', DraftIntakeValidation.MaximumFreeTextIntentLength + 1),
             StructuredBrief = new ArchitectureDraftStructuredBrief(),
         };
 
