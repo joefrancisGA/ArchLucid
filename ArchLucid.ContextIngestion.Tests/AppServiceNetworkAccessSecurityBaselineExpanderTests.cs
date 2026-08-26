@@ -62,6 +62,28 @@ public sealed class AppServiceNetworkAccessSecurityBaselineExpanderTests
     }
 
     [Fact]
+    public void Expand_sites_config_child_resource_does_not_create_security_baselines()
+    {
+        CanonicalObject siteConfig = new()
+        {
+            ObjectType = "TopologyResource",
+            Name = "web-app/web",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["resourceType"] = "Microsoft.Web/sites/config",
+                ["ipSecurityRestrictions"] =
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand([siteConfig]);
+
+        expanded.Should().ContainSingle();
+    }
+
+    [Fact]
     public void Expand_application_gateway_with_ip_rules_does_not_create_security_baselines()
     {
         CanonicalObject gateway = new()

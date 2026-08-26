@@ -77,7 +77,7 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
             return false;
 
         if (item.Properties.TryGetValue("resourceType", out string? resourceType)
-            && resourceType.Contains("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase))
+            && resourceType.Equals("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (item.Properties.TryGetValue("resourceType", out string? type)

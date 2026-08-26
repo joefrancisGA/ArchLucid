@@ -1808,11 +1808,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 41
-- **bugs-found:** 88
+- **hunts:** 42
+- **bugs-found:** 89
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — JSON custom-property identity + duplicate simple-terraform blocks collapsed connector deltas
+- **last-bug:** 2026-08-26 — `Microsoft.Web/sites/config` child resources spawned App Service network baselines
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1915,6 +1915,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TopologyHintStableObjectIds.CanonicalizeHintName` with internal whitespace (`hub  vnet` vs `hub vnet`) — **hit 2026-08-26:** double-space hints churned topology-hints connector deltas; fixed by collapsing internal whitespace in each segment (`TopologyHintStableObjectIdsTests`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_DeltaAsync_InternalWhitespaceChange_ReportsUnchanged`).
 - [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` preserves nested block-name casing (`tf.Site_Config` vs `tf.site_config`) — **hit 2026-08-26:** unlike `TryAddTfProperty`, block keys were not lowercased, false-modifying simple-terraform deltas; fixed with `.ToLowerInvariant()` on sanitized block names (`CanonicalInfrastructurePropertyBagTests`, `InfrastructureDeclarationConnectorTests.DeltaAsync_SimpleTerraformNestedBlockNameCasingChange_ReportsUnchanged`).
 - [x] (proven) `SimpleTerraformDeclarationParser` / `InfrastructureDeclarationDeltaKey` with duplicate `resource` blocks sharing type+label — **hit 2026-08-26:** stable identity was `terraformType|label` only so malformed duplicate HCL collapsed in delta; fixed with per-declaration `terraformOccurrence` suffix (`SimpleTerraformDeclarationParserTests.ParseAsync_DuplicateResourceBlocksSameTypeLabel_EmitsDistinctObjects`, `InfrastructureDeclarationConnectorTests.DeltaAsync_DuplicateSimpleTerraformResourceBlocks_CountsBothResources`).
+- [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander.IsAppServiceTopology` matched `Microsoft.Web/sites/config` via `Contains("Microsoft.Web/sites")` — **hit 2026-08-26:** child config resources with `ipSecurityRestrictions` spawned spurious public-endpoint baselines; fixed by exact `Microsoft.Web/sites` match (`AppServiceNetworkAccessSecurityBaselineExpanderTests.Expand_sites_config_child_resource_does_not_create_security_baselines`).
+- [ ] (hunt-ready) `ArmJsonInfrastructureDeclarationParser.TryAddResource` builds `ObjectId` from `type|name` only while JSON parser includes custom-property disambiguators — two ARM storage accounts with same type/name but different `properties` share graph `ObjectId`.
+- [ ] (hunt-ready) `TerraformShowJsonInfrastructureDeclarationParser` duplicate root `type+label` without `address` collapses `ObjectId` — simple-terraform has `terraformOccurrence` but show-json path does not.
+- [ ] (hunt-ready) `TopologyHintsPayloadNormalizer` / `PlainTextDocumentTopologyResourceBuilder` link `parentNodeId` to first slash segment only — `prod/vnet/subnet-a` parents to `prod` instead of `prod/vnet`.
+- [ ] (hunt-ready) `InfrastructureDeclarationDeltaKey.For` terraform branch omits `tf.*` disambiguators — duplicate show-json root labels with different `address_prefix` report `AddedCount = 1`.
+
+2026-08-26 seed hunt #42: reseeded four hunt-ready rows; proved App Service sites/config false-positive expansion.
 
 ---
 
