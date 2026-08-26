@@ -52,6 +52,17 @@ Premium-tier judge calls are metered and capped. Each judged finding is one Reas
 | `ArchLucid:Findings:InsightDensityGate:EnableLlmJudgeForEngineFindings` | `false` | When `true` with `EnableLlmJudge`, also judges deterministic engine findings after snapshot build (authority pipeline). |
 | `ArchLucid:Findings:InsightDensityGate:MaxJudgedFindingsPerSnapshot` | `12` | Hard per-snapshot ceiling on judge completions — cost guard for large finding sets. |
 
+## Open-commitment finding engine (ID-05)
+
+Surfaces overdue deferrals, unanswered evidence requests, and waiver expiry from the disposition trail on every review when enabled. **Default on** — disable per tenant when trail fan-out or finding volume is undesirable.
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `ArchLucid:Findings:OpenCommitment:Enabled` | `true` | When `false`, `OpenCommitmentFindingEngine` returns empty with **zero** trail repository calls. |
+| `ArchLucid:Findings:OpenCommitment:Lookback` | *(trail basis window)* | How far back to scan disposition trail events (defaults to `FindingDispositionTrailWindow.BasisBreakdownLookback`). |
+| `ArchLucid:Findings:OpenCommitment:WaiverExpiryWarningDays` | `30` | Emit expiring-waiver signals when waiver end is within this many days. |
+| `ArchLucid:Findings:OpenCommitment:MaxFindings` | `25` | Maximum open-commitment findings emitted per review (ordered by signal priority). |
+
 ## Portfolio recurrence finding engine (ID-06)
 
 Cross-run portfolio scan on every review when enabled. **Default off** so tenants do not incur `IRunDetailQueryService` / `IFindingsSnapshotRepository` fan-out until operators opt in and measure cost.
