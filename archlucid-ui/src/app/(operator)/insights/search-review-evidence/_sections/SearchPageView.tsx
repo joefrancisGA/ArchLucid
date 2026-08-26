@@ -5,6 +5,7 @@ import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceV
 import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrailVocabularyRail";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
@@ -23,6 +24,10 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
+import {
+  resolveSearchReviewEvidenceEmphasizedStepId,
+  resolveSearchReviewEvidenceSteps,
+} from "@/lib/search-review-evidence-checklist";
 
 import type { SearchPageViewModel } from "./search-page-view-model";
 import {
@@ -81,6 +86,16 @@ export function SearchPageView({ model }: SearchPageViewProps) {
   const scopedRunId = runId.trim();
   const pageSubtitle = searchReviewEvidencePageSubtitle(buyerShell === true);
   const showVocabularyRails = buyerShell !== true;
+  const searchReviewSteps = resolveSearchReviewEvidenceSteps({
+    reviewPicked: scopedRunId.length > 0,
+    queryConfigured: query.trim().length > 0,
+    searchComplete: hasSearched && results.length > 0,
+  });
+  const searchReviewEmphasizedStepId = resolveSearchReviewEvidenceEmphasizedStepId({
+    reviewPicked: scopedRunId.length > 0,
+    queryConfigured: query.trim().length > 0,
+    searchComplete: hasSearched && results.length > 0,
+  });
 
   if (isDemo) {
     return (
@@ -134,7 +149,14 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 
       {scopedRunId.length === 0 ? (
         <SearchPickReviewBeforeSearchStrip selectedReviewId={runId} onSelectReview={setRunId} />
-      ) : null}
+      ) : (
+        <IntegrationConnectChecklist
+          title="Search checklist"
+          steps={searchReviewSteps}
+          emphasizedStepId={searchReviewEmphasizedStepId}
+          testIdPrefix="search-review-evidence"
+        />
+      )}
 
       <Card className="max-w-xl border-neutral-200 dark:border-neutral-700" data-testid="search-review-evidence-form">
         <CardContent className="grid gap-4 p-4">
