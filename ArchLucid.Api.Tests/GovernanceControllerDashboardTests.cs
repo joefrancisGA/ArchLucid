@@ -131,4 +131,52 @@ public sealed class GovernanceControllerDashboardTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         dashboard.VerifyNoOtherCalls();
     }
+
+    [SkippableFact]
+    public async Task GetComplianceDriftTrend_returns_not_found_when_tenant_missing()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+        DateTime fromUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = fromUtc.AddDays(7);
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        Mock<IComplianceDriftTrendService> drift = new(MockBehavior.Strict);
+
+        GovernanceController sut = new(
+            Mock.Of<IGovernanceWorkflowService>(),
+            Mock.Of<IGovernanceApprovalRequestRepository>(),
+            Mock.Of<IGovernancePromotionRecordRepository>(),
+            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            Mock.Of<IActorContext>(),
+            scope.Object,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<IGovernanceDashboardService>(),
+            Mock.Of<IGovernanceLineageService>(),
+            Mock.Of<IGovernanceRationaleService>(),
+            drift.Object,
+            Mock.Of<IPolicyPackDryRunService>(),
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            Mock.Of<IPolicyPackSchemaKeysService>(),
+            Mock.Of<Core.Audit.IAuditService>(),
+            Mock.Of<IPolicyPackDraftService>(),
+            Mock.Of<IPolicyPackGeneratorService>(),
+            tenants.Object,
+            NullLogger<GovernanceController>.Instance)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.GetComplianceDriftTrend(fromUtc, toUtc, 1440, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        drift.VerifyNoOtherCalls();
+    }
 }
