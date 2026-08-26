@@ -1,6 +1,7 @@
 namespace ArchLucid.ContextIngestion.Infrastructure;
 
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
 
 /// <summary>
@@ -142,7 +143,10 @@ public static class CanonicalInfrastructurePropertyBag
         if (trimmedBody.Length > MaxPropertyValueLength)
             trimmedBody = trimmedBody[..MaxPropertyValueLength];
 
-        properties[$"tf.{sanitizedBlockName}"] = trimmedBody.ToLowerInvariant();
+        string normalizedBody = trimmedBody.ToLowerInvariant();
+        string redactedBody = RedactSensitiveAssignmentsInHclBody(normalizedBody);
+
+        properties[$"tf.{sanitizedBlockName}"] = redactedBody;
 
         return true;
     }
@@ -160,7 +164,7 @@ public static class CanonicalInfrastructurePropertyBag
         if (ShouldRedactKey(rawKey))
             return TryAddTfProperty(properties, rawKey, "[REDACTED]");
 
-        string serialized = value.GetRawText().Trim();
+        string serialized = CanonicalInfrastructureJsonValue.CanonicalizeText(value);
 
         if (string.IsNullOrWhiteSpace(serialized))
             return false;
@@ -183,5 +187,61 @@ public static class CanonicalInfrastructurePropertyBag
         ArgumentNullException.ThrowIfNull(properties);
 
         return properties.Keys.Count(static key => key.StartsWith("tf.", StringComparison.OrdinalIgnoreCase));
+    }
+
+    internal static string RedactSensitiveAssignmentsInHclBody(string blockBody)
+    {
+        if (string.IsNullOrWhiteSpace(blockBody))
+            return blockBody;
+
+        string[] lines = blockBody.Split('\n');
+        StringBuilder builder = new();
+
+        for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
+        {
+            string line = lines[lineIndex];
+
+            if (builder.Length > 0)
+                builder.Append(' ');
+
+            string trimmedLine = line.Trim();
+
+            if (trimmedLine.Length == 0)
+                continue;
+
+            int equalsIndex = trimmedLine.IndexOf('=');
+
+            if (equalsIndex <= 0)
+            {
+                builder.Append(trimmedLine);
+                continue;
+            }
+
+            string key = trimmedLine[..equalsIndex].Trim();
+            string assignmentValue = StripTrailingHclComment(trimmedLine[(equalsIndex + 1)..].Trim());
+
+            if (ShouldRedactKey(key))
+            {
+                builder.Append(key);
+                builder.Append(" = \"[REDACTED]\"");
+                continue;
+            }
+
+            builder.Append(key);
+            builder.Append(" = ");
+            builder.Append(assignmentValue);
+        }
+
+        return builder.ToString();
+    }
+
+    internal static string StripTrailingHclComment(string rawValue)
+    {
+        int hashIndex = rawValue.IndexOf('#');
+
+        if (hashIndex < 0)
+            return rawValue;
+
+        return rawValue[..hashIndex].TrimEnd();
     }
 }

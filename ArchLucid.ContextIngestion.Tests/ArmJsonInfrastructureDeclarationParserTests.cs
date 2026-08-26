@@ -299,4 +299,64 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
 
         baseline.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task ParseAsync_CanonicalizesComplexTfJsonCasing()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "d-arm-tags",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Resources/tags",
+                            "name": "env",
+                            "properties": {
+                              "tags": { "Environment": "Prod" }
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["tf.tags"].Should().Be("{\"environment\":\"prod\"}");
+    }
+
+    [Fact]
+    public async Task ParseAsync_redacts_nested_sensitive_object_values()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-nested-sensitive",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Web/sites",
+                            "name": "web-app",
+                            "properties": {
+                              "siteConfig": {
+                                "connectionString": "Server=db;Password=secret"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.siteconfig"].Should().Be("{\"connectionstring\":\"[REDACTED]\"}");
+    }
 }

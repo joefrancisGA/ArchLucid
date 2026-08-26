@@ -208,4 +208,47 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().HaveCount(2);
         result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
     }
+
+    [Fact]
+    public async Task ParseAsync_redacts_sensitive_nested_block_assignments()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "app.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          connection_string = "Server=db;Password=secret"
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.site_config"].Should().Contain("[REDACTED]");
+        result[0].Properties["tf.site_config"].Should().NotContain("secret");
+    }
+
+    [Fact]
+    public async Task ParseAsync_StripsTrailingCommentsFromScalarAssignments()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "rg.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_resource_group" "main" {
+                        location = "eastus" # primary region
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.location"].Should().Be("eastus");
+    }
 }

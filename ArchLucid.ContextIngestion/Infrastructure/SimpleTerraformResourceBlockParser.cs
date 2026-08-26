@@ -98,7 +98,8 @@ internal static class SimpleTerraformResourceBlockParser
                 continue;
 
             string key = scalarMatch.Groups["key"].Value;
-            string rawValue = scalarMatch.Groups["value"].Value.Trim();
+            string rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(
+                scalarMatch.Groups["value"].Value.Trim());
 
             if (rawValue.StartsWith("${", StringComparison.Ordinal))
                 continue;
