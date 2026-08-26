@@ -235,14 +235,14 @@ export function GovernanceFindingsQueueAssignedToMeShell(
             Compare with prior review (finding lifecycle)
           </Link>
         </p>
-      ) : !isAssignedToMe ? (
+      ) : scopedRunId === null || scopedRunId.length === 0 ? (
         <FindingsQueuePickReviewBeforeTriageStrip
           selectedReviewId=""
           onSelectReview={onPickReviewForTriage}
         />
       ) : null}
 
-      {scopedRunFilterActive && !isAssignedToMe ? (
+      {scopedRunFilterActive ? (
         <IntegrationConnectChecklist
           title="Triage checklist"
           steps={findingsQueueTriageSteps}
@@ -466,7 +466,7 @@ export function GovernanceFindingsQueueAssignedToMeShell(
         <GovernanceFindingsBuyerChrome scopedRunId={scopedRunId} />
       ) : null}
 
-      {!isAssignedToMe && scopedRunFilterActive && scopedRunId !== null ? (
+      {scopedRunFilterActive && scopedRunId !== null ? (
         <GovernanceFindingsQueueNextReviewFooterClient runId={scopedRunId} />
       ) : null}
     </div>
