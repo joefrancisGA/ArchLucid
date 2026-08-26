@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse,
   buildArchitectureDraftSuggestionSourceText,
   buildDeterministicStructuredBriefSuggestionsFromText,
   extractQualityAttributeSuggestionsFromText,
 } from "@/lib/architecture/architecture-draft-structured-brief-suggestions";
+import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 
 const SAMPLE_PACKET = `# Architecture Review Packet: B2B SaaS Tenant Migration Platform
 
@@ -69,5 +71,22 @@ describe("extractQualityAttributeSuggestionsFromText", () => {
     expect(suggestions).toContain("RPO 15 minutes");
     expect(suggestions).toContain("RTO 4 hours");
     expect(suggestions).toContain("Audit export latency 30 minutes");
+  });
+});
+
+describe("applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse", () => {
+  it("stages failure mode suggestions for confirm/deny instead of auto-filling the field", () => {
+    const applied = applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse({
+      brief: emptyArchitectureDraftStructuredBrief(),
+      sourceText: "RPO is 15 minutes; RTO is 4 hours.",
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      suggestedFailureModeNote: null,
+    });
+
+    expect(applied.brief.failureModeNote).toBe("");
+    expect(applied.brief.suggestedFailureModeNote).toContain("RPO (15 minutes)");
+    expect(applied.addedSuggestionCount).toBeGreaterThan(0);
   });
 });
