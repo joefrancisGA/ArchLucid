@@ -342,6 +342,9 @@ internal static class ClosedLoopReasoningResultCloner
         if (payload is JsonElement jsonElement)
             return jsonElement.Clone();
 
+        if (payload is Dictionary<string, string> stringDictionary)
+            return new Dictionary<string, string>(stringDictionary);
+
         if (payload is ICloneable cloneable)
             return cloneable.Clone();
 
