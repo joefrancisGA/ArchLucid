@@ -34,6 +34,59 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         markdown.Should().Contain("- Open ingress");
         markdown.Should().Contain("- Stale DR plan");
         markdown.Should().Contain("generated with AI assistance");
+        markdown.Should().Contain("Deterministic findings (sealed)");
+        markdown.Should().Contain("Agent findings (advisory)");
+    }
+
+    [Fact]
+    public void Render_includes_simulator_rehearsal_notice_when_simulator_mode()
+    {
+        RunSummaryOnePagerDocumentModel model = new()
+        {
+            RunId = "run-abc",
+            SystemName = "Payments",
+            CriticalCount = 0,
+            HighCount = 0,
+            MediumCount = 0,
+            LowCount = 0,
+            SponsorReport = "Summary.",
+            TopFindingTitles = [],
+            IsSimulatorMode = true,
+            SimulatorRehearsalTitle = SimulatorModeExportRehearsalMarkdown.NoticeTitle,
+            SimulatorRehearsalBody = SimulatorModeExportRehearsalMarkdown.NoticeBody,
+        };
+
+        string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
+
+        markdown.Should().Contain("Simulator mode");
+        markdown.Should().Contain("not live AI output");
+        markdown.Should().Contain("rule-based analysis in simulator mode");
+    }
+
+    [Fact]
+    public void Render_lists_sealed_snapshot_id_when_present()
+    {
+        Guid snapshotId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        RunSummaryOnePagerDocumentModel model = new()
+        {
+            RunId = "run-abc",
+            SystemName = "Payments",
+            CriticalCount = 0,
+            HighCount = 0,
+            MediumCount = 0,
+            LowCount = 0,
+            SponsorReport = "Summary.",
+            TopFindingTitles = [],
+            HasSealedSnapshot = true,
+            FindingsSnapshotId = snapshotId.ToString("D"),
+            SealedFindingCount = 12,
+        };
+
+        string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
+
+        markdown.Should().Contain(snapshotId.ToString("D"));
+        markdown.Should().Contain("12 finding(s)");
     }
 
     [Fact]

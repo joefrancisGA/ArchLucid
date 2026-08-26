@@ -1,3 +1,4 @@
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 import type { RunSummary } from "@/types/authority";
 
@@ -43,15 +44,17 @@ function readRecentReviewRunId(): string | null {
 }
 
 /** Resolves the review row to pin as Continue last viewed on the reviews list. */
-export function resolveContinueLastRunsListRow(runs: readonly RunSummary[]): RunSummary | null {
-  if (runs.length === 0) {
+export function resolveContinueLastRunsListRow(runs: unknown): RunSummary | null {
+  const normalizedRuns = asNonemptyReadonlyArray<RunSummary>(runs);
+
+  if (normalizedRuns === null) {
     return null;
   }
 
   const recentRunId = readRecentReviewRunId();
 
   if (recentRunId !== null) {
-    const recentMatch = runs.find((run) => run.runId === recentRunId);
+    const recentMatch = normalizedRuns.find((run) => run.runId === recentRunId);
 
     if (recentMatch !== undefined) {
       return recentMatch;
@@ -59,7 +62,7 @@ export function resolveContinueLastRunsListRow(runs: readonly RunSummary[]): Run
   }
 
   return (
-    runs
+    normalizedRuns
       .slice()
       .sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0] ?? null
   );

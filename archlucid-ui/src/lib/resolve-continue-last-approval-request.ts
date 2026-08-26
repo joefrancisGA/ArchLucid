@@ -1,4 +1,5 @@
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 
 export const APPROVAL_QUEUE_LAST_VIEWED_STORAGE_KEY = "archlucid_approval_queue_continue_last_v1";
@@ -79,23 +80,25 @@ function toTarget(row: GovernanceApprovalRequest): ApprovalQueueContinueLastTarg
 
 /** Resolves the approval request to pin as Continue last viewed. */
 export function resolveContinueLastApprovalRequest(
-  approvals: readonly GovernanceApprovalRequest[],
+  approvals: unknown,
 ): ApprovalQueueContinueLastTarget | null {
-  if (approvals.length === 0) {
+  const normalizedApprovals = asNonemptyReadonlyArray<GovernanceApprovalRequest>(approvals);
+
+  if (normalizedApprovals === null) {
     return null;
   }
 
   const storedId = readStoredApprovalRequestId();
 
   if (storedId !== null) {
-    const storedMatch = approvals.find((row) => row.approvalRequestId === storedId);
+    const storedMatch = normalizedApprovals.find((row) => row.approvalRequestId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const newest = approvals
+  const newest = normalizedApprovals
     .slice()
     .sort((left, right) => right.requestedUtc.localeCompare(left.requestedUtc))[0];
 

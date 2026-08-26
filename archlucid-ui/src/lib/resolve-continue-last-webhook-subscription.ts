@@ -1,3 +1,4 @@
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
 export const WEBHOOK_SUBSCRIPTION_LAST_VIEWED_STORAGE_KEY =
@@ -45,16 +46,18 @@ function toTarget(subscription: AlertRoutingSubscription): WebhooksContinueLastT
 
 /** Resolves the webhook subscription to pin as Continue last viewed. */
 export function resolveContinueLastWebhookSubscription(
-  subscriptions: readonly AlertRoutingSubscription[],
+  subscriptions: unknown,
 ): WebhooksContinueLastTarget | null {
-  if (subscriptions.length === 0) {
+  const normalizedSubscriptions = asNonemptyReadonlyArray<AlertRoutingSubscription>(subscriptions);
+
+  if (normalizedSubscriptions === null) {
     return null;
   }
 
   const storedId = readStoredSubscriptionId();
 
   if (storedId !== null) {
-    const storedMatch = subscriptions.find(
+    const storedMatch = normalizedSubscriptions.find(
       (subscription) => subscription.routingSubscriptionId === storedId,
     );
 
@@ -63,8 +66,8 @@ export function resolveContinueLastWebhookSubscription(
     }
   }
 
-  const enabled = subscriptions.filter((subscription) => subscription.isEnabled === true);
-  const pool = enabled.length > 0 ? enabled : subscriptions;
+  const enabled = normalizedSubscriptions.filter((subscription) => subscription.isEnabled === true);
+  const pool = enabled.length > 0 ? enabled : normalizedSubscriptions;
   const newest = pool.slice().sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
 
   return newest === undefined ? null : toTarget(newest);

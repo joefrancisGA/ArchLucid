@@ -1,4 +1,5 @@
 import type { TenantAuthDomainRecord } from "@/lib/admin-auth-domains-api";
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 
 export const AUTH_DOMAIN_LAST_VIEWED_STORAGE_KEY = "archlucid_auth_domain_continue_last_v1";
 
@@ -47,25 +48,25 @@ function toTarget(domain: TenantAuthDomainRecord): AuthDomainsContinueLastTarget
 }
 
 /** Resolves the auth domain to pin as Continue last viewed. */
-export function resolveContinueLastAuthDomain(
-  domains: readonly TenantAuthDomainRecord[],
-): AuthDomainsContinueLastTarget | null {
-  if (domains.length === 0) {
+export function resolveContinueLastAuthDomain(domains: unknown): AuthDomainsContinueLastTarget | null {
+  const normalizedDomains = asNonemptyReadonlyArray<TenantAuthDomainRecord>(domains);
+
+  if (normalizedDomains === null) {
     return null;
   }
 
   const storedId = readStoredDomain();
 
   if (storedId !== null) {
-    const storedMatch = domains.find((domain) => domain.normalizedDomain === storedId);
+    const storedMatch = normalizedDomains.find((domain) => domain.normalizedDomain === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const unverified = domains.filter((domain) => isUnverified(domain));
-  const pool = unverified.length > 0 ? unverified : domains;
+  const unverified = normalizedDomains.filter((domain) => isUnverified(domain));
+  const pool = unverified.length > 0 ? unverified : normalizedDomains;
   const newest = pool.slice().sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
 
   return newest === undefined ? null : toTarget(newest);

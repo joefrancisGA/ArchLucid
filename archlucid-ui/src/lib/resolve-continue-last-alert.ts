@@ -1,3 +1,4 @@
+import { asReadonlyArray } from "@/lib/continue-last-list-guard";
 import type { AlertRecord } from "@/types/alerts";
 
 export const ALERT_INBOX_LAST_VIEWED_STORAGE_KEY = "archlucid_alerts_inbox_continue_last_v1";
@@ -60,10 +61,14 @@ function compareOldestCreated(left: AlertRecord, right: AlertRecord): number {
 }
 
 /** Resolves the inbox alert to pin as Continue last viewed. */
-export function resolveContinueLastAlert(
-  alerts: readonly AlertRecord[],
-): AlertsInboxContinueLastTarget | null {
-  const visible = alerts.filter((alert) => alert.isArchived !== true);
+export function resolveContinueLastAlert(alerts: unknown): AlertsInboxContinueLastTarget | null {
+  const normalizedAlerts = asReadonlyArray<AlertRecord>(alerts);
+
+  if (normalizedAlerts === null) {
+    return null;
+  }
+
+  const visible = normalizedAlerts.filter((alert) => alert.isArchived !== true);
 
   if (visible.length === 0) {
     return null;

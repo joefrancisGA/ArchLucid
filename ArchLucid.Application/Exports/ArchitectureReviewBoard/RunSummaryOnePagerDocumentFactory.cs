@@ -1,5 +1,7 @@
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
@@ -13,7 +15,8 @@ public static class RunSummaryOnePagerDocumentFactory
         ArchitectureRunDetail detail,
         string SponsorReport,
         IReadOnlyList<string> topFindingTitles,
-        string? activeTrialExportNotice = null)
+        string? activeTrialExportNotice = null,
+        int sealedFindingCount = 0)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);
@@ -23,6 +26,8 @@ public static class RunSummaryOnePagerDocumentFactory
         string runId = detail.Run.RunId ?? string.Empty;
         bool isDemoTenant = ContosoRetailDemoIdentifiers.IsDemoRunId(runId)
             || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run.RequestId);
+        bool hasSealedSnapshot = detail.Run.FindingsSnapshotId is Guid snapshotId && snapshotId != Guid.Empty;
+        bool isSimulatorMode = detail.Run.StructuralExecutionMode == StructuralExecutionMode.Simulator;
 
         return new RunSummaryOnePagerDocumentModel
         {
@@ -41,6 +46,14 @@ public static class RunSummaryOnePagerDocumentFactory
             ActiveTrialExportNotice = string.IsNullOrWhiteSpace(activeTrialExportNotice)
                 ? null
                 : activeTrialExportNotice.Trim(),
+            IsSimulatorMode = isSimulatorMode,
+            HasSealedSnapshot = hasSealedSnapshot,
+            FindingsSnapshotId = hasSealedSnapshot
+                ? detail.Run.FindingsSnapshotId!.Value.ToString("D")
+                : null,
+            SealedFindingCount = hasSealedSnapshot ? Math.Max(0, sealedFindingCount) : 0,
+            SimulatorRehearsalTitle = isSimulatorMode ? SimulatorModeExportRehearsalMarkdown.NoticeTitle : null,
+            SimulatorRehearsalBody = isSimulatorMode ? SimulatorModeExportRehearsalMarkdown.NoticeBody : null,
         };
     }
 

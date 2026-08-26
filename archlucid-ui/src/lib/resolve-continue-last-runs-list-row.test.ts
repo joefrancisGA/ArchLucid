@@ -16,6 +16,13 @@ function run(overrides: Partial<RunSummary> = {}): RunSummary {
 }
 
 describe("resolveContinueLastRunsListRow", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastRunsListRow(null)).toBeNull();
+    expect(resolveContinueLastRunsListRow({})).toBeNull();
+    expect(resolveContinueLastRunsListRow("nope")).toBeNull();
+    expect(resolveContinueLastRunsListRow([])).toBeNull();
+  });
+
   it("prefers the most recently created run when no recent view exists", () => {
     const match = resolveContinueLastRunsListRow([
       run({ runId: "run-old", createdUtc: "2025-01-01T00:00:00Z" }),

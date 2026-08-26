@@ -115,6 +115,20 @@ Complete **within 24 hours** of a committed **Real**-mode review used for GTM ev
 
 Add a row to the [run log table](#proof-packet-run-log) above. Keep the `_example_` simulator row only as format reference — do not count it toward G4.
 
+##### Script output ↔ G4 column map (G-REAL-07 / WK-14)
+
+| G4 log column | `collect-first-pilot-proof.ps1` source | Owner-manual when absent |
+| --- | --- | --- |
+| Run date (UTC) | Proof folder timestamp / `go-no-go-summary.json` generated time | — |
+| Tenant | CLI scope / run detail tenant label in proof index | — |
+| Run ID | `-RunId` parameter | — |
+| Mode (Real/Simulator) | `go-no-go-summary.json` execution mode + export labels | Must be **Real** for qualifying row |
+| Proof packet generated? | Exit code 0 and proof folder artifacts present | — |
+| Clean (no manual surgery)? | Operator attestation in checklist §2 | **Yes** only when no hand-edits to findings/ROI |
+| Notes | Policy-toggle delta (Run 2 pack ids, overlay extras), compare base run id | Run 2b overlay when FinOps/CIS extras used |
+
+**Key flags:** `-SponsorHandoff` emits sponsor handoff bundle; `-FailOnHold` exits non-zero when disposition is HOLD. **Simulator** packets are format reference only — do not count toward G4.
+
 ##### 5. Update G4 gate
 
 In the [gate table](#gate-table): 0–2 qualifying rows → **HOLD**; ≥3 → **PASS** (link three run IDs). Update **Last reviewed** when G4 changes.

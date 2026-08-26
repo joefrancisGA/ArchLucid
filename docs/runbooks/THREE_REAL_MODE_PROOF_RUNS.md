@@ -30,8 +30,17 @@
 | Run | Scenario focus | Success bar |
 | --- | --- | --- |
 | **1** | Default Core Pilot path (Azure extractor Tier 1 or equivalent brief) | Commit succeeds; PilotStrict sponsor-evidence **PASS** |
-| **2** | Governance-sensitive packet (policy pack dry-run → commit) | Quality gate pass; faithfulness floors met if retrieval claims used |
+| **2** | Same architecture + **second policy pack** (e.g. SOC 2 vs CIS Azure) on identical evidence | Finding rule ids / severities differ; pre-finalize gate delta recorded; see policy-filter golden tests |
+| **2b** (optional) | Same run architecture + **overlay extra** (`cost.requireBudgetCap` or CIS `identity` topology extra) | Coverage/cost findings or missing topology categories change — bundled FinOps / CIS Azure JSON must contain the keys |
 | **3** | Repeat / compare path (second review vs run 1) | Compare output attached; disposition SEND or explicit HOLD with remediation |
+
+**Agent may prepare / owner must judge**
+
+| Agent may | Owner must |
+| --- | --- |
+| Scenario briefs, redaction checklist, spend-cap reminders ($15 MTD golden cohort) | Execute Real-mode commits; judge faithfulness and sponsor-send |
+| Point at `collect-first-pilot-proof.ps1` flags | Fill G4 rows in [`CLAIM_READINESS_STATUS.md`](../go-to-market/CLAIM_READINESS_STATUS.md) — **not** simulator output labeled Real |
+| Dry-run policy-toggle talk track from golden tests | Confirm execution mode = **Real** on each packet |
 
 Record each run using [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md).
 

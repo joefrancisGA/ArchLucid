@@ -223,6 +223,17 @@ Workflow: `.github/workflows/ci.yml` — **tiered jobs** for clarity and fail-fa
 
 PRs must pass the **blocking** merge gates (Tier **0–3b**, **2b**, **3c**, **3c′**, **3c″**, and **3d** as wired in `ci.yml`). Tiers **3c**, **3c′**, and **3c″** cover **DevelopmentBypass**, **ApiKey**, and **JwtBearer** live journeys against SQL (full suite vs auth subsets — see **`LIVE_E2E_AUTH_PARITY.md`**). Tier 2 (and 2b) are skipped automatically if Tier **0.x** / **0.9** / **1** fails (`needs: dotnet-fast-core`), saving SQL spin-up, full-suite time, and chaos runs on obvious breaks. **Branch protection:** optionally require **`CI: guards pre-corset (text)`** on PRs (corset already **`needs`** it).
 
+### Direct `master` / `main` push corset (WK-11)
+
+**Workflow:** `.github/workflows/ui-typecheck-on-push.yml` — runs on **`push`** to **`main`** / **`master`** only.
+
+| Job | Blocking? | Purpose |
+|-----|-----------|---------|
+| **`Security: gitleaks (secret scan)`** | Yes | Same secret scan as PR Tier **0** |
+| **`Operator UI: typecheck (blocking)`** | Yes | `archlucid-ui`: `npm ci` + `npm run typecheck` |
+
+**Tradeoff:** Direct pushes to the default branch get a **thin** UI typecheck corset so truncated Operate help JSX cannot land silently. The full **`ci.yml`** matrix (Suite=Core, SQL regression, Playwright, k6) still runs on **`pull_request`** and **`workflow_dispatch`** — not on every default-branch push. **`codeql.yml`** already runs on push separately.
+
 ### Tier 4 — scheduled security testing (not per-PR)
 
 These workflows run on a **weekly** cron (**Monday 06:00 UTC**) and **`workflow_dispatch`**. They are **not** merge gates for every pull request; runtime is typically **tens of minutes** (image build + scans).

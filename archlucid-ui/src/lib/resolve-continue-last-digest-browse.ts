@@ -1,3 +1,4 @@
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import type { ArchitectureDigest } from "@/types/advisory-scheduling";
 
 export const DIGEST_BROWSE_LAST_VIEWED_STORAGE_KEY = "archlucid_digest_browse_continue_last_v1";
@@ -47,24 +48,24 @@ function compareNewestGenerated(left: ArchitectureDigest, right: ArchitectureDig
 }
 
 /** Resolves the digest history row to pin as Continue last viewed. */
-export function resolveContinueLastDigestBrowse(
-  digests: readonly ArchitectureDigest[],
-): DigestsBrowseContinueLastTarget | null {
-  if (digests.length === 0) {
+export function resolveContinueLastDigestBrowse(digests: unknown): DigestsBrowseContinueLastTarget | null {
+  const normalizedDigests = asNonemptyReadonlyArray<ArchitectureDigest>(digests);
+
+  if (normalizedDigests === null) {
     return null;
   }
 
   const storedId = readStoredDigestId();
 
   if (storedId !== null) {
-    const storedMatch = digests.find((digest) => digest.digestId === storedId);
+    const storedMatch = normalizedDigests.find((digest) => digest.digestId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const newest = digests.slice().sort(compareNewestGenerated)[0];
+  const newest = normalizedDigests.slice().sort(compareNewestGenerated)[0];
 
   return newest === undefined ? null : toTarget(newest);
 }

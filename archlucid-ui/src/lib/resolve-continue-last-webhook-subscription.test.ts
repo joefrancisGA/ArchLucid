@@ -22,6 +22,13 @@ function subscription(overrides: Partial<AlertRoutingSubscription> = {}): AlertR
 }
 
 describe("resolveContinueLastWebhookSubscription", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastWebhookSubscription(null)).toBeNull();
+    expect(resolveContinueLastWebhookSubscription({})).toBeNull();
+    expect(resolveContinueLastWebhookSubscription("nope")).toBeNull();
+    expect(resolveContinueLastWebhookSubscription([])).toBeNull();
+  });
+
   it("falls back to the newest enabled subscription when no stored id exists", () => {
     window.localStorage.removeItem("archlucid_webhook_subscription_continue_last_v1");
 

@@ -7,6 +7,13 @@ import {
 } from "@/lib/resolve-continue-last-recycle-bin-project";
 
 describe("resolveContinueLastRecycleBinProject", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastRecycleBinProject(null)).toBeNull();
+    expect(resolveContinueLastRecycleBinProject({})).toBeNull();
+    expect(resolveContinueLastRecycleBinProject("nope")).toBeNull();
+    expect(resolveContinueLastRecycleBinProject([])).toBeNull();
+  });
+
   it("returns the stored project when it still exists", () => {
     window.localStorage.setItem(RECYCLE_BIN_PROJECT_LAST_VIEWED_STORAGE_KEY, "proj-2");
 

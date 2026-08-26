@@ -1,3 +1,4 @@
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import type { AdvisoryScanSchedule } from "@/types/advisory-scheduling";
 
 export const ADVISORY_SCHEDULE_LAST_VIEWED_STORAGE_KEY = "archlucid_advisory_schedule_continue_last_v1";
@@ -63,23 +64,25 @@ function compareSoonestNextRun(left: AdvisoryScanSchedule, right: AdvisoryScanSc
 
 /** Resolves the advisory schedule to pin as Continue last viewed. */
 export function resolveContinueLastAdvisorySchedule(
-  schedules: readonly AdvisoryScanSchedule[],
+  schedules: unknown,
 ): AdvisorySchedulesContinueLastTarget | null {
-  if (schedules.length === 0) {
+  const normalizedSchedules = asNonemptyReadonlyArray<AdvisoryScanSchedule>(schedules);
+
+  if (normalizedSchedules === null) {
     return null;
   }
 
   const storedId = readStoredScheduleId();
 
   if (storedId !== null) {
-    const storedMatch = schedules.find((schedule) => schedule.scheduleId === storedId);
+    const storedMatch = normalizedSchedules.find((schedule) => schedule.scheduleId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const soonest = schedules.slice().sort(compareSoonestNextRun)[0];
+  const soonest = normalizedSchedules.slice().sort(compareSoonestNextRun)[0];
 
   return soonest === undefined ? null : toTarget(soonest);
 }

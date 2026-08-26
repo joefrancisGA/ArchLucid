@@ -1,3 +1,4 @@
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 export const COMPOSITE_ALERT_RULE_LAST_VIEWED_STORAGE_KEY =
@@ -47,11 +48,11 @@ function toTarget(rule: CompositeAlertRule): CompositeAlertRulesContinueLastTarg
 export function resolveContinueLastCompositeAlertRule(
   rules: unknown,
 ): CompositeAlertRulesContinueLastTarget | null {
-  if (!Array.isArray(rules) || rules.length === 0) {
+  const normalizedRules = asNonemptyReadonlyArray<CompositeAlertRule>(rules);
+
+  if (normalizedRules === null) {
     return null;
   }
-
-  const normalizedRules = rules as readonly CompositeAlertRule[];
 
   const storedId = readStoredRuleId();
 

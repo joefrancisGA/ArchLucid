@@ -22,6 +22,13 @@ function request(overrides: Partial<GovernanceApprovalRequest> = {}): Governance
 }
 
 describe("resolveContinueLastApprovalRequest", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastApprovalRequest(null)).toBeNull();
+    expect(resolveContinueLastApprovalRequest({})).toBeNull();
+    expect(resolveContinueLastApprovalRequest("nope")).toBeNull();
+    expect(resolveContinueLastApprovalRequest([])).toBeNull();
+  });
+
   it("falls back to the most recently requested approval when no recent view exists", () => {
     const match = resolveContinueLastApprovalRequest([
       request({ approvalRequestId: "req-old", requestedUtc: "2025-01-01T00:00:00Z", manifestVersion: "old" }),

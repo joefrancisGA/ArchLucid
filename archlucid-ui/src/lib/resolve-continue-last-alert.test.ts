@@ -19,6 +19,13 @@ function alert(overrides: Partial<AlertRecord> = {}): AlertRecord {
 }
 
 describe("resolveContinueLastAlert", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastAlert(null)).toBeNull();
+    expect(resolveContinueLastAlert({})).toBeNull();
+    expect(resolveContinueLastAlert("nope")).toBeNull();
+    expect(resolveContinueLastAlert([])).toBeNull();
+  });
+
   it("falls back to the oldest unread alert when no stored id exists", () => {
     const match = resolveContinueLastAlert([
       alert({ alertId: "newer", title: "Newer", createdUtc: "2026-08-20T00:00:00.000Z", status: "Open" }),

@@ -127,6 +127,7 @@ export async function RunDetailExplanationDeferred(
       packageCommitted={packageCommitted}
       analysisStagesComplete={analysisStagesComplete}
       triageVisibleCount={triageVisibleCount}
+      graphSnapshot={resolvedDetail.graphSnapshot}
       requestAssumptionTexts={resolvedRequestAssumptionTexts}
     />
   );

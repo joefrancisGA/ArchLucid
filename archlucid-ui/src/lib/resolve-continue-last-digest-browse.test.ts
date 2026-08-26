@@ -26,6 +26,13 @@ describe("resolve-continue-last-digest-browse", () => {
     window.localStorage.clear();
   });
 
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastDigestBrowse(null)).toBeNull();
+    expect(resolveContinueLastDigestBrowse({})).toBeNull();
+    expect(resolveContinueLastDigestBrowse("nope")).toBeNull();
+    expect(resolveContinueLastDigestBrowse([])).toBeNull();
+  });
+
   it("prefers the stored digest id when it still exists", () => {
     writeDigestBrowseLastViewedId("d2");
     const rows = [

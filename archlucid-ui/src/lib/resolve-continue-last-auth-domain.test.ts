@@ -22,6 +22,13 @@ function domain(overrides: Partial<TenantAuthDomainRecord> = {}): TenantAuthDoma
 }
 
 describe("resolveContinueLastAuthDomain", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastAuthDomain(null)).toBeNull();
+    expect(resolveContinueLastAuthDomain({})).toBeNull();
+    expect(resolveContinueLastAuthDomain("nope")).toBeNull();
+    expect(resolveContinueLastAuthDomain([])).toBeNull();
+  });
+
   it("returns the stored domain when it still exists", () => {
     window.localStorage.setItem(AUTH_DOMAIN_LAST_VIEWED_STORAGE_KEY, "later.com");
 

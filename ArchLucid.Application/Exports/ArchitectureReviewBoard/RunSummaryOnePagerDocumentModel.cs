@@ -62,4 +62,40 @@ public sealed class RunSummaryOnePagerDocumentModel
         get;
         init;
     }
+
+    public bool IsSimulatorMode
+    {
+        get;
+        init;
+    }
+
+    public bool HasSealedSnapshot
+    {
+        get;
+        init;
+    }
+
+    public string? FindingsSnapshotId
+    {
+        get;
+        init;
+    }
+
+    public int SealedFindingCount
+    {
+        get;
+        init;
+    }
+
+    public string? SimulatorRehearsalTitle
+    {
+        get;
+        init;
+    }
+
+    public string? SimulatorRehearsalBody
+    {
+        get;
+        init;
+    }
 }

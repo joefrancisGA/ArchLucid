@@ -17,6 +17,13 @@ function record(overrides: Partial<RiskExceptionRecord> = {}): RiskExceptionReco
 }
 
 describe("resolveContinueLastRiskException", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastRiskException(null)).toBeNull();
+    expect(resolveContinueLastRiskException({})).toBeNull();
+    expect(resolveContinueLastRiskException("nope")).toBeNull();
+    expect(resolveContinueLastRiskException([])).toBeNull();
+  });
+
   it("falls back to the most recently recorded exception when no recent view exists", () => {
     const match = resolveContinueLastRiskException([
       record({ riskExceptionId: "exc-a", findingId: "finding-a" }),

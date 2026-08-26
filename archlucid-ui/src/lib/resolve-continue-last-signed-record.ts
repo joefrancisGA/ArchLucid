@@ -1,3 +1,4 @@
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import type { SignedRecordsListRow } from "@/app/(operator)/governance/sealed-records/_sections/signed-records-list-row";
@@ -85,17 +86,17 @@ function readRecentSignedRecordRunId(): string | null {
 }
 
 /** Resolves the sealed record row to pin as Continue last viewed on the list. */
-export function resolveContinueLastSignedRecordsListRow(
-  rows: readonly SignedRecordsListRow[],
-): SignedRecordsListRow | null {
-  if (rows.length === 0) {
+export function resolveContinueLastSignedRecordsListRow(rows: unknown): SignedRecordsListRow | null {
+  const normalizedRows = asNonemptyReadonlyArray<SignedRecordsListRow>(rows);
+
+  if (normalizedRows === null) {
     return null;
   }
 
   const recentManifestId = readRecentSignedRecordManifestId();
 
   if (recentManifestId !== null) {
-    const manifestMatch = rows.find((row) => row.manifestId === recentManifestId);
+    const manifestMatch = normalizedRows.find((row) => row.manifestId === recentManifestId);
 
     if (manifestMatch !== undefined && isSignedRecordsListRowOpenable(manifestMatch)) {
       return manifestMatch;
@@ -105,14 +106,14 @@ export function resolveContinueLastSignedRecordsListRow(
   const recentRunId = readRecentSignedRecordRunId();
 
   if (recentRunId !== null) {
-    const runMatch = rows.find((row) => row.runId === recentRunId);
+    const runMatch = normalizedRows.find((row) => row.runId === recentRunId);
 
     if (runMatch !== undefined && isSignedRecordsListRowOpenable(runMatch)) {
       return runMatch;
     }
   }
 
-  const openableRows = rows.filter((row) => isSignedRecordsListRowOpenable(row));
+  const openableRows = normalizedRows.filter((row) => isSignedRecordsListRowOpenable(row));
 
   if (openableRows.length === 0) {
     return null;

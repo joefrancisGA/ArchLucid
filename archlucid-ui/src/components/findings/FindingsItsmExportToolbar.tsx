@@ -6,6 +6,7 @@ import { FileJson, FileSpreadsheet } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import {
   downloadQuickDecisionFindingsCsv,
   downloadRunFindingsItsmJsonExport,
@@ -151,14 +152,18 @@ export function FindingsItsmExportToolbar({
         <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {PRE_FINALIZE_FINDINGS_EXPORT_MARKER}
         </p>
-        <div className="mt-2">{exportButtons}</div>
+        <div className="mt-2 space-y-2">
+          <SimulatorModeAiOperationNotice testId="findings-export-simulator-notice" />
+          {exportButtons}
+        </div>
       </details>
     );
   }
 
   if (compact) {
     return (
-      <div data-testid="findings-itsm-export-toolbar">
+      <div data-testid="findings-itsm-export-toolbar" className="space-y-2">
+        <SimulatorModeAiOperationNotice testId="findings-export-simulator-notice" />
         {exportButtons}
       </div>
     );
@@ -180,7 +185,9 @@ export function FindingsItsmExportToolbar({
           </>
         ) : null}
       </p>
-      <div className="mt-2 flex flex-wrap items-center gap-2">
+      <div className="mt-2 space-y-2">
+        <SimulatorModeAiOperationNotice testId="findings-export-simulator-notice" />
+        <div className="flex flex-wrap items-center gap-2">
         <Button
           type="button"
           variant="default"
@@ -204,6 +211,7 @@ export function FindingsItsmExportToolbar({
           <FileJson className="size-3.5" aria-hidden />
           {jsonLabel}
         </Button>
+        </div>
       </div>
       {exportError !== null ? (
         <p className={cn("m-0 mt-2 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
