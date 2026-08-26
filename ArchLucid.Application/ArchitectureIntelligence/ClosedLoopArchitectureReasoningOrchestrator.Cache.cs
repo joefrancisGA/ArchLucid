@@ -22,14 +22,10 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
                 existing,
                 ledgerEntries);
 
-        using IDisposable pinScope = _reviewResultCache.PinScope(
-            continueManifest,
-            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
-                effectiveRequest,
-                tenantId,
-                runId,
-                existing,
-                ledgerEntries));
+        ReviewCacheDependencyManifest contentManifest =
+            ReviewCacheManifestBuilder.Build(effectiveRequest, existing, ledgerEntries);
+
+        using IDisposable pinScope = _reviewResultCache.PinScope(continueManifest, contentManifest);
 
         if (!effectiveRequest.PublishToProduct
             && _reviewResultCache.TryGet(continueManifest, out ClosedLoopReasoningResult? cachedContinue)
