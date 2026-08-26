@@ -10,6 +10,7 @@ export type ArchitectureIntelligenceFramingQuestion = {
   questionId: string;
   prompt: string;
   isAnswered?: boolean;
+  inferredAnswer?: string | null;
   confirmedAnswer?: string | null;
   source?: string;
 };

@@ -10,6 +10,29 @@ public sealed class ProgressiveInterviewServiceTests
     private readonly ProgressiveInterviewService _service = new();
 
     [Fact]
+    public void BuildFramingState_infers_scope_boundary_from_in_scope_and_out_of_scope_lines()
+    {
+        ArchitectureKnowledgeModel model = new ArchitectureOntologyService().CreateEmptyModel("tenant-1");
+        List<ClosedLoopReasoningSourceText> sources =
+        [
+            new()
+            {
+                FileName = "context.md",
+                ContentType = "text/markdown",
+                Content =
+                    "In scope: tenant migration orchestration and billing metering hooks.\n"
+                    + "Out of scope: customer-facing B2C identity.",
+            },
+        ];
+
+        ProgressiveInterviewState state = _service.BuildFramingState(model, sources);
+
+        model.FramingAnswers.Should().ContainKey("system-boundary");
+        model.FramingAnswers["system-boundary"].Should().Contain("tenant migration orchestration");
+        state.FramingQuestions.Should().NotContain(question => question.QuestionId == "system-boundary");
+    }
+
+    [Fact]
     public void BuildFramingState_infers_architecture_kind_and_leaves_unanswered_questions()
     {
         ArchitectureKnowledgeModel model = new ArchitectureOntologyService().CreateEmptyModel("tenant-1");
