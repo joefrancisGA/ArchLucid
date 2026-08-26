@@ -11,6 +11,10 @@ import {
   hasConfirmedActor,
   structuredBriefToPatchPayload,
 } from "./architecture-draft-structured-brief";
+import {
+  mergeScopeBulletsIntoBrief,
+  type ScopeUnderstandingBullet,
+} from "./architecture-scope-understanding-check";
 import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
 
 const MIN_OUTCOME_CHARS = 10;
@@ -75,14 +79,19 @@ export type ArchitectureDraftPatchPayload = {
 export function buildArchitectureDraftPatchPayload(
   fields: ArchitectureDraftFieldState,
   actorSet: ActorSet,
+  confirmedScopeBullets?: readonly ScopeUnderstandingBullet[],
 ): ArchitectureDraftPatchPayload {
-  const trimmedIntent = fields.freeTextIntent.trim();
+  const strippedIntent = fields.freeTextIntent.trim();
+  const intentForPatch =
+    confirmedScopeBullets !== undefined && confirmedScopeBullets.length > 0
+      ? mergeScopeBulletsIntoBrief(confirmedScopeBullets, strippedIntent).trim()
+      : strippedIntent;
   const trimmedOutcome = fields.businessOutcome.trim();
   const trimmedSystemName = fields.systemName.trim();
 
   return {
-    ...(trimmedIntent.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS
-      ? { freeTextIntent: trimmedIntent }
+    ...(intentForPatch.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS
+      ? { freeTextIntent: intentForPatch }
       : {}),
     businessOutcome: trimmedOutcome,
     ...(trimmedSystemName.length > 0 ? { systemName: trimmedSystemName } : {}),

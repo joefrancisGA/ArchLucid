@@ -17,9 +17,14 @@ import {
   SCOPE_ITEM_TOO_LONG_MESSAGE,
   SCOPE_ITEM_TOO_SHORT_MESSAGE,
   SCOPE_UNDERSTANDING_SECTION_HEADER,
+  extractScopeUnderstandingLinesFromBrief,
+  scopeBulletsFingerprint,
+  scopeUnderstandingFingerprint,
+  persistedScopeMatchesBullets,
   stripScopeUnderstandingSection,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
+import { GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL } from "@/lib/guided-intake-copy";
 
 function bullet(overrides: Partial<ScopeUnderstandingBullet>): ScopeUnderstandingBullet {
   return {
@@ -177,6 +182,52 @@ describe("stripScopeUnderstandingSection", () => {
   it("treats missing text as empty", () => {
     expect(stripScopeUnderstandingSection(null)).toBe("");
     expect(stripScopeUnderstandingSection(undefined)).toBe("");
+  });
+});
+
+describe("scope persistence helpers", () => {
+  it("extracts persisted scope lines from a brief field", () => {
+    const merged = mergeScopeBulletsIntoBrief(
+      deriveScopeUnderstandingBullets({ systemName: "Vertex", businessOutcome: "Faster" }),
+      "Overview text.",
+    );
+
+    expect(extractScopeUnderstandingLinesFromBrief(merged)).toEqual([
+      "Primary System or Architecture: Vertex",
+      `${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
+    ]);
+  });
+
+  it("matches persisted scope to current bullets", () => {
+    const bullets = deriveScopeUnderstandingBullets({ systemName: "Vertex", businessOutcome: "Faster" });
+    const merged = mergeScopeBulletsIntoBrief(bullets, "Overview text.");
+
+    expect(persistedScopeMatchesBullets(merged, bullets)).toBe(true);
+  });
+
+  it("detects when persisted scope no longer matches current bullets", () => {
+    const persisted = mergeScopeBulletsIntoBrief(
+      deriveScopeUnderstandingBullets({ systemName: "Vertex" }),
+      "Overview text.",
+    );
+    const current = deriveScopeUnderstandingBullets({ systemName: "Vertex 2" });
+
+    expect(persistedScopeMatchesBullets(persisted, current)).toBe(false);
+  });
+
+  it("builds stable fingerprints regardless of line order", () => {
+    expect(
+      scopeUnderstandingFingerprint([
+        "Primary System or Architecture: Vertex",
+        `${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
+      ]),
+    ).toBe(
+      scopeUnderstandingFingerprint([
+        `${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
+        "Primary System or Architecture: Vertex",
+      ]),
+    );
+    expect(scopeBulletsFingerprint(deriveScopeUnderstandingBullets({ systemName: "Vertex" }))).toContain("vertex");
   });
 });
 

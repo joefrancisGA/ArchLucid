@@ -2,7 +2,9 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  deriveScopeUnderstandingBullets,
   scopeBulletBehavior,
+  scopeBulletsFingerprint,
   scopeReadOnlyHint,
   SCOPE_ITEM_DUPLICATE_MESSAGE,
   SCOPE_ITEM_NO_LETTER_MESSAGE,
@@ -312,6 +314,46 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     expect(onGateChange).toHaveBeenLastCalledWith(false);
     expect(screen.getByLabelText(scopeBulletBehavior("system").label)).toHaveValue("Vertex 2");
     expect(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL })).toBeEnabled();
+  });
+
+  it("restores confirmed scope from a persisted fingerprint without forcing re-confirmation", () => {
+    const bullets = deriveScopeUnderstandingBullets({ architectureName: "Vertex", businessOutcome: "Faster" });
+    const onGateChange = vi.fn();
+
+    render(
+      <ArchitectureScopeUnderstandingCheckPanel
+        input={{ architectureName: "Vertex", businessOutcome: "Faster" }}
+        persistedScopeFingerprint={scopeBulletsFingerprint(bullets)}
+        onGateChange={onGateChange}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-scope-understanding-ready")).toBeInTheDocument();
+    expect(onGateChange).toHaveBeenCalledWith(true);
+  });
+
+  it("keeps scope confirmed when re-derivation produces the same fingerprint", () => {
+    const onGateChange = vi.fn();
+
+    const { rerender } = render(
+      <ArchitectureScopeUnderstandingCheckPanel
+        input={{ architectureName: "Vertex", businessOutcome: "Faster" }}
+        onGateChange={onGateChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL }));
+
+    rerender(
+      <ArchitectureScopeUnderstandingCheckPanel
+        input={{ architectureName: "Vertex", businessOutcome: "Faster", intentText: "Same overview" }}
+        onGateChange={onGateChange}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-scope-understanding-ready")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-scope-understanding-stale")).not.toBeInTheDocument();
+    expect(onGateChange).toHaveBeenLastCalledWith(true);
   });
 
   it("reopens editing when the operator chooses Edit scope", () => {

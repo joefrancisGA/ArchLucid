@@ -105,6 +105,10 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly startReviewError: string | null;
   readonly saveState: ArchitectureDraftSaveState;
   readonly scopeUnderstandingInput: Parameters<typeof ArchitectureScopeUnderstandingCheckPanel>[0]["input"];
+  readonly persistedScopeFingerprint: string | null;
+  readonly persistScopeConfirmation: Parameters<
+    typeof ArchitectureScopeUnderstandingCheckPanel
+  >[0]["onConfirm"];
   readonly setScopeBullets: Parameters<typeof ArchitectureScopeUnderstandingCheckPanel>[0]["onBulletsChange"];
   readonly setScopeGateOpen: Parameters<typeof ArchitectureScopeUnderstandingCheckPanel>[0]["onGateChange"];
   readonly setActorSuggestionsUnresolved: (value: boolean) => void;
@@ -169,6 +173,8 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     startReviewError,
     saveState,
     scopeUnderstandingInput,
+    persistedScopeFingerprint,
+    persistScopeConfirmation,
     setScopeBullets,
     setScopeGateOpen,
     setActorSuggestionsUnresolved,
@@ -373,6 +379,8 @@ return (
         input={scopeUnderstandingInput}
         disabled={handoffEditorLocked || exitPending || reviewStartProgress.isPending}
         draftSaveState={saveState}
+        persistedScopeFingerprint={persistedScopeFingerprint}
+        onConfirm={persistScopeConfirmation}
         onBulletsChange={setScopeBullets}
         onGateChange={setScopeGateOpen}
       />

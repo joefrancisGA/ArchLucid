@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 
 import { useReviewStartNavigationProgress } from "@/hooks/use-review-start-navigation-progress";
 import {
@@ -15,6 +15,7 @@ import { qualityAttributeMeetsMinimum } from "@/lib/architecture/architecture-dr
 import { ARCHITECTURE_DRAFT_SECTION_ANCHORS } from "@/lib/architecture/architecture-draft-form-section-anchors";
 import {
   mergeScopeBulletsIntoBrief,
+  scopeBulletsFingerprint,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import { startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
@@ -40,16 +41,71 @@ type UseArchitectureDraftStartReviewOptions = {
   readonly saveState: ArchitectureDraftSaveState;
   readonly conflictMessage: string | null;
   readonly saveDraft: () => Promise<boolean>;
+  readonly scopeGateOpen: boolean;
+  readonly setScopeGateOpen: Dispatch<SetStateAction<boolean>>;
+  readonly scopeBullets: readonly ScopeUnderstandingBullet[];
+  readonly setScopeBullets: Dispatch<SetStateAction<ScopeUnderstandingBullet[]>>;
+  readonly persistedScopeFingerprint: string | null;
 };
 
 export function useArchitectureDraftStartReview(options: UseArchitectureDraftStartReviewOptions) {
   const reviewStartProgress = useReviewStartNavigationProgress();
-  const [scopeGateOpen, setScopeGateOpen] = useState(false);
-  const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
   const [actorSuggestionsUnresolved, setActorSuggestionsUnresolved] = useState(false);
   const [actorSuggestionGateRequestId, setActorSuggestionGateRequestId] = useState(0);
   const [startReviewError, setStartReviewError] = useState<string | null>(null);
   const [qualityAttributesEncouragementOpen, setQualityAttributesEncouragementOpen] = useState(false);
+
+  const persistScopeConfirmation = useCallback(
+    async (bullets: ScopeUnderstandingBullet[]): Promise<boolean> => {
+      options.setScopeBullets(bullets);
+      options.setScopeGateOpen(true);
+
+      if (options.isNewDraft && !options.hasPersistedDraft) {
+        return true;
+      }
+
+      const mergedIntent = mergeScopeBulletsIntoBrief(
+        bullets,
+        options.fields.freeTextIntent,
+      ).trim();
+
+      if (mergedIntent.length < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
+        return false;
+      }
+
+      try {
+        await patchDraftRequest(options.effectiveArchitectureId, {
+          freeTextIntent: mergedIntent,
+        });
+
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [
+      options.effectiveArchitectureId,
+      options.fields.freeTextIntent,
+      options.hasPersistedDraft,
+      options.isNewDraft,
+      options.setScopeBullets,
+      options.setScopeGateOpen,
+    ],
+  );
+
+  useEffect(() => {
+    if (options.persistedScopeFingerprint === null) {
+      return;
+    }
+
+    if (scopeBulletsFingerprint(options.scopeBullets) === options.persistedScopeFingerprint) {
+      options.setScopeGateOpen(true);
+    }
+  }, [
+    options.persistedScopeFingerprint,
+    options.scopeBullets,
+    options.setScopeGateOpen,
+  ]);
 
   const reviewReadiness = useMemo(
     () => validateArchitectureReviewReadiness(options.fields, options.actorSet.actors),
@@ -73,7 +129,7 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
   const needsPersistedDraftBeforeStart = options.isNewDraft && !options.hasPersistedDraft;
   const canStartReview =
     reviewReadiness.isValid &&
-    scopeGateOpen &&
+    options.scopeGateOpen &&
     !needsPersistedDraftBeforeStart &&
     options.saveState !== "saving" &&
     !options.briefFrozen &&
@@ -83,7 +139,7 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
 
   useEffect(() => {
     setStartReviewError(null);
-  }, [options.fields, scopeGateOpen]);
+  }, [options.fields, options.scopeGateOpen]);
 
   const executeStartReview = useCallback(async () => {
     if (reviewStartProgress.isPending) {
@@ -111,7 +167,7 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
       // fields would put the block in the operator's own text and feed it back to the panel.
       if (!options.isNewDraft) {
         const mergedIntent = mergeScopeBulletsIntoBrief(
-          scopeBullets,
+          options.scopeBullets,
           options.fields.freeTextIntent,
         ).trim();
 
@@ -143,8 +199,8 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
     options.isNewDraft,
     options.linkedReviewId,
     options.saveDraft,
+    options.scopeBullets,
     reviewStartProgress,
-    scopeBullets,
   ]);
 
   const handleStartReview = useCallback(async () => {
@@ -198,10 +254,6 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
     draftStartReviewEmphasizedStepId,
     needsPersistedDraftBeforeStart,
     canStartReview,
-    scopeGateOpen,
-    setScopeGateOpen,
-    scopeBullets,
-    setScopeBullets,
     actorSuggestionsUnresolved,
     setActorSuggestionsUnresolved,
     actorSuggestionGateRequestId,
@@ -212,5 +264,6 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
     handleStartReview,
     handleEncourageAddQualityAttributes,
     handleContinueWithoutQualityAttributes,
+    persistScopeConfirmation,
   };
 }

@@ -34,6 +34,12 @@ import {
   isArchitectureDraftInReviewIntake,
 } from "@/lib/architecture/architecture-draft-intake-mode";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import {
+  extractScopeUnderstandingLinesFromBrief,
+  mergeScopeBulletsIntoBrief,
+  scopeUnderstandingFingerprint,
+  type ScopeUnderstandingBullet,
+} from "@/lib/architecture/architecture-scope-understanding-check";
 import { resolveNextArchitectureDraftInList } from "@/lib/resolve-next-architecture-draft-in-list";
 import { showError, showSuccess } from "@/lib/toast";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
@@ -82,6 +88,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   });
   const [exitPending, setExitPending] = useState(false);
   const [unlockBusy, setUnlockBusy] = useState(false);
+  const [scopeGateOpen, setScopeGateOpen] = useState(false);
+  const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
   const isDetailDraft = !isNewDraft;
   const linkedReviewSummaryQuery = useRunSummaryQuery(linkedReviewId ?? "", {
     enabled: linkedReviewId !== null,
@@ -149,6 +157,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       actorSet,
       enabled: !handoffEditorLocked && !briefFrozen,
       deferCreateUntilFirstSave: isNewDraft,
+      scopeGateOpen,
+      scopeBullets,
       onDraftCreated: isNewDraft ? handleDraftCreated : undefined,
       onDraftLoaded: handleDraftLoaded,
       onImmutableDraftDetected: handleImmutableDraftDetected,
@@ -156,17 +166,24 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   acceptServerBaselineRef.current = acceptServerBaseline;
 
+  const persistedScopeFingerprint = useMemo(() => {
+    const persistedLines = extractScopeUnderstandingLinesFromBrief(draft?.document.freeTextIntent);
+
+    if (persistedLines.length === 0) {
+      return null;
+    }
+
+    return scopeUnderstandingFingerprint(persistedLines);
+  }, [draft?.document.freeTextIntent]);
+
   const {
     reviewReadiness,
     draftStartReviewSteps,
     draftStartReviewEmphasizedStepId,
     needsPersistedDraftBeforeStart,
     canStartReview,
-    scopeGateOpen,
-    setScopeGateOpen,
-    setScopeBullets,
-    actorSuggestionsUnresolved,
     setActorSuggestionsUnresolved,
+    actorSuggestionsUnresolved,
     actorSuggestionGateRequestId,
     startReviewError,
     qualityAttributesEncouragementOpen,
@@ -175,6 +192,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     handleStartReview,
     handleEncourageAddQualityAttributes,
     handleContinueWithoutQualityAttributes,
+    persistScopeConfirmation,
   } = useArchitectureDraftStartReview({
     isNewDraft,
     hasPersistedDraft,
@@ -187,6 +205,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     saveState,
     conflictMessage,
     saveDraft,
+    scopeGateOpen,
+    setScopeGateOpen,
+    scopeBullets,
+    setScopeBullets,
+    persistedScopeFingerprint,
   });
 
   const showWorkspaceFirstReviewProgress = usePersistentWorkspaceNextActionStripVisible();
@@ -240,6 +263,25 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     acknowledgeArchitectureDraftHandoff(effectiveArchitectureId, linkedReviewId);
     setHandoffAcknowledged(true);
   }, [effectiveArchitectureId, linkedReviewId, setHandoffAcknowledged]);
+
+  const handleScopeConfirmed = useCallback(
+    async (bullets: ScopeUnderstandingBullet[]) => {
+      const persisted = await persistScopeConfirmation(bullets);
+
+      if (persisted && draft !== null) {
+        setDraft({
+          ...draft,
+          document: {
+            ...draft.document,
+            freeTextIntent: mergeScopeBulletsIntoBrief(bullets, fields.freeTextIntent),
+          },
+        });
+      }
+
+      return persisted;
+    },
+    [draft, fields.freeTextIntent, persistScopeConfirmation, setDraft],
+  );
 
   const handleUnlockBrief = useCallback(async () => {
     if (!canUnlockBrief || draft === null) {
@@ -303,6 +345,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       startReviewError={startReviewError}
       saveState={saveState}
       scopeUnderstandingInput={scopeUnderstandingInput}
+      persistedScopeFingerprint={persistedScopeFingerprint}
+      persistScopeConfirmation={handleScopeConfirmed}
       setScopeBullets={setScopeBullets}
       setScopeGateOpen={setScopeGateOpen}
       setActorSuggestionsUnresolved={setActorSuggestionsUnresolved}
