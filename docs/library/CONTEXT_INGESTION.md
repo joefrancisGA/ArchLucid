@@ -136,3 +136,4 @@ See **`docs/KNOWLEDGE_GRAPH.md`** for pipeline, **`EdgeType`** semantics, DI reg
 - **API body and validation:** `docs/API_CONTRACTS.md` (create run / `ArchitectureRequest`).
 - **Persisted snapshots:** `docs/DATA_MODEL.md` (`ContextSnapshots`).
 - **Architecture overview:** `docs/ARCHITECTURE_CONTEXT.md`.
+- **Composer prompts to deepen this seam:** [`../architecture/INGESTION_FIT_GAP_COMPOSER_PROMPTS.md`](../architecture/INGESTION_FIT_GAP_COMPOSER_PROMPTS.md).
