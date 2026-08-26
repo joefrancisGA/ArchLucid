@@ -144,13 +144,38 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 budget);
         }
 
-        return await ExecuteLiveReviewAsync(
+        return await RunContinueFromExistingReviewAsync(
             effectiveRequest,
             tenantId,
             runId,
             budget,
-            null,
             cancellationToken);
+    }
+
+    private async Task<ClosedLoopReasoningResult> RunContinueFromExistingReviewAsync(
+        ClosedLoopReasoningRequest effectiveRequest,
+        string tenantId,
+        string runId,
+        ArchitectureIntelligenceBudgetDecision budget,
+        CancellationToken cancellationToken)
+    {
+        ReviewCacheDependencyManifest continueManifest =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(tenantId, runId);
+
+        return FinalizeCoalescedReviewResult(
+            await _reviewResultCache.CoalesceAsync(
+                continueManifest,
+                ct => ExecuteLiveReviewAsync(
+                    effectiveRequest,
+                    tenantId,
+                    runId,
+                    budget,
+                    null,
+                    ct),
+                cancellationToken),
+            effectiveRequest,
+            runId,
+            budget);
     }
 
     private async Task<ClosedLoopReasoningResult> CoalesceReviewCacheMissAsync(

@@ -90,6 +90,47 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
     }
 
     [Fact]
+    public async Task RunAsync_publish_request_bypasses_review_cache_hit()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-cache-publish-bypass",
+            DeclaredPriorities = ["Security"],
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API exposes customer records without authentication.",
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult analysis = await orchestrator.RunAsync(request);
+        analysis.CacheHit.Should().BeFalse();
+
+        ClosedLoopReasoningRequest publishRequest = new()
+        {
+            TenantId = request.TenantId,
+            DeclaredPriorities = request.DeclaredPriorities,
+            SourceTexts = request.SourceTexts,
+            PublishToProduct = true,
+        };
+
+        ClosedLoopReasoningResult publish = await orchestrator.RunAsync(publishRequest);
+        publish.CacheHit.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task RunAsync_rejects_when_trial_budget_exceeded()
     {
         ServiceCollection services = new();

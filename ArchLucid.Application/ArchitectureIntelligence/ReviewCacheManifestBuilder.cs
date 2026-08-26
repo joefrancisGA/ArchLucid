@@ -28,6 +28,27 @@ public static class ReviewCacheManifestBuilder
         };
     }
 
+    public static ReviewCacheDependencyManifest BuildContinueFromExistingRunCoalesceManifest(
+        string tenantId,
+        string runId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        return new ReviewCacheDependencyManifest
+        {
+            ContentHash = Sha256Hex($"continue|{tenantId}|{runId}"),
+            PromptVersion = ArchitectureIntelligenceCacheVersions.PromptVersion,
+            ModelVersion = ArchitectureIntelligenceCacheVersions.ModelVersion,
+            PolicyPackVersion = ArchitectureIntelligenceCacheVersions.PolicyPackVersion,
+            RubricVersion = ArchitectureIntelligenceCacheVersions.RubricVersion,
+            TenantConfigurationHash = Sha256Hex(tenantId),
+            DeclaredPrioritiesHash = Sha256Hex(string.Empty),
+            SchemaVersion = ArchitectureIntelligenceCacheVersions.SchemaVersion,
+            ReuseReason = "closed-loop-continue-existing",
+        };
+    }
+
     private static string HashContent(
         ClosedLoopReasoningRequest request,
         ArchitectureKnowledgeModel? baselineKnowledgeModel,

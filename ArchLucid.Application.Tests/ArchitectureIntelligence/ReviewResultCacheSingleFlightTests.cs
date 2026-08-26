@@ -87,7 +87,8 @@ public sealed class ReviewResultCacheSingleFlightTests
         startGate.SetResult();
         leaderToken.CancelAfter(10);
 
-        await leader.Should().ThrowAsync<OperationCanceledException>();
+        Func<Task> act = async () => await leader;
+        await act.Should().ThrowAsync<OperationCanceledException>();
 
         ClosedLoopReasoningResult waiterResult = await waiter;
         waiterResult.RunId.Should().Be("waiter-run");
