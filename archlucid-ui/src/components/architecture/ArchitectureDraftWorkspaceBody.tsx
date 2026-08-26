@@ -24,6 +24,7 @@ import { IntegrationConnectChecklist } from "@/components/integrations/Integrati
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import { Button } from "@/components/ui/button";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
@@ -42,6 +43,11 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-co
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reviewDetailPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
+import {
+  ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE,
+  ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
+  resolveArchitectureDraftRefineGuidanceSentence,
+} from "@/lib/architecture/architecture-draft-detail-page-copy";
 import type { ReviewStartStageId } from "@/lib/review-start-progress-stages";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
@@ -243,7 +249,17 @@ return (
             className={cn("m-0", OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY.helper)}
             data-testid="architecture-draft-workspace-lead"
           >
-            {workspaceLead}
+            {buyerPolishedShell ? (
+              <>
+                {ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE}{" "}
+                <InlineGuidanceText
+                  text={resolveArchitectureDraftRefineGuidanceSentence(reviewReadiness.isValid)}
+                />{" "}
+                {ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE}
+              </>
+            ) : (
+              workspaceLead
+            )}
           </p>
           {linkedReviewId !== null ? (
             <Link

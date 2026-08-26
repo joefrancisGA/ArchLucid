@@ -18,6 +18,7 @@ import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/ope
 import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
@@ -287,7 +288,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
                 className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
                 data-testid="operator-home-draft-status-refine-hint"
               >
-                {draftRefineGuidanceSentence}
+                <InlineGuidanceText text={draftRefineGuidanceSentence} />
               </p>
             ) : null}
           </div>

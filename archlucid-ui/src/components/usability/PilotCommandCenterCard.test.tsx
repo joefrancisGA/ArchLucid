@@ -221,6 +221,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("operator-home-draft-status-refine-hint")).toHaveTextContent(
       /Required before review:/,
     );
+    expect(screen.getByText("Required before review:").tagName).toBe("STRONG");
     expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveAttribute(
       "href",
       "/architecture/architectures/draft-001",

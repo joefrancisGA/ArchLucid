@@ -2,9 +2,20 @@
 export const ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE =
   "Drafting workspace — editing or saving does not start a review.";
 
+/** Bold scan label for required refine guidance — pair with {@link ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_BODY}. */
+export const ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_LABEL = "Required before review" as const;
+
+/** Body copy after the required refine guidance label. */
+export const ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_BODY =
+  "complete the system name, architecture overview, business outcome, and at least one confirmed person or system in this draft." as const;
+
 /** Draft still missing required review-readiness fields — refinement is required, not optional. */
 export const ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE =
-  "Required before review: complete the system name, architecture overview, business outcome, and at least one confirmed person or system in this draft." as const;
+  `${ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_LABEL}: ${ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_BODY}` as const;
+
+/** Buyer-polished draft detail lead — autosave behavior after refine guidance. */
+export const ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE =
+  "Autosave keeps unsaved typing on this browser; saved drafts sync where you sign in." as const;
 
 /** Draft meets minimum review-readiness — further refinement is optional. */
 export const ARCHITECTURE_DRAFT_REFINE_OPTIONAL_BEFORE_REVIEW_SENTENCE =
@@ -29,7 +40,7 @@ export function resolveArchitectureDraftRefineGuidanceSentence(
 export function resolveArchitectureDraftDetailPageSubtitleBuyer(
   reviewReadinessValid: boolean,
 ): string {
-  return `${ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE} ${resolveArchitectureDraftRefineGuidanceSentence(reviewReadinessValid)} Autosave keeps unsaved typing on this browser; saved drafts sync where you sign in.`;
+  return `${ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE} ${resolveArchitectureDraftRefineGuidanceSentence(reviewReadinessValid)} ${ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE}`;
 }
 
 /** @deprecated Prefer {@link resolveArchitectureDraftDetailPageSubtitleBuyer} for readiness-aware buyer copy. */
