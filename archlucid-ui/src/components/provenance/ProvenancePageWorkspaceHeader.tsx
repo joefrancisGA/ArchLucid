@@ -47,10 +47,28 @@ export function ProvenancePageWorkspaceHeader({
     <>
       {dataOrigin === "sample" ? <OperatorDemoStaticBanner emphasizeSampleData /> : null}
 
-      <ProvenancePickReviewBeforeInspectingStrip
-        selectedReviewId={scopedRunId}
-        onSelectReview={onPickReviewForInspecting}
-      />
+      {scopedRunId.length === 0 ? (
+        <ProvenancePickReviewBeforeInspectingStrip
+          selectedReviewId={scopedRunId}
+          onSelectReview={onPickReviewForInspecting}
+        />
+      ) : (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="provenance-run-scope-banner"
+        >
+          {"Inspecting provenance for review "}
+          <span className="font-mono text-neutral-900 dark:text-neutral-100">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_LINK.nav} href={reviewHref}>
+            Open review
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">
+            All reviews
+          </Link>
+        </p>
+      )}
 
       <header className="space-y-2">
         <ProvenanceWayfinding reviewPackageHref={reviewHref} />
