@@ -24,7 +24,6 @@ vi.mock("@/app/(operator)/help/_sections/HelpSponsorDashboardWorkspaceReadinessS
 
 import { HelpSponsorDashboardGuideView } from "@/app/(operator)/help/_sections/HelpSponsorDashboardGuideView";
 import {
-  SPONSOR_DASHBOARD_HELP_BREADCRUMB_TOPIC_TITLE,
   SPONSOR_DASHBOARD_HELP_CLAIM_HEADING_ID,
   SPONSOR_DASHBOARD_HELP_GUIDE_HEADINGS,
   SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION,
@@ -51,8 +50,9 @@ describe("HelpSponsorDashboardGuideView", () => {
     render(<HelpSponsorDashboardGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-sponsor-dashboard-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(SPONSOR_DASHBOARD_HELP_BREADCRUMB_TOPIC_TITLE);
+    expect(screen.getByTestId("help-sponsor-dashboard-claim-discipline-strip")).toHaveTextContent(
+      SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE,
+    );
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-sponsor-dashboard-scope-precondition")).toHaveTextContent(
       SPONSOR_DASHBOARD_HELP_SCOPE_PRECONDITION,

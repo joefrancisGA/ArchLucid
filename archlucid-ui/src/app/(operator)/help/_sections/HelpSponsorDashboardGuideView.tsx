@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpSponsorDashboardWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpSponsorDashboardWorkspaceReadinessStrip";
+import { SponsorDashboardHelpClaimDisciplineStrip } from "@/components/help/SponsorDashboardHelpClaimDisciplineStrip";
 import { SponsorDashboardHelpEvidenceOrientationStrip } from "@/components/help/SponsorDashboardHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -98,6 +99,8 @@ export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideVi
           </div>
         }
       />
+
+      <SponsorDashboardHelpClaimDisciplineStrip />
 
       <div className={contentGridClass}>
         <div

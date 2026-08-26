@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
+import { RoiSummaryHelpClaimDisciplineStrip } from "@/components/help/RoiSummaryHelpClaimDisciplineStrip";
 import { RoiSummaryHelpEvidenceOrientationStrip } from "@/components/help/RoiSummaryHelpEvidenceOrientationStrip";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -109,30 +110,37 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
         actions={<PageContextualHelpButton />}
       />
 
+      <RoiSummaryHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <RoiSummaryHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+
           <p className={readingBodyClass} data-testid="help-roi-summary-overview">
             {ROI_SUMMARY_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-roi-summary-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {ROI_SUMMARY_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-roi-summary-start-here-helper"
-              >
-                {ROI_SUMMARY_HELP_START_HERE_HELPER}
-              </p>
-              <Button asChild size="sm" variant="primary">
-                <Link href={ROI_SUMMARY_HELP_PRIMARY_ACTION.href}>{ROI_SUMMARY_HELP_PRIMARY_ACTION.label}</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-roi-summary-action-panel"
+            aria-labelledby="help-roi-summary-action-panel-heading"
+          >
+            <h2
+              id="help-roi-summary-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {ROI_SUMMARY_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-roi-summary-start-here-helper"
+            >
+              {ROI_SUMMARY_HELP_START_HERE_HELPER}
+            </p>
+            <Button asChild size="sm" variant="primary">
+              <Link href={ROI_SUMMARY_HELP_PRIMARY_ACTION.href}>{ROI_SUMMARY_HELP_PRIMARY_ACTION.label}</Link>
+            </Button>
+          </section>
 
           <section
             aria-labelledby="what-the-report-shows"
@@ -266,10 +274,6 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
               ))}
             </div>
           </section>
-
-          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-            <RoiSummaryHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-          </div>
         </div>
 
         <HelpTopicTableOfContents headings={ROI_SUMMARY_HELP_GUIDE_HEADINGS} enableScrollSpy />

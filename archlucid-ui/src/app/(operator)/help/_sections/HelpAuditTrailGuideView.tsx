@@ -5,6 +5,7 @@ import Link from "next/link";
 import { HelpAuditTrailPageHeader } from "@/app/(operator)/help/_sections/HelpAuditTrailPageHeader";
 import { HelpAuditTrailTechnicalReference } from "@/app/(operator)/help/_sections/HelpAuditTrailTechnicalReference";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { AuditTrailHelpClaimDisciplineStrip } from "@/components/help/AuditTrailHelpClaimDisciplineStrip";
 import { AuditTrailHelpEvidenceOrientationStrip } from "@/components/help/AuditTrailHelpEvidenceOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import {
@@ -95,8 +96,12 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
 
       <HelpAuditTrailPageHeader entry={entry} subtitle={auditTrailHelpPageSubtitle(buyerPolishedShell)} />
 
+      <AuditTrailHelpClaimDisciplineStrip />
+
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-8", "max-w-[42rem] lg:max-w-none")}>
+          <AuditTrailHelpEvidenceOrientationStrip />
+
           <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-audit-trail-overview">
             {AUDIT_TRAIL_HELP_OVERVIEW}
           </p>
@@ -221,8 +226,6 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
               {AUDIT_TRAIL_HELP_RELATED_PRODUCT_DOCS.label}
             </Link>
           </p>
-
-          <AuditTrailHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={AUDIT_TRAIL_HELP_GUIDE_HEADINGS} enableScrollSpy />

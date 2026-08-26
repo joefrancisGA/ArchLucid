@@ -8,6 +8,7 @@ import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/Hel
 
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
 
+import { SecurityTrustHelpClaimDisciplineStrip } from "@/components/help/SecurityTrustHelpClaimDisciplineStrip";
 import { SecurityTrustHelpNextSteps } from "@/components/help/SecurityTrustHelpNextSteps";
 
 import { SecurityTrustHelpPostureSummary } from "@/components/help/SecurityTrustHelpPostureSummary";
@@ -274,7 +275,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
       />
 
-
+      {isSecurityTrustHelp ? <SecurityTrustHelpClaimDisciplineStrip /> : null}
 
       {entry.slug === "security-trust" ? (
         <SecurityTrustHelpHubVocabularyRail currentSurfaceId="security-trust-help" />

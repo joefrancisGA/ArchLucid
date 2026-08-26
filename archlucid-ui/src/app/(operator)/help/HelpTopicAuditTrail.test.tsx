@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { HelpAuditTrailGuideView } from "@/app/(operator)/help/_sections/HelpAuditTrailGuideView";
 import { AUDIT_TRAIL_HELP_ANATOMY_FIELDS } from "@/lib/audit-trail-help-guide-content";
 import { AUDIT_TRAIL_HELP_SOURCES } from "@/lib/audit-trail-help-evidence-copy";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS } from "@/lib/audit-trail-page-copy";
 
@@ -69,10 +70,10 @@ describe("HelpTopicAuditTrail", () => {
     render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByTestId("help-audit-trail-header-open-audit-trail")).toHaveAttribute("href", "/governance/audit");
-    const sourcesSection = screen.getByTestId("audit-trail-help-sources");
+    const sourcesSection = within(screen.getByTestId("audit-trail-help-sources"));
 
     for (const source of AUDIT_TRAIL_HELP_SOURCES) {
-      expect(within(sourcesSection).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      expectFollowUpLink(sourcesSection, source);
     }
 
     expect(screen.getByTestId("help-audit-trail-overview")).toBeInTheDocument();

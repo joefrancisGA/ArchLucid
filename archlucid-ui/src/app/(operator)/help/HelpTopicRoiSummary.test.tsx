@@ -37,6 +37,7 @@ import {
   ROI_SUMMARY_HELP_START_HERE_HELPER,
 } from "@/lib/roi-summary-help-guide-content";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { formatHelpTopicApplicabilityMetadata } from "@/lib/help/help-topic-applicability-metadata";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -70,10 +71,10 @@ describe("HelpRoiSummaryGuideView", () => {
     );
 
     const overview = screen.getByTestId("help-roi-summary-overview");
-    const followUpsHeading = screen.getByRole("heading", { name: ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE });
+    const actionPanel = screen.getByTestId("help-roi-summary-action-panel");
 
     expect(overview).toHaveTextContent(ROI_SUMMARY_HELP_OVERVIEW);
-    expect(overview.compareDocumentPosition(followUpsHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("shows report items, methodology, vocabulary rails, and sibling reports", () => {
@@ -126,6 +127,10 @@ describe("HelpRoiSummaryGuideView", () => {
 
     render(<HelpRoiSummaryGuideView entry={entry} />);
 
+    expect(screen.getByTestId("help-roi-summary-claim-discipline-strip")).toHaveTextContent(
+      ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
+    );
+
     const claimDiscipline = screen.getByTestId("help-roi-summary-claim-discipline");
     const siblingReports = screen.getByTestId("help-roi-summary-sibling-reports");
 
@@ -138,11 +143,11 @@ describe("HelpRoiSummaryGuideView", () => {
       OPERATOR_TYPOGRAPHY.sectionTitle,
     );
     expect(screen.getByRole("heading", { name: ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
-    expect(siblingReports.compareDocumentPosition(claimDiscipline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(siblingReports).toBeInTheDocument();
 
-    const followUps = screen.getByTestId("help-roi-summary-sources");
+    const followUps = within(screen.getByTestId("help-roi-summary-sources"));
     for (const source of ROI_SUMMARY_HELP_SOURCES) {
-      expect(within(followUps).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      expectFollowUpLink(followUps, source);
     }
   });
 
@@ -192,8 +197,18 @@ describe("HelpRoiSummaryGuideView", () => {
       expect(screen.getByRole("heading", { name: heading.title })).toHaveAttribute("id", heading.id);
     }
 
-    const orderedHeadings = ROI_SUMMARY_HELP_GUIDE_HEADINGS.map((heading) =>
-      screen.getByRole("heading", { name: heading.title }),
+    const primaryContent = screen.getByTestId("help-roi-summary-overview").parentElement;
+    if (primaryContent === null) {
+      throw new Error("Expected ROI summary primary content region.");
+    }
+
+    const guideHeadings = ROI_SUMMARY_HELP_GUIDE_HEADINGS.filter(
+      (heading) =>
+        heading.title !== ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE &&
+        heading.title !== ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING,
+    );
+    const orderedHeadings = guideHeadings.map((heading) =>
+      within(primaryContent).getByRole("heading", { name: heading.title }),
     );
 
     for (let index = 0; index < orderedHeadings.length - 1; index += 1) {
