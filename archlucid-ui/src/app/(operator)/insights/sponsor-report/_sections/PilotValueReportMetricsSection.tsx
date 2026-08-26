@@ -2,7 +2,7 @@
 
 import { PilotRoiValidationHandoffClient } from "@/components/pilots/PilotRoiValidationHandoffCard";
 import { SponsorReportMetricCard } from "@/components/sponsor-report/SponsorReportMetricCard";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
@@ -29,7 +29,7 @@ export function PilotValueReportMetricsSection(props: Props) {
           className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
           aria-labelledby="pilot-summary-heading"
         >
-          <h2 id="pilot-summary-heading" className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>
+          <h2 id="pilot-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             Report summary
           </h2>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{executiveNarrative}</p>
@@ -63,7 +63,7 @@ export function PilotValueReportMetricsSection(props: Props) {
       ) : null}
 
       <section aria-labelledby="review-activity-heading">
-        <h2 id="review-activity-heading" className={OPERATOR_NAV_GROUP_LABEL}>
+        <h2 id="review-activity-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           Review activity
         </h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -84,7 +84,7 @@ export function PilotValueReportMetricsSection(props: Props) {
       </section>
 
       <section aria-labelledby="risk-discovery-heading">
-        <h2 id="risk-discovery-heading" className={OPERATOR_NAV_GROUP_LABEL}>
+        <h2 id="risk-discovery-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           Risk discovery
         </h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -94,7 +94,7 @@ export function PilotValueReportMetricsSection(props: Props) {
           <SponsorReportMetricCard title="Material findings" value={String(materialFindings)} />
         </div>
         <div className="mt-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-          <h3 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Severity distribution</h3>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Severity distribution</h3>
           <PilotValueReportSeverityBars counts={data.findingsBySeverity} />
         </div>
       </section>

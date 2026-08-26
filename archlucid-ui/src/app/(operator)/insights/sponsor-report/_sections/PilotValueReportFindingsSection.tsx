@@ -49,10 +49,10 @@ export function PilotValueReportFindingsSection(props: Props) {
     <>
       <section className="grid gap-4 lg:grid-cols-2" aria-labelledby="governance-outcomes-heading">
         <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-          <h2 id="governance-outcomes-heading" className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>
+          <h2 id="governance-outcomes-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             Governance outcomes
           </h2>
-          <h3 className={cn("mb-2", OPERATOR_TYPOGRAPHY.helper)}>Decisions</h3>
+          <h3 className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Decisions</h3>
           <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
             <li>
               <InlineMetadataLabel label="Approved" /> {data.governanceApprovals}
@@ -64,7 +64,7 @@ export function PilotValueReportFindingsSection(props: Props) {
               <InlineMetadataLabel label="Pending" /> {data.governancePendingApprovalsNow}
             </li>
           </ul>
-          <h3 className={cn("mb-2 mt-4", OPERATOR_TYPOGRAPHY.helper)}>Policy governance</h3>
+          <h3 className={cn("m-0 mb-2 mt-4", OPERATOR_TYPOGRAPHY.cardTitle)}>Policy governance</h3>
           <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
             <li>
               <InlineMetadataLabel label="Policy packs applied" /> {data.policyPackAssignments}
@@ -73,7 +73,7 @@ export function PilotValueReportFindingsSection(props: Props) {
               <InlineMetadataLabel label="Exceptions or waivers" /> Not available
             </li>
           </ul>
-          <h3 className={cn("mb-2 mt-4", OPERATOR_TYPOGRAPHY.helper)}>Architecture-change signals</h3>
+          <h3 className={cn("m-0 mb-2 mt-4", OPERATOR_TYPOGRAPHY.cardTitle)}>Architecture-change signals</h3>
           <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
             <li>
               <InlineMetadataLabel label="Drift detections" /> {data.comparisonOrDriftDetections}
@@ -81,7 +81,7 @@ export function PilotValueReportFindingsSection(props: Props) {
           </ul>
         </div>
         <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-          <h2 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Recommendations and remediation</h2>
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Recommendations and remediation</h2>
           <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
             <li>
               <InlineMetadataLabel label="Recommendations generated" /> {data.totalRecommendationsProduced}
@@ -96,7 +96,7 @@ export function PilotValueReportFindingsSection(props: Props) {
               <InlineMetadataLabel label="Findings remediated" /> Not available
             </li>
           </ul>
-          <h2 className={cn("mb-2 mt-6", OPERATOR_NAV_GROUP_LABEL)}>Analysis coverage</h2>
+          <h2 className={cn("m-0 mb-2 mt-6", OPERATOR_TYPOGRAPHY.sectionTitle)}>Analysis coverage</h2>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             {formatPilotOutcomesAnalysisCoverage(data.uniqueAgentTypes)}
           </p>
@@ -107,7 +107,7 @@ export function PilotValueReportFindingsSection(props: Props) {
       </section>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-        <h2 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Finalized reviews</h2>
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Finalized reviews</h2>
         {showTimelineCapNote ? (
           <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Showing the most recent {timelineRows.length} finalized reviews.

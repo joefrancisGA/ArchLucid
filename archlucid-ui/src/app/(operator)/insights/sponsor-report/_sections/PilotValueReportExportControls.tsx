@@ -4,11 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
-import {
-  OPERATOR_LINK,
-  OPERATOR_NAV_GROUP_LABEL,
-  OPERATOR_TYPOGRAPHY,
-} from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   OPERATOR_DATE_RANGE_END_LABEL,
   OPERATOR_DATE_RANGE_START_LABEL,
@@ -67,7 +63,7 @@ export function PilotValueReportExportControls(props: Props) {
   return (
     <>
       <div ref={periodControlsRef} className="space-y-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-        <h2 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Reporting period</h2>
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Reporting period</h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {pilotOutcomesReportingPeriodHelper(m.reportingTimezoneLabel)}
         </p>

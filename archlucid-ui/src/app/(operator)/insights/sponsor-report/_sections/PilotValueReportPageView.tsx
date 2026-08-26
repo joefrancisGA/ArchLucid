@@ -130,7 +130,6 @@ export function PilotValueReportPageView(props: Props) {
           <OperatorPageHeader
             navHref={SPONSOR_REPORT_PATH}
             title={SPONSOR_REPORT_PAGE_TITLE}
-            headingLevel="h1"
             breadcrumb={buyerPolishedShell ? <SponsorReportBreadcrumb /> : undefined}
             subtitle={
               buyerPolishedShell ? (
