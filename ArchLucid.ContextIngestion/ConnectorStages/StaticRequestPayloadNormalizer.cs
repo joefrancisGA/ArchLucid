@@ -1,6 +1,7 @@
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
+using ArchLucid.ContextIngestion.Parsing;
 
 namespace ArchLucid.ContextIngestion.ConnectorStages;
 
@@ -22,6 +23,7 @@ public sealed class StaticRequestPayloadNormalizer : IConnectorNormalizer<Static
 
             batch.CanonicalObjects.Add(new CanonicalObject
             {
+                ObjectId = ContextIngestionStableLineNames.StableObjectId("Requirement", canonical),
                 ObjectType = "Requirement",
                 Name = "Primary Request",
                 SourceType = "StaticRequest",

@@ -4,6 +4,7 @@ using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 using ArchLucid.ContextIngestion.Topology;
 
 using FluentAssertions;
@@ -224,6 +225,48 @@ public sealed class ConnectorHintNormalizationDeltaTests
 
         objects.Should().ContainSingle();
         objects[0].Properties["resourceType"].Should().Be("vnet");
+    }
+
+    [Fact]
+    public async Task SecurityBaselineHintsNormalizer_Reparse_ProducesStableObjectId()
+    {
+        SecurityBaselineHintsPayloadNormalizer sut = new();
+
+        SecurityBaselineHintsPayload payload = new() { SecurityBaselineHints = ["encrypt at rest"] };
+
+        NormalizedContextBatch first = await sut.NormalizeAsync(payload, CancellationToken.None);
+        NormalizedContextBatch second = await sut.NormalizeAsync(payload, CancellationToken.None);
+
+        first.CanonicalObjects.Should().ContainSingle();
+        second.CanonicalObjects[0].ObjectId.Should().Be(first.CanonicalObjects[0].ObjectId);
+    }
+
+    [Fact]
+    public async Task StaticRequestNormalizer_Reparse_ProducesStableObjectId()
+    {
+        StaticRequestPayloadNormalizer sut = new();
+
+        StaticRequestPayload payload = new() { Description = "billing api redesign" };
+
+        NormalizedContextBatch first = await sut.NormalizeAsync(payload, CancellationToken.None);
+        NormalizedContextBatch second = await sut.NormalizeAsync(payload, CancellationToken.None);
+
+        first.CanonicalObjects.Should().ContainSingle();
+        second.CanonicalObjects[0].ObjectId.Should().Be(first.CanonicalObjects[0].ObjectId);
+    }
+
+    [Fact]
+    public async Task PolicyReferenceNormalizer_Reparse_ProducesStableObjectId()
+    {
+        PolicyReferencePayloadNormalizer sut = new(new PolicyTopologyOverlapResolver());
+
+        PolicyReferencePayload payload = new() { PolicyReferences = ["soc2"] };
+
+        NormalizedContextBatch first = await sut.NormalizeAsync(payload, CancellationToken.None);
+        NormalizedContextBatch second = await sut.NormalizeAsync(payload, CancellationToken.None);
+
+        first.CanonicalObjects.Should().ContainSingle();
+        second.CanonicalObjects[0].ObjectId.Should().Be(first.CanonicalObjects[0].ObjectId);
     }
 
     private static TopologyHintsConnector CreateTopologyConnector() =>

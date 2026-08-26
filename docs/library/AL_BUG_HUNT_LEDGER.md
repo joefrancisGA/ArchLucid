@@ -1802,11 +1802,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 32
-- **bugs-found:** 72
+- **hunts:** 33
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — ARM/Bicep/JSON/simple-terraform/terraform-show-json infra parsers rotated random ObjectId on re-parse
+- **last-bug:** 2026-08-26 — connector payload normalizers rotated random ObjectId on re-normalize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1893,6 +1893,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `JsonInfrastructureDeclarationParser` left default random `ObjectId` on JSON infra resources — **hit 2026-08-26:** identical json declaration re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` (`JsonInfrastructureDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
 - [x] (proven) `SimpleTerraformDeclarationParser` left default random `ObjectId` on HCL resources — **hit 2026-08-26:** identical simple-terraform re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` (`SimpleTerraformDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` left default random `ObjectId` on terraform-show-json resources — **hit 2026-08-26:** identical terraform-show-json re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `InfrastructureDeclarationStableObjectIds.ForDeclaredResource` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `InlineRequirementsPayloadNormalizer` left default random `ObjectId` on inline requirements — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical requirement text (`InlineRequirementsPayloadNormalizerTests.NormalizeAsync_Reparse_ProducesStableObjectId`).
+- [x] (proven) `SecurityBaselineHintsPayloadNormalizer` left default random `ObjectId` on security baseline hints — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical hint text (`ConnectorHintNormalizationDeltaTests.SecurityBaselineHintsNormalizer_Reparse_ProducesStableObjectId`).
+- [x] (proven) `StaticRequestPayloadNormalizer` left default random `ObjectId` on static request description — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical description text (`ConnectorHintNormalizationDeltaTests.StaticRequestNormalizer_Reparse_ProducesStableObjectId`).
+- [x] (proven) `PolicyReferencePayloadNormalizer` left default random `ObjectId` on policy references — **hit 2026-08-26:** identical re-normalize rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by canonical policy reference (`ConnectorHintNormalizationDeltaTests.PolicyReferenceNormalizer_Reparse_ProducesStableObjectId`).
 
 ---
 
