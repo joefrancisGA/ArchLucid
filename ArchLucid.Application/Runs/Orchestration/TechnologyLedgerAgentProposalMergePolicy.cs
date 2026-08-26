@@ -58,7 +58,17 @@ public static class TechnologyLedgerAgentProposalMergePolicy
         && !EvidenceRefsMatch(left, right);
 
     private static bool TechnologyNamesMatch(string left, string right) =>
-        string.Equals(left.Trim(), right.Trim(), StringComparison.OrdinalIgnoreCase);
+        string.Equals(NormalizeTechnologyName(left), NormalizeTechnologyName(right), StringComparison.OrdinalIgnoreCase);
+
+    private static string NormalizeTechnologyName(string value)
+    {
+        string trimmed = value.Trim();
+
+        if (trimmed.Length == 0)
+            return string.Empty;
+
+        return string.Join(' ', trimmed.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+    }
 
     private static bool EvidenceRefsMatch(string? left, string? right) =>
         !string.IsNullOrWhiteSpace(left)
