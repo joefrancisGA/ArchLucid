@@ -150,7 +150,7 @@ describe("AlertTuningContent TB-1590", () => {
 
   it("tuning form source avoids raw html input and button elements", () => {
     const source = readFileSync(
-      join(process.cwd(), "src", "components", "alerts", "AlertTuningContent.tsx"),
+      join(process.cwd(), "src", "components", "alerts", "AlertTuningForm.tsx"),
       "utf8",
     );
 
