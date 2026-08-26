@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -76,7 +76,6 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
-import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
