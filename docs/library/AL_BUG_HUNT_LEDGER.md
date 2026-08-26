@@ -1974,11 +1974,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 3
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — architecture narrative omitted committed topology selected patterns
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — markdown generators hardcoded Assumptions as Not specified
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1992,6 +1992,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArtifactBundleValidator` fail-open on content-hash mismatch — **hit 2026-08-24:** required non-empty hash but never compared to `ArtifactHashing.ComputeHash`; regression in `Validate_when_content_hash_mismatch_throws`
 - [x] (proven) `FileNameSanitizer` allowed Unicode slash homoglyphs in export paths — **hit 2026-08-24:** fullwidth solidus U+FF0F survived sanitization; regression in `FileNameSanitizer_replaces_invalid_windows_characters` (`..／..／manifest.json`)
 - [x] (proven) `ArchitectureNarrativeArtifactGenerator` omitted `Topology.SelectedPatterns` — **hit 2026-08-25:** narrative listed resources/gaps only while `ReferenceArchitectureMarkdownGenerator` and DOCX export emitted `- Pattern:` lines; regression in `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_topology_selected_patterns`
+- [ ] (candidate) `ArchitectureNarrativeArtifactGenerator` omits `manifest.Decisions` — reference-architecture and DOCX include decisions while narrative jumps to unresolved issues
+- [ ] (candidate) `MermaidDiagramArtifactGenerator` ignores typed golden topology — AST built only from `manifest.Decisions`, not `Topology.Services` / `Datastores`
+- [ ] (candidate) `DocxExportService.BuildDocumentAsync` omits Constraints and Assumptions sections present in markdown artifacts
+- [ ] (candidate) `DocxExportService` skips `LlmArtifactFreeTextSanitizer` on manifest posture strings (topology gaps, security/compliance gaps)
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` hardcoded `## Assumptions` as `Not specified.` — **hit 2026-08-26:** committed `manifest.Assumptions` dropped while Constraints were already emitted from manifest; fixed by listing assumptions or `No assumptions were recorded.` (`ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified`, `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified`).
 
 ---
 

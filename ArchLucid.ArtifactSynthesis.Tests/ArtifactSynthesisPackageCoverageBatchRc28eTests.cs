@@ -143,6 +143,47 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
     }
 
     [Fact]
+    public async Task ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            RuleSetId = "core-default",
+            RuleSetVersion = "1",
+            ManifestHash = "assumptions-hash",
+            Metadata = new ManifestMetadata { Name = "Regional Retail" },
+            Assumptions = ["Policy 'PCI-DSS' applies to 3 topology resource(s)."],
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("Policy 'PCI-DSS' applies to 3 topology resource(s).");
+        artifact.Content.Should().NotContain("## Assumptions\nNot specified.");
+    }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_assumptions_not_not_specified()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Retail Checkout" },
+            Assumptions = ["Existing SQL database will be reused for orders."],
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("Existing SQL database will be reused for orders.");
+        artifact.Content.Should().NotContain("## Assumptions\nNot specified.");
+    }
+
+    [Fact]
     public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_constraints_and_provenance()
     {
         ManifestDocument manifest = new()

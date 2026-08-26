@@ -111,7 +111,14 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Assumptions");
-        sb.AppendLine("Not specified.");
+        foreach (string assumption in manifest.Assumptions)
+
+            sb.AppendLine($"- {assumption}");
+
+        if (manifest.Assumptions.Count == 0)
+
+            sb.AppendLine("No assumptions were recorded.");
+
         sb.AppendLine();
 
         sb.AppendLine("## Constraints");
