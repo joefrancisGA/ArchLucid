@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -9,13 +10,17 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-const GOVERNANCE_RECURRENCE_SCHEDULES_PATH = "/governance/recurrence-schedules" as const;
+import {
+  GOVERNANCE_RECURRENCE_SCHEDULES_PATH,
+  recurrenceSchedulesHref,
+} from "@/lib/governance/recurrence-schedules-route";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OperatorInventoryRowMoreActions } from "@/components/operator/OperatorInventoryRowMoreActions";
+import { RecurrenceSchedulesPickReviewBeforeSchedulingStrip } from "@/components/governance/RecurrenceSchedulesPickReviewBeforeSchedulingStrip";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceSchedulesContinueLastViewedRow } from "@/components/governance/RecurrenceSchedulesContinueLastViewedRow";
 import { RecurrenceScheduleCreatePanel } from "@/components/governance/RecurrenceScheduleCreatePanel";
@@ -172,6 +177,27 @@ function recurrenceSchedulesLoadFailureMessage(error: unknown): string {
 
 /** TB-222 — governance workspace for architecture review recurrence schedules. */
 export default function RecurrenceSchedulesClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
+
+  const onPickReviewForScheduling = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+
+      router.replace(`${GOVERNANCE_RECURRENCE_SCHEDULES_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
   const canMutate = useOperateCapability();
   const displayTimeZoneId = useMemo(() => resolveRecurrenceDisplayTimeZoneId(), []);
   const [schedules, setSchedules] = useState<ArchitectureReviewRecurrenceSchedule[]>([]);
@@ -368,7 +394,10 @@ export default function RecurrenceSchedulesClient() {
     : populatedSecondaryActions;
 
   // Open-only + hide while panel is open so Create never toggles away in-progress fields (TB-1131).
-  const createScheduleButton = showCreatePanel ? null : (
+  const createScheduleButton =
+    showCreatePanel || !scopedRunFilterActive
+      ? null
+      : (
     <div className="flex flex-col items-start gap-1">
       <Button
         type="button"
@@ -455,7 +484,33 @@ export default function RecurrenceSchedulesClient() {
             />
           ) : null}
 
-          {showCreatePanel ? (
+          {!scopedRunFilterActive ? (
+            <RecurrenceSchedulesPickReviewBeforeSchedulingStrip
+              selectedReviewId=""
+              onSelectReview={onPickReviewForScheduling}
+            />
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="recurrence-schedules-run-scope-banner"
+            >
+              {"Scheduling recurrences for review "}
+              <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+              {" · "}
+              <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={recurrenceSchedulesHref()}>
+                Clear review scope
+              </Link>
+              {" · "}
+              <Link
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
+                href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+              >
+                Open review
+              </Link>
+            </p>
+          )}
+
+          {scopedRunFilterActive && showCreatePanel ? (
             <RecurrenceScheduleCreatePanel
               key={
                 createSeed === null
@@ -475,11 +530,11 @@ export default function RecurrenceSchedulesClient() {
             />
           ) : null}
 
-          {isEmpty && !showCreatePanel ? (
+          {scopedRunFilterActive && isEmpty && !showCreatePanel ? (
             <RecurrenceScheduleWorkspaceActiveReviewStrip onScheduleFromWorkspaceActive={openCreateFromWorkspaceActive} />
           ) : null}
 
-          {isEmpty ? (
+          {scopedRunFilterActive && isEmpty ? (
             <>
               <EnterpriseCompactEmptyState
                 testId="recurrence-schedules-empty-state"
@@ -493,7 +548,7 @@ export default function RecurrenceSchedulesClient() {
                 onApplyExample={openCreateFromExample}
               />
             </>
-          ) : (
+          ) : scopedRunFilterActive ? (
             <>
             {continueLastSchedule !== null ? (
               <RecurrenceSchedulesContinueLastViewedRow
@@ -677,7 +732,7 @@ export default function RecurrenceSchedulesClient() {
               </EnterpriseTableBody>
             </EnterpriseTable>
             </>
-          )}
+          ) : null}
       </div>
 
       <ConfirmationDialog
