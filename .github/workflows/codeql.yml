@@ -17,8 +17,12 @@ env:
 
 concurrency:
   group: codeql-${{ github.ref }}
-  # Push storms on master cancel in-progress runs and leave CodeQL unverified; PRs still coalesce.
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  # Never cancel. Master receives frequent direct pushes, and each new push used to cancel the
+  # in-flight scan, so CodeQL never reached a conclusion on the trunk (runs 33024224390,
+  # 33024378118, 33024399626 were each cancelled the second the next push landed). An
+  # event_name expression here did not stop it, so this is set to a literal.
+  # Trade-off: runs queue instead of coalescing, which costs Actions minutes but keeps every scan honest.
+  cancel-in-progress: false
 
 jobs:
   csharp:
