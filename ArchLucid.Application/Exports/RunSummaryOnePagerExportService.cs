@@ -8,6 +8,8 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using Microsoft.Extensions.Options;
 
@@ -16,7 +18,9 @@ namespace ArchLucid.Application.Exports;
 public sealed class RunSummaryOnePagerExportService(
     IRunDetailQueryService runDetailQueryService,
     IAgentCompletionClient completionClient,
-    IOptionsMonitor<GenerateRunSummaryOptions> generateRunSummaryOptions) : IRunSummaryOnePagerExportService
+    IOptionsMonitor<GenerateRunSummaryOptions> generateRunSummaryOptions,
+    IScopeContextProvider scopeContextProvider,
+    ITenantRepository tenantRepository) : IRunSummaryOnePagerExportService
 {
     private const string SponsorReportPrompt =
         "You are an enterprise architect writing a board-ready brief. "
@@ -31,6 +35,12 @@ public sealed class RunSummaryOnePagerExportService(
 
     private readonly IOptionsMonitor<GenerateRunSummaryOptions> _generateRunSummaryOptions =
         generateRunSummaryOptions ?? throw new ArgumentNullException(nameof(generateRunSummaryOptions));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     public async Task<RunSummaryOnePagerExportResult> GenerateMarkdownAsync(string runId, CancellationToken cancellationToken)
     {
@@ -59,8 +69,16 @@ public sealed class RunSummaryOnePagerExportService(
             .Select(static f => string.IsNullOrWhiteSpace(f.Message) ? f.Category : f.Message.Trim())
             .ToArray();
 
+        string? activeTrialExportNotice = await ActiveTrialExportNoticeResolver
+            .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
+            .ConfigureAwait(false);
+
         RunSummaryOnePagerDocumentModel model =
-            ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(detail, SponsorReport, topTitles);
+            ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(
+                detail,
+                SponsorReport,
+                topTitles,
+                activeTrialExportNotice);
 
         string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
         string safeStem = SanitizeRunIdForFileName(model.RunId);

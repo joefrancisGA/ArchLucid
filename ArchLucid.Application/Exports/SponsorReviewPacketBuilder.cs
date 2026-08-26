@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Application.Exports;
 
@@ -16,7 +17,8 @@ public sealed class SponsorReviewPacketBuilder(
     IRunDetailQueryService runDetailQueryService,
     ISponsorRoiSummaryService SponsorRoiSummaryService,
     IArchitectureDecisionRegisterService decisionRegisterService,
-    IScopeContextProvider scopeContextProvider) : ISponsorReviewPacketBuilder
+    IScopeContextProvider scopeContextProvider,
+    ITenantRepository tenantRepository) : ISponsorReviewPacketBuilder
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -29,6 +31,9 @@ public sealed class SponsorReviewPacketBuilder(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     public async Task<string?> BuildMarkdownAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -58,6 +63,10 @@ public sealed class SponsorReviewPacketBuilder(
         SponsorReviewPacketPortfolioSignals portfolioSignals =
             SponsorReviewPacketPortfolioSignalsFactory.Create(roiSummary);
 
+        string? activeTrialExportNotice = await ActiveTrialExportNoticeResolver
+            .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
+            .ConfigureAwait(false);
+
         return SponsorReviewPacketComposer.ComposeMarkdown(
             detail,
             SponsorReport,
@@ -65,7 +74,8 @@ public sealed class SponsorReviewPacketBuilder(
             roiSummary,
             TimeProvider.System.UtcNowDateTime(),
             topDecisions,
-            portfolioSignals);
+            portfolioSignals,
+            activeTrialExportNotice);
     }
 
     private static string BuildDeterministicSponsorReport(

@@ -1294,11 +1294,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 6
-- **bugs-found:** 10
+- **hunts:** 7
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — HTML architecture review export omitted active-trial notice that PDF/DOCX embed
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — markdown export surfaces omitted demo/trial safety notices
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1316,8 +1316,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArtifactExportController.DownloadTerraformAdvisoryExport` and `CreateTerraformPr` load run detail but omit the committed-manifest guard used by `PushRunExportToBlob` — **hit 2026-08-25:** in-progress runs with `GoldenManifest == null` returned ZIP bytes or opened a PR; aligned with blob-push guard (`ArtifactExportControllerRunExportTests`).
 - [x] (proven) `RunQueryController.ExportRunFindingsCsv` checks run existence and manifest pointer consistency but not `IsCommitted` — **hit 2026-08-25:** ReadyForCommit runs exported findings CSV while sibling buyer exports reject; added `IsCommitted` guard and 409 mapping (`RunFindingsQueryServiceExportTests`, `RunQueryControllerTests`).
 - [x] (proven) HTML architecture review export omits active-trial notice — **hit 2026-08-25:** `BuildMinimalHtml` ignored `activeTrialExportNotice` while PDF/DOCX passed `ActiveTrialExportNoticeFormatter` output; aligned HTML with sibling formats (`GenerateReportAsync_html_includes_active_trial_notice_when_tenant_on_active_trial`).
-- [ ] (hunt-ready) `RunSummaryOnePagerExportService.GenerateMarkdownAsync` — one-pager markdown omits demo-tenant and active-trial safety labeling that board PDF/DOCX/HTML exports embed via `IsDemoTenant` and `ActiveTrialExportNoticeFormatter`.
-- [ ] (hunt-ready) `SponsorReviewPacketBuilder.BuildMarkdownAsync` / `SponsorReviewPacketComposer.ComposeMarkdown` — executive sponsor packet omits active-trial export notice present on board PDF/DOCX paths.
+- [x] (proven) `RunSummaryOnePagerExportService.GenerateMarkdownAsync` omitted demo-tenant and active-trial safety labeling — **hit 2026-08-26:** one-pager markdown ignored `IsDemoTenant` and `ActiveTrialExportNoticeFormatter` while board PDF/DOCX/HTML embed them; fixed model/template plus tenant-scoped notice resolution (`RunSummaryOnePagerExportServiceTests.GenerateMarkdownAsync_includes_demo_and_active_trial_notices`, `RunSummaryOnePagerMarkdownRendererTests.Render_includes_demo_and_active_trial_notices`).
+- [x] (proven) `SponsorReviewPacketBuilder` / `SponsorReviewPacketComposer.ComposeMarkdown` omitted active-trial export notice — **hit 2026-08-26:** executive sponsor packet lacked trial watermark present on board PDF/DOCX paths; fixed with shared `ActiveTrialExportNoticeResolver` and `ExportSafetyNoticeMarkdown` (`SponsorReviewPacketBuilderTests.BuildMarkdownAsync_includes_active_trial_notice_when_tenant_on_trial`, `SponsorReviewPacketComposerTests.ComposeMarkdown_includes_active_trial_notice_when_provided`).
 - [ ] (candidate) `SponsorReviewPacketBuilder.BuildTopDecisionsAsync` — `GetRegisterAsync` is project-scoped with no `runId` filter; per-run executive packet may list decisions from other runs in the same project.
 - [ ] (candidate) `DecisionReceiptService.BuildForRunAsync` — uses `GetRunSummaryAsync` + manifest summary only; may omit `HasBrokenManifestReference` / `IsCommitted` guards used by sibling export services.
 - [ ] (candidate) `TenantReviewBoardCoverLogoStore.TryGetBytesAsync` — returns raw blob bytes without `ArchitectureReviewBoardCoverLogoValidator` re-check at export embed time (upload validates; read path does not).

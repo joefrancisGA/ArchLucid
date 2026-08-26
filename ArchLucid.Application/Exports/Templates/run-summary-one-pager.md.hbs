@@ -1,6 +1,14 @@
 # Sponsor review summary — {{SystemName}}
 
 **Review ID:** `{{RunId}}`
+{{#if IsDemoTenant}}
+
+> **Demo notice:** Demo tenant — replace before publishing to executives.
+{{/if}}
+{{#if ActiveTrialExportNotice}}
+
+> **Trial notice:** {{ActiveTrialExportNotice}}
+{{/if}}
 
 ## Findings by severity
 

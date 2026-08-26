@@ -1,4 +1,5 @@
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Agents;
@@ -11,6 +12,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
@@ -107,6 +109,60 @@ public sealed class SponsorReviewPacketBuilderTests
     }
 
     [Fact]
+    public async Task BuildMarkdownAsync_includes_active_trial_notice_when_tenant_on_trial()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = RunId,
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1"
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = RunId,
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow }
+            }
+        };
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(x => x.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(x => x.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "Trial tenant",
+                    Slug = "trial",
+                    Tier = TenantTier.Standard,
+                    TrialStatus = TrialLifecycleStatus.Active
+                });
+
+        SponsorReviewPacketBuilder sut = CreateSut(runDetails.Object, scope.Object, tenants.Object);
+
+        string? markdown = await sut.BuildMarkdownAsync(RunId, CancellationToken.None);
+
+        markdown.Should().NotBeNull();
+        markdown.Should().Contain("Trial notice");
+        markdown.Should().Contain(ActiveTrialExportNoticeFormatter.BaseSuffix);
+    }
+
+    [Fact]
     public async Task BuildMarkdownAsync_returns_null_when_manifest_reference_is_broken()
     {
         ArchitectureRunDetail detail = new()
@@ -133,7 +189,10 @@ public sealed class SponsorReviewPacketBuilderTests
         markdown.Should().BeNull();
     }
 
-    private static SponsorReviewPacketBuilder CreateSut(IRunDetailQueryService runDetails)
+    private static SponsorReviewPacketBuilder CreateSut(
+        IRunDetailQueryService runDetails,
+        IScopeContextProvider? scopeContextProvider = null,
+        ITenantRepository? tenantRepository = null)
     {
         Mock<ISponsorRoiSummaryService> roi = new();
         roi.Setup(x => x.BuildAsync(It.IsAny<CancellationToken>()))
@@ -149,13 +208,15 @@ public sealed class SponsorReviewPacketBuilderTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureDecisionRegisterResponse());
 
-        Mock<IScopeContextProvider> scope = new();
-        scope.Setup(x => x.GetCurrentScope()).Returns(new ScopeContext());
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(x => x.GetCurrentScope()).Returns(new ScopeContext());
+        IScopeContextProvider scopeProvider = scopeContextProvider ?? scopeMock.Object;
 
         return new SponsorReviewPacketBuilder(
             runDetails,
             roi.Object,
             decisions.Object,
-            scope.Object);
+            scopeProvider,
+            tenantRepository ?? Mock.Of<ITenantRepository>());
     }
 }

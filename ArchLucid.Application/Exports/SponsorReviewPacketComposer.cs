@@ -25,7 +25,8 @@ public static class SponsorReviewPacketComposer
         SponsorRoiSummaryResponse roiSummary,
         DateTime generatedUtc,
         IReadOnlyList<SponsorReviewPacketDecisionRow>? topDecisions = null,
-        SponsorReviewPacketPortfolioSignals? portfolioSignals = null)
+        SponsorReviewPacketPortfolioSignals? portfolioSignals = null,
+        string? activeTrialExportNotice = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);
@@ -37,6 +38,8 @@ public static class SponsorReviewPacketComposer
         sb.AppendLine("# Sponsor review packet");
         sb.AppendLine();
         sb.AppendLine($"**Generated (UTC):** {generatedUtc:yyyy-MM-dd HH:mm:ss} Z");
+
+        ExportSafetyNoticeMarkdown.Append(sb, isDemoTenant: false, activeTrialExportNotice);
         sb.AppendLine();
         AppendManifestSummarySection(sb, detail);
 

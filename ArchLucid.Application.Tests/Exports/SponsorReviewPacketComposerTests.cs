@@ -1,5 +1,6 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -53,5 +54,46 @@ public sealed class SponsorReviewPacketComposerTests
 
         markdown.Should().Contain("demo-derived");
         markdown.Should().Contain("HOLD posture");
+    }
+
+    [Fact]
+    public void ComposeMarkdown_includes_active_trial_notice_when_provided()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1"
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow }
+            }
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh
+        };
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            ["Finding one"],
+            roiSummary,
+            DateTime.UtcNow,
+            activeTrialExportNotice: ActiveTrialExportNoticeFormatter.BaseSuffix);
+
+        markdown.Should().Contain("Trial notice");
+        markdown.Should().Contain(ActiveTrialExportNoticeFormatter.BaseSuffix);
     }
 }
