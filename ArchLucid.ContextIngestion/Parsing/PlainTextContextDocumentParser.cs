@@ -43,6 +43,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
 
                 results.Add(new CanonicalObject
                 {
+                    ObjectId = ContextIngestionStableLineNames.StableObjectId("Requirement", canonicalText),
                     ObjectType = "Requirement",
                     Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalText),
                     SourceType = "Document",
@@ -61,6 +62,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
 
                 results.Add(new CanonicalObject
                 {
+                    ObjectId = ContextIngestionStableLineNames.StableObjectId("PolicyControl", canonicalText),
                     ObjectType = "PolicyControl",
                     Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalText),
                     SourceType = "Document",
@@ -77,14 +79,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
 
                 string canonicalText = CanonicalizeLineText(text, "TopologyResource");
 
-                results.Add(new CanonicalObject
-                {
-                    ObjectType = "TopologyResource",
-                    Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalText),
-                    SourceType = "Document",
-                    SourceId = document.DocumentId,
-                    Properties = new Dictionary<string, string> { ["text"] = canonicalText }
-                });
+                results.Add(PlainTextDocumentTopologyResourceBuilder.Create(document.DocumentId, canonicalText));
             }
             else if (line.StartsWith("SEC:", StringComparison.OrdinalIgnoreCase))
             {
@@ -97,6 +92,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
 
                 results.Add(new CanonicalObject
                 {
+                    ObjectId = ContextIngestionStableLineNames.StableObjectId("SecurityBaseline", canonicalText),
                     ObjectType = "SecurityBaseline",
                     Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalText),
                     SourceType = "Document",

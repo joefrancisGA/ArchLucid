@@ -2,7 +2,9 @@ using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Topology;
+using ArchLucid.Contracts.Persistence.Context;
 
 using FluentAssertions;
 
@@ -63,6 +65,60 @@ public sealed class PolicyReferenceConnectorTopologyTests
         batch.CanonicalObjects.Should().ContainSingle();
         batch.CanonicalObjects[0].Name.Should().Be("soc2");
         batch.CanonicalObjects[0].SourceId.Should().Be("soc2");
+    }
+
+    [Fact]
+    public async Task NormalizeAsync_WhenPolicyOverlapsDocumentTopologyHint_SetsApplicableTopologyNodeIds()
+    {
+        PolicyReferenceConnector sut = new(
+            new PolicyReferencePayloadExtractor(),
+            new PolicyReferencePayloadNormalizer(new PolicyTopologyOverlapResolver()),
+            new SetDiffConnectorDeltaComputer());
+
+        DocumentConnector documentConnector = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer([new PlainTextContextDocumentParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        RawContextPayload documentRaw = new()
+        {
+            Documents =
+            [
+                new ContextDocumentReference
+                {
+                    DocumentId = "doc-1",
+                    Name = "topology.txt",
+                    ContentType = "text/plain",
+                    Content = "TOP: parentNet/childSubnet"
+                }
+            ]
+        };
+
+        NormalizedContextBatch documentBatch = await documentConnector.NormalizeAsync(documentRaw, CancellationToken.None);
+        string topologyObjectId = documentBatch.CanonicalObjects.Single().ObjectId;
+
+        ContextIngestionRequest request = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString("D"),
+            PolicyReferences = ["parentNet"],
+            Documents =
+            [
+                new ContextDocumentReference
+                {
+                    DocumentId = "doc-1",
+                    Name = "topology.txt",
+                    ContentType = "text/plain",
+                    Content = "TOP: parentNet/childSubnet"
+                }
+            ]
+        };
+
+        RawContextPayload policyRaw = await sut.FetchAsync(request, CancellationToken.None);
+        NormalizedContextBatch policyBatch = await sut.NormalizeAsync(policyRaw, CancellationToken.None);
+
+        policyBatch.CanonicalObjects.Single().Properties["applicableTopologyNodeIds"]
+            .Should().Be($"obj-{topologyObjectId}");
     }
 
     [Fact]

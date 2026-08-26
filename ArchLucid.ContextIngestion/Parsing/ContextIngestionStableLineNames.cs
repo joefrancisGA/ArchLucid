@@ -20,4 +20,19 @@ public static class ContextIngestionStableLineNames
 
         return $"{prefix}#{suffix}";
     }
+
+    /// <summary>
+    ///     Deterministic <see cref="ArchLucid.Contracts.Persistence.Context.CanonicalObject.ObjectId" />
+    ///     for document-parsed non-topology lines so graph materialization stays stable across re-parse.
+    /// </summary>
+    public static string StableObjectId(string objectType, string canonicalText)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(canonicalText);
+
+        string material = $"{objectType}:{canonicalText}";
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(material));
+
+        return Convert.ToHexString(hash.AsSpan(0, 16)).ToLowerInvariant();
+    }
 }

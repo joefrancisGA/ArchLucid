@@ -1,6 +1,7 @@
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
+using ArchLucid.ContextIngestion.Parsing;
 
 namespace ArchLucid.ContextIngestion.ConnectorStages;
 
@@ -10,9 +11,18 @@ public sealed class PolicyReferencePayloadExtractor : IConnectorInput<PolicyRefe
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        List<string> topologyHints = request.TopologyHints.ToList();
+
+        foreach (ContextDocumentReference document in request.Documents)
+        {
+            foreach (string hint in PlainTextDocumentTopologyHintExtractor.EnumerateHintNames(document.Content))
+                topologyHints.Add(hint);
+        }
+
         return new PolicyReferencePayload
         {
-            PolicyReferences = request.PolicyReferences.ToList(), TopologyHints = request.TopologyHints.ToList()
+            PolicyReferences = request.PolicyReferences.ToList(),
+            TopologyHints = topologyHints
         };
     }
 }
