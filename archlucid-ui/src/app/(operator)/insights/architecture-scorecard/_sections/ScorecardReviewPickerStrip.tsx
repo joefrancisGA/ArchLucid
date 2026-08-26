@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { REVIEW_PACKAGE_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 
 export type ScorecardReviewPickerStripProps = {
@@ -41,7 +42,7 @@ export function ScorecardReviewPickerStrip(props: ScorecardReviewPickerStripProp
         Pick a review
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Scorecard metrics are scoped to a review package. Workspace active review is the default when available.
+        Scorecard metrics are scoped to an {REVIEW_PACKAGE_LABEL.toLowerCase()}. Workspace active review is the default when available.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -55,7 +56,7 @@ export function ScorecardReviewPickerStrip(props: ScorecardReviewPickerStripProp
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label={REVIEW_PACKAGE_LABEL}
           fieldId="scorecard-review-picker"
           hideFieldHelper
         />

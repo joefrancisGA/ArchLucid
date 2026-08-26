@@ -11,6 +11,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { getPreFinalizeChecklist } from "@/lib/api/pre-finalize-checklist";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
+import { REVIEW_PACKAGE_LABEL } from "@/lib/usability/canonical-product-terms";
 import type {
   PreFinalizeChecklistItem,
   PreFinalizeChecklistItemStatus,
@@ -130,7 +131,7 @@ export function PreFinalizeChecklistPanel({
           ) : null}
         </div>
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-muted-foreground")}>
-          Human approval gates and advisory checks before sealing the review package.
+          Human approval gates and advisory checks before sealing the {REVIEW_PACKAGE_LABEL.toLowerCase()}.
         </p>
       </CardHeader>
       <CardContent>

@@ -33,7 +33,7 @@ function splitMonolith(source) {
   const schemasBody = source.slice(componentsStart).trimEnd();
 
   const schemas = `${header}\n\n${schemasBody}\n`;
-  const paths = `${header}\n\nimport type { components } from "./schemas.generated";\n\n${pathsBody}\n`;
+  const paths = `${header}\n\nimport type { components } from "./schemas.generated.js";\n\n${pathsBody}\n`;
 
   return { schemas, paths };
 }
@@ -54,7 +54,7 @@ function writeGeneratedFiles() {
   fs.writeFileSync(pathsFile, paths);
   fs.writeFileSync(
     indexFile,
-    `/** Barrel for split OpenAPI types — do not edit by hand. */\nexport type { components } from "./schemas.generated";\nexport type { paths } from "./paths.generated";\n`,
+    `/** Barrel for split OpenAPI types — do not edit by hand. */\nexport type { components } from "./schemas.generated.js";\nexport type { paths } from "./paths.generated.js";\n`,
   );
   fs.writeFileSync(
     barrelFile,

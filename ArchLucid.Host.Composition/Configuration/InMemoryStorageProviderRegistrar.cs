@@ -156,6 +156,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
             new InMemoryFindingInspectReadRepository(sp.GetRequiredService<IAuthorityQueryService>()));
         services.AddSingleton<IDecisionTraceRepository, InMemoryDecisionTraceRepository>();
         services.AddSingleton<IGoldenManifestRepository, InMemoryGoldenManifestRepository>();
+        services.AddSingleton<IArchitectureIdentityRepository, InMemoryArchitectureIdentityRepository>();
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
         services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
         services.AddSingleton<IArchitectureProjectRepository, InMemoryArchitectureProjectRepository>();

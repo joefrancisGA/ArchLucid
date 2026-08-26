@@ -4,7 +4,7 @@ import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths"
 /** Canonical invite-reviewer route from operator home optional-setup and admin deep links. */
 export const INVITE_REVIEWER_PATH = "/administration/users/invite-reviewer";
 
-/** Query param prefilling invite context from a finalized review package handoff. */
+/** Query param prefilling invite context from a finalized architecture package handoff. */
 export const INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM = "reviewId";
 
 export function buildInviteReviewerHref(reviewId?: string | null): string {
@@ -22,7 +22,7 @@ export function buildInviteReviewerHref(reviewId?: string | null): string {
 export function buildInviteReviewerPrefillMessage(reviewId: string): string {
   const trimmed = reviewId.trim();
 
-  return `Please review the finalized architecture review package for review ${trimmed}.`;
+  return `Please review the finalized architecture package for architecture review ${trimmed}.`;
 }
 
 /** Users tab on the combined users-and-roles admin page. */

@@ -3,7 +3,7 @@
  * Do not make direct changes to the file.
  */
 
-import type { components } from "./schemas.generated";
+import type { components } from "./schemas.generated.js";
 
 export interface paths {
     "/": {

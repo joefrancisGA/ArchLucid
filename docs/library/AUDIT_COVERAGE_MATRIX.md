@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:393 -->
+<!-- audit-core-const-count:396 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -404,6 +404,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ProvenanceAccessed` | `ProvenanceAccessed` | `AuthorityQueryController` (`GET …/provenance`, `GET /v1/runs/{runId}/review-trail/provenance`) |
 | `FindingsListAccessed` | `FindingsListAccessed` | `RunQueryController` (`GET …/architecture/run/{runId}/findings/export/csv`; `{ format, findingCount }` in `DataJson`) |
 | `ReviewClarificationQuestionsAccessed` | `ReviewClarificationQuestionsAccessed` | `ReviewClarificationQuestionsController` (`GET /v1/architecture/review/{runId}/clarification-questions`) |
+| `KnowledgeModelClarificationAnswersApplied` | `KnowledgeModelClarificationAnswersApplied` | `ReviewClarificationQuestionsController` (`POST /v1/architecture/review/{runId}/clarification-questions/answers`) |
 | `GovernanceApprovalRequested` | `GovernanceApprovalRequested` | `GovernanceController` (`POST /v1/governance/approval-requests`) |
 | `GovernanceSlackInteractivityDispatched` | `GovernanceSlackInteractivityDispatched` | `SlackInteractivityController` (`POST …/integrations/webhooks/slack/interactivity`; signature-verified dispatch) |
 | `ArtifactsGenerated` | `ArtifactsGenerated` | `AuthorityPipelineStagesExecutor` |
@@ -421,6 +422,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `FindingReviewApproved` | `FindingReviewApproved` | `FindingReviewTrailAppendService` |
 | `FindingReviewRejected` | `FindingReviewRejected` | `FindingReviewTrailAppendService` |
 | `FindingReviewOverridden` | `FindingReviewOverridden` | `FindingReviewTrailAppendService` |
+| `FindingMergeConflictResolved` | `FindingMergeConflictResolved` | `GovernanceStickinessFacade` (`POST /v1/governance/findings/{findingId}/merge-conflicts/resolve`) |
 | `FindingReviewDispositionRecorded` | `FindingReviewDispositionRecorded` | `GovernanceStickinessController` (`POST /v1/governance/findings/{findingId}/dispositions`); `FindingReviewTrailAppendService` (`RecordDisposition`) |
 | `RiskExceptionCreated` | `RiskExceptionCreated` | `GovernanceStickinessController` (`POST /v1/governance/risk-exceptions`); `RiskExceptionService` |
 | `RiskExceptionRevoked` | `RiskExceptionRevoked` | `GovernanceStickinessController` (`POST /v1/governance/risk-exceptions/{riskExceptionId}/revoke`); `RiskExceptionService` |
@@ -801,6 +803,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.RetryRequested` | `Run.RetryRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteRunAsync` when load maps to `ArchitectureRunStatus.Failed`; scoped tenant/workspace/project + `RunId`) |
 | `Run.SelectiveExecuteRequested` | `Run.SelectiveExecuteRequested` | `RunsController` (`POST /v1/architecture/run/{runId}/execute/selective`) → `ArchitectureRunExecuteOrchestrator` (`ExecuteSelectiveRunAsync`; scoped tenant/workspace/project + `RunId`; payload `includeDependents`, `taskIds`, `agentTypes`) |
 | `Operation.CancelRequested` | `Operation.CancelRequested` | `OperationsController` (`POST /v1/operations/{operationId}/cancel`; TB-2076 cooperative cancel) |
+| `IncrementalReReviewCompleted` | `Run.IncrementalReReviewCompleted` | `SelectiveExecuteIncrementalReReviewCoordinator`; `ClarificationAnswerReReviewCoordinator` |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 

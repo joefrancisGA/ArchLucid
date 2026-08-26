@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { REVIEW_PACKAGE_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 
 export type RoiSummaryPickReviewBeforeSummarizingStripProps = {
@@ -48,7 +49,7 @@ export function RoiSummaryPickReviewBeforeSummarizingStrip(
         Pick a review before summarizing ROI
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        ROI figures are easiest to interpret against a finalized review package. Choose one to keep sponsor context
+        ROI figures are easiest to interpret against a finalized {REVIEW_PACKAGE_LABEL.toLowerCase()}. Choose one to keep sponsor context
         aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -63,7 +64,7 @@ export function RoiSummaryPickReviewBeforeSummarizingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label={REVIEW_PACKAGE_LABEL}
           fieldId="roi-summary-pick-review-before-summarizing"
           hideFieldHelper
         />

@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { REVIEW_PACKAGE_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 
 export type GraphPickReviewBeforeCanvasStripProps = {
@@ -48,7 +49,7 @@ export function GraphPickReviewBeforeCanvasStrip(
         Pick a review before opening the graph
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Evidence trails are scoped to a review package. Choose one to load the interactive canvas.
+        Evidence trails are scoped to an {REVIEW_PACKAGE_LABEL.toLowerCase()}. Choose one to load the interactive canvas.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +63,7 @@ export function GraphPickReviewBeforeCanvasStrip(
           committedOnly={false}
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label={REVIEW_PACKAGE_LABEL}
           fieldId="graph-pick-review-before-canvas"
           hideFieldHelper
         />

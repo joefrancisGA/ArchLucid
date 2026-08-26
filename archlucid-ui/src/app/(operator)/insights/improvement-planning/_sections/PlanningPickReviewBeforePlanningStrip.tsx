@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { REVIEW_PACKAGE_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 
 export type PlanningPickReviewBeforePlanningStripProps = {
@@ -48,7 +49,7 @@ export function PlanningPickReviewBeforePlanningStrip(
         Pick a review before planning
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Themes and plans are easiest to interpret against a finalized review package. Choose one to keep
+        Themes and plans are easiest to interpret against a finalized {REVIEW_PACKAGE_LABEL.toLowerCase()}. Choose one to keep
         improvement context aligned.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
@@ -63,7 +64,7 @@ export function PlanningPickReviewBeforePlanningStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label={REVIEW_PACKAGE_LABEL}
           fieldId="planning-pick-review-before-planning"
           hideFieldHelper
         />

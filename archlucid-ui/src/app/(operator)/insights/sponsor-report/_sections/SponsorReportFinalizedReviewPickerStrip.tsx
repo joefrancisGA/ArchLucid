@@ -8,13 +8,14 @@ import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { Button } from "@/components/ui/button";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { REVIEW_PACKAGE_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 
 export type SponsorReportFinalizedReviewPickerStripProps = {
   readonly hasFinalizedReviews: boolean;
 };
 
-/** Guides sponsors to open a finalized review package before reading aggregate outcomes. */
+/** Guides sponsors to open a finalized architecture package before reading aggregate outcomes. */
 export function SponsorReportFinalizedReviewPickerStrip(
   props: SponsorReportFinalizedReviewPickerStripProps,
 ): React.JSX.Element | null {
@@ -47,7 +48,7 @@ export function SponsorReportFinalizedReviewPickerStrip(
         Pick a finalized review first
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Open the review package behind a row in the timeline before sharing exports with stakeholders.
+        Open the {REVIEW_PACKAGE_LABEL.toLowerCase()} behind a row in the timeline before sharing exports with stakeholders.
       </p>
       <div className="mt-3 flex flex-wrap items-end gap-3">
         <div className="min-w-[16rem] max-w-xl flex-1">
@@ -73,7 +74,7 @@ export function SponsorReportFinalizedReviewPickerStrip(
           disabled={openReviewId.length === 0}
           data-testid="sponsor-report-finalized-review-open"
         >
-          <Link href={openReviewId.length > 0 ? reviewDetailPath(openReviewId) : "#"}>Open review package</Link>
+          <Link href={openReviewId.length > 0 ? reviewDetailPath(openReviewId) : "#"}>Open {REVIEW_PACKAGE_LABEL.toLowerCase()}</Link>
         </Button>
       </div>
     </section>

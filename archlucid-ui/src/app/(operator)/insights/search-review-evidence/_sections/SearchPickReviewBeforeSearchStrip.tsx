@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { REVIEW_PACKAGE_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 
 export type SearchPickReviewBeforeSearchStripProps = {
@@ -48,7 +49,7 @@ export function SearchPickReviewBeforeSearchStrip(
         Pick a review before searching evidence
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Search results are scoped to a review package. Choose one to narrow indexed findings and decisions.
+        Search results are scoped to an {REVIEW_PACKAGE_LABEL.toLowerCase()}. Choose one to narrow indexed findings and decisions.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +63,7 @@ export function SearchPickReviewBeforeSearchStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label={REVIEW_PACKAGE_LABEL}
           fieldId="search-pick-review-before-search"
           hideFieldHelper
         />
