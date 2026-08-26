@@ -2099,6 +2099,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_purview_account_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "purview-1", label: "catalog", sourceId: "azurerm_purview_account.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-catalog")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "purview-1" &&
+            e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_graph_resource_id_has_surrounding_whitespace()
     {
         const string rawArmId =

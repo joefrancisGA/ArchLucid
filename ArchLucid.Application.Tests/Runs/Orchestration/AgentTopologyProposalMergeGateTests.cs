@@ -2325,6 +2325,22 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_purview_account_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "purview-1", label: "catalog", sourceId: "azurerm_purview_account.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-catalog")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_api_connection_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
