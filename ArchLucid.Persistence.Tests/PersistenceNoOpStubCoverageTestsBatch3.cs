@@ -100,6 +100,7 @@ public sealed class PersistenceNoOpStubCoverageTestsBatch3
 
         (await sut.ListAsync(
                 Guid.NewGuid(),
+                Guid.NewGuid(),
                 projectId: null,
                 maxRows: 10,
                 filters: null,

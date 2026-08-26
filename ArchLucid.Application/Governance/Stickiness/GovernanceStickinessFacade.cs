@@ -192,6 +192,7 @@ public sealed partial class GovernanceStickinessFacade(
 
         Task<ArchitectureDecisionRegisterResponse> decisionTask = _decisionRegisterService.GetRegisterAsync(
             scope.TenantId,
+            scope.WorkspaceId,
             resolvedProjectId,
             take,
             filters: new ArchitectureDecisionRegisterQueryOptions(),
@@ -220,6 +221,7 @@ public sealed partial class GovernanceStickinessFacade(
 
         return await _decisionRegisterService.GetRegisterAsync(
             scope.TenantId,
+            scope.WorkspaceId,
             resolvedProjectId,
             Math.Clamp(maxRows, 1, 500),
             filters,

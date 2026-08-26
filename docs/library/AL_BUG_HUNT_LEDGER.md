@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 12
-- **bugs-found:** 38
+- **hunts:** 13
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — realized-value attestation tenant-wide setting key; decisions-needed summary counted foreign-workspace active waivers; architecture risk register omitted workspace filter on findings/disposition SQL
+- **last-bug:** 2026-08-26 — risk-exception list leaked foreign-workspace waivers; decision register SQL omitted workspace filter on golden manifests
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2261,6 +2261,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController` realized-value attestation / `RealizedValueAttestationService` — tenant-wide `RealizedValue.Attestation` setting key leaked cross-workspace attestation reads and writes — **hit 2026-08-26:** workspace-scoped setting key via `ResolveAttestationSettingKey`; regression in `RealizedValueAttestationServiceTests`.
 - [x] (proven) `GovernanceStickinessController.GetDecisionsNeededSummary` / `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — tenant-wide `ListActiveAsync` waiver list inflated `WaiversExpiringWithin14Days` and `TotalDecisionItems` with foreign workspace waivers — **hit 2026-08-26:** `FilterWaiversToScope` on workspace/project; regression in `GovernanceDigestDecisionNeededComposerTests.BuildSummaryAsync_excludes_foreign_workspace_active_waivers`.
 - [x] (proven) `GovernanceStickinessController.GetRiskRegister` / `ArchitectureRiskRegisterReader` — risk register SQL filtered findings by tenant/project only, returning foreign-workspace rows within the same tenant — **hit 2026-08-26:** `WorkspaceId` on disposition CTE, findings filter, and waiver join; service/facade pass ambient workspace; regression in `GovernanceStickinessFacadeScopeTests.GetRiskRegisterAsync_passes_caller_workspace_to_risk_register_service`.
+- [x] (proven) `GovernanceStickinessController.ListRiskExceptions` / `GovernanceStickinessFacade.ListRiskExceptionsAsync` — tenant+project `ListActiveAsync` returned active waivers from foreign workspaces — **hit 2026-08-26:** `RiskExceptionScope.FilterActiveToScope`; regression in `GovernanceStickinessFacadeScopeTests.ListRiskExceptionsAsync_excludes_foreign_workspace_active_waivers`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionRegister` / `ArchitectureDecisionRegisterReader` — decision register SQL filtered golden manifests by tenant/project only, returning foreign-workspace decisions — **hit 2026-08-26:** `WorkspaceId` on manifest join; service/facade pass ambient workspace; regression in `GovernanceStickinessFacadeScopeTests.GetDecisionRegisterAsync_passes_caller_workspace_to_decision_register_service`.
+
+2026-08-26 seed hunt #88: proved risk-exception list workspace filter, decision register workspace SQL filter.
 
 2026-08-26 seed hunt #87: proved realized-value attestation workspace setting isolation, decisions-needed waiver scope, architecture risk register workspace SQL filter.
 

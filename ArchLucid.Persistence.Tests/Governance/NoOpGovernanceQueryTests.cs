@@ -23,7 +23,7 @@ public sealed class NoOpGovernanceQueryTests
         NoOpArchitectureDecisionRegisterQuery sut = new();
 
         IReadOnlyList<ArchitectureDecisionRegisterEntry> rows =
-            await sut.ListAsync(Guid.NewGuid(), Guid.NewGuid(), 50, filters: null, CancellationToken.None);
+            await sut.ListAsync(Guid.NewGuid(), Guid.NewGuid(), null, 50, filters: null, CancellationToken.None);
 
         rows.Should().BeEmpty();
     }

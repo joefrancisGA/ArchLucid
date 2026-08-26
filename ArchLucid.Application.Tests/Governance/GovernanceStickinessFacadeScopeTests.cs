@@ -190,6 +190,77 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task ListRiskExceptionsAsync_excludes_foreign_workspace_active_waivers()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(service => service.ListActiveAsync(
+                CallerScope.TenantId,
+                CallerScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RiskExceptionRecord
+                {
+                    RiskExceptionId = Guid.NewGuid(),
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    FindingId = "f-in-scope",
+                    Status = RiskExceptionStatus.Active,
+                },
+                new RiskExceptionRecord
+                {
+                    RiskExceptionId = Guid.NewGuid(),
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = foreignWorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    FindingId = "f-foreign",
+                    Status = RiskExceptionStatus.Active,
+                },
+            ]);
+
+        GovernanceStickinessFacade sut = CreateSut(riskExceptionService: riskExceptions.Object);
+
+        IReadOnlyList<RiskExceptionRecord> records =
+            await sut.ListRiskExceptionsAsync(projectId: null, CancellationToken.None);
+
+        records.Should().ContainSingle();
+        records[0].FindingId.Should().Be("f-in-scope");
+    }
+
+    [Fact]
+    public async Task GetDecisionRegisterAsync_passes_caller_workspace_to_decision_register_service()
+    {
+        Guid? capturedWorkspaceId = null;
+
+        Mock<IArchitectureDecisionRegisterService> decisions = new();
+        decisions
+            .Setup(service => service.GetRegisterAsync(
+                CallerScope.TenantId,
+                CallerScope.WorkspaceId,
+                CallerScope.ProjectId,
+                It.IsAny<int>(),
+                It.IsAny<ArchitectureDecisionRegisterQueryOptions>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<Guid, Guid, Guid?, int, ArchitectureDecisionRegisterQueryOptions?, CancellationToken>(
+                (_, workspaceId, _, _, _, _) => capturedWorkspaceId = workspaceId)
+            .ReturnsAsync(new ArchitectureDecisionRegisterResponse());
+
+        GovernanceStickinessFacade sut = CreateSut(decisionRegister: decisions.Object);
+
+        await sut.GetDecisionRegisterAsync(
+            projectId: null,
+            maxRows: 25,
+            new ArchitectureDecisionRegisterQueryOptions(),
+            CancellationToken.None);
+
+        capturedWorkspaceId.Should().Be(CallerScope.WorkspaceId);
+    }
+
+    [Fact]
     public async Task GetDecisionRegisterAsync_returns_empty_when_project_id_is_out_of_scope()
     {
         Guid foreignProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

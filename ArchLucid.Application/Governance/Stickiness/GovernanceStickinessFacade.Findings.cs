@@ -145,10 +145,12 @@ public sealed partial class GovernanceStickinessFacade
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return [];
 
-        return await _riskExceptionService.ListActiveAsync(
+        IReadOnlyList<RiskExceptionRecord> records = await _riskExceptionService.ListActiveAsync(
             scope.TenantId,
             resolvedProjectId,
             ct);
+
+        return RiskExceptionScope.FilterActiveToScope(records, scope);
     }
 
     /// <inheritdoc />

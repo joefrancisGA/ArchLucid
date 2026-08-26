@@ -12,6 +12,7 @@ public sealed class ArchitectureDecisionRegisterReader(ISqlConnectionFactory con
 {
     public async Task<IReadOnlyList<ArchitectureDecisionRegisterEntry>> ListAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         int maxRows,
         ArchitectureDecisionRegisterQueryOptions? filters,
@@ -19,6 +20,9 @@ public sealed class ArchitectureDecisionRegisterReader(ISqlConnectionFactory con
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
+        if (workspaceId == Guid.Empty)
+            throw new ArgumentException("Workspace id is required.", nameof(workspaceId));
 
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
@@ -39,7 +43,7 @@ public sealed class ArchitectureDecisionRegisterReader(ISqlConnectionFactory con
                              m.CreatedUtc AS RecordedAtUtc
                       FROM dbo.GoldenManifestDecisions AS d
                       INNER JOIN dbo.GoldenManifests AS m ON m.ManifestId = d.ManifestId
-                      WHERE m.TenantId = @TenantId{projectFilter}
+                      WHERE m.TenantId = @TenantId AND m.WorkspaceId = @WorkspaceId{projectFilter}
                       ORDER BY m.CreatedUtc DESC, d.SortOrder ASC;
                       """;
 
@@ -48,7 +52,7 @@ public sealed class ArchitectureDecisionRegisterReader(ISqlConnectionFactory con
         IEnumerable<DecisionRow> rows = await conn.QueryAsync<DecisionRow>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, ProjectId = projectId, MaxRows = maxRows },
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, MaxRows = maxRows },
                 cancellationToken: cancellationToken));
 
         List<ArchitectureDecisionRegisterEntry> decisions = [];

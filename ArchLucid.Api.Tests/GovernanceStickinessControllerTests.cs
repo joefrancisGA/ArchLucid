@@ -82,6 +82,7 @@ public sealed class GovernanceStickinessControllerTests
         decisionRegister
             .Setup(d => d.GetRegisterAsync(
                 Scope.TenantId,
+                Scope.WorkspaceId,
                 Scope.ProjectId,
                 It.IsAny<int>(),
                 It.IsAny<ArchitectureDecisionRegisterQueryOptions>(),

@@ -15,4 +15,9 @@ internal static class RiskExceptionScope
             && record.WorkspaceId == scope.WorkspaceId
             && record.ProjectId == scope.ProjectId;
     }
+
+    public static IReadOnlyList<RiskExceptionRecord> FilterActiveToScope(
+        IReadOnlyList<RiskExceptionRecord> records,
+        ScopeContext scope) =>
+        records.Where(record => IsVisibleInScope(record, scope)).ToList();
 }
