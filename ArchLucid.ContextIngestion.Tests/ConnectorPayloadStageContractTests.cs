@@ -50,7 +50,7 @@ public sealed class ConnectorPayloadStageContractTests
         NormalizedContextBatch batch = await facade.NormalizeAsync(raw, CancellationToken.None);
 
         batch.CanonicalObjects.Should().ContainSingle();
-        batch.CanonicalObjects[0].Properties["text"].Should().Be("need HA");
+        batch.CanonicalObjects[0].Properties["text"].Should().Be("need ha");
     }
 
     [Fact]
