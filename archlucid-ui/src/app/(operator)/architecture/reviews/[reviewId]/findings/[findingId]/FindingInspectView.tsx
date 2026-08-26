@@ -53,6 +53,7 @@ import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
 import { FindingInspectNextFindingEvidenceFooterClient } from "./_sections/FindingInspectNextFindingEvidenceFooterClient";
+import { RunDetailNextReviewFooterClient } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailNextReviewFooterClient";
 
 /** Compares authority run ids from URL vs API (hyphenated vs `N` GUID, case). */
 export function sameAuthorityRunId(a: string, b: string): boolean {
@@ -309,6 +310,7 @@ export function FindingInspectView({
       />
 
       <FindingInspectNextFindingEvidenceFooterClient runId={runId} findingId={decodedFindingId} />
+      <RunDetailNextReviewFooterClient runId={runId} />
     </OperatorPageContainer>
   );
 }
