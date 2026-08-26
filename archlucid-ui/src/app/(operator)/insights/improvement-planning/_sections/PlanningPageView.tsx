@@ -7,6 +7,7 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
@@ -38,6 +39,10 @@ import {
   writePlanningPickedReviewId,
 } from "@/lib/planning-picked-review-storage";
 import { resolveContinueLastPlanningPlan } from "@/lib/resolve-continue-last-planning-plan";
+import {
+  resolveImprovementPlanningEmphasizedStepId,
+  resolveImprovementPlanningSteps,
+} from "@/lib/improvement-planning-checklist";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { PlanningBuyerChrome } from "./PlanningBuyerChrome";
 import { PlanningContinueLastPlanRow } from "./PlanningContinueLastPlanRow";
@@ -78,6 +83,17 @@ export function PlanningPageView(props: Props) {
     writePlanningPickedReviewId(trimmed);
   }, []);
 
+  const planningChecklistSteps = resolveImprovementPlanningSteps({
+    reviewPicked: selectedReviewId.trim().length > 0,
+    themesReviewed: m.summary !== null && !m.empty,
+    planReady: m.sortedPlans.length > 0 && !m.loading,
+  });
+  const planningChecklistEmphasizedStepId = resolveImprovementPlanningEmphasizedStepId({
+    reviewPicked: selectedReviewId.trim().length > 0,
+    themesReviewed: m.summary !== null && !m.empty,
+    planReady: m.sortedPlans.length > 0 && !m.loading,
+  });
+
   if (m.isDemo) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
@@ -105,7 +121,14 @@ export function PlanningPageView(props: Props) {
           selectedReviewId={selectedReviewId}
           onSelectReview={onSelectReview}
         />
-      ) : null}
+      ) : (
+        <IntegrationConnectChecklist
+          title="Planning checklist"
+          steps={planningChecklistSteps}
+          emphasizedStepId={planningChecklistEmphasizedStepId}
+          testIdPrefix="improvement-planning"
+        />
+      )}
 
       {continueLastPlan !== null && !m.empty ? <PlanningContinueLastPlanRow plan={continueLastPlan} /> : null}
 
