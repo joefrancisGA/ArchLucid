@@ -86,10 +86,12 @@ public sealed class AdminApiKeySettingsService(IOptionsMonitor<ApiKeyAuthenticat
 
     private static AdminApiKeySlot ParseSlot(string? raw)
     {
-        if (string.Equals(raw, "ReadOnly", StringComparison.OrdinalIgnoreCase))
+        string slot = raw?.Trim() ?? string.Empty;
+
+        if (string.Equals(slot, "ReadOnly", StringComparison.OrdinalIgnoreCase))
             return AdminApiKeySlot.ReadOnly;
 
-        if (string.Equals(raw, "Admin", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(slot, "Admin", StringComparison.OrdinalIgnoreCase))
             return AdminApiKeySlot.Admin;
 
         throw new ArgumentException("Slot must be Admin or ReadOnly.", nameof(raw));

@@ -102,6 +102,23 @@ public sealed class AdminApiKeySettingsServiceTests
         snapshot.ReadOnly.ExpiresAtUtc.Should().Be(readerExpires);
     }
 
+    [Fact]
+    public void Rotate_with_padded_slot_string_succeeds()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = " Admin ", InvalidatePrevious = true });
+
+        response.Slot.Should().Be("Admin");
+        response.DeploymentAction.Should().Be("Replace");
+    }
+
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
     {
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();
