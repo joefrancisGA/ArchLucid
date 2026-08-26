@@ -21,6 +21,7 @@ import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_FINDINGS_PATH,
+  governanceApprovalQueueHref,
   GOVERNANCE_POLICY_PACKS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import {
@@ -80,6 +81,7 @@ export type GovernanceOverviewPanelProps = {
   readonly onFocusSubmit: () => FocusSubmitSectionResult;
   readonly onFocusPending: () => void;
   readonly listsLoading: boolean;
+  readonly hubScopedRunId?: string;
 };
 
 type OverviewLoadState =
