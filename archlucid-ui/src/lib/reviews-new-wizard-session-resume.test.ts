@@ -1,12 +1,14 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   consumeReviewsNewWizardAutoRestore,
+  dispatchReviewsNewWizardContinueRequested,
   findResumableReviewsNewWizardSession,
   requestReviewsNewWizardAutoRestore,
   reviewsNewGuidedIntakeHasSaveableContent,
   reviewsNewQuickStartHasSaveableContent,
   reviewsNewTemplatesHasSaveableContent,
+  reviewsNewWizardPathIsActive,
 } from "@/lib/reviews-new-wizard-session-resume";
 import {
   WIZARD_SESSION_IDS,
@@ -46,6 +48,28 @@ describe("reviews-new-wizard-session-resume", () => {
 
     expect(consumeReviewsNewWizardAutoRestore(WIZARD_SESSION_IDS.reviewsNewQuickStart)).toBe(true);
     expect(consumeReviewsNewWizardAutoRestore(WIZARD_SESSION_IDS.reviewsNewQuickStart)).toBe(false);
+  });
+
+  it("treats bare path as quick-review for resume targeting", () => {
+    expect(reviewsNewWizardPathIsActive("", "quick-review")).toBe(true);
+    expect(reviewsNewWizardPathIsActive("quick-review", "quick-review")).toBe(true);
+    expect(reviewsNewWizardPathIsActive("", "guided-intake")).toBe(false);
+    expect(reviewsNewWizardPathIsActive("guided-intake", "guided-intake")).toBe(true);
+  });
+
+  it("dispatches continue requested event with wizard id", () => {
+    const listener = vi.fn();
+
+    window.addEventListener("archlucid:reviews-new-wizard-continue", listener);
+
+    dispatchReviewsNewWizardContinueRequested(WIZARD_SESSION_IDS.reviewsNewQuickStart);
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect((listener.mock.calls[0]?.[0] as CustomEvent).detail).toEqual({
+      wizardId: WIZARD_SESSION_IDS.reviewsNewQuickStart,
+    });
+
+    window.removeEventListener("archlucid:reviews-new-wizard-continue", listener);
   });
 
   it("matches wizard saveable predicates", () => {
