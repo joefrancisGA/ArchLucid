@@ -529,9 +529,11 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
         if (cacheManifest is not null)
         {
-            _reviewResultCache.Set(cacheManifest, result);
-
-            if (!string.IsNullOrWhiteSpace(effectiveRequest.RunId))
+            if (string.IsNullOrWhiteSpace(effectiveRequest.RunId))
+            {
+                _reviewResultCache.Set(cacheManifest, result);
+            }
+            else
             {
                 IReadOnlyList<TechnologyLedgerEntry>? postSaveLedgerEntries =
                     await TryLoadLedgerEntriesAsync(runId, cancellationToken);
@@ -539,13 +541,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 ReviewCacheDependencyManifest postSaveManifest =
                     ReviewCacheManifestBuilder.Build(effectiveRequest, model, postSaveLedgerEntries);
 
-                if (!string.Equals(
-                        postSaveManifest.ContentHash,
-                        cacheManifest.ContentHash,
-                        StringComparison.Ordinal))
-                {
-                    _reviewResultCache.Set(postSaveManifest, result);
-                }
+                _reviewResultCache.Set(postSaveManifest, result);
             }
         }
 
