@@ -1,3 +1,4 @@
+import { formatStepProgressCompleteLabel } from "@/lib/step-progress-label";
 import type { CorePilotProgressSnapshot } from "@/lib/usability/core-pilot-progress-tracker";
 
 export const PERSISTENT_WORKSPACE_FIRST_REVIEW_HEADLINE = "First review progress" as const;
@@ -21,7 +22,7 @@ export function resolvePersistentWorkspaceNextAction(
     return null;
   }
 
-  const progressDetail = `${progress.completedCount} of ${progress.totalCount} steps complete`;
+  const progressDetail = formatStepProgressCompleteLabel(progress.completedCount, progress.totalCount);
 
   if (nextStepHref === null || nextStepLabel === null) {
     return {

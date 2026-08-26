@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { PersistentWorkspaceNextActionStrip } from "@/components/usability/PersistentWorkspaceNextActionStrip";
@@ -42,5 +42,20 @@ describe("PersistentWorkspaceNextActionStrip", () => {
       "href",
       "/architecture/first-review-guide",
     );
+  });
+
+  it("renders the step count and a progress meter so completion is readable at a glance", () => {
+    renderWithOperatorQuery(<PersistentWorkspaceNextActionStrip />);
+
+    const countLabel = `0 of ${CORE_PILOT_STEPS.length} steps complete`;
+
+    expect(screen.getByTestId("persistent-workspace-progress-count")).toHaveTextContent(countLabel);
+
+    const meter = screen.getByTestId("persistent-workspace-progress-meter");
+
+    expect(meter).toHaveAttribute("role", "progressbar");
+    expect(meter).toHaveAttribute("aria-valuenow", "0");
+    expect(meter).toHaveAttribute("aria-valuetext", countLabel);
+    expect(meter).toHaveAccessibleName(PERSISTENT_WORKSPACE_FIRST_REVIEW_HEADLINE);
   });
 });
