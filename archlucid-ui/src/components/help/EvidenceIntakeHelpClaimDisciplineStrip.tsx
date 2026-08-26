@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils";
 export function EvidenceIntakeHelpClaimDisciplineStrip(): React.JSX.Element {
   return (
     <aside
-      className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
+      className={cn(DESIGN_TOKENS.callout.info, "p-3")}
       data-testid="evidence-intake-help-claim-discipline"
     >
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{EVIDENCE_INTAKE_HELP_CLAIM_DISCIPLINE}</p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{EVIDENCE_INTAKE_HELP_CLAIM_DISCIPLINE}</p>
     </aside>
   );
 }

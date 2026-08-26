@@ -14,7 +14,11 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { EVIDENCE_INTAKE_HELP_PRIMARY_ACTION } from "@/lib/evidence-intake-help-evidence-copy";
-import { EVIDENCE_INTAKE_HELP_HERO_OVERVIEW } from "@/lib/evidence-intake-help-guide-content";
+import {
+  buildEvidenceIntakeHelpTocHeadings,
+  EVIDENCE_INTAKE_HELP_HERO_OVERVIEW,
+  EVIDENCE_INTAKE_HELP_RELATED_GUIDES_TITLE,
+} from "@/lib/evidence-intake-help-guide-content";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import {
@@ -38,7 +42,8 @@ export function HelpEvidenceIntakeGuideView(props: HelpEvidenceIntakeGuideViewPr
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const markdownHeadings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const headings = buildEvidenceIntakeHelpTocHeadings(markdownHeadings);
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
   const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
@@ -55,36 +60,37 @@ export function HelpEvidenceIntakeGuideView(props: HelpEvidenceIntakeGuideViewPr
         primaryAction={EVIDENCE_INTAKE_HELP_PRIMARY_ACTION}
       />
 
+      <EvidenceIntakeHelpClaimDisciplineStrip />
+
       <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="extract-upload" />
 
-      <div
-        className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
-        data-testid="help-evidence-intake-first-viewport"
-      >
-        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="help-evidence-intake-overview">
-          {EVIDENCE_INTAKE_HELP_HERO_OVERVIEW}
-        </p>
-
-        <HelpEvidenceIntakeAcceptedFormatsTable />
-
-        <div className={cn("min-w-0", HELP_PAGE_LAYOUT.contentColumn)} data-testid="help-evidence-intake-reference">
-          <MarketingAccessibilityMarkdownFragment
-            markdownBody={markdown}
-            tableCaption={`${entry.title} reference table`}
-            presentation="help"
-            sourceDocPath={sourceDocPath}
-            helpTopicSlug={entry.slug}
-            preparedMarkdownOverride={preparedMarkdown}
-          />
-        </div>
-      </div>
-
       <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")} data-testid="help-evidence-intake-secondary">
-          <HelpEvidenceIntakePathStrip />
-          <HelpEvidenceIntakeFindingCoverageTable />
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")} data-testid="help-evidence-intake-primary">
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="help-evidence-intake-overview"
+          >
+            {EVIDENCE_INTAKE_HELP_HERO_OVERVIEW}
+          </p>
+
+          <div className="space-y-6" data-testid="help-evidence-intake-first-viewport">
+            <HelpEvidenceIntakePathStrip />
+            <HelpEvidenceIntakeAcceptedFormatsTable />
+
+            <div className="min-w-0" data-testid="help-evidence-intake-reference">
+              <MarketingAccessibilityMarkdownFragment
+                markdownBody={markdown}
+                tableCaption={`${entry.title} reference table`}
+                presentation="help"
+                sourceDocPath={sourceDocPath}
+                helpTopicSlug={entry.slug}
+                preparedMarkdownOverride={preparedMarkdown}
+              />
+            </div>
+          </div>
+
           <HelpEvidenceIntakeVerifyIntakePanel />
-          <EvidenceIntakeHelpClaimDisciplineStrip />
+          <HelpEvidenceIntakeFindingCoverageTable />
 
           <section
             aria-labelledby="help-evidence-intake-related-heading"
@@ -96,7 +102,7 @@ export function HelpEvidenceIntakeGuideView(props: HelpEvidenceIntakeGuideViewPr
               id="help-evidence-intake-related-heading"
               className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
             >
-              Related guides
+              {EVIDENCE_INTAKE_HELP_RELATED_GUIDES_TITLE}
             </h2>
             <div className="mt-2">
               <HelpEvidenceIntakeRelatedGuidesLinks />

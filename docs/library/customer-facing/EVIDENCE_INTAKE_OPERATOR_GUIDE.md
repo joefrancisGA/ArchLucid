@@ -20,7 +20,7 @@ On [**New architecture review**](/architecture/reviews/new), pick the path that 
 
 | Path | Best when |
 | --- | --- |
-| [**Quick start**](/architecture/reviews/new?path=quick-review) | You want the fastest first review: title, optional attachments, and start analysis on one screen. |
+| [**Quick start**](/architecture/reviews/new?path=quick-review) | You want the fastest first review: title, optional attachments, required baseline clarifications, then start analysis on one screen. |
 | [**Guided questions**](/architecture/reviews/new?path=guided-intake) | You want clarifying questions and admission gates before analysis begins. |
 | [**Templates and imports**](/architecture/reviews/new?path=detailed) | You need templates, imports, or fuller configuration for an export-ready architecture package. |
 
@@ -28,11 +28,9 @@ You can switch paths before you start the review. Each path uses the same eviden
 
 ## Upload mechanics and validation {#upload-mechanics-and-validation}
 
-Use **Browse files** or **Browse folder** in the evidence upload area, or drag files into the drop zone.
-
-**Accepted extensions** include PDF, DOCX, Markdown, text, JSON, YAML, Terraform (`.tf`), Bicep (`.bicep`), cloud inventory ZIP, and common image formats. Export Visio to PDF or PNG before uploading. If validation fails, the wizard shows a specific message — for example, an unsupported file type or a cloud inventory ZIP that does not match the expected layout. Fix the file and upload again; you do not need to restart the whole review.
-
-For cloud evidence, connect the right cloud account first from **Cloud connections** in settings, then follow the extractor guidance for that provider.
+- **Drag files or browse** — use Browse files, Browse folder, or drag into the drop zone.
+- **Validation is immediate** — unsupported types and malformed cloud inventory ZIPs show a specific message before analysis starts; fix the file and upload again.
+- **Cloud evidence** — connect the account from **Cloud connections**, then follow the extractor guidance for that provider.
 
 ## Verify intake before finalize {#verify-intake-before-finalize}
 
