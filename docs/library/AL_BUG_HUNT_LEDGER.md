@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 58
-- **bugs-found:** 120
+- **hunts:** 59
+- **bugs-found:** 125
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — simple-terraform nested block sensitive redaction and arm-json nested child resources
+- **last-bug:** 2026-08-26 — K8s YAML padded separator and arm-json deployment-wrapper child recursion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1973,6 +1973,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ContextIngestionService.CanonicalizeActorsJson` preserved actor label value casing — **hit 2026-08-26:** `"Ops Engineer"` vs `ops engineer` churned `SourceHashes[Actors]`; fixed by lowercasing trimmed labels before serialize (`ContextIngestionServiceTests.IngestAsync_ActorsJsonLabelValueCasing_ProducesStableScopeMetadata`).
 - [x] (proven) `CanonicalInfrastructurePropertyBag.NormalizeHclBlockBody` preserved nested HCL assignment order — **hit 2026-08-26:** reversed `site_config` assignments false-modified infra declaration deltas; fixed with stable sort of block assignments (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlockAssignmentOrder_ProducesEquivalentTfProperties`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser.ParseAsync` ignored nested child `resources` arrays — **hit 2026-08-26:** VNet child `subnets` resources were dropped from canonical batch; fixed by recursing nested ARM resources with composed type/name (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_NestedChildResources_MapsSubnetUnderVnet`).
+- [x] (proven) `KubernetesYamlInfrastructureDeclarationParser` split multi-doc manifests only on exact `\n---` tokens — **hit 2026-08-26:** leading-space document separators (` ---`) dropped trailing YAML documents; fixed with `^\s*---\s*$` split (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_MultiDocWithPaddedDocumentSeparator_MapsAllDocuments`).
+- [x] (proven) `KubernetesJsonInfrastructureDeclarationParser` ignored root JSON arrays — **hit 2026-08-26:** `[{Deployment…},{NetworkPolicy…}]` returned zero resources; fixed by expanding root arrays before `MapDocuments` (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_RootArray_MapsMultipleItems`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` returned before recursing `Microsoft.Resources/deployments` children — **hit 2026-08-26:** subnet resources nested under deployment wrappers were dropped; fixed by recursing deployment children with parent vnet context (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_NestedDeploymentWrapper_MapsChildSubnetResources`).
+- [x] (proven) `ContextIngestionService.ApplyScopeMetadata` joined duplicate scope list entries — **hit 2026-08-26:** `["prod/vnet","prod/vnet"]` churned topology-hints scope metadata hashes; fixed with `Distinct` before join (`ContextIngestionServiceTests.IngestAsync_TopologyHintsDuplicateEntries_ProducesStableScopeMetadata`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` / `CanonicalInfrastructureJsonValue` preserved order-dependent duplicate casing keys — **hit 2026-08-26:** `Environment`/`environment` property order changed `tf.environment`; fixed with lowercase-key grouping and ordinal-first property selection (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_DuplicateCasingPropertyKeys_Order_ProducesEquivalentTfProperties`).
+
+2026-08-26 seed hunt #59: reseeded K8s YAML separator drift, K8s JSON root array, ARM deployment-wrapper children, scope-metadata duplicate lists, and canonical JSON duplicate casing keys; proved all five rows.
 
 2026-08-26 seed hunt #58: reseeded nested sensitive block redaction, padded topology sensitivity, actor label casing, nested HCL assignment order, and arm-json nested child resources; proved all five rows.
 

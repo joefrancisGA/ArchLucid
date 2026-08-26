@@ -70,7 +70,16 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             return;
 
         if (resourceType.Equals("Microsoft.Resources/deployments", StringComparison.OrdinalIgnoreCase))
+        {
+            if (TryGetPropertyIgnoreCase(resource, "resources", out JsonElement deploymentChildren)
+                && deploymentChildren.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement nestedResource in deploymentChildren.EnumerateArray())
+                    TryAddResource(nestedResource, declaration, results, parentName, parentResourceType);
+            }
+
             return;
+        }
 
         if (!TryGetPropertyIgnoreCase(resource, "name", out JsonElement nameElement))
             return;
@@ -171,7 +180,12 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
 
     private static void CopyBoundedProperties(JsonElement propertiesObject, Dictionary<string, string> properties)
     {
-        foreach (JsonProperty property in propertiesObject.EnumerateObject())
+        foreach (JsonProperty property in propertiesObject.EnumerateObject()
+                     .GroupBy(static property =>
+                         CanonicalInfrastructurePropertyBag.SanitizePropertyKey(property.Name).ToLowerInvariant(),
+                         StringComparer.Ordinal)
+                     .OrderBy(static group => group.Key, StringComparer.Ordinal)
+                     .Select(static group => group.OrderBy(static property => property.Name, StringComparer.Ordinal).First()))
         {
             if (CanonicalInfrastructurePropertyBag.CountTfProperties(properties) >= CanonicalInfrastructurePropertyBag.MaxTfPropertyCount)
                 break;

@@ -61,7 +61,9 @@ internal static class CanonicalInfrastructureJsonValue
                 writer.WriteStartObject();
 
                 foreach (JsonProperty property in value.EnumerateObject()
-                             .OrderBy(static property => property.Name, StringComparer.OrdinalIgnoreCase))
+                             .GroupBy(static property => property.Name.ToLowerInvariant(), StringComparer.Ordinal)
+                             .OrderBy(static group => group.Key, StringComparer.Ordinal)
+                             .Select(static group => group.OrderBy(static property => property.Name, StringComparer.Ordinal).First()))
                 {
                     writer.WritePropertyName(property.Name.ToLowerInvariant());
                     WriteCanonicalJsonValue(writer, property.Value, property.Name);

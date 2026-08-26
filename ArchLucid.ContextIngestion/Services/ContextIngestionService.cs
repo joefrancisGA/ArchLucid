@@ -66,6 +66,7 @@ public class ContextIngestionService(
                 string.Join('|', request.RequiredCapabilities
                     .Where(static c => !string.IsNullOrWhiteSpace(c))
                     .Select(static c => c.Trim().ToLowerInvariant())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
                     .OrderBy(static c => c, StringComparer.OrdinalIgnoreCase));
         }
 
@@ -76,6 +77,7 @@ public class ContextIngestionService(
                     .Where(static h => !string.IsNullOrWhiteSpace(h))
                     .Select(static h =>
                         TopologyHintStableObjectIds.CanonicalizeHintName(h.Trim()).ToLowerInvariant())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
                     .OrderBy(static h => h, StringComparer.OrdinalIgnoreCase));
         }
 
@@ -85,12 +87,14 @@ public class ContextIngestionService(
                 string.Join('|', request.Constraints
                     .Where(static c => !string.IsNullOrWhiteSpace(c))
                     .Select(static c => c.Trim().ToLowerInvariant())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
                     .OrderBy(static c => c, StringComparer.OrdinalIgnoreCase));
         }
 
         List<string> confirmedAssumptions = request.Assumptions
             .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
             .Select(static a => a.Trim().ToLowerInvariant())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(static a => a, StringComparer.OrdinalIgnoreCase)
             .ToList();
 

@@ -393,4 +393,101 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
         result.Should().ContainSingle(o => o.Name == "hub-vnet");
         result.Should().ContainSingle(o => o.Name == "hub-vnet/subnet-a");
     }
+
+    [Fact]
+    public async Task ParseAsync_NestedDeploymentWrapper_MapsChildSubnetResources()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-deployment-wrapper",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Network/virtualNetworks",
+                            "name": "hub-vnet",
+                            "properties": {},
+                            "resources": [
+                              {
+                                "type": "Microsoft.Resources/deployments",
+                                "name": "nestedDeployment",
+                                "properties": {},
+                                "resources": [
+                                  {
+                                    "type": "subnets",
+                                    "name": "subnet-a",
+                                    "properties": {
+                                      "addressPrefix": "10.0.1.0/24"
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(o => o.Name == "hub-vnet");
+        result.Should().ContainSingle(o => o.Name == "hub-vnet/subnet-a");
+    }
+
+    [Fact]
+    public async Task ParseAsync_DuplicateCasingPropertyKeys_Order_ProducesEquivalentTfProperties()
+    {
+        InfrastructureDeclarationReference firstOrder = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "d-arm-dup-keys",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Resources/tags",
+                            "name": "env",
+                            "properties": {
+                              "Environment": "Prod",
+                              "environment": "dev"
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        InfrastructureDeclarationReference reversedOrder = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "d-arm-dup-keys",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Resources/tags",
+                            "name": "env",
+                            "properties": {
+                              "environment": "dev",
+                              "Environment": "Prod"
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> firstObjects = await _sut.ParseAsync(firstOrder, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> reversedObjects = await _sut.ParseAsync(reversedOrder, CancellationToken.None);
+
+        firstObjects.Should().ContainSingle();
+        reversedObjects.Should().ContainSingle();
+        reversedObjects[0].Properties.Should().BeEquivalentTo(firstObjects[0].Properties);
+    }
 }

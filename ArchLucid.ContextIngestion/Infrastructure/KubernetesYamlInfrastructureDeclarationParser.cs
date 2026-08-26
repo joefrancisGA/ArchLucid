@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 using ArchLucid.ContextIngestion.Models;
 
@@ -36,9 +37,7 @@ public sealed class KubernetesYamlInfrastructureDeclarationParser(
 
         try
         {
-            string[] documents = declaration.Content.Split(
-                new[] { "\n---", "\r\n---" },
-                StringSplitOptions.RemoveEmptyEntries);
+            string[] documents = SplitYamlDocuments(declaration.Content);
 
             List<JsonElement> jsonDocuments = [];
 
@@ -73,5 +72,12 @@ public sealed class KubernetesYamlInfrastructureDeclarationParser(
 
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
         }
+    }
+
+    private static string[] SplitYamlDocuments(string content)
+    {
+        return Regex.Split(content, @"^\s*---\s*$", RegexOptions.Multiline)
+            .Where(static document => !string.IsNullOrWhiteSpace(document))
+            .ToArray();
     }
 }
