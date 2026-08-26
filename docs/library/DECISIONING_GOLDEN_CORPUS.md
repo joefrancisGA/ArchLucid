@@ -73,6 +73,10 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 
 **Policy-filter contract (sibling tests):** `GoldenCorpusHarness.CreateEngines()` constructs `FileComplianceRulePackProvider` directly (**eight** engines: six baseline slice + `DeclarationSecurityBaselineFindingEngine` + `DeclarationPremiseConflictFindingEngine`, unfiltered pack). `PolicyFilteredGoldenCorpusTests` runs `ComplianceFindingEngine` twice on a fixed graph with two different `PolicyPackContentDocument.ComplianceRuleKeys` postures and asserts the compliance finding rule ids differ. `PolicyFilteredDeclarationGoldenCorpusTests` runs `DeclarationSecurityBaselineFindingEngine` with two filtered packs (`soc2-004` vs `cis-az-006`) and asserts declaration findings differ. `PolicyExpectationCoverageGoldenCorpusTests` runs `TopologyCoverageFindingEngine` on one graph with and without a stamped `identity` topology extra and asserts missing categories differ. Summary artifact: `docs/quality/policy-filter-golden-delta.md`. These do **not** exercise `PolicyFilteredComplianceRulePackProvider` or tenant curated-rule merger — only filtered pack injection or graph stamping in tests.
 
+### Non-goal: production governance loader in the harness (WK-22)
+
+`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-34` depend on tenant pack seeds and break bit-stability. Policy filter and expectation stamps stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`).
+
 ---
 
 ## How to refresh or add cases
