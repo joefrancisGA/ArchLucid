@@ -82,12 +82,32 @@ describe("EvidenceOrientationSourcesSection", () => {
     }
   });
 
-  it("tags admin-only destinations so operators know access is restricted", () => {
+  it("omits administration and internal destinations from Where to go next strips", () => {
+    render(
+      <EvidenceOrientationSourcesSection
+        testId="preferences-settings-sources"
+        headingId="preferences-settings-sources-heading"
+        title="Where to go next"
+        intro="Follow-ups."
+        links={[
+          { label: "Getting started", href: "/help/getting-started" },
+          { label: "Users and roles", href: "/administration/users", adminOnly: true },
+          { label: "Sign-in methods", href: "/account/security" },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Read Getting started" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open Sign-in methods" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Users and roles/i })).not.toBeInTheDocument();
+  });
+
+  it("still tags admin-only destinations on non-Where to go next follow-up strips", () => {
     render(
       <EvidenceOrientationSourcesSection
         testId="report-a-problem-help-sources"
         headingId="report-a-problem-help-sources-heading"
-        title="Where to go next"
+        title="Related resources"
         intro="Follow-ups."
         links={[{ label: "Support inbox", href: "/administration/support", adminOnly: true }]}
       />,
