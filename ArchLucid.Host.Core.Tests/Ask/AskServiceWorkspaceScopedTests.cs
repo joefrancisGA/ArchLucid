@@ -1,21 +1,13 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Ask;
 using ArchLucid.Core.Ask;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Services.Ask;
-using ArchLucid.Core.Retrieval;
-using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Retrieval.Indexing;
-using ArchLucid.Persistence.Queries;
-using ArchLucid.Provenance;
 
 using FluentAssertions;
-
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -171,29 +163,10 @@ public sealed class AskServiceWorkspaceScopedTests
         retrieval ??= new Mock<IRetrievalQueryService>();
         llm ??= new Mock<IAgentCompletionClient>();
 
-        Mock<IOptionsMonitor<AskComparisonNarrativeOptions>> askOptions = new();
-        askOptions.Setup(monitor => monitor.CurrentValue).Returns(new AskComparisonNarrativeOptions());
-
-        Mock<IOptionsMonitor<ConversationContextOptions>> contextOptions = new();
-        contextOptions.Setup(monitor => monitor.CurrentValue).Returns(new ConversationContextOptions());
-
-        Mock<IOptionsMonitor<AskRetrievalOptions>> askRetrievalOptions = new();
-        askRetrievalOptions.Setup(monitor => monitor.CurrentValue).Returns(new AskRetrievalOptions());
-
-        return new AskService(
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IProvenanceQueryService>(),
-            new ArchLucid.Decisioning.Comparison.ComparisonService(),
-            llm.Object,
-            conversationService.Object,
-            Mock.Of<IFindingInspectReadRepository>(),
-            retrieval.Object,
-            Mock.Of<IRetrievalDocumentBuilder>(),
-            Mock.Of<IRetrievalIndexingService>(),
-            askOptions.Object,
-            Mock.Of<IConversationContextCompressor>(),
-            contextOptions.Object,
-            askRetrievalOptions.Object,
-            NullLogger<AskService>.Instance);
+        return AskServiceTestFactory.Create(
+            llm: llm.Object,
+            conversationService: conversationService.Object,
+            comparison: new ArchLucid.Decisioning.Comparison.ComparisonService(),
+            retrievalQuery: retrieval.Object);
     }
 }

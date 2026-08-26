@@ -1,6 +1,7 @@
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application.Ask;
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Ask;
-using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Manifest;
@@ -8,19 +9,13 @@ using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.Application.Ask;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Services.Ask;
-using ArchLucid.Core.Retrieval;
-using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
-using ArchLucid.Contracts.Persistence.Graph;
 
 using FluentAssertions;
 
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -233,27 +228,13 @@ public sealed class AskServiceComparisonNarrativeTests
             .Setup(monitor => monitor.CurrentValue)
             .Returns(new AskComparisonNarrativeOptions { GenerateComparisonNarrative = generateComparisonNarrative });
 
-        Mock<IOptionsMonitor<ConversationContextOptions>> contextOptions = new();
-        contextOptions.Setup(monitor => monitor.CurrentValue).Returns(new ConversationContextOptions());
-
-        Mock<IOptionsMonitor<AskRetrievalOptions>> askRetrievalOptions = new();
-        askRetrievalOptions.Setup(monitor => monitor.CurrentValue).Returns(new AskRetrievalOptions());
-
-        AskService sut = new(
-            authority.Object,
-            provenance.Object,
-            new ComparisonService(),
-            llm.Object,
-            conversationService.Object,
-            Mock.Of<IFindingInspectReadRepository>(),
-            Mock.Of<IRetrievalQueryService>(),
-            Mock.Of<IRetrievalDocumentBuilder>(),
-            Mock.Of<IRetrievalIndexingService>(),
-            askOptions.Object,
-            Mock.Of<IConversationContextCompressor>(),
-            contextOptions.Object,
-            askRetrievalOptions.Object,
-            NullLogger<AskService>.Instance);
+        AskService sut = AskServiceTestFactory.Create(
+            llm: llm.Object,
+            conversationService: conversationService.Object,
+            query: authority.Object,
+            provenanceQuery: provenance.Object,
+            comparison: new ComparisonService(),
+            askComparisonNarrativeOptions: askOptions.Object);
 
         return (sut, llm, scope);
     }
