@@ -8,12 +8,10 @@ import { PilotFeedbackHelpClaimDisciplineStrip } from "@/components/help/PilotFe
 import { PilotFeedbackHelpEvidenceOrientationStrip } from "@/components/help/PilotFeedbackHelpEvidenceOrientationStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -121,31 +119,30 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
 
       <PilotFeedbackHelpClaimDisciplineStrip />
 
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950"
-          data-testid="help-pilot-feedback-action-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+          <PilotFeedbackHelpEvidenceOrientationStrip />
+
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-pilot-feedback-overview">
+            {PILOT_FEEDBACK_HELP_OVERVIEW}
+          </p>
+
+          <section
+            className="space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-pilot-feedback-action-panel"
+            aria-labelledby="help-pilot-feedback-action-panel-heading"
+          >
+            <h2
+              id="help-pilot-feedback-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
               Admin pilot-feedback workflow
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "space-y-4")}>
+            </h2>
             <PilotFeedbackWorkflowStepper />
             <Button asChild size="sm" variant="outline">
               <Link href={PILOT_FEEDBACK_HELP_PRIMARY_ACTION.href}>{PILOT_FEEDBACK_HELP_PRIMARY_ACTION.label}</Link>
             </Button>
-          </CardContent>
-        </Card>
-
-      </div>
-
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-pilot-feedback-overview">
-            {PILOT_FEEDBACK_HELP_OVERVIEW}
-          </p>
+          </section>
 
           <section
             aria-labelledby="help-pilot-feedback-job-matrix-heading"
@@ -190,8 +187,6 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
               helpTopicSlug={entry.slug}
             />
           </div>
-
-          <PilotFeedbackHelpEvidenceOrientationStrip />
         </div>
 
         {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}

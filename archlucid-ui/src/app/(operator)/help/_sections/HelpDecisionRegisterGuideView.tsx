@@ -1,15 +1,15 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { DecisionRegisterHelpClaimDisciplineStrip } from "@/components/help/DecisionRegisterHelpClaimDisciplineStrip";
 import { DecisionRegisterHelpEvidenceOrientationStrip } from "@/components/help/DecisionRegisterHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
-  DECISION_REGISTER_HELP_BREADCRUMB_TOPIC_TITLE,
   DECISION_REGISTER_HELP_GUIDE_HEADINGS,
   DECISION_REGISTER_HELP_HOW_TO_READ_STEPS,
   DECISION_REGISTER_HELP_OVERVIEW,
@@ -19,13 +19,13 @@ import {
   DECISION_REGISTER_HELP_START_HERE_CARD_TITLE,
   DECISION_REGISTER_HELP_START_HERE_HELPER,
   DECISION_REGISTER_HELP_START_HERE_PRECONDITION,
+  DECISION_REGISTER_HELP_CLAIM_HEADING_ID,
   DECISION_REGISTER_HELP_FIELD_EXAMPLES,
   DECISION_REGISTER_HELP_TILE_ITEMS,
 } from "@/lib/decision-register-help-guide-content";
 import { DECISION_REGISTER_HELP_CANONICAL_PATH } from "@/lib/decision-register-help-evidence-copy";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -53,7 +53,12 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Decision register orientation for `/help/decision-register`. */
 export function HelpDecisionRegisterGuideView(props: HelpDecisionRegisterGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(DECISION_REGISTER_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-decision-register",
+    DECISION_REGISTER_HELP_GUIDE_HEADINGS,
+    DECISION_REGISTER_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -73,38 +78,45 @@ export function HelpDecisionRegisterGuideView(props: HelpDecisionRegisterGuideVi
         actions={<PageContextualHelpButton />}
       />
 
+      <DecisionRegisterHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <DecisionRegisterHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+
           <p className={readingBodyClass} data-testid="help-decision-register-overview">
             {DECISION_REGISTER_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-decision-register-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {DECISION_REGISTER_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <aside
-                className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
-                data-testid="help-decision-register-start-here-precondition"
-              >
-                <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{DECISION_REGISTER_HELP_START_HERE_PRECONDITION}</p>
-              </aside>
-              <Button asChild size="sm" variant="primary">
-                <Link href={DECISION_REGISTER_HELP_PRIMARY_ACTION.href}>
-                  {DECISION_REGISTER_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-decision-register-start-here-helper"
-              >
-                {DECISION_REGISTER_HELP_START_HERE_HELPER}
-              </p>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-decision-register-action-panel"
+            aria-labelledby="help-decision-register-action-panel-heading"
+          >
+            <h2
+              id="help-decision-register-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {DECISION_REGISTER_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <aside
+              className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
+              data-testid="help-decision-register-start-here-precondition"
+            >
+              <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{DECISION_REGISTER_HELP_START_HERE_PRECONDITION}</p>
+            </aside>
+            <Button asChild size="sm" variant="primary">
+              <Link href={DECISION_REGISTER_HELP_PRIMARY_ACTION.href}>
+                {DECISION_REGISTER_HELP_PRIMARY_ACTION.label}
+              </Link>
+            </Button>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-decision-register-start-here-helper"
+            >
+              {DECISION_REGISTER_HELP_START_HERE_HELPER}
+            </p>
+          </section>
 
           <section
             aria-labelledby="what-decision-register-shows"
@@ -150,11 +162,9 @@ export function HelpDecisionRegisterGuideView(props: HelpDecisionRegisterGuideVi
               ))}
             </ol>
           </section>
-
-          <DecisionRegisterHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
         </div>
 
-        <HelpTopicTableOfContents headings={DECISION_REGISTER_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );

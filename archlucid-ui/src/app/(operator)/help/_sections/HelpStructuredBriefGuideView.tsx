@@ -1,13 +1,14 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { StructuredBriefHelpClaimDisciplineStrip } from "@/components/help/StructuredBriefHelpClaimDisciplineStrip";
 import { StructuredBriefHelpEvidenceOrientationStrip } from "@/components/help/StructuredBriefHelpEvidenceOrientationStrip";
-import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -16,7 +17,7 @@ import {
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
-  STRUCTURED_BRIEF_HELP_BREADCRUMB_TOPIC_TITLE,
+  STRUCTURED_BRIEF_HELP_CLAIM_HEADING_ID,
   STRUCTURED_BRIEF_HELP_CONCEPT_ITEMS,
   STRUCTURED_BRIEF_HELP_GUIDE_HEADINGS,
   STRUCTURED_BRIEF_HELP_HOW_TO_READ_STEPS,
@@ -51,7 +52,12 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const contentGridClass = resolveHelpPageContentGridClass(STRUCTURED_BRIEF_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-structured-brief",
+    STRUCTURED_BRIEF_HELP_GUIDE_HEADINGS,
+    STRUCTURED_BRIEF_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -75,20 +81,17 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
         subtitle={structuredBriefHelpPageSubtitle(buyerPolishedShell)}
         navHref={STRUCTURED_BRIEF_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={<HelpTopicBreadcrumb topicTitle={STRUCTURED_BRIEF_HELP_BREADCRUMB_TOPIC_TITLE} />}
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
       />
+
+      <StructuredBriefHelpClaimDisciplineStrip />
 
       <div className={contentGridClass}>
         <div
           id={STRUCTURED_BRIEF_HELP_PRIMARY_CONTENT_ID}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
-          {buyerPolishedShell ? (
-            <div data-testid="help-structured-brief-orientation-top">
-              <StructuredBriefHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-            </div>
-          ) : null}
+          <StructuredBriefHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
 
           <section aria-labelledby="structured-brief-overview">
             <HelpSectionHeading id="structured-brief-overview">Overview</HelpSectionHeading>
@@ -97,14 +100,21 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
             </p>
           </section>
 
-          <div
-            className="flex flex-wrap items-center gap-2"
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid="help-structured-brief-action-panel"
+            aria-labelledby="help-structured-brief-action-panel-heading"
           >
+            <h2
+              id="help-structured-brief-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              Start here
+            </h2>
             <Button asChild size="sm" variant="primary">
               <Link href={STRUCTURED_BRIEF_HELP_PRIMARY_ACTION.href}>{STRUCTURED_BRIEF_HELP_PRIMARY_ACTION.label}</Link>
             </Button>
-          </div>
+          </section>
 
           <section aria-labelledby="field-concepts" className="space-y-4">
             <HelpSectionHeading id="field-concepts">Field concepts</HelpSectionHeading>
@@ -137,7 +147,7 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
           </section>
         </div>
 
-        <HelpTopicTableOfContents headings={STRUCTURED_BRIEF_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );

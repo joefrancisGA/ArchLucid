@@ -47,11 +47,20 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("help-search-review-evidence", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-architecture-scorecard", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-architecture-intelligence", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-decision-register", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-impact-preview", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-improvement-planning", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-structured-brief", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-pilot-feedback", "not a package.")).toBeUndefined();
   });
 
   it("expectsVisibleClaimDisciplineBand mirrors omit policy", () => {
     expect(expectsVisibleClaimDisciplineBand("help-digests")).toBe(false);
-    expect(expectsVisibleClaimDisciplineBand("help-decision-register")).toBe(true);
+    expect(expectsVisibleClaimDisciplineBand("help-decision-register")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-impact-preview")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-improvement-planning")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-structured-brief")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-pilot-feedback")).toBe(false);
   });
 
   it("has no duplicate omit slugs", () => {

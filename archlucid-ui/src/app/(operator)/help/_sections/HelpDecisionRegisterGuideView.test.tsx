@@ -6,6 +6,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpDecisionRegisterGuideView } from "@/app/(operator)/help/_sections/HelpDecisionRegisterGuideView";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import {
   DECISION_REGISTER_HELP_CATEGORY_EXAMPLE,
   DECISION_REGISTER_HELP_CLAIM_HEADING_ID,
@@ -29,6 +30,7 @@ import {
   DECISION_REGISTER_CONFIDENCE_BASIS_LABEL,
 } from "@/app/(operator)/governance/decision-register/decision-register-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpDecisionRegisterGuideView", () => {
@@ -43,9 +45,7 @@ describe("HelpDecisionRegisterGuideView", () => {
 
     expect(screen.getByTestId("help-decision-register-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Guide last reviewed 2026-08-13 · decision register orientation",
-    );
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-decision-register-start-here-precondition")).toHaveTextContent(
       DECISION_REGISTER_HELP_START_HERE_PRECONDITION,
     );
@@ -58,7 +58,13 @@ describe("HelpDecisionRegisterGuideView", () => {
     expect(screen.getByTestId("help-decision-register-overview").textContent?.toLowerCase()).not.toContain(
       "sources package",
     );
-    expect(screen.getByTestId("help-decision-register-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-decision-register-claim-discipline-strip")).toHaveTextContent(
+      DECISION_REGISTER_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-decision-register",
+      "help-decision-register-claim-discipline",
       DECISION_REGISTER_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByRole("heading", { name: DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
@@ -97,11 +103,9 @@ describe("HelpDecisionRegisterGuideView", () => {
     expect(within(fieldExamples).getByText(DECISION_REGISTER_HELP_CONFIDENCE_EXAMPLE)).toBeInTheDocument();
 
     for (const source of DECISION_REGISTER_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
-
-    expect(screen.getByRole("link", { name: "Finalized review records" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Resolve outcomes help" })).toBeInTheDocument();
 
     for (const heading of DECISION_REGISTER_HELP_GUIDE_HEADINGS) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();

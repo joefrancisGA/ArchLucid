@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
+import { expectClaimDisciplineBand, expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
@@ -20,6 +20,7 @@ import {
   PILOT_FEEDBACK_HELP_PRIMARY_ACTION,
   PILOT_FEEDBACK_HELP_WORKFLOW_STEPS,
 } from "@/lib/pilot-feedback-help-guide-content";
+import { PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE } from "@/lib/pilot-feedback-help-evidence-copy";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -53,7 +54,14 @@ describe("HelpPilotFeedbackGuideView", () => {
     expect(visible).not.toContain("58r");
     expect(screen.getByTestId("help-pilot-feedback-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expectClaimDisciplineBand(screen, "help-pilot-feedback-claim-discipline".slice(0, -"-claim-discipline".length), "help-pilot-feedback-claim-discipline");
+    expect(screen.getByTestId("help-pilot-feedback-claim-discipline-strip")).toBeInTheDocument();
+    expectClaimDisciplineBand(screen, "help-pilot-feedback", "help-pilot-feedback-claim-discipline");
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-pilot-feedback",
+      "help-pilot-feedback-claim-discipline",
+      PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId("help-pilot-feedback-job-matrix")).toBeInTheDocument();
     expect(screen.getByTestId("help-pilot-feedback-workflow-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("help-pilot-feedback-page-title")).toHaveTextContent(

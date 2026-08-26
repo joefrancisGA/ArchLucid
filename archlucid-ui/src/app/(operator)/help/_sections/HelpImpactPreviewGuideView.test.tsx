@@ -6,6 +6,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpImpactPreviewGuideView } from "@/app/(operator)/help/_sections/HelpImpactPreviewGuideView";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import {
   IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
   IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -22,6 +23,7 @@ import {
   IMPACT_PREVIEW_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/impact-preview-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -37,16 +39,20 @@ describe("HelpImpactPreviewGuideView", () => {
 
     expect(screen.getByTestId("help-impact-preview-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
-expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Guide last reviewed 2026-08-13 · insights impact preview orientation",
-    );
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-impact-preview-baseline-precondition")).toHaveTextContent(
       IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION,
     );
     expect(screen.getByTestId("help-impact-preview-baseline-precondition-tag")).toHaveTextContent(
       IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION_TAG,
     );
-    expect(screen.getByTestId("help-impact-preview-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-impact-preview-claim-discipline-strip")).toHaveTextContent(
+      IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-impact-preview",
+      "help-impact-preview-claim-discipline",
       IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByRole("heading", { name: IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
@@ -79,7 +85,8 @@ expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
     }
 
     for (const source of IMPACT_PREVIEW_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
     for (const heading of IMPACT_PREVIEW_HELP_GUIDE_HEADINGS) {

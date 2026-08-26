@@ -1,17 +1,19 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { ImpactPreviewHelpClaimDisciplineStrip } from "@/components/help/ImpactPreviewHelpClaimDisciplineStrip";
 import { ImpactPreviewHelpEvidenceOrientationStrip } from "@/components/help/ImpactPreviewHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION,
   IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION_TAG,
+  IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID,
   IMPACT_PREVIEW_HELP_GUIDE_HEADINGS,
   IMPACT_PREVIEW_HELP_HOW_TO_READ_STEPS,
   IMPACT_PREVIEW_HELP_INPUT_TILE_ITEMS,
@@ -24,7 +26,6 @@ import {
 } from "@/lib/impact-preview-help-guide-content";
 import { IMPACT_PREVIEW_HELP_CANONICAL_PATH } from "@/lib/impact-preview-help-evidence-copy";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -76,7 +77,12 @@ function HelpTileList(props: {
 /** Impact preview orientation for `/help/impact-preview`. */
 export function HelpImpactPreviewGuideView(props: HelpImpactPreviewGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(IMPACT_PREVIEW_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-impact-preview",
+    IMPACT_PREVIEW_HELP_GUIDE_HEADINGS,
+    IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -96,37 +102,44 @@ export function HelpImpactPreviewGuideView(props: HelpImpactPreviewGuideViewProp
         actions={<PageContextualHelpButton />}
       />
 
+      <ImpactPreviewHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <ImpactPreviewHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+
           <p className={readingBodyClass} data-testid="help-impact-preview-overview">
             {IMPACT_PREVIEW_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-impact-preview-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {IMPACT_PREVIEW_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={IMPACT_PREVIEW_HELP_PRIMARY_ACTION.href}>{IMPACT_PREVIEW_HELP_PRIMARY_ACTION.label}</Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION_TAG}
-                  data-testid="help-impact-preview-baseline-precondition-tag"
-                />
-              </div>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-impact-preview-baseline-precondition"
-              >
-                {IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION}
-              </p>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-impact-preview-action-panel"
+            aria-labelledby="help-impact-preview-action-panel-heading"
+          >
+            <h2
+              id="help-impact-preview-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {IMPACT_PREVIEW_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="primary">
+                <Link href={IMPACT_PREVIEW_HELP_PRIMARY_ACTION.href}>{IMPACT_PREVIEW_HELP_PRIMARY_ACTION.label}</Link>
+              </Button>
+              <StatusTag
+                kind="neutral"
+                label={IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION_TAG}
+                data-testid="help-impact-preview-baseline-precondition-tag"
+              />
+            </div>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-impact-preview-baseline-precondition"
+            >
+              {IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION}
+            </p>
+          </section>
 
           <section
             aria-labelledby="what-you-provide"
@@ -161,13 +174,9 @@ export function HelpImpactPreviewGuideView(props: HelpImpactPreviewGuideViewProp
               ))}
             </ol>
           </section>
-
-          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-            <ImpactPreviewHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-          </div>
         </div>
 
-        <HelpTopicTableOfContents headings={IMPACT_PREVIEW_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );
