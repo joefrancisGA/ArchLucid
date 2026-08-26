@@ -65,6 +65,27 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
     }
 
     [Fact]
+    public void TryResolveForPublish_alert_fired_maps_PascalCase_severity()
+    {
+        byte[] utf8 = Encoding.UTF8.GetBytes(
+            JsonSerializer.Serialize(
+                new
+                {
+                    schemaVersion = 1,
+                    Severity = "Critical",
+                    deduplicationKey = "rule:1:run:a"
+                }));
+
+        IReadOnlyDictionary<string, object>? props =
+            IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
+                IntegrationEventTypes.AlertFiredV1,
+                utf8);
+
+        props.Should().NotBeNull();
+        props[IntegrationEventServiceBusApplicationProperties.SeverityPropertyName].Should().Be("critical");
+    }
+
+    [Fact]
     public void TryResolveForPublish_alert_resolved_maps_deduplication_key()
     {
         byte[] utf8 = Encoding.UTF8.GetBytes(

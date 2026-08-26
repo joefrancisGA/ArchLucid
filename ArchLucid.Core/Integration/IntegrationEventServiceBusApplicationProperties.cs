@@ -83,18 +83,14 @@ public static class IntegrationEventServiceBusApplicationProperties
             using JsonDocument doc = JsonDocument.Parse(payloadUtf8);
             Dictionary<string, object> map = new(StringComparer.Ordinal);
 
-            if (doc.RootElement.TryGetProperty("severity", out JsonElement sevEl))
+            if (TryGetStringPropertyCaseInsensitive(doc.RootElement, "severity", out string? sev) &&
+                !string.IsNullOrWhiteSpace(sev))
             {
-                string? sev = sevEl.GetString();
-
-                if (!string.IsNullOrWhiteSpace(sev))
-                    map[SeverityPropertyName] = sev.Trim().ToLowerInvariant();
+                map[SeverityPropertyName] = sev.Trim().ToLowerInvariant();
             }
 
-            if (!doc.RootElement.TryGetProperty("deduplicationKey", out JsonElement dedupeEl))
+            if (!TryGetStringPropertyCaseInsensitive(doc.RootElement, "deduplicationKey", out string? dedupe))
                 return map.Count > 0 ? map : null;
-
-            string? dedupe = dedupeEl.GetString();
 
             if (!string.IsNullOrWhiteSpace(dedupe))
                 map[DeduplicationKeyPropertyName] = dedupe.Trim();
@@ -113,10 +109,8 @@ public static class IntegrationEventServiceBusApplicationProperties
         {
             using JsonDocument doc = JsonDocument.Parse(payloadUtf8);
 
-            if (!doc.RootElement.TryGetProperty("deduplicationKey", out JsonElement dedupeEl))
+            if (!TryGetStringPropertyCaseInsensitive(doc.RootElement, "deduplicationKey", out string? dedupe))
                 return null;
-
-            string? dedupe = dedupeEl.GetString();
 
             if (string.IsNullOrWhiteSpace(dedupe))
                 return null;
@@ -132,5 +126,22 @@ public static class IntegrationEventServiceBusApplicationProperties
         {
             return null;
         }
+    }
+
+    private static bool TryGetStringPropertyCaseInsensitive(JsonElement root, string propertyName, out string? value)
+    {
+        foreach (JsonProperty property in root.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value.GetString();
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
     }
 }

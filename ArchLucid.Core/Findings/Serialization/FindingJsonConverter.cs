@@ -189,19 +189,11 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             finding.InsightDensityScore = insightDensityScore;
         }
 
-        if (root.TryGetProperty("treatment", out JsonElement treatmentElement) &&
-            treatmentElement.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(treatmentElement.GetString(), ignoreCase: true, out FindingTreatment treatment))
-        {
-            finding.Treatment = treatment;
-        }
+        if (root.TryGetProperty("treatment", out JsonElement treatmentElement))
+            finding.Treatment = ReadTreatment(treatmentElement);
 
-        if (root.TryGetProperty("classification", out JsonElement classificationElement) &&
-            classificationElement.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(classificationElement.GetString(), ignoreCase: true, out FindingClassification classification))
-        {
-            finding.Classification = classification;
-        }
+        if (root.TryGetProperty("classification", out JsonElement classificationElement))
+            finding.Classification = ReadClassification(classificationElement);
 
         finding.WhyThisIsNotGeneric = ReadOptionalString(root, "whyThisIsNotGeneric");
         finding.PrincipalArchitectValue = ReadOptionalString(root, "principalArchitectValue");
@@ -341,6 +333,54 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             return parsed;
 
         throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
+    }
+
+    private static FindingTreatment? ReadTreatment(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+            if (!Enum.IsDefined(typeof(FindingTreatment), numeric))
+                throw new JsonException($"Unknown finding treatment value '{numeric}'.");
+
+            return (FindingTreatment)numeric;
+        }
+
+        if (element.ValueKind != JsonValueKind.String)
+            throw new JsonException("Expected string or number for finding treatment.");
+
+        string? raw = element.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            throw new JsonException("Finding treatment value is required.");
+
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed))
+            return parsed;
+
+        throw new JsonException($"Unknown finding treatment value '{raw}'.");
+    }
+
+    private static FindingClassification? ReadClassification(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+            if (!Enum.IsDefined(typeof(FindingClassification), numeric))
+                throw new JsonException($"Unknown finding classification value '{numeric}'.");
+
+            return (FindingClassification)numeric;
+        }
+
+        if (element.ValueKind != JsonValueKind.String)
+            throw new JsonException("Expected string or number for finding classification.");
+
+        string? raw = element.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            throw new JsonException("Finding classification value is required.");
+
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingClassification parsed))
+            return parsed;
+
+        throw new JsonException($"Unknown finding classification value '{raw}'.");
     }
 
     private static FindingHumanReviewStatus ReadHumanReviewStatus(JsonElement element)

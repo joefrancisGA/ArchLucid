@@ -1719,11 +1719,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 8
-- **bugs-found:** 11
+- **hunts:** 9
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — `FindingJsonConverter` ignored numeric `humanReviewStatus` and `enforcementTier` ordinals
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — `FindingJsonConverter` dropped numeric `treatment`/`classification` ordinals; `MarketplaceWebhookPayloadParser.ReadQuantity` and alert-fired Service Bus props missed PascalCase keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1741,8 +1741,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) PascalCase `routingCriteria` / `severities` metadata silently disables alert routing filters — **hit 2026-08-24:** `AlertRoutingCriteriaMetadata.Parse` used case-sensitive `TryGetProperty`; empty criteria fail-open in `AlertRoutingMatcher`; regression in `AlertRoutingCriteriaMetadata_Parse_PascalCase_property_names_preserves_severity_filter`
 - [x] (proven) `FindingJsonConverter` downgrades unknown severity strings to `Info` — **hit 2026-08-24:** unlike `ArchitectureFindingJsonConverter`, labels like `blocker` hydrated as `Info`; fixed to throw on unknown labels (`FindingJsonConverterTests.Deserialize_unknown_severity_throws`)
 - [x] (proven) Azure Marketplace webhook `PlanId` PascalCase missed → tier defaults to Standard — **hit 2026-08-24:** `TryGetPlanId` only read camelCase `planId`; regression in `TryGetPlanId_reads_PascalCase_planId`
-- [x] (hunt-ready) `FindingJsonConverter.Read` calls `GetString()` on `humanReviewStatus` and only accepts string `enforcementTier` — numeric `1` (Pending / Advisory) silently stays default `NotRequired` / `PolicyViolation` while sibling `FindingHumanReviewStatusJsonConverter` and `FindingEnforcementTierJsonConverter` accept defined ordinals.
 - [x] (proven) `FindingJsonConverter` ignored numeric `humanReviewStatus` and `enforcementTier` ordinals — **hit 2026-08-25:** `GetString()` on numeric JSON threw or skipped review state; string-only `enforcementTier` left Advisory as PolicyViolation; fixed with `ReadHumanReviewStatus` / `ReadEnforcementTier` aligned to contract converters (`FindingJsonConverterTests.Deserialize_numeric_humanReviewStatus_maps_defined_ordinals`, `Deserialize_numeric_enforcementTier_maps_advisory_ordinal`).
+- [x] (proven) `FindingJsonConverter.ReadInsightDensityFields` requires string `treatment` / `classification` tokens — numeric `1` (DemoteToChecklist / ChecklistCoverage) silently stays null on snapshot reload — **hit 2026-08-26:** same gap as pre-fix `humanReviewStatus`; fixed with `ReadTreatment` / `ReadClassification` (`Deserialize_numeric_treatment_maps_demote_to_checklist_ordinal`, `Deserialize_numeric_classification_maps_checklist_coverage_ordinal`).
+- [x] (proven) `MarketplaceWebhookPayloadParser.ReadQuantity` is case-sensitive on `quantity` — PascalCase `"Quantity":5` falls back to `1` while `TryGetPlanId` already uses case-insensitive lookup — **hit 2026-08-26:** fixed with `TryGetPropertyCaseInsensitive` (`ReadQuantity_reads_PascalCase_quantity`).
+- [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryResolveAlertFired` uses case-sensitive `TryGetProperty("severity")` — PascalCase `"Severity":"Critical"` omits the `severity` user property and breaks SQL subscription filters — **hit 2026-08-26:** fixed with `TryGetStringPropertyCaseInsensitive` (`TryResolveForPublish_alert_fired_maps_PascalCase_severity`).
+- [ ] (candidate) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals.
+- [ ] (candidate) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize.
+- [ ] (candidate) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined`.
 
 ---
 

@@ -67,7 +67,7 @@ public static class MarketplaceWebhookPayloadParser
     /// </summary>
     public static int ReadQuantity(JsonElement root, int fallback = 1)
     {
-        if (!root.TryGetProperty("quantity", out JsonElement q))
+        if (!TryGetPropertyCaseInsensitive(root, "quantity", out JsonElement q))
             return Math.Max(1, fallback);
 
         if (q.ValueKind == JsonValueKind.Number && q.TryGetInt32(out int n))
@@ -79,5 +79,22 @@ public static class MarketplaceWebhookPayloadParser
         string? s = q.GetString();
 
         return Math.Max(1, int.TryParse(s, out int parsed) ? parsed : fallback);
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement root, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in root.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
