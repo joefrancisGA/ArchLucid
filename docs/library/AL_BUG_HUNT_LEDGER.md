@@ -1801,11 +1801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 24
-- **bugs-found:** 58
+- **hunts:** 25
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — terraform-show-json `depends_on` array order churned `terraformDependsOn`
+- **last-bug:** 2026-08-26 — sensitivity expander `protectedTopologyNodeIds` churned on topology list order
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1877,7 +1877,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PlainTextContextDocumentParser` `TOP:` slash hints omitted stable `ObjectId` and `parentNodeId`, and `PolicyReferencePayloadExtractor` ignored document topology — **hit 2026-08-26:** document-only `TOP: parentNet/childSubnet` missed policy overlap with `parentNet`; fixed with `PlainTextDocumentTopologyResourceBuilder` and `PlainTextDocumentTopologyHintExtractor` feeding `PolicyReferencePayloadExtractor` (`PlainTextContextDocumentParserTests.ParseAsync_TopSlashHint_SetsStableObjectIdAndParentNodeId`, `PolicyReferenceConnectorTopologyTests.NormalizeAsync_WhenPolicyOverlapsDocumentTopologyHint_SetsApplicableTopologyNodeIds`).
 - [x] (proven) `PolicyTopologyOverlapResolver.ResolveApplicableTopologyNodeIds` joined overlapping hint ids without sorting — **hit 2026-08-26:** `["prod-vnet","prod-subnet"]` vs `["prod-subnet","prod-vnet"]` produced different `applicableTopologyNodeIds` strings and false modified on policy-reference connector delta; fixed with `OrderBy` before `string.Join` (`PolicyTopologyOverlapResolverTests.ResolveApplicableTopologyNodeIds_is_stable_across_overlapping_hint_list_order`, `PolicyReferenceConnectorTopologyTests.DeltaAsync_OverlappingTopologyHintListOrder_ReportsUnchanged`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` joined `depends_on` references without sorting — **hit 2026-08-26:** `["azurerm_resource_group.main","azurerm_virtual_network.hub"]` vs reversed order produced different `terraformDependsOn` strings and false modified on infrastructure declaration connector delta; fixed with `OrderBy` before `string.Join` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_CanonicalizesDependsOnReferenceOrder`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonDependsOnOrderChange_ReportsUnchanged`).
-- [ ] (candidate) `SecurityBaselineSensitivityScopeExpander` joins matching topology node ids without sorting — enricher may emit order-dependent `protectedTopologyNodeIds` when canonical object list order changes
+- [x] (proven) `SecurityBaselineSensitivityScopeExpander` joined matching topology node ids without sorting — **hit 2026-08-26:** reordering equivalent data-bearing topology resources produced different `protectedTopologyNodeIds` strings on enriched security baselines; fixed with `OrderBy` before `string.Join` (`SecurityBaselineSensitivityScopeExpanderTests.Expand_protected_topology_node_ids_are_stable_across_topology_list_order`).
 
 ---
 

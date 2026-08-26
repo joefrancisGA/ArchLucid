@@ -47,6 +47,7 @@ public static class SecurityBaselineSensitivityScopeExpander
             List<string> matchingNodeIds = sensitivityByNodeId
                 .Where(pair => string.Equals(pair.Value, baselineScope, StringComparison.OrdinalIgnoreCase))
                 .Select(static pair => pair.Key)
+                .OrderBy(static id => id, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
             if (matchingNodeIds.Count == 0)
