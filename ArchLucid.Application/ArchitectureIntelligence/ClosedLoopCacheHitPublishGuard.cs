@@ -19,8 +19,10 @@ public static class ClosedLoopCacheHitPublishGuard
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(cached);
 
-        cached.RunId = runId;
-        cached.Model.RunId = runId;
+        string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
+
+        cached.RunId = normalizedRunId;
+        cached.Model.RunId = normalizedRunId;
         cached.ModelId = cached.Model.ModelId;
         cached.Interview.ModelId = cached.Model.ModelId;
 
