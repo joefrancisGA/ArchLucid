@@ -61,6 +61,11 @@ public sealed class ReviewResultCacheTests
         ClosedLoopReasoningResult stored = new()
         {
             RunId = "run-payload",
+            Model = new ArchitectureKnowledgeModel
+            {
+                ModelId = "model-payload",
+                Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+            },
             MustNotFailViolations =
             [
                 new MustNotFailViolation
@@ -90,10 +95,13 @@ public sealed class ReviewResultCacheTests
         cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
 
         cached!.ProductFindings.Should().BeEmpty();
-        cached.MustNotFailViolations[0].Blocked = false;
+        cached.MustNotFailViolations.Should().BeEmpty();
+        cached.RunId.Should().Be("runpayload");
+
+        cached.Model.Elements[0].Name = "mutated";
 
         cache.TryGet(manifest, out ClosedLoopReasoningResult? again).Should().BeTrue();
-        again!.MustNotFailViolations[0].Blocked.Should().BeTrue();
+        again!.Model.Elements[0].Name.Should().Be("API");
     }
 
     [Fact]

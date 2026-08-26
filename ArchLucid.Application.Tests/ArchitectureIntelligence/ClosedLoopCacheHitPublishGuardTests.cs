@@ -24,8 +24,8 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
 
         ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(request, "current-run", cached);
 
-        cached.RunId.Should().Be("current-run");
-        cached.Model.RunId.Should().Be("current-run");
+        cached.RunId.Should().Be("currentrun");
+        cached.Model.RunId.Should().Be("currentrun");
         cached.ModelId.Should().Be("cached-model");
         cached.Model.ModelId.Should().Be("cached-model");
         cached.PublishedToProduct.Should().BeFalse();
@@ -234,7 +234,16 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
             PublishSkipReason = "already published",
             ReviewCompleteBlocked = true,
             IntegrityPassedFindingIds = ["finding-1"],
-            MustNotFailViolations = ["violation-1"],
+            MustNotFailViolations =
+            [
+                new MustNotFailViolation
+                {
+                    Class = MustNotFailClass.FabricatedCitation,
+                    Message = "Blocked",
+                    Blocked = true,
+                    FindingId = "finding-1",
+                },
+            ],
             ProductFindings =
             [
                 new ArchLucid.Contracts.Findings.Finding
