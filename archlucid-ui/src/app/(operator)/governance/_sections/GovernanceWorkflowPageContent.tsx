@@ -204,6 +204,7 @@ export function GovernanceWorkflowPageContent() {
             onFocusSubmit={focusSubmitSection}
             onFocusPending={focusPendingApprovals}
             listsLoading={listsLoading}
+            hubScopedRunId={urlScopedRunId}
           />
         )
       ) : null}

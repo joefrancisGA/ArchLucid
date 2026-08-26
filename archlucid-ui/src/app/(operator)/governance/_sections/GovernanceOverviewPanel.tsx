@@ -188,7 +188,12 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
     onFocusSubmit,
     onFocusPending,
     listsLoading,
+    hubScopedRunId = "",
   } = props;
+
+  const hubScopedRunIdTrimmed = hubScopedRunId.trim();
+  const hubScopedRunFilterActive = hubScopedRunIdTrimmed.length > 0;
+  const overviewClearScopeHref = governanceApprovalQueueHref(null);
 
   const pendingSectionRef = useRef<HTMLElement | null>(null);
   const dashboardQuery = useGovernanceDashboardQuery();
@@ -277,15 +282,36 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
           {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_LEAD}
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-          <RunIdPicker
-            inputId="governance-overview-run"
-            label="Review"
-            placeholder="Select a review from the list"
-            value={queryRunId}
-            useBuyerFacingRunLabels={buyerPolishedShell}
-            onChange={setQueryRunId}
-            preferAutoPick={false}
-          />
+          {hubScopedRunFilterActive ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="governance-overview-run-scope-banner"
+            >
+              {"Overview scoped to review "}
+              <span className="font-mono text-al-text-primary">{hubScopedRunIdTrimmed}</span>
+              {" · "}
+              <Link className={OPERATOR_LINK.inline} href={overviewClearScopeHref}>
+                Clear review scope
+              </Link>
+              {" · "}
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={`/architecture/reviews/${encodeURIComponent(hubScopedRunIdTrimmed)}`}
+              >
+                Open review
+              </Link>
+            </p>
+          ) : (
+            <RunIdPicker
+              inputId="governance-overview-run"
+              label="Review"
+              placeholder="Select a review from the list"
+              value={queryRunId}
+              useBuyerFacingRunLabels={buyerPolishedShell}
+              onChange={setQueryRunId}
+              preferAutoPick={false}
+            />
+          )}
           <div className="space-y-1">
             <Button
               type="button"
