@@ -25,9 +25,6 @@ public sealed partial class RunsController
     /// <summary>Minimum free-text length accepted by the intake endpoints, in characters.</summary>
     private const int MinimumIntakeTextLength = 20;
 
-    /// <summary>Upper bound on advisory intake paste size (aligned with <see cref="DraftIntakeValidation.MaximumFreeTextIntentLength" />).</summary>
-    private const int MaximumIntakeTextLength = DraftIntakeValidation.MaximumFreeTextIntentLength;
-
     [HttpPost("request/draft")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Draft endpoint is advisory-only and does not persist domain mutations.")]
@@ -48,9 +45,9 @@ public sealed partial class RunsController
                 $"FreeTextDescription must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
-        if (input.FreeTextDescription.Trim().Length > MaximumIntakeTextLength)
+        if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(input.FreeTextDescription))
             return this.BadRequestProblem(
-                $"FreeTextDescription must not exceed {MaximumIntakeTextLength} characters.",
+                $"FreeTextDescription must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
                 ProblemTypes.ValidationFailed);
 
         DraftArchitectureRequestResponse response = await architectureRequestDraftService.DraftAsync(input, cancellationToken);
@@ -80,9 +77,9 @@ public sealed partial class RunsController
                 $"FreeTextDescription must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
-        if (input.FreeTextDescription.Trim().Length > MaximumIntakeTextLength)
+        if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(input.FreeTextDescription))
             return this.BadRequestProblem(
-                $"FreeTextDescription must not exceed {MaximumIntakeTextLength} characters.",
+                $"FreeTextDescription must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
                 ProblemTypes.ValidationFailed);
 
         string operationId = await advisoryDraftOperationAcceptor.AcceptAsync(
@@ -166,9 +163,9 @@ public sealed partial class RunsController
                 $"CurrentOverview must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
-        if (input.CurrentOverview.Trim().Length > MaximumIntakeTextLength)
+        if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(input.CurrentOverview))
             return this.BadRequestProblem(
-                $"CurrentOverview must not exceed {MaximumIntakeTextLength} characters.",
+                $"CurrentOverview must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
                 ProblemTypes.ValidationFailed);
 
         RewriteArchitectureOverviewResponse response =
@@ -238,9 +235,9 @@ public sealed partial class RunsController
                 $"SourceText must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
-        if (input.SourceText.Trim().Length > MaximumIntakeTextLength)
+        if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(input.SourceText))
             return this.BadRequestProblem(
-                $"SourceText must not exceed {MaximumIntakeTextLength} characters.",
+                $"SourceText must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
                 ProblemTypes.ValidationFailed);
 
         if (string.IsNullOrWhiteSpace(input.SuggestionText))
@@ -273,9 +270,9 @@ public sealed partial class RunsController
                 $"RawText must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
-        if (input.RawText.Trim().Length > MaximumIntakeTextLength)
+        if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(input.RawText))
             return this.BadRequestProblem(
-                $"RawText must not exceed {MaximumIntakeTextLength} characters.",
+                $"RawText must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
                 ProblemTypes.ValidationFailed);
 
         ArchitectureRequest parsed;

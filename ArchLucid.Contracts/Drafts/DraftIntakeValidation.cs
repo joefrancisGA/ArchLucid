@@ -12,4 +12,13 @@ public static class DraftIntakeValidation
     ///     (~350 words/page ≈ 2M characters).
     /// </summary>
     public const int MaximumFreeTextIntentLength = 2_000_000;
+
+    /// <summary>Returns true when trimmed <paramref name="text" /> exceeds <see cref="MaximumFreeTextIntentLength" />.</summary>
+    public static bool ExceedsMaximumFreeTextIntentLength(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return false;
+
+        return text.Trim().Length > MaximumFreeTextIntentLength;
+    }
 }

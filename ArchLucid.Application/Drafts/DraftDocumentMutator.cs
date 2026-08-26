@@ -27,7 +27,7 @@ public static class DraftDocumentMutator
                 throw new InvalidOperationException(
                     $"FreeTextIntent must be at least {DraftIntakeValidation.MinimumFreeTextIntentLength} characters after trim.");
             }
-            else if (intent.Length > DraftIntakeValidation.MaximumFreeTextIntentLength)
+            else if (DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(intent))
             {
                 throw new InvalidOperationException(
                     $"FreeTextIntent must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters after trim.");
