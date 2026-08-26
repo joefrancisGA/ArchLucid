@@ -282,27 +282,52 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
       return;
     }
 
+    const generation = scopeGenerationRef.current;
     setEnableBusy(true);
     setEnableErrorMessage(null);
     writeWebhookSubscriptionLastViewedId(pendingEnable.routingSubscriptionId);
 
     try {
-      await executeToggle(pendingEnable.routingSubscriptionId);
+      await executeToggle(pendingEnable.routingSubscriptionId, generation);
+
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       setPendingEnable(null);
     } catch (error: unknown) {
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       setEnableErrorMessage(formatCustomerApiFailure(toApiLoadFailure(error)));
     } finally {
-      setEnableBusy(false);
+      if (scopeGenerationRef.current === generation) {
+        setEnableBusy(false);
+      }
     }
   }
 
-  async function executeToggle(routingSubscriptionId: string): Promise<void> {
+  async function executeToggle(routingSubscriptionId: string, generation: number): Promise<void> {
+    if (scopeGenerationRef.current !== generation) {
+      return;
+    }
+
     setFailure(null);
 
     try {
       await toggleAlertRoutingSubscription(routingSubscriptionId);
+
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       await load();
     } catch (error: unknown) {
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       setFailure(toApiLoadFailure(error));
       throw error;
     }
@@ -313,17 +338,29 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
       return;
     }
 
+    const generation = scopeGenerationRef.current;
     setDisableBusy(true);
     setDisableErrorMessage(null);
 
     try {
-      await executeToggle(pendingDisable.routingSubscriptionId);
+      await executeToggle(pendingDisable.routingSubscriptionId, generation);
+
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       setPendingDisable(null);
     } catch (error: unknown) {
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       const apiFailure = toApiLoadFailure(error);
       setDisableErrorMessage(formatCustomerApiFailure(apiFailure));
     } finally {
-      setDisableBusy(false);
+      if (scopeGenerationRef.current === generation) {
+        setDisableBusy(false);
+      }
     }
   }
 

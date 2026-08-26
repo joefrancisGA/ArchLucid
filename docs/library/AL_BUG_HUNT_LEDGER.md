@@ -995,11 +995,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — stale enable/disable toggle failure surfaced in new workspace after scope switch
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1010,6 +1010,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Dry-run control posts to the live endpoint from the settings form (retired: no dry-run on create form; Send test uses /test)
 - [x] (proven) In-flight webhook test or save state survives operator scope switch — **hit 2026-08-21:** scope `useEffect` cleared form rows but not `testingId`/`isSaving`; stale async completions could disable tests or show save success in the new workspace.
 - [x] (proven) Stale subscription list from a previous workspace overwrites rows after scope switch — **hit 2026-08-23:** `load()` in `use-webhooks-settings.ts` lacked `scopeGenerationRef` guards; an in-flight `listAlertRoutingSubscriptions` completion could call `setItems` with the prior workspace's subscriptions after the operator switched scope.
+- [x] (proven) `confirmEnableSubscription` / `confirmDisableSubscription` lacked `scopeGenerationRef` guards on toggle completion — **hit 2026-08-26:** in-flight `toggleAlertRoutingSubscription` could call `setFailure` in the new workspace after scope switch; fixed by threading generation through `executeToggle` and guarding enable/disable busy and error state (`page.test.tsx` `does not show toggle failure in a new workspace when enable completes after scope switch`).
 
 ---
 

@@ -940,4 +940,72 @@ describe("WebhooksIntegrationPage", () => {
     });
     await waitFor(() => expect(apiMocks.list).toHaveBeenCalled());
   });
+
+  it("does not show toggle failure in a new workspace when enable completes after scope switch", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+    const subscriptionIdA = "11111111-1111-1111-1111-111111111111";
+  let rejectToggle: ((error: Error) => void) | undefined;
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionIdA,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook A",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook-a",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    apiMocks.toggle.mockImplementation(
+      () =>
+        new Promise((_resolve, reject) => {
+          rejectToggle = (error: Error) => reject(error);
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionIdA}`));
+    fireEvent.click(screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL }));
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionIdA);
+    });
+
+    apiMocks.list.mockResolvedValue([]);
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    rejectToggle?.(new Error("routingSubscriptionId missing in workspace A"));
+
+    await waitFor(
+      () => {
+        expect(screen.queryByText(/Could not save the subscription/i)).toBeNull();
+        expect(screen.queryByText(/Something went wrong/i)).toBeNull();
+      },
+      { timeout: 3000 },
+    );
+  });
 });
