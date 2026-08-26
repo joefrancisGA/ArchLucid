@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 
 import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
@@ -19,7 +21,7 @@ import { PlanningPlanDetailHubVocabularyRail } from "@/components/PlanningPlanDe
 import { PlanningReviewsVocabularyRail } from "@/components/PlanningReviewsVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { IMPROVEMENT_PLANNING_PRIORITY_EXPLAIN } from "@/lib/planning-empty-orientation-copy";
 import {
   IMPROVEMENT_PLANNING_DEMO_DESCRIPTION,
@@ -34,10 +36,7 @@ import {
   IMPROVEMENT_PLANNING_THEME_FILTER_NO_MATCH_TITLE,
   planningPageSubtitle,
 } from "@/lib/planning-page-copy";
-import {
-  readPlanningPickedReviewId,
-  writePlanningPickedReviewId,
-} from "@/lib/planning-picked-review-storage";
+import { PLANNING_PATH } from "@/lib/planning-route";
 import { resolveContinueLastPlanningPlan } from "@/lib/resolve-continue-last-planning-plan";
 import {
   resolveImprovementPlanningEmphasizedStepId,
@@ -60,9 +59,12 @@ type Props = {
 
 export function PlanningPageView(props: Props) {
   const m = props.model;
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const continueLastPlan = resolveContinueLastPlanningPlan(m.sortedPlans);
-  const [selectedReviewId, setSelectedReviewId] = useState("");
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
   const showTablesSkeleton = m.refreshing && m.summary !== null && !m.empty;
   const showThemeFilterNoMatch =
     m.selectedThemeId !== null &&
@@ -73,23 +75,29 @@ export function PlanningPageView(props: Props) {
     m.summary !== null &&
     !m.empty;
 
-  useEffect(() => {
-    setSelectedReviewId(readPlanningPickedReviewId());
-  }, []);
+  const onPickReviewForPlanning = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
 
-  const onSelectReview = useCallback((reviewId: string) => {
-    const trimmed = reviewId.trim();
-    setSelectedReviewId(trimmed);
-    writePlanningPickedReviewId(trimmed);
-  }, []);
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+
+      router.replace(`${PLANNING_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   const planningChecklistSteps = resolveImprovementPlanningSteps({
-    reviewPicked: selectedReviewId.trim().length > 0,
+    reviewPicked: scopedRunFilterActive,
     themesReviewed: m.summary !== null && !m.empty,
     planReady: m.sortedPlans.length > 0 && !m.loading,
   });
   const planningChecklistEmphasizedStepId = resolveImprovementPlanningEmphasizedStepId({
-    reviewPicked: selectedReviewId.trim().length > 0,
+    reviewPicked: scopedRunFilterActive,
     themesReviewed: m.summary !== null && !m.empty,
     planReady: m.sortedPlans.length > 0 && !m.loading,
   });
@@ -116,10 +124,10 @@ export function PlanningPageView(props: Props) {
 
       <PlanningBuyerChrome />
 
-      {selectedReviewId.trim().length === 0 ? (
+      {!scopedRunFilterActive ? (
         <PlanningPickReviewBeforePlanningStrip
-          selectedReviewId={selectedReviewId}
-          onSelectReview={onSelectReview}
+          selectedReviewId={scopedRunId}
+          onSelectReview={onPickReviewForPlanning}
         />
       ) : (
         <IntegrationConnectChecklist
@@ -129,6 +137,27 @@ export function PlanningPageView(props: Props) {
           testIdPrefix="improvement-planning"
         />
       )}
+
+      {scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="planning-run-scope-banner"
+        >
+          {"Planning insights for review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={PLANNING_PATH}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : null}
 
       {continueLastPlan !== null && !m.empty ? <PlanningContinueLastPlanRow plan={continueLastPlan} /> : null}
 
@@ -291,8 +320,8 @@ export function PlanningPageView(props: Props) {
             <OperatorEvidenceLimitsFooter runId={SHOWCASE_STATIC_DEMO_RUN_ID} showArchitectureReviewSummaryLink={false} />
           ) : null}
 
-          {selectedReviewId.trim().length > 0 ? (
-            <PlanningNextReviewFooterClient runId={selectedReviewId.trim()} />
+          {scopedRunFilterActive ? (
+            <PlanningNextReviewFooterClient runId={scopedRunId} />
           ) : null}
         </>
       ) : null}
