@@ -356,6 +356,33 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(confirmedRow.querySelector(".max-w-\\[240px\\]")).toBeNull();
   });
 
+  it("confirms all suggestions in a section when Confirm all is clicked", async () => {
+    mockDraftSuggestResponse({
+      suggestedConstraints: ["EU data residency", "Private networking only"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    expect(await screen.findAllByTestId("architecture-draft-constraints-suggestion")).toHaveLength(2);
+
+    fireEvent.click(screen.getByTestId("architecture-draft-constraints-confirm-all-suggestions"));
+
+    expect(screen.queryByTestId("architecture-draft-constraints-suggestion")).not.toBeInTheDocument();
+
+    const confirmedRows = screen.getAllByTestId("architecture-draft-constraints-confirmed");
+    expect(confirmedRows).toHaveLength(2);
+    expect(within(confirmedRows[0]).getByText("EU data residency")).toBeInTheDocument();
+    expect(within(confirmedRows[1]).getByText("Private networking only")).toBeInTheDocument();
+  });
+
   it("splits multiline LLM suggestion strings into separate confirmable items", async () => {
     mockDraftSuggestResponse({
       suggestedConstraints: ["EU data residency\nPrivate networking only\nAudit logging required"],

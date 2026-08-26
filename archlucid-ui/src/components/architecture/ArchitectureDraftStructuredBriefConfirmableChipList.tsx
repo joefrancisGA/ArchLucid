@@ -14,6 +14,7 @@ import {
   GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_LABEL,
   GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_SECTION,
   GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON,
+  GUIDED_INTAKE_CONFIRM_ALL_SUGGESTIONS_BUTTON,
   GUIDED_INTAKE_DENY_SUGGESTION_BUTTON,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING,
 } from "@/lib/guided-intake-copy";
@@ -63,6 +64,7 @@ export type ArchitectureDraftStructuredBriefConfirmableChipListProps = {
   readonly onRemove: (index: number) => void;
   readonly onConfirmSuggested: (value: string) => void;
   readonly onDenySuggested: (value: string) => void;
+  readonly onConfirmAllSuggested?: () => void;
   readonly evidenceContradictionNotes?: Readonly<Record<string, string>>;
 };
 
@@ -143,9 +145,31 @@ export function ArchitectureDraftStructuredBriefConfirmableChipList(
       </div>
       {props.suggestedItems.length > 0 ? (
         <div className="space-y-2">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-            {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+              {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={props.disabled}
+              data-testid={`${props.inputId}-confirm-all-suggestions`}
+              onClick={() => {
+                if (props.onConfirmAllSuggested !== undefined) {
+                  props.onConfirmAllSuggested();
+
+                  return;
+                }
+
+                for (const item of props.suggestedItems) {
+                  props.onConfirmSuggested(item);
+                }
+              }}
+            >
+              {GUIDED_INTAKE_CONFIRM_ALL_SUGGESTIONS_BUTTON}
+            </Button>
+          </div>
           <ul className="m-0 list-none space-y-2 p-0">
             {props.suggestedItems.map((item) => (
               <StructuredBriefListRow

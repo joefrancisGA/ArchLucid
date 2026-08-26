@@ -56,3 +56,28 @@ export function denySuggestedListItem(
 ): void {
   onStructuredBriefChange((current) => denyStructuredBriefSuggestion(current, suggestedKey, value));
 }
+
+export function confirmAllSuggestedListItems(
+  onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>,
+  confirmedKey: StructuredBriefListFieldKey,
+  suggestedKey: StructuredBriefSuggestedFieldKey,
+  suggestedItems: readonly string[],
+): void {
+  if (suggestedItems.length === 0) {
+    return;
+  }
+
+  onStructuredBriefChange((current) => {
+    let confirmedItems = [...current[confirmedKey]];
+
+    for (const item of suggestedItems) {
+      confirmedItems = mergeExclusiveConfirmedItem(confirmedItems, item);
+    }
+
+    return {
+      ...current,
+      [confirmedKey]: confirmedItems,
+      [suggestedKey]: [],
+    };
+  });
+}

@@ -5,6 +5,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { ArchitectureDraftStructuredBriefConfirmableChipList } from "@/components/architecture/ArchitectureDraftStructuredBriefConfirmableChipList";
 import {
   addConfirmedListItem,
+  confirmAllSuggestedListItems,
   confirmSuggestedListItem,
   denySuggestedListItem,
   removeConfirmedListItem,
@@ -250,6 +251,15 @@ export function ArchitectureDraftStructuredBriefFields(
         onDenySuggested={(value) => {
           denySuggested("suggestedConstraints", value);
         }}
+        onConfirmAllSuggested={() => {
+          confirmAllSuggestedListItems(
+            props.onStructuredBriefChange,
+            "confirmedConstraints",
+            "suggestedConstraints",
+            brief.suggestedConstraints,
+          );
+          props.onBriefConfirmOrDeny?.();
+        }}
       />
 
       <ArchitectureDraftStructuredBriefConfirmableChipList
@@ -282,6 +292,15 @@ export function ArchitectureDraftStructuredBriefFields(
         onDenySuggested={(value) => {
           denySuggested("suggestedAssumptions", value);
         }}
+        onConfirmAllSuggested={() => {
+          confirmAllSuggestedListItems(
+            props.onStructuredBriefChange,
+            "confirmedAssumptions",
+            "suggestedAssumptions",
+            brief.suggestedAssumptions,
+          );
+          props.onBriefConfirmOrDeny?.();
+        }}
         evidenceContradictionNotes={suggestions.evidenceContradictedAssumptions}
       />
 
@@ -313,6 +332,15 @@ export function ArchitectureDraftStructuredBriefFields(
         }}
         onDenySuggested={(value) => {
           denySuggested("suggestedRequiredCapabilities", value);
+        }}
+        onConfirmAllSuggested={() => {
+          confirmAllSuggestedListItems(
+            props.onStructuredBriefChange,
+            "confirmedRequiredCapabilities",
+            "suggestedRequiredCapabilities",
+            brief.suggestedRequiredCapabilities,
+          );
+          props.onBriefConfirmOrDeny?.();
         }}
       />
 
