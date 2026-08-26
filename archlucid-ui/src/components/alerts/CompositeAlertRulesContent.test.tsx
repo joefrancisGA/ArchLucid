@@ -20,6 +20,11 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => mutateCapability.current,
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams("tab=advanced-rules&runId=run-composite-test"),
+}));
+
 const apiHoisted = vi.hoisted(() => ({
   listCompositeAlertRules: vi.fn(),
   createCompositeAlertRule: vi.fn(),

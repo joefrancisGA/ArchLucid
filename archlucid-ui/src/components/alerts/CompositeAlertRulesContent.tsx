@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -8,6 +9,7 @@ import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { CompositeAlertRulesContinueLastViewedRow } from "@/components/alerts/CompositeAlertRulesContinueLastViewedRow";
+import { CompositeAlertRulesPickReviewBeforeCombiningStrip } from "@/components/alerts/CompositeAlertRulesPickReviewBeforeCombiningStrip";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
@@ -63,8 +65,15 @@ import {
   compositeRulesPageLeadReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { COMPOSITE_RULES_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
-import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import {
+  enterpriseStatusTagClass,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import {
+  GOVERNANCE_ALERT_RULES_PATH,
+  governanceAlertRulesTabHref,
+} from "@/lib/governance/governance-route-paths";
 import {
   resolveContinueLastCompositeAlertRule,
   writeCompositeAlertRuleLastViewedId,
@@ -116,6 +125,28 @@ function CompositeAlertRuleStateChip(props: {
 }
 
 export function CompositeAlertRulesContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
+
+  const onPickReviewForCombining = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", "advanced-rules");
+      params.set("runId", trimmed);
+
+      router.replace(`${GOVERNANCE_ALERT_RULES_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
   const canMutateComposite = useOperateCapability();
   const compositeRulesQuery = useCompositeAlertRulesListQuery();
   const refreshContext = useOptionalAlertRulesHubRefresh();
@@ -251,8 +282,10 @@ export function CompositeAlertRulesContent() {
   }
 
   const isEmpty = items.length === 0;
-  const emptyIntroMode = isEmpty && canMutateComposite && !showCreatePanel && !loading;
-  const showCreateForm = !canMutateComposite || showCreatePanel || !isEmpty;
+  const emptyIntroMode =
+    scopedRunFilterActive && isEmpty && canMutateComposite && !showCreatePanel && !loading;
+  const showCreateForm =
+    scopedRunFilterActive && (!canMutateComposite || showCreatePanel || !isEmpty);
   const sectionGap = emptyIntroMode ? "gap-4" : "gap-8";
   const conditionsTabHref = governanceAlertRulesTabHref("rules");
   const mutationDisabledReason = canMutateComposite ? null : whyDisabledEnterpriseMutationControl();
@@ -296,6 +329,32 @@ export function CompositeAlertRulesContent() {
         </div>
       ) : null}
 
+      {!scopedRunFilterActive ? (
+        <CompositeAlertRulesPickReviewBeforeCombiningStrip
+          selectedReviewId=""
+          onSelectReview={onPickReviewForCombining}
+        />
+      ) : (
+        <p
+          className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="composite-alert-rules-run-scope-banner"
+        >
+          {"Combining rules scoped to review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={governanceAlertRulesTabHref("advanced-rules")}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      )}
+
       <div
         className={cn("flex flex-col", sectionGap)}
         data-testid="composite-alert-rules-layout"
@@ -316,7 +375,7 @@ export function CompositeAlertRulesContent() {
             {COMPOSITE_RULES_CREATE_ONLY_DISCLOSURE}
           </p>
 
-          {canMutateComposite ? (
+          {canMutateComposite && scopedRunFilterActive ? (
             <div className="mb-4 flex flex-wrap items-center gap-2" data-testid="composite-rules-action-row">
               <Button
                 type="button"
