@@ -71,4 +71,53 @@ public sealed class BicepInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_ExtractsBicepModules()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            DeclarationId = "decl-bicep-module",
+            Content = """
+                      module storageModule 'br/public:avm/res/storage/storage-account:0.8.0' = {
+                      }
+                      resource kv 'Microsoft.KeyVault/vaults@2023-02-01' = {
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(o =>
+            o.Name == "storagemodule"
+            && o.ObjectType == "TopologyResource"
+            && o.Properties["bicepModuleSource"] == "br/public:avm/res/storage/storage-account:0.8.0");
+        result.Should().ContainSingle(o => o.Name == "kv" && o.ObjectType == "SecurityBaseline");
+    }
+
+    [Fact]
+    public async Task ParseAsync_DuplicateResourceSymbolicNames_EmitsDistinctObjectIds()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            DeclarationId = "decl-bicep-occurrence",
+            Content = """
+                      resource stg 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                      }
+                      resource stg 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(o => o.ObjectId).Distinct().Should().HaveCount(2);
+        result.Should().OnlyContain(o => o.Properties.ContainsKey("bicepOccurrence"));
+    }
 }

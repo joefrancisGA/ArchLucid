@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 using ArchLucid.ContextIngestion.Models;
 
@@ -15,6 +16,12 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 public sealed class KubernetesYamlInfrastructureDeclarationParser(
     ILogger<KubernetesYamlInfrastructureDeclarationParser> logger) : IInfrastructureDeclarationParser
 {
+    private static readonly Regex YamlDocumentSeparatorRegex = new(
+        """
+        ^\s*---\s*$
+        """,
+        RegexOptions.Multiline | RegexOptions.Compiled);
+
     private static readonly IDeserializer YamlDeserializer = new DeserializerBuilder()
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
         .IgnoreUnmatchedProperties()
@@ -36,13 +43,9 @@ public sealed class KubernetesYamlInfrastructureDeclarationParser(
 
         try
         {
-            string[] documents = declaration.Content.Split(
-                new[] { "\n---", "\r\n---" },
-                StringSplitOptions.RemoveEmptyEntries);
-
             List<JsonElement> jsonDocuments = [];
 
-            foreach (string documentText in documents)
+            foreach (string documentText in SplitYamlDocuments(declaration.Content))
             {
                 if (string.IsNullOrWhiteSpace(documentText))
                     continue;
@@ -72,6 +75,23 @@ public sealed class KubernetesYamlInfrastructureDeclarationParser(
                 declaration.DeclarationId);
 
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
+        }
+    }
+
+    private static IEnumerable<string> SplitYamlDocuments(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            yield break;
+
+        string normalized = content.TrimStart('\uFEFF').Trim();
+        string[] segments = YamlDocumentSeparatorRegex.Split(normalized);
+
+        foreach (string segment in segments)
+        {
+            string trimmed = segment.Trim();
+
+            if (!string.IsNullOrWhiteSpace(trimmed))
+                yield return trimmed;
         }
     }
 }

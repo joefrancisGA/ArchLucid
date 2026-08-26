@@ -28,9 +28,28 @@ public sealed class KubernetesJsonInfrastructureDeclarationParser(
 
         try
         {
-            using JsonDocument document = JsonDocument.Parse(declaration.Content);
+            List<JsonElement> jsonDocuments = [];
+
+            if (TryParseSingleJsonDocument(declaration.Content, out JsonElement singleRoot))
+            {
+                jsonDocuments.Add(singleRoot);
+            }
+            else
+            {
+                foreach (string line in declaration.Content.Split(
+                             '\n',
+                             StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
+                    using JsonDocument document = JsonDocument.Parse(line);
+                    jsonDocuments.Add(document.RootElement.Clone());
+                }
+            }
+
             IReadOnlyList<CanonicalObject> results = KubernetesManifestCanonicalObjectMapper.MapDocuments(
-                [document.RootElement],
+                jsonDocuments,
                 declaration);
 
             return Task.FromResult(results);
@@ -44,6 +63,26 @@ public sealed class KubernetesJsonInfrastructureDeclarationParser(
                 declaration.DeclarationId);
 
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
+        }
+    }
+
+    private static bool TryParseSingleJsonDocument(string content, out JsonElement root)
+    {
+        root = default;
+
+        if (string.IsNullOrWhiteSpace(content))
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(content);
+            root = document.RootElement.Clone();
+
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
         }
     }
 }
