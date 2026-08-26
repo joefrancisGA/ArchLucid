@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ArchitectureIntelligenceBuyerChrome } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceBuyerChrome";
 import { ArchitectureIntelligenceGoldenResults } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceGoldenResults";
@@ -16,13 +18,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import {
-  ARCHITECTURE_INTELLIGENCE_ACTIVE_RUN_LABEL,
   ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL,
   ARCHITECTURE_INTELLIGENCE_PUBLISH_TOGGLE_LABEL,
 } from "@/lib/architecture/architecture-intelligence-page-copy";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { ArchitectureIntelligencePickReviewBeforeAnalysisStrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePickReviewBeforeAnalysisStrip";
@@ -126,11 +127,22 @@ export function ArchitectureIntelligencePageClient() {
 
       {activeRunId && !loadingInboundContext ? (
         <p
-          className={cn(OPERATOR_TYPOGRAPHY.helper, !buyerPolishedShell ? "font-mono" : undefined)}
-          data-testid="architecture-intelligence-active-run"
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="architecture-intelligence-run-scope-banner"
         >
-          {buyerPolishedShell ? ARCHITECTURE_INTELLIGENCE_ACTIVE_RUN_LABEL : "Active run"}:{" "}
-          <TechnicalIdDisclosure label="" value={activeRunId} />
+          {"Scoped to review "}
+          <span className="font-mono text-al-text-primary">{activeRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={buildArchitectureIntelligenceRunHref()}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={`/architecture/reviews/${encodeURIComponent(activeRunId)}`}
+          >
+            Open review
+          </Link>
         </p>
       ) : null}
 
