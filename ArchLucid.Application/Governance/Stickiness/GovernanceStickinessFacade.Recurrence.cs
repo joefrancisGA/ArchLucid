@@ -33,6 +33,13 @@ public sealed partial class GovernanceStickinessFacade
             .GetByIdAsync(scope, request.SourceRunId, ct)
             .ConfigureAwait(false);
 
+        if (sourceRun is null)
+        {
+            throw new ArgumentException(
+                $"Source run '{request.SourceRunId:D}' was not found in the current scope.",
+                nameof(request));
+        }
+
         if (!_recurrenceNextRunCalculator.IsSupportedCronExpression(cronExpression))
             throw new ArgumentException(RecurrenceScheduleCronValidation.InvalidCronMessage);
 
@@ -49,7 +56,7 @@ public sealed partial class GovernanceStickinessFacade
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             SourceRunId = request.SourceRunId,
-            ArchitectureId = sourceRun?.ArchitectureId,
+            ArchitectureId = sourceRun.ArchitectureId,
             Name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim(),
             CronExpression = cronExpression,
             IsEnabled = request.IsEnabled.Value,

@@ -156,6 +156,69 @@ public sealed class GovernanceDashboardServiceTests
         summary.TotalCompletionTokens.Should().Be(100);
     }
 
+    [SkippableFact]
+    public async Task GetDashboard_FiltersRecentChangesToCurrentWorkspaceProject()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
+        Guid projectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-eeee-ffff-0000-111122223333");
+
+        PolicyPackChangeLogEntry inScope = new()
+        {
+            ChangeLogId = Guid.NewGuid(),
+            PolicyPackId = Guid.NewGuid(),
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            ChangeType = "Published",
+            ChangedBy = "u1",
+            ChangedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        PolicyPackChangeLogEntry foreign = new()
+        {
+            ChangeLogId = Guid.NewGuid(),
+            PolicyPackId = Guid.NewGuid(),
+            TenantId = tenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Guid.NewGuid(),
+            ChangeType = "Published",
+            ChangedBy = "u2",
+            ChangedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals.Setup(a => a.GetPendingAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        approvals.Setup(a => a.GetRecentDecisionsAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        Mock<IPolicyPackChangeLogRepository> changes = new();
+        changes
+            .Setup(c => c.GetByTenantAsync(tenantId, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<PolicyPackChangeLogEntry> { foreign, inScope });
+
+        (Mock<IRunDetailQueryService> runQuery, Mock<IAgentExecutionTraceRepository> traces) = CreateEmptyTokenMocks();
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        IGovernanceDashboardService sut = new GovernanceDashboardService(
+            approvals.Object,
+            changes.Object,
+            runQuery.Object,
+            traces.Object,
+            scope.Object);
+
+        GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
+
+        summary.RecentChanges.Should().ContainSingle().Which.ChangeLogId.Should().Be(inScope.ChangeLogId);
+    }
+
     private static IScopeContextProvider CreateScopeProvider()
     {
         Mock<IScopeContextProvider> scope = new();

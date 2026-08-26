@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 7
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — governance dashboard leaked foreign workspace policy-pack changes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2238,6 +2238,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` — accepted `findingId` from another workspace/project without inspect scope gate — **hit 2026-08-26:** `EnsureFindingInScopeAsync` before create; regression in `GovernanceStickinessFacadeScopeTests.CreateRiskExceptionAsync_throws_when_finding_is_out_of_scope`.
 - [x] (proven) `GovernanceStickinessController.RevokeRiskException` / `RenewRiskException` — tenant-only id lookup let callers mutate foreign workspace/project waivers — **hit 2026-08-26:** `RiskExceptionScope.IsVisibleInScope` via `IRiskExceptionService.GetByIdAsync`; revoke maps missing scope to 404; regression in `GovernanceStickinessFacadeScopeTests.RevokeRiskExceptionAsync_throws_when_exception_is_out_of_scope`.
 - [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `workspaceId` from another workspace in the same tenant soft-deleted or restored foreign projects — **hit 2026-08-26:** require `workspaceId == scope.WorkspaceId`; regression in `TenantWorkspacesControllerTests.DeleteProjectAsync_returns_not_found_when_workspace_id_is_out_of_scope`.
+- [x] (proven) `GovernancePostureController.GetPosture` — optional `projectId` query returned another project's posture within the same tenant — **hit 2026-08-26:** `GovernanceQueryProjectScope.TryResolve` returns empty summary for out-of-scope project ids; regression in `GovernancePostureControllerTests.GetPosture_returns_empty_summary_when_project_id_is_out_of_scope`.
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` — accepted `sourceRunId` from another workspace/project when scoped `GetByIdAsync` returned null — **hit 2026-08-26:** require source run in caller scope before persist; regression in `GovernanceStickinessFacadeScopeTests.CreateRecurrenceScheduleAsync_throws_when_source_run_is_out_of_scope`.
+- [x] (proven) `TenantWorkspacesController.ListAsync` / `ListRecycleBinAsync` — enumerated all tenant workspaces and foreign recycle-bin rows — **hit 2026-08-26:** filter to `scope.WorkspaceId`; regression in `TenantWorkspacesControllerTests.ListAsync_returns_only_current_workspace` and `ListRecycleBinAsync_returns_only_current_workspace_deleted_projects`.
+- [x] (proven) `GovernanceController.GetDashboard` — `RecentChanges` used tenant-only `GetByTenantAsync`, leaking foreign workspace/project policy-pack change rows — **hit 2026-08-26:** filter change log entries to ambient workspace/project; regression in `GovernanceDashboardServiceTests.GetDashboard_FiltersRecentChangesToCurrentWorkspaceProject`.
+
+2026-08-26 seed hunt #82: proved posture project scope, recurrence source-run scope, tenant workspace list/recycle-bin scope, dashboard change-log scope.
 
 2026-08-26 seed hunt #81: proved decision-register/bundle project scope, risk-exception finding and waiver scope, tenant workspace project mutate scope; shipped hunt #79 assignment/disposition/manifest fixes on the same branch.
 

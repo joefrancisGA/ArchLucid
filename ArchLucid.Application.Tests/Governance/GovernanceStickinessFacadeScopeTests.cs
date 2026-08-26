@@ -211,12 +211,38 @@ public sealed class GovernanceStickinessFacadeScopeTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task CreateRecurrenceScheduleAsync_throws_when_source_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchLucid.Persistence.Models.RunRecord?)null);
+
+        GovernanceStickinessFacade sut = CreateSut(runRepository: runs.Object);
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = foreignRunId,
+            IsEnabled = true,
+            CronExpression = "0 8 * * 1",
+        };
+
+        Func<Task> act = () => sut.CreateRecurrenceScheduleAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*not found in the current scope*");
+    }
+
     private static GovernanceStickinessFacade CreateSut(
         IArchitectureRiskRegisterService? riskRegister = null,
         IFindingInspectReadRepository? findingInspect = null,
         IFindingDispositionService? dispositionService = null,
         IArchitectureDecisionRegisterService? decisionRegister = null,
-        IRiskExceptionService? riskExceptionService = null)
+        IRiskExceptionService? riskExceptionService = null,
+        IRunRepository? runRepository = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
@@ -230,7 +256,7 @@ public sealed class GovernanceStickinessFacadeScopeTests
             decisionRegister ?? new Mock<IArchitectureDecisionRegisterService>().Object,
             Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
             Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
-            Mock.Of<IRunRepository>(),
+            runRepository ?? Mock.Of<IRunRepository>(),
             Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
             Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
             Mock.Of<IReviewsAwaitingActionQueryService>(),
