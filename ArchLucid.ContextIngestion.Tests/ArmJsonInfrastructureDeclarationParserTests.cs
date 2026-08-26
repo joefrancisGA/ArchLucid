@@ -299,4 +299,39 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
 
         baseline.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task ParseAsync_NestedChildResources_MapsSubnetUnderVnet()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-nested-vnet",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Network/virtualNetworks",
+                            "name": "hub-vnet",
+                            "properties": { "addressSpace": "10.0.0.0/16" },
+                            "resources": [
+                              {
+                                "type": "Microsoft.Network/virtualNetworks/subnets",
+                                "name": "subnet-a",
+                                "properties": { "addressPrefix": "10.0.1.0/24" }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(o => o.Name == "hub-vnet");
+        result.Should().ContainSingle(o => o.Name == "hub-vnet/subnet-a");
+    }
 }

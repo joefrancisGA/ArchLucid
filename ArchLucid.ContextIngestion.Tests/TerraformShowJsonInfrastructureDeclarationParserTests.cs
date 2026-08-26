@@ -1277,4 +1277,42 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
         storageAccount.Properties["mode"].Should().Be("managed");
         storageAccount.Properties["tf.name"].Should().Be("stacct");
     }
+
+    [Fact]
+    public async Task ParseAsync_ModeDataResources_AreExcluded()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-mode-data",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_client_config",
+                                "name": "current",
+                                "mode": "data",
+                                "values": { "tenant_id": "00000000-0000-0000-0000-000000000000" }
+                              },
+                              {
+                                "type": "azurerm_resource_group",
+                                "name": "main",
+                                "mode": "managed",
+                                "values": { "location": "eastus" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["terraformType"].Should().Be("azurerm_resource_group");
+    }
 }

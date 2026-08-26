@@ -91,4 +91,28 @@ public sealed class KubernetesYamlInfrastructureDeclarationParserTests
         result.Should().ContainSingle(o => o.Name == "prod/api" && o.ObjectType == "TopologyResource");
         result.Should().ContainSingle(o => o.Name == "prod/deny-all" && o.ObjectType == "SecurityBaseline");
     }
+
+    [Fact]
+    public async Task ParseAsync_GenerateNameOnly_MapsPod()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "pod.yaml",
+            Format = "kubernetes-yaml",
+            DeclarationId = "decl-k8s-yaml-generatename",
+            Content = """
+                      apiVersion: v1
+                      kind: Pod
+                      metadata:
+                        generateName: api-
+                        namespace: prod
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("prod/api-");
+        result[0].Properties["k8s.name"].Should().Be("api-");
+    }
 }

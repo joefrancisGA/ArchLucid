@@ -250,7 +250,12 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             string? m = mode.GetString();
 
             if (!string.IsNullOrWhiteSpace(m))
+            {
+                if (string.Equals(m, "data", StringComparison.OrdinalIgnoreCase))
+                    return;
+
                 properties["mode"] = m.ToLowerInvariant();
+            }
         }
 
         if (TryGetPropertyIgnoreCase(res, "values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
