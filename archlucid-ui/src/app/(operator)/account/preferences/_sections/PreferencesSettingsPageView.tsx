@@ -90,7 +90,6 @@ export function PreferencesSettingsPageView() {
       <OperatorPageHeader
         navHref={ACCOUNT_PREFERENCES_PATH}
         title="Preferences"
-        subtitle="Personal settings saved to your account."
         titleTestId="preferences-settings-page-title"
         actions={<PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />}
       />
@@ -110,8 +109,7 @@ export function PreferencesSettingsPageView() {
               Theme
             </p>
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Choose how ArchLucid appears. Your preference is saved to your account and syncs across browsers where you
-              sign in.
+              Choose how ArchLucid appears.
             </p>
           </div>
           <ThemePreferenceSelector fieldsetLabelledById="preferences-theme-label" />

@@ -3,7 +3,7 @@
  *
  * Why two surfaces exist:
  * - Preferences (`/account/preferences`) is personal appearance/theme
- *   settings saved to your account.
+ *   settings for your account.
  * - Notifications (`/administration/notifications`) is the channel preference
  *   launcher for digests, alerts, Teams, and Slack configure pages.
  *

@@ -32,7 +32,7 @@ export const SELF_SETTINGS_DESTINATIONS: readonly SelfSettingsDestination[] = [
   {
     id: "user-preferences",
     title: "Preferences",
-    description: "Appearance and personal settings saved to your account.",
+    description: "Appearance and other personal settings.",
     href: ACCOUNT_PREFERENCES_PATH,
   },
   {

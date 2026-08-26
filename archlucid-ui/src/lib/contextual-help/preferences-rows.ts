@@ -9,16 +9,16 @@ import { PREFERENCES_HELP_CANONICAL_PATH } from "@/lib/preferences-help-evidence
 
 const PREFERENCES_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Preferences — personal appearance settings saved to your ArchLucid account for this device and signed-in profile.",
+    "Preferences — personal appearance settings for this device and signed-in profile.",
   whatToDoNext:
     "Choose a theme, then open Sign-in methods when sign-in controls need attention or Getting started for onboarding.",
   whyEmpty:
-    "Theme controls are ready whenever you are signed in; saved preferences sync after the preferences API responds.",
+    "Theme controls are ready whenever you are signed in.",
   whereToConfigurePrerequisite:
     "No Admin role is required — preferences write only your own account record.",
   taskSteps: [
     "Choose a theme for this signed-in profile.",
-    "Save preferences when appearance changes should persist.",
+    "Confirm the preferences page reflects your selection.",
     "Open Sign-in methods when account security needs attention.",
   ],
 } as const;
@@ -33,7 +33,7 @@ export const PREFERENCES_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] 
     entry: {
       whatIsThisPage: `Preferences — ${PREFERENCES_HELP_TOPIC_LABEL.toLowerCase()} and how personal theme settings differ from workspace controls.`,
       whatToDoNext:
-        "Open preferences to save appearance choices, then follow sign-in methods or getting started help for related account questions.",
+        "Open preferences to choose appearance settings, then follow sign-in methods or getting started help for related account questions.",
       whyEmpty: "This guide is always available; theme controls render whenever you are signed in.",
       whereToConfigurePrerequisite:
         "Sign-in methods and getting started help cover account security and onboarding follow-ups.",

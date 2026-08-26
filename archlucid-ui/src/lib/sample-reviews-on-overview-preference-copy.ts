@@ -4,6 +4,6 @@ export const PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID = "sample-reviews-
 export const PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING = "Sample reviews on Overview";
 
 export const PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_LEAD =
-  "Show or hide sample review examples on your Overview home page. Your choice is saved to your account and syncs across browsers.";
+  "Show or hide sample review examples on your Overview home page.";
 
 export const PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_TOGGLE_LABEL = "Show sample reviews on Overview";

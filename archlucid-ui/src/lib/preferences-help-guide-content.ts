@@ -4,10 +4,10 @@ import { PREFERENCES_SETTINGS_CANONICAL_PATH } from "@/lib/preferences-settings-
 
 export const PREFERENCES_HELP_PAGE_TITLE = "Preferences";
 
-export const PREFERENCES_HELP_PAGE_SUBTITLE = "Personal settings saved to your account.";
+export const PREFERENCES_HELP_PAGE_SUBTITLE = "Personal appearance and theme settings.";
 
 export const PREFERENCES_HELP_OVERVIEW =
-  "Preferences stores personal appearance choices for your signed-in profile. Theme selections save to your account and apply the next time you sign in on any browser.";
+  "Preferences stores personal appearance choices for your signed-in profile. Theme selections apply the next time you sign in on any browser.";
 
 export const PREFERENCES_HELP_START_HERE_CARD_TITLE = "Start here";
 
@@ -33,11 +33,11 @@ export type PreferencesHelpTileItem = {
 export const PREFERENCES_HELP_TILE_ITEMS: readonly PreferencesHelpTileItem[] = [
   {
     label: "Theme",
-    detail: "Light, dark, or system appearance saved to your account.",
+    detail: "Light, dark, or system appearance.",
   },
   {
-    label: "Where it saves",
-    detail: "Appearance choices save to your signed-in profile only.",
+    label: "Scope",
+    detail: "Appearance choices apply to your signed-in profile only.",
   },
 ] as const;
 
@@ -56,7 +56,7 @@ export const PREFERENCES_HELP_CHANGES_ITEMS: readonly PreferencesHelpTileItem[] 
 
 export const PREFERENCES_HELP_HOW_TO_READ_STEPS = [
   "Choose a theme that matches how you review architecture evidence.",
-  "Save appearance choices and confirm the preferences page reflects your selection.",
+  "Confirm the preferences page reflects your selection.",
   "Use the related links below when personal settings lead to onboarding, account security, or assurance questions.",
 ] as const;
 
