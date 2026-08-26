@@ -118,7 +118,7 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
     return OPERATOR_NAV_LINK_LABELS.findings;
   }
 
-  if (path === "/audit") {
+  if (path === "/audit" || path === GOVERNANCE_AUDIT_PATH) {
     return "Audit trail";
   }
 

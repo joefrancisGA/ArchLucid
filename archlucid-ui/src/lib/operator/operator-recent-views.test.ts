@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+
 import {
   parseStoredRecentViews,
   recordRecentView,
@@ -28,5 +30,9 @@ describe("operator-recent-views", () => {
     expect(recentViewLabelFromPathname("/")).toBeNull();
     expect(recentViewLabelFromPathname("/architecture/reviews/run-1")).toBe("Review");
     expect(recentViewLabelFromPathname("/audit")).toBe("Audit trail");
+  });
+
+  it("maps canonical governance audit path to Audit trail label", () => {
+    expect(recentViewLabelFromPathname(GOVERNANCE_AUDIT_PATH)).toBe("Audit trail");
   });
 });
