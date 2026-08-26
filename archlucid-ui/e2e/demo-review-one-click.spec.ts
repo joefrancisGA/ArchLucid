@@ -39,12 +39,19 @@ test.describe("demo review one-click reliability @demo-review", () => {
     });
 
     await openReviewDetailWorkspaceTab(page, OPERATOR_DEMO_REVIEW_RUN_ID, "findings");
-    const quickDecisionSummary = page.getByTestId("quick-decision-summary");
+    const findingsPanel = page.getByTestId("review-detail-workspace-panel-findings");
+    const quickDecisionSummary = findingsPanel.getByTestId("quick-decision-summary");
     await expect(quickDecisionSummary).toBeVisible({ timeout: 60_000 });
     await quickDecisionSummary.scrollIntoViewIfNeeded();
 
+    const lowConfidenceToggle = quickDecisionSummary.getByTestId("quick-decision-show-low-confidence");
+
+    if (await lowConfidenceToggle.isVisible().catch(() => false)) {
+      await lowConfidenceToggle.check();
+    }
+
     // Findings workspace uses card mode (primary + additional), not the legacy Policy violations list test id.
-    const primaryCard = await expandFindingWorkspaceCard(quickDecisionSummary, "demo-finding-1");
+    const primaryCard = await expandFindingWorkspaceCard(findingsPanel, "demo-finding-1");
     await expect(primaryCard).toHaveAttribute("data-finding-workspace-primary", "true");
     await expect(
       primaryCard.getByRole("heading", { level: 3, name: "Public SQL endpoint without private link" }),

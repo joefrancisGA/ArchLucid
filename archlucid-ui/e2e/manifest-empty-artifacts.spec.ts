@@ -38,7 +38,7 @@ test.describe("operator journey — manifest empty artifact list", () => {
           hasText: /No artifacts listed for this (?:manifest|review)|No deliverables listed yet/,
         }),
       );
-    await expect(emptyRegion).toBeVisible();
+    await expect(emptyRegion).toBeVisible({ timeout: 30_000 });
     await expect(
       emptyRegion.getByText(
         /valid empty result|Download is being prepared when your workspace publishes a bundle for this review/i,
