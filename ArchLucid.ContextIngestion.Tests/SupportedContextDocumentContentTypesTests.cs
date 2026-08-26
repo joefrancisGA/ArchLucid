@@ -11,6 +11,7 @@ public sealed class SupportedContextDocumentContentTypesTests
     [Theory]
     [InlineData("text/plain", true)]
     [InlineData("TEXT/PLAIN", true)]
+    [InlineData(" text/plain ", true)]
     [InlineData("text/markdown", true)]
     [InlineData("application/pdf", false)]
     [InlineData("", false)]

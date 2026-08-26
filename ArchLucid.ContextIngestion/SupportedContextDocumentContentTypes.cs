@@ -15,6 +15,7 @@ public static class SupportedContextDocumentContentTypes
 
     public static bool IsSupported(string? contentType)
     {
-        return !string.IsNullOrWhiteSpace(contentType) && All.Contains(contentType, StringComparer.OrdinalIgnoreCase);
+        return !string.IsNullOrWhiteSpace(contentType)
+               && All.Contains(contentType.Trim(), StringComparer.OrdinalIgnoreCase);
     }
 }
