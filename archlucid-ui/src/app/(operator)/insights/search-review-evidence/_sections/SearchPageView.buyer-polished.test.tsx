@@ -18,6 +18,10 @@ vi.mock("@/components/runs/RunIdPicker", () => ({
   RunIdPicker: () => <div data-testid="search-review-evidence-run-picker" />,
 }));
 
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+}));
+
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
   useWorkspaceActiveRun: () => ({ runId: "", activeRunId: "" }),
 }));
@@ -54,17 +58,17 @@ function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageVie
 }
 
 describe("SearchPageView buyer-polished shell", () => {
-  it("uses buyer subtitle, breadcrumb, help, and claim orientation strip", () => {
+  it("uses buyer subtitle, help, and claim orientation strip", () => {
     render(<SearchPageView model={buildModel()} />);
 
     expect(screen.getByRole("heading", { level: 2, name: SEARCH_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(SEARCH_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("search-review-evidence-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("search-review-evidence-claim-discipline")).toBeInTheDocument();
     expect(screen.getByText(SEARCH_REVIEW_EVIDENCE_CLAIM_HEADING)).toBeInTheDocument();
     expect(screen.getByText(SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.queryByTestId("ask-search-evidence-vocabulary-rail")).not.toBeInTheDocument();
-    expect(screen.getByTestId("search-review-evidence-form")).toBeInTheDocument();
+    expect(screen.getByTestId("search-pick-review-before-search-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("search-review-evidence-form")).not.toBeInTheDocument();
   });
 });
