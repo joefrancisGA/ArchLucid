@@ -417,4 +417,23 @@ public sealed class ReviewResultCacheTests
 
         cache.TryGet(overflowManifest, out ClosedLoopReasoningResult? overflow).Should().BeFalse();
     }
+
+    [Fact]
+    public void Set_overwrites_existing_key_when_cache_is_full()
+    {
+        ReviewResultCache cache = new();
+
+        for (int index = 0; index < 128; index++)
+        {
+            cache.Set(
+                new ReviewCacheDependencyManifest { ContentHash = $"fill-{index}" },
+                new ClosedLoopReasoningResult { RunId = $"run-{index}" });
+        }
+
+        ReviewCacheDependencyManifest targetManifest = new() { ContentHash = "fill-0" };
+        cache.Set(targetManifest, new ClosedLoopReasoningResult { RunId = "updated-run" });
+
+        cache.TryGet(targetManifest, out ClosedLoopReasoningResult? updated).Should().BeTrue();
+        updated!.RunId.Should().Be("updated-run");
+    }
 }

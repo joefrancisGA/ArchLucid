@@ -83,7 +83,9 @@ public sealed class ReviewResultCache : IReviewResultCache
 
             EvictExpiredEntries();
 
-            if (_cache.Count >= MaxEntries && !TryEvictOldestUnpinnedEntry())
+            if (!_cache.ContainsKey(key)
+                && _cache.Count >= MaxEntries
+                && !TryEvictOldestUnpinnedEntry())
                 return;
 
             DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
