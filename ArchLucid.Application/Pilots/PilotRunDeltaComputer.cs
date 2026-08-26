@@ -79,19 +79,31 @@ public sealed class PilotRunDeltaComputer(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         DateTime? committedUtc = ResolveManifestCommittedUtc(run, detail.Manifest);
         TimeSpan? wall = committedUtc is { } c ? c - run.CreatedUtc : null;
-        IReadOnlyList<KeyValuePair<string, int>> findings = AggregateFindingsBySeverity(detail);
+        IReadOnlyList<KeyValuePair<string, int>> agentFindings = AggregateFindingsBySeverity(detail);
+        IReadOnlyList<KeyValuePair<string, int>> findings = agentFindings;
         FindingsSnapshot? persistedFindingsSnapshot = null;
+        bool findingsFromSnapshot = false;
 
-        if (SumFindingCounts(findings) == 0 && run.FindingsSnapshotId is { } findingsSnapshotId && findingsSnapshotId != Guid.Empty)
+        if (run.FindingsSnapshotId is { } findingsSnapshotId && findingsSnapshotId != Guid.Empty)
         {
             persistedFindingsSnapshot =
                 await TryLoadFindingsSnapshotAsync(scope, findingsSnapshotId, cancellationToken);
 
-            if (persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotFindings)
-                findings = AggregateFindingsBySeverity(snapshotFindings);
+            if (persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotFindingsList)
+            {
+                IReadOnlyList<KeyValuePair<string, int>> snapshotFindings =
+                    AggregateFindingsBySeverity(snapshotFindingsList);
+
+                if (SumFindingCounts(agentFindings) == 0
+                    || SumFindingCounts(snapshotFindings) > SumFindingCounts(agentFindings))
+                {
+                    findings = snapshotFindings;
+                    findingsFromSnapshot = true;
+                }
+            }
         }
 
-        GovernedFindingCoverageMetric governedCoverage = persistedFindingsSnapshot?.Findings is { Count: > 0 } coverageFindings
+        GovernedFindingCoverageMetric governedCoverage = findingsFromSnapshot && persistedFindingsSnapshot?.Findings is { Count: > 0 } coverageFindings
             ? AggregateGovernedFindingCoverage(coverageFindings)
             : AggregateGovernedFindingCoverage(detail);
 
@@ -99,7 +111,17 @@ public sealed class PilotRunDeltaComputer(
         string? topFindingId = topAgentFinding?.FindingId;
         string? topFindingSeverity = topAgentFinding?.Severity.ToString();
 
-        if (topFindingId is null && persistedFindingsSnapshot?.Findings is { Count: > 0 } topCandidates)
+        if (findingsFromSnapshot && persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotTopCandidates)
+        {
+            Finding? snapshotTopFinding = SelectTopSeveritySnapshotFinding(snapshotTopCandidates);
+
+            if (snapshotTopFinding is not null)
+            {
+                topFindingId = snapshotTopFinding.FindingId;
+                topFindingSeverity = snapshotTopFinding.Severity.ToString();
+            }
+        }
+        else if (topFindingId is null && persistedFindingsSnapshot?.Findings is { Count: > 0 } topCandidates)
         {
             Finding? snapshotTopFinding = SelectTopSeveritySnapshotFinding(topCandidates);
 

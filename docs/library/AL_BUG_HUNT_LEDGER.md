@@ -1526,11 +1526,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 5
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — ReadyForCommit runs with manifest version counted as committed in value report and recent-deltas panel
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — sparse agent results suppressed richer findings snapshot in pilot deltas
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1545,6 +1545,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PilotScorecardBuilder` counted `ReadyForCommit` runs with manifest ids as committed — **hit 2026-08-24:** predicate used manifest version/id only; fixed to require `LegacyRunStatus == Committed` (`PilotScorecardBuilderTests.BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted`).
 - [x] (proven) Buyer proof `artifact-and-proof-summary.md` omitted governed-finding coverage — **hit 2026-08-24:** `BuyerProofPackArtifactSummaryBuilder` ignored `governedFindingCoverage` in deltas JSON (`BuyerProofPackArtifactSummaryBuilderTests.Build_WhenGovernedFindingCoveragePresent_EmitsGovernedCoverageSection`).
 - [x] (proven) `PilotValueReportService` and `RecentPilotRunDeltasService` counted `ReadyForCommit` runs with manifest versions as committed — **hit 2026-08-25:** `IsCommittedSummary` / `IsCommitted` treated `CurrentManifestVersion` as sufficient; aligned with scorecard fix to require `Status == Committed` (`BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted`, `GetRecentDeltasAsync_ExcludesReadyForCommitRunWithManifestVersion`).
+- [x] (proven) `PilotRunDeltaComputer` partial agent results blocked findings-snapshot fallback — **hit 2026-08-26:** sparse non-muted agent rows skipped persisted snapshot severity/top/governed coverage when snapshot had more findings; fixed by loading snapshot whenever `FindingsSnapshotId` is set and preferring snapshot when it reports more findings (`ComputeAsync_WhenAgentResultsHaveSparseFindings_StillUsesFindingsSnapshotForSeverityTopFindingAndGovernedCoverage`).
+- [ ] (candidate) `FirstValueReportBuilder.ResolveCostEvidenceFreshnessForBadges` never sees extractor collection timestamp — badges stay Missing unless `RoiConfidenceLabel` contains uploaded/extractor wording
+- [ ] (candidate) `PilotProofPackageCompletenessMapper` committed timestamp Present contradicts buyer-safe gate soft gap when `CompletedUtc` resolves manifest timestamp
+- [ ] (candidate) `SponsorEvidencePackService` explainability trace completeness vs `PilotRunDeltaComputer` delta counts diverge on sparse agent + snapshot runs
+- [ ] (candidate) `PilotProofPackageCompletenessMapper.FindingsBySeverityPresent` hard-coded true — zero-finding runs still show Present in proof contract
 
 ---
 
