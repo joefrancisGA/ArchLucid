@@ -67,9 +67,13 @@ internal sealed class ReviewSingleFlightCoordinator
 
                 ClosedLoopReasoningResult followerClone = ClosedLoopReasoningResultCloner.Clone(waitersResult);
 
-                if (stripCoalescedFollowerPublishLeaks
-                    && (waitersResult.PublishBlocked || waitersResult.PublishedToProduct))
-                    ClosedLoopCacheHitPublishGuard.ClearCoalescedFollowerPublishLeaks(followerClone);
+                if (stripCoalescedFollowerPublishLeaks)
+                {
+                    if (waitersResult.PublishBlocked)
+                        ClosedLoopCacheHitPublishGuard.ClearCoalescedFollowerPublishLeaks(followerClone);
+                    else if (waitersResult.PublishedToProduct)
+                        ClosedLoopCacheHitPublishGuard.ClearAnalysisOnlyPublishIsolation(followerClone);
+                }
 
                 return followerClone;
             }
