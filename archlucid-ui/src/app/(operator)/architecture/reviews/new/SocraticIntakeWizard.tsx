@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
+import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
@@ -49,6 +50,7 @@ import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
 export function SocraticIntakeWizard() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
   const {
     // Intake context (query string, budget gate)
     exampleTemplate,
@@ -195,7 +197,7 @@ export function SocraticIntakeWizard() {
       data-testid="socratic-intake-wizard"
     >
       <div className="min-w-0 space-y-4">
-      {wizardSession.pendingRestore !== null ? (
+      {wizardSession.pendingRestore !== null && !suppressWizardResumePrompt ? (
         <WizardSessionResumePrompt
           onResume={wizardSession.acceptRestore}
           onDismiss={wizardSession.dismissRestore}

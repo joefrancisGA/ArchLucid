@@ -23,6 +23,7 @@ import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/Wizard
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useInferredUniversalIntakeAnswers } from "@/hooks/use-inferred-universal-intake-answers";
+import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { type CreateArchitectureRunRequestPayload } from "@/lib/api";
@@ -185,6 +186,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       wizardSessionHasTextContent(state.runTitle) || wizardSessionHasTextContent(state.briefText),
     onRestore: handleSessionRestore,
   });
+  const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
 
   useEffect(() => {
     const refreshWriteDestination = () => {
@@ -368,7 +370,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
   return (
     <div className="space-y-5" data-testid="first-pilot-intake-wizard">
-      {wizardSession.pendingRestore !== null ? (
+      {wizardSession.pendingRestore !== null && !suppressWizardResumePrompt ? (
         <WizardSessionResumePrompt
           onResume={wizardSession.acceptRestore}
           onDismiss={wizardSession.dismissRestore}

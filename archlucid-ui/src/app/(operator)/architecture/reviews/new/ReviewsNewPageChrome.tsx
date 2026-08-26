@@ -17,6 +17,10 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reviewsNewPageSubtitle } from "@/lib/reviews-new-page-copy";
 import {
+  resolveReviewsNewPathModeFromQuery,
+  reviewsNewShowsPathTabChrome,
+} from "@/lib/reviews-new-page-resume-hero";
+import {
   REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_HREF,
   REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_LINK_LABEL,
   REVIEWS_NEW_CLOUD_CONNECTIONS_HUB_HREF,
@@ -28,21 +32,6 @@ import { cn } from "@/lib/utils";
 
 import { ReviewsNewBreadcrumb } from "./ReviewsNewBreadcrumb";
 import { useReviewsNewSpecimenPreviewPresentation } from "./use-reviews-new-specimen-preview-presentation";
-
-function resolveReviewsNewPathMode(pathQuery: string): ReviewsNewPathMode | null {
-  if (pathQuery === "detailed" || pathQuery === "guided-intake" || pathQuery === "quick-review") {
-    return pathQuery;
-  }
-
-  return null;
-}
-
-function reviewsNewShowsPathTabChrome(
-  buyerPolishedShell: boolean,
-  activePath: ReviewsNewPathMode | null,
-): boolean {
-  return buyerPolishedShell && activePath !== null && activePath !== "quick-review";
-}
 
 type ReviewsNewPageSubtitleProps = {
   readonly buyerPolishedShell: boolean;
@@ -119,7 +108,7 @@ export function ReviewsNewPageChrome(): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const searchParams = useSearchParams();
   const pathQuery = searchParams?.get("path")?.trim() ?? "";
-  const activePath = resolveReviewsNewPathMode(pathQuery);
+  const activePath = resolveReviewsNewPathModeFromQuery(pathQuery);
   const onPathTab = reviewsNewShowsPathTabChrome(buyerPolishedShell, activePath);
   const showContextualHelp = !(buyerPolishedShell && onPathTab);
   const specimenPreviewPresentation = useReviewsNewSpecimenPreviewPresentation();

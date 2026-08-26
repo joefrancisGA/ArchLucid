@@ -153,6 +153,17 @@ function toResumableSession(
   };
 }
 
+/** Resumable session when the hub-level resume strip would render (not dismissed). */
+export function findVisibleReviewsNewPageLevelResumeSession(): ReviewsNewResumableWizardSession | null {
+  const session = findResumableReviewsNewWizardSession();
+
+  if (session === null || isReviewsNewWizardResumeStripDismissed(session)) {
+    return null;
+  }
+
+  return session;
+}
+
 /** Most recently saved resumable new-review wizard session in this browser scope. */
 export function findResumableReviewsNewWizardSession(): ReviewsNewResumableWizardSession | null {
   if (typeof window === "undefined") {
