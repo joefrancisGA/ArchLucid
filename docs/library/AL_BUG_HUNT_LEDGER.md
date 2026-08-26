@@ -1802,11 +1802,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 38
-- **bugs-found:** 82
+- **hunts:** 39
+- **bugs-found:** 83
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — JSON infra same type/name different subtype collapsed; three-segment topology hint inner slash spacing churned deltas
+- **last-bug:** 2026-08-26 — Terraform show-json sibling modules with same type+label collapsed to one resource
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1903,7 +1903,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CanonicalDeduplicator.GetDedupeFingerprint` omitted `k8s.kind` — **hit 2026-08-26:** cluster-scoped Kubernetes Deployment and Service both named `api` collapsed to one snapshot object after enrich/dedupe despite connector delta fix; fixed by fingerprinting `k8s.kind` (`CanonicalDeduplicatorTests.Deduplicate_KeepsKubernetesResourcesWithSameNameDifferentKind`).
 - [x] (proven) `InfrastructureDeclarationDeltaKey` / `CanonicalDeduplicator` / `JsonInfrastructureDeclarationParser` ignored JSON `subtype` and `region` when `resourceType` and `Name` matched — **hit 2026-08-26:** two `vnet` resources both named `hub` with different `subtype`/`region` collapsed to one delta key, deduped to one object, and shared unstable `ObjectId`; fixed with `InfrastructureDeclarationResourceIdentity` disambiguators (`InfrastructureDeclarationConnectorTests.DeltaAsync_JsonSameTypeNameDifferentSubtype_CountsBothResources`, `CanonicalDeduplicatorTests.Deduplicate_KeepsJsonResourcesWithSameTypeNameDifferentSubtype`).
 - [x] (proven) `TopologyHintStableObjectIds.CanonicalizeHintName` only normalized spacing around the first `/` — **hit 2026-08-26:** `prod / vnet / subnet-a` vs `prod/vnet/subnet-a` churned topology-hints connector deltas and `ObjectId`; fixed by trimming all slash segments (`TopologyHintStableObjectIdsTests.CanonicalizeHintName_ThreeSegmentInnerSlashSpacing_EquivalentPathsMatch`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_DeltaAsync_ThreeSegmentInnerSlashSpacing_ReportsUnchanged`).
-- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser.CollectFromModule` ignores module address when sibling child modules declare the same Terraform type + label — needs module path in `Name`, `ObjectId`, and delta keys before hunt-ready
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.CollectFromModule` ignored module/resource `address` when sibling child modules declared the same Terraform type + label — **hit 2026-08-26:** two `azurerm_subnet.this` resources in `module.network` and `module.data` collapsed to one `Name`, `ObjectId`, and delta key; fixed by resolving terraform resource addresses from JSON `address` or `moduleAddress.type.label` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_SiblingChildModulesSameResourceLabel_EmitsTwoResources`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonSiblingModulesSameLabel_CountsBothResources`).
 
 ---
 

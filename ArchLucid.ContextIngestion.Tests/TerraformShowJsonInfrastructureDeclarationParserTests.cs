@@ -1067,4 +1067,62 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_SiblingChildModulesSameResourceLabel_EmitsTwoResources()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tfshow-sibling-modules",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [],
+                            "child_modules": [
+                              {
+                                "address": "module.network",
+                                "resources": [
+                                  {
+                                    "address": "module.network.azurerm_subnet.this",
+                                    "type": "azurerm_subnet",
+                                    "name": "this",
+                                    "mode": "managed",
+                                    "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                    "values": { "name": "subnet-a" }
+                                  }
+                                ]
+                              },
+                              {
+                                "address": "module.data",
+                                "resources": [
+                                  {
+                                    "address": "module.data.azurerm_subnet.this",
+                                    "type": "azurerm_subnet",
+                                    "name": "this",
+                                    "mode": "managed",
+                                    "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                    "values": { "name": "subnet-b" }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().HaveCount(2);
+        objects.Select(static o => o.Name).Should().BeEquivalentTo(
+        [
+            "module.network.azurerm_subnet.this",
+            "module.data.azurerm_subnet.this",
+        ]);
+        objects[0].ObjectId.Should().NotBe(objects[1].ObjectId);
+    }
 }

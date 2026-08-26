@@ -2054,4 +2054,85 @@ public sealed class InfrastructureDeclarationConnectorTests
         secondDelta.AddedCount.Should().Be(0);
         secondDelta.RemovedCount.Should().Be(0);
     }
+
+    [Fact]
+    public async Task DeltaAsync_TerraformShowJsonSiblingModulesSameLabel_CountsBothResources()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([
+                new TerraformShowJsonInfrastructureDeclarationParser(
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger<TerraformShowJsonInfrastructureDeclarationParser>.Instance),
+            ]),
+            new SetDiffConnectorDeltaComputer());
+
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "state.json",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tfshow-sibling-modules",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [],
+                            "child_modules": [
+                              {
+                                "address": "module.network",
+                                "resources": [
+                                  {
+                                    "address": "module.network.azurerm_subnet.this",
+                                    "type": "azurerm_subnet",
+                                    "name": "this",
+                                    "mode": "managed",
+                                    "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                    "values": { "name": "subnet-a" }
+                                  }
+                                ]
+                              },
+                              {
+                                "address": "module.data",
+                                "resources": [
+                                  {
+                                    "address": "module.data.azurerm_subnet.this",
+                                    "type": "azurerm_subnet",
+                                    "name": "this",
+                                    "mode": "managed",
+                                    "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                    "values": { "name": "subnet-b" }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """,
+        };
+
+        RawContextPayload raw = new()
+        {
+            InfrastructureDeclarations = [declaration],
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        firstBatch.CanonicalObjects.Should().HaveCount(2);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "p",
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        ContextDelta secondDelta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        secondDelta.UnchangedCount.Should().Be(2);
+        secondDelta.AddedCount.Should().Be(0);
+        secondDelta.RemovedCount.Should().Be(0);
+    }
 }

@@ -50,7 +50,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             }
 
             if (values.TryGetProperty("root_module", out JsonElement rootModule))
-                CollectFromModule(rootModule, declaration, results);
+                CollectFromModule(rootModule, moduleAddress: string.Empty, declaration, results);
         }
         catch (JsonException ex)
         {
@@ -67,13 +67,14 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
 
     private static void CollectFromModule(
         JsonElement module,
+        string moduleAddress,
         InfrastructureDeclarationReference declaration,
         List<CanonicalObject> results)
     {
         if (module.TryGetProperty("resources", out JsonElement resources) && resources.ValueKind == JsonValueKind.Array)
         {
             foreach (JsonElement res in resources.EnumerateArray())
-                TryAddResource(res, declaration, results);
+                TryAddResource(res, moduleAddress, declaration, results);
         }
 
         if (!module.TryGetProperty("child_modules", out JsonElement children) ||
@@ -81,11 +82,65 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             return;
 
         foreach (JsonElement child in children.EnumerateArray())
-            CollectFromModule(child, declaration, results);
+            CollectFromModule(child, ResolveModuleAddress(child), declaration, results);
+    }
+
+    private static string ResolveModuleAddress(JsonElement module)
+    {
+        if (!module.TryGetProperty("address", out JsonElement addressElement) ||
+            addressElement.ValueKind != JsonValueKind.String)
+            return string.Empty;
+
+        string? address = addressElement.GetString();
+
+        return string.IsNullOrWhiteSpace(address) ? string.Empty : address.Trim().ToLowerInvariant();
+    }
+
+    private static bool TryGetResourceAddress(JsonElement res, out string canonicalAddress)
+    {
+        canonicalAddress = string.Empty;
+
+        if (!res.TryGetProperty("address", out JsonElement addressElement) ||
+            addressElement.ValueKind != JsonValueKind.String)
+            return false;
+
+        string? address = addressElement.GetString();
+
+        if (string.IsNullOrWhiteSpace(address))
+            return false;
+
+        canonicalAddress = address.Trim().ToLowerInvariant();
+
+        return true;
+    }
+
+    private static string BuildTerraformResourceAddress(
+        string moduleAddress,
+        string canonicalTerraformType,
+        string canonicalLabel)
+    {
+        if (!string.IsNullOrWhiteSpace(moduleAddress))
+            return $"{moduleAddress}.{canonicalTerraformType}.{canonicalLabel}";
+
+        return $"{canonicalTerraformType}.{canonicalLabel}";
+    }
+
+    private static string BuildTerraformResourceIdentity(
+        string moduleAddress,
+        string canonicalTerraformType,
+        string canonicalLabel,
+        string canonicalAddress,
+        bool hasExplicitResourceAddress)
+    {
+        if (hasExplicitResourceAddress || !string.IsNullOrWhiteSpace(moduleAddress))
+            return canonicalAddress;
+
+        return $"{canonicalTerraformType}|{canonicalLabel}";
     }
 
     private static void TryAddResource(
         JsonElement res,
+        string moduleAddress,
         InfrastructureDeclarationReference declaration,
         List<CanonicalObject> results)
     {
@@ -177,16 +232,32 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             }
         }
 
-        string canonicalName = name.ToLowerInvariant();
+        string canonicalLabel = name.ToLowerInvariant();
+        bool hasExplicitResourceAddress = TryGetResourceAddress(res, out string canonicalAddress);
+
+        if (!hasExplicitResourceAddress)
+        {
+            canonicalAddress = BuildTerraformResourceAddress(
+                moduleAddress,
+                canonicalTerraformType,
+                canonicalLabel);
+        }
+
+        string resourceIdentity = BuildTerraformResourceIdentity(
+            moduleAddress,
+            canonicalTerraformType,
+            canonicalLabel,
+            canonicalAddress,
+            hasExplicitResourceAddress);
 
         results.Add(new CanonicalObject
         {
             ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
                 declaration.DeclarationId,
                 objectType,
-                $"{canonicalTerraformType}|{canonicalName}"),
+                resourceIdentity),
             ObjectType = objectType,
-            Name = $"{canonicalTerraformType}.{canonicalName}",
+            Name = canonicalAddress,
             SourceType = "InfrastructureDeclaration",
             SourceId = declaration.DeclarationId,
             Properties = properties
