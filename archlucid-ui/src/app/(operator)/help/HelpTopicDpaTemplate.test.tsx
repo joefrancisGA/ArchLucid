@@ -18,7 +18,9 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpDpaTemplateGuideView } from "@/app/(operator)/help/_sections/HelpDpaTemplateGuideView";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import {
+  DPA_TEMPLATE_HELP_CLAIM_DISCIPLINE,
   DPA_TEMPLATE_HELP_DOWNLOAD_ACTION,
   DPA_TEMPLATE_HELP_OPEN_VARIABLES,
   DPA_TEMPLATE_HELP_PRIMARY_ACTIONS,
@@ -65,7 +67,16 @@ describe("HelpDpaTemplateGuideView", () => {
     expect(visible).toContain("not a countersigned");
     expect(screen.getByTestId("help-dpa-template-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-dpa-template-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("help-dpa-template-claim-discipline-strip")).toHaveTextContent(
+      DPA_TEMPLATE_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-dpa-template",
+      "help-dpa-template-claim-discipline",
+      DPA_TEMPLATE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.queryByTestId("help-dpa-template-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-dpa-template-orientation")).toBeInTheDocument();
     expect(screen.getByTestId("help-dpa-template-full-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("help-dpa-template-key-terms")).toBeInTheDocument();
@@ -125,7 +136,7 @@ describe("HelpDpaTemplateGuideView", () => {
     const contentColumn = overview.parentElement;
     expect(contentColumn?.className).toContain("max-w-[52rem]");
 
-    expect(screen.getByTestId("help-dpa-template-claim-discipline").tagName).toBe("SECTION");
+    expect(screen.getByTestId("help-dpa-template-claim-discipline-strip").tagName).toBe("ASIDE");
 
     const actionPanelLinks = within(actionPanel).getAllByRole("link");
     expect(actionPanelLinks).toHaveLength(3);

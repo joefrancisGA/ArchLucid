@@ -1,15 +1,14 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { DpaTemplateHelpClaimDisciplineStrip } from "@/components/help/DpaTemplateHelpClaimDisciplineStrip";
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  DPA_TEMPLATE_HELP_CLAIM_DISCIPLINE,
   DPA_TEMPLATE_HELP_DOWNLOAD_ACTION,
   DPA_TEMPLATE_HELP_FULL_DISCLOSURE_CAVEAT,
   DPA_TEMPLATE_HELP_KEY_TERMS,
@@ -26,7 +25,6 @@ import {
 import { DPA_TEMPLATE_HELP_PATH } from "@/lib/dpa-template-help-route";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -93,17 +91,42 @@ export function HelpDpaTemplateGuideView(props: HelpDpaTemplateGuideViewProps): 
         }
       />
 
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className={DESIGN_TOKENS.surface.card}
-          data-testid="help-dpa-template-action-panel"
+      <DpaTemplateHelpClaimDisciplineStrip />
+
+      <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn, "max-w-[52rem]")}>
+        <section
+          aria-labelledby="help-dpa-template-orientation-heading"
+          data-testid="help-dpa-template-orientation"
         >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Continue procurement diligence
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+          <h2
+            id="help-dpa-template-orientation-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            How to use this template
+          </h2>
+          <ol className={cn("m-0 mt-2 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}>
+            {DPA_TEMPLATE_HELP_ORIENTATION.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </section>
+
+        <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-dpa-template-overview">
+          {DPA_TEMPLATE_HELP_OVERVIEW}
+        </p>
+
+        <section
+          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+          data-testid="help-dpa-template-action-panel"
+          aria-labelledby="help-dpa-template-action-panel-heading"
+        >
+          <h2
+            id="help-dpa-template-action-panel-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            Continue procurement diligence
+          </h2>
+          <div className="flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="outline">
               <Link href={DPA_TEMPLATE_HELP_PRIMARY_ACTIONS.openTrustCenter.href}>
                 {DPA_TEMPLATE_HELP_PRIMARY_ACTIONS.openTrustCenter.label}
@@ -119,14 +142,8 @@ export function HelpDpaTemplateGuideView(props: HelpDpaTemplateGuideViewProps): 
                 {DPA_TEMPLATE_HELP_PRIMARY_ACTIONS.openProcurement.label}
               </Link>
             </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn, "max-w-[52rem]")}>
-        <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-dpa-template-overview">
-          {DPA_TEMPLATE_HELP_OVERVIEW}
-        </p>
+          </div>
+        </section>
 
         <section
           aria-labelledby="help-dpa-template-key-terms-heading"
@@ -158,37 +175,6 @@ export function HelpDpaTemplateGuideView(props: HelpDpaTemplateGuideViewProps): 
               <li key={variable}>{variable}</li>
             ))}
           </ul>
-        </section>
-
-        <section
-          aria-labelledby="help-dpa-template-orientation-heading"
-          data-testid="help-dpa-template-orientation"
-        >
-          <h2
-            id="help-dpa-template-orientation-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-          >
-            How to use this template
-          </h2>
-          <ol className={cn("m-0 mt-2 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}>
-            {DPA_TEMPLATE_HELP_ORIENTATION.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
-        </section>
-
-        <section
-          aria-labelledby="help-dpa-template-claim-discipline-heading"
-          className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
-          data-testid="help-dpa-template-claim-discipline"
-        >
-          <h2
-            id="help-dpa-template-claim-discipline-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-          >
-            Negotiation template only
-          </h2>
-          <p className={cn("m-0 mt-2", HELP_PAGE_LAYOUT.readingBody)}>{DPA_TEMPLATE_HELP_CLAIM_DISCIPLINE}</p>
         </section>
 
         <HelpLazyDetails

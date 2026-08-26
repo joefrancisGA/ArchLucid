@@ -76,6 +76,7 @@ export function CaiqSigResponseHelpEvidenceOrientationStrip(): React.JSX.Element
 
       <EvidenceOrientationClaimCallout
         testId="caiq-sig-response-help-claim-discipline"
+        stripSlug="help-caiq-sig-response"
         body={CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE}
         heading={{
           id: "caiq-sig-response-help-claim-heading",

@@ -14,6 +14,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 import { HelpCaiqSigResponseGuideView } from "@/app/(operator)/help/_sections/HelpCaiqSigResponseGuideView";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING,
   CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE,
@@ -57,9 +59,15 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
     expect(screen.getByTestId(CAIQ_SIG_RESPONSE_HELP_GUIDE_TEST_ID)).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("caiq-sig-response-help-lead")).toHaveTextContent(CAIQ_SIG_RESPONSE_HELP_LEAD);
-    expect(screen.getByRole("heading", { name: CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING })).toBeInTheDocument();
-    expect(screen.getByTestId("caiq-sig-response-help-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("help-caiq-sig-response-claim-discipline-strip")).toHaveTextContent(
       CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE,
+    );
+    expect(screen.getByRole("heading", { name: CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING })).toBeInTheDocument();
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-caiq-sig-response",
+      "caiq-sig-response-help-claim-discipline",
+      CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE.slice(0, 40),
     );
 
     expect(screen.getByTestId(CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS.openTrustCenter.testId)).toHaveAttribute(
@@ -80,8 +88,9 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
     expect(screen.getByRole("link", { name: CAIQ_SIG_RESPONSE_SIG_PART_HEADING })).toBeInTheDocument();
 
     for (const link of CAIQ_SIG_RESPONSE_HELP_SOURCES) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
       const sourceLink = within(screen.getByTestId("caiq-sig-response-help-sources")).getByRole("link", {
-        name: link.label,
+        name: accessibleName,
       });
       expect(sourceLink).toHaveAttribute("href", link.href);
       expect(screen.getByText(link.when)).toBeInTheDocument();

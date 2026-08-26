@@ -17,6 +17,7 @@ import { HelpAzureBoardsGuideView } from "@/app/(operator)/help/_sections/HelpAz
 import {
   AZURE_BOARDS_HELP_AUTHORITY_NOTE,
   AZURE_BOARDS_HELP_CANONICAL_PATH,
+  AZURE_BOARDS_HELP_CLAIM_DISCIPLINE,
   AZURE_BOARDS_HELP_CONTINUE_HEADING,
   AZURE_BOARDS_HELP_PAT_NON_RECOVERABLE_WARNING,
   AZURE_BOARDS_HELP_PAT_SCOPE_WARNING,
@@ -28,6 +29,7 @@ import {
   AZURE_BOARDS_HELP_LIMITATIONS_HEADING,
   azureBoardsHelpCopyContainsBannedPattern,
 } from "@/lib/azure-boards-help-limitations-honesty";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -140,9 +142,16 @@ describe("HelpAzureBoardsGuideView (HEZ)", () => {
     );
 
     const actionPanel = screen.getByTestId("help-azure-boards-action-panel");
-    const claimDiscipline = screen.getByTestId("help-azure-boards-claim-discipline");
+    const claimStrip = screen.getByTestId("help-azure-boards-claim-discipline-strip");
 
-    expect(actionPanel.compareDocumentPosition(claimDiscipline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(claimStrip).toHaveTextContent(AZURE_BOARDS_HELP_CLAIM_DISCIPLINE);
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-azure-boards",
+      "help-azure-boards-claim-discipline",
+      AZURE_BOARDS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(claimStrip.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     for (const link of AZURE_BOARDS_HELP_SOURCES) {
       const sourceLink = screen.getByRole("link", { name: link.label });

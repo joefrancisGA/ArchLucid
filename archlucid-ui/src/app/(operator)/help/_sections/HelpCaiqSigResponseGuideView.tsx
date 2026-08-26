@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { CaiqSigResponseHelpClaimDisciplineStrip } from "@/components/help/CaiqSigResponseHelpClaimDisciplineStrip";
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
@@ -11,7 +12,6 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   buildCaiqSigResponseHelpJobMatrix,
   CAIQ_SIG_RESPONSE_HELP_GUIDE_TEST_ID,
@@ -34,7 +34,6 @@ import {
   prepareCaiqSigResponseHelpMarkdown,
 } from "@/lib/caiq-sig-response-help-presentation";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -102,19 +101,25 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
         }
       />
 
+      <CaiqSigResponseHelpClaimDisciplineStrip />
+
       <HelpTopicExportClaimDiscipline claimDiscipline={CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE} />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+        <CaiqSigResponseHelpEvidenceOrientationStrip />
+
+        <section
+          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="help-caiq-sig-response-action-panel"
+          aria-labelledby="help-caiq-sig-response-action-panel-heading"
         >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Continue assurance diligence
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+          <h2
+            id="help-caiq-sig-response-action-panel-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            Continue assurance diligence
+          </h2>
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               asChild
               size="sm"
@@ -140,10 +145,8 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
             >
               {CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS.requestDiligencePack.label}
             </Link>
-          </CardContent>
-        </Card>
-
-        <CaiqSigResponseHelpEvidenceOrientationStrip />
+          </div>
+        </section>
 
         <section
           aria-labelledby="help-caiq-sig-response-workflow-heading"

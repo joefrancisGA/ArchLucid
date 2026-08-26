@@ -14,7 +14,9 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpSoc2SelfAssessmentGuideView } from "@/app/(operator)/help/_sections/HelpSoc2SelfAssessmentGuideView";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import {
+  SOC2_SELF_ASSESSMENT_HELP_CLAIM_DISCIPLINE,
   SOC2_SELF_ASSESSMENT_HELP_PAGE_TITLE,
   SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS,
   SOC2_SELF_ASSESSMENT_HELP_SOURCES,
@@ -51,7 +53,16 @@ describe("HelpSoc2SelfAssessmentGuideView", () => {
     expect(visible).toContain("not a soc 2 type i");
     expect(screen.getByTestId("help-soc2-self-assessment-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-soc2-self-assessment-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("help-soc2-self-assessment-claim-discipline-strip")).toHaveTextContent(
+      SOC2_SELF_ASSESSMENT_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-soc2-self-assessment",
+      "help-soc2-self-assessment-claim-discipline",
+      SOC2_SELF_ASSESSMENT_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.queryByTestId("help-soc2-self-assessment-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-soc2-self-assessment-job-matrix")).toBeInTheDocument();
     expect(screen.getByTestId("help-soc2-self-assessment-page-title")).toHaveTextContent(
       SOC2_SELF_ASSESSMENT_HELP_PAGE_TITLE,

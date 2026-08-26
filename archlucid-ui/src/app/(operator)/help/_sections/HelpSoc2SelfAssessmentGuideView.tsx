@@ -4,13 +4,12 @@ import { HelpSoc2SelfAssessmentHeaderMetadata } from "@/app/(operator)/help/_sec
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { Soc2SelfAssessmentHelpClaimDisciplineStrip } from "@/components/help/Soc2SelfAssessmentHelpClaimDisciplineStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  SOC2_SELF_ASSESSMENT_HELP_CLAIM_DISCIPLINE,
   SOC2_SELF_ASSESSMENT_HELP_JOB_MATRIX,
   SOC2_SELF_ASSESSMENT_HELP_ORIENTATION,
   SOC2_SELF_ASSESSMENT_HELP_OVERVIEW,
@@ -22,9 +21,7 @@ import {
 } from "@/lib/soc2-self-assessment-help-guide-content";
 import { SOC2_SELF_ASSESSMENT_HELP_PATH } from "@/lib/soc2-self-assessment-help-route";
 import {
-  DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -77,43 +74,10 @@ export function HelpSoc2SelfAssessmentGuideView(
         }
       />
 
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
-          data-testid="help-soc2-self-assessment-action-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Continue assurance diligence
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary" data-testid="help-soc2-self-assessment-primary-cta">
-              <Link href={SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openTrustCenter.href}>
-                {SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openTrustCenter.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openCaiqSig.href}>
-                {SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openCaiqSig.label}
-              </Link>
-            </Button>
-            <Link
-              href={SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openProcurement.href}
-              className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            >
-              {SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openProcurement.label}
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
+      <Soc2SelfAssessmentHelpClaimDisciplineStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-soc2-self-assessment-overview">
-            {SOC2_SELF_ASSESSMENT_HELP_OVERVIEW}
-          </p>
-
           <section
             aria-labelledby="help-soc2-self-assessment-orientation-heading"
             data-testid="help-soc2-self-assessment-orientation"
@@ -129,6 +93,41 @@ export function HelpSoc2SelfAssessmentGuideView(
                 <li key={step}>{step}</li>
               ))}
             </ol>
+          </section>
+
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-soc2-self-assessment-overview">
+            {SOC2_SELF_ASSESSMENT_HELP_OVERVIEW}
+          </p>
+
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-soc2-self-assessment-action-panel"
+            aria-labelledby="help-soc2-self-assessment-action-panel-heading"
+          >
+            <h2
+              id="help-soc2-self-assessment-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              Continue assurance diligence
+            </h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="primary" data-testid="help-soc2-self-assessment-primary-cta">
+                <Link href={SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openTrustCenter.href}>
+                  {SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openTrustCenter.label}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href={SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openCaiqSig.href}>
+                  {SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openCaiqSig.label}
+                </Link>
+              </Button>
+              <Link
+                href={SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openProcurement.href}
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
+              >
+                {SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openProcurement.label}
+              </Link>
+            </div>
           </section>
 
           <section
@@ -184,18 +183,6 @@ export function HelpSoc2SelfAssessmentGuideView(
               ))}
             </ul>
           </section>
-
-          <aside
-            className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
-            data-testid="help-soc2-self-assessment-claim-discipline"
-          >
-            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              Self-assessment only
-            </h2>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-              {SOC2_SELF_ASSESSMENT_HELP_CLAIM_DISCIPLINE}
-            </p>
-          </aside>
 
           <div
             className={HELP_PAGE_LAYOUT.contentColumn}

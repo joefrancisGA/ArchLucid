@@ -5,18 +5,17 @@ import { Suspense } from "react";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAzureBoardsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzureBoardsConnectionContext";
 import { HelpAzureBoardsSetupStepCtAs } from "@/app/(operator)/help/_sections/HelpAzureBoardsSetupStepCtAs";
+import { AzureBoardsHelpClaimDisciplineStrip } from "@/components/help/AzureBoardsHelpClaimDisciplineStrip";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   AZURE_BOARDS_HELP_AUTHORITY_NOTE,
   AZURE_BOARDS_HELP_CANONICAL_PATH,
-  AZURE_BOARDS_HELP_CLAIM_DISCIPLINE,
   AZURE_BOARDS_HELP_CONTINUE_HEADING,
   AZURE_BOARDS_HELP_PAGE_SUBTITLE,
   AZURE_BOARDS_HELP_PAGE_TITLE,
@@ -29,7 +28,6 @@ import {
 } from "@/lib/azure-boards-help-evidence-copy";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -84,79 +82,77 @@ export function HelpAzureBoardsGuideView(props: HelpAzureBoardsGuideViewProps): 
         }
       />
 
-      <Card data-testid="help-azure-boards-action-panel">
-        <CardHeader className={OPERATOR_CARD.header}>
-          <CardTitle as="h2" className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-            {AZURE_BOARDS_HELP_CONTINUE_HEADING}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className={cn(OPERATOR_CARD.content, "space-y-4")}>
-          <aside
-            className={cn(DESIGN_TOKENS.callout.warn, "space-y-2 p-3")}
-            data-testid="help-azure-boards-pat-warnings"
-          >
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_BOARDS_HELP_PAT_SCOPE_WARNING}</p>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_BOARDS_HELP_PAT_NON_RECOVERABLE_WARNING}</p>
-          </aside>
+      <AzureBoardsHelpClaimDisciplineStrip />
 
-          <div className="space-y-2">
-            <Button asChild size="sm" variant="primary" data-testid="help-azure-boards-primary-cta">
-              <Link href={AZURE_BOARDS_HELP_PRIMARY_ACTIONS.openSettings.href}>
-                {AZURE_BOARDS_HELP_PRIMARY_ACTIONS.openSettings.label}
-              </Link>
-            </Button>
-            <p
-              className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="help-azure-boards-authority-note"
-            >
-              {AZURE_BOARDS_HELP_AUTHORITY_NOTE}
-            </p>
-          </div>
-
-          <HelpAzureBoardsSetupStepCtAs />
-
-          <Suspense
-            fallback={
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Loading connection status…
-              </p>
-            }
-          >
-            <HelpAzureBoardsConnectionContext />
-          </Suspense>
-
-          <div className="space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
-            <h3
-              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-              data-testid="help-azure-boards-sources-heading"
-            >
-              {AZURE_BOARDS_HELP_SOURCES_HEADING}
-            </h3>
-            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {AZURE_BOARDS_HELP_SOURCES_INTRO}
-            </p>
-            <ul className={cn("m-0 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
-              {AZURE_BOARDS_HELP_SOURCES.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
-                    href={link.href}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
-
-      <aside
-        className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
-        data-testid="help-azure-boards-claim-discipline"
+      <section
+        className="space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+        data-testid="help-azure-boards-action-panel"
+        aria-labelledby="help-azure-boards-action-panel-heading"
       >
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_BOARDS_HELP_CLAIM_DISCIPLINE}</p>
-      </aside>
+        <h2
+          id="help-azure-boards-action-panel-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          {AZURE_BOARDS_HELP_CONTINUE_HEADING}
+        </h2>
+        <aside
+          className={cn(DESIGN_TOKENS.callout.warn, "space-y-2 p-3")}
+          data-testid="help-azure-boards-pat-warnings"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_BOARDS_HELP_PAT_SCOPE_WARNING}</p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{AZURE_BOARDS_HELP_PAT_NON_RECOVERABLE_WARNING}</p>
+        </aside>
+
+        <div className="space-y-2">
+          <Button asChild size="sm" variant="primary" data-testid="help-azure-boards-primary-cta">
+            <Link href={AZURE_BOARDS_HELP_PRIMARY_ACTIONS.openSettings.href}>
+              {AZURE_BOARDS_HELP_PRIMARY_ACTIONS.openSettings.label}
+            </Link>
+          </Button>
+          <p
+            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="help-azure-boards-authority-note"
+          >
+            {AZURE_BOARDS_HELP_AUTHORITY_NOTE}
+          </p>
+        </div>
+
+        <HelpAzureBoardsSetupStepCtAs />
+
+        <Suspense
+          fallback={
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Loading connection status…
+            </p>
+          }
+        >
+          <HelpAzureBoardsConnectionContext />
+        </Suspense>
+
+        <div className="space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+          <h3
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+            data-testid="help-azure-boards-sources-heading"
+          >
+            {AZURE_BOARDS_HELP_SOURCES_HEADING}
+          </h3>
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {AZURE_BOARDS_HELP_SOURCES_INTRO}
+          </p>
+          <ul className={cn("m-0 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
+            {AZURE_BOARDS_HELP_SOURCES.map((link) => (
+              <li key={link.href}>
+                <Link
+                  className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium")}
+                  href={link.href}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-azure-boards-content">
