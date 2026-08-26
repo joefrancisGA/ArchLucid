@@ -34,6 +34,7 @@ import { FindingsTriageFirstFindingStrip } from "@/components/usability/Findings
 import { GovernanceFindingsContinueLastViewedRow } from "@/app/(operator)/governance/findings/GovernanceFindingsContinueLastViewedRow";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { FindingsQueuePickReviewBeforeTriageStrip } from "@/components/governance/findings/FindingsQueuePickReviewBeforeTriageStrip";
 import { GovernanceFindingsQueueNextReviewFooterClient } from "@/components/governance/findings/GovernanceFindingsQueueNextReviewFooterClient";
 import { ArchitecturePosturePillarOverview } from "@/components/governance/posture/ArchitecturePosturePillarOverview";
@@ -84,7 +85,10 @@ import {
   GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL,
   resolveGovernanceAssignedToMeWorkspaceLabel,
 } from "@/lib/governance/governance-assigned-to-me-empty-state";
-import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import {
+  resolveFindingsQueueTriageEmphasizedStepId,
+  resolveFindingsQueueTriageSteps,
+} from "@/lib/findings-queue-triage-checklist";
 import { comparePageHrefWithLifecycleAnchor, COMPARE_FINDING_LIFECYCLE_ANCHOR } from "@/lib/compare-finding-lifecycle";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
@@ -305,6 +309,30 @@ export default function GovernanceFindingsQueueClient({
     () => resolveContinueLastFindingTarget(displayedRows),
     [displayedRows],
   );
+  const findingsQueueTriageSteps = useMemo(
+    () =>
+      resolveFindingsQueueTriageSteps({
+        reviewPicked: scopedRunFilterActive,
+        findingOpened: continueLastFinding !== null,
+        dispositionRecorded: displayedRows.some(
+          (row) =>
+            row.recordKind === "finding" && (row.latestDisposition?.trim() ?? "").length > 0,
+        ),
+      }),
+    [continueLastFinding, displayedRows, scopedRunFilterActive],
+  );
+  const findingsQueueTriageEmphasizedStepId = useMemo(
+    () =>
+      resolveFindingsQueueTriageEmphasizedStepId({
+        reviewPicked: scopedRunFilterActive,
+        findingOpened: continueLastFinding !== null,
+        dispositionRecorded: displayedRows.some(
+          (row) =>
+            row.recordKind === "finding" && (row.latestDisposition?.trim() ?? "").length > 0,
+        ),
+      }),
+    [continueLastFinding, displayedRows, scopedRunFilterActive],
+  );
   const assignedToMeOldestFindingTarget = useMemo(
     () => resolveAssignedToMeOldestFindingTarget(rows, isAssignedToMe),
     [isAssignedToMe, rows],
@@ -511,6 +539,15 @@ export default function GovernanceFindingsQueueClient({
           <FindingsQueuePickReviewBeforeTriageStrip
             selectedReviewId=""
             onSelectReview={onPickReviewForTriage}
+          />
+        ) : null}
+
+        {scopedRunFilterActive && !isAssignedToMe ? (
+          <IntegrationConnectChecklist
+            title="Triage checklist"
+            steps={findingsQueueTriageSteps}
+            emphasizedStepId={findingsQueueTriageEmphasizedStepId}
+            testIdPrefix="findings-queue-triage"
           />
         ) : null}
 
