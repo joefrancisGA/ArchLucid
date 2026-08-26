@@ -5,11 +5,7 @@ import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
-import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
-import { StatusTag } from "@/components/ui/status-tag";
-import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
-import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER } from "@/lib/buyer/buyer-polish-copy";
-import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
+import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
@@ -23,6 +19,16 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import type { components } from "@/lib/openapi-schemas";
+
+import {
+  DegradedFindingCoverageBanner,
+  RunDetailFindingCoverageDispositionPanel,
+} from "./RunDetailFindingCoverageDispositionPanel";
+import {
+  manifestWarningsSecondaryCopy,
+  RunDetailPackageStatusStrip,
+  useStreamlinedPilotOutcomeLabels,
+} from "./RunDetailPackageStatusStrip";
 
 export type ShowcasePolicyPackStripLink = {
   readonly href: string;
@@ -61,360 +67,6 @@ type RunDetailOutcomeCardsProps = {
 const samePageJumpClass =
   "block rounded-lg no-underline outline-none ring-offset-2 transition hover:ring-2 hover:ring-teal-500/40 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950";
 
-const stripShell =
-  "rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950/30";
-
-function DegradedFindingCoverageBanner({
-  failedEngineLabels,
-}: {
-  readonly failedEngineLabels: readonly string[];
-}) {
-  const labelText =
-    failedEngineLabels.length > 0
-      ? failedEngineLabels.join(", ")
-      : "one or more finding engines";
-
-  return (
-    <div
-      className={cn(
-        "rounded-md border border-amber-600/40 bg-al-surface-raised p-3 text-al-text-primary dark:border-amber-700/50",
-        OPERATOR_TYPOGRAPHY.body,
-      )}
-      data-testid="degraded-finding-coverage-banner"
-      role="status"
-    >
-      <p className="m-0 font-semibold">Degraded finding coverage</p>
-      <p className={cn("m-0 mt-1 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
-        This review completed with incomplete finding-engine coverage ({labelText}). Treat unresolved findings as
-        advisory until coverage is restored.
-      </p>
-    </div>
-  );
-}
-
-function finiteCoverageCount(value: number | null | undefined): number {
-  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
-}
-
-function FindingCoverageDispositionPanel({
-  summary,
-}: {
-  readonly summary: NonNullable<RunDetailOutcomeCardsProps["findingCoverageSummary"]>;
-}) {
-  const disposition = summary.dispositionCoverage;
-
-  if (disposition === null || disposition === undefined) {
-    return null;
-  }
-
-  const rows = [
-    ["Open", disposition.openCount],
-    ["Accepted", disposition.acceptedCount],
-    ["Remediated", disposition.remediatedCount],
-    ["Deferred", disposition.deferredCount],
-    ["Needs evidence", disposition.needsEvidenceCount],
-    ["Rejected / N/A", disposition.rejectedNotApplicableCount],
-    ["Waived", disposition.waivedCount],
-  ] as const;
-
-  return (
-    <section
-      className={cn(
-        "rounded-lg border px-3 py-3",
-        OPERATOR_TYPOGRAPHY.body,
-        summary.hasCommitBlockingFailures === true
-          ? "border-rose-600/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50"
-          : "border-neutral-200 bg-neutral-50/80 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-100",
-      )}
-      data-testid="finding-coverage-disposition-panel"
-      role={summary.hasCommitBlockingFailures === true ? "alert" : "status"}
-    >
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <p className="m-0 font-semibold">
-          {summary.hasCommitBlockingFailures === true
-            ? "Commit-blocking finding coverage"
-            : "Finding disposition coverage"}
-        </p>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-current/80")}>
-          Engines {finiteCoverageCount(summary.enginesSucceeded)}/{finiteCoverageCount(summary.enginesAttempted)} succeeded
-          {finiteCoverageCount(summary.enginesFailed) > 0 ? ` · ${finiteCoverageCount(summary.enginesFailed)} failed` : ""}
-        </p>
-      </div>
-      {summary.hasCommitBlockingFailures === true ? (
-        <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
-          Finalization should remain blocked until the coverage gap is resolved or explicitly regenerated.
-        </p>
-      ) : null}
-      <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {rows.map(([label, value]) => (
-          <div key={label} className="rounded-md bg-white/65 px-2 py-1.5 dark:bg-black/15">
-            <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "opacity-70")}>{label}</dt>
-            <dd className={cn("m-0 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{finiteCoverageCount(value)}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
-  );
-}
-
-function manifestWarningsSecondaryCopy(warningCountDisplay: number | null): string | null {
-  if (typeof warningCountDisplay !== "number" || !Number.isFinite(warningCountDisplay)) {
-    return null;
-  }
-
-  const n = Math.trunc(warningCountDisplay);
-
-  if (n <= 0) {
-    return null;
-  }
-
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-
-  if (buyerPolishedShell) {
-    return `${n} monitored risk${n === 1 ? "" : "s"} (PHI minimization)`;
-  }
-
-  return `${n} review warning${n === 1 ? "" : "s"} (PHI minimization)`;
-}
-
-function buyerFindingSeveritySignal(
-  findingCountDisplay: number | null,
-  aggregateRiskPosture: string | null | undefined,
-): string | null {
-  const n =
-    typeof findingCountDisplay === "number" && Number.isFinite(findingCountDisplay)
-      ? Math.trunc(findingCountDisplay)
-      : null;
-
-  if (n === null || n <= 0) {
-    return null;
-  }
-
-  const raw = aggregateRiskPosture?.trim() ?? "";
-
-  if (raw.length === 0) {
-    return null;
-  }
-
-  const key = raw.toLowerCase();
-
-  if (key === "not rated" || key === "low") {
-    return null;
-  }
-
-  if (n === 1 && (key === "high" || key === "critical")) {
-    return `${raw.charAt(0).toUpperCase()}${raw.slice(1).toLowerCase()} severity`;
-  }
-
-  if (key === "high" || key === "critical") {
-    return `Includes ${key}-severity items`;
-  }
-
-  if (key === "medium") {
-    return "Medium risk posture";
-  }
-
-  if (key === "approved with monitoring") {
-    return "Approved with monitoring";
-  }
-
-  if (key === "controlled") {
-    return "Mitigated and monitored";
-  }
-
-  if (key === "acceptable" || key === "accepted") {
-    return "Residual risk accepted with documented controls";
-  }
-
-  if (key === "elevated") {
-    return "Elevated — prioritize sponsor review";
-  }
-
-  if (key === "monitored") {
-    return "Monitored pending validation";
-  }
-
-  const capitalized = `${raw.charAt(0).toUpperCase()}${raw.slice(1).toLowerCase()}`;
-
-  return `${capitalized} posture — confirm meaning with approvals`;
-}
-
-function stripSegmentLabelClass(): string {
-  return cn("m-0", OPERATOR_NAV_GROUP_LABEL);
-}
-
-function useStreamlinedPilotOutcomeLabels(): {
-  readonly evaluationStandardsLabel: string;
-  readonly approvalStatusLabel: string;
-} {
-  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
-  const streamlinedPilotPath = isStreamlinedCorePilotPath(hasCommittedArchitectureReview);
-
-  return {
-    evaluationStandardsLabel: streamlinedPilotPath
-      ? CORE_PILOT_PATH_STREAMLINED_LABELS.evaluationStandards
-      : "Policy pack",
-    approvalStatusLabel: streamlinedPilotPath
-      ? CORE_PILOT_PATH_STREAMLINED_LABELS.reviewApproval
-      : "Resolve outcomes",
-  };
-}
-
-type PackageStatusStripProps = {
-  manifestId: string | null | undefined;
-  hasGoldenManifest: boolean;
-  warningCountDisplay: number | null;
-  findingCountDisplay: number | null;
-  aggregateRiskPosture: string | null | undefined;
-  artifactCount: number;
-  governanceGateLabel: string | null | undefined;
-  showcasePolicyPackStrip: ShowcasePolicyPackStripLink | null | undefined;
-  readonly pagePrimaryOwnedElsewhere?: boolean;
-};
-
-function PackageStatusStrip(props: PackageStatusStripProps) {
-  const { evaluationStandardsLabel, approvalStatusLabel } = useStreamlinedPilotOutcomeLabels();
-  const inlineLinkClass =
-    props.pagePrimaryOwnedElsewhere === true ? OPERATOR_LINK.optional : OPERATOR_LINK.inline;
-  const trimmedManifestId = props.manifestId?.trim() ?? "";
-  const hasManifest = trimmedManifestId.length > 0;
-  const warningsLine = manifestWarningsSecondaryCopy(props.warningCountDisplay);
-  const findingN =
-    typeof props.findingCountDisplay === "number" && Number.isFinite(props.findingCountDisplay)
-      ? Math.trunc(props.findingCountDisplay)
-      : null;
-  const warningN =
-    typeof props.warningCountDisplay === "number" && Number.isFinite(props.warningCountDisplay)
-      ? Math.trunc(props.warningCountDisplay)
-      : null;
-  const findingsWord = findingN === 1 ? "finding" : "findings";
-  const findingsPrimary =
-    findingN !== null && findingN >= 0
-      ? isBuyerPolishedOperatorShellEnv() && warningN !== null && warningN > 0
-        ? BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(findingN, warningN)
-        : `${findingN} ${findingsWord}`
-      : finiteIntegerCountDisplay(props.findingCountDisplay);
-  const severitySignal = buyerFindingSeveritySignal(props.findingCountDisplay, props.aggregateRiskPosture);
-  const gate =
-    props.governanceGateLabel !== null &&
-    props.governanceGateLabel !== undefined &&
-    props.governanceGateLabel.trim().length > 0
-      ? props.governanceGateLabel.trim()
-      : " — ";
-
-  const segmentInner = "min-w-0 flex-1 px-3 py-3 sm:px-4";
-  const valueClass = cn("m-0 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body);
-  const detailClass = cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper);
-
-  const packageBody = (
-    <>
-      {props.hasGoldenManifest ? (
-        <StatusTag kind="ready" label="Finalized" aria-label="Package state: finalized" />
-      ) : (
-        <StatusTag kind="in-progress" label="In progress" aria-label="Package state: in progress" />
-      )}
-      {warningsLine !== null ? <p className={detailClass}>{warningsLine}</p> : null}
-    </>
-  );
-
-  const findingsBody = (
-    <>
-      <p className={valueClass}>{findingsPrimary}</p>
-      {severitySignal !== null ? <p className={detailClass}>{severitySignal}</p> : null}
-    </>
-  );
-
-  return (
-    <section
-      role="status"
-      aria-label="Review status summary"
-      className={cn(stripShell, "flex flex-col divide-y divide-neutral-200 sm:flex-row sm:divide-x sm:divide-y-0 dark:divide-neutral-700")}
-    >
-      <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Package state</p>
-        <div className="mt-1">
-          {props.hasGoldenManifest && hasManifest ? (
-            <Link
-              href={signedRecordDetailPath(trimmedManifestId)}
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
-              data-testid="run-detail-finalized-package-link"
-            >
-              {packageBody}
-            </Link>
-          ) : (
-            packageBody
-          )}
-        </div>
-      </div>
-
-      {props.showcasePolicyPackStrip !== null &&
-      props.showcasePolicyPackStrip !== undefined &&
-      props.showcasePolicyPackStrip.href.trim().length > 0 &&
-      props.showcasePolicyPackStrip.label.trim().length > 0 ? (
-        <div className={segmentInner}>
-          <p className={stripSegmentLabelClass()}>{evaluationStandardsLabel}</p>
-          <div className="mt-1">
-            <Link
-              href={props.showcasePolicyPackStrip.href.trim()}
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
-            >
-              <p className={valueClass}>{props.showcasePolicyPackStrip.label.trim()}</p>
-              <p className={detailClass}>Read-only pack rules and version</p>
-            </Link>
-          </div>
-        </div>
-      ) : null}
-
-      <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Findings</p>
-        <div className="mt-1">
-          {hasManifest ? (
-            <Link
-              href="#run-explanation"
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
-            >
-              {findingsBody}
-            </Link>
-          ) : (
-            findingsBody
-          )}
-        </div>
-      </div>
-
-      <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Deliverables</p>
-        <div className="mt-1">
-          {hasManifest ? (
-            <Link
-              href="#artifacts-exports"
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
-            >
-              <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Export-ready deliverables</p>
-            </Link>
-          ) : (
-            <>
-              <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Export-ready deliverables</p>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Approval status</p>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
-          {gate !== " — " ? (
-            <GovernanceStatusTag status={gate} aria-label={`${approvalStatusLabel}: ${gate}`} />
-          ) : (
-            <p className={cn(valueClass, "mt-0")}>{gate}</p>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export function RunDetailOutcomeCards({
   runId,
   manifestId,
@@ -441,7 +93,7 @@ export function RunDetailOutcomeCards({
       <DegradedFindingCoverageBanner failedEngineLabels={failedEngineLabels} />
     ) : null;
   const dispositionPanel =
-    findingCoverageSummary !== null ? <FindingCoverageDispositionPanel summary={findingCoverageSummary} /> : null;
+    findingCoverageSummary !== null ? <RunDetailFindingCoverageDispositionPanel summary={findingCoverageSummary} /> : null;
 
   if (buyerPolishedShell) {
   const statusHeadline = buildBuyerReviewPackagePlainStatusHeadline({
@@ -541,7 +193,7 @@ export function RunDetailOutcomeCards({
           </p>
         </details>
       ) : null}
-      <PackageStatusStrip
+      <RunDetailPackageStatusStrip
         manifestId={manifestId}
         hasGoldenManifest={hasGoldenManifest}
         warningCountDisplay={warningCountDisplay}
