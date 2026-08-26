@@ -149,7 +149,7 @@ public sealed class GovernanceWorkflowServiceSameTxAuditTests
         (await act.Should().ThrowAsync<DurableAuditWriteFailedException>())
             .Which.OperationLabel.Should().Contain("GovernanceApprovalApproved");
         commitCount.Should().Be(0);
-        rollbackCount.Should().BeGreaterOrEqualTo(1);
+        rollbackCount.Should().BeGreaterThanOrEqualTo(1);
     }
 
     private static GovernanceWorkflowService BuildSut(

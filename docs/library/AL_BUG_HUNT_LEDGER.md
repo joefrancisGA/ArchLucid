@@ -2227,8 +2227,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 35
-- **bugs-found:** 100
+- **hunts:** 36
+- **bugs-found:** 101
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
 - **last-bug:** 2026-08-26 — funnel first-manifest SQL, preview activation binding, setup bundle, promote linkage
@@ -2350,10 +2350,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantHomepageSettingsController.PutAsync` — missing tenant returned HTTP 200 while GET returned 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync` (GET parity); regression in `TenantHomepageSettingsControllerTests.PutAsync_returns_not_found_when_tenant_missing`.
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — ghost tenant accepted feedback while GET returned 404 — **hit 2026-08-26:** `EnsureTenantExistsAsync` preflight on POST (GET parity); regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_not_found_when_tenant_missing`.
 - [x] (proven) `TenantIntegrationsOperationsController.GetAsync` — missing tenant returned HTTP 200 connector posture — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantIntegrationsOperationsControllerTests.GetAsync_returns_not_found_when_tenant_missing`.
-- [ ] (candidate) `GovernanceController.GetDashboard` — ghost tenant returns HTTP 200 empty dashboard instead of 404.
-- [ ] (candidate) `GovernanceController.DryRunPolicyPack` — all out-of-scope `evaluateAgainstRunIds` return HTTP 200 with `runMissing` instead of 404.
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` — all out-of-scope `runIds` return HTTP 200 summary instead of 404.
-- [ ] (candidate) `TenantTrialController.ConvertTrialAsync` — unrecognized `TargetTier` silently defaults to Standard instead of 400.
+- [x] (valid-no-repro) `GovernanceController.GetDashboard` — ghost tenant returns HTTP 200 empty dashboard instead of 404 — **cheap-disproof 2026-08-26:** `ITenantRepository.GetByIdAsync` preflight; regression in `GovernanceControllerDashboardTests.GetDashboard_returns_not_found_when_tenant_missing`.
+- [x] (invalid) `GovernanceController.DryRunPolicyPack` — all out-of-scope `evaluateAgainstRunIds` return HTTP 200 with `runMissing` instead of 404 — **cheap-disproof 2026-08-26:** intentional batch dry-run semantics; `PolicyPackDryRunIntegrationTests.DryRun_WithPiiInProposedThresholds_PersistsRedactedAuditRow` expects 200 with `runMissing: 1` for ghost run id.
+- [x] (invalid) `PolicyPacksController.SimulateBulk` — all out-of-scope `runIds` return HTTP 200 summary instead of 404 — **cheap-disproof 2026-08-26:** batch simulate returns per-run `Found` outcomes (dry-run parity); pack scope still 404s via `TrySimulateBulkAsync` null.
+- [x] (valid-no-repro) `TenantTrialController.ConvertTrialAsync` — unrecognized `TargetTier` silently defaults to Standard instead of 400 — **cheap-disproof 2026-08-26:** `TryMapRequestTier` rejects unknown values; regression in `TenantTrialControllerTests.ConvertTrialAsync_returns_bad_request_when_target_tier_unrecognized`.
+- [x] (proven) `GovernanceController.GetComplianceDriftTrend` — ghost tenant returned HTTP 200 empty trend instead of 404 (`GetDashboard` parity) — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `GovernanceControllerComplianceDriftTrendTests.GetComplianceDriftTrend_returns_not_found_when_tenant_missing`.
+- [ ] (candidate) `GovernanceCoverageController.GetScopeCoverage` — ghost tenant returns HTTP 200 empty coverage instead of 404.
+- [ ] (candidate) `GovernancePostureController.GetPosture` — ghost tenant returns HTTP 200 empty posture instead of 404.
+- [ ] (candidate) `GovernanceResolutionController.Resolve` — ghost tenant returns HTTP 200 empty resolution instead of 404.
+- [ ] (candidate) `PolicyPacksController.List` — ghost tenant returns HTTP 200 `[]` instead of 404.
 
 2026-08-26 seed hunt #110: proved policy-packs simulate validation, homepage PUT tenant 404, customer-success POST tenant 404, and integrations operations GET tenant 404; seeded dashboard ghost tenant, dry-run all-missing-runs status, simulate-bulk all-missing-runs status, and convert-trial tier validation candidates.
 
