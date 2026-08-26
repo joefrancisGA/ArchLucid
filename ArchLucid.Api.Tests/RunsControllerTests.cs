@@ -149,6 +149,27 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task RewriteArchitectureOverview_returns_bad_request_when_current_overview_exceeds_chat_intake_max_length()
+    {
+        Mock<IArchitectureOverviewRewriteService> rewriteService = new();
+        RunsController controller = CreateController(overviewRewriteService: rewriteService.Object);
+
+        RewriteArchitectureOverviewInput input = new()
+        {
+            CurrentOverview = new string('x', 50_001),
+            StructuredBrief = new ArchitectureDraftStructuredBrief(),
+        };
+
+        IActionResult action = await controller.RewriteArchitectureOverview(input, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        rewriteService.Verify(
+            s => s.RewriteAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null()
     {
         RunsController controller = CreateController();

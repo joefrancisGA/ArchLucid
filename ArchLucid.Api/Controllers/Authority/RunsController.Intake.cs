@@ -165,6 +165,11 @@ public sealed partial class RunsController
                 $"CurrentOverview must be at least {MinimumIntakeTextLength} characters.",
                 ProblemTypes.ValidationFailed);
 
+        if (input.CurrentOverview.Trim().Length > MaximumChatIntakeTextLength)
+            return this.BadRequestProblem(
+                $"CurrentOverview must not exceed {MaximumChatIntakeTextLength} characters.",
+                ProblemTypes.ValidationFailed);
+
         RewriteArchitectureOverviewResponse response =
             await architectureOverviewRewriteService.RewriteAsync(input, cancellationToken);
 

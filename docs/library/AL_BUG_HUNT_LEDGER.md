@@ -2023,13 +2023,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 7
-- **bugs-found:** 10
+- **hunts:** 8
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — draft intake endpoints omitted chat-intake max text length guard; advisory draft async result returned 400 for background failure
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — RewriteArchitectureOverview omitted chat-intake max text length guard
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -2040,6 +2040,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Controller accepts a scope header that overrides the authenticated tenant — `ScopeIdentityBindingMiddleware` + `ScopeIdentityBindingIntegrationTests` (TB-072/TB-925) reject mismatched headers on Authority/Admin routes; `HttpScopeContextProvider` prefers claims over headers
 - [x] (proven) `RunsController.GetDraftRequestAsyncResult` mapped `OperationState.Failed` to HTTP 400 `ValidationFailed` — background advisory-draft failure is an operational outcome, not bad client input; fixed 2026-08-25 to return 422 `BusinessRuleViolation` (`RunsControllerTests.GetDraftRequestAsyncResult_failed_operation_returns_422_not_400_validation`)
 - [x] (proven) `DraftRequest` / `DraftRequestAsync` omitted `MaximumChatIntakeTextLength` guard present on sibling `ChatIntake` — **hit 2026-08-25:** 50_001+ char paste reached LLM parse on draft routes while chat-intake returned 400 (`RunsControllerTests.DraftRequest_returns_bad_request_when_description_exceeds_chat_intake_max_length`, `DraftRequestAsync_returns_bad_request_when_description_exceeds_chat_intake_max_length`).
+- [x] (proven) `RewriteArchitectureOverview` omitted `MaximumChatIntakeTextLength` guard on `CurrentOverview` — **hit 2026-08-26:** 50_001+ char paste reached overview rewrite LLM while sibling draft/chat-intake returned 400 (`RunsControllerTests.RewriteArchitectureOverview_returns_bad_request_when_current_overview_exceeds_chat_intake_max_length`).
+- [ ] (candidate) `ExplainStructuredBriefSuggestion` omits `MaximumChatIntakeTextLength` on `SourceText` — sibling intake endpoints cap at 50_000 chars; 50_001+ paste may reach LLM explain path.
+- [ ] (candidate) `GetRunRoiEstimate` whitespace `runId` may return 400 via `ArgumentException` while sibling `GetRun` returns 404 — `RunGraphQueryService` id-normalization parity gap.
+- [ ] (candidate) `RephraseClarificationAnswers` omits per-item `ExtractedAnswer` max length — multi-item paste may exceed chat-intake ceiling.
 
 ---
 
