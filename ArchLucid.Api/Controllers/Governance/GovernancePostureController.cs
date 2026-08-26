@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Governance.Posture;
@@ -26,15 +27,24 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class GovernancePostureController(
     IArchitecturePostureService postureService,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    ITenantRepository tenantRepository) : ControllerBase
 {
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     [HttpGet("posture")]
     [ProducesResponseType(typeof(ArchitecturePostureSummary), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetPosture(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return Ok(new ArchitecturePostureSummary());
