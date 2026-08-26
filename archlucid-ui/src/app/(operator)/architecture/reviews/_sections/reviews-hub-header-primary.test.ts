@@ -33,7 +33,7 @@ describe("resolveReviewsHubHeaderPrimary", () => {
     const primary = resolveReviewsHubHeaderPrimary([draft("draft-001", "Payments")]);
 
     expect(primary.href).toBe("/architecture/architectures/draft-001");
-    expect(primary.label).toBe("Continue editing draft");
+    expect(primary.label).toBe("Continue editing architecture draft");
     expect(primary.continuesSingleDraft).toBe(true);
     expect(shouldShowReviewsHubResumeDrafts(1)).toBe(false);
   });

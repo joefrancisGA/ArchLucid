@@ -91,7 +91,7 @@ export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY =
 /** @deprecated Prefer sole/multi bodies; kept for callers that only know drafts exist. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY = REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY;
 
-export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL = "Continue editing draft";
+export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL = "Continue editing architecture draft";
 
 export const REVIEWS_HUB_INCLUDES_TITLE = "What each review contains";
 
