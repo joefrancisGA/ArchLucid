@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
-  HELP_HUB_CLAIM_DISCIPLINE_HEADING,
+  HELP_HUB_CLAIM_DISCIPLINE,
   HELP_HUB_FOLLOW_UPS_TITLE,
 } from "@/lib/help/help-hub-evidence-copy";
 import {
@@ -44,14 +44,16 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { HelpPageView } from "@/app/(operator)/help/HelpPageView";
 
 describe("HelpPageView buyer-polished shell (HEL)", () => {
-  it("uses skip link, breadcrumb, claim orientation, and hides operator vocabulary rails", () => {
+  it("uses skip link, folded claim discipline in header, orientation strip, and hides operator vocabulary rails", () => {
     render(<HelpPageView />);
 
     expect(screen.getByRole("link", { name: HELP_HUB_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
       `#${HELP_HUB_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("help-hub-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("help-hub-claim-discipline").textContent).toContain(
+      HELP_HUB_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId("help-hub-orientation-top")).toBeInTheDocument();
     // claim discipline folded into page header
     expect(screen.getByRole("heading", { level: 2, name: HELP_HUB_FOLLOW_UPS_TITLE })).toBeInTheDocument();

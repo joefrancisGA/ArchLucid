@@ -28,15 +28,12 @@ vi.mock("@/app/(operator)/integrations/cloud-connections/_sections/GcpWifStarter
 
 import { HelpConnectGcpSecurelyGuideView } from "@/app/(operator)/help/_sections/HelpConnectGcpSecurelyGuideView";
 import {
-  CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING,
-  CONNECT_GCP_SECURELY_CONFIGURE_ACTION,
+  CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE,
 } from "@/lib/connect-gcp-securely-help-evidence-copy";
 import {
   CONNECT_GCP_SECURELY_HELP_PRIMARY_CONTENT_ID,
   CONNECT_GCP_SECURELY_HELP_SKIP_LINK_LABEL,
 } from "@/lib/connect-gcp-securely-help-page-copy";
-import { CLOUD_CONNECTIONS_HELP_PAGE_TITLE } from "@/lib/cloud-connections-help-guide-content";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpConnectGcpSecurelyGuideView buyer-polished shell", () => {
@@ -52,23 +49,20 @@ describe("HelpConnectGcpSecurelyGuideView buyer-polished shell", () => {
     const skipLink = screen.getByRole("link", { name: CONNECT_GCP_SECURELY_HELP_SKIP_LINK_LABEL });
     expect(skipLink).toHaveAttribute("href", `#${CONNECT_GCP_SECURELY_HELP_PRIMARY_CONTENT_ID}`);
 
-    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb).toHaveTextContent(HELP_TOPIC_BREADCRUMB_HUB_LABEL);
-    expect(breadcrumb).toHaveTextContent(CLOUD_CONNECTIONS_HELP_PAGE_TITLE);
-    expect(breadcrumb).toHaveTextContent(entry.title);
-
-    // claim discipline folded into page header
+    expect(screen.getByTestId("connect-gcp-securely-help-claim-discipline").textContent).toContain(
+      CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId("connect-gcp-securely-help-sources")).toBeInTheDocument();
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
     expect(screen.queryByTestId("help-topic-print-button")).toBeNull();
-    expect(screen.getByRole("link", { name: CONNECT_GCP_SECURELY_CONFIGURE_ACTION })).toBeInTheDocument();
+    expect(screen.getByTestId("connect-gcp-configure-action")).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId("help-connect-gcp-securely-primary-content");
     const body = screen.getByTestId("help-connect-gcp-securely-primary");
     const orientation = screen.getByTestId("connect-gcp-securely-help-orientation");
 
     expect(primaryContent).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

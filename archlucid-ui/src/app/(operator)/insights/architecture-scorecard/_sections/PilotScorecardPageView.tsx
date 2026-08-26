@@ -20,7 +20,7 @@ import {
   ARCHITECTURE_SCORECARD_SOURCES,
   ARCHITECTURE_SCORECARD_SOURCES_INTRO,
 } from "@/lib/architecture/architecture-scorecard-page-copy";
-import { ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE } from "@/lib/architecture-scorecard-evidence-copy";
+import { ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE } from "@/lib/architecture/architecture-scorecard-evidence-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";

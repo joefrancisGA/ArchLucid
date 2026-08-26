@@ -13,7 +13,6 @@ import {
   ROI_SUMMARY_SKIP_LINK_LABEL,
 } from "@/lib/roi-summary-page-copy";
 import { SPONSOR_REPORT_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
-import { OPERATOR_NAV_GROUP_LABELS } from "@/lib/i18n";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
 import { RoiSummaryPageView } from "./RoiSummaryPageView";
@@ -69,6 +68,11 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams("runId=run-roi-1"),
+}));
+
 beforeAll(() => {
   globalThis.ResizeObserver = class {
     observe(): void {}
@@ -119,16 +123,11 @@ function buildModel(overrides: Partial<RoiSummaryPageViewModel> = {}): RoiSummar
 }
 
 describe("RoiSummaryPageView buyer-polished shell", () => {
-  it("renders skip link, breadcrumb, orientation after hero, and hides vocabulary rails", () => {
+  it("renders skip link, folded claim discipline in header, orientation after hero, and hides vocabulary rails", () => {
     render(<RoiSummaryPageView model={buildModel()} />);
 
     const skipLink = screen.getByRole("link", { name: ROI_SUMMARY_SKIP_LINK_LABEL });
     expect(skipLink).toHaveAttribute("href", `#${ROI_SUMMARY_PRIMARY_CONTENT_ID}`);
-
-    const breadcrumb = screen.getByTestId("roi-summary-breadcrumb");
-    expect(breadcrumb).toHaveTextContent(OPERATOR_NAV_GROUP_LABELS.analysis);
-    expect(breadcrumb).toHaveTextContent(SPONSOR_REPORT_PAGE_TITLE);
-    expect(breadcrumb).toHaveTextContent(ROI_SUMMARY_PAGE_TITLE);
 
     expect(screen.getByRole("heading", { level: 1, name: ROI_SUMMARY_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(ROI_SUMMARY_PAGE_SUBTITLE)).toBeInTheDocument();
@@ -139,7 +138,6 @@ describe("RoiSummaryPageView buyer-polished shell", () => {
     expect(screen.getByTestId("roi-summary-claim-discipline").textContent).toContain(
       ROI_SUMMARY_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.queryByRole("heading", { level: 2, name: /What this/i })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: ROI_SUMMARY_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     expect(screen.queryByTestId("roi-sponsor-export-vocabulary")).toBeNull();

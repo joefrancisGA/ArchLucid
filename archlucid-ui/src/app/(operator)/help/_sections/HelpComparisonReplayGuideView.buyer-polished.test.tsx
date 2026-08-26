@@ -28,7 +28,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { HelpComparisonReplayGuideView } from "@/app/(operator)/help/_sections/HelpComparisonReplayGuideView";
 import {
-  COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE_HEADING,
+  COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/comparison-replay-help-evidence-copy";
 import {
   COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS,
@@ -42,7 +42,7 @@ import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 describe("HelpComparisonReplayGuideView buyer-polished shell", () => {
   const loaded = tryLoadProductDocumentation("comparison-replay");
 
-  it("renders skip link, breadcrumb, and claim orientation above body", () => {
+  it("renders skip link, folded claim discipline, and orientation above body", () => {
     if (loaded === null) {
       throw new Error("Expected comparison-replay documentation to load.");
     }
@@ -53,8 +53,9 @@ describe("HelpComparisonReplayGuideView buyer-polished shell", () => {
     expect(skipLink).toHaveAttribute("href", `#${COMPARISON_REPLAY_HELP_PRIMARY_CONTENT_ID}`);
 
     expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).not.toBeInTheDocument();
-
-    // claim discipline folded into page header
+    expect(screen.getByTestId("comparison-replay-help-claim-discipline").textContent).toContain(
+      COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId("comparison-replay-help-sources")).toBeInTheDocument();
 
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();

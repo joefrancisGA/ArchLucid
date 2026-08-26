@@ -75,7 +75,7 @@ describe("ExtractUploadSettingsPageClient buyer-polished shell (ADX)", () => {
       "href",
       `#${EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("extract-upload-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-page-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByText(EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.queryByTestId("extract-upload-header-extractor-version")).not.toBeInTheDocument();

@@ -21,7 +21,7 @@ import type { GovernanceApprovalProvenance } from "@/lib/governance/governance-a
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
-import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/governance-findings-evidence-copy";
+import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/governance/governance-findings-evidence-copy";
 
 export type GovernanceFindingsQueueHeaderProps = {
   readonly isAssignedToMe: boolean;

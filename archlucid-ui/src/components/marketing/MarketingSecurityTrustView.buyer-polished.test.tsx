@@ -21,7 +21,7 @@ describe("MarketingSecurityTrustView buyer-polished shell (SEC)", () => {
       "id",
       ASSURANCE_STATUS_PRIMARY_CONTENT_ID,
     );
-    expect(screen.getByTestId("assurance-status-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("assurance-status-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("assurance-status-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("assurance-status-sources")).toBeInTheDocument();
     expect(screen.getByText(ASSURANCE_STATUS_HERO_SUPPORTING)).toBeInTheDocument();

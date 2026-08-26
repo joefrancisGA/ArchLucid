@@ -21,7 +21,6 @@ import {
   RECURRENCE_SCHEDULES_HELP_PRIMARY_CONTENT_ID,
   RECURRENCE_SCHEDULES_HELP_SKIP_LINK_LABEL,
 } from "@/lib/recurrence-schedules-help-guide-content";
-import { RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE } from "@/lib/recurrence-schedules-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpRecurrenceSchedulesGuideView buyer-polished shell", () => {
@@ -40,15 +39,13 @@ describe("HelpRecurrenceSchedulesGuideView buyer-polished shell", () => {
     );
     expect(screen.getByText(RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE)).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-heading-eyebrow")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digest-recurrence-schedule-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-recurrence-schedules-schedule-kind-body")).toBeInTheDocument();
     expect(screen.getByTestId("help-recurrence-schedules-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("help-recurrence-schedules-claim-discipline").textContent).toContain(
-      RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE.slice(0, 40),
-    );
+    expect(screen.queryByTestId("help-recurrence-schedules-claim-discipline")).not.toBeInTheDocument();
 
     const primaryContent = document.getElementById(RECURRENCE_SCHEDULES_HELP_PRIMARY_CONTENT_ID);
 

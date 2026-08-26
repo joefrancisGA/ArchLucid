@@ -83,11 +83,11 @@ vi.mock("@/components/operator/OperatorEvidenceLimitsFooter", () => ({
 import type { FindingDetailPageModel } from "./finding-detail-page-model";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import {
-  FINDING_DETAIL_CLAIM_HEADING,
   FINDING_DETAIL_PAGE_SUBTITLE_BUYER,
   FINDING_DETAIL_PRIMARY_CONTENT_ID,
   FINDING_DETAIL_SKIP_LINK_LABEL,
 } from "./finding-detail-page-copy";
+import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
 import { FindingDetailPageView } from "./FindingDetailPageView";
 
 const inspectPayload: FindingInspectPayload = {
@@ -129,9 +129,10 @@ describe("FindingDetailPageView buyer-polished shell (RRF)", () => {
       "href",
       `#${FINDING_DETAIL_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("finding-detail-breadcrumb")).toBeInTheDocument();
     expect(screen.getByText(FINDING_DETAIL_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    // claim discipline folded into page header
+    expect(screen.getByTestId("finding-detail-claim-discipline").textContent).toContain(
+      FINDING_DETAIL_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId("finding-detail-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("finding-detail-wayfinding")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();

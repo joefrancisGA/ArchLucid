@@ -44,7 +44,7 @@ describe("HelpDataHandlingTenantIsolationGuideView buyer-polished shell", () => 
     );
     expect(screen.getByText(DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE)).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-data-handling-tenant-isolation-orientation-top")).toBeInTheDocument();
@@ -60,7 +60,7 @@ describe("HelpDataHandlingTenantIsolationGuideView buyer-polished shell", () => 
     expect(primaryContent).not.toBeNull();
 
     const orderedLandmarks = within(primaryContent as HTMLElement)
-      .getAllByTestId(/help-data-handling-tenant-isolation-(orientation-top|overview)/)
+      .getAllByTestId(/^help-data-handling-tenant-isolation-(orientation-top|overview)$/)
       .map((node) => node.getAttribute("data-testid"));
 
     expect(orderedLandmarks).toEqual([

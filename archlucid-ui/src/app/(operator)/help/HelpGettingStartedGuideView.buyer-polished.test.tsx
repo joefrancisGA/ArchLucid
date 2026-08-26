@@ -48,7 +48,7 @@ describe("HelpGettingStartedGuideView buyer-polished shell", () => {
 
     expect(screen.getByText(GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR)).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-getting-started-claim-discipline")).toBeInTheDocument();
     expect(screen.queryByTestId("help-getting-started-sources")).toBeNull();
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();

@@ -75,8 +75,7 @@ describe("AlertsHubClient buyer-polished chrome", () => {
       "href",
       `#${ALERTS_INBOX_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("alerts-hub-breadcrumb")).toBeInTheDocument();
-    // claim discipline folded into page header
+    expect(screen.getByTestId("alerts-inbox-claim-discipline")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: ALERTS_INBOX_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const orientation = screen.getByTestId("alerts-inbox-orientation-top");

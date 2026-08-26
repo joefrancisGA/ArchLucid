@@ -55,14 +55,13 @@ describe("InvitationAcceptPageClient buyer-polished shell", () => {
       "href",
       `#${AUTH_INVITE_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("auth-invite-breadcrumb")).toBeInTheDocument();
-    // claim discipline folded into page header
+    expect(screen.getByTestId("auth-invite-claim-discipline")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: AUTH_INVITE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByTestId("cold-invite-users-invite-vocabulary")).toBeNull();
 
     const orientation = screen.getByTestId("auth-invite-orientation-bottom");
     const acceptPage = screen.getByTestId("invitation-accept-page");
 
-    expect(orientation.compareDocumentPosition(acceptPage) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(acceptPage) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 });

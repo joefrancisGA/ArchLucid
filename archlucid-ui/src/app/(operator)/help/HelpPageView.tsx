@@ -7,7 +7,7 @@ import { PageHeading } from "@/components/PageHeading";
 import { GlossaryProceduralHelpVocabularyRail } from "@/components/GlossaryProceduralHelpVocabularyRail";
 import { ReportProblemDialogHelpHubVocabularyRail } from "@/components/ReportProblemDialogHelpHubVocabularyRail";
 import { HelpHubBuyerChrome } from "@/components/help/HelpHubBuyerChrome";
-import { HELP_HUB_CLAIM_DISCIPLINE } from "@/lib/help-hub-evidence-copy";
+import { HELP_HUB_CLAIM_DISCIPLINE } from "@/lib/help/help-hub-evidence-copy";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT } from "@/lib/design-tokens";

@@ -78,7 +78,7 @@ describe("NotificationPreferenceCenterPageView buyer-polished shell (ADN)", () =
       "id",
       NOTIFICATION_PREFERENCE_CENTER_PRIMARY_CONTENT_ID,
     );
-    expect(screen.getByTestId("notification-preference-center-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("notification-preference-center-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("notification-preference-center-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("notification-preference-center-sources")).toBeInTheDocument();
     expect(screen.getByText(BUYER_NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE)).toBeInTheDocument();

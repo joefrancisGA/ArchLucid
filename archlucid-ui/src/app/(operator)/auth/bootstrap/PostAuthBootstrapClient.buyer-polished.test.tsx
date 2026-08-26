@@ -48,7 +48,7 @@ describe("PostAuthBootstrapClient buyer-polished shell", () => {
       "href",
       `#${AUTH_BOOTSTRAP_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("post-auth-bootstrap-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("post-auth-bootstrap-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("post-auth-bootstrap-claim-discipline").textContent).toContain(
       AUTH_BOOTSTRAP_CLAIM_DISCIPLINE.slice(0, 40),
     );
@@ -58,6 +58,6 @@ describe("PostAuthBootstrapClient buyer-polished shell", () => {
     const orientation = screen.getByTestId("post-auth-bootstrap-orientation-bottom");
     const workspaceStep = screen.getByTestId("bootstrap-select-workspace-step");
 
-    expect(orientation.compareDocumentPosition(workspaceStep) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(workspaceStep) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 });

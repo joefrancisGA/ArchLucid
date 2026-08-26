@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { UsePilotScorecardPageModel } from "@/app/(operator)/insights/architecture-scorecard/_sections/use-pilot-scorecard-page";
 import {
-  ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE_HEADING,
+  ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE,
   ARCHITECTURE_SCORECARD_FOLLOW_UPS_TITLE,
 } from "@/lib/architecture/architecture-scorecard-evidence-copy";
 import {
@@ -143,6 +143,9 @@ describe("PilotScorecardPageView buyer-polished shell", () => {
     expect(screen.queryByRole("navigation", { name: "Related value reports" })).not.toBeInTheDocument();
 
     // claim discipline folded into page header
+    expect(screen.getByTestId("architecture-scorecard-claim-discipline").textContent).toContain(
+      ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(
       screen.getByRole("heading", { level: 2, name: ARCHITECTURE_SCORECARD_FOLLOW_UPS_TITLE }),
     ).toBeInTheDocument();

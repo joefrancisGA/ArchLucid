@@ -52,9 +52,8 @@ describe("AdminSupportPageView buyer-polished shell", () => {
       "href",
       `#${ADMIN_SUPPORT_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("admin-support-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("support-workspace-claim-discipline")).toBeInTheDocument();
     expect(screen.getByText(ADMIN_SUPPORT_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    // claim discipline folded into page header
     expect(screen.getByRole("heading", { level: 2, name: SUPPORT_WORKSPACE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByTestId("report-problem-support-workspace-vocabulary")).toBeNull();
     expect(screen.queryByTestId("admin-support-guidance")).toBeNull();
@@ -63,6 +62,6 @@ describe("AdminSupportPageView buyer-polished shell", () => {
     const reportProblem = screen.getByTestId("admin-support-report-problem");
 
     expect(screen.getByTestId("admin-support-primary-content")).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(reportProblem) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(reportProblem) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

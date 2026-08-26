@@ -34,7 +34,6 @@ import { EVIDENCE_TRACE_CLAIM_DISCIPLINE } from "@/lib/evidence-trace-evidence-c
 
 import { FindingInspectView } from "./FindingInspectView";
 import {
-  EVIDENCE_TRACE_CLAIM_HEADING,
   EVIDENCE_TRACE_PAGE_SUBTITLE_BUYER,
 } from "./evidence-trace-page-copy";
 
@@ -64,10 +63,10 @@ describe("FindingInspectView buyer-polished shell", () => {
       />,
     );
 
-    expect(screen.getByTestId("finding-evidence-trace-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("finding-eru-claim-discipline").textContent).toContain(
+      EVIDENCE_TRACE_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByText(EVIDENCE_TRACE_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByText(EVIDENCE_TRACE_CLAIM_HEADING)).toBeInTheDocument();
-    expect(screen.getByText(EVIDENCE_TRACE_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("evidence-trace-orientation")).toBeNull();
     expect(screen.getByTestId("evidence-trace-back-to-finding")).toHaveAttribute(

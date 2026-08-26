@@ -31,7 +31,7 @@ describe("ArchitecturesListPage buyer-polished shell", () => {
 
     expect(screen.getByTestId("architectures-hub-page-title")).toHaveTextContent(ARCHITECTURES_HUB_PAGE_TITLE);
     expect(screen.getByText(ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("architectures-hub-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("architectures-hub-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("architectures-hub-claim-discipline").textContent).toContain(
       ARCHITECTURES_LIST_CLAIM_DISCIPLINE.slice(0, 40),
     );

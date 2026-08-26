@@ -139,7 +139,9 @@ describe("ArchitectureDraftWorkspace buyer-polished detail shell", () => {
     expect(workspaceLead).toHaveTextContent(resolveArchitectureDraftDetailPageSubtitleBuyer(false));
     expect(workspaceLead).toHaveTextContent(ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE);
     expect(workspaceLead).toHaveTextContent(ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE);
-    expect(screen.queryByText(ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE)).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-detail-claim-discipline").textContent).toContain(
+      ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByRole("heading", { name: ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Diligence artifact index" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();
