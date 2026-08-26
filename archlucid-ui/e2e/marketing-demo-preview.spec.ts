@@ -27,7 +27,7 @@ test.describe("marketing-demo-preview", () => {
 
     const artifactNav = page.getByTestId("demo-preview-artifact-nav");
     await expect(artifactNav.getByRole("button", { name: /1 · Sponsor report/i })).toBeVisible();
-    await expect(artifactNav.getByRole("button", { name: /2 · Sealed review record/i })).toBeVisible();
+    await expect(artifactNav.getByRole("button", { name: /2 · Finalized review record/i })).toBeVisible();
 
     await expect(page.getByTestId("showcase-bottom-cta")).toBeVisible();
     await expect(page.getByTestId("showcase-bottom-cta").getByRole("link", { name: "Start guided evaluation" })).toHaveAttribute(

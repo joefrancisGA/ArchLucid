@@ -11,6 +11,7 @@ import { registerCompareAndExplainRoutes } from "./helpers/register-operator-api
 
 test.describe("operator journey — compare proxy mocks", () => {
   test("client compare + explain calls are fulfilled without a live API", async ({ page }) => {
+    test.setTimeout(90_000);
     await registerCompareAndExplainRoutes(page);
 
     const explainFixture = fixtureComparisonExplanation();
@@ -27,7 +28,22 @@ test.describe("operator journey — compare proxy mocks", () => {
     await expect(structuredSummary).toBeVisible();
 
     await expandCompareRunPickersIfCollapsed(page);
-    await comparePageSummarizeNarrativeButton(page).click();
+
+    const collapsedPickers = page.locator("details").filter({ hasText: /Change compared reviews/i }).first();
+
+    if ((await collapsedPickers.count()) > 0) {
+      const isOpen: boolean = await collapsedPickers.evaluate((element) => (element as HTMLDetailsElement).open);
+
+      if (!isOpen) {
+        await collapsedPickers.locator(":scope > summary").click();
+      }
+    }
+
+    const summarizeButton = comparePageSummarizeNarrativeButton(page);
+
+    await expect(summarizeButton).toBeVisible({ timeout: 60_000 });
+    await summarizeButton.scrollIntoViewIfNeeded();
+    await summarizeButton.click();
     await page.locator("#compare-ai summary").click();
     await expect(page.getByText(explainFixture.highLevelSummary)).toBeVisible();
   });

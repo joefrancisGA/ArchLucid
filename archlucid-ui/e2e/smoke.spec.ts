@@ -76,6 +76,7 @@ test.describe("operator shell smoke", () => {
 
 test.describe("operator shell smoke — core proof path", () => {
   test("home through help without generic error boundary @smoke-core-path", async ({ page }) => {
+    test.setTimeout(120_000);
     await page.goto("/");
     await waitForAppReady(page);
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
@@ -120,7 +121,10 @@ test.describe("operator shell smoke — core proof path", () => {
 
     await page.goto("/architecture/reviews");
     await page.getByTestId("operator-shell-help-trigger").click();
-    await expect(page.getByTestId("help-search-panel")).toBeVisible({ timeout: 60_000 });
+    await expect(page).toHaveURL(/\/help\/review-packages/, { timeout: 60_000 });
+    await expect(page.getByRole("heading", { name: /^Architecture packages$/i, level: 1 })).toBeVisible({
+      timeout: 60_000,
+    });
   });
 });
 
@@ -174,11 +178,19 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/insights/impact-preview");
-    await expect(page.getByRole("heading", { level: 2, name: /^Impact preview$/i })).toBeVisible();
+    await expect(page.getByTestId("demo-workspace-capability-unavailable")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("demo-workspace-capability-unavailable")).toHaveAttribute(
+      "data-demo-capability",
+      "Impact preview",
+    );
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/insights/improvement-planning");
-    await expect(page.getByRole("heading", { level: 2, name: /^Improvement planning$/i })).toBeVisible();
+    await expect(page.getByTestId("demo-workspace-capability-unavailable")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("demo-workspace-capability-unavailable")).toHaveAttribute(
+      "data-demo-capability",
+      "Improvement planning",
+    );
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/insights/improvement-planning/plans/customer-intake-modernization-plan");

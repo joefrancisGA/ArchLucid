@@ -67,7 +67,7 @@ public sealed class CliPackageCoverageBatch2Tests
         {
             RunGit(tempRoot, "init");
             RunGit(tempRoot, "config user.email cli-test@archlucid.local");
-            RunGit(tempRoot, "config user.name ArchLucid Cli Test");
+            RunGit(tempRoot, "config user.name \"ArchLucid Cli Test\"");
             File.WriteAllText(Path.Combine(tempRoot, "README.md"), "clean");
             RunGit(tempRoot, "add README.md");
             RunGit(tempRoot, "commit -m \"init\"");

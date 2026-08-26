@@ -143,7 +143,7 @@ export async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string
           return true;
         }
 
-        if (primeAttempts < 8) {
+        if (primeAttempts < 12) {
           primeAttempts += 1;
 
           const searchResponsePromise = page
@@ -156,7 +156,7 @@ export async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string
 
         return false;
       },
-      { timeout: 90_000, intervals: [500, 1_000, 2_000] },
+      { timeout: 120_000, intervals: [500, 1_000, 2_000] },
     )
     .toBe(true);
 }

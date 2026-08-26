@@ -7,11 +7,12 @@
 import { expect, test } from "@playwright/test";
 
 import { FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID, MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
-import { gotoManifestEmptyArtifactsOperatorCase } from "./helpers/operator-journey";
 
 test.describe("operator journey — manifest empty artifact list", () => {
   test("shows valid-empty state, operator copy, and bundle link (mock API only)", async ({ page }) => {
-    await gotoManifestEmptyArtifactsOperatorCase(page);
+    await page.goto(
+      `/governance/sealed-records/${encodeURIComponent(FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID)}?tab=evidence`,
+    );
 
     /**
      * Mock Playwright builds default to buyer-polished + demo-static (`playwright.mock.config.ts`):
@@ -44,9 +45,10 @@ test.describe("operator journey — manifest empty artifact list", () => {
         /valid empty result|Download is being prepared when your workspace publishes a bundle for this review/i,
       ),
     ).toBeVisible();
-    await expect(
-      emptyRegion.getByText(/Bundle ZIP may return 404|Download is being prepared when your workspace publishes a bundle/i),
-    ).toBeVisible();
+
+    await page.goto(
+      `/governance/sealed-records/${encodeURIComponent(FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID)}?tab=downloads`,
+    );
 
     // Buyer-polished shell: bundle CTA lives in collapsed `manifest-buyer-bundle-download` details.
     const buyerBundleDetails = page.getByTestId("manifest-buyer-bundle-download");

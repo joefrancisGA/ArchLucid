@@ -624,12 +624,6 @@ async function revealFindingWorkspaceCardInJobViewLanes(scope: Locator, card: Lo
         continue;
       }
 
-      const label = (await toggle.textContent()) ?? "";
-
-      if (!/\(\s*[1-9]\d*\s*\)/.test(label)) {
-        continue;
-      }
-
       await toggle.click();
 
       if (await card.isVisible().catch(() => false)) {
@@ -658,6 +652,10 @@ async function revealFindingWorkspaceCardInJobViewLanes(scope: Locator, card: Lo
 
 /** Findings tab workspace cards fold row actions by default — expand before chip/link assertions. */
 export async function expandFindingWorkspaceCard(scope: Locator, findingId: string): Promise<Locator> {
+  const page = scope.page();
+
+  await expect(page.getByTestId("run-detail-findings-workspace")).toBeVisible({ timeout: 90_000 });
+
   const card = scope.getByTestId(`finding-workspace-card-${findingId}`);
 
   await revealFindingWorkspaceCardInJobViewLanes(scope, card);

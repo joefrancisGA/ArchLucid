@@ -9,11 +9,16 @@
 
 export type MockPolicyPack = {
   policyPackId: string;
+  tenantId: string;
+  workspaceId: string;
+  projectId: string;
   name: string;
   packType: string;
+  distributionScope: string;
   status: string;
-  currentVersion: string;
   description: string;
+  createdUtc: string;
+  currentVersion: string;
 };
 
 const defaultEffectiveContent = {
@@ -25,15 +30,23 @@ const defaultEffectiveContent = {
   metadata: {} as Record<string, string>,
 };
 
+const E2E_POLICY_PACK_ID = "e2e-policy-pack-001";
+const E2E_POLICY_PACK_VERSION = "1.0.0";
+
 export function listMockPacks(): MockPolicyPack[] {
   return [
     {
-      policyPackId: "e2e-policy-pack-001",
+      policyPackId: E2E_POLICY_PACK_ID,
+      tenantId: "e2e-tenant",
+      workspaceId: "e2e-workspace",
+      projectId: "default",
       name: "E2E Policy Pack",
       packType: "Custom",
+      distributionScope: "Workspace",
       status: "Active",
-      currentVersion: "1.0.0",
       description: "Fixture pack for mock E2E policy pack detail shell.",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      currentVersion: E2E_POLICY_PACK_VERSION,
     },
   ];
 }
@@ -47,14 +60,26 @@ export function listMockVersions(policyPackId: string): {
   createdUtc: string;
   isPublished: boolean;
 }[] {
-  // Buyer-polished page does not enumerate per-pack versions; signature retained for the route handler.
-  void policyPackId;
+  if (policyPackId !== E2E_POLICY_PACK_ID) {
+    return [];
+  }
 
-  return [];
+  return [
+    {
+      policyPackVersionId: `${policyPackId}-${E2E_POLICY_PACK_VERSION}`,
+      policyPackId,
+      version: E2E_POLICY_PACK_VERSION,
+      contentJson: JSON.stringify(getMockEffectiveContent()),
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      isPublished: true,
+    },
+  ];
 }
 
 export function getMockEffectivePacks(): { packs: { policyPackId: string; version: string }[] } {
-  return { packs: [] };
+  return {
+    packs: [{ policyPackId: E2E_POLICY_PACK_ID, version: E2E_POLICY_PACK_VERSION }],
+  };
 }
 
 export function getMockEffectiveContent(): typeof defaultEffectiveContent {
