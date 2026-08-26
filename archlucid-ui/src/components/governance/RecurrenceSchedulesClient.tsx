@@ -19,28 +19,15 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
-import { OperatorInventoryRowMoreActions } from "@/components/operator/OperatorInventoryRowMoreActions";
 import { RecurrenceSchedulesPickReviewBeforeSchedulingStrip } from "@/components/governance/RecurrenceSchedulesPickReviewBeforeSchedulingStrip";
 import { RecurrenceSchedulesNextReviewFooterClient } from "@/components/governance/RecurrenceSchedulesNextReviewFooterClient";
-import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceSchedulesContinueLastViewedRow } from "@/components/governance/RecurrenceSchedulesContinueLastViewedRow";
 import { RecurrenceScheduleCreatePanel } from "@/components/governance/RecurrenceScheduleCreatePanel";
 import { RecurrenceScheduleWorkspaceActiveReviewStrip } from "@/components/governance/RecurrenceScheduleWorkspaceActiveReviewStrip";
 import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
-import { RecurrenceScheduleFormFields } from "@/components/governance/RecurrenceScheduleFormFields";
 import { RecurrenceSchedulesWorkflowHelperCard } from "@/components/governance/RecurrenceSchedulesWorkflowHelperCard";
+import { RecurrenceSchedulesTable, type RecurrenceScheduleRowEditorState } from "@/components/governance/RecurrenceSchedulesTable";
 import { Button } from "@/components/ui/button";
-import {
-  EnterpriseTable,
-  EnterpriseTableBody,
-  EnterpriseTableCell,
-  EnterpriseTableHead,
-  EnterpriseTableHeadRow,
-  EnterpriseTableHeaderCell,
-  EnterpriseTableRow,
-} from "@/components/ui/enterprise-table";
-import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
-import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   listArchitectureReviewRecurrenceSchedules,
@@ -52,14 +39,8 @@ import {
   writeRecurrenceScheduleLastViewedId,
 } from "@/lib/resolve-continue-last-recurrence-schedule";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { reversibleControlLabel, reversibleControlStateLabel } from "@/lib/reversible-control-verbs";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
-import { RecurrenceLocalTimeDisplay } from "@/components/governance/RecurrenceLocalTimeDisplay";
-import {
-  buildRecurrenceLocalTimeSummary,
-  formatRecurrenceInstantLocalFirst,
-  resolveRecurrenceDisplayTimeZoneId,
-} from "@/lib/recurrence-local-time";
+import { resolveRecurrenceDisplayTimeZoneId } from "@/lib/recurrence-local-time";
 import {
   RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION,
   RECURRENCE_SCHEDULES_EMPTY_TITLE,
@@ -71,110 +52,7 @@ import {
   RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
   type RecurrenceScheduleExample,
 } from "@/lib/recurrence-schedules-copy";
-
-function truncateRunId(runId: string): string {
-  const normalized = runId.replace(/-/g, "");
-
-  if (normalized.length <= 12) {
-    return runId;
-  }
-
-  return `${normalized.slice(0, 8)}…${normalized.slice(-4)}`;
-}
-
-const RECURRENCE_SCHEDULE_REVIEW_PACKAGE_LINK_LABEL = "Open review";
-
-type RecurrenceStatusPresentation = {
-  kind: "ready" | "needs-attention" | "danger" | "muted";
-  label: string;
-  title?: string;
-};
-
-function recurrenceRunStatusPresentation(
-  schedule: ArchitectureReviewRecurrenceSchedule,
-): RecurrenceStatusPresentation {
-  const lastStatus = schedule.lastRunStatus?.trim().toLowerCase() ?? "never";
-  const failures = schedule.consecutiveFailureCount ?? 0;
-
-  if (!schedule.isEnabled && failures >= 5) {
-    return {
-      kind: "danger",
-      label: "Auto-disabled",
-      title:
-        schedule.lastErrorMessage ??
-        "Auto-disabled after repeated failures — re-enable when the source run is healthy.",
-    };
-  }
-
-  if (lastStatus === "failed") {
-    return {
-      kind: "danger",
-      label: failures > 0 ? `Failed (${failures})` : "Failed",
-      title: schedule.lastErrorMessage ?? undefined,
-    };
-  }
-
-  if (lastStatus === "succeeded") {
-    return { kind: "ready", label: "Last run OK" };
-  }
-
-  return { kind: "muted", label: "Never run" };
-}
-
-function scheduleStatusKind(
-  schedule: ArchitectureReviewRecurrenceSchedule,
-): "ready" | "needs-attention" {
-  const runStatus = recurrenceRunStatusPresentation(schedule);
-
-  if (runStatus.kind === "danger") {
-    return "needs-attention";
-  }
-
-  if (!schedule.isEnabled) {
-    return "needs-attention";
-  }
-
-  if (!schedule.nextRunUtc) {
-    return "needs-attention";
-  }
-
-  const next = new Date(schedule.nextRunUtc);
-
-  if (Number.isNaN(next.getTime())) {
-    return "needs-attention";
-  }
-
-  if (next.getTime() < Date.now()) {
-    return "needs-attention";
-  }
-
-  return "ready";
-}
-
-function statusTagKind(
-  runStatus: RecurrenceStatusPresentation,
-  statusKind: "ready" | "needs-attention",
-): "ready" | "needs-attention" {
-  if (runStatus.kind === "ready") {
-    return "ready";
-  }
-
-  if (runStatus.kind === "danger" || runStatus.kind === "muted") {
-    return "needs-attention";
-  }
-
-  return statusKind === "ready" ? "ready" : "needs-attention";
-}
-
-type RecurrenceScheduleRowEditorState = {
-  name: string;
-  cronExpression: string;
-  isEnabled: boolean;
-};
-
-function recurrenceSchedulesLoadFailureMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "Failed to load recurrence schedules.";
-}
+import { recurrenceSchedulesLoadFailureMessage } from "@/components/governance/recurrence-schedules-presentation";
 
 /** TB-222 — governance workspace for architecture review recurrence schedules. */
 export default function RecurrenceSchedulesClient() {
@@ -557,181 +435,39 @@ export default function RecurrenceSchedulesClient() {
                 onOpen={openSchedule}
               />
             ) : null}
-            <EnterpriseTable ariaLabel="Architecture review recurrence schedules">
-              <EnterpriseTableHead>
-                <EnterpriseTableHeadRow>
-                  <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Scope / Review</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Cadence</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Next run</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Last run</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Recurrence</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
-                </EnterpriseTableHeadRow>
-              </EnterpriseTableHead>
-              <EnterpriseTableBody>
-                {schedules.map((schedule) => {
-                  const statusKind = scheduleStatusKind(schedule);
-                  const runStatus = recurrenceRunStatusPresentation(schedule);
-                  const autoDisabled = !schedule.isEnabled && (schedule.consecutiveFailureCount ?? 0) >= 5;
-                  const isEditing = editingId === schedule.scheduleId;
-
-                  return (
-                    <EnterpriseTableRow
-                      key={schedule.scheduleId}
-                      data-recurrence-schedule-id={schedule.scheduleId}
-                    >
-                      <EnterpriseTableCell>{schedule.name}</EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <Link
-                          href={`/architecture/reviews/${schedule.sourceRunId}`}
-                          className={cn(
-                            OPERATOR_BODY_INLINE_LINK_CLASS,
-                            OPERATOR_TYPOGRAPHY.body,
-                          )}
-                          title={`Architecture review ${truncateRunId(schedule.sourceRunId)}`}
-                        >
-                          {RECURRENCE_SCHEDULE_REVIEW_PACKAGE_LINK_LABEL}
-                        </Link>
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <RecurrenceLocalTimeDisplay
-                          summary={buildRecurrenceLocalTimeSummary({
-                            cronExpression: schedule.cronExpression,
-                            nextRunUtc: schedule.nextRunUtc,
-                            ianaTimeZoneId: displayTimeZoneId,
-                          })}
-                        />
-                        <details className="mt-1">
-                          <summary className={cn("cursor-pointer text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                            Cron expression
-                          </summary>
-                          <p className={cn("m-0 mt-1 font-mono text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-                            {schedule.cronExpression}
-                          </p>
-                        </details>
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <RecurrenceLocalTimeDisplay
-                          summary={formatRecurrenceInstantLocalFirst(
-                            schedule.nextRunUtc,
-                            displayTimeZoneId,
-                          )}
-                        />
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <RecurrenceLocalTimeDisplay
-                          summary={formatRecurrenceInstantLocalFirst(
-                            schedule.lastTriggeredUtc,
-                            displayTimeZoneId,
-                          )}
-                        />
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <StatusTag
-                          kind={statusTagKind(runStatus, statusKind)}
-                          label={runStatus.label}
-                          title={runStatus.title}
-                        />
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <BooleanStatusChip
-                          value={schedule.isEnabled}
-                          trueLabel={reversibleControlStateLabel("recurring-activity", true)}
-                          falseLabel={reversibleControlStateLabel("recurring-activity", false)}
-                          data-testid={`recurrence-enabled-${schedule.scheduleId}`}
-                        />
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        {isEditing && editorState !== null ? (
-                          <div className="flex min-w-[18rem] flex-col gap-3">
-                            <RecurrenceScheduleFormFields
-                              name={editorState.name}
-                              cronExpression={editorState.cronExpression}
-                              disabled={busyId === schedule.scheduleId}
-                              onNameChange={(value) =>
-                                setEditorState((current) => (current === null ? current : { ...current, name: value }))
-                              }
-                              onCronExpressionChange={(value) =>
-                                setEditorState((current) =>
-                                  current === null ? current : { ...current, cronExpression: value },
-                                )
-                              }
-                            />
-                            <RecurrenceScheduleActivationActions
-                              mode="edit"
-                              cronExpression={editorState.cronExpression}
-                              pendingIsEnabled={editorState.isEnabled}
-                              disabled={!canMutate}
-                              busy={busyId === schedule.scheduleId}
-                              onSavePaused={() => void saveEdit(schedule.scheduleId, false)}
-                              onEnableRecurring={() => void saveEdit(schedule.scheduleId, true)}
-                              onSaveChanges={() => void saveEdit(schedule.scheduleId, editorState.isEnabled)}
-                            />
-                            <Button type="button" size="sm" variant="outline" onClick={cancelEdit}>
-                              Cancel
-                            </Button>
-                          </div>
-                        ) : (
-                          <OperatorInventoryRowMoreActions
-                            testId={`recurrence-more-${schedule.scheduleId}`}
-                            primaryActions={
-                              <>
-                                <Button asChild size="sm" variant="outline">
-                                  <Link
-                                    href={`/architecture/reviews/${schedule.sourceRunId}`}
-                                    onClick={() => {
-                                      rememberSchedule(schedule.scheduleId);
-                                    }}
-                                  >
-                                    View
-                                  </Link>
-                                </Button>
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant="outline"
-                                  disabled={busyId === schedule.scheduleId || !canMutate}
-                                  aria-describedby={
-                                    mutationDisabledReason === null ? undefined : mutationDisabledHintId
-                                  }
-                                  onClick={() => void toggleEnabled(schedule)}
-                                  data-testid={`recurrence-toggle-${schedule.scheduleId}`}
-                                >
-                                  {busyId === schedule.scheduleId
-                                    ? "Saving…"
-                                    : reversibleControlLabel("recurring-activity", schedule.isEnabled)}
-                                </Button>
-                              </>
-                            }
-                            overflowActions={
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                disabled={!canMutate}
-                                aria-describedby={
-                                  mutationDisabledReason === null ? undefined : mutationDisabledHintId
-                                }
-                                onClick={() => beginEdit(schedule)}
-                              >
-                                Edit
-                              </Button>
-                            }
-                          />
-                        )}
-                        {!isEditing && autoDisabled ? (
-                          <span className={cn("mt-2 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                            Auto-disabled after repeated failures — re-enable when ready.
-                          </span>
-                        ) : null}
-                      </EnterpriseTableCell>
-                    </EnterpriseTableRow>
-                  );
-                })}
-              </EnterpriseTableBody>
-            </EnterpriseTable>
+            <RecurrenceSchedulesTable
+              schedules={schedules}
+              displayTimeZoneId={displayTimeZoneId}
+              editingId={editingId}
+              editorState={editorState}
+              busyId={busyId}
+              canMutate={canMutate}
+              mutationDisabledReason={mutationDisabledReason}
+              mutationDisabledHintId={mutationDisabledHintId}
+              onRememberSchedule={rememberSchedule}
+              onToggleEnabled={(schedule) => {
+                void toggleEnabled(schedule);
+              }}
+              onBeginEdit={beginEdit}
+              onCancelEdit={cancelEdit}
+              onEditorNameChange={(value) =>
+                setEditorState((current) => (current === null ? current : { ...current, name: value }))
+              }
+              onEditorCronExpressionChange={(value) =>
+                setEditorState((current) =>
+                  current === null ? current : { ...current, cronExpression: value },
+                )
+              }
+              onSavePaused={(scheduleId) => {
+                void saveEdit(scheduleId, false);
+              }}
+              onEnableRecurring={(scheduleId) => {
+                void saveEdit(scheduleId, true);
+              }}
+              onSaveChanges={(scheduleId, isEnabled) => {
+                void saveEdit(scheduleId, isEnabled);
+              }}
+            />
             </>
           ) : null}
       </div>
