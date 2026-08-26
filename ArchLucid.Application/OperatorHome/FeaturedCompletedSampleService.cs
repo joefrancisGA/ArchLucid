@@ -25,7 +25,7 @@ public sealed class FeaturedCompletedSampleService(
     public async Task<FeaturedCompletedSampleSnapshot> GetSnapshotAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        Guid? selectedRunId = await TryReadSelectedRunIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        Guid? selectedRunId = await TryReadSelectedRunIdAsync(scope, cancellationToken).ConfigureAwait(false);
 
         if (!selectedRunId.HasValue)
         {
@@ -70,7 +70,7 @@ public sealed class FeaturedCompletedSampleService(
         await _tenantSettingsRepository
             .UpsertAsync(
                 scope.TenantId,
-                TenantSettingKeys.FeaturedCompletedSampleRunId,
+                ResolveSettingKey(scope),
                 runId.ToString("D"),
                 cancellationToken)
             .ConfigureAwait(false);
@@ -83,7 +83,7 @@ public sealed class FeaturedCompletedSampleService(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         await _tenantSettingsRepository
-            .DeleteAsync(scope.TenantId, TenantSettingKeys.FeaturedCompletedSampleRunId, cancellationToken)
+            .DeleteAsync(scope.TenantId, ResolveSettingKey(scope), cancellationToken)
             .ConfigureAwait(false);
 
         return new FeaturedCompletedSampleSnapshot
@@ -93,10 +93,13 @@ public sealed class FeaturedCompletedSampleService(
         };
     }
 
-    private async Task<Guid?> TryReadSelectedRunIdAsync(Guid tenantId, CancellationToken cancellationToken)
+    private static string ResolveSettingKey(ScopeContext scope) =>
+        $"{TenantSettingKeys.FeaturedCompletedSampleRunId}.{scope.WorkspaceId:D}";
+
+    private async Task<Guid?> TryReadSelectedRunIdAsync(ScopeContext scope, CancellationToken cancellationToken)
     {
         string? stored = await _tenantSettingsRepository
-            .TryGetAsync(tenantId, TenantSettingKeys.FeaturedCompletedSampleRunId, cancellationToken)
+            .TryGetAsync(scope.TenantId, ResolveSettingKey(scope), cancellationToken)
             .ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(stored))
@@ -120,7 +123,16 @@ public sealed class FeaturedCompletedSampleService(
     {
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
-        if (run is null || !FeaturedCompletedSampleEligibility.IsEligible(run))
+        if (run is null)
+        {
+            return new FeaturedCompletedSampleSnapshot
+            {
+                IsConfigured = false,
+                IsAvailable = false,
+            };
+        }
+
+        if (!FeaturedCompletedSampleEligibility.IsEligible(run))
         {
             return new FeaturedCompletedSampleSnapshot
             {

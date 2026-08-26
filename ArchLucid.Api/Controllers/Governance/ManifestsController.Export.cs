@@ -67,7 +67,7 @@ public sealed partial class ManifestsController
             return (null, null);
 
         if (!await IsManifestRunInScopeAsync(manifest, cancellationToken))
-            return (manifest, null);
+            return (null, null);
 
         AgentEvidencePackage? evidence =
             await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);

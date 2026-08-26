@@ -1,5 +1,4 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Application;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
@@ -32,7 +31,6 @@ namespace ArchLucid.Api.Controllers.Governance;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public sealed partial class ManifestsController(
-    IArchitectureApplicationService architectureApplicationService,
     IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
     IManifestDiffService manifestDiffService,
     IManifestDiffSummaryFormatter manifestDiffSummaryFormatter,

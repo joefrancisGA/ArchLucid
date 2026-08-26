@@ -54,10 +54,56 @@ public sealed class FeaturedCompletedSampleServiceTests
         tenantSettings.Verify(
             repository => repository.UpsertAsync(
                 Scope.TenantId,
-                ArchLucid.Core.Tenancy.TenantSettingKeys.FeaturedCompletedSampleRunId,
+                $"{ArchLucid.Core.Tenancy.TenantSettingKeys.FeaturedCompletedSampleRunId}.{Scope.WorkspaceId:D}",
                 EligibleRunId.ToString("D"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task GetSnapshotAsync_returns_unconfigured_when_selected_run_is_out_of_scope()
+    {
+        Mock<ITenantSettingsRepository> tenantSettings = CreateTenantSettingsMock(EligibleRunId.ToString("D"));
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, EligibleRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        FeaturedCompletedSampleService sut = CreateService(tenantSettings, runs);
+
+        FeaturedCompletedSampleSnapshot snapshot = await sut.GetSnapshotAsync(CancellationToken.None);
+
+        snapshot.IsConfigured.Should().BeFalse();
+        snapshot.IsAvailable.Should().BeFalse();
+        snapshot.SelectedRunId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetSnapshotAsync_ignores_featured_sample_from_foreign_workspace_setting_key()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string foreignWorkspaceKey =
+            $"{ArchLucid.Core.Tenancy.TenantSettingKeys.FeaturedCompletedSampleRunId}.{foreignWorkspaceId:D}";
+
+        Mock<ITenantSettingsRepository> tenantSettings = new();
+        tenantSettings
+            .Setup(r => r.TryGetAsync(
+                Scope.TenantId,
+                $"{ArchLucid.Core.Tenancy.TenantSettingKeys.FeaturedCompletedSampleRunId}.{Scope.WorkspaceId:D}",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        tenantSettings
+            .Setup(r => r.TryGetAsync(Scope.TenantId, foreignWorkspaceKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(EligibleRunId.ToString("D"));
+
+        FeaturedCompletedSampleService sut = CreateService(
+            tenantSettings,
+            CreateRunRepositoryMock(CreateEligibleRun()));
+
+        FeaturedCompletedSampleSnapshot snapshot = await sut.GetSnapshotAsync(CancellationToken.None);
+
+        snapshot.IsConfigured.Should().BeFalse();
+        snapshot.SelectedRunId.Should().BeNull();
     }
 
     [Fact]
@@ -114,7 +160,10 @@ public sealed class FeaturedCompletedSampleServiceTests
     {
         Mock<ITenantSettingsRepository> repository = new();
         repository
-            .Setup(r => r.TryGetAsync(Scope.TenantId, ArchLucid.Core.Tenancy.TenantSettingKeys.FeaturedCompletedSampleRunId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.TryGetAsync(
+                Scope.TenantId,
+                $"{ArchLucid.Core.Tenancy.TenantSettingKeys.FeaturedCompletedSampleRunId}.{Scope.WorkspaceId:D}",
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(storedValue);
 
         return repository;

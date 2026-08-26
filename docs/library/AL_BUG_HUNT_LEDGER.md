@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 9
-- **bugs-found:** 28
+- **hunts:** 10
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — finding disposition history leaked foreign workspace events; run history GET skipped scoped run preflight
+- **last-bug:** 2026-08-26 — governance coverage GET enriched foreign pack metadata; manifest reads returned body for out-of-scope runs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2251,6 +2251,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.ListDispositions` — tenant-only trail query returned disposition history from foreign workspace/project for the same `findingId` — **hit 2026-08-26:** `ListHistoryAsync` filters to ambient workspace/project; regression in `GovernanceStickinessFacadeScopeTests.ListDispositionsAsync_excludes_foreign_workspace_events_for_same_finding_id`.
 - [x] (proven) `GovernancePreCommitSimulationController.GetChecklist` — foreign `runId` returned HTTP 200 with blocking checklist instead of 404 — **hit 2026-08-26:** scoped `IRunRepository` preflight; regression in `GovernancePreCommitSimulationControllerTests.GetChecklist_returns_not_found_for_out_of_scope_run_id`.
 - [x] (proven) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — foreign `runId` returned HTTP 200 `[]` without scoped run preflight — **hit 2026-08-26:** `RequireScopedRunAsync` before repository reads; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `ManifestsController` export/bundle/summary-evidence — out-of-scope run returned HTTP 200 with full `GoldenManifest` (prior fix only omitted evidence) — **hit 2026-08-26:** `LoadManifestWithEvidenceAsync` returns 404 when scoped run lookup fails; regression in `ManifestsControllerEvidenceScopeTests.GetManifestBundle_returns_not_found_when_run_is_out_of_scope`.
+- [x] (proven) `ManifestsController.GetManifest` / diagram / summary — plain manifest reads lacked run-scope gate — **hit 2026-08-26:** `GetManifestInScopeAsync`; regression in `ManifestsControllerEvidenceScopeTests.GetManifest_returns_not_found_when_run_is_out_of_scope`.
+- [x] (proven) `FeaturedCompletedSampleService` — tenant-wide `Homepage.FeaturedCompletedSampleRunId` setting leaked cross-workspace selection and allowed foreign-workspace overwrite — **hit 2026-08-26:** workspace-scoped setting key + out-of-scope run projects as unconfigured; regression in `FeaturedCompletedSampleServiceTests`.
+- [x] (proven) `GovernanceCoverageController.GetScopeCoverage` — `GetByIdsAsync` pack enrichment ignored workspace/project, leaking foreign `QualityDimension` metadata — **hit 2026-08-26:** filter pack lookup to ambient scope before mapping; regression in `GovernanceCoverageControllerScopeTests`.
+
+2026-08-26 seed hunt #85: proved manifest body scope on read/export paths, featured-sample workspace setting isolation, governance coverage pack metadata scope.
 
 2026-08-26 seed hunt #84: proved disposition run scope, disposition history workspace filter, pre-finalize checklist 404, governance run-history scoped preflight.
 

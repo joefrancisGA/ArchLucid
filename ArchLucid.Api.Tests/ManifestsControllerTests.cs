@@ -1,15 +1,16 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
-using ArchLucid.Application;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -28,6 +29,13 @@ public sealed class ManifestsControllerTests
     private const string RightVersion = "v2";
     private const string ManifestVersion = "golden-v1";
 
+    private static readonly ScopeContext CallerScope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
+
     private static GoldenManifest CreateManifest(string version, string systemName = "payments")
     {
         return new GoldenManifest
@@ -40,7 +48,6 @@ public sealed class ManifestsControllerTests
     }
 
     private static ManifestsController CreateController(
-        IArchitectureApplicationService? architectureService = null,
         IUnifiedGoldenManifestReader? manifestReader = null,
         IManifestDiffService? manifestDiffService = null)
     {
@@ -66,14 +73,6 @@ public sealed class ManifestsControllerTests
         reader
             .Setup(r => r.GetByVersionAsync(It.IsNotIn(LeftVersion, RightVersion, ManifestVersion),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GoldenManifest?)null);
-
-        Mock<IArchitectureApplicationService> architecture = new();
-        architecture
-            .Setup(s => s.GetManifestAsync(ManifestVersion, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreateManifest(ManifestVersion));
-        architecture
-            .Setup(s => s.GetManifestAsync(It.IsNotIn(ManifestVersion), It.IsAny<CancellationToken>()))
             .ReturnsAsync((GoldenManifest?)null);
 
         Mock<IManifestDiffService> diffService = new();
@@ -123,8 +122,15 @@ public sealed class ManifestsControllerTests
             .Setup(s => s.GenerateMermaid(It.IsAny<GoldenManifest>(), It.IsAny<ManifestDiagramOptions>()))
             .Returns("graph TB; S-->D");
 
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunRecord { RunId = runId });
+
         return new ManifestsController(
-                architectureService ?? architecture.Object,
                 manifestReader ?? reader.Object,
                 manifestDiffService ?? diffService.Object,
                 summaryFormatter.Object,
@@ -135,8 +141,8 @@ public sealed class ManifestsControllerTests
                 architectureExport.Object,
                 evidenceRepo.Object,
                 diagramService.Object,
-                Mock.Of<ArchLucid.Core.Scoping.IScopeContextProvider>(),
-                Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>())
+                scopeProvider.Object,
+                runs.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };

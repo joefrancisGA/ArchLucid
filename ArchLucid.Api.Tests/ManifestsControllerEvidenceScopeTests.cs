@@ -36,7 +36,7 @@ public sealed class ManifestsControllerEvidenceScopeTests
     };
 
     [Fact]
-    public async Task GetManifestBundle_omits_evidence_when_run_is_out_of_scope()
+    public async Task GetManifestBundle_returns_not_found_when_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
         GoldenManifest manifest = new()
@@ -60,41 +60,55 @@ public sealed class ManifestsControllerEvidenceScopeTests
             .Setup(r => r.GetByIdAsync(CallerScope, foreignRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
-        AgentEvidencePackage foreignEvidence = new()
+        ManifestsController controller = CreateController(
+            reader.Object,
+            scopeProvider.Object,
+            runs.Object,
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IManifestSummaryGenerator>());
+
+        IActionResult action = await controller.GetManifestBundle(ManifestVersion, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetManifest_returns_not_found_when_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        GoldenManifest manifest = new()
         {
-            EvidencePackageId = Guid.NewGuid().ToString("D"),
             RunId = foreignRunId.ToString("N"),
-            RequestId = "req-foreign",
-            SystemName = "secret-system",
-            Environment = "prod",
-            CloudProvider = "Azure",
+            SystemName = "payments",
+            Metadata = new ManifestMetadata { ManifestVersion = ManifestVersion },
+            Governance = new ManifestGovernance(),
         };
 
-        Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
-        evidenceRepo
-            .Setup(r => r.GetByRunIdAsync(foreignRunId.ToString("N"), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(foreignEvidence);
+        Mock<IUnifiedGoldenManifestReader> reader = new();
+        reader
+            .Setup(r => r.GetByVersionAsync(ManifestVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(manifest);
 
-        Mock<IManifestSummaryGenerator> summaryGenerator = new();
-        summaryGenerator
-            .Setup(g => g.GenerateMarkdown(manifest, null))
-            .Returns("# summary without evidence");
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
 
         ManifestsController controller = CreateController(
             reader.Object,
             scopeProvider.Object,
             runs.Object,
-            evidenceRepo.Object,
-            summaryGenerator.Object);
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IManifestSummaryGenerator>());
 
-        IActionResult action = await controller.GetManifestBundle(ManifestVersion, CancellationToken.None);
+        IActionResult action = await controller.GetManifest(ManifestVersion, CancellationToken.None);
 
-        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
-        ManifestBundleResponse body = ok.Value.Should().BeOfType<ManifestBundleResponse>().Subject;
-        body.Summary.Should().Be("# summary without evidence");
-        evidenceRepo.Verify(
-            r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     private static ManifestsController CreateController(
@@ -110,7 +124,6 @@ public sealed class ManifestsControllerEvidenceScopeTests
             .Returns("graph LR; A-->B");
 
         return new ManifestsController(
-                Mock.Of<IArchitectureApplicationService>(),
                 manifestReader,
                 Mock.Of<IManifestDiffService>(),
                 Mock.Of<IManifestDiffSummaryFormatter>(),

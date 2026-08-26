@@ -62,7 +62,11 @@ public sealed class GovernanceCoverageController(
             ? new Dictionary<Guid, PolicyPack>()
             : (await policyPackRepository.GetByIdsAsync(
                 summary.Assignments.Select(static row => row.PolicyPackId).Distinct().ToList(),
-                cancellationToken)).ToDictionary(static pack => pack.PolicyPackId);
+                cancellationToken))
+            .Where(pack => pack.TenantId == scope.TenantId
+                && pack.WorkspaceId == scope.WorkspaceId
+                && pack.ProjectId == scope.ProjectId)
+            .ToDictionary(static pack => pack.PolicyPackId);
 
         CoverageSummaryResponse response = CoverageAssignmentMapper.ToSummaryResponse(summary, packById);
         return Ok(response);
