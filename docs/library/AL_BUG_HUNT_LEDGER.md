@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 15
-- **bugs-found:** 43
+- **hunts:** 16
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — weekly digest health ignored sponsor prefs; sponsor digest prefs had no delivery scanner
+- **last-bug:** 2026-08-26 — governance preview missing manifest returned 400; converted trial showed days remaining
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2267,6 +2267,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantHomepageSettingsController.PutAsync` / `FeaturedCompletedSampleService.SetSelectedRunIdAsync` — foreign-workspace `SelectedRunId` in same tenant → HTTP 400 `ValidationFailed` ("not eligible") instead of 404 — **hit 2026-08-26:** scoped `GetByIdAsync` null throws `RunNotFoundException`; controller maps to `ProblemTypes.RunNotFound`; regression in `FeaturedCompletedSampleServiceTests` and `TenantHomepageSettingsControllerTests`.
 - [x] (proven) `WeeklyDigestHealthReader.GetSnapshotAsync` / `TenantWeeklyDigestHealthController` — sponsor prefs enabled while exec digest disabled still reported sponsor setup gap and omitted sponsor fields — **hit 2026-08-26:** load `ITenantSponsorDigestPreferencesRepository`, split exec vs sponsor gap messages, expose sponsor mirror fields on snapshot/response; regression in `WeeklyDigestHealthReaderTests`.
 - [x] (proven) `TenantSponsorDigestPreferencesController` persistence — POST enabled email + recipients but no weekly job consumed `ListEmailEnabledTenantIdsAsync` — **hit 2026-08-26:** `SponsorDigestWeeklyDeliveryScanner` + `SponsorDigestWeeklyArchLucidJob` + `SponsorDigestWeeklyHostedService` wired to sponsor prefs repo and sponsor unsubscribe URL; regression in `SponsorDigestWeeklyDeliveryScannerTests` and `SponsorDigestWeeklyArchLucidJobTests`.
+- [x] (proven) `GovernancePreviewController.Preview` / `GovernancePreviewService.PreviewActivationAsync` — missing manifest version for scoped run → HTTP 400 `BadRequest` instead of 404 `ManifestNotFound` — **hit 2026-08-26:** `GoldenManifestVersionNotFoundException` + controller maps to `ProblemTypes.ManifestNotFound`; regression in `GovernancePreviewControllerUnitTests` and `GovernancePreviewServiceTests`.
+- [x] (proven) `TenantTrialController.GetTrialStatusAsync` — `TrialStatus = Converted` with future `TrialExpiresUtc` → HTTP 200 with positive `daysRemaining` — **hit 2026-08-26:** always use `TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay`; regression in `TenantTrialControllerTests.GetTrialStatusAsync_returns_null_days_remaining_when_converted`.
+- [x] (invalid) `TenantPilotValueReportController.GetPilotValueReport` — inverted `fromUtc`/`toUtc` returns 200 empty metrics — **cheap-disproof 2026-08-26:** `PilotValueReportService.BuildAsync` intentionally returns `EmptyReport` for `to <= from`; covered by `PilotValueReportServiceTests.BuildAsync_empty_window_returns_zeros`.
+- [ ] (hunt-ready) `GovernanceResolutionController.Resolve` / `EffectiveGovernanceResolver.ResolveAsync` — tenant-level assignment for workspace-authored pack → HTTP 200 merges foreign workspace `ContentJson` into effective resolution (`GetByIdsAsync` without pack visibility filter).
+- [ ] (hunt-ready) `PolicyPacksController.GetEffectiveContent` / `GetPageBundle` / `GovernanceSetupController.GetSetupGuideBundle` — same tenant-assignment foreign-workspace pack JSON leak via `PolicyPackResolver.ResolveAsync`.
+- [ ] (hunt-ready) `TenantErasureLegalHoldController.SetLegalHoldAsync` — missing tenant row → HTTP 409 Conflict instead of 404 (`TrySetLegalHoldAsync` false lumps missing tenant with quarantine failures).
+- [ ] (candidate) `TenantCostSettingsController.PutAsync` — both `eaDiscountPercentage` and `eaDiscountMultiplier` supplied → percentage wins silently with no 400.
+- [ ] (candidate) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — approval row with deleted/out-of-scope `RunId` returns HTTP 200 shell instead of 404 (no `RequireScopedRunAsync` preflight).
+
+2026-08-26 seed hunt #91: proved governance preview manifest 404 + converted trial daysRemaining; reseeded resolution/effective-content/legal-hold rows.
 
 2026-08-26 thorough hunt #90: proved weekly digest health sponsor-prefs gap + sponsor digest weekly delivery pipeline.
 
