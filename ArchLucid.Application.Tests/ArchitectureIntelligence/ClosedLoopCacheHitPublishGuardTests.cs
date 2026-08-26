@@ -210,6 +210,7 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
     {
         ClosedLoopReasoningResult result = new()
         {
+            RunId = " abc-def ",
             PublishedToProduct = true,
             PublishedFindingsSnapshotId = Guid.NewGuid(),
             PublishedRecommendationCount = 4,
@@ -250,6 +251,7 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         result.PublishBlockReasons.Should().BeEmpty();
         result.CacheHit.Should().BeFalse();
         result.CacheReuseReason.Should().BeNull();
+        result.RunId.Should().Be("abcdef");
         result.ProductFindings.Should().BeEmpty();
         result.ProductRecommendations.Should().BeEmpty();
     }

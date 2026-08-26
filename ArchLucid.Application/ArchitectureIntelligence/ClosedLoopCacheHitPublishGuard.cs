@@ -93,6 +93,7 @@ public static class ClosedLoopCacheHitPublishGuard
         result.PublishBlockReasons = [];
         result.CacheHit = false;
         result.CacheReuseReason = null;
+        result.RunId = ClosedLoopRunIdNormalizer.NormalizeOptional(result.RunId);
         StripProductPayloads(result);
     }
 
