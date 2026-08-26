@@ -58,6 +58,12 @@ public sealed class ReviewResultCache : IReviewResultCache
                 _cache[key] = entry;
             }
 
+            if (IsRunIdTombstonedUnlocked(entry.Result.RunId))
+            {
+                result = null;
+                return false;
+            }
+
             storedResult = entry.Result;
         }
 

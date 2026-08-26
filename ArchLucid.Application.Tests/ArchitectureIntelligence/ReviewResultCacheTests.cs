@@ -237,6 +237,25 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void TryGet_misses_when_run_id_is_tombstoned_even_if_entry_is_pinned()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-tombstone-tryget" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" });
+        cache.PinStorageKey(storageKey);
+
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+
+        cache.UnpinStorageKey(storageKey);
+    }
+
+    [Fact]
     public void PinStorageKey_caps_refcount_per_key()
     {
         ReviewResultCache cache = new();
