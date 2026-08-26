@@ -9,6 +9,15 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/choose-your-next-step",
 }));
@@ -94,7 +103,7 @@ describe("HelpPathChooserGuideView", () => {
     const sources = screen.getByTestId("help-path-chooser-sources");
 
     for (const link of PATH_CHOOSER_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expect(within(sources).getByRole("link", { name: `Read ${link.label}` })).toHaveAttribute("href", link.href);
     }
 
     expect(PATH_CHOOSER_HELP_RELATED_NEXT_STEPS.length).toBeGreaterThan(PATH_CHOOSER_HELP_SOURCES.length);

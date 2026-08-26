@@ -225,12 +225,10 @@ export const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet
     rules: [softenEvidenceIntakeHelpPresentation, stripEvidenceIntakeStructuredUiSections],
   },
   {
-    // Never matches: the compared file name is upper-case while normalizedSourcePath is lower-cased.
-    // Preserved verbatim so this refactor does not change rendered output; see stripEvidenceTrailStructuredUiSections.
     id: "evidence-trail",
     matches: matchesBoth(
       matchesSlug("evidence-trail"),
-      matchesSourceDoc("EVIDENCE_TRAIL_OPERATOR_GUIDE.md"),
+      matchesSourceDoc("evidence_trail_operator_guide.md"),
     ),
     rules: [stripEvidenceTrailStructuredUiSections],
   },

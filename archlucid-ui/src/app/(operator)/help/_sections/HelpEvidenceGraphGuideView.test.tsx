@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -33,9 +33,7 @@ describe("HelpEvidenceGraphGuideView", () => {
 
     expect(screen.getByTestId("help-evidence-graph-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
-expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Guide last reviewed 2026-08-13 · insights evidence graph orientation",
-    );
+expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.queryByTestId("help-evidence-graph-role-precondition-tag")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-evidence-graph-role-precondition")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-evidence-graph-sample-graph-note")).toHaveTextContent(
@@ -61,18 +59,23 @@ expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
     );
     expect(screen.getAllByRole("link", { name: EVIDENCE_GRAPH_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
     expect(screen.getByRole("heading", { level: 2, name: "Start here" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: EVIDENCE_GRAPH_HELP_TOPIC_LABEL })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: EVIDENCE_GRAPH_HELP_TOPIC_LABEL })).toBeInTheDocument();
 
     for (const item of EVIDENCE_GRAPH_HELP_TILE_ITEMS) {
       expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
     }
 
+    const sources = screen.getByTestId("help-evidence-graph-sources");
+
     for (const source of EVIDENCE_GRAPH_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      expect(within(sources).getByRole("link", { name: new RegExp(source.label, "i") })).toHaveAttribute(
+        "href",
+        source.href,
+      );
     }
 
     expect(screen.queryByRole("link", { name: "Read evidence trail help →" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Search review evidence →" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Evidence graph" })).not.toBeInTheDocument();
+    expect(within(sources).queryByRole("link", { name: /evidence graph help/i })).not.toBeInTheDocument();
   });
 });
