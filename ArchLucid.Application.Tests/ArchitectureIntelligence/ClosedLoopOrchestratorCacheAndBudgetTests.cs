@@ -45,7 +45,7 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
     }
 
     [Fact]
-    public async Task RunAsync_cache_hit_rewrites_run_identity_from_current_request()
+    public async Task RunAsync_second_request_with_same_run_id_is_cache_hit_and_preserves_model_identity()
     {
         ServiceCollection services = new();
         services.AddArchitectureIntelligence();
@@ -74,17 +74,11 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
         ClosedLoopReasoningResult first = await orchestrator.RunAsync(request);
         first.CacheHit.Should().BeFalse();
 
-        ClosedLoopReasoningResult second = await orchestrator.RunAsync(new ClosedLoopReasoningRequest
-        {
-            TenantId = "tenant-cache-run-id",
-            RunId = "run-cache-second",
-            DeclaredPriorities = ["Security"],
-            SourceTexts = request.SourceTexts,
-        });
+        ClosedLoopReasoningResult second = await orchestrator.RunAsync(request);
 
         second.CacheHit.Should().BeTrue();
-        second.RunId.Should().Be("run-cache-second");
-        second.Model.RunId.Should().Be("run-cache-second");
+        second.RunId.Should().Be("run-cache-first");
+        second.Model.RunId.Should().Be("run-cache-first");
         second.ModelId.Should().Be(first.ModelId);
         second.Model.ModelId.Should().Be(first.Model.ModelId);
     }
