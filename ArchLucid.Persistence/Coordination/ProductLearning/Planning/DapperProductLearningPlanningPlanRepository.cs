@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -175,7 +176,8 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
                 new CommandDefinition(
                     sql,
                     new { Take = take, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
-                    cancellationToken: cancellationToken));
+                    cancellationToken: cancellationToken,
+                    commandTimeout: DapperCommandTimeoutSeconds.Interactive));
 
         List<ProductLearningImprovementPlanRecord> plans = rows.Select(static r => MapPlan(r)).ToList();
 
@@ -238,7 +240,8 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
                 new CommandDefinition(
                     sql,
                     new { Take = take, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
-                    cancellationToken: cancellationToken));
+                    cancellationToken: cancellationToken,
+                    commandTimeout: DapperCommandTimeoutSeconds.Interactive));
 
         List<ProductLearningImprovementPlanListRecord> plans = rows.Select(MapPlanListItem).ToList();
 

@@ -1,9 +1,13 @@
 using System.Text.Json;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-///     One-line JSON diagnostics to stderr so hangs remain visible even when ILogger is filtered.
+///     One-line JSON hang breadcrumbs. Prefer <see cref="ILogger" /> (Serilog <c>[WRN]</c> in the API window).
+///     Never write to <see cref="Console.Error" /> on the caller thread: a full stderr pipe or console lock
+///     blocks indefinitely and does not observe <c>RequestAborted</c>.
 /// </summary>
 public static class ConsoleHangDiagnostics
 {
@@ -11,6 +15,15 @@ public static class ConsoleHangDiagnostics
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
+
+    private static ILogger? _logger;
+
+    private static int _stderrWriteInFlight;
+
+    public static void UseLogger(ILogger? logger)
+    {
+        Volatile.Write(ref _logger, logger);
+    }
 
     public static string FormatLine(string component, string eventName, IReadOnlyDictionary<string, object?> fields)
     {
@@ -37,7 +50,17 @@ public static class ConsoleHangDiagnostics
 
     public static void Log(string component, string eventName, IReadOnlyDictionary<string, object?> fields)
     {
-        Console.Error.WriteLine(FormatLine(component, eventName, fields));
+        string line = FormatLine(component, eventName, fields);
+        ILogger? logger = Volatile.Read(ref _logger);
+
+        if (logger is not null)
+        {
+            // JSON `{` / `}` must not be the MEL template; pass the line as a named argument.
+            logger.LogWarning("{HangDiagnosticJson}", line);
+            return;
+        }
+
+        QueueStderrWrite(line);
     }
 
     public static void Log(string component, string eventName, params (string Key, object? Value)[] fields)
@@ -52,5 +75,29 @@ public static class ConsoleHangDiagnostics
         }
 
         Log(component, eventName, map);
+    }
+
+    private static void QueueStderrWrite(string line)
+    {
+        if (Interlocked.CompareExchange(ref _stderrWriteInFlight, 1, 0) != 0)
+            return;
+
+        ThreadPool.UnsafeQueueUserWorkItem(
+            static state =>
+            {
+                try
+                {
+                    Console.Error.WriteLine((string)state!);
+                }
+                catch (Exception)
+                {
+                    // A blocked console must not take down a ThreadPool worker.
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref _stderrWriteInFlight, 0);
+                }
+            },
+            line);
     }
 }

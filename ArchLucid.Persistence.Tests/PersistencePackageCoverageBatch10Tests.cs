@@ -127,6 +127,7 @@ public sealed class PersistencePackageCoverageBatch10Tests
         ReplayMode.RebuildManifest.Should().Be("RebuildManifest");
         ReplayMode.RebuildArtifacts.Should().Be("RebuildArtifacts");
         DapperCommandTimeoutSeconds.Standard.Should().Be(30);
+        DapperCommandTimeoutSeconds.Interactive.Should().Be(5);
         DapperCommandTimeoutSeconds.Report.Should().Be(120);
     }
 

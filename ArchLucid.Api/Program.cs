@@ -161,6 +161,9 @@ public partial class Program
 
         WebApplication app = builder.Build();
 
+        ConsoleHangDiagnostics.UseLogger(
+            app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("ArchLucid.HangDiagnostics"));
+
         ArchLucidLegacyConfigurationWarnings.LogIfLegacyKeysPresent(app.Configuration, app.Logger);
         ContentSafetyConfigurationWarnings.LogIfProductionLikeFailOpenSdkSettingIsIgnored(
             app.Configuration,
