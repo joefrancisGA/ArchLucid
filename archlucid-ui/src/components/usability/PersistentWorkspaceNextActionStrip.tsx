@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { StepProgressMeter } from "@/components/ui/step-progress-meter";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { corePilotStepStatusTag, isCorePilotStepOptional } from "@/lib/core-pilot-step-status";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
@@ -49,20 +50,32 @@ export function PersistentWorkspaceNextActionStrip(): React.JSX.Element | null {
 
   return (
     <div
-      className="mb-3 rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/50"
+      className="mb-3 rounded-lg border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/50"
       data-testid="persistent-workspace-next-action-strip"
       role="status"
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-1">
-          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
-            {action.headline}
-          </p>
-          {action.detail !== null ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              {action.detail}
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {action.headline}
             </p>
-          ) : null}
+            {action.detail !== null ? (
+              <p
+                className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.dataValue)}
+                data-testid="persistent-workspace-progress-count"
+              >
+                {action.detail}
+              </p>
+            ) : null}
+          </div>
+          <StepProgressMeter
+            completedCount={progress.completedCount}
+            totalCount={progress.totalCount}
+            label={action.headline}
+            valueText={action.detail ?? undefined}
+            testId="persistent-workspace-progress-meter"
+          />
           {action.nextStepTitle !== null ? (
             <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
               <InlineGuidanceLabel label="Next:" testId="persistent-workspace-next-step-label" />{" "}
