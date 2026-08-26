@@ -105,7 +105,7 @@ public sealed class ReviewResultCache : IReviewResultCache
 
         lock (_evictionLock)
         {
-            _deferredInvalidateRunIds.Add(normalizedRunId);
+            bool anyPinnedMatch = false;
 
             foreach (KeyValuePair<string, CacheEntry> entry in _cache)
             {
@@ -118,10 +118,16 @@ public sealed class ReviewResultCache : IReviewResultCache
                     continue;
 
                 if (IsStorageKeyPinnedUnlocked(entry.Key))
+                {
+                    anyPinnedMatch = true;
                     continue;
+                }
 
                 _cache.TryRemove(entry.Key, out _);
             }
+
+            if (anyPinnedMatch)
+                _deferredInvalidateRunIds.Add(normalizedRunId);
         }
     }
 
