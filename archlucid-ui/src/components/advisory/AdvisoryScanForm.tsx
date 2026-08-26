@@ -33,6 +33,7 @@ import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 export type AdvisoryScanFormProps = {
   readonly bootstrappedRunId: string;
+  readonly urlScopedRunId?: string;
   readonly reviewSelected: boolean;
   readonly loading: boolean;
   readonly runId: string;
@@ -51,6 +52,7 @@ export type AdvisoryScanFormProps = {
 export function AdvisoryScanForm(props: AdvisoryScanFormProps): React.JSX.Element {
   const {
     bootstrappedRunId,
+    urlScopedRunId,
     reviewSelected,
     loading,
     runId,
@@ -65,6 +67,8 @@ export function AdvisoryScanForm(props: AdvisoryScanFormProps): React.JSX.Elemen
     onGenerate,
     onRefreshSaved,
   } = props;
+
+  const hideTargetRunPicker = (urlScopedRunId?.trim() ?? "").length > 0;
 
   if (!reviewSelected) {
     return <></>;
@@ -91,16 +95,23 @@ export function AdvisoryScanForm(props: AdvisoryScanFormProps): React.JSX.Elemen
         </div>
 
         <div className="grid gap-4">
-          <RunIdPicker
-            label={ADVISORY_SCANS_FINALIZED_REVIEW_LABEL}
-            placeholder={ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER}
-            value={runId}
-            onChange={setRunId}
-            inputId="advisory-run-id"
-            committedOnly
-            preferAutoPick={false}
-            useBuyerFacingRunLabels
-          />
+          {hideTargetRunPicker ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="advisory-scan-scoped-target">
+              Finalized review:{" "}
+              <span className="font-mono text-al-text-primary">{bootstrappedRunId}</span>
+            </p>
+          ) : (
+            <RunIdPicker
+              label={ADVISORY_SCANS_FINALIZED_REVIEW_LABEL}
+              placeholder={ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER}
+              value={runId}
+              onChange={setRunId}
+              inputId="advisory-run-id"
+              committedOnly
+              preferAutoPick={false}
+              useBuyerFacingRunLabels
+            />
+          )}
 
           <div className="space-y-2">
             <RunIdPicker

@@ -48,6 +48,7 @@ export function AdvisoryScansToolbar(props: AdvisoryScansToolbarProps): React.JS
           </p>
           <AdvisoryScanForm
             bootstrappedRunId={content.bootstrappedRunId}
+            urlScopedRunId={content.runId}
             reviewSelected={content.reviewSelected}
             loading={content.loading}
             runId={content.runId}
