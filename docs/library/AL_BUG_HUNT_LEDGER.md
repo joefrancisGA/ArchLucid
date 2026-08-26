@@ -1396,11 +1396,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — dot-segment return-path traversal after sign-in
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1414,6 +1414,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Post-sign-in return URLs accept embedded protocol-relative segments — **hit 2026-08-21:** `isSafeReturnPath` only rejected leading `//` and percent-decoded three passes, so `/x%2F%2Fevil.example` and quadruple-encoded `//` payloads passed through `signInHasReturnDestination`.
 - [x] (proven) Nine-level `%2e%2e` proxy segments bypass the eight-pass decode guard and still normalize onto `architecture/draft/*` while `isAnonymousMarketingProxyPath` skips bearer auth — **hit 2026-08-23:** reject proxy segments and return paths that remain percent-encoded after the decode guard.
 - [x] (proven) Post-sign-in return URLs accept backslash path separators that normalize to traversal — **hit 2026-08-25:** `isSafeReturnPath` rejected `/\\evil` but not `/welcome\..\..\operator`; browsers normalize `\` to `/` so dot-segment smuggling bypassed the return-url gate; regression in `safe-return-path.test.ts` and `sign-in-return-destination.test.ts`.
+- [x] (proven) Post-sign-in return URLs accept dot-segment traversal that browsers normalize outside the auth subtree — **hit 2026-08-26:** `/signin/../../administration` and `/%2e%2e/admin` passed `isSafeReturnPath` while resolving to `/administration` and `/admin`; fixed with `containsDotDotSegment` in `safe-return-path.ts`; regressions in `safe-return-path.test.ts` and `sign-in-return-destination.test.ts`.
+- [ ] (candidate) `isAnonymousMarketingProxyPath` allowlist omits `v1/marketing/early-access` and trust-center ZIP/PDF routes — UI posts through `/api/proxy/...` but server bearer may still attach (unlike quick-scan / quote-request).
+
+2026-08-26 seed hunt #7: proved dot-segment return-path traversal; reseeded marketing allowlist bearer candidate.
 
 ---
 
