@@ -1824,11 +1824,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 50
-- **bugs-found:** 101
+- **hunts:** 51
+- **bugs-found:** 102
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — terraform-show-json padded `type` preserved whitespace in `terraformType` and resource `Name`
+- **last-bug:** 2026-08-26 — camelCase `connectionString` leaked plaintext in `tf.*` properties
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1946,8 +1946,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser` read `resources`/`type`/`name`/`properties` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Resources`/`Type`/`Name`/`Properties` returned zero resources; fixed with case-insensitive JSON property reads (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` read `values`/`root_module`/`resources`/`type`/`name` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Values`/`Root_Module`/`Resources`/`Type`/`Name` returned zero resources; fixed with case-insensitive JSON property reads (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` kept padded `type` whitespace in `terraformType` and resource `Name` — **hit 2026-08-26:** `" azurerm_virtual_network "` vs `azurerm_virtual_network` false-modified infrastructure declaration deltas and misaligned occurrence keys; fixed by trimming `type` in `TryAddResource` and `CountModuleLabelOccurrences` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TrimsPaddedResourceType`).
+- [ ] (candidate) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` drops JSON array `properties` (e.g. `ipSecurityRestrictions`) so `AppServiceNetworkAccessSecurityBaselineExpander` never sees network rules from arm-json declarations — expander tests inject properties directly; parser path untested.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser.RedactTopLevelSensitiveTfValues` redacts only top-level `sensitive_values` keys — nested sensitive markers may leak into serialized `tf.*` object blobs.
+- [ ] (candidate) `KubernetesYamlInfrastructureDeclarationParser` has no YAML-path tests for `kind: List` multi-item manifests (JSON List path covered).
+- [ ] (hunt-ready) `TopologyHintsPayloadNormalizer` does not dedupe duplicate hints within one batch (unlike `PolicyReferencePayloadNormalizer`) — identical canonical hints emit duplicate `CanonicalObject` rows and inflate connector `AddedCount`.
+- [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 
-2026-08-26 seed hunt #50: reseeded terraform-show-json identity canonicalization; proved padded resource `type` trimming gap.
+2026-08-26 seed hunt #51: reseeded ARM array / nested sensitive_values / K8s YAML List / topology-hint dedupe candidates; proved camelCase sensitive-key redaction gap.
 
 2026-08-26 seed hunt #49: reseeded terraform-show-json casing path; proved PascalCase property reads.
 

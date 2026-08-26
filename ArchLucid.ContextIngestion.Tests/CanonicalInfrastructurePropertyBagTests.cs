@@ -21,6 +21,17 @@ public sealed class CanonicalInfrastructurePropertyBagTests
     }
 
     [Fact]
+    public void TryAddTfProperty_redacts_camelCase_sensitive_keys()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+
+        CanonicalInfrastructurePropertyBag.TryAddTfProperty(properties, "connectionString", "Server=db;Password=secret")
+            .Should().BeTrue();
+
+        properties["tf.connectionstring"].Should().Be("[REDACTED]");
+    }
+
+    [Fact]
     public void TryAddTfProperty_truncates_long_values()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);

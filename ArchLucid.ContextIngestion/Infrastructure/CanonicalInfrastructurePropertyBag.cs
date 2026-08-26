@@ -68,15 +68,20 @@ public static class CanonicalInfrastructurePropertyBag
         if (string.IsNullOrWhiteSpace(rawKey))
             return false;
 
-        string normalized = rawKey.Trim().ToLowerInvariant();
+        string normalized = NormalizeSensitiveKeyName(rawKey);
 
         foreach (string fragment in SensitiveKeyFragments)
         {
-            if (normalized.Contains(fragment, StringComparison.Ordinal))
+            if (normalized.Contains(NormalizeSensitiveKeyName(fragment), StringComparison.Ordinal))
                 return true;
         }
 
         return false;
+    }
+
+    private static string NormalizeSensitiveKeyName(string rawKey)
+    {
+        return rawKey.Trim().ToLowerInvariant().Replace("_", string.Empty, StringComparison.Ordinal);
     }
 
     public static string CanonicalizeScalarValue(string rawValue)
