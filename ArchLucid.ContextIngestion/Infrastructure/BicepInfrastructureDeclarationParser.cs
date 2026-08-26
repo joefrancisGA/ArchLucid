@@ -17,6 +17,12 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+    private static readonly Regex ModuleRegex = new(
+        """
+        module\s+(?<name>[\w-]+)\s+['"](?<type>[^'"]+)['"]
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
     public bool CanParse(string format)
     {
         return string.Equals(format?.Trim(), "bicep", StringComparison.OrdinalIgnoreCase);
@@ -32,14 +38,14 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
         List<CanonicalObject> results = [];
-        MatchCollection matches = ResourceRegex.Matches(declaration.Content);
-        Dictionary<string, int> symbolicTotals = CountSymbolicNameOccurrences(matches);
+        List<BicepDeclarationMatch> declarations = CollectDeclarations(declaration.Content);
+        Dictionary<string, int> symbolicTotals = CountSymbolicNameOccurrences(declarations);
         Dictionary<string, int> symbolicSeen = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (Match match in matches)
+        foreach (BicepDeclarationMatch declarationMatch in declarations)
         {
-            string symbolicName = match.Groups["name"].Value.Trim();
-            string fullType = match.Groups["type"].Value.Trim();
+            string symbolicName = declarationMatch.SymbolicName;
+            string fullType = declarationMatch.FullType;
 
             if (string.IsNullOrWhiteSpace(symbolicName) || string.IsNullOrWhiteSpace(fullType))
                 continue;
@@ -61,6 +67,9 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
                 ["resourceType"] = resourceType.ToLowerInvariant(),
                 ["bicepSymbolicName"] = symbolicName.ToLowerInvariant(),
             };
+
+            if (declarationMatch.IsModule)
+                properties["bicepModule"] = "true";
 
             if (!string.IsNullOrWhiteSpace(apiVersion))
                 properties["apiVersion"] = apiVersion.ToLowerInvariant();
@@ -95,14 +104,43 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
     }
 
-    private static Dictionary<string, int> CountSymbolicNameOccurrences(MatchCollection matches)
+    private readonly record struct BicepDeclarationMatch(string SymbolicName, string FullType, bool IsModule, int Index);
+
+    private static List<BicepDeclarationMatch> CollectDeclarations(string content)
+    {
+        List<BicepDeclarationMatch> declarations = [];
+
+        foreach (Match match in ResourceRegex.Matches(content))
+        {
+            declarations.Add(new BicepDeclarationMatch(
+                match.Groups["name"].Value.Trim(),
+                match.Groups["type"].Value.Trim(),
+                IsModule: false,
+                match.Index));
+        }
+
+        foreach (Match match in ModuleRegex.Matches(content))
+        {
+            declarations.Add(new BicepDeclarationMatch(
+                match.Groups["name"].Value.Trim(),
+                match.Groups["type"].Value.Trim(),
+                IsModule: true,
+                match.Index));
+        }
+
+        return declarations
+            .OrderBy(static declaration => declaration.Index)
+            .ToList();
+    }
+
+    private static Dictionary<string, int> CountSymbolicNameOccurrences(IReadOnlyList<BicepDeclarationMatch> declarations)
     {
         Dictionary<string, int> counts = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (Match match in matches)
+        foreach (BicepDeclarationMatch declaration in declarations)
         {
-            string symbolicName = match.Groups["name"].Value.Trim();
-            string fullType = match.Groups["type"].Value.Trim();
+            string symbolicName = declaration.SymbolicName;
+            string fullType = declaration.FullType;
 
             if (string.IsNullOrWhiteSpace(symbolicName) || string.IsNullOrWhiteSpace(fullType))
                 continue;

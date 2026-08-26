@@ -102,4 +102,21 @@ public sealed class CanonicalInfrastructurePropertyBagTests
 
         normalized.Should().Be("always_on = true ftps_state = \"disabled\"");
     }
+
+    [Fact]
+    public void TryAddTfJsonProperty_canonicalizes_duplicate_object_key_values_deterministically()
+    {
+        using JsonDocument firstOrder = JsonDocument.Parse("""{"owner":"platform","Owner":"legacy"}""");
+        using JsonDocument secondOrder = JsonDocument.Parse("""{"Owner":"legacy","owner":"platform"}""");
+
+        Dictionary<string, string> firstProperties = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> secondProperties = new(StringComparer.OrdinalIgnoreCase);
+
+        CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(firstProperties, "tags", firstOrder.RootElement)
+            .Should().BeTrue();
+        CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(secondProperties, "tags", secondOrder.RootElement)
+            .Should().BeTrue();
+
+        secondProperties["tf.tags"].Should().Be(firstProperties["tf.tags"]);
+    }
 }

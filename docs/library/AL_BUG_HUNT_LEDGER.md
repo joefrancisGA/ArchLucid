@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 58
-- **bugs-found:** 125
+- **hunts:** 59
+- **bugs-found:** 130
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — kubernetes-json newline-delimited documents dropped
+- **last-bug:** 2026-08-26 — simple-terraform nested block lines leaked as top-level scalars
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1976,6 +1976,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` preserved inline `#` comments and assignment order in nested HCL blocks — **hit 2026-08-26:** `site_config { always_on = true # warm }` false-modified deltas and line-order swaps churned `tf.site_config`; fixed with `NormalizeHclBlockBody` and newline-preserving nested block extraction (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlockInlineComment_DoesNotChangeTfSiteConfig`, `ParseAsync_NestedBlockAssignmentOrder_DoesNotChangeTfSiteConfig`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` last-write-wins on case-variant duplicate property keys — **hit 2026-08-26:** `allowBlobPublicAccess` vs `AllowBlobPublicAccess` order flipped `tf.allowblobpublicaccess`; fixed by grouping properties case-insensitively (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_DuplicatePropertyKeyCasing_UsesFirstValue`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.WriteCanonicalJsonValue` preserved array element order — **hit 2026-08-26:** `service_endpoints` array order churned `tf.service_endpoints`; fixed by delegating object/array canonicalization to `CanonicalInfrastructureJsonValue` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_CanonicalizesTfArrayElementOrder`).
+
+- [x] (proven) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` re-parsed nested block inner lines as top-level scalars — **hit 2026-08-26:** `site_config { always_on = true }` also emitted spurious `tf.always_on`; fixed by advancing `lineIndex` past consumed nested block lines (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlock_DoesNotEmitDuplicateTopLevelScalars`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser` early-return on `Microsoft.Resources/deployments` dropped child `resources[]` — **hit 2026-08-26:** nested VNet inside deployment wrapper returned zero resources; fixed by recursing into deployment children before return (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_DeploymentWrapperChildren_MapsNestedVnet`).
+- [x] (proven) `CanonicalInfrastructureJsonValue` case-variant duplicate JSON keys flip winner by enumeration order — **hit 2026-08-26:** `owner`/`Owner` with different values churned canonical JSON by parse order; fixed with `SelectCanonicalDuplicateProperty` deterministic selection (`CanonicalInfrastructurePropertyBagTests.TryAddTfJsonProperty_canonicalizes_duplicate_object_key_values_deterministically`).
+- [x] (proven) `BicepInfrastructureDeclarationParser` ignored `module` declarations — **hit 2026-08-26:** `module storageModule 'br/public:…'` returned zero resources; fixed with `ModuleRegex` and `bicepModule=true` (`BicepInfrastructureDeclarationParserTests.ParseAsync_ModuleDeclaration_MapsStorageModule`).
+- [x] (proven) `PolicyReferencePayloadExtractor` duplicate topology hints when request hints overlap document `TOP:` lines — **hit 2026-08-26:** overlapping `TOP:` and request hints emitted duplicate topology objects; fixed with `seenHints` dedupe via `TopologyHintStableObjectIds.CanonicalizeHintName` (`ConnectorPayloadStageContractTests.PolicyReferencePayloadExtractor_Extract_DeduplicatesDocumentTopologyHints`).
+
+2026-08-26 seed hunt #65: reseeded simple-terraform nested block line advance / ARM deployment child resources / JSON duplicate key canonicalization / Bicep module declarations / policy topology hint dedupe; proved all five hunt-ready rows.
 
 2026-08-26 seed hunt #64: reseeded K8s JSON NDJSON / nested HCL block normalization / arm-json duplicate keys / terraform array order; proved all five hunt-ready rows.
 

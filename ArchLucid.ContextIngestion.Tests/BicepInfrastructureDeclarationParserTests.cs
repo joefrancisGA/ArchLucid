@@ -93,4 +93,28 @@ public sealed class BicepInfrastructureDeclarationParserTests
         result.Should().HaveCount(2);
         result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
     }
+
+    [Fact]
+    public async Task ParseAsync_ModuleDeclaration_MapsStorageModule()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      module storageModule 'br/public:avm/res/storage/storage-account:0.3.0' = {
+                        name: 'mystorage'
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        CanonicalObject module = result[0];
+        module.Name.Should().Be("storagemodule");
+        module.Properties.Should().ContainKey("bicepModule");
+        module.Properties["bicepModule"].Should().Be("true");
+        module.Properties["bicepSymbolicName"].Should().Be("storagemodule");
+    }
 }

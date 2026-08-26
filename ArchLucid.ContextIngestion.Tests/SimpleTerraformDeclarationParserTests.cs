@@ -399,4 +399,28 @@ public sealed class SimpleTerraformDeclarationParserTests
         secondOrderResult.Should().ContainSingle();
         secondOrderResult[0].Properties.Should().BeEquivalentTo(firstOrderResult[0].Properties);
     }
+
+    [Fact]
+    public async Task ParseAsync_NestedBlock_DoesNotEmitDuplicateTopLevelScalars()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-nested-dup-scalar",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          always_on = true
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties.Should().ContainKey("tf.site_config");
+        result[0].Properties.Should().NotContainKey("tf.always_on");
+    }
 }

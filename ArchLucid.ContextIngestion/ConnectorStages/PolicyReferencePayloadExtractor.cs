@@ -2,6 +2,7 @@ using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 using ArchLucid.ContextIngestion.Parsing;
+using ArchLucid.ContextIngestion.Topology;
 
 namespace ArchLucid.ContextIngestion.ConnectorStages;
 
@@ -11,12 +12,16 @@ public sealed class PolicyReferencePayloadExtractor : IConnectorInput<PolicyRefe
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        List<string> topologyHints = request.TopologyHints.ToList();
+        HashSet<string> seenHints = new(StringComparer.OrdinalIgnoreCase);
+        List<string> topologyHints = [];
+
+        foreach (string hint in request.TopologyHints)
+            AddTopologyHint(topologyHints, seenHints, hint);
 
         foreach (ContextDocumentReference document in request.Documents)
         {
             foreach (string hint in PlainTextDocumentTopologyHintExtractor.EnumerateHintNames(document.Content))
-                topologyHints.Add(hint);
+                AddTopologyHint(topologyHints, seenHints, hint);
         }
 
         return new PolicyReferencePayload
@@ -24,5 +29,20 @@ public sealed class PolicyReferencePayloadExtractor : IConnectorInput<PolicyRefe
             PolicyReferences = request.PolicyReferences.ToList(),
             TopologyHints = topologyHints
         };
+    }
+
+    private static void AddTopologyHint(List<string> topologyHints, HashSet<string> seenHints, string hint)
+    {
+        string trimmed = hint.Trim();
+
+        if (string.IsNullOrWhiteSpace(trimmed))
+            return;
+
+        string canonicalHint = TopologyHintStableObjectIds.CanonicalizeHintName(trimmed).ToLowerInvariant();
+
+        if (!seenHints.Add(canonicalHint))
+            return;
+
+        topologyHints.Add(trimmed);
     }
 }

@@ -62,7 +62,7 @@ public static class CanonicalInfrastructureJsonValue
 
                 foreach (JsonProperty property in value.EnumerateObject()
                              .GroupBy(static property => property.Name, StringComparer.OrdinalIgnoreCase)
-                             .Select(static group => group.First())
+                             .Select(SelectCanonicalDuplicateProperty)
                              .OrderBy(static property => property.Name, StringComparer.OrdinalIgnoreCase))
                 {
                     if (CanonicalInfrastructurePropertyBag.ShouldRedactKey(property.Name))
@@ -99,5 +99,13 @@ public static class CanonicalInfrastructureJsonValue
                 writer.WriteRawValue(value.GetRawText());
                 break;
         }
+    }
+
+    private static JsonProperty SelectCanonicalDuplicateProperty(IGrouping<string, JsonProperty> group)
+    {
+        return group
+            .OrderBy(static property => CanonicalizeText(property.Value), StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static property => property.Name, StringComparer.OrdinalIgnoreCase)
+            .First();
     }
 }
