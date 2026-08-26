@@ -27,7 +27,14 @@ public static class InfrastructureDeclarationDeltaKey
                 obj.Properties);
 
         if (TryGetCanonicalProperty(obj, "terraformType", out string? terraformType))
-            return $"{baseKey}|terraformType:{terraformType}";
+        {
+            string key = $"{baseKey}|terraformType:{terraformType}";
+
+            if (TryGetCanonicalProperty(obj, "terraformOccurrence", out string? occurrence))
+                key += $"|occurrence:{occurrence}";
+
+            return key;
+        }
 
         return baseKey;
     }

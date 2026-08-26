@@ -38,7 +38,13 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
 
         if (item.Properties.TryGetValue("terraformType", out string? terraformType) &&
             !string.IsNullOrEmpty(terraformType))
+        {
+            if (item.Properties.TryGetValue("terraformOccurrence", out string? occurrence) &&
+                !string.IsNullOrWhiteSpace(occurrence))
+                return $"{terraformType}|occurrence:{occurrence.Trim().ToLowerInvariant()}";
+
             return terraformType;
+        }
 
         if (item.Properties.TryGetValue("resourceType", out string? resourceType) &&
             !string.IsNullOrEmpty(resourceType))
