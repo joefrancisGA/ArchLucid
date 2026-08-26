@@ -77,6 +77,7 @@ public sealed partial class RunsController(
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
+    // idempotency-posture: explicit-idempotency-key
     [HttpPost("request")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
@@ -308,6 +309,7 @@ public sealed partial class RunsController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/{runId}/execute/selective")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
@@ -386,6 +388,7 @@ public sealed partial class RunsController(
         }
     }
 
+    // idempotency-posture: explicit-idempotency-key
     [HttpPost("review/{runId}/finalize")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanCommitRuns)]
@@ -469,6 +472,7 @@ public sealed partial class RunsController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/{runId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]

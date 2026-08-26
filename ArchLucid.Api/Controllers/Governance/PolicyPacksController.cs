@@ -60,6 +60,7 @@ public sealed class PolicyPacksController(
         assignPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(assignPolicyPackRequestValidator));
 
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
@@ -88,6 +89,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Publishes or upserts a version for the pack and marks the pack active.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{policyPackId:guid}/publish")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
@@ -121,6 +123,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Assigns an existing published version to a governance tier for the current scope.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{policyPackId:guid}/assign")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPackAssignment), StatusCodes.Status200OK)]
@@ -164,6 +167,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Soft-deletes a policy pack assignment for the current tenant (row retained for audit).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("assignments/{assignmentId:guid}/archive")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -198,6 +202,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Duplicates a policy pack and its latest version content.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{policyPackId:guid}/duplicate")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
@@ -294,6 +299,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Snapshots a pack from the caller's authoring scope into the global catalog and promotes it.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("catalog/promote")]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [MutatingAuditExcluded("Audit: IPolicyPackWorkflowFacade.TryPromoteCatalogEntryAsync logs PolicyPackCatalogPromoted.")]
@@ -329,6 +335,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Removes a catalog entry from the buyer-visible catalog (row retained).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("catalog/demote")]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [MutatingAuditExcluded("Audit: IPolicyPackWorkflowFacade.TryDemoteCatalogEntryAsync logs PolicyPackCatalogDemoted.")]
@@ -462,6 +469,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Simulates proposed pack content against a single run's findings without persisting a pack.</summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("simulate")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [EnableRateLimiting("governancePolicyPackDryRun")]
@@ -493,6 +501,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Simulates the pack's latest version content against many runs.</summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("{policyPackId:guid}/simulate-bulk")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [EnableRateLimiting("governancePolicyPackDryRun")]
@@ -529,6 +538,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Validates raw policy pack content JSON against structural rules without persisting a pack.</summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("validate")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [Produces("application/json")]
