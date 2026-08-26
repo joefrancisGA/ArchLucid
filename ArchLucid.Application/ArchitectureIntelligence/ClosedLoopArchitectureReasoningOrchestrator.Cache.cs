@@ -32,13 +32,12 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
             && cachedContinue is not null)
         {
             return FinalizeCoalescedReviewResult(
-                cachedContinue,
+                CreateCoalescedCacheHitResult(
+                    cachedContinue,
+                    continueManifest),
                 effectiveRequest,
                 runId,
-                budget,
-                new ReviewCacheHitMetadata(
-                    true,
-                    continueManifest.ReuseReason ?? "dependency-manifest-match"));
+                budget);
         }
 
         ClosedLoopReasoningResult sharedContinue = await _continueRunSingleFlight.CoalesceAsync(

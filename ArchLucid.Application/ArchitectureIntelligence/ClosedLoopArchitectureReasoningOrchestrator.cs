@@ -134,13 +134,12 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 && cached is not null)
             {
                 return FinalizeCoalescedReviewResult(
-                    cached,
+                    CreateCoalescedCacheHitResult(
+                        cached,
+                        cacheManifest),
                     effectiveRequest,
                     runId,
-                    budget,
-                    new ReviewCacheHitMetadata(
-                        true,
-                        cacheManifest.ReuseReason ?? "dependency-manifest-match"));
+                    budget);
             }
 
             ClosedLoopReasoningResult shared = await _reviewResultCache.CoalesceAsync(
