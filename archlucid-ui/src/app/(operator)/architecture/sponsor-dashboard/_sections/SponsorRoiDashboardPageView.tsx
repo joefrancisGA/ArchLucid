@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import {
@@ -14,18 +16,18 @@ import { SponsorDashboardSampleWorkspaceBanner } from "@/components/sponsor/Spon
 import type { SponsorTimeRange } from "@/lib/sponsor/sponsor-time-range";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { cn } from "@/lib/utils";
 import {
   hasSponsorCommittedReviews,
   isSponsorDashboardEmpty,
   isSponsorSampleWorkspaceData,
 } from "@/lib/sponsor/sponsor-dashboard-workspace-state";
-import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID } from "@/lib/sponsor/sponsor-dashboard-route";
-import { resolveSponsorDashboardLatestFinalizedRunId } from "@/lib/resolve-sponsor-dashboard-latest-finalized-run";
 import {
-  readSponsorDashboardPickedReviewId,
-  writeSponsorDashboardPickedReviewId,
-} from "@/lib/sponsor-dashboard-picked-review-storage";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+  SPONSOR_DASHBOARD_HREF,
+  SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID,
+} from "@/lib/sponsor/sponsor-dashboard-route";
+import { resolveSponsorDashboardLatestFinalizedRunId } from "@/lib/resolve-sponsor-dashboard-latest-finalized-run";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SponsorDashboardBaselineWarningBanner } from "./SponsorDashboardBaselineWarningBanner";
 import { SponsorDashboardLatestFinalizedReviewStrip } from "./SponsorDashboardLatestFinalizedReviewStrip";
 import { SponsorDashboardPickReviewBeforeKpisStrip } from "./SponsorDashboardPickReviewBeforeKpisStrip";
@@ -49,6 +51,7 @@ import {
   OperatorWelcomeOnboardingDeferred,
   SponsorExportsSectionDeferred,
 } from "./sponsor-roi-dashboard-deferred-chunks";
+
 export type SponsorRoiDashboardPageViewProps = {
   readonly surface?: "operator" | "sponsor";
 };
@@ -87,7 +90,7 @@ function SponsorRoiDashboardPortfolioSections({
   const dashboardReady = hasCommittedReviews && summaryLoading !== true;
   const latestFinalizedRunId = resolveSponsorDashboardLatestFinalizedRunId(summary);
   const latestFinalizedReviewTitle =
-    summary?.systems.find((system) => system.runId === latestFinalizedRunId)?.systemName ?? null;
+    summary?.systems?.find((system) => system.runId === latestFinalizedRunId)?.systemName ?? null;
   const reviewPicked = selectedReviewId.trim().length > 0;
   const showKpiSections = hasCommittedReviews && reviewPicked;
   const sponsorDashboardKpiChecklistSteps = resolveSponsorDashboardKpiSteps({
@@ -118,12 +121,32 @@ function SponsorRoiDashboardPortfolioSections({
       ) : null}
 
       {!summaryLoading && !dashboardEmpty && reviewPicked ? (
-        <IntegrationConnectChecklist
-          title="KPI checklist"
-          steps={sponsorDashboardKpiChecklistSteps}
-          emphasizedStepId={sponsorDashboardKpiChecklistEmphasizedStepId}
-          testIdPrefix="sponsor-dashboard-kpi"
-        />
+        <>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="sponsor-dashboard-run-scope-banner"
+          >
+            {"Sponsor KPIs for review "}
+            <span className="font-mono text-al-text-primary">{selectedReviewId}</span>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={SPONSOR_DASHBOARD_HREF}>
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={`/architecture/reviews/${encodeURIComponent(selectedReviewId.trim())}`}
+            >
+              Open review
+            </Link>
+          </p>
+          <IntegrationConnectChecklist
+            title="KPI checklist"
+            steps={sponsorDashboardKpiChecklistSteps}
+            emphasizedStepId={sponsorDashboardKpiChecklistEmphasizedStepId}
+            testIdPrefix="sponsor-dashboard-kpi"
+          />
+        </>
       ) : null}
 
       {latestFinalizedRunId !== null && hasCommittedReviews && !summaryLoading ? (
@@ -221,6 +244,9 @@ function SponsorRoiDashboardPortfolioView({
   readonly defaultTrendRange: SponsorTimeRange;
   readonly surface: "operator" | "sponsor";
 }): React.JSX.Element {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const {
     summary,
     summaryLoading,
@@ -229,17 +255,22 @@ function SponsorRoiDashboardPortfolioView({
     driftLoading,
     driftError,
   } = useSponsorDashboardData();
-  const [selectedReviewId, setSelectedReviewId] = useState("");
 
-  useEffect(() => {
-    setSelectedReviewId(readSponsorDashboardPickedReviewId());
-  }, []);
+  const onSelectReview = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
 
-  const onSelectReview = useCallback((reviewId: string) => {
-    const trimmed = reviewId.trim();
-    setSelectedReviewId(trimmed);
-    writeSponsorDashboardPickedReviewId(trimmed);
-  }, []);
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+
+      router.replace(`${SPONSOR_DASHBOARD_HREF}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   return (
     <SponsorRoiDashboardPortfolioSections
@@ -251,7 +282,7 @@ function SponsorRoiDashboardPortfolioView({
       driftPoints={driftPoints}
       driftLoading={driftLoading}
       driftError={driftError}
-      selectedReviewId={selectedReviewId}
+      selectedReviewId={scopedRunId}
       onSelectReview={onSelectReview}
     />
   );
