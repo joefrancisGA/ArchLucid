@@ -39,18 +39,20 @@ public static class ReviewCacheManifestBuilder
 
         ClosedLoopReasoningRequest resolvedRequest = new()
         {
-            TenantId = request.TenantId,
+            TenantId = request.TenantId?.Trim(),
             RunId = ClosedLoopRunIdNormalizer.NormalizeRequired(resolvedRunId),
-            WorkspaceId = request.WorkspaceId,
-            ProjectId = request.ProjectId,
-            SourceTexts = request.SourceTexts,
-            DeclaredPriorities = request.DeclaredPriorities,
-            FramingAnswers = request.FramingAnswers,
+            WorkspaceId = request.WorkspaceId?.Trim(),
+            ProjectId = request.ProjectId?.Trim(),
+            SourceTexts = request.SourceTexts
+                .Select(ClosedLoopReasoningSourceTextNormalizer.Normalize)
+                .ToList(),
+            DeclaredPriorities = ClosedLoopDeclaredPrioritiesNormalizer.Normalize(request.DeclaredPriorities),
+            FramingAnswers = ClosedLoopFramingAnswersNormalizer.Normalize(request.FramingAnswers),
             UseGoldenFixture = request.UseGoldenFixture,
             ContinueFromExistingRun = request.ContinueFromExistingRun,
             PublishToProduct = request.PublishToProduct,
             ReviewTier = request.ReviewTier,
-            ModelAliasId = request.ModelAliasId,
+            ModelAliasId = request.ModelAliasId?.Trim(),
         };
 
         return Build(resolvedRequest, baselineKnowledgeModel, technologyLedgerEntries);
@@ -67,7 +69,7 @@ public static class ReviewCacheManifestBuilder
         ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        string normalizedTenantId = tenantId.Trim();
+        string normalizedTenantId = ClosedLoopTenantIdNormalizer.NormalizeRequired(tenantId);
         string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
 
         ReviewCacheDependencyManifest contentManifest =
