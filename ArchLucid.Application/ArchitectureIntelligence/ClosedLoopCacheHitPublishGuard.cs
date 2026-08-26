@@ -21,6 +21,7 @@ public static class ClosedLoopCacheHitPublishGuard
 
         cached.RunId = runId;
         cached.Model.RunId = runId;
+        cached.ModelId = cached.Model.ModelId;
         cached.Interview.ModelId = cached.Model.ModelId;
 
         StripProductPayloads(cached);

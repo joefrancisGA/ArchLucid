@@ -126,8 +126,66 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
 
                 return cached;
             }
+
+            return await ReviewResultCacheSingleFlight.CoalesceAsync(
+                ReviewCacheKeyBuilder.Build(cacheManifest),
+                ct => CoalesceReviewCacheMissAsync(
+                    effectiveRequest,
+                    tenantId,
+                    runId,
+                    budget,
+                    cacheManifest,
+                    ct),
+                cancellationToken);
         }
 
+        return await ExecuteLiveReviewAsync(
+            effectiveRequest,
+            tenantId,
+            runId,
+            budget,
+            null,
+            cancellationToken);
+    }
+
+    private async Task<ClosedLoopReasoningResult> CoalesceReviewCacheMissAsync(
+        ClosedLoopReasoningRequest effectiveRequest,
+        string tenantId,
+        string runId,
+        ArchitectureIntelligenceBudgetDecision budget,
+        ReviewCacheDependencyManifest cacheManifest,
+        CancellationToken cancellationToken)
+    {
+        if (_reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
+            && cached is not null)
+        {
+            cached.CacheHit = true;
+            cached.CacheReuseReason = cacheManifest.ReuseReason ?? "dependency-manifest-match";
+            ArchitectureIntelligenceBudgetResultApplier.Apply(cached, budget);
+            ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(effectiveRequest, runId, cached);
+
+            return ClosedLoopReasoningResultCloner.Clone(cached);
+        }
+
+        ClosedLoopReasoningResult liveResult = await ExecuteLiveReviewAsync(
+            effectiveRequest,
+            tenantId,
+            runId,
+            budget,
+            cacheManifest,
+            cancellationToken);
+
+        return ClosedLoopReasoningResultCloner.Clone(liveResult);
+    }
+
+    private async Task<ClosedLoopReasoningResult> ExecuteLiveReviewAsync(
+        ClosedLoopReasoningRequest effectiveRequest,
+        string tenantId,
+        string runId,
+        ArchitectureIntelligenceBudgetDecision budget,
+        ReviewCacheDependencyManifest? cacheManifest,
+        CancellationToken cancellationToken)
+    {
         ArchitectureKnowledgeModel model;
         List<string> storedArtifactIds = [];
 

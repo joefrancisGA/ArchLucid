@@ -85,8 +85,8 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
         second.CacheHit.Should().BeTrue();
         second.RunId.Should().Be("run-cache-second");
         second.Model.RunId.Should().Be("run-cache-second");
-        second.ModelId.Should().Be("run-cache-second");
-        second.Model.ModelId.Should().Be("run-cache-second");
+        second.ModelId.Should().Be(first.ModelId);
+        second.Model.ModelId.Should().Be(first.Model.ModelId);
     }
 
     [Fact]
