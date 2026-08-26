@@ -83,6 +83,25 @@ public sealed class TenantExecDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostExecDigestPreferences_returns_bad_request_when_iana_time_zone_invalid()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            Mock.Of<ITenantExecDigestPreferencesRepository>(),
+            Mock.Of<IAuditService>());
+
+        ExecDigestPreferencesUpsertRequest body = new() { IanaTimeZoneId = "Not/AZone" };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PostExecDigestPreferences_returns_not_found_when_upsert_misses_tenant()
     {
         Mock<ITenantExecDigestPreferencesRepository> repository = new();

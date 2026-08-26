@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Notifications;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -87,13 +88,22 @@ public sealed class TenantExecDigestPreferencesController(
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        string? normalizedTimeZone = IanaTimeZonePreferenceValues.NormalizeOrNull(body.IanaTimeZoneId ?? "UTC");
+
+        if (normalizedTimeZone is null)
+        {
+            return this.BadRequestProblem(
+                "ianaTimeZoneId must be a recognized IANA time zone id.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IReadOnlyList<string> recipients = body.RecipientEmails ?? [];
 
         ExecDigestPreferencesResponse? saved = await _preferencesRepository.UpsertAsync(
             scope.TenantId,
             body.EmailEnabled,
             recipients,
-            body.IanaTimeZoneId ?? "UTC",
+            normalizedTimeZone,
             dow,
             hour,
             cancellationToken);
