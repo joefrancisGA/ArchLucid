@@ -1,28 +1,28 @@
 [
   {
-    "name": "All API requests must be authenticated with Entra ID.",
+    "name": "all api requests must be authenticated with entra id.",
     "objectType": "Requirement",
     "properties": {
-      "text": "All API requests must be authenticated with Entra ID."
+      "text": "all api requests must be authenticated with entra id."
     },
     "sourceId": "ingestion-doc-03",
     "sourceType": "Document"
   },
   {
-    "name": "Data at rest uses customer-managed keys.",
+    "name": "data at rest uses customer-managed keys.",
     "objectType": "SecurityBaseline",
     "properties": {
-      "text": "Data at rest uses customer-managed keys.",
+      "text": "data at rest uses customer-managed keys.",
       "status": "declared"
     },
     "sourceId": "ingestion-doc-03",
     "sourceType": "Document"
   },
   {
-    "name": "Spoke VNet must peer to the hub VNet for shared services.",
+    "name": "spoke vnet must peer to the hub vnet for shared services.",
     "objectType": "TopologyResource",
     "properties": {
-      "text": "Spoke VNet must peer to the hub VNet for shared services."
+      "text": "spoke vnet must peer to the hub vnet for shared services."
     },
     "sourceId": "ingestion-doc-03",
     "sourceType": "Document"

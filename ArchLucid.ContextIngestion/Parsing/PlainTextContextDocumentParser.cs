@@ -1,5 +1,6 @@
 using ArchLucid.ContextIngestion.Contracts;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Topology;
 
 using static ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes;
 
@@ -38,13 +39,15 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                 if (string.IsNullOrWhiteSpace(text))
                     continue;
 
+                string canonicalText = CanonicalizeLineText(text, "Requirement");
+
                 results.Add(new CanonicalObject
                 {
                     ObjectType = "Requirement",
-                    Name = ContextIngestionStableLineNames.BuildDisplayName(text),
+                    Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalText),
                     SourceType = "Document",
                     SourceId = document.DocumentId,
-                    Properties = new Dictionary<string, string> { ["text"] = text }
+                    Properties = new Dictionary<string, string> { ["text"] = canonicalText }
                 });
             }
             else if (line.StartsWith("POL:", StringComparison.OrdinalIgnoreCase))
@@ -54,13 +57,15 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                 if (string.IsNullOrWhiteSpace(text))
                     continue;
 
+                string canonicalText = CanonicalizeLineText(text, "PolicyControl");
+
                 results.Add(new CanonicalObject
                 {
                     ObjectType = "PolicyControl",
-                    Name = ContextIngestionStableLineNames.BuildDisplayName(text),
+                    Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalText),
                     SourceType = "Document",
                     SourceId = document.DocumentId,
-                    Properties = new Dictionary<string, string> { ["text"] = text }
+                    Properties = new Dictionary<string, string> { ["text"] = canonicalText }
                 });
             }
             else if (line.StartsWith("TOP:", StringComparison.OrdinalIgnoreCase))
@@ -70,13 +75,15 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                 if (string.IsNullOrWhiteSpace(text))
                     continue;
 
+                string canonicalText = CanonicalizeLineText(text, "TopologyResource");
+
                 results.Add(new CanonicalObject
                 {
                     ObjectType = "TopologyResource",
-                    Name = ContextIngestionStableLineNames.BuildDisplayName(text),
+                    Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalText),
                     SourceType = "Document",
                     SourceId = document.DocumentId,
-                    Properties = new Dictionary<string, string> { ["text"] = text }
+                    Properties = new Dictionary<string, string> { ["text"] = canonicalText }
                 });
             }
             else if (line.StartsWith("SEC:", StringComparison.OrdinalIgnoreCase))
@@ -86,17 +93,27 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                 if (string.IsNullOrWhiteSpace(text))
                     continue;
 
+                string canonicalText = CanonicalizeLineText(text, "SecurityBaseline");
+
                 results.Add(new CanonicalObject
                 {
                     ObjectType = "SecurityBaseline",
-                    Name = ContextIngestionStableLineNames.BuildDisplayName(text),
+                    Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalText),
                     SourceType = "Document",
                     SourceId = document.DocumentId,
-                    Properties = new Dictionary<string, string> { ["text"] = text, ["status"] = "declared" }
+                    Properties = new Dictionary<string, string> { ["text"] = canonicalText, ["status"] = "declared" }
                 });
             }
 
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    private static string CanonicalizeLineText(string text, string objectType)
+    {
+        if (string.Equals(objectType, "TopologyResource", StringComparison.Ordinal))
+            return TopologyHintStableObjectIds.CanonicalizeHintName(text).ToLowerInvariant();
+
+        return text.ToLowerInvariant();
     }
 }

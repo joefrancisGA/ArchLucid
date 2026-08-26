@@ -125,7 +125,7 @@ public sealed class DocumentConnectorIntegrationTests
         ContextSnapshot snapshot = await sut.IngestAsync(request, CancellationToken.None);
 
         snapshot.CanonicalObjects.Should().ContainSingle()
-            .Which.Name.Should().Contain("availability SLA");
+            .Which.Name.Should().Contain("availability sla");
         snapshot.Warnings.Should().ContainSingle()
             .Which.Should().Contain("bad.xlsx");
     }

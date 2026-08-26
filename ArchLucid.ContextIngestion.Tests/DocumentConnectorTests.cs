@@ -237,4 +237,53 @@ public sealed class DocumentConnectorTests
         delta.RemovedCount.Should().Be(0);
         delta.UnchangedCount.Should().Be(2);
     }
+
+    [Fact]
+    public async Task DeltaAsync_DocumentRequirementCaseChange_ReportsUnchanged()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "1234567890 minimum len",
+            SystemName = "billing-api",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Documents =
+            [
+                new ContextDocumentRequest
+                {
+                    Name = "spec.txt",
+                    ContentType = "text/plain",
+                    Content = "REQ: Must Encrypt",
+                }
+            ],
+        };
+
+        DocumentConnector connector = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer([new PlainTextContextDocumentParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        ContextIngestionRequest firstMapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        RawContextPayload firstRaw = await connector.FetchAsync(firstMapped, CancellationToken.None);
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = firstMapped.ProjectId,
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        request.Documents[0].Content = "REQ: must encrypt";
+        ContextIngestionRequest secondMapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        RawContextPayload secondRaw = await connector.FetchAsync(secondMapped, CancellationToken.None);
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+        delta.UnchangedCount.Should().Be(1);
+    }
 }

@@ -1786,11 +1786,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 10
-- **bugs-found:** 25
+- **hunts:** 11
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — blank prefixed document lines, static request padding, terraform/json format normalization, App Service expander false positive
+- **last-bug:** 2026-08-26 — document-parsed requirement/policy/topology/security line casing churned connector delta keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1823,6 +1823,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SimpleTerraformDeclarationParser` preserved `terraformType` casing in properties — **hit 2026-08-26:** `azurerm_virtual_network` vs `azurerm_Virtual_Network` false-modified infrastructure declaration deltas; fixed by lowercasing `terraformType` (`SimpleTerraformDeclarationParserTests`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformTypeCasingChange_ReportsUnchanged`)
 - [x] (proven) `JsonInfrastructureDeclarationParser.CanParse` rejected padded `format` — **hit 2026-08-26:** `Format = " json "` skipped valid JSON declarations despite stable declaration ids; fixed by trimming format in `CanParse` (`InfrastructureDeclarationConnectorTests.NormalizeAsync_PaddedJsonFormat_ParsesDeclaration`)
 - [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` matched non-App-Service names containing `app` — **hit 2026-08-26:** `application-gateway` with `ipSecurityRestrictions` spawned spurious security baselines; fixed by requiring explicit App Service `resourceType` (`AppServiceNetworkAccessSecurityBaselineExpanderTests.Expand_application_gateway_with_ip_rules_does_not_create_security_baselines`)
+- [x] (proven) `PlainTextContextDocumentParser` kept prefixed line text casing in `Name`/`text` — **hit 2026-08-26:** `REQ: Must Encrypt` vs `REQ: must encrypt` reported false add/remove on document connector delta; fixed by lowercasing REQ/POL/SEC lines and canonicalizing TOP lines like topology hints (`DocumentConnectorTests.DeltaAsync_DocumentRequirementCaseChange_ReportsUnchanged`, `PlainTextContextDocumentParserTests`)
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` preserves `terraformType` casing in properties — may false-modify infrastructure declaration deltas like simple-terraform/json parsers before their casing fixes.
+- [ ] (candidate) `PolicyTopologyOverlapResolver.Overlaps` does not canonicalize slash spacing on policy reference text — `parentNet / childSubnet` may miss overlap with canonical topology hint `parentNet/childSubnet`.
+- [ ] (candidate) `StaticRequestPayloadNormalizer` keeps description casing in `text` — padding was fixed; casing-only edits may still report modified delta.
+- [ ] (candidate) `SimpleTerraformDeclarationParser` keeps padded HCL resource names — JSON name trim was fixed; `" hub-vnet "` in HCL may still churn infra delta keys.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser.CanParse` rejects padded `format` — JSON `CanParse` trim was fixed; `" terraform-show-json "` may skip valid declarations.
 
 ---
 

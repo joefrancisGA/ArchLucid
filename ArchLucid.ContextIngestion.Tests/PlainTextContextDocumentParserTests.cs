@@ -36,7 +36,7 @@ public sealed class PlainTextContextDocumentParserTests
             "PolicyControl",
             "TopologyResource",
             "SecurityBaseline");
-        result[0].Properties["text"].Should().Be("System must be HA");
+        result[0].Properties["text"].Should().Be("system must be ha");
         result[0].SourceId.Should().Be(doc.DocumentId);
     }
 
@@ -57,7 +57,7 @@ public sealed class PlainTextContextDocumentParserTests
         IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(doc, CancellationToken.None);
 
         result.Should().ContainSingle();
-        result[0].Properties["text"].Should().Be("Must scale horizontally");
+        result[0].Properties["text"].Should().Be("must scale horizontally");
     }
 
     [Fact]
@@ -74,6 +74,6 @@ public sealed class PlainTextContextDocumentParserTests
 
         result.Should().ContainSingle();
         result[0].ObjectType.Should().Be("Requirement");
-        result[0].Properties["text"].Should().Be("Must scale horizontally");
+        result[0].Properties["text"].Should().Be("must scale horizontally");
     }
 }
