@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.ComplianceDrift;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
@@ -7,13 +8,17 @@ namespace ArchLucid.Application.Governance;
 /// <inheritdoc/>
 public sealed class ComplianceDriftTrendService(
     IPolicyPackChangeLogRepository changeLogRepository,
-    IComplianceDriftFindingsTrendReader findingsTrendReader) : IComplianceDriftTrendService
+    IComplianceDriftFindingsTrendReader findingsTrendReader,
+    IScopeContextProvider scopeContextProvider) : IComplianceDriftTrendService
 {
     private readonly IPolicyPackChangeLogRepository _changeLogRepository =
         changeLogRepository ?? throw new ArgumentNullException(nameof(changeLogRepository));
 
     private readonly IComplianceDriftFindingsTrendReader _findingsTrendReader =
         findingsTrendReader ?? throw new ArgumentNullException(nameof(findingsTrendReader));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc/>
     public async Task<IReadOnlyList<ComplianceDriftTrendPoint>> GetTrendAsync(Guid tenantId, DateTime fromUtc, DateTime toUtc, TimeSpan bucketSize,
@@ -25,15 +30,29 @@ public sealed class ComplianceDriftTrendService(
             throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
         if (bucketSize <= TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(bucketSize));
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         IReadOnlyList<PolicyPackChangeLogEntry> entries =
             await _changeLogRepository.GetByTenantInRangeAsync(tenantId, fromUtc, toUtc, cancellationToken);
 
+        IReadOnlyList<PolicyPackChangeLogEntry> scopedEntries = entries
+            .Where(entry => entry.WorkspaceId == scope.WorkspaceId && entry.ProjectId == scope.ProjectId)
+            .ToList();
+
         IReadOnlyDictionary<DateTime, ComplianceDriftFindingsBucketCounts> findingsBuckets =
-            await _findingsTrendReader.GetBucketCountsAsync(tenantId, fromUtc, toUtc, bucketSize, cancellationToken);
+            await _findingsTrendReader.GetBucketCountsAsync(
+                tenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                fromUtc,
+                toUtc,
+                bucketSize,
+                cancellationToken);
 
         long bucketTicks = bucketSize.Ticks;
         Dictionary<DateTime, Dictionary<string, int>> buckets = [];
-        foreach (PolicyPackChangeLogEntry entry in entries)
+        foreach (PolicyPackChangeLogEntry entry in scopedEntries)
         {
             long offsetTicks = entry.ChangedUtc.Ticks - fromUtc.Ticks;
             if (offsetTicks < 0)

@@ -16,6 +16,7 @@ namespace ArchLucid.Application.Governance.PolicyPacks;
 public sealed partial class PolicyPackWorkflowFacade(
     IScopeContextProvider scopeProvider,
     IPolicyPackRepository packRepository,
+    IPolicyPackAssignmentRepository assignmentRepository,
     IPolicyPackVersionRepository versionRepository,
     IPolicyPackCatalogRepository policyPackCatalogRepository,
     ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackResolver resolver,
@@ -35,6 +36,9 @@ public sealed partial class PolicyPackWorkflowFacade(
 
     private readonly IPolicyPackRepository _packRepository =
         packRepository ?? throw new ArgumentNullException(nameof(packRepository));
+
+    private readonly IPolicyPackAssignmentRepository _assignmentRepository =
+        assignmentRepository ?? throw new ArgumentNullException(nameof(assignmentRepository));
 
     private readonly IPolicyPackVersionRepository _versionRepository =
         versionRepository ?? throw new ArgumentNullException(nameof(versionRepository));
@@ -147,6 +151,12 @@ public sealed partial class PolicyPackWorkflowFacade(
     public async Task<bool> TryArchiveAssignmentAsync(Guid assignmentId, CancellationToken ct)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        PolicyPackAssignment? assignment =
+            await _assignmentRepository.GetByTenantAndAssignmentIdAsync(scope.TenantId, assignmentId, ct);
+
+        if (!PolicyPackAssignmentScope.IsVisibleInScope(assignment, scope))
+            return false;
+
         return await _policyPacksApp.TryArchiveAssignmentAsync(scope.TenantId, assignmentId, ct);
     }
 
@@ -192,7 +202,7 @@ public sealed partial class PolicyPackWorkflowFacade(
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         bool ok = await _workspaceSelectionService.TrySetAssignmentEnabledAsync(
-            scope.TenantId,
+            scope,
             assignmentId,
             isEnabled,
             ct);

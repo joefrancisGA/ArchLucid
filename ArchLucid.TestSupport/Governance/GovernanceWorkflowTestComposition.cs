@@ -8,8 +8,13 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
+
+using Moq;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -34,8 +39,12 @@ public static class GovernanceWorkflowTestComposition
         IIntegrationEventOutboxRepository integrationEventOutbox,
         IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
         IOptions<PreCommitGovernanceGateOptions> governanceGateOptions,
-        IArchLucidUnitOfWorkFactory unitOfWorkFactory)
+        IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+        IUnifiedGoldenManifestReader? unifiedGoldenManifestReader = null)
     {
+        IUnifiedGoldenManifestReader manifestReader =
+            unifiedGoldenManifestReader ?? CreateDefaultUnifiedManifestReader();
+
         (GovernanceWorkflowAuditSupport auditSupport, GovernanceWorkflowIntegrationEventSupport integrationEvents) =
             CreateSupport(durableAudit, scopeContextProvider, integrationEventOutbox, integrationEventPublisher, integrationEventsOptions);
 
@@ -43,6 +52,7 @@ public static class GovernanceWorkflowTestComposition
             new GovernanceWorkflowSubmitStage(
                 approvalRepo,
                 runDetailQueryService,
+                manifestReader,
                 baselineMutationAudit,
                 auditSupport,
                 integrationEvents,
@@ -59,6 +69,7 @@ public static class GovernanceWorkflowTestComposition
                 approvalRepo,
                 promotionRepo,
                 runDetailQueryService,
+                manifestReader,
                 baselineMutationAudit,
                 auditSupport,
                 unitOfWorkFactory,
@@ -66,6 +77,7 @@ public static class GovernanceWorkflowTestComposition
             new GovernanceWorkflowActivateStage(
                 activationRepo,
                 runDetailQueryService,
+                manifestReader,
                 baselineMutationAudit,
                 auditSupport,
                 integrationEvents,
@@ -86,7 +98,8 @@ public static class GovernanceWorkflowTestComposition
         IIntegrationEventOutboxRepository integrationEventOutbox,
         IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
         IOptions<PreCommitGovernanceGateOptions> governanceGateOptions,
-        IArchLucidUnitOfWorkFactory unitOfWorkFactory) =>
+        IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+        IUnifiedGoldenManifestReader? unifiedGoldenManifestReader = null) =>
         new(CreateFacade(
             approvalRepo,
             promotionRepo,
@@ -99,7 +112,8 @@ public static class GovernanceWorkflowTestComposition
             integrationEventOutbox,
             integrationEventsOptions,
             governanceGateOptions,
-            unitOfWorkFactory));
+            unitOfWorkFactory,
+            unifiedGoldenManifestReader));
 
     private static (GovernanceWorkflowAuditSupport, GovernanceWorkflowIntegrationEventSupport) CreateSupport(
         IAuditService durableAudit,
@@ -122,4 +136,36 @@ public static class GovernanceWorkflowTestComposition
 
         return (auditSupport, integrationEvents);
     }
+
+    private static IUnifiedGoldenManifestReader CreateDefaultUnifiedManifestReader()
+    {
+        Mock<IUnifiedGoldenManifestReader> manifests = new();
+        manifests
+            .Setup(m => m.GetByVersionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string version, CancellationToken _) =>
+                CreateManifest(ResolveDefaultRunIdForVersion(version), version));
+
+        return manifests.Object;
+    }
+
+    private static string ResolveDefaultRunIdForVersion(string version) =>
+        version switch
+        {
+            "v2" => "run-2",
+            "v-old" => "run-old",
+            "m1" => "r1",
+            "m2" => "r2",
+            _ => "run-1",
+        };
+
+    private static GoldenManifest CreateManifest(string runId, string version) =>
+        new()
+        {
+            RunId = runId,
+            SystemName = "Sys",
+            Services = [],
+            Datastores = [],
+            Relationships = [],
+            Metadata = new ManifestMetadata { ManifestVersion = version, CreatedUtc = DateTime.UtcNow },
+        };
 }

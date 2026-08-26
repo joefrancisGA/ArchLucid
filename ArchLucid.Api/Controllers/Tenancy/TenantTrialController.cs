@@ -83,23 +83,11 @@ public sealed class TenantTrialController(
 
         int? daysRemaining = null;
 
-        if (!string.IsNullOrWhiteSpace(tenant.TrialStatus) &&
-            tenant.TrialExpiresUtc is not null &&
-            !string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
-
+        if (!string.IsNullOrWhiteSpace(tenant.TrialStatus) && tenant.TrialExpiresUtc is not null)
             daysRemaining = TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay(
                 tenant,
                 TimeProvider.System.GetUtcNow(),
                 _trialLifecycleSchedulerOptions.CurrentValue);
-
-        else if (tenant.TrialExpiresUtc is { } expires)
-        {
-            double totalDays = (expires - TimeProvider.System.GetUtcNow()).TotalDays;
-            daysRemaining = (int)Math.Floor(totalDays);
-
-            if (daysRemaining < 0)
-                daysRemaining = 0;
-        }
 
         return Ok(
             new TenantTrialStatusResponse
@@ -237,6 +225,7 @@ public sealed class TenantTrialController(
     [SkipTrialWriteLimit]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ConvertTrialAsync(
         [FromBody] TenantTrialConvertRequest? body,
         CancellationToken cancellationToken)
@@ -259,7 +248,10 @@ public sealed class TenantTrialController(
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
 
-        TenantTier? tier = MapRequestTier(body?.TargetTier);
+        TenantTier? tier;
+
+        if (!TryMapRequestTier(body?.TargetTier, out tier, out string? tierError))
+            return this.BadRequestProblem(tierError!, ProblemTypes.ValidationFailed);
 
         ArchLucidInstrumentation.RecordTrialConversion(
             TrialLifecycleStatus.Active,
@@ -302,13 +294,33 @@ public sealed class TenantTrialController(
         return (committedUtc - anchor).TotalSeconds;
     }
 
-    private static TenantTier? MapRequestTier(string? label)
+    private static bool TryMapRequestTier(string? label, out TenantTier? tier, out string? errorMessage)
     {
-        if (string.IsNullOrWhiteSpace(label))
-            return null;
+        tier = null;
+        errorMessage = null;
 
-        return string.Equals(label.Trim(), nameof(TenantTier.Enterprise), StringComparison.OrdinalIgnoreCase)
-            ? TenantTier.Enterprise
-            : TenantTier.Standard;
+        if (string.IsNullOrWhiteSpace(label))
+            return true;
+
+        string trimmed = label.Trim();
+
+        if (string.Equals(trimmed, nameof(TenantTier.Enterprise), StringComparison.OrdinalIgnoreCase))
+        {
+            tier = TenantTier.Enterprise;
+
+            return true;
+        }
+
+        if (string.Equals(trimmed, nameof(TenantTier.Standard), StringComparison.OrdinalIgnoreCase))
+        {
+            tier = TenantTier.Standard;
+
+            return true;
+        }
+
+        errorMessage =
+            $"TargetTier must be '{nameof(TenantTier.Standard)}' or '{nameof(TenantTier.Enterprise)}'.";
+
+        return false;
     }
 }

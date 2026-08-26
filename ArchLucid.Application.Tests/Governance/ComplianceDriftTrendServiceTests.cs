@@ -1,5 +1,6 @@
 ﻿using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.ComplianceDrift;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
@@ -13,22 +14,37 @@ namespace ArchLucid.Application.Tests.Governance;
 public sealed class ComplianceDriftTrendServiceTests
 {
     private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+    private static readonly Guid WorkspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
+    private static readonly Guid ProjectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
 
     private static ComplianceDriftTrendService CreateSut(
         Mock<IPolicyPackChangeLogRepository> repo,
-        IReadOnlyDictionary<DateTime, ComplianceDriftFindingsBucketCounts>? findingsBuckets = null)
+        IReadOnlyDictionary<DateTime, ComplianceDriftFindingsBucketCounts>? findingsBuckets = null,
+        ScopeContext? scope = null)
     {
         Mock<IComplianceDriftFindingsTrendReader> findings = new();
         findingsBuckets ??= new Dictionary<DateTime, ComplianceDriftFindingsBucketCounts>();
+        ScopeContext resolvedScope = scope ?? new ScopeContext
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        };
+
         findings.Setup(f => f.GetBucketCountsAsync(
                 TenantId,
+                resolvedScope.WorkspaceId,
+                resolvedScope.ProjectId,
                 It.IsAny<DateTime>(),
                 It.IsAny<DateTime>(),
                 It.IsAny<TimeSpan>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(findingsBuckets);
 
-        return new ComplianceDriftTrendService(repo.Object, findings.Object);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(resolvedScope);
+
+        return new ComplianceDriftTrendService(repo.Object, findings.Object, scopeProvider.Object);
     }
 
     [SkippableFact]
@@ -65,8 +81,8 @@ public sealed class ComplianceDriftTrendServiceTests
         {
             PolicyPackId = pack,
             TenantId = TenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
             ChangeType = "Created",
             ChangedBy = "u1",
             ChangedUtc = from.AddHours(1),
@@ -76,8 +92,8 @@ public sealed class ComplianceDriftTrendServiceTests
         {
             PolicyPackId = pack,
             TenantId = TenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
             ChangeType = "Created",
             ChangedBy = "u2",
             ChangedUtc = from.AddHours(2),
@@ -87,8 +103,8 @@ public sealed class ComplianceDriftTrendServiceTests
         {
             PolicyPackId = pack,
             TenantId = TenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
             ChangeType = "Assigned",
             ChangedBy = "u3",
             ChangedUtc = from.AddHours(7),
@@ -139,6 +155,54 @@ public sealed class ComplianceDriftTrendServiceTests
         points.Should().ContainSingle();
         points[0].OpenFindingsCount.Should().Be(3);
         points[0].ResolvedFindingsCount.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task GetTrendAsync_ExcludesForeignWorkspaceProjectChanges()
+    {
+        Mock<IPolicyPackChangeLogRepository> repo = new();
+        DateTime from = new(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = from.AddHours(12);
+        Guid pack = Guid.Parse("11111111-2222-3333-4444-555555555555");
+
+        PolicyPackChangeLogEntry inScope = new()
+        {
+            PolicyPackId = pack,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            ChangeType = "Created",
+            ChangedBy = "u1",
+            ChangedUtc = from.AddHours(1),
+        };
+
+        PolicyPackChangeLogEntry foreign = new()
+        {
+            PolicyPackId = pack,
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            ChangeType = "Created",
+            ChangedBy = "u2",
+            ChangedUtc = from.AddHours(2),
+        };
+
+        repo.Setup(r => r.GetByTenantInRangeAsync(TenantId, from, to, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([foreign, inScope]);
+
+        ComplianceDriftTrendService sut = CreateSut(repo);
+
+        IReadOnlyList<ComplianceDriftTrendPoint> points = await sut.GetTrendAsync(
+            TenantId,
+            from,
+            to,
+            TimeSpan.FromHours(6),
+            CancellationToken.None);
+
+        points.Should().HaveCount(2);
+        points[0].ChangeCount.Should().Be(1);
+        points[0].ChangesByType["Created"].Should().Be(1);
+        points[1].ChangeCount.Should().Be(0);
     }
 
     [SkippableFact]

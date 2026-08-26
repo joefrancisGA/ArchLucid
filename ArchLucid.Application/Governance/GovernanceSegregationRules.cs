@@ -17,7 +17,8 @@ public static class GovernanceSegregationRules
     public static bool IsSameActorForReview(
         GovernanceApprovalRequest request,
         string reviewedByDisplay,
-        string reviewedByActorKey)
+        string reviewedByActorKey,
+        string? reviewedByMailbox = null)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedByDisplay);
@@ -29,7 +30,24 @@ public static class GovernanceSegregationRules
         if (requestJwt && reviewerJwt)
             return string.Equals(request.RequestedByActorKey, reviewedByActorKey, StringComparison.OrdinalIgnoreCase);
 
+        if (!requestJwt && reviewerJwt && !string.IsNullOrWhiteSpace(reviewedByMailbox))
+        {
+            if (MailboxEquals(request.RequestedBy, reviewedByMailbox)
+                || MailboxEquals(request.RequestedByActorKey, reviewedByMailbox))
+            {
+                return true;
+            }
+        }
+
         return string.Equals(request.RequestedBy, reviewedByDisplay, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool MailboxEquals(string? left, string? right)
+    {
+        if (string.IsNullOrWhiteSpace(left) || string.IsNullOrWhiteSpace(right))
+            return false;
+
+        return string.Equals(left.Trim(), right.Trim(), StringComparison.OrdinalIgnoreCase);
     }
 
     internal static bool LooksLikeJwtCanonicalActorKey(string? key)

@@ -82,7 +82,13 @@ public sealed class EffectiveGovernanceResolver(
                     applicable.Select(static assignment => assignment.PolicyPackId).Distinct().ToList(),
                     ct);
 
-            Dictionary<Guid, PolicyPack> packById = loadedPacks.ToDictionary(static pack => pack.PolicyPackId);
+            Dictionary<Guid, PolicyPack> packById = loadedPacks
+                .Where(pack => ArchLucid.Core.Governance.PolicyPacks.PolicyPackVisibility.IsVisibleInScope(
+                    pack,
+                    tenantId,
+                    workspaceId,
+                    projectId))
+                .ToDictionary(static pack => pack.PolicyPackId);
 
             foreach (PolicyPackAssignment assignment in applicable)
             {

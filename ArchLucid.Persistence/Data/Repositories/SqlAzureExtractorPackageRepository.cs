@@ -130,6 +130,7 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
                                     FROM dbo.AzureExtractorPackages
                                     WHERE TenantId = @TenantId
                                         AND WorkspaceId = @WorkspaceId
+                                        AND ProjectId = @ProjectId
                                 ) THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END;
 
                                 SELECT TOP (1) ScriptVersion

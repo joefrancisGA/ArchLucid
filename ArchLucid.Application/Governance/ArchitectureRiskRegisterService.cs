@@ -9,21 +9,23 @@ public sealed class ArchitectureRiskRegisterService(IArchitectureRiskRegisterQue
 
     public async Task<ArchitectureRiskRegisterResponse> GetRegisterAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         int maxRows,
         ArchitectureRiskRegisterListOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         IReadOnlyList<ArchitectureRiskRegisterEntry> entries =
-            await _reader.ListAsync(tenantId, projectId, maxRows, options, cancellationToken);
+            await _reader.ListAsync(tenantId, workspaceId, projectId, maxRows, options, cancellationToken);
 
         return new ArchitectureRiskRegisterResponse { Entries = entries };
     }
 
     public Task<int> CountAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         ArchitectureRiskRegisterListOptions? options = null,
         CancellationToken cancellationToken = default) =>
-        _reader.CountAsync(tenantId, projectId, options, cancellationToken);
+        _reader.CountAsync(tenantId, workspaceId, projectId, options, cancellationToken);
 }

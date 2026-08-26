@@ -58,6 +58,12 @@ public sealed class TenantWorkspacesController(
         IReadOnlyList<TenantWorkspaceListItem> workspaces =
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken);
 
+        TenantWorkspaceListItem? currentWorkspace =
+            workspaces.SingleOrDefault(w => w.WorkspaceId == scope.WorkspaceId);
+
+        if (currentWorkspace is null)
+            return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
+
         IReadOnlyList<ArchitectureProjectRecord> projects =
             await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken);
 
@@ -69,26 +75,26 @@ public sealed class TenantWorkspacesController(
         TenantWorkspacesListResponse body = new()
         {
             RetentionDays = retentionDays,
-            Workspaces = workspaces
-                .Select(
-                    w => new TenantWorkspaceApiDto
-                    {
-                        WorkspaceId = w.WorkspaceId,
-                        Name = w.Name,
-                        DisplayName = w.Name,
-                        DefaultProjectId = w.DefaultProjectId,
-                        Projects = byWorkspace[w.WorkspaceId]
-                            .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase)
-                            .Select(
-                                p => new TenantWorkspaceProjectApiDto
-                                {
-                                    ProjectId = p.Id,
-                                    Name = p.Name,
-                                    DisplayName = p.Name
-                                })
-                            .ToList()
-                    })
-                .ToList()
+            Workspaces =
+            [
+                new TenantWorkspaceApiDto
+                {
+                    WorkspaceId = currentWorkspace.WorkspaceId,
+                    Name = currentWorkspace.Name,
+                    DisplayName = currentWorkspace.Name,
+                    DefaultProjectId = currentWorkspace.DefaultProjectId,
+                    Projects = byWorkspace[currentWorkspace.WorkspaceId]
+                        .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase)
+                        .Select(
+                            p => new TenantWorkspaceProjectApiDto
+                            {
+                                ProjectId = p.Id,
+                                Name = p.Name,
+                                DisplayName = p.Name
+                            })
+                        .ToList()
+                }
+            ]
         };
 
         return Ok(body);
@@ -110,59 +116,51 @@ public sealed class TenantWorkspacesController(
         IReadOnlyList<TenantWorkspaceListItem> workspaces =
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken);
 
+        TenantWorkspaceListItem? currentWorkspace =
+            workspaces.SingleOrDefault(w => w.WorkspaceId == scope.WorkspaceId);
+
+        if (currentWorkspace is null)
+            return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
+
         IReadOnlyList<ArchitectureProjectRecord> deleted =
             await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken);
 
         int retentionDays =
             ArchitectureProjectRetentionSchedule.ClampRetentionDays(_retentionPurgeOptions.CurrentValue.RetentionDays);
 
-        HashSet<Guid> candidateIds = [];
+        IEnumerable<ArchitectureProjectRecord> workspaceDeleted =
+            deleted.Where(p => p.WorkspaceId == scope.WorkspaceId)
+                .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase);
 
-        foreach (ArchitectureProjectRecord row in deleted)
-            candidateIds.Add(row.WorkspaceId);
-
-        Dictionary<Guid, TenantWorkspaceListItem> byId =
-            workspaces.ToDictionary(static w => w.WorkspaceId);
-
-        List<TenantWorkspaceRecycleBinApiDto> items = [];
-
-        foreach (Guid workspaceIdKey in candidateIds.OrderBy(static id => id))
+        TenantWorkspaceRecycleBinApiDto dto = new()
         {
-            if (!byId.TryGetValue(workspaceIdKey, out TenantWorkspaceListItem? w))
-                continue;
+            WorkspaceId = currentWorkspace.WorkspaceId,
+            Name = currentWorkspace.Name,
+            DisplayName = currentWorkspace.Name,
+            DeletedProjects = workspaceDeleted
+                .Select(
+                    p =>
+                    {
+                        DateTimeOffset deletedUtc = p.DeletedUtc ?? p.CreatedUtc;
 
-            IEnumerable<ArchitectureProjectRecord> wsDeleted =
-                deleted.Where(p => p.WorkspaceId == workspaceIdKey)
-                    .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase);
-
-            TenantWorkspaceRecycleBinApiDto dto = new()
-            {
-                WorkspaceId = w.WorkspaceId,
-                Name = w.Name,
-                DisplayName = w.Name,
-                DeletedProjects = wsDeleted
-                    .Select(
-                        p =>
+                        return new TenantWorkspaceDeletedProjectApiDto
                         {
-                            DateTimeOffset deletedUtc = p.DeletedUtc ?? p.CreatedUtc;
+                            ProjectId = p.Id,
+                            Name = p.Name,
+                            DisplayName = p.Name,
+                            DeletedUtc = deletedUtc,
+                            PurgeAfterUtc =
+                                ArchitectureProjectRetentionSchedule.ComputePurgeAfterUtc(deletedUtc, retentionDays)
+                        };
+                    })
+                .ToList()
+        };
 
-                            return new TenantWorkspaceDeletedProjectApiDto
-                            {
-                                ProjectId = p.Id,
-                                Name = p.Name,
-                                DisplayName = p.Name,
-                                DeletedUtc = deletedUtc,
-                                PurgeAfterUtc =
-                                    ArchitectureProjectRetentionSchedule.ComputePurgeAfterUtc(deletedUtc, retentionDays)
-                            };
-                        })
-                    .ToList()
-            };
-
-            items.Add(dto);
-        }
-
-        TenantWorkspacesRecycleBinResponse body = new() { RetentionDays = retentionDays, Workspaces = items };
+        TenantWorkspacesRecycleBinResponse body = new()
+        {
+            RetentionDays = retentionDays,
+            Workspaces = [dto]
+        };
 
         return Ok(body);
     }
@@ -187,6 +185,9 @@ public sealed class TenantWorkspacesController(
         TenantWorkspaceListItem? workspace = workspaces.SingleOrDefault(w => w.WorkspaceId == workspaceId);
 
         if (workspace is null)
+            return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
+
+        if (workspaceId != scope.WorkspaceId)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
         if (workspace.DefaultProjectId == projectId)
@@ -252,6 +253,9 @@ public sealed class TenantWorkspacesController(
         TenantWorkspaceListItem? workspace = workspaces.SingleOrDefault(w => w.WorkspaceId == workspaceId);
 
         if (workspace is null)
+            return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
+
+        if (workspaceId != scope.WorkspaceId)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
         ArchitectureProjectRestoreResult outcome =

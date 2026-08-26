@@ -179,6 +179,7 @@ public sealed class OperatorShellStatusService(
             return await _architectureRiskRegisterService
                 .CountAsync(
                     scope.TenantId,
+                    scope.WorkspaceId,
                     scope.ProjectId,
                     options,
                     cancellationToken)

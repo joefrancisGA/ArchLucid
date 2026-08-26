@@ -6,6 +6,7 @@ public interface IArchitectureDecisionRegisterService
 {
     Task<ArchitectureDecisionRegisterResponse> GetRegisterAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         int maxRows,
         ArchitectureDecisionRegisterQueryOptions? filters,

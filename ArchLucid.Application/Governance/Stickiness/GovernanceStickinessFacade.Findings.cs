@@ -1,10 +1,12 @@
 using System.Text.Json;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 
 namespace ArchLucid.Application.Governance.Stickiness;
 
@@ -16,6 +18,9 @@ public sealed partial class GovernanceStickinessFacade
         CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await EnsureFindingInScopeAsync(scope, request.FindingId, ct);
+        await EnsureRunInScopeWhenProvidedAsync(scope, request.RunId, ct);
 
         return await _findingDispositionService.RecordAsync(
             request,
@@ -48,12 +53,20 @@ public sealed partial class GovernanceStickinessFacade
 
             try
             {
+                await EnsureFindingInScopeAsync(scope, findingId, ct);
                 await _findingDispositionService.RecordAsync(normalized, scope, actorId, ct);
                 updated.Add(findingId);
             }
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
             {
             }
+        }
+
+        if (updated.Count == 0)
+        {
+            throw new ArgumentException(
+                "None of the provided findings were found in the current scope.",
+                nameof(request.FindingIds));
         }
 
         return new RecordBulkFindingDispositionResponse
@@ -70,7 +83,40 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        return await _findingDispositionService.ListHistoryAsync(scope.TenantId, findingId, ct);
+        if (!await IsFindingInScopeAsync(scope, findingId, ct))
+            return [];
+
+        return await _findingDispositionService.ListHistoryAsync(scope, findingId, ct);
+    }
+
+    private async Task EnsureRunInScopeWhenProvidedAsync(ScopeContext scope, Guid? runId, CancellationToken ct)
+    {
+        if (runId is not Guid resolvedRunId || resolvedRunId == Guid.Empty)
+            return;
+
+        Persistence.Models.RunRecord? run = await _runRepository
+            .GetByIdAsync(scope, resolvedRunId, ct)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new RunNotFoundException(resolvedRunId.ToString("D"));
+    }
+
+    private async Task EnsureFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)
+    {
+        if (!await IsFindingInScopeAsync(scope, findingId, ct))
+            throw new InvalidOperationException("Finding was not found.");
+    }
+
+    private async Task<bool> IsFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)
+    {
+        FindingInspectResponse? finding = await _findingInspectReadRepository.GetInspectAsync(
+            scope,
+            findingId,
+            ct,
+            FindingInspectReadOptions.MetadataOnly);
+
+        return finding is not null;
     }
 
     /// <inheritdoc />
@@ -79,6 +125,8 @@ public sealed partial class GovernanceStickinessFacade
         CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await EnsureFindingInScopeAsync(scope, request.FindingId, ct);
 
         return await _riskExceptionService.CreateAsync(
             request,
@@ -94,16 +142,23 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        return await _riskExceptionService.ListActiveAsync(
+        if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
+            return [];
+
+        IReadOnlyList<RiskExceptionRecord> records = await _riskExceptionService.ListActiveAsync(
             scope.TenantId,
-            projectId ?? scope.ProjectId,
+            resolvedProjectId,
             ct);
+
+        return RiskExceptionScope.FilterActiveToScope(records, scope);
     }
 
     /// <inheritdoc />
     public async Task RevokeRiskExceptionAsync(Guid riskExceptionId, CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await EnsureRiskExceptionInScopeAsync(scope, riskExceptionId, ct);
 
         await _riskExceptionService.RevokeAsync(
             scope.TenantId,
@@ -120,12 +175,22 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        await EnsureRiskExceptionInScopeAsync(scope, riskExceptionId, ct);
+
         return await _riskExceptionService.RenewAsync(
             scope.TenantId,
             riskExceptionId,
             request,
             _actorContext.GetActorId(),
             ct);
+    }
+
+    private async Task EnsureRiskExceptionInScopeAsync(ScopeContext scope, Guid riskExceptionId, CancellationToken ct)
+    {
+        RiskExceptionRecord? record = await _riskExceptionService.GetByIdAsync(scope.TenantId, riskExceptionId, ct);
+
+        if (!RiskExceptionScope.IsVisibleInScope(record, scope))
+            throw new InvalidOperationException("Risk exception was not found.");
     }
 
     /// <inheritdoc />
@@ -136,6 +201,9 @@ public sealed partial class GovernanceStickinessFacade
         CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await EnsureRunInScopeWhenProvidedAsync(scope, runId, ct);
+
         bool resolved = await _findingMergeConflictResolutionService.TryResolveAsync(
             scope,
             runId,

@@ -30,6 +30,16 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (string.IsNullOrWhiteSpace(request.RunId))
+        {
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (request.Content is null)
+        {
+            return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
+        }
+
         PolicyPackGovernanceDryRunResult? result = await _workflow.SimulateAsync(
             request.Content,
             request.RunId,

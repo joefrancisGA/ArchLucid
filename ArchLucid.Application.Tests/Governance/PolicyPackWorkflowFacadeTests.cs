@@ -154,6 +154,38 @@ public sealed class PolicyPackWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task TryArchiveAssignmentAsync_returns_false_when_assignment_is_out_of_scope()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackAssignment
+                {
+                    AssignmentId = assignmentId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    PolicyPackId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                    PolicyPackVersion = "1.0.0",
+                });
+
+        Mock<IPolicyPacksAppService> appService = new(MockBehavior.Strict);
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            Mock.Of<IPolicyPackRepository>(),
+            assignments: assignments.Object,
+            appService: appService.Object);
+
+        bool result = await sut.TryArchiveAssignmentAsync(assignmentId, CancellationToken.None);
+
+        result.Should().BeFalse();
+        appService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task TrySimulateBulkAsync_returns_null_when_pack_has_no_versions()
     {
         Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -265,7 +297,8 @@ public sealed class PolicyPackWorkflowFacadeTests
         IPolicyPackVersionRepository? versions = null,
         IPolicyPacksAppService? appService = null,
         IPolicyPackGovernanceDryRunService? dryRun = null,
-        IPlatformBundledPolicyPackAvailability? platformAvailability = null)
+        IPlatformBundledPolicyPackAvailability? platformAvailability = null,
+        IPolicyPackAssignmentRepository? assignments = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
@@ -273,6 +306,7 @@ public sealed class PolicyPackWorkflowFacadeTests
         return new PolicyPackWorkflowFacade(
             scopeProvider.Object,
             packRepository,
+            assignments ?? Mock.Of<IPolicyPackAssignmentRepository>(),
             versions ?? Mock.Of<IPolicyPackVersionRepository>(),
             Mock.Of<IPolicyPackCatalogRepository>(),
             Mock.Of<ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackResolver>(),
@@ -285,7 +319,7 @@ public sealed class PolicyPackWorkflowFacadeTests
             Mock.Of<IPolicyPackContentAuthoringValidationService>(),
             new PolicyPackWorkspaceSelectionService(
                 packRepository,
-                Mock.Of<IPolicyPackAssignmentRepository>(),
+                assignments ?? Mock.Of<IPolicyPackAssignmentRepository>(),
                 platformAvailability ?? Mock.Of<IPlatformBundledPolicyPackAvailability>(),
                 Mock.Of<IPolicyPackResolverCacheInvalidator>()),
             platformAvailability ?? Mock.Of<IPlatformBundledPolicyPackAvailability>(),

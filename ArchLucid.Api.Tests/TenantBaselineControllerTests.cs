@@ -119,6 +119,146 @@ public sealed class TenantBaselineControllerTests
     }
 
     [Fact]
+    public async Task PutAsync_returns_bad_request_when_people_per_review_set_without_manual_prep_hours()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard,
+            BaselineManualPrepHoursPerReview = null,
+            BaselinePeoplePerReview = null,
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        TenantBaselinePutRequest body = new() { PeoplePerReview = 4 };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        tenants.Verify(
+            r => r.UpdateBaselineAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<decimal?>(),
+                It.IsAny<int?>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_bad_request_when_review_cycle_source_note_without_captured_hours()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        TenantBaselinePutRequest body = new() { BaselineReviewCycleSourceNote = "Operator note" };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        tenants.Verify(
+            r => r.PersistTrialSignupBaselineReviewCycleAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<decimal>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_persists_review_cycle_source_note_when_hours_already_captured()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard,
+            BaselineReviewCycleHours = 40m,
+            BaselineReviewCycleSource = "operator-settings: old note",
+            BaselineReviewCycleCapturedUtc = DateTimeOffset.Parse("2026-05-01T10:00:00Z")
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+        tenants
+            .Setup(r => r.PersistTrialSignupBaselineReviewCycleAsync(
+                Scope.TenantId,
+                40m,
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuditService> audit = new();
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            audit.Object);
+
+        TenantBaselinePutRequest body = new() { BaselineReviewCycleSourceNote = "Updated operator note" };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        tenants.Verify(
+            r => r.PersistTrialSignupBaselineReviewCycleAsync(
+                Scope.TenantId,
+                40m,
+                It.Is<string?>(s => s != null && s.Contains("Updated operator note", StringComparison.Ordinal)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialBaselineReviewCycleUpdated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task PutAsync_returns_existing_projection_when_no_fields_touched()
     {
         TenantRecord tenant = new()

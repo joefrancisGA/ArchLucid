@@ -91,11 +91,6 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
         return (promptTotal, completionTotal);
     }
 
-    private static bool IsCommittedSummary(RunSummary summary)
-    {
-        if (string.Equals(summary.Status, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return !string.IsNullOrWhiteSpace(summary.CurrentManifestVersion);
-    }
+    private static bool IsCommittedSummary(RunSummary summary) =>
+        string.Equals(summary.Status, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase);
 }

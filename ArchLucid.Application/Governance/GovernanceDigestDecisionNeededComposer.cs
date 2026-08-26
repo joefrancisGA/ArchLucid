@@ -57,7 +57,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRepository.GetPendingAsync(50, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
-            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, options: null, cancellationToken);
+            _riskRegisterService.GetRegisterAsync(tenantId, workspaceId, projectId, 100, options: null, cancellationToken);
         Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
             _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
         Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
@@ -67,8 +67,14 @@ public sealed class GovernanceDigestDecisionNeededComposer(
 
         IReadOnlyList<GovernanceApprovalRequest> pending = await pendingTask;
         ArchitectureRiskRegisterResponse register = await registerTask;
-        IReadOnlyList<FindingReviewEventRecord> recent = await recentTask;
-        IReadOnlyList<RiskExceptionRecord> activeWaivers = await activeWaiversTask;
+        IReadOnlyList<FindingReviewEventRecord> recent = FilterTrailToScope(
+            await recentTask,
+            workspaceId,
+            projectId);
+        IReadOnlyList<RiskExceptionRecord> activeWaivers = FilterWaiversToScope(
+            await activeWaiversTask,
+            workspaceId,
+            projectId);
 
         if (pending.Count > 0)
         {
@@ -208,11 +214,15 @@ public sealed class GovernanceDigestDecisionNeededComposer(
 
     public async Task<GovernanceDecisionsNeededSummaryResponse> BuildSummaryAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
+        if (workspaceId == Guid.Empty)
+            throw new ArgumentException("Workspace id is required.", nameof(workspaceId));
 
         DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
         DateTimeOffset since = now.Subtract(TimeSpan.FromDays(30));
@@ -220,7 +230,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRepository.GetPendingAsync(50, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
-            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, options: null, cancellationToken);
+            _riskRegisterService.GetRegisterAsync(tenantId, workspaceId, projectId, 100, options: null, cancellationToken);
         Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
             _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
         Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
@@ -230,8 +240,14 @@ public sealed class GovernanceDigestDecisionNeededComposer(
 
         IReadOnlyList<GovernanceApprovalRequest> pending = await pendingTask;
         ArchitectureRiskRegisterResponse register = await registerTask;
-        IReadOnlyList<FindingReviewEventRecord> recent = await recentTask;
-        IReadOnlyList<RiskExceptionRecord> activeWaivers = await activeWaiversTask;
+        IReadOnlyList<FindingReviewEventRecord> recent = FilterTrailToScope(
+            await recentTask,
+            workspaceId,
+            projectId);
+        IReadOnlyList<RiskExceptionRecord> activeWaivers = FilterWaiversToScope(
+            await activeWaiversTask,
+            workspaceId,
+            projectId);
 
         int staleCount = StaleArchitectureRiskCountCalculator.CountStale(register);
         int unownedHighCount = register.Entries
@@ -367,5 +383,27 @@ public sealed class GovernanceDigestDecisionNeededComposer(
 
         return severity.Contains("high", StringComparison.OrdinalIgnoreCase)
                || severity.Contains("critical", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static IReadOnlyList<FindingReviewEventRecord> FilterTrailToScope(
+        IReadOnlyList<FindingReviewEventRecord> events,
+        Guid workspaceId,
+        Guid? projectId)
+    {
+        return events
+            .Where(reviewEvent => reviewEvent.WorkspaceId == workspaceId)
+            .Where(reviewEvent => projectId is null || projectId == Guid.Empty || reviewEvent.ProjectId == projectId)
+            .ToList();
+    }
+
+    private static IReadOnlyList<RiskExceptionRecord> FilterWaiversToScope(
+        IReadOnlyList<RiskExceptionRecord> waivers,
+        Guid workspaceId,
+        Guid? projectId)
+    {
+        return waivers
+            .Where(waiver => waiver.WorkspaceId == workspaceId)
+            .Where(waiver => projectId is null || projectId == Guid.Empty || waiver.ProjectId == projectId)
+            .ToList();
     }
 }

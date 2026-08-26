@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Connections;
@@ -12,6 +14,7 @@ public sealed class ArchitectureDecisionRegisterReader(ISqlConnectionFactory con
 {
     public async Task<IReadOnlyList<ArchitectureDecisionRegisterEntry>> ListAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         int maxRows,
         ArchitectureDecisionRegisterQueryOptions? filters,
@@ -20,10 +23,24 @@ public sealed class ArchitectureDecisionRegisterReader(ISqlConnectionFactory con
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
+        if (workspaceId == Guid.Empty)
+            throw new ArgumentException("Workspace id is required.", nameof(workspaceId));
+
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
         string projectFilter = projectId.HasValue ? " AND m.ProjectId = @ProjectId" : string.Empty;
+
+        DynamicParameters parameters = new();
+        parameters.Add("TenantId", tenantId);
+        parameters.Add("WorkspaceId", workspaceId);
+
+        if (projectId.HasValue)
+            parameters.Add("ProjectId", projectId);
+
+        parameters.Add("MaxRows", maxRows);
+
+        string filterSql = AppendFilterParameters(filters, parameters);
 
         string sql = $"""
                       SELECT TOP (@MaxRows)
@@ -39,17 +56,14 @@ public sealed class ArchitectureDecisionRegisterReader(ISqlConnectionFactory con
                              m.CreatedUtc AS RecordedAtUtc
                       FROM dbo.GoldenManifestDecisions AS d
                       INNER JOIN dbo.GoldenManifests AS m ON m.ManifestId = d.ManifestId
-                      WHERE m.TenantId = @TenantId{projectFilter}
+                      WHERE m.TenantId = @TenantId AND m.WorkspaceId = @WorkspaceId{projectFilter}{filterSql}
                       ORDER BY m.CreatedUtc DESC, d.SortOrder ASC;
                       """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<DecisionRow> rows = await conn.QueryAsync<DecisionRow>(
-            new CommandDefinition(
-                sql,
-                new { TenantId = tenantId, ProjectId = projectId, MaxRows = maxRows },
-                cancellationToken: cancellationToken));
+            new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
 
         List<ArchitectureDecisionRegisterEntry> decisions = [];
 
@@ -129,46 +143,81 @@ public sealed class ArchitectureDecisionRegisterReader(ISqlConnectionFactory con
                 });
         }
 
-        return ApplyFilters(enriched, filters);
+        return enriched;
     }
 
-    private static IReadOnlyList<ArchitectureDecisionRegisterEntry> ApplyFilters(
-        IReadOnlyList<ArchitectureDecisionRegisterEntry> decisions,
-        ArchitectureDecisionRegisterQueryOptions? filters)
+    private static string AppendFilterParameters(
+        ArchitectureDecisionRegisterQueryOptions? filters,
+        DynamicParameters parameters)
     {
         if (filters is null)
-            return decisions;
+            return string.Empty;
 
-        IEnumerable<ArchitectureDecisionRegisterEntry> query = decisions;
+        StringBuilder sql = new();
 
         if (!string.IsNullOrWhiteSpace(filters.Category))
         {
-            string category = filters.Category.Trim();
-
-            query = query.Where(d => string.Equals(d.Category, category, StringComparison.OrdinalIgnoreCase));
+            sql.Append(" AND LOWER(LTRIM(RTRIM(d.Category))) = LOWER(LTRIM(RTRIM(@Category)))");
+            parameters.Add("Category", filters.Category.Trim());
         }
 
         if (filters.RecordedAfterUtc is not null)
-            query = query.Where(d => d.RecordedAtUtc >= filters.RecordedAfterUtc);
+        {
+            sql.Append(" AND m.CreatedUtc >= @RecordedAfterUtc");
+            parameters.Add("RecordedAfterUtc", filters.RecordedAfterUtc.Value.UtcDateTime);
+        }
 
         if (filters.RecordedBeforeUtc is not null)
-            query = query.Where(d => d.RecordedAtUtc <= filters.RecordedBeforeUtc);
+        {
+            sql.Append(" AND m.CreatedUtc <= @RecordedBeforeUtc");
+            parameters.Add("RecordedBeforeUtc", filters.RecordedBeforeUtc.Value.UtcDateTime);
+        }
 
         if (filters.MinConfidence is not null)
-            query = query.Where(d => d.Confidence is not null && d.Confidence >= filters.MinConfidence);
+        {
+            sql.Append(" AND d.Confidence IS NOT NULL AND d.Confidence >= @MinConfidence");
+            parameters.Add("MinConfidence", filters.MinConfidence);
+        }
 
         if (filters.MaxConfidence is not null)
-            query = query.Where(d => d.Confidence is not null && d.Confidence <= filters.MaxConfidence);
+        {
+            sql.Append(" AND d.Confidence IS NOT NULL AND d.Confidence <= @MaxConfidence");
+            parameters.Add("MaxConfidence", filters.MaxConfidence);
+        }
 
         if (!string.IsNullOrWhiteSpace(filters.BuyerConfidenceSource))
         {
-            string label = filters.BuyerConfidenceSource.Trim();
+            IReadOnlyList<string> confidenceSources =
+                ResolveConfidenceSourceNamesForBuyerLabel(filters.BuyerConfidenceSource.Trim());
 
-            query = query.Where(d =>
-                string.Equals(d.BuyerConfidenceSource, label, StringComparison.OrdinalIgnoreCase));
+            sql.Append(" AND d.ConfidenceSource IN @ConfidenceSources");
+            parameters.Add("ConfidenceSources", confidenceSources);
         }
 
-        return query.ToList();
+        return sql.ToString();
+    }
+
+    private static IReadOnlyList<string> ResolveConfidenceSourceNamesForBuyerLabel(string buyerLabel)
+    {
+        if (string.Equals(buyerLabel, BuyerDecisionConfidenceSource.EvidenceBacked, StringComparison.OrdinalIgnoreCase))
+        {
+            return
+            [
+                nameof(DecisionConfidenceSource.FindingEvaluation),
+                nameof(DecisionConfidenceSource.FindingAggregate),
+                nameof(DecisionConfidenceSource.RuleEngine),
+                nameof(DecisionConfidenceSource.Calibrated),
+            ];
+        }
+
+        if (string.Equals(buyerLabel, BuyerDecisionConfidenceSource.ModelAssisted, StringComparison.OrdinalIgnoreCase))
+            return [nameof(DecisionConfidenceSource.LlmAgent)];
+
+        return
+        [
+            nameof(DecisionConfidenceSource.Unknown),
+            nameof(DecisionConfidenceSource.NotComputed),
+        ];
     }
 
     private sealed class DecisionRow

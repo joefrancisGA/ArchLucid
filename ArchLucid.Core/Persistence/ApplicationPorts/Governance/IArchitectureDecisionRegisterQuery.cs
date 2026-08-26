@@ -6,6 +6,7 @@ public interface IArchitectureDecisionRegisterQuery
 {
     Task<IReadOnlyList<ArchitectureDecisionRegisterEntry>> ListAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         int maxRows,
         ArchitectureDecisionRegisterQueryOptions? filters,

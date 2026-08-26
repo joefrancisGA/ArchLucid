@@ -2,7 +2,9 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Contracts.Notifications;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -27,7 +29,8 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 public sealed class TenantExecDigestPreferencesController(
     IScopeContextProvider scopeProvider,
     ITenantExecDigestPreferencesRepository preferencesRepository,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    ITenantRepository tenantRepository) : ControllerBase
 {
     private readonly IAuditService
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -38,13 +41,21 @@ public sealed class TenantExecDigestPreferencesController(
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     /// <summary>Reads digest preferences (defaults when no row exists).</summary>
     [HttpGet("exec-digest-preferences")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(ExecDigestPreferencesResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetExecDigestPreferences(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         ExecDigestPreferencesResponse? row =
             await _preferencesRepository.GetByTenantAsync(scope.TenantId, cancellationToken);
@@ -87,13 +98,29 @@ public sealed class TenantExecDigestPreferencesController(
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        IReadOnlyList<string> recipients = body.RecipientEmails ?? [];
+        string? normalizedTimeZone = IanaTimeZonePreferenceValues.NormalizeOrNull(body.IanaTimeZoneId ?? "UTC");
+
+        if (normalizedTimeZone is null)
+        {
+            return this.BadRequestProblem(
+                "ianaTimeZoneId must be a recognized IANA time zone id.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (!DigestRecipientEmailsValidator.TryNormalize(
+                body.RecipientEmails,
+                body.EmailEnabled,
+                out IReadOnlyList<string> recipients,
+                out string? recipientError))
+        {
+            return this.BadRequestProblem(recipientError!, ProblemTypes.ValidationFailed);
+        }
 
         ExecDigestPreferencesResponse? saved = await _preferencesRepository.UpsertAsync(
             scope.TenantId,
             body.EmailEnabled,
             recipients,
-            body.IanaTimeZoneId ?? "UTC",
+            normalizedTimeZone,
             dow,
             hour,
             cancellationToken);

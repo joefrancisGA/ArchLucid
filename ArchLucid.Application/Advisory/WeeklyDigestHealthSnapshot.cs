@@ -99,6 +99,42 @@ public sealed class WeeklyDigestHealthSnapshot
         init;
     }
 
+    public bool SponsorEmailDigestIsConfigured
+    {
+        get;
+        init;
+    }
+
+    public bool SponsorEmailDigestEnabled
+    {
+        get;
+        init;
+    }
+
+    public int SponsorDigestRecipientCount
+    {
+        get;
+        init;
+    }
+
+    public string SponsorDigestIanaTimeZoneId
+    {
+        get;
+        init;
+    } = "UTC";
+
+    public int SponsorDigestDayOfWeek
+    {
+        get;
+        init;
+    }
+
+    public int SponsorDigestHourOfDay
+    {
+        get;
+        init;
+    }
+
     /// <summary>Human-readable gaps for empty-state UX (no PII).</summary>
     public IReadOnlyList<string> SetupGaps
     {

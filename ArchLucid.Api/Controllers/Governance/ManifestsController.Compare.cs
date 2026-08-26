@@ -118,7 +118,7 @@ public sealed partial class ManifestsController
                 Error = this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed)
             };
 
-        GoldenManifest? left = await unifiedGoldenManifestReader.GetByVersionAsync(leftVersion, cancellationToken);
+        GoldenManifest? left = await GetManifestInScopeAsync(leftVersion, cancellationToken);
 
         if (left is null)
             return new LoadedManifestPair
@@ -127,7 +127,7 @@ public sealed partial class ManifestsController
                     ProblemTypes.ManifestNotFound)
             };
 
-        GoldenManifest? right = await unifiedGoldenManifestReader.GetByVersionAsync(rightVersion, cancellationToken);
+        GoldenManifest? right = await GetManifestInScopeAsync(rightVersion, cancellationToken);
 
         return right is null
             ? new LoadedManifestPair

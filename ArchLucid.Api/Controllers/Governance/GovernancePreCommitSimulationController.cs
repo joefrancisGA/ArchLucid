@@ -7,7 +7,10 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Asp.Versioning;
 
@@ -29,12 +32,20 @@ namespace ArchLucid.Api.Controllers.Governance;
 public sealed class GovernancePreCommitSimulationController(
     IPreCommitGovernanceGate gate,
     IPreFinalizeChecklistService preFinalizeChecklistService,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     // idempotency-posture: dry-run-no-persist
     [HttpGet("checklist/{runId}")]
     [ProducesResponseType(typeof(PreFinalizeChecklistResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetChecklistAsync(
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
@@ -44,6 +55,19 @@ public sealed class GovernancePreCommitSimulationController(
 
         if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem($"Run ID '{runId}' is not valid.", ProblemTypes.BadRequest);
+
+        Guid runGuid = Guid.Parse(runIdNormalized);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? run = await _runRepository
+            .GetByIdAsync(scope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+        {
+            return this.NotFoundProblem(
+                $"Run '{runIdNormalized}' was not found.",
+                ProblemTypes.RunNotFound);
+        }
 
         PreFinalizeChecklistResult checklist =
             await preFinalizeChecklistService.BuildAsync(runIdNormalized, cancellationToken);

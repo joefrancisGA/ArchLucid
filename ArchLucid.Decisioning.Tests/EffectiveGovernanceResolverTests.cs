@@ -923,6 +923,73 @@ public sealed class EffectiveGovernanceResolverTests
         }
     }
 
+    [Fact]
+    public async Task ResolveAsync_excludes_foreign_workspace_pack_on_tenant_level_assignment()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid callerWorkspaceId = Guid.NewGuid();
+        Guid callerProjectId = Guid.NewGuid();
+        Guid foreignWorkspaceId = Guid.NewGuid();
+        Guid foreignProjectId = Guid.NewGuid();
+        Guid foreignPackId = Guid.NewGuid();
+        Guid foreignRuleId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        InMemoryPolicyPackRepository packRepo = new();
+        InMemoryPolicyPackVersionRepository versionRepo = new();
+        InMemoryPolicyPackAssignmentRepository assignmentRepo = new();
+
+        await packRepo.CreateAsync(
+            new PolicyPack
+            {
+                PolicyPackId = foreignPackId,
+                TenantId = tenantId,
+                WorkspaceId = foreignWorkspaceId,
+                ProjectId = foreignProjectId,
+                Name = "foreign-workspace-pack",
+                Description = "",
+                PackType = PolicyPackType.TenantCustom,
+                Status = PolicyPackStatus.Active,
+                CurrentVersion = "1.0.0",
+            },
+            CancellationToken.None);
+
+        await versionRepo.CreateAsync(
+            new PolicyPackVersion
+            {
+                PolicyPackVersionId = Guid.NewGuid(),
+                PolicyPackId = foreignPackId,
+                Version = "1.0.0",
+                ContentJson =
+                    "{\"complianceRuleIds\":[\"" + foreignRuleId.ToString("D") + "\"],\"complianceRuleKeys\":[],\"alertRuleIds\":[],\"compositeAlertRuleIds\":[],\"advisoryDefaults\":{}}",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                IsPublished = true,
+            },
+            CancellationToken.None);
+
+        await assignmentRepo.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = tenantId,
+                WorkspaceId = Guid.Empty,
+                ProjectId = Guid.Empty,
+                PolicyPackId = foreignPackId,
+                PolicyPackVersion = "1.0.0",
+                ScopeLevel = GovernanceScopeLevel.Tenant,
+                IsEnabled = true,
+                AssignedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
+
+        EffectiveGovernanceResolutionResult result =
+            await resolver.ResolveAsync(tenantId, callerWorkspaceId, callerProjectId, CancellationToken.None);
+
+        result.EffectiveContent.ComplianceRuleIds.Should().BeEmpty();
+        result.Notes.Should().Contain(note =>
+            note.Contains(foreignPackId.ToString("D"), StringComparison.OrdinalIgnoreCase));
+    }
+
     private static async Task CreateEnabledPackAsync(
         InMemoryPolicyPackRepository packRepo,
         InMemoryPolicyPackVersionRepository versionRepo,

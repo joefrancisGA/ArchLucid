@@ -114,6 +114,7 @@ public sealed class PersistencePackageCoverageBatch15Tests
 
         IReadOnlyList<ArchitectureDecisionRegisterEntry> entries = await sut.ListAsync(
             Guid.NewGuid(),
+            Guid.NewGuid(),
             projectId: null,
             maxRows: 10,
             filters: null,
@@ -128,6 +129,7 @@ public sealed class PersistencePackageCoverageBatch15Tests
         NoOpArchitectureRiskRegisterQuery sut = new();
 
         IReadOnlyList<ArchitectureRiskRegisterEntry> entries = await sut.ListAsync(
+            Guid.NewGuid(),
             Guid.NewGuid(),
             projectId: null,
             maxRows: 10,

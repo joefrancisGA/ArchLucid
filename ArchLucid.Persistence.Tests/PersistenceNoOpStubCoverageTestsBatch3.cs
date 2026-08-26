@@ -88,7 +88,7 @@ public sealed class PersistenceNoOpStubCoverageTestsBatch3
     {
         NoOpArchitectureRiskRegisterQuery sut = new();
 
-        (await sut.ListAsync(Guid.NewGuid(), projectId: null, maxRows: 10, options: null, CancellationToken.None))
+        (await sut.ListAsync(Guid.NewGuid(), Guid.NewGuid(), projectId: null, maxRows: 10, options: null, CancellationToken.None))
             .Should()
             .BeEmpty();
     }
@@ -99,6 +99,7 @@ public sealed class PersistenceNoOpStubCoverageTestsBatch3
         NoOpArchitectureDecisionRegisterQuery sut = new();
 
         (await sut.ListAsync(
+                Guid.NewGuid(),
                 Guid.NewGuid(),
                 projectId: null,
                 maxRows: 10,

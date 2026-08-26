@@ -104,6 +104,70 @@ public sealed class PreFinalizeChecklistServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_does_not_persist_governance_scope_json_on_read()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        string originalScopeJson = """{"assignments":[{"packId":"pack-1","outcomes":[]}]}""";
+
+        RunRecord run = new()
+        {
+            RunId = runKey,
+            GovernanceScopeJson = originalScopeJson,
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(run);
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(s => s.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((FindingsSnapshot?)null);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            findingsSnapshotRepository: snapshots.Object);
+
+        await sut.BuildAsync(runId, CancellationToken.None);
+
+        run.GovernanceScopeJson.Should().Be(originalScopeJson);
+        runs.Verify(
+            r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task BuildAsync_returns_not_ready_when_run_is_out_of_scope()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        PreFinalizeChecklistService sut = CreateSut(runRepository: runs.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.BlockingCount.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task BuildAsync_returns_not_ready_for_non_guid_run_id()
+    {
+        PreFinalizeChecklistService sut = CreateSut();
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync("not-a-guid", CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task BuildAsync_marks_provisional_synthesis_as_advisory()
     {
         Guid runKey = Guid.NewGuid();
@@ -157,7 +221,8 @@ public sealed class PreFinalizeChecklistServiceTests
         Mock<IRunRepository> runMock = new();
         runMock
             .Setup(r => r.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunRecord?)null);
+            .ReturnsAsync((ScopeContext scope, Guid runKey, CancellationToken _) =>
+                new RunRecord { RunId = runKey });
 
         Mock<IPreCommitGovernanceGate> gateMock = new();
         gateMock

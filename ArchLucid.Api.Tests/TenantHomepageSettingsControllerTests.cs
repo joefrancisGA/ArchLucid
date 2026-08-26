@@ -1,8 +1,12 @@
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.OperatorHome;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
@@ -23,6 +27,22 @@ public sealed class TenantHomepageSettingsControllerTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
+
+    [Fact]
+    public async Task GetAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(
+            service.Object,
+            tenantExists: false);
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        service.VerifyNoOtherCalls();
+    }
 
     [Fact]
     public async Task GetAsync_projects_snapshot_response()
@@ -73,12 +93,64 @@ public sealed class TenantHomepageSettingsControllerTests
         action.Should().BeOfType<ObjectResult>();
     }
 
-    private static TenantHomepageSettingsController CreateController(IFeaturedCompletedSampleService service)
+    [Fact]
+    public async Task PutAsync_returns_not_found_when_selected_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IFeaturedCompletedSampleService> service = new();
+        service
+            .Setup(s => s.SetSelectedRunIdAsync(foreignRunId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new RunNotFoundException(foreignRunId.ToString("D")));
+
+        TenantHomepageSettingsController controller = CreateController(service.Object);
+
+        IActionResult action = await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest
+            {
+                SelectedRunId = foreignRunId,
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(
+            service.Object,
+            tenantExists: false);
+
+        IActionResult action = await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest { SelectedRunId = null },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        service.VerifyNoOtherCalls();
+    }
+
+    private static TenantHomepageSettingsController CreateController(
+        IFeaturedCompletedSampleService service,
+        bool tenantExists = true)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
 
-        TenantHomepageSettingsController controller = new(service, scopeProvider.Object, Mock.Of<IAuditService>());
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenantExists ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" } : null);
+
+        TenantHomepageSettingsController controller = new(
+            service,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            tenants.Object);
         controller.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext(),
