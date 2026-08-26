@@ -1,5 +1,6 @@
 "use client";
 
+import type { Dispatch, SetStateAction } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
@@ -53,21 +54,21 @@ export type UseAuditPageFiltersResult = {
   readonly failure: ApiLoadFailureState | null;
   readonly setFailure: (failure: ApiLoadFailureState | null) => void;
   readonly advancedAuditFiltersOpen: boolean;
-  readonly setAdvancedAuditFiltersOpen: (open: boolean) => void;
+  readonly setAdvancedAuditFiltersOpen: Dispatch<SetStateAction<boolean>>;
   readonly buyerPrimaryFiltersOpen: boolean;
-  readonly setBuyerPrimaryFiltersOpen: (open: boolean) => void;
+  readonly setBuyerPrimaryFiltersOpen: Dispatch<SetStateAction<boolean>>;
   readonly eventTypes: string[];
   readonly eventType: string;
-  readonly setEventType: (value: string) => void;
+  readonly setEventType: Dispatch<SetStateAction<string>>;
   readonly fromUtc: string;
-  readonly setFromUtc: (value: string) => void;
+  readonly setFromUtc: Dispatch<SetStateAction<string>>;
   readonly toUtc: string;
-  readonly setToUtc: (value: string) => void;
+  readonly setToUtc: Dispatch<SetStateAction<string>>;
   readonly correlationId: string;
-  readonly setCorrelationId: (value: string) => void;
+  readonly setCorrelationId: Dispatch<SetStateAction<string>>;
   readonly actorUserId: string;
-  readonly setActorUserId: (value: string) => void;
-  readonly setRunId: (value: string) => void;
+  readonly setActorUserId: Dispatch<SetStateAction<string>>;
+  readonly setRunId: Dispatch<SetStateAction<string>>;
   readonly searching: boolean;
   readonly lastRefreshedAt: Date | null;
   readonly loadingTypes: boolean;

@@ -25,7 +25,7 @@ import { useAuthDomainsPageActions } from "./use-auth-domains-page-actions";
 import { useAuthDomainsPageEnforcement, type EnforcementModeRequest } from "./use-auth-domains-page-enforcement";
 import { useAuthDomainsPageRefresh, type AuthDomainsInlineError } from "./use-auth-domains-page-refresh";
 
-type AuthDomainSelectedAction = (domain: string) => Promise<{ dnsVerificationInstruction?: string }>;
+type AuthDomainSelectedAction = import("./AuthDomainsVerificationPanel").AuthDomainSelectedAction;
 
 export type UseAuthDomainsPageModel = {
   readonly domains: TenantAuthDomainRecord[];

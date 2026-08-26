@@ -145,6 +145,7 @@ export function FindingDetailPageView(props: Props) {
     inspectHref,
     reviewFindingsHref,
     reviewPackageHref,
+    linkedManifestHref,
     decisionSummary,
     evidenceBasisSummary,
     demoFillGaps,

@@ -101,12 +101,12 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
   const provenanceInspectSteps = resolveProvenanceInspectSteps({
     reviewPicked: hasScopedRun,
     provenanceLoaded: graph.nodes.length > 0,
-    inspectComplete: selectedNodeId.trim().length > 0,
+    inspectComplete: (selectedNodeId ?? "").trim().length > 0,
   });
   const provenanceInspectEmphasizedStepId = resolveProvenanceInspectEmphasizedStepId({
     reviewPicked: hasScopedRun,
     provenanceLoaded: graph.nodes.length > 0,
-    inspectComplete: selectedNodeId.trim().length > 0,
+    inspectComplete: (selectedNodeId ?? "").trim().length > 0,
   });
 
   const onPickReviewForInspecting = useCallback(
