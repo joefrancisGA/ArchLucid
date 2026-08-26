@@ -12,6 +12,7 @@ import { IntegrationConnectChecklist } from "@/components/integrations/Integrati
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { AlertRoutingContinueLastViewedRow } from "@/components/alerts/AlertRoutingContinueLastViewedRow";
 import { AlertRoutingPickReviewBeforeRoutingStrip } from "@/components/alerts/AlertRoutingPickReviewBeforeRoutingStrip";
+import { AlertRoutingNextReviewFooterClient } from "@/components/alerts/AlertRoutingNextReviewFooterClient";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -703,6 +704,8 @@ export function AlertRoutingContent() {
           void confirmDisableSubscription();
         }}
       />
+
+      {scopedRunFilterActive ? <AlertRoutingNextReviewFooterClient runId={scopedRunId} /> : null}
     </div>
   );
 }
