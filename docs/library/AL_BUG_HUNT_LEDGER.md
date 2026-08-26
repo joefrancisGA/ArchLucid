@@ -1802,11 +1802,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 30
-- **bugs-found:** 65
+- **hunts:** 31
+- **bugs-found:** 67
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — ARM JSON numeric literals and tf property keys churned infra declaration connector deltas
+- **last-bug:** 2026-08-26 — K8s manifest resources rotated random ObjectId; topology enricher ignored k8s.kind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1883,9 +1883,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.SanitizePropertyKey` preserved JSON value field casing in `tf.*` keys — **hit 2026-08-26:** `Location` vs `location` produced different `tf.*` property keys and false modified on infrastructure declaration connector delta after snapshot reload with ordinal property bags; fixed by lowercasing sanitized keys (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TfPropertyKeys_AreCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonTfPropertyKeyCasingChange_ReportsUnchanged`).
 - [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` copied parent `SourceType` onto expander-spawned security baselines — **hit 2026-08-26:** enriched `InfrastructureDeclaration` network-rule baselines in prior snapshots were absent from normalized connector output and reported false removed on identical re-ingest; fixed with dedicated `AppServiceNetworkRule` source type (`InfrastructureDeclarationConnectorTests.DeltaAsync_AppServiceExpandedBaselines_ReportsUnchangedOnIdenticalReIngest`).
 - [x] (proven) `AppServiceNetworkAccessSecurityBaselineExpander` left default random `ObjectId` on network-rule baselines — **hit 2026-08-26:** identical expand passes produced new `obj-{ObjectId}` graph node ids each time; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by app service id and `controlId`, and named-rule `controlId` slots instead of array index (`AppServiceNetworkAccessSecurityBaselineExpanderTests.Expand_reparse_produces_stable_object_ids_for_network_baselines`).
-- [ ] (candidate) `KubernetesManifestCanonicalObjectMapper.TryAddResource` leaves default random `ObjectId` on K8s resources — re-parse rotates `obj-{ObjectId}` graph node ids unlike fixed plain-text and topology-hint paths
-- [ ] (candidate) `BicepInfrastructureDeclarationParser.ResourceRegex` silently skips quoted-symbolic resource headers — valid Bicep with quoted names may return zero resources without warning
-- [ ] (candidate) `TopologyResourceCanonicalEnricher.InferCategory` ignores `k8s.kind` — Deployments/Services may classify as `general` instead of compute/network
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper.TryAddResource` left default random `ObjectId` on K8s resources — **hit 2026-08-26:** identical kubernetes-json re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` keyed by declaration id, kind, and canonical name (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_reparse_produces_stable_object_ids_for_deployments`).
+- [x] (invalid) `BicepInfrastructureDeclarationParser.ResourceRegex` silently skips quoted-symbolic resource headers — Bicep resource symbolic names are identifiers, not quoted strings; `resource 'storage' 'Microsoft.Storage/...'` is invalid Bicep and correctly yields zero resources (`BicepInfrastructureDeclarationParserTests.ParseAsync_ignores_quoted_symbolic_names_because_bicep_requires_identifiers`).
+- [x] (proven) `TopologyResourceCanonicalEnricher.InferCategory` ignored `k8s.kind` — **hit 2026-08-26:** kubernetes-json Deployments classified as `general` instead of `compute`; fixed with `k8s.kind` branch before ARM/Terraform heuristics (`CompositeCanonicalEnricherTests.Enrich_classifies_kubernetes_deployment_as_compute`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` preserved numeric `tf.*` JSON formatting — **hit 2026-08-26:** `capacity: 1` vs `capacity: 1.0` false-modified infrastructure declaration connector deltas; fixed with shared `CanonicalInfrastructurePropertyBag.CanonicalizeNumberText` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_EquivalentNumericRepresentations_ProduceSameTfProperties`, `InfrastructureDeclarationConnectorTests.DeltaAsync_ArmJsonEquivalentNumericFormatChange_ReportsUnchanged`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser` / `CanonicalInfrastructurePropertyBag.TryAddTfProperty` preserved `tf.*` property key casing — **hit 2026-08-26:** `allowBlobPublicAccess` vs `allowblobpublicaccess` produced different ordinal snapshot keys and false-modified infra declaration deltas; fixed by lowercasing sanitized keys in `TryAddTfProperty` and `TerraformShowJsonInfrastructureDeclarationParser` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_TfPropertyKeys_AreCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_ArmJsonTfPropertyKeyCasingChange_ReportsUnchanged`).
 

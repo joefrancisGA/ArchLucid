@@ -33,6 +33,20 @@ public sealed class TopologyResourceCanonicalEnricher : ICanonicalObjectTypeEnri
 
     private static string InferCategory(CanonicalObject item)
     {
+        if (item.Properties.TryGetValue("k8s.kind", out string? k8sKind))
+        {
+            string kind = k8sKind.ToLowerInvariant();
+
+            if (kind is "deployment" or "statefulset" or "daemonset" or "replicaset" or "pod" or "job" or "cronjob")
+                return "compute";
+
+            if (kind is "service" or "ingress")
+                return "network";
+
+            if (kind is "persistentvolume" or "persistentvolumeclaim")
+                return "storage";
+        }
+
         if (item.Properties.TryGetValue("terraformType", out string? terraformType))
         {
             string t = terraformType.ToLowerInvariant();

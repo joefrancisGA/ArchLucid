@@ -68,4 +68,35 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
         result[0].ObjectType.Should().Be("SecurityBaseline");
         result[0].Properties.Should().NotContainKey("data");
     }
+
+    [Fact]
+    public async Task ParseAsync_reparse_produces_stable_object_ids_for_deployments()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "cluster.json",
+            Format = "kubernetes-json",
+            DeclarationId = "decl-k8s-stable",
+            Content = """
+                      {
+                        "apiVersion": "v1",
+                        "kind": "List",
+                        "items": [
+                          {
+                            "apiVersion": "apps/v1",
+                            "kind": "Deployment",
+                            "metadata": { "name": "api", "namespace": "prod" }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> firstParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondParse = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        firstParse.Should().ContainSingle();
+        secondParse.Should().ContainSingle();
+        secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
+    }
 }

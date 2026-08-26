@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Parsing;
 
 namespace ArchLucid.ContextIngestion.Infrastructure;
 
@@ -74,6 +75,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
             properties["k8s.namespace"] = namespaceValue.ToLowerInvariant();
 
         string objectType = ResolveObjectType(kind);
+        string stableObjectId = BuildStableObjectId(objectType, declaration, kind, canonicalName);
 
         if (string.Equals(kind, "Secret", StringComparison.OrdinalIgnoreCase))
         {
@@ -81,6 +83,7 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
             results.Add(new CanonicalObject
             {
+                ObjectId = stableObjectId,
                 ObjectType = objectType,
                 Name = canonicalName,
                 SourceType = "InfrastructureDeclaration",
@@ -93,12 +96,24 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
         results.Add(new CanonicalObject
         {
+            ObjectId = stableObjectId,
             ObjectType = objectType,
             Name = canonicalName,
             SourceType = "InfrastructureDeclaration",
             SourceId = declaration.DeclarationId,
             Properties = properties
         });
+    }
+
+    private static string BuildStableObjectId(
+        string objectType,
+        InfrastructureDeclarationReference declaration,
+        string kind,
+        string canonicalName)
+    {
+        return ContextIngestionStableLineNames.StableObjectId(
+            objectType,
+            $"{declaration.DeclarationId}|{kind.ToLowerInvariant()}|{canonicalName}");
     }
 
     private static string ResolveObjectType(string kind)

@@ -31,4 +31,22 @@ public sealed class BicepInfrastructureDeclarationParserTests
         result.Should().ContainSingle(o => o.Name == "storage" && o.ObjectType == "TopologyResource");
         result.Should().ContainSingle(o => o.Name == "kv" && o.ObjectType == "SecurityBaseline");
     }
+
+    [Fact]
+    public async Task ParseAsync_ignores_quoted_symbolic_names_because_bicep_requires_identifiers()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource 'storage' 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().BeEmpty();
+    }
 }
