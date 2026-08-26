@@ -101,7 +101,7 @@ public static class ReviewCacheManifestBuilder
 
         builder.Append("tier=").Append(request.ReviewTier.ToString()).Append('|');
         builder.Append("golden=").Append(request.UseGoldenFixture ? '1' : '0').Append('|');
-        builder.Append("alias=").Append(request.ModelAliasId ?? string.Empty).Append('|');
+        builder.Append("alias=").Append(ClosedLoopModelAliasIdNormalizer.NormalizeForHash(request.ModelAliasId)).Append('|');
 
         if (!string.IsNullOrWhiteSpace(request.RunId))
         {
