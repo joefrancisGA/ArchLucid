@@ -55,7 +55,11 @@ function longIntent(suffix = ""): string {
   return `${"Architecture overview text that is long enough to satisfy the minimum intake length for draft persistence. ".repeat(2)}${suffix}`.trim();
 }
 
-function draftResponse(fields: ArchitectureDraftFieldState, updatedUtc = "2026-08-11T12:00:00.000Z") {
+function draftResponse(
+  fields: ArchitectureDraftFieldState,
+  updatedUtc = "2026-08-11T12:00:00.000Z",
+  responseActorSet: ActorSet = actorSet,
+) {
   return {
     draftId: "draft-001",
     tenantId: "tenant",
@@ -66,7 +70,7 @@ function draftResponse(fields: ArchitectureDraftFieldState, updatedUtc = "2026-0
       freeTextIntent: fields.freeTextIntent,
       businessOutcome: fields.businessOutcome,
       systemName: fields.systemName,
-      actorSet,
+      actorSet: responseActorSet,
       workflowIntent: "create-architecture",
       structuredBrief: fields.structuredBrief,
     },
@@ -245,7 +249,7 @@ describe("useArchitectureDraftAutosave", () => {
     );
 
     act(() => {
-      result.current.acceptServerBaseline(hydrated, "2026-08-11T12:00:00.000Z");
+      result.current.acceptServerBaseline(hydrated, "2026-08-11T12:00:00.000Z", actorSet);
     });
 
     rerender({ fields: hydrated });
@@ -470,6 +474,63 @@ describe("useArchitectureDraftAutosave", () => {
 
     expect(patchDraftRequest).toHaveBeenCalledTimes(1);
     expect(result.current.saveState).toBe("error");
+  });
+
+  it("debounces autosave when only people and systems change", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const fields: ArchitectureDraftFieldState = {
+      freeTextIntent: longIntent(),
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+    const updatedActorSet: ActorSet = {
+      actors: [
+        ...actorSet.actors,
+        {
+          label: "External API consumer",
+          kind: "Machine",
+          trustOrigin: "External",
+          contract: "Async",
+          origin: "Inferred",
+          confidence: 70,
+        },
+      ],
+    };
+
+    getDraftRequest.mockResolvedValue(draftResponse(fields, "2026-08-11T12:00:00.000Z"));
+    patchDraftRequest.mockResolvedValue(
+      draftResponse(fields, "2026-08-11T12:00:30.000Z", updatedActorSet),
+    );
+
+    const { result, rerender } = renderHook(
+      (props: { actorSet: ActorSet }) =>
+        useArchitectureDraftAutosave({
+          architectureId: "draft-001",
+          fields,
+          actorSet: props.actorSet,
+        }),
+      { initialProps: { actorSet } },
+    );
+
+    act(() => {
+      result.current.acceptServerBaseline(fields, "2026-08-11T12:00:00.000Z", actorSet);
+    });
+
+    rerender({ actorSet: updatedActorSet });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000);
+    });
+
+    await waitFor(() => {
+      expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    });
+
+    const patchBody = patchDraftRequest.mock.calls[0]?.[1] as { actorSet?: ActorSet };
+    expect(patchBody.actorSet?.actors).toHaveLength(2);
+    expect(patchBody.actorSet?.actors[1]?.label).toBe("External API consumer");
   });
 
   it("skips PATCH when the server draft is no longer Drafting", async () => {
