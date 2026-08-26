@@ -134,7 +134,7 @@ public sealed class ReviewResultCache : IReviewResultCache
         return new ReviewResultCachePinScope(this, ReviewCacheKeyBuilder.Build(manifest));
     }
 
-    public void PinStorageKey(string storageKey)
+    internal void PinStorageKey(string storageKey)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(storageKey);
 
@@ -145,7 +145,7 @@ public sealed class ReviewResultCache : IReviewResultCache
         }
     }
 
-    public void UnpinStorageKey(string storageKey)
+    internal void UnpinStorageKey(string storageKey)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(storageKey);
 
