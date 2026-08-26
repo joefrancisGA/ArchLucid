@@ -360,8 +360,8 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             JsonValueKind.True => "true",
             JsonValueKind.False => "false",
             JsonValueKind.Null => string.Empty,
-            JsonValueKind.Object => SerializeCanonicalJson(value),
-            JsonValueKind.Array => SerializeCanonicalJson(value),
+            JsonValueKind.Object => CanonicalInfrastructureJsonValue.CanonicalizeText(value),
+            JsonValueKind.Array => CanonicalInfrastructureJsonValue.CanonicalizeText(value),
             _ => value.GetRawText()
         };
     }

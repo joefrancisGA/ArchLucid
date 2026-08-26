@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 57
-- **bugs-found:** 120
+- **hunts:** 58
+- **bugs-found:** 125
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — kubernetes-yaml bare array root dropped manifests
+- **last-bug:** 2026-08-26 — kubernetes-json newline-delimited documents dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1972,6 +1972,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `JsonInfrastructureDeclarationParser` accepted only `{ "resources": [...] }` shape — **hit 2026-08-26:** top-level resource array `[{ "type": "vnet", ... }]` returned zero resources; fixed by parsing root arrays (`JsonInfrastructureDeclarationParserTests.ParseAsync_TopLevelResourceArray_MapsVnet`).
 - [x] (proven) `CanonicalInfrastructureJsonValue` did not redact nested sensitive keys in arm-json object blobs — **hit 2026-08-26:** `siteConfig.connectionString` leaked plaintext inside `tf.siteconfig`; fixed by scanning nested property names with `ShouldRedactKey` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_NestedConnectionStringInSiteConfig_IsRedacted`).
 - [x] (proven) `ContextIngestionService.CanonicalizeActorsJson` preserved actor `label` value casing — **hit 2026-08-26:** `"Ops Engineer"` vs `"ops engineer"` churned `SourceHashes[Actors]`; fixed by trim/lowercase label values before serialize (`ContextIngestionServiceTests.IngestAsync_ActorsJsonLabelValueCasing_ProducesStableScopeMetadata`).
+- [x] (proven) `KubernetesJsonInfrastructureDeclarationParser.ParseAsync` rejected newline-delimited JSON documents — **hit 2026-08-26:** concatenated `{"kind":"Pod"}\\n{"kind":"Service"}` returned zero resources; fixed with per-line JSON fallback (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_NewlineDelimitedDocuments_MapsBothResources`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` preserved inline `#` comments and assignment order in nested HCL blocks — **hit 2026-08-26:** `site_config { always_on = true # warm }` false-modified deltas and line-order swaps churned `tf.site_config`; fixed with `NormalizeHclBlockBody` and newline-preserving nested block extraction (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlockInlineComment_DoesNotChangeTfSiteConfig`, `ParseAsync_NestedBlockAssignmentOrder_DoesNotChangeTfSiteConfig`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` last-write-wins on case-variant duplicate property keys — **hit 2026-08-26:** `allowBlobPublicAccess` vs `AllowBlobPublicAccess` order flipped `tf.allowblobpublicaccess`; fixed by grouping properties case-insensitively (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_DuplicatePropertyKeyCasing_UsesFirstValue`).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.WriteCanonicalJsonValue` preserved array element order — **hit 2026-08-26:** `service_endpoints` array order churned `tf.service_endpoints`; fixed by delegating object/array canonicalization to `CanonicalInfrastructureJsonValue` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_CanonicalizesTfArrayElementOrder`).
+
+2026-08-26 seed hunt #64: reseeded K8s JSON NDJSON / nested HCL block normalization / arm-json duplicate keys / terraform array order; proved all five hunt-ready rows.
 
 2026-08-26 seed hunt #63: reseeded K8s YAML array/separator / JSON top-level array / arm-json nested sensitive / actor label casing; proved all five hunt-ready rows.
 

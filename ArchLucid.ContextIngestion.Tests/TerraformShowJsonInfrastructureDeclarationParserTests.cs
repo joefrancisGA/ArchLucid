@@ -805,6 +805,55 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_CanonicalizesTfArrayElementOrder()
+    {
+        const string storageFirst = """
+                                    {
+                                      "values": {
+                                        "root_module": {
+                                          "resources": [
+                                            {
+                                              "type": "azurerm_subnet",
+                                              "name": "app",
+                                              "values": {
+                                                "service_endpoints": ["Microsoft.Storage", "Microsoft.Sql"]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    }
+                                    """;
+
+        string sqlFirst = storageFirst.Replace(
+            "[\"Microsoft.Storage\", \"Microsoft.Sql\"]",
+            "[\"Microsoft.Sql\", \"Microsoft.Storage\"]");
+
+        InfrastructureDeclarationReference storageFirstDecl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tf-array-order",
+            Content = storageFirst,
+        };
+
+        InfrastructureDeclarationReference sqlFirstDecl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tf-array-order",
+            Content = sqlFirst,
+        };
+
+        IReadOnlyList<CanonicalObject> storageFirstObjects = await _sut.ParseAsync(storageFirstDecl, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> sqlFirstObjects = await _sut.ParseAsync(sqlFirstDecl, CancellationToken.None);
+
+        storageFirstObjects.Should().ContainSingle();
+        sqlFirstObjects.Should().ContainSingle();
+        sqlFirstObjects[0].Properties.Should().BeEquivalentTo(storageFirstObjects[0].Properties);
+    }
+
+    [Fact]
     public async Task ParseAsync_CanonicalizesEquivalentTfNumericFormats()
     {
         InfrastructureDeclarationReference decl = new()

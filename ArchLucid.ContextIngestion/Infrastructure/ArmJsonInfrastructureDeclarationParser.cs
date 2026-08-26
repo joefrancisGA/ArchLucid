@@ -151,8 +151,11 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
 
     private static void CopyBoundedProperties(JsonElement propertiesObject, Dictionary<string, string> properties)
     {
-        foreach (JsonProperty property in propertiesObject.EnumerateObject())
+        foreach (IGrouping<string, JsonProperty> propertyGroup in propertiesObject.EnumerateObject()
+                     .GroupBy(static property => property.Name, StringComparer.OrdinalIgnoreCase))
         {
+            JsonProperty property = propertyGroup.First();
+
             if (CanonicalInfrastructurePropertyBag.CountTfProperties(properties) >= CanonicalInfrastructurePropertyBag.MaxTfPropertyCount)
                 break;
 

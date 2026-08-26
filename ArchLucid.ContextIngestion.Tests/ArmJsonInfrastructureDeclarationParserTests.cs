@@ -411,4 +411,50 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
         result.Should().ContainSingle();
         result[0].Properties["tf.siteconfig"].Should().Be("{\"connectionstring\":\"[REDACTED]\"}");
     }
+
+    [Fact]
+    public async Task ParseAsync_DuplicatePropertyKeyCasing_UsesFirstValue()
+    {
+        const string firstOrderJson = """
+                                      {
+                                        "resources": [
+                                          {
+                                            "type": "Microsoft.Storage/storageAccounts",
+                                            "name": "docs",
+                                            "properties": {
+                                              "allowBlobPublicAccess": true,
+                                              "AllowBlobPublicAccess": false
+                                            }
+                                          }
+                                        ]
+                                      }
+                                      """;
+
+        string secondOrderJson = firstOrderJson
+            .Replace("\"allowBlobPublicAccess\": true,\n              \"AllowBlobPublicAccess\": false",
+                "\"AllowBlobPublicAccess\": false,\n              \"allowBlobPublicAccess\": true");
+
+        InfrastructureDeclarationReference firstOrder = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-dup-keys",
+            Content = firstOrderJson,
+        };
+
+        InfrastructureDeclarationReference secondOrder = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-dup-keys",
+            Content = secondOrderJson,
+        };
+
+        IReadOnlyList<CanonicalObject> firstObjects = await _sut.ParseAsync(firstOrder, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondObjects = await _sut.ParseAsync(secondOrder, CancellationToken.None);
+
+        firstObjects.Should().ContainSingle();
+        secondObjects.Should().ContainSingle();
+        secondObjects[0].Properties.Should().BeEquivalentTo(firstObjects[0].Properties);
+    }
 }

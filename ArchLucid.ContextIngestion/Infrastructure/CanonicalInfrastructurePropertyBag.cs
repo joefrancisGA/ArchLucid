@@ -188,14 +188,44 @@ public static class CanonicalInfrastructurePropertyBag
             return true;
         }
 
-        string trimmedBody = blockBody.Trim();
+        string trimmedBody = NormalizeHclBlockBody(blockBody);
+
+        if (string.IsNullOrWhiteSpace(trimmedBody))
+            return false;
 
         if (trimmedBody.Length > MaxPropertyValueLength)
             trimmedBody = trimmedBody[..MaxPropertyValueLength];
 
-        properties[$"tf.{sanitizedBlockName}"] = trimmedBody.ToLowerInvariant();
+        properties[$"tf.{sanitizedBlockName}"] = trimmedBody;
 
         return true;
+    }
+
+    public static string NormalizeHclBlockBody(string blockBody)
+    {
+        if (string.IsNullOrWhiteSpace(blockBody))
+            return string.Empty;
+
+        List<string> segments = [];
+
+        foreach (string line in blockBody.Split('\n'))
+        {
+            string trimmed = line.Trim();
+
+            if (trimmed.Length == 0 || trimmed.StartsWith('#') || trimmed.StartsWith("//", StringComparison.Ordinal))
+                continue;
+
+            trimmed = trimmed.Trim('{', '}', ' ');
+
+            if (trimmed.Length == 0)
+                continue;
+
+            segments.Add(StripTrailingHclComment(trimmed).Trim().ToLowerInvariant());
+        }
+
+        segments.Sort(StringComparer.OrdinalIgnoreCase);
+
+        return string.Join(' ', segments);
     }
 
     public static bool TryAddTfJsonProperty(

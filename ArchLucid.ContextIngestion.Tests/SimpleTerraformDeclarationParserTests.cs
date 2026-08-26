@@ -319,4 +319,84 @@ public sealed class SimpleTerraformDeclarationParserTests
         result[0].Name.Should().Be("core");
         result[0].Properties["terraformType"].Should().Be("azurerm_virtual_network");
     }
+
+    [Fact]
+    public async Task ParseAsync_NestedBlockInlineComment_DoesNotChangeTfSiteConfig()
+    {
+        InfrastructureDeclarationReference withoutComment = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-block-comment",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          always_on = true
+                        }
+                      }
+                      """,
+        };
+
+        InfrastructureDeclarationReference withComment = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-block-comment",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          always_on = true # keep warm
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> withoutCommentResult = await _sut.ParseAsync(withoutComment, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> withCommentResult = await _sut.ParseAsync(withComment, CancellationToken.None);
+
+        withoutCommentResult.Should().ContainSingle();
+        withCommentResult.Should().ContainSingle();
+        withCommentResult[0].Properties.Should().BeEquivalentTo(withoutCommentResult[0].Properties);
+    }
+
+    [Fact]
+    public async Task ParseAsync_NestedBlockAssignmentOrder_DoesNotChangeTfSiteConfig()
+    {
+        InfrastructureDeclarationReference firstOrder = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-block-order",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          always_on = true
+                          ftps_state = "Disabled"
+                        }
+                      }
+                      """,
+        };
+
+        InfrastructureDeclarationReference secondOrder = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-block-order",
+            Content = """
+                      resource "azurerm_linux_web_app" "api" {
+                        site_config {
+                          ftps_state = "Disabled"
+                          always_on = true
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> firstOrderResult = await _sut.ParseAsync(firstOrder, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> secondOrderResult = await _sut.ParseAsync(secondOrder, CancellationToken.None);
+
+        firstOrderResult.Should().ContainSingle();
+        secondOrderResult.Should().ContainSingle();
+        secondOrderResult[0].Properties.Should().BeEquivalentTo(firstOrderResult[0].Properties);
+    }
 }

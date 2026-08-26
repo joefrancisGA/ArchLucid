@@ -91,4 +91,15 @@ public sealed class CanonicalInfrastructurePropertyBagTests
 
         properties["tf.site_config"].Should().Be("[REDACTED]");
     }
+
+    [Fact]
+    public void NormalizeHclBlockBody_strips_inline_comments_and_sorts_assignments()
+    {
+        string normalized = CanonicalInfrastructurePropertyBag.NormalizeHclBlockBody("""
+            ftps_state = "Disabled"
+            always_on = true # keep warm
+            """);
+
+        normalized.Should().Be("always_on = true ftps_state = \"disabled\"");
+    }
 }
