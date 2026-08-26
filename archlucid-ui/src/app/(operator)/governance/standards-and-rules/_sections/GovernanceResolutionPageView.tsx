@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
+  useCallback,
   useMemo,
   useState,
 } from "react";
@@ -36,6 +39,7 @@ import {
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 import {
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -208,9 +212,28 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
 }
 
 export function GovernanceResolutionPageView(props: Props) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
   const m = props.model;
   const [filters, setFilters] = useState(EMPTY_STANDARDS_RULES_FILTER_STATE);
-  const [pickedReviewId, setPickedReviewId] = useState("");
+
+  const onPickReview = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+
+      router.replace(`${GOVERNANCE_STANDARDS_AND_RULES_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
   const allRuleRows = useMemo(
     () =>
       buildStandardsRuleRows(m.data, {
@@ -254,15 +277,36 @@ export function GovernanceResolutionPageView(props: Props) {
     [m.data, m.failure, summary.contributingPolicyPacks, useShowcaseFallback],
   );
   const standardsRulesResolveChecklistSteps = resolveStandardsRulesResolveSteps({
-    reviewPicked: pickedReviewId.trim().length > 0,
-    rulesFiltered: pickedReviewId.trim().length > 0 && filteredRuleRows.length < allRuleRows.length,
-    resolveReady: pickedReviewId.trim().length > 0 && showRulesTable,
+    reviewPicked: scopedRunFilterActive,
+    rulesFiltered: scopedRunFilterActive && filteredRuleRows.length < allRuleRows.length,
+    resolveReady: scopedRunFilterActive && showRulesTable,
   });
   const standardsRulesResolveChecklistEmphasizedStepId = resolveStandardsRulesResolveEmphasizedStepId({
-    reviewPicked: pickedReviewId.trim().length > 0,
-    rulesFiltered: pickedReviewId.trim().length > 0 && filteredRuleRows.length < allRuleRows.length,
-    resolveReady: pickedReviewId.trim().length > 0 && showRulesTable,
+    reviewPicked: scopedRunFilterActive,
+    rulesFiltered: scopedRunFilterActive && filteredRuleRows.length < allRuleRows.length,
+    resolveReady: scopedRunFilterActive && showRulesTable,
   });
+
+  const scopedRunBanner = scopedRunFilterActive ? (
+    <p
+      className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+      data-testid="standards-and-rules-run-scope-banner"
+    >
+      {"Resolving standards and rules for review "}
+      <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+      {" · "}
+      <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={GOVERNANCE_STANDARDS_AND_RULES_PATH}>
+        Clear review scope
+      </Link>
+      {" · "}
+      <Link
+        className={OPERATOR_BODY_INLINE_LINK_CLASS}
+        href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+      >
+        Open review
+      </Link>
+    </p>
+  ) : null;
 
   if (m.buyerPolishedShell) {
     return (
@@ -307,18 +351,18 @@ export function GovernanceResolutionPageView(props: Props) {
         ) : null}
         {m.failure === null ? (
           <>
-            {pickedReviewId.trim().length === 0 ? (
-              <StandardsRulesPickReviewBeforeResolvingStrip
-                selectedReviewId={pickedReviewId}
-                onSelectReview={setPickedReviewId}
-              />
+            {!scopedRunFilterActive ? (
+              <StandardsRulesPickReviewBeforeResolvingStrip selectedReviewId="" onSelectReview={onPickReview} />
             ) : (
-              <IntegrationConnectChecklist
+              <>
+                {scopedRunBanner}
+                <IntegrationConnectChecklist
                 title="Resolve checklist"
                 steps={standardsRulesResolveChecklistSteps}
                 emphasizedStepId={standardsRulesResolveChecklistEmphasizedStepId}
                 testIdPrefix="standards-rules-resolve"
               />
+              </>
             )}
             {reviewContext !== null ? <StandardsRulesReviewContextRow context={reviewContext} /> : null}
             <div className="mb-4">
@@ -390,8 +434,8 @@ export function GovernanceResolutionPageView(props: Props) {
             {usesShowcaseRuleRows ? (
               <OperatorEvidenceLimitsFooter runId={SHOWCASE_STATIC_DEMO_RUN_ID} showArchitectureReviewSummaryLink={false} />
             ) : null}
-            {pickedReviewId.trim().length > 0 ? (
-              <GovernanceStandardsRulesNextReviewFooterClient runId={pickedReviewId.trim()} />
+            {scopedRunFilterActive ? (
+              <GovernanceStandardsRulesNextReviewFooterClient runId={scopedRunId} />
             ) : null}
           </>
         ) : null}
@@ -413,18 +457,18 @@ export function GovernanceResolutionPageView(props: Props) {
       <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />
       <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="standards" />
       <GovernanceResolutionRankCue className="mb-3" />
-      {pickedReviewId.trim().length === 0 ? (
-        <StandardsRulesPickReviewBeforeResolvingStrip
-          selectedReviewId={pickedReviewId}
-          onSelectReview={setPickedReviewId}
-        />
+      {!scopedRunFilterActive ? (
+        <StandardsRulesPickReviewBeforeResolvingStrip selectedReviewId="" onSelectReview={onPickReview} />
       ) : (
-        <IntegrationConnectChecklist
-          title="Resolve checklist"
-          steps={standardsRulesResolveChecklistSteps}
-          emphasizedStepId={standardsRulesResolveChecklistEmphasizedStepId}
-          testIdPrefix="standards-rules-resolve"
-        />
+        <>
+          {scopedRunBanner}
+          <IntegrationConnectChecklist
+            title="Resolve checklist"
+            steps={standardsRulesResolveChecklistSteps}
+            emphasizedStepId={standardsRulesResolveChecklistEmphasizedStepId}
+            testIdPrefix="standards-rules-resolve"
+          />
+        </>
       )}
       {m.failure !== null ? (
         <div role="alert">
@@ -436,8 +480,8 @@ export function GovernanceResolutionPageView(props: Props) {
         </div>
       ) : null}
       <GovernanceResolutionOperatorDiagnostics model={m} />
-      {pickedReviewId.trim().length > 0 ? (
-        <GovernanceStandardsRulesNextReviewFooterClient runId={pickedReviewId.trim()} />
+      {scopedRunFilterActive ? (
+        <GovernanceStandardsRulesNextReviewFooterClient runId={scopedRunId} />
       ) : null}
     </OperatorPageContainer>
   );
