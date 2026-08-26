@@ -46,6 +46,7 @@ public static class ClosedLoopCacheHitPublishGuard
         result.PublishedFindingsSnapshotId = null;
         result.PublishedRecommendationCount = 0;
         result.PublishSkipReason = null;
+        StripProductPayloads(result);
     }
 
     private static void RewriteProductRunIdentity(ClosedLoopReasoningResult cached, string runId)

@@ -105,6 +105,30 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
             PublishedFindingsSnapshotId = Guid.NewGuid(),
             PublishedRecommendationCount = 4,
             PublishSkipReason = "already published",
+            ProductFindings =
+            [
+                new ArchLucid.Contracts.Findings.Finding
+                {
+                    FindingId = "finding-1",
+                    FindingType = "gap",
+                    Category = "security",
+                    EngineType = "specialist",
+                    Severity = ArchLucid.Contracts.Findings.FindingSeverity.Error,
+                    Title = "Gap",
+                    Rationale = "Rationale.",
+                },
+            ],
+            ProductRecommendations =
+            [
+                new ArchLucid.Contracts.Advisory.Workflow.RecommendationRecord
+                {
+                    RecommendationId = Guid.NewGuid(),
+                    Title = "Fix gap",
+                    Category = "security",
+                    Rationale = "Rationale.",
+                    SuggestedAction = "Action",
+                },
+            ],
         };
 
         ClosedLoopCacheHitPublishGuard.SanitizeForStorage(result);
@@ -113,5 +137,7 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         result.PublishedFindingsSnapshotId.Should().BeNull();
         result.PublishedRecommendationCount.Should().Be(0);
         result.PublishSkipReason.Should().BeNull();
+        result.ProductFindings.Should().BeEmpty();
+        result.ProductRecommendations.Should().BeEmpty();
     }
 }
