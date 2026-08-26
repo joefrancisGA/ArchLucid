@@ -56,6 +56,10 @@ internal static class KubernetesManifestCanonicalObjectMapper
         string apiVersion = ReadTopLevelString(resource, "apiVersion") ?? string.Empty;
         string namespaceValue = ReadMetadataString(resource, "metadata", "namespace") ?? string.Empty;
         string name = ReadMetadataString(resource, "metadata", "name") ?? string.Empty;
+        string generateName = ReadMetadataString(resource, "metadata", "generateName") ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(name))
+            name = generateName;
 
         if (string.IsNullOrWhiteSpace(name))
             return;
