@@ -269,7 +269,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
           committedOnly
 
-          preferAutoPick={demoUi}
+          preferAutoPick={false}
 
           onListAvailabilityChange={onReviewsListAvailabilityChange}
 
