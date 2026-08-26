@@ -135,8 +135,32 @@ public static class DeclarationSecurityBaselineClassifier
         if (!normalized.Contains("0.0.0.0/0", StringComparison.Ordinal))
             return false;
 
-        return normalized.Contains("22", StringComparison.Ordinal)
-            || normalized.Contains("3389", StringComparison.Ordinal);
+        return ContainsIsolatedPort(normalized, 22)
+            || ContainsIsolatedPort(normalized, 3389);
+    }
+
+    private static bool ContainsIsolatedPort(string normalized, int port)
+    {
+        string portText = port.ToString();
+
+        for (int index = 0; index <= normalized.Length - portText.Length; index++)
+        {
+            if (!normalized.AsSpan(index, portText.Length).SequenceEqual(portText))
+                continue;
+
+            bool beforeIsDigit = index > 0 && char.IsDigit(normalized[index - 1]);
+            int afterIndex = index + portText.Length;
+
+            if (beforeIsDigit)
+                continue;
+
+            if (afterIndex < normalized.Length && char.IsDigit(normalized[afterIndex]))
+                continue;
+
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryGetProperty(
