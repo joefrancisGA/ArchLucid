@@ -3,6 +3,7 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/desi
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
@@ -25,9 +26,10 @@ export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBanner
   return (
     <details
       data-testid="changes-since-last-review-banner"
-      className="rounded-lg border border-neutral-200 bg-neutral-50/90 shadow-sm open:bg-white dark:border-neutral-800 dark:bg-neutral-950/40 dark:open:bg-neutral-950/30"
+      className="group rounded-lg border border-neutral-200 bg-neutral-50/90 shadow-sm open:bg-white dark:border-neutral-800 dark:bg-neutral-950/40 dark:open:bg-neutral-950/30"
     >
-      <summary className={cn("cursor-pointer list-none px-4 py-3 font-semibold text-neutral-900 outline-none marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.cardTitle)}>
+      <summary className={cn("flex cursor-pointer list-none items-start gap-2 px-4 py-3 font-semibold text-neutral-900 outline-none marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        <DisclosureTriangleIndicator className="mt-0.5" />
         <span className="underline-offset-2 hover:underline">
           Compared to your previous review on {props.priorReviewDateLabel}:
         </span>

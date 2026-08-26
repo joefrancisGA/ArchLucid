@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { NotificationPreferenceCenterEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
@@ -183,10 +184,11 @@ export function NotificationPreferenceCenterPageView() {
         >
           <summary
             className={cn(
-              "cursor-pointer list-none font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
+              "flex cursor-pointer list-none items-center gap-2 font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
               OPERATOR_TYPOGRAPHY.body,
             )}
           >
+            <DisclosureTriangleIndicator />
             {NOTIFICATION_PREFERENCE_CENTER_RELATIONS_DISCLOSURE_SUMMARY}
           </summary>
           <div className="mt-4 space-y-4">

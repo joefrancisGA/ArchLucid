@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AdvisoryScansHelpEvidenceOrientationStrip } from "@/components/help/AdvisoryScansHelpEvidenceOrientationStrip";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -134,10 +135,11 @@ function AdvisoryScansTroubleshootingList(): React.ReactElement {
           <details className={cn(DESIGN_TOKENS.surface.card, "group p-3")}>
             <summary
               className={cn(
-                "cursor-pointer list-none font-semibold text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
+                "flex cursor-pointer list-none items-center gap-2 font-semibold text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
                 OPERATOR_TYPOGRAPHY.cardTitle,
               )}
             >
+              <DisclosureTriangleIndicator />
               {item.issue}
             </summary>
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>

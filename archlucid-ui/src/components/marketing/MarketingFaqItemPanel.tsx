@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import type { MarketingFaqItem } from "@/lib/marketing-faq";
 import { cn } from "@/lib/utils";
 
@@ -37,10 +38,11 @@ export function MarketingFaqItemPanel(props: MarketingFaqItemPanelProps): React.
     >
       <summary
         className={cn(
-          "cursor-pointer list-none font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
+          "flex cursor-pointer list-none items-center gap-2 font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
           MARKETING_TYPOGRAPHY.cardTitle,
         )}
       >
+        <DisclosureTriangleIndicator />
         {item.question}
       </summary>
       <p className={cn("mt-3 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{item.answer}</p>

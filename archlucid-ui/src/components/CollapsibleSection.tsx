@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useState, type ReactNode } from "react";
 
@@ -57,7 +58,7 @@ export function CollapsibleSection({
   return (
     <details
       className={cn(
-        "mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950",
+        "group mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950",
         className,
       )}
       data-testid={sectionTestId}
@@ -84,10 +85,11 @@ export function CollapsibleSection({
         id={summaryId}
         aria-label={summaryAriaLabel}
         className={cn(
-          "flex cursor-pointer select-none flex-wrap items-center gap-x-2 text-al-text-primary",
+          "flex cursor-pointer select-none list-none flex-wrap items-center gap-x-2 marker:content-none text-al-text-primary [&::-webkit-details-marker]:hidden",
           OPERATOR_TYPOGRAPHY.cardTitle,
         )}
       >
+        <DisclosureTriangleIndicator />
         {headingLevel === 2 ? (
           <h2 className="m-0 inline font-semibold">{title}</h2>
         ) : headingLevel === 3 ? (

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -218,15 +219,16 @@ export function SignupForm() {
           </div>
 
           <details
-            className="rounded-md border border-neutral-200/90 bg-neutral-100/80 dark:border-neutral-700 dark:bg-neutral-900/50"
+            className="group rounded-md border border-neutral-200/90 bg-neutral-100/80 dark:border-neutral-700 dark:bg-neutral-900/50"
             data-testid="signup-optional-details"
           >
             <summary
               className={cn(
-                "cursor-pointer select-none px-4 py-3 font-medium text-al-text-primary [&::-webkit-details-marker]:hidden",
+                "flex cursor-pointer select-none items-center gap-2 px-4 py-3 font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
                 OPERATOR_TYPOGRAPHY.cardTitle,
               )}
             >
+              <DisclosureTriangleIndicator />
               Tell us a little more
             </summary>
             <div className="space-y-4 border-t border-neutral-200/90 px-4 py-4 dark:border-neutral-700">

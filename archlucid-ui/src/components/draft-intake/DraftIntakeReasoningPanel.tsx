@@ -5,6 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useMemo, useState } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
+import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -203,14 +204,15 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
 
   return (
     <details
-      className="mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+      className="group mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
       data-testid="draft-intake-reasoning-panel"
       open={panelOpen}
       onToggle={(event) => {
         setPanelOpen((event.currentTarget as HTMLDetailsElement).open);
       }}
     >
-      <summary className="cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer select-none list-none items-start gap-2 marker:content-none [&::-webkit-details-marker]:hidden">
+        <DisclosureTriangleIndicator className="mt-0.5" />
         <div className="flex flex-col gap-0.5">
           <span className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{ASSISTANT_NOTES_TITLE}</span>
           {summaryStatus !== null ? (
