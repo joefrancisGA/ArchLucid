@@ -355,7 +355,7 @@
     {
       "nav_href": "/governance/setup",
       "nav_required_authority": "ReadAuthority",
-      "nav_source_file": "operate-policy-nav-group-builder.ts",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
       "controller_files": [],

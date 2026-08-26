@@ -34,6 +34,7 @@ public sealed class GovernanceCoverageController(
     IPolicyPackRepository policyPackRepository,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("coverage/preview")]
     [MutatingAuditExcluded("Read-only coverage preview; does not persist domain mutations.")]
     [ProducesResponseType(typeof(CoveragePreviewResponse), StatusCodes.Status200OK)]

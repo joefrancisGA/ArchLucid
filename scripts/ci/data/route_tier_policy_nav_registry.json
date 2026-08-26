@@ -632,16 +632,6 @@
       "nav_operator_href": "/governance/alerts"
     },
     {
-      "controller_file": "Alerts/AlertsController.cs",
-      "class_name": "AlertsController",
-      "route_template": "v{version:apiVersion}/alerts",
-      "normalized_prefix": "/v1/alerts",
-      "commercial_tier": "standard",
-      "class_policy": "ReadAuthority",
-      "exemption": null,
-      "nav_operator_href": "/governance/alerts"
-    },
-    {
       "controller_file": "Alerts/AlertSimulationController.cs",
       "class_name": "AlertSimulationController",
       "route_template": "v{version:apiVersion}/alert-simulation",
@@ -656,6 +646,16 @@
       "class_name": "AlertTuningController",
       "route_template": "v{version:apiVersion}/alert-tuning",
       "normalized_prefix": "/v1/alert-tuning",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/governance/alerts"
+    },
+    {
+      "controller_file": "Alerts/AlertsController.cs",
+      "class_name": "AlertsController",
+      "route_template": "v{version:apiVersion}/alerts",
+      "normalized_prefix": "/v1/alerts",
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
@@ -722,22 +722,22 @@
       "nav_operator_href": null
     },
     {
-      "controller_file": "Auth/AuthenticationSignInMethodsController.cs",
-      "class_name": "AuthenticationSignInMethodsController",
-      "route_template": "v{version:apiVersion}/auth/sign-in-methods",
-      "normalized_prefix": "/v1/auth/sign-in-methods",
-      "commercial_tier": "none",
-      "class_policy": "AuthenticatedUserOnly",
-      "exemption": null,
-      "nav_operator_href": null
-    },
-    {
       "controller_file": "Auth/AuthSignInRoutingController.cs",
       "class_name": "AuthSignInRoutingController",
       "route_template": "v{version:apiVersion}/auth/routing",
       "normalized_prefix": "/v1/auth/routing",
       "commercial_tier": "none",
       "class_policy": "AllowAnonymous",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Auth/AuthenticationSignInMethodsController.cs",
+      "class_name": "AuthenticationSignInMethodsController",
+      "route_template": "v{version:apiVersion}/auth/sign-in-methods",
+      "normalized_prefix": "/v1/auth/sign-in-methods",
+      "commercial_tier": "none",
+      "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -846,6 +846,16 @@
       "class_name": "AuthorityQueryController",
       "route_template": "v{version:apiVersion}/authority",
       "normalized_prefix": "/v1/authority",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/AuthorityReadsController.cs",
+      "class_name": "AuthorityReadsController",
+      "route_template": "v{version:apiVersion}/runs",
+      "normalized_prefix": "/v1/runs",
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
       "exemption": null,

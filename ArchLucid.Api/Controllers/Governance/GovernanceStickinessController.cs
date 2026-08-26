@@ -223,6 +223,7 @@ public sealed class GovernanceStickinessController(
         return Ok(history);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("risk-exceptions")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RiskExceptionRecord), StatusCodes.Status200OK)]
@@ -259,6 +260,7 @@ public sealed class GovernanceStickinessController(
         return Ok(records);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("risk-exceptions/{riskExceptionId:guid}/revoke")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -270,6 +272,7 @@ public sealed class GovernanceStickinessController(
         return NoContent();
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("risk-exceptions/{riskExceptionId:guid}/renew")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RiskExceptionRecord), StatusCodes.Status200OK)]
@@ -300,6 +303,7 @@ public sealed class GovernanceStickinessController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("recurrence-schedules")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ArchitectureReviewRecurrenceSchedule), StatusCodes.Status200OK)]
@@ -335,6 +339,7 @@ public sealed class GovernanceStickinessController(
         return Ok(schedules);
     }
 
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("recurrence-schedules/preview-next-runs")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Read-only recurrence schedule preview; no schedule persisted.")]
@@ -412,6 +417,7 @@ public sealed class GovernanceStickinessController(
         return NoContent();
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId:guid}/finding-merge-conflicts/{findingId}/resolve")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
