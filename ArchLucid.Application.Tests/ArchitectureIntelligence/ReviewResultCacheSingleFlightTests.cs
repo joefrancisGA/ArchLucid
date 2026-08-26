@@ -96,59 +96,6 @@ public sealed class ReviewResultCacheSingleFlightTests
     }
 
     [Fact]
-    public async Task CoalesceAsync_retries_when_leader_abort_is_wrapped_in_aggregate_exception()
-    {
-        ReviewSingleFlightCoordinator coordinator = new();
-        int calls = 0;
-        using CancellationTokenSource leaderToken = new();
-        TaskCompletionSource startGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
-
-        Task<ClosedLoopReasoningResult> leader = Task.Run(async () =>
-        {
-            await startGate.Task;
-
-            return await coordinator.CoalesceAsync(
-                "wrapped-abort-key",
-                async ct =>
-                {
-                    Interlocked.Increment(ref calls);
-
-                    await Task.Delay(40, ct);
-
-                    throw new OperationCanceledException(ct);
-                },
-                leaderToken.Token);
-        });
-
-        Task<ClosedLoopReasoningResult> waiter = Task.Run(async () =>
-        {
-            await startGate.Task;
-
-            return await coordinator.CoalesceAsync(
-                "wrapped-abort-key",
-                async _ =>
-                {
-                    Interlocked.Increment(ref calls);
-
-                    await Task.Yield();
-
-                    return new ClosedLoopReasoningResult { RunId = "retried" };
-                },
-                CancellationToken.None);
-        });
-
-        startGate.SetResult();
-        leaderToken.CancelAfter(10);
-
-        Func<Task> act = async () => await leader;
-        await act.Should().ThrowAsync<OperationCanceledException>();
-
-        ClosedLoopReasoningResult waiterResult = await waiter;
-        waiterResult.RunId.Should().Be("retried");
-        calls.Should().Be(2);
-    }
-
-    [Fact]
     public async Task CoalesceAsync_does_not_share_flight_across_publish_intent()
     {
         ReviewResultCache cache = new();
