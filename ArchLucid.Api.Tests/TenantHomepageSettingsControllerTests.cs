@@ -116,6 +116,24 @@ public sealed class TenantHomepageSettingsControllerTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    [Fact]
+    public async Task PutAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(
+            service.Object,
+            tenantExists: false);
+
+        IActionResult action = await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest { SelectedRunId = null },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        service.VerifyNoOtherCalls();
+    }
+
     private static TenantHomepageSettingsController CreateController(
         IFeaturedCompletedSampleService service,
         bool tenantExists = true)

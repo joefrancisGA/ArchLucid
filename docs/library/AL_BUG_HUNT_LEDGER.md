@@ -2212,8 +2212,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 34
-- **bugs-found:** 96
+- **hunts:** 35
+- **bugs-found:** 100
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
 - **last-bug:** 2026-08-26 — funnel first-manifest SQL, preview activation binding, setup bundle, promote linkage
@@ -2330,6 +2330,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.UpsertRealizedValueAttestation` — negative `attestedIncidentsAvoided` or oversized note persisted without validation — **hit 2026-08-26:** `RealizedValueAttestationUpsertValidation` before persist; controller maps `ArgumentException` to 400; regression in `RealizedValueAttestationServiceTests` and `GovernanceStickinessControllerTests`.
 - [x] (invalid) `GovernanceController.DryRunPolicyPack` / batch dry-run — foreign `policyPackId` evaluated without scope visibility check — **cheap-disproof 2026-08-26:** `PolicyPackDryRunService.EnsurePolicyPackInScopeAsync` already guards; regression in `PolicyPackDryRunServiceTests.EvaluateAsync_throws_when_policy_pack_is_out_of_scope`.
 - [x] (invalid) `TenantUsageStatusController.GetAsync` — missing tenant returns HTTP 200 default status instead of 404 — **cheap-disproof 2026-08-26:** `TenantUsageStatusService.BuildAsync` returns null for missing tenant; controller returns 404; regression in `TenantUsageStatusControllerTests.GetUsageStatusAsync_returns_not_found_when_tenant_missing`.
+
+- [x] (proven) `PolicyPacksController.Simulate` — missing `runId` or `content` dereferenced before validation (HTTP 500 risk) — **hit 2026-08-26:** explicit 400 guards before `SimulateAsync` (governance simulate parity); regression in `PolicyPacksControllerSimulateTests`.
+- [x] (proven) `TenantHomepageSettingsController.PutAsync` — missing tenant returned HTTP 200 while GET returned 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync` (GET parity); regression in `TenantHomepageSettingsControllerTests.PutAsync_returns_not_found_when_tenant_missing`.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — ghost tenant accepted feedback while GET returned 404 — **hit 2026-08-26:** `EnsureTenantExistsAsync` preflight on POST (GET parity); regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_not_found_when_tenant_missing`.
+- [x] (proven) `TenantIntegrationsOperationsController.GetAsync` — missing tenant returned HTTP 200 connector posture — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantIntegrationsOperationsControllerTests.GetAsync_returns_not_found_when_tenant_missing`.
+- [ ] (candidate) `GovernanceController.GetDashboard` — ghost tenant returns HTTP 200 empty dashboard instead of 404.
+- [ ] (candidate) `GovernanceController.DryRunPolicyPack` — all out-of-scope `evaluateAgainstRunIds` return HTTP 200 with `runMissing` instead of 404.
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` — all out-of-scope `runIds` return HTTP 200 summary instead of 404.
+- [ ] (candidate) `TenantTrialController.ConvertTrialAsync` — unrecognized `TargetTier` silently defaults to Standard instead of 400.
+
+2026-08-26 seed hunt #110: proved policy-packs simulate validation, homepage PUT tenant 404, customer-success POST tenant 404, and integrations operations GET tenant 404; seeded dashboard ghost tenant, dry-run all-missing-runs status, simulate-bulk all-missing-runs status, and convert-trial tier validation candidates.
 
 2026-08-26 thorough hunt #109: proved customer-success GET tenant 404, merge-conflict run-scope 404 parity, and realized-value attestation validation; cheap-disproved DryRunPolicyPack scope (already fixed) and usage-status tenant 404 (already guarded).
 

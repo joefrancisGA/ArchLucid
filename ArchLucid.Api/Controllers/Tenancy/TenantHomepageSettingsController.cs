@@ -102,6 +102,11 @@ public sealed class TenantHomepageSettingsController(
         }
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         string actor = User?.Identity?.Name ?? "operator";
         FeaturedCompletedSampleSnapshot snapshot;
 

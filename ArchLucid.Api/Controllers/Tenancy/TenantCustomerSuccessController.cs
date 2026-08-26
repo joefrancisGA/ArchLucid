@@ -225,6 +225,11 @@ public sealed class TenantCustomerSuccessController(
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        IActionResult? tenantError = await EnsureTenantExistsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantError is not null)
+            return tenantError;
+
         if (request.RunId is Guid runId)
         {
             RunRecord? run = await _runRepository

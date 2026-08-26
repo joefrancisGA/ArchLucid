@@ -210,6 +210,37 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [Fact]
+    public async Task PostProductFeedbackAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            tenantRepository: tenants.Object);
+
+        ProductFeedbackRequest request = new()
+        {
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.Verify(
+            r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task GetStickinessSnapshotAsync_merges_funnel_and_signals()
     {
         Mock<ITenantCustomerSuccessRepository> repo = new();
