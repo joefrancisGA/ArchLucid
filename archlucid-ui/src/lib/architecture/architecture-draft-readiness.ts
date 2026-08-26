@@ -4,7 +4,11 @@ import {
 import { buildDefaultActorSet } from "@/lib/api/draft-intake-api";
 import { isArchitectureCreationBootstrapIntent } from "@/lib/architecture/architecture-creation-bootstrap";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
-import { stripScopeUnderstandingSection } from "@/lib/architecture/architecture-scope-understanding-check";
+import {
+  mergeScopeBulletsIntoBrief,
+  stripScopeUnderstandingSection,
+  type ScopeUnderstandingBullet,
+} from "@/lib/architecture/architecture-scope-understanding-check";
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
 
 import type { ArchitectureReviewReadinessBlockerId } from "./architecture-review-readiness-copy";
@@ -78,14 +82,19 @@ export type ArchitectureDraftPatchPayload = {
 export function buildArchitectureDraftPatchPayload(
   fields: ArchitectureDraftFieldState,
   actorSet: ActorSet,
+  confirmedScopeBullets?: readonly ScopeUnderstandingBullet[],
 ): ArchitectureDraftPatchPayload {
-  const trimmedIntent = fields.freeTextIntent.trim();
+  const strippedIntent = fields.freeTextIntent.trim();
+  const intentForPatch =
+    confirmedScopeBullets !== undefined && confirmedScopeBullets.length > 0
+      ? mergeScopeBulletsIntoBrief(confirmedScopeBullets, strippedIntent).trim()
+      : strippedIntent;
   const trimmedOutcome = fields.businessOutcome.trim();
   const trimmedSystemName = fields.systemName.trim();
 
   return {
-    ...(trimmedIntent.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS
-      ? { freeTextIntent: trimmedIntent }
+    ...(intentForPatch.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS
+      ? { freeTextIntent: intentForPatch }
       : {}),
     businessOutcome: trimmedOutcome,
     ...(trimmedSystemName.length > 0 ? { systemName: trimmedSystemName } : {}),
