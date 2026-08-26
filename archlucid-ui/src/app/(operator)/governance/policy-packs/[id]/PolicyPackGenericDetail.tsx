@@ -9,7 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { StatusTag } from "@/components/ui/status-tag";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  buildPolicyPacksHrefWithReviewId,
+  POLICY_PACKS_REVIEW_ID_QUERY_PARAM,
+} from "@/lib/policy-packs-review-handoff";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
@@ -44,6 +47,7 @@ type PolicyPackGenericDetailProps = {
   readonly packContent: PolicyPackContentDocument | null;
   readonly isEnabled: boolean;
   readonly isGloballyActive: boolean;
+  readonly scopedReviewId?: string;
 };
 
 function formatPackDate(value: string | null | undefined): string {
@@ -82,6 +86,13 @@ function resolveEnablementStatusTag(isEnabled: boolean, isGloballyActive: boolea
 
 export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): React.JSX.Element {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
+  const scopedReviewId = (props.scopedReviewId ?? "").trim();
+  const policyPacksHubHref =
+    scopedReviewId.length > 0 ? buildPolicyPacksHrefWithReviewId(scopedReviewId) : GOVERNANCE_POLICY_PACKS_PATH;
+  const policyPacksEditTargetHref =
+    scopedReviewId.length > 0
+      ? `${policyPacksEditHref(policyPackId)}&${POLICY_PACKS_REVIEW_ID_QUERY_PARAM}=${encodeURIComponent(scopedReviewId)}`
+      : policyPacksEditHref(policyPackId);
   const packName = packRecord.name.trim().length > 0 ? packRecord.name.trim() : "Policy pack";
   const description =
     packRecord.description.trim().length > 0
@@ -95,7 +106,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
   return (
     <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="policy-pack-generic-detail">
       <OperatorPageHeader
-        navHref={GOVERNANCE_POLICY_PACKS_PATH}
+        navHref={policyPacksHubHref}
         title={packName}
         subtitle={description}
         titleTestId="policy-pack-detail-title"
@@ -107,7 +118,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
         statusBadge={resolveEnablementStatusTag(isEnabled, isGloballyActive)}
         actions={
           <Button asChild variant="default" size="sm" data-testid="policy-pack-primary-action">
-            <Link href={policyPacksEditHref(policyPackId)}>{RESPONSIBLE_AI_ACTION_ASSIGN_TO_WORKSPACE}</Link>
+            <Link href={policyPacksEditTargetHref}>{RESPONSIBLE_AI_ACTION_ASSIGN_TO_WORKSPACE}</Link>
           </Button>
         }
       />
@@ -134,7 +145,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
       />
 
       <nav className="flex flex-wrap gap-x-4 gap-y-2" aria-label="Policy pack actions">
-        <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_POLICY_PACKS_PATH}>
+        <Link className={OPERATOR_LINK.inline} href={policyPacksHubHref}>
           {RESPONSIBLE_AI_ACTION_OPEN_LIBRARY}
         </Link>
         <Link className={OPERATOR_LINK.inline} href={reviewsNewWithPackHref(policyPackId)}>
