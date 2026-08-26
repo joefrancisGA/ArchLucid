@@ -160,8 +160,15 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         ArchitectureIntelligenceBudgetDecision budget,
         CancellationToken cancellationToken)
     {
+        ArchitectureKnowledgeModel? existing = await TryLoadExistingModelAsync(tenantId, runId, cancellationToken);
+        IReadOnlyList<TechnologyLedgerEntry>? ledgerEntries = await TryLoadLedgerEntriesAsync(runId, cancellationToken);
         ReviewCacheDependencyManifest continueManifest =
-            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(tenantId, runId);
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                effectiveRequest,
+                tenantId,
+                runId,
+                existing,
+                ledgerEntries);
 
         return FinalizeCoalescedReviewResult(
             await _reviewResultCache.CoalesceAsync(

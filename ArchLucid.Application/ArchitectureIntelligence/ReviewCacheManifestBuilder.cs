@@ -29,22 +29,29 @@ public static class ReviewCacheManifestBuilder
     }
 
     public static ReviewCacheDependencyManifest BuildContinueFromExistingRunCoalesceManifest(
+        ClosedLoopReasoningRequest request,
         string tenantId,
-        string runId)
+        string runId,
+        ArchitectureKnowledgeModel? baselineKnowledgeModel = null,
+        IReadOnlyList<TechnologyLedgerEntry>? technologyLedgerEntries = null)
     {
+        ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
+        ReviewCacheDependencyManifest contentManifest =
+            Build(request, baselineKnowledgeModel, technologyLedgerEntries);
+
         return new ReviewCacheDependencyManifest
         {
-            ContentHash = Sha256Hex($"continue|{tenantId}|{runId}"),
-            PromptVersion = ArchitectureIntelligenceCacheVersions.PromptVersion,
-            ModelVersion = ArchitectureIntelligenceCacheVersions.ModelVersion,
-            PolicyPackVersion = ArchitectureIntelligenceCacheVersions.PolicyPackVersion,
-            RubricVersion = ArchitectureIntelligenceCacheVersions.RubricVersion,
-            TenantConfigurationHash = Sha256Hex(tenantId),
-            DeclaredPrioritiesHash = Sha256Hex(string.Empty),
-            SchemaVersion = ArchitectureIntelligenceCacheVersions.SchemaVersion,
+            ContentHash = Sha256Hex($"continue|{tenantId}|{runId}|{contentManifest.ContentHash}"),
+            PromptVersion = contentManifest.PromptVersion,
+            ModelVersion = contentManifest.ModelVersion,
+            PolicyPackVersion = contentManifest.PolicyPackVersion,
+            RubricVersion = contentManifest.RubricVersion,
+            TenantConfigurationHash = contentManifest.TenantConfigurationHash,
+            DeclaredPrioritiesHash = contentManifest.DeclaredPrioritiesHash,
+            SchemaVersion = contentManifest.SchemaVersion,
             ReuseReason = "closed-loop-continue-existing",
         };
     }
