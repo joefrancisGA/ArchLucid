@@ -21,6 +21,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OperatorInventoryRowMoreActions } from "@/components/operator/OperatorInventoryRowMoreActions";
 import { RecurrenceSchedulesPickReviewBeforeSchedulingStrip } from "@/components/governance/RecurrenceSchedulesPickReviewBeforeSchedulingStrip";
+import { RecurrenceSchedulesNextReviewFooterClient } from "@/components/governance/RecurrenceSchedulesNextReviewFooterClient";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceSchedulesContinueLastViewedRow } from "@/components/governance/RecurrenceSchedulesContinueLastViewedRow";
 import { RecurrenceScheduleCreatePanel } from "@/components/governance/RecurrenceScheduleCreatePanel";
@@ -766,6 +767,8 @@ export default function RecurrenceSchedulesClient() {
             });
         }}
       />
+
+      {scopedRunFilterActive ? <RecurrenceSchedulesNextReviewFooterClient runId={scopedRunId} /> : null}
     </OperatorPageContainer>
   );
 }
