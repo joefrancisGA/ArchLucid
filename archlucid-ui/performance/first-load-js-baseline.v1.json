@@ -31,5 +31,5 @@
       "firstLoadJsKb": 829.3
     }
   },
-  "notes": "RC32 CI run 32565972405: refresh First Load JS baselines after merge-driven bundle growth beyond +25 kB tolerance on operator routes."
+  "notes": "RC33 CI3588 (32988514356): refresh First Load JS baselines after RC33 merge-driven bundle drift on marketing and operator routes."
 }
