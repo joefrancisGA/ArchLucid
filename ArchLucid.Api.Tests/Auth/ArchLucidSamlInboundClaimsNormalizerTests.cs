@@ -122,6 +122,35 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
         identity.HasClaim("project_id", "also-not-a-guid").Should().BeFalse();
     }
 
+    [Fact]
+    public void Apply_replaces_conflicting_scope_claim_with_configured_source_value()
+    {
+        Guid wrongTenantId = Guid.NewGuid();
+        Guid correctTenantId = ScopeIds.DefaultTenant;
+        Guid wrongWorkspaceId = Guid.NewGuid();
+        Guid correctWorkspaceId = Guid.NewGuid();
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("tenant_id", wrongTenantId.ToString("D")),
+            new Claim("workspace_id", wrongWorkspaceId.ToString("D")),
+            new Claim("http://idp.example/tenant", correctTenantId.ToString("D")),
+            new Claim("http://idp.example/workspace", correctWorkspaceId.ToString("D")));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                TenantIdClaimType = "http://idp.example/tenant",
+                WorkspaceIdClaimType = "http://idp.example/workspace",
+            });
+
+        identity.Claims.Count(static c => c.Type == "tenant_id").Should().Be(1);
+        identity.Claims.Count(static c => c.Type == "workspace_id").Should().Be(1);
+        identity.FindFirst("tenant_id")!.Value.Should().Be(correctTenantId.ToString("D"));
+        identity.FindFirst("workspace_id")!.Value.Should().Be(correctWorkspaceId.ToString("D"));
+    }
+
     private static ClaimsIdentity CreateSamlIdentity(params Claim[] claims) =>
         new(claims, Saml2Constants.AuthenticationScheme);
 }
