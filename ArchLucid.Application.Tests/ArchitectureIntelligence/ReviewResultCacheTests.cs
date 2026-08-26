@@ -181,6 +181,26 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void Set_skips_insert_when_sanitized_run_id_matches_tombstone()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest pinnedManifest = new() { ContentHash = "hash-tombstone-set-sanitize" };
+        string storageKey = ReviewCacheKeyBuilder.Build(pinnedManifest);
+
+        cache.Set(pinnedManifest, new ClosedLoopReasoningResult { RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" });
+        cache.PinStorageKey(storageKey);
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        ReviewCacheDependencyManifest blockedManifest = new() { ContentHash = "hash-tombstone-set-blocked" };
+        cache.Set(
+            blockedManifest,
+            new ClosedLoopReasoningResult { RunId = " aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa " });
+
+        cache.TryGet(blockedManifest, out ClosedLoopReasoningResult? blocked).Should().BeFalse();
+        blocked.Should().BeNull();
+    }
+
+    [Fact]
     public void InvalidateForRun_without_entries_allows_subsequent_set()
     {
         ReviewResultCache cache = new();
