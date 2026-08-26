@@ -6,6 +6,8 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 public sealed class ReviewResultCache : IReviewResultCache
 {
     private const int MaxEntries = 128;
+    private const int MaxPinnedRefcountPerKey = 64;
+    private const int MaxTombstonedRunIds = 64;
     private static readonly TimeSpan EntryTtl = TimeSpan.FromHours(4);
 
     private readonly ConcurrentDictionary<string, CacheEntry> _cache = new(StringComparer.Ordinal);
@@ -129,8 +131,16 @@ public sealed class ReviewResultCache : IReviewResultCache
             }
 
             if (anyPinnedMatch)
-                _deferredInvalidateRunIds.Add(normalizedRunId);
+                AddTombstonedRunId(normalizedRunId);
         }
+    }
+
+    private void AddTombstonedRunId(string normalizedRunId)
+    {
+        while (_deferredInvalidateRunIds.Count >= MaxTombstonedRunIds && _deferredInvalidateRunIds.Count > 0)
+            _deferredInvalidateRunIds.Remove(_deferredInvalidateRunIds.First());
+
+        _deferredInvalidateRunIds.Add(normalizedRunId);
     }
 
     internal static string BuildStorageKey(ReviewCacheDependencyManifest manifest)
@@ -169,7 +179,11 @@ public sealed class ReviewResultCache : IReviewResultCache
         lock (_evictionLock)
         {
             _pinnedStorageKeyRefcounts.TryGetValue(storageKey, out int count);
-            _pinnedStorageKeyRefcounts[storageKey] = count + 1;
+
+            if (count >= MaxPinnedRefcountPerKey)
+                _pinnedStorageKeyRefcounts[storageKey] = MaxPinnedRefcountPerKey;
+            else
+                _pinnedStorageKeyRefcounts[storageKey] = count + 1;
         }
     }
 
@@ -271,13 +285,9 @@ public sealed class ReviewResultCache : IReviewResultCache
         if (string.IsNullOrWhiteSpace(runId))
             return false;
 
-        foreach (string tombstonedRunId in _deferredInvalidateRunIds)
-        {
-            if (ClosedLoopRunIdComparer.Equals(runId, tombstonedRunId))
-                return true;
-        }
+        string normalizedRunId = ClosedLoopRunIdComparer.Normalize(runId);
 
-        return false;
+        return _deferredInvalidateRunIds.Contains(normalizedRunId);
     }
 
     private bool IsStorageKeyPinnedUnlocked(string storageKey)

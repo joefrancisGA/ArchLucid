@@ -213,6 +213,30 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void InvalidateForRun_tombstone_matches_hyphenated_run_id_on_set()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-tombstone-hyphen" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" });
+        cache.PinStorageKey(storageKey);
+
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" });
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
+        stillPinned!.RunId.Should().Be("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+        cache.UnpinStorageKey(storageKey);
+    }
+
+    [Fact]
     public void InvalidateForRun_removes_entries_for_matching_run_id_regardless_of_guid_format()
     {
         ReviewResultCache cache = new();
