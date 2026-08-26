@@ -439,11 +439,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 4
-- **bugs-found:** 5
+- **hunts:** 5
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — verify response echoed null tenant/workspace while JWT used `TrialLocalJwtScopeDefaults`; verify HTTP logged `EmailOtpCodeRequested`; SSO-blocked verify skipped `EmailOtpVerificationFailed` audit
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — HTTP challenge logged duplicate `EmailOtpCodeRequested` alongside service
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -457,6 +457,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `EmailOtpAuthController.VerifyAsync` JWT/response tenant-workspace desync — **hit 2026-08-25:** response echoed null `result.TenantId`/`WorkspaceId` while JWT fell back to `TrialLocalJwtScopeDefaults`; fixed by returning resolved scope in `EmailOtpVerifyResponse`; regression `VerifyAsync_response_scope_matches_jwt_when_service_returns_null_tenant_workspace`
 - [x] (proven) `EmailOtpAuthController.VerifyAsync` wrong verify audit event — **hit 2026-08-25:** HTTP verify logged `EmailOtpCodeRequested` with `email_otp_verify_http`, conflating challenge and verify telemetry; removed controller audit (service emits `EmailOtpVerificationSucceeded`/`Failed`); `[MutatingAuditExcluded]` + regression `VerifyAsync_does_not_log_email_otp_code_requested_audit`
 - [x] (proven) `EmailOtpAuthService.VerifyCodeAsync` SSO-blocked verify missing audit — **hit 2026-08-25:** `RequireEnterpriseSso` path passed `emailCorrelation: null` to `FailWithAuditAsync`, skipping `EmailOtpVerificationFailed`; fixed by correlating from challenge email before SSO gate; regression `VerifyCodeAsync_audits_sso_required_failure_for_stale_challenge_when_domain_now_requires_sso`
+- [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` duplicate `EmailOtpCodeRequested` audit — **hit 2026-08-26:** HTTP challenge logged `EmailOtpCodeRequested` with `email_otp_challenge_http` before service also logged `EmailOtpCodeRequested`, doubling telemetry for valid emails; removed controller audit, added `[MutatingAuditExcluded]`, and preserved invalid-email audit in `EmailOtpRequestFlow`; regression `RequestChallengeAsync_logs_email_otp_code_requested_once_for_valid_email` + `RequestCodeAsync_returns_neutral_message_for_invalid_email_and_audits_once`
+
+2026-08-26 seed hunt #5: reseeded challenge HTTP audit path; proved duplicate `EmailOtpCodeRequested` on valid challenge requests.
 
 ---
 

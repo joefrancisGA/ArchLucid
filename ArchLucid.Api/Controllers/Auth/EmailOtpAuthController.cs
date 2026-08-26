@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Models.Auth;
 using ArchLucid.Api.ProblemDetails;
@@ -8,7 +6,6 @@ using ArchLucid.Application.Audit;
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Identity;
 using ArchLucid.Core.Security;
 
 using Asp.Versioning;
@@ -29,12 +26,8 @@ namespace ArchLucid.Api.Controllers.Auth;
 public sealed class EmailOtpAuthController(
     IOptions<EmailOtpAuthOptions> emailOtpOptions,
     IEmailOtpAuthService emailOtpAuth,
-    ILocalTrialJwtIssuer jwtIssuer,
-    IAuditService auditService) : ControllerBase
+    ILocalTrialJwtIssuer jwtIssuer) : ControllerBase
 {
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
-
     private readonly IEmailOtpAuthService _emailOtpAuth =
         emailOtpAuth ?? throw new ArgumentNullException(nameof(emailOtpAuth));
 
@@ -46,6 +39,7 @@ public sealed class EmailOtpAuthController(
     /// <summary>Requests a short-lived sign-in code for the supplied email address.</summary>
     [HttpPost("challenge")]
     [EnableRateLimiting("email-otp")]
+    [MutatingAuditExcluded("Audit: IEmailOtpAuthService.RequestCodeAsync logs EmailOtpCodeRequested and related identity events.")]
     [ProducesResponseType(typeof(EmailOtpChallengeResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> RequestChallengeAsync(
         [FromBody] ArchLucid.Api.Models.Auth.EmailOtpChallengeRequest? body,
@@ -60,20 +54,6 @@ public sealed class EmailOtpAuthController(
         {
             return this.BadRequestProblem("Email is required.", ProblemTypes.ValidationFailed);
         }
-
-        string actorId = ResolveEmailCorrelationActor(body.Email);
-
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.EmailOtpCodeRequested,
-                ActorUserId = actorId,
-                ActorUserName = actorId,
-                ExplicitActor = true,
-                TenantId = Guid.Empty,
-                DataJson = JsonSerializer.Serialize(new { channel = "email_otp_challenge_http" })
-            },
-            cancellationToken).ConfigureAwait(false);
 
         EmailOtpChallengeRequestResult result = await _emailOtpAuth.RequestCodeAsync(
             new Application.Identity.EmailOtpChallengeRequest
@@ -171,14 +151,4 @@ public sealed class EmailOtpAuthController(
     }
 
     private bool IsEmailOtpEnabled() => _emailOtpOptions.Enabled;
-
-    private static string ResolveEmailCorrelationActor(string email)
-    {
-        if (!IdentityEmailNormalizer.TryNormalize(email, out string normalizedEmail, out _))
-        {
-            return "invalid-email";
-        }
-
-        return EmailOtpCorrelationFingerprint.ComputeHexPrefix(normalizedEmail);
-    }
 }
