@@ -311,7 +311,7 @@ export default function DecisionRegisterClient() {
       ) : null}
 
       {!loading && !loadError && continueLastDecision !== null ? (
-        <DecisionRegisterContinueLastViewedRow decision={continueLastDecision} />
+        <DecisionRegisterContinueLastViewedRow decision={continueLastDecision} scopedRunId={scopedRunId} />
       ) : null}
 
       {loading ? <DecisionRegisterLoadingSkeleton /> : null}

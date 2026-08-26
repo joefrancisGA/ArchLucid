@@ -45,6 +45,21 @@ export function signedRecordDetailPath(manifestId: string): string {
   return `${SIGNED_RECORDS_LIST_PATH}/${encodeURIComponent(manifestId.trim())}`;
 }
 
+/** Sealed-record detail URL with optional list review scope. */
+export function signedRecordScopedHref(manifestId: string, runId?: string | null): string {
+  const path = signedRecordDetailPath(manifestId);
+  const scopedRunId = runId?.trim() ?? "";
+
+  if (scopedRunId.length === 0) {
+    return path;
+  }
+
+  const params = new URLSearchParams();
+  params.set("runId", scopedRunId);
+
+  return `${path}?${params.toString()}`;
+}
+
 /** Run-scoped sealed record CTA — opens the review package (manifest section when finalized). */
 export function reviewSignedRecordPath(runId: string): string {
   return reviewDetailPath(runId);
