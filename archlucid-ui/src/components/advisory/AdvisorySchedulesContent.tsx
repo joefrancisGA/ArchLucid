@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { useAdvisoryScheduleReviewAvailability } from "@/hooks/use-advisory-schedule-review-availability";
@@ -11,6 +13,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { AdvisoryScheduleCreateForm } from "@/components/advisory/AdvisoryScheduleCreateForm";
 import { AdvisorySchedulesContinueLastViewedRow } from "@/components/advisory/AdvisorySchedulesContinueLastViewedRow";
 import { AdvisorySchedulesNextReviewFooterClient } from "@/components/advisory/AdvisorySchedulesNextReviewFooterClient";
+import { AdvisorySchedulesPickReviewBeforeSchedulingStrip } from "@/components/advisory/AdvisorySchedulesPickReviewBeforeSchedulingStrip";
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -72,6 +75,8 @@ import {
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
+import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
@@ -112,6 +117,8 @@ export type AdvisorySchedulesContentProps = {
 };
 
 export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = {}): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const sampleModeBlocked =
     isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
@@ -119,6 +126,21 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
     callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority && !sampleModeBlocked;
   const scopedRunId = (props.initialRunId ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+
+  const onPickReview = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      router.push(buildAdvisoryHubHref({ pathname, tab: "schedules", runId: trimmed }));
+    },
+    [pathname, router],
+  );
+
+  const schedulesClearScopeHref = buildAdvisoryHubHref({ pathname, tab: "schedules", runId: null });
 
   const [schedules, setSchedules] = useState<AdvisoryScanSchedule[]>([]);
   const [executionsBySchedule, setExecutionsBySchedule] = useState<Record<string, AdvisoryScanExecution[]>>(
@@ -419,6 +441,29 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
           currentSurfaceId="advisory-schedules"
           peerLinkLabel={ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL}
         />
+
+        {!scopedRunFilterActive ? (
+          <AdvisorySchedulesPickReviewBeforeSchedulingStrip selectedReviewId="" onSelectReview={onPickReview} />
+        ) : (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="advisory-schedules-run-scope-banner"
+          >
+            {"Scheduling advisory scans for review "}
+            <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+            {" · "}
+            <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={schedulesClearScopeHref}>
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
+              href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            >
+              Open review
+            </Link>
+          </p>
+        )}
 
         {failure !== null ? (
           <div role="alert">
