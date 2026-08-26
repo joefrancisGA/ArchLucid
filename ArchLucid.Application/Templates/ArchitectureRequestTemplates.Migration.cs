@@ -147,7 +147,7 @@ public static partial class ArchitectureRequestTemplates
                 customer accounts, and settlement with external networks. Produce clear PCI DSS scope artifacts (CDE boundaries,
                 PAN minimization/tokenization vault), strong customer and operator authentication posture, transactional integrity on
                 journal postings (idempotency, balanced double-entry assumptions), nightly and intraday reconciliation with
-                PSP/acquirer files, AML and fraud-detection pipelines that stay materially separated from CHD stores, audit evidence
+                PSP/acquirer files, AML and fraud-detection pipelines that stay materially separated from cardholder data stores, audit evidence
                 that SOX-aligned reviewers recognize (immutable logs, access reviews, segregation of duties), and Azure-native controls
                 (Key Vault/HSM-backed keys, CMK where warranted, Encryption everywhere, Private Link/private endpoints vs public data
                 planes by default).
@@ -165,10 +165,10 @@ public static partial class ArchitectureRequestTemplates
                 "Tokenization or vault service isolating PAN from application databases where feasible",
                 "Double-entry ledger with posting controls; idempotent payment capture and settlement hooks",
                 "PSP/acquirer file ingestion with automated exception queues and manual approval workflow",
-                "AML and fraud analytics on derived features without co-mingling raw CHD",
+                "AML and fraud analytics on derived features without co-mingling cardholder data",
                 "Azure Key Vault for keys/secrets; private connectivity to core banking and payment switches"
             ], [
-                ("Evidence — PCI scope and CHD boundaries", """
+                ("Evidence — PCI scope and cardholder data boundaries", """
                                                             **CDE:** Map every system that stores, processes, or transmits account data; draw trust boundaries between CDE,
                                                             tokenization services, and back-office analytics.
 
@@ -195,7 +195,7 @@ public static partial class ArchitectureRequestTemplates
                                                              reconciliation cadence automated with exception dashboards.
                                                              """),
                 ("Evidence — AML/fraud adjacency", """
-                                                   **AML:** Transaction monitoring aggregates on non-CHD dimensions; SAR workflow integration without exporting PAN.
+                                                   **AML:** Transaction monitoring aggregates on dimensions without cardholder data; SAR workflow integration without exporting PAN.
 
                                                    **Fraud:** Real-time scoring on session and device telemetry; supervised models trained on pseudonymous features —
                                                    forbid raw PAN in ML feature stores aligned to policy.
