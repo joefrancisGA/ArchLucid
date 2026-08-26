@@ -122,4 +122,25 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_NewlineDelimitedDocuments_MapsBothResources()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "cluster.json",
+            Format = "kubernetes-json",
+            DeclarationId = "decl-k8s-ndjson",
+            Content = """
+                      {"apiVersion":"v1","kind":"Pod","metadata":{"name":"api-a"}}
+                      {"apiVersion":"v1","kind":"Service","metadata":{"name":"api-svc"}}
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(o => o.Name == "api-a" && o.Properties["k8s.kind"] == "pod");
+        result.Should().ContainSingle(o => o.Name == "api-svc" && o.Properties["k8s.kind"] == "service");
+    }
 }

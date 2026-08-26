@@ -916,6 +916,68 @@ public sealed class ContextIngestionServiceTests
     }
 
     [Fact]
+    public async Task IngestAsync_ActorsJsonLabelValueCasing_ProducesStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string titleCaseLabel = """
+                                      [
+                                        {
+                                          "label": "Ops Engineer",
+                                          "kind": "Human",
+                                          "trustOrigin": "Internal",
+                                          "contract": "Sync",
+                                          "origin": "Asserted",
+                                          "confidence": 100
+                                        }
+                                      ]
+                                      """;
+
+        const string lowerCaseLabel = """
+                                      [
+                                        {
+                                          "label": "ops engineer",
+                                          "kind": "Human",
+                                          "trustOrigin": "Internal",
+                                          "contract": "Sync",
+                                          "origin": "Asserted",
+                                          "confidence": 100
+                                        }
+                                      ]
+                                      """;
+
+        const string projectId = "proj-actors-label-casing";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            ActorsJson = titleCaseLabel
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            ActorsJson = lowerCaseLabel
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.Actors);
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.Actors]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.Actors]);
+    }
+
+    [Fact]
     public async Task IngestAsync_InvalidActorsJsonPadding_ProducesStableScopeMetadata()
     {
         InMemoryContextSnapshotRepository repo = new();

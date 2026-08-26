@@ -71,4 +71,26 @@ public sealed class BicepInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_DuplicateSymbolicNamesDifferentApiVersion_EmitsDistinctObjectIds()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            DeclarationId = "decl-bicep-dup",
+            Content = """
+                      resource storage 'Microsoft.Storage/storageAccounts@2021-01-01' = {
+                      }
+                      resource storage 'Microsoft.Storage/storageAccounts@2022-01-01' = {
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
+    }
 }

@@ -91,4 +91,31 @@ public sealed class KubernetesYamlInfrastructureDeclarationParserTests
         result.Should().ContainSingle(o => o.Name == "prod/api" && o.ObjectType == "TopologyResource");
         result.Should().ContainSingle(o => o.Name == "prod/deny-all" && o.ObjectType == "SecurityBaseline");
     }
+
+    [Fact]
+    public async Task ParseAsync_SpacePrefixedDocumentSeparator_MapsBothPods()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "pods.yaml",
+            Format = "kubernetes-yaml",
+            DeclarationId = "decl-k8s-yaml-padded-separator",
+            Content = """
+                      apiVersion: v1
+                      kind: Pod
+                      metadata:
+                        name: pod-a
+                       ---
+                      apiVersion: v1
+                      kind: Pod
+                      metadata:
+                        name: pod-b
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(o => o.Name).Should().BeEquivalentTo(["pod-a", "pod-b"]);
+    }
 }

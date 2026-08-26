@@ -86,6 +86,32 @@ public sealed class ConnectorPayloadStageContractTests
     }
 
     [Fact]
+    public void PolicyReferencePayloadExtractor_Extract_DeduplicatesDocumentTopologyHints()
+    {
+        ContextIngestionRequest request = new()
+        {
+            PolicyReferences = ["soc2"],
+            TopologyHints = ["prod/vnet"],
+            Documents =
+            [
+                new ContextDocumentReference
+                {
+                    DocumentId = "doc-1",
+                    Name = "spec.txt",
+                    ContentType = "text/plain",
+                    Content = "TOP: prod/vnet\n"
+                }
+            ],
+            ProjectId = "p",
+            RunId = Guid.NewGuid()
+        };
+
+        PolicyReferencePayload typed = new PolicyReferencePayloadExtractor().Extract(request);
+
+        typed.TopologyHints.Should().Equal("prod/vnet");
+    }
+
+    [Fact]
     public async Task InlineRequirementsConnector_FetchNormalize_RoundTripsTypedStages()
     {
         ContextIngestionRequest request = new()

@@ -28,9 +28,9 @@ public sealed class KubernetesJsonInfrastructureDeclarationParser(
 
         try
         {
-            using JsonDocument document = JsonDocument.Parse(declaration.Content);
+            IReadOnlyList<JsonElement> documents = ParseJsonDocuments(declaration.Content);
             IReadOnlyList<CanonicalObject> results = KubernetesManifestCanonicalObjectMapper.MapDocuments(
-                [document.RootElement],
+                documents,
                 declaration);
 
             return Task.FromResult(results);
@@ -44,6 +44,38 @@ public sealed class KubernetesJsonInfrastructureDeclarationParser(
                 declaration.DeclarationId);
 
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
+        }
+    }
+
+    private static IReadOnlyList<JsonElement> ParseJsonDocuments(string content)
+    {
+        string trimmedContent = content.Trim();
+
+        if (string.IsNullOrWhiteSpace(trimmedContent))
+            return [];
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmedContent);
+
+            return [document.RootElement.Clone()];
+        }
+        catch (JsonException)
+        {
+            List<JsonElement> documents = [];
+
+            foreach (string line in trimmedContent.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+            {
+                string trimmedLine = line.Trim();
+
+                if (string.IsNullOrWhiteSpace(trimmedLine))
+                    continue;
+
+                using JsonDocument document = JsonDocument.Parse(trimmedLine);
+                documents.Add(document.RootElement.Clone());
+            }
+
+            return documents;
         }
     }
 }
