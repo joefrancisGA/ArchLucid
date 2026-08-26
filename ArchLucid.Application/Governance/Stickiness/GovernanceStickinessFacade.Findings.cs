@@ -19,6 +19,7 @@ public sealed partial class GovernanceStickinessFacade
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         await EnsureFindingInScopeAsync(scope, request.FindingId, ct);
+        await EnsureRunInScopeWhenProvidedAsync(scope, request.RunId, ct);
 
         return await _findingDispositionService.RecordAsync(
             request,
@@ -77,7 +78,24 @@ public sealed partial class GovernanceStickinessFacade
         if (!await IsFindingInScopeAsync(scope, findingId, ct))
             return [];
 
-        return await _findingDispositionService.ListHistoryAsync(scope.TenantId, findingId, ct);
+        return await _findingDispositionService.ListHistoryAsync(scope, findingId, ct);
+    }
+
+    private async Task EnsureRunInScopeWhenProvidedAsync(ScopeContext scope, Guid? runId, CancellationToken ct)
+    {
+        if (runId is not Guid resolvedRunId || resolvedRunId == Guid.Empty)
+            return;
+
+        Persistence.Models.RunRecord? run = await _runRepository
+            .GetByIdAsync(scope, resolvedRunId, ct)
+            .ConfigureAwait(false);
+
+        if (run is null)
+        {
+            throw new ArgumentException(
+                $"Run '{resolvedRunId:D}' was not found in the current scope.",
+                nameof(runId));
+        }
     }
 
     private async Task EnsureFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)

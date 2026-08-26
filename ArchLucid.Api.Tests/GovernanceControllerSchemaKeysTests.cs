@@ -3,6 +3,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
 
@@ -66,6 +67,7 @@ public sealed class GovernanceControllerSchemaKeysTests
             Mock.Of<IGovernanceEnvironmentActivationRepository>(),
             Mock.Of<IActorContext>(),
             Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IRunRepository>(),
             Mock.Of<IGovernanceDashboardService>(),
             Mock.Of<IGovernanceLineageService>(),
             Mock.Of<IGovernanceRationaleService>(),

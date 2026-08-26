@@ -80,7 +80,7 @@ public sealed class FindingDispositionConcurrentRaceTests
             CancellationToken.None);
 
         IReadOnlyList<FindingDispositionEventDto> history =
-            await sut.ListHistoryAsync(TenantId, "finding-race-001", CancellationToken.None);
+            await sut.ListHistoryAsync(Scope, "finding-race-001", CancellationToken.None);
 
         history.Should().HaveCount(2);
         history[0].Disposition.Should().Be(FindingDispositionKind.Remediated);
@@ -107,7 +107,7 @@ public sealed class FindingDispositionConcurrentRaceTests
             CancellationToken.None);
 
         IReadOnlyList<FindingDispositionEventDto> history =
-            await sut.ListHistoryAsync(TenantId, "finding-race-001", CancellationToken.None);
+            await sut.ListHistoryAsync(Scope, "finding-race-001", CancellationToken.None);
 
         history.Should().ContainSingle(item => item.EventId == first.EventId && item.Disposition == FindingDispositionKind.Deferred);
         history.Should().ContainSingle(item => item.EventId == second.EventId && item.Disposition == FindingDispositionKind.Remediated);

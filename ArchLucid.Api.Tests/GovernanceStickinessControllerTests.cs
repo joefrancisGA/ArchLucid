@@ -46,7 +46,7 @@ public sealed class GovernanceStickinessControllerTests
 
         Mock<IFindingDispositionService> dispositions = dispositionService ?? new Mock<IFindingDispositionService>();
         dispositions
-            .Setup(d => d.ListHistoryAsync(Scope.TenantId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(d => d.ListHistoryAsync(Scope, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
 
         Mock<IRiskExceptionService> riskExceptions = new();

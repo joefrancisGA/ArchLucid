@@ -47,6 +47,7 @@ public sealed class GovernanceControllerPolicyPackContentSchemaTests
             Mock.Of<IGovernanceEnvironmentActivationRepository>(),
             Mock.Of<IActorContext>(),
             Mock.Of<IScopeContextProvider>(),
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
             Mock.Of<IGovernanceDashboardService>(),
             Mock.Of<IGovernanceLineageService>(),
             Mock.Of<IGovernanceRationaleService>(),

@@ -772,7 +772,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             .ReturnsAsync(1);
         Mock<IFindingDispositionService> dispositionService = new();
         dispositionService
-            .Setup(s => s.ListHistoryAsync(TenantA, "f-disp", It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListHistoryAsync(It.IsAny<Core.Scoping.ScopeContext>(), "f-disp", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
         dispositionService
             .Setup(s => s.RecordAsync(
@@ -843,7 +843,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         payload.RootElement.GetProperty("dispositionSynced").GetBoolean().Should().BeFalse();
         payload.RootElement.GetProperty("dispositionSkipReason").GetString().Should().Be("disposition_unmapped");
         dispositionService.Verify(
-            s => s.ListHistoryAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            s => s.ListHistoryAsync(It.IsAny<Core.Scoping.ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

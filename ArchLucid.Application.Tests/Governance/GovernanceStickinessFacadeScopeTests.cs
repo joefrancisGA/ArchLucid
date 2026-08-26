@@ -99,6 +99,72 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task RecordDispositionAsync_throws_when_run_id_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchLucid.Persistence.Models.RunRecord?)null);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: findings.Object,
+            runRepository: runs.Object);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = foreignRunId,
+            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+            Rationale = "accepted",
+        };
+
+        Func<Task> act = () => sut.RecordDispositionAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*not found in the current scope*");
+    }
+
+    [Fact]
+    public async Task ListDispositionsAsync_excludes_foreign_workspace_events_for_same_finding_id()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        FindingDispositionService dispositionService = new(
+            Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>(),
+            CreateTrailRepositoryReturningForeignAndInScopeEvents(foreignWorkspaceId));
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: findings.Object,
+            dispositionService: dispositionService);
+
+        IReadOnlyList<FindingDispositionEventDto> history =
+            await sut.ListDispositionsAsync("finding-1", CancellationToken.None);
+
+        history.Should().ContainSingle();
+        history[0].ReviewerUserId.Should().Be("reviewer-in-scope");
+    }
+
+    [Fact]
     public async Task GetDecisionRegisterAsync_returns_empty_when_project_id_is_out_of_scope()
     {
         Guid foreignProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -263,5 +329,42 @@ public sealed class GovernanceStickinessFacadeScopeTests
             Mock.Of<IRealizedValueAttestationService>(),
             Mock.Of<IAuditService>(),
             findingInspect ?? Mock.Of<IFindingInspectReadRepository>());
+    }
+
+    private static ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository CreateTrailRepositoryReturningForeignAndInScopeEvents(
+        Guid foreignWorkspaceId)
+    {
+        Mock<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListByFindingAsync(CallerScope.TenantId, "finding-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = foreignWorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    FindingId = "finding-1",
+                    ReviewerUserId = "reviewer-foreign",
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                },
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    FindingId = "finding-1",
+                    ReviewerUserId = "reviewer-in-scope",
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                },
+            ]);
+
+        return trail.Object;
     }
 }

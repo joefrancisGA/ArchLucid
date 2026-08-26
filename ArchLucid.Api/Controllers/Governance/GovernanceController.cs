@@ -18,6 +18,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 using Asp.Versioning;
 
@@ -49,6 +50,7 @@ public sealed partial class GovernanceController(
     IGovernanceEnvironmentActivationRepository activationRepo,
     IActorContext actorContext,
     IScopeContextProvider scopeContextProvider,
+    IRunRepository runRepository,
     IGovernanceDashboardService governanceDashboardService,
     IGovernanceLineageService governanceLineageService,
     IGovernanceRationaleService governanceRationaleService,
@@ -88,5 +90,8 @@ public sealed partial class GovernanceController(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
 }

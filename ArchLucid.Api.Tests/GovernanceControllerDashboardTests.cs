@@ -53,6 +53,7 @@ public sealed class GovernanceControllerDashboardTests
             Mock.Of<IGovernanceEnvironmentActivationRepository>(),
             Mock.Of<IActorContext>(),
             scope.Object,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
             dashboard.Object,
             Mock.Of<IGovernanceLineageService>(),
             Mock.Of<IGovernanceRationaleService>(),

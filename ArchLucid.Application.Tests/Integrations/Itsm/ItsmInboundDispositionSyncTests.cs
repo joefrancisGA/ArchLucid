@@ -39,7 +39,7 @@ public sealed class ItsmInboundDispositionSyncTests
         result.WasRecorded.Should().BeFalse();
         result.SkipReason.Should().Be("disposition_unmapped");
         dispositionService.Verify(
-            s => s.ListHistoryAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            s => s.ListHistoryAsync(It.IsAny<Core.Scoping.ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -48,7 +48,12 @@ public sealed class ItsmInboundDispositionSyncTests
     {
         Mock<IFindingDispositionService> dispositionService = new();
         dispositionService
-            .Setup(s => s.ListHistoryAsync(TenantA, "f1", It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListHistoryAsync(It.Is<Core.Scoping.ScopeContext>(scope =>
+                    scope.TenantId == TenantA
+                    && scope.WorkspaceId == WorkspaceA
+                    && scope.ProjectId == ProjectA),
+                "f1",
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new FindingDispositionEventDto
@@ -82,7 +87,12 @@ public sealed class ItsmInboundDispositionSyncTests
     {
         Mock<IFindingDispositionService> dispositionService = new();
         dispositionService
-            .Setup(s => s.ListHistoryAsync(TenantA, "f1", It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListHistoryAsync(It.Is<Core.Scoping.ScopeContext>(scope =>
+                    scope.TenantId == TenantA
+                    && scope.WorkspaceId == WorkspaceA
+                    && scope.ProjectId == ProjectA),
+                "f1",
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
         dispositionService
             .Setup(s => s.RecordAsync(

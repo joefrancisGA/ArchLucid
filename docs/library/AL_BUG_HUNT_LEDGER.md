@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 8
-- **bugs-found:** 24
+- **hunts:** 9
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — pre-finalize checklist persisted scope on read; compliance drift trend leaked foreign workspace scope
+- **last-bug:** 2026-08-26 — finding disposition history leaked foreign workspace events; run history GET skipped scoped run preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2247,6 +2247,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PreFinalizeChecklistService.BuildAsync` — foreign or missing scoped run returned `ReadyToFinalize: true` when gate allowed and findings were empty — **hit 2026-08-26:** require scoped run before building checklist; regression in `PreFinalizeChecklistServiceTests.BuildAsync_returns_not_ready_when_run_is_out_of_scope`.
 - [x] (proven) `PreFinalizeChecklistService.EmptyResult` — non-GUID `runId` returned `ReadyToFinalize: true` — **hit 2026-08-26:** fail closed on invalid run id; regression in `PreFinalizeChecklistServiceTests.BuildAsync_returns_not_ready_for_non_guid_run_id`.
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — accepted foreign `RunId` without scoped run lookup — **hit 2026-08-26:** require `IRunRepository.GetByIdAsync` before insert; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_rejects_out_of_scope_run_id`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` — accepted foreign `RunId` in body after finding scope gate — **hit 2026-08-26:** `EnsureRunInScopeWhenProvidedAsync` via scoped `IRunRepository`; regression in `GovernanceStickinessFacadeScopeTests.RecordDispositionAsync_throws_when_run_id_is_out_of_scope`.
+- [x] (proven) `GovernanceStickinessController.ListDispositions` — tenant-only trail query returned disposition history from foreign workspace/project for the same `findingId` — **hit 2026-08-26:** `ListHistoryAsync` filters to ambient workspace/project; regression in `GovernanceStickinessFacadeScopeTests.ListDispositionsAsync_excludes_foreign_workspace_events_for_same_finding_id`.
+- [x] (proven) `GovernancePreCommitSimulationController.GetChecklist` — foreign `runId` returned HTTP 200 with blocking checklist instead of 404 — **hit 2026-08-26:** scoped `IRunRepository` preflight; regression in `GovernancePreCommitSimulationControllerTests.GetChecklist_returns_not_found_for_out_of_scope_run_id`.
+- [x] (proven) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — foreign `runId` returned HTTP 200 `[]` without scoped run preflight — **hit 2026-08-26:** `RequireScopedRunAsync` before repository reads; regression in `GovernanceControllerRunHistoryScopeTests`.
+
+2026-08-26 seed hunt #84: proved disposition run scope, disposition history workspace filter, pre-finalize checklist 404, governance run-history scoped preflight.
 
 2026-08-26 seed hunt #83: proved pre-finalize checklist read-side persist, out-of-scope run finalize readiness, compliance drift trend scope, product-feedback run scope.
 
