@@ -161,6 +161,25 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostSponsorDigestPreferences_returns_bad_request_when_email_enabled_without_recipients()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantSponsorDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            Mock.Of<ITenantSponsorDigestPreferencesRepository>(),
+            Mock.Of<IAuditService>());
+
+        SponsorDigestPreferencesUpsertRequest body = new() { EmailEnabled = true, RecipientEmails = [] };
+
+        IActionResult action = await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PostSponsorDigestPreferences_persists_and_audits_on_success()
     {
         SponsorDigestPreferencesResponse saved = new()

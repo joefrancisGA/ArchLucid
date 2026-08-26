@@ -49,6 +49,11 @@ public sealed partial class GovernanceController
         if (idempotencyError is not null)
             return idempotencyError;
 
+        IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         string requestedBy = actorContext.GetActor();
         string requestedByActorKey = actorContext.GetActorId();
 
@@ -111,6 +116,7 @@ public sealed partial class GovernanceController
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
+        string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
         try
         {
@@ -119,6 +125,7 @@ public sealed partial class GovernanceController
                 reviewedBy,
                 reviewedByActorKey,
                 request.ReviewComment,
+                reviewedByMailbox,
                 cancellationToken);
 
             return Ok(result);
@@ -176,6 +183,7 @@ public sealed partial class GovernanceController
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
+        string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
         try
         {
@@ -184,6 +192,7 @@ public sealed partial class GovernanceController
                 reviewedBy,
                 reviewedByActorKey,
                 request.ReviewComment,
+                reviewedByMailbox,
                 cancellationToken);
 
             return Ok(result);
@@ -248,6 +257,7 @@ public sealed partial class GovernanceController
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
+        string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
         List<GovernanceBatchReviewItemResult> results = [];
         List<string> distinctIds = body.ApprovalRequestIds
@@ -285,6 +295,7 @@ public sealed partial class GovernanceController
                         reviewedBy,
                         reviewedByActorKey,
                         body.ReviewComment,
+                        reviewedByMailbox,
                         cancellationToken);
 
                 else
@@ -294,6 +305,7 @@ public sealed partial class GovernanceController
                         reviewedBy,
                         reviewedByActorKey,
                         body.ReviewComment,
+                        reviewedByMailbox,
                         cancellationToken);
 
                 results.Add(

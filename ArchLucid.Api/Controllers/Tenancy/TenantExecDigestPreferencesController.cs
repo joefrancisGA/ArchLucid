@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Contracts.User;
 using ArchLucid.Core.Audit;
@@ -106,7 +107,14 @@ public sealed class TenantExecDigestPreferencesController(
                 ProblemTypes.ValidationFailed);
         }
 
-        IReadOnlyList<string> recipients = body.RecipientEmails ?? [];
+        if (!DigestRecipientEmailsValidator.TryNormalize(
+                body.RecipientEmails,
+                body.EmailEnabled,
+                out IReadOnlyList<string> recipients,
+                out string? recipientError))
+        {
+            return this.BadRequestProblem(recipientError!, ProblemTypes.ValidationFailed);
+        }
 
         ExecDigestPreferencesResponse? saved = await _preferencesRepository.UpsertAsync(
             scope.TenantId,

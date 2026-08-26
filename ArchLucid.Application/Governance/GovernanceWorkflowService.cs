@@ -40,8 +40,15 @@ public sealed class GovernanceWorkflowService(IGovernanceWorkflowFacade workflow
         string reviewedBy,
         string reviewedByActorKey,
         string? reviewComment,
+        string? reviewedByMailbox = null,
         CancellationToken cancellationToken = default) =>
-        _workflowFacade.ApproveAsync(approvalRequestId, reviewedBy, reviewedByActorKey, reviewComment, cancellationToken);
+        _workflowFacade.ApproveAsync(
+            approvalRequestId,
+            reviewedBy,
+            reviewedByActorKey,
+            reviewComment,
+            reviewedByMailbox,
+            cancellationToken);
 
     /// <inheritdoc/>
     public Task<GovernanceApprovalRequest> RejectAsync(
@@ -49,8 +56,15 @@ public sealed class GovernanceWorkflowService(IGovernanceWorkflowFacade workflow
         string reviewedBy,
         string reviewedByActorKey,
         string? reviewComment,
+        string? reviewedByMailbox = null,
         CancellationToken cancellationToken = default) =>
-        _workflowFacade.RejectAsync(approvalRequestId, reviewedBy, reviewedByActorKey, reviewComment, cancellationToken);
+        _workflowFacade.RejectAsync(
+            approvalRequestId,
+            reviewedBy,
+            reviewedByActorKey,
+            reviewComment,
+            reviewedByMailbox,
+            cancellationToken);
 
     /// <inheritdoc/>
     public Task<GovernancePromotionRecord> PromoteAsync(

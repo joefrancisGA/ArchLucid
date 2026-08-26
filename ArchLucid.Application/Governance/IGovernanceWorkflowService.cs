@@ -59,6 +59,7 @@ public interface IGovernanceWorkflowService
         string reviewedBy,
         string reviewedByActorKey,
         string? reviewComment,
+        string? reviewedByMailbox = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -78,6 +79,7 @@ public interface IGovernanceWorkflowService
         string reviewedBy,
         string reviewedByActorKey,
         string? reviewComment,
+        string? reviewedByMailbox = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>

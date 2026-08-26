@@ -105,6 +105,15 @@ public sealed class TenantBaselineController(
         bool touchReviewSourceNote =
             body.BaselineReviewCycleSourceNote is not null && existing.BaselineReviewCycleHours.HasValue;
 
+        if (body.BaselineReviewCycleSourceNote is not null
+            && !existing.BaselineReviewCycleHours.HasValue
+            && !body.BaselineReviewCycleHours.HasValue)
+        {
+            return this.BadRequestProblem(
+                "Baseline review-cycle hours must be captured before a source note can be updated.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (!touchManual && !touchReview && !touchReviewSourceNote)
             return Ok(ProjectBaselineResponse(existing));
 

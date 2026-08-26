@@ -142,6 +142,73 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequest_returns_not_found_when_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        string runId = foreignRunId.ToString("D");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SubmitApprovalRequest(
+            new CreateGovernanceApprovalRequest
+            {
+                RunId = runId,
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Activate_returns_not_found_when_run_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        string runId = foreignRunId.ToString("D");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "activate-scope-test";
+
+        IActionResult result = await sut.Activate(
+            new CreateGovernanceActivationRequest
+            {
+                RunId = runId,
+                ManifestVersion = "1",
+                Environment = "test",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Promote_returns_not_found_when_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");

@@ -9,7 +9,25 @@ namespace ArchLucid.Application.Tests.Governance;
 [Trait("Category", "Unit")]
 public sealed class GovernanceSegregationRulesTests
 {
-    [SkippableFact]
+    [Fact]
+    public void SameActor_api_key_submitter_email_matches_jwt_reviewer_mailbox_returns_true()
+    {
+        GovernanceApprovalRequest req = new()
+        {
+            RequestedBy = "operator@contoso.com",
+            RequestedByActorKey = "operator@contoso.com",
+        };
+
+        bool same = GovernanceSegregationRules.IsSameActorForReview(
+            req,
+            reviewedByDisplay: "Operator User",
+            reviewedByActorKey: $"{ActorContextKeys.JwtActorKeyPrefix}tenant:object",
+            reviewedByMailbox: "operator@contoso.com");
+
+        same.Should().BeTrue();
+    }
+
+    [Fact]
     public void SameActor_JwtMatchingKeys_returns_true_even_when_displays_differ()
     {
         const string canon = $"{ActorContextKeys.JwtActorKeyPrefix}tid-guid:object-guid-user";

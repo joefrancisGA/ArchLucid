@@ -2212,8 +2212,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 31
-- **bugs-found:** 83
+- **hunts:** 32
+- **bugs-found:** 88
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
 - **last-bug:** 2026-08-26 — funnel first-manifest SQL, preview activation binding, setup bundle, promote linkage
@@ -2314,11 +2314,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreviewService.PreviewActivationAsync` — current activation manifest loaded by version without manifest-run binding — **hit 2026-08-26:** reuse `LoadManifestForActivationAsync` (compare-environments parity); regression in `GovernancePreviewServiceTests.PreviewActivationAsync_WhenCurrentActivationManifestRunMismatch_OmitsForeignManifest`.
 - [x] (proven) `GovernanceSetupController.GetSetupGuideBundle` — disabled alert-routing subscriptions included via `ListByScopeAsync` — **hit 2026-08-26:** use `ListEnabledByScopeAsync`; regression in `GovernanceSetupControllerTests.GetSetupGuideBundle_lists_only_enabled_alert_routing_subscriptions`.
 - [x] (proven) `GovernanceWorkflowPromoteStage.PromoteAsync` — non-prod promotion persisted foreign `approvalRequestId` without run/manifest/env linkage check — **hit 2026-08-26:** `ThrowIfApprovalPromotionLinkageInvalid` for optional approval id; regression in `GovernanceWorkflowFacadeTests.PromoteAsync_throws_when_non_prod_approval_request_run_mismatch`.
-- [ ] (candidate) `TenantBaselineController.PutAsync` — `baselineReviewCycleSourceNote` without captured review-cycle hours returns HTTP 200 without persisting (should 400).
-- [ ] (candidate) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` POST — `emailEnabled: true` with zero deliverable recipients persists and weekly scanner still enqueues tenant.
-- [ ] (candidate) Exec/sponsor digest POST — malformed or duplicate recipient emails accepted without server-side validation.
-- [ ] (candidate) `GovernanceWorkflowReviewStage` / `GovernanceSegregationRules` — API-key submitter + JWT reviewer with different display names bypasses self-approval block.
-- [ ] (candidate) `GovernanceController.Activate` / `SubmitApprovalRequest` — mutating POST lacks controller-level `RequireScopedRunAsync` preflight present on Promote.
+- [x] (proven) `TenantBaselineController.PutAsync` — `baselineReviewCycleSourceNote` without captured review-cycle hours returned HTTP 200 without persisting — **hit 2026-08-26:** reject source-note-only updates when review-cycle hours are not captured; regression in `TenantBaselineControllerTests.PutAsync_returns_bad_request_when_review_cycle_source_note_without_captured_hours`.
+- [x] (proven) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` POST — `emailEnabled: true` with zero deliverable recipients persisted — **hit 2026-08-26:** `DigestRecipientEmailsValidator` requires at least one recipient when email is enabled; regression in `TenantExecDigestPreferencesControllerTests` and `TenantSponsorDigestPreferencesControllerTests`.
+- [x] (proven) Exec/sponsor digest POST — malformed or duplicate recipient emails accepted without server-side validation — **hit 2026-08-26:** `DigestRecipientEmailsValidator` validates format and deduplicates (UI parity); regression in `TenantExecDigestPreferencesControllerTests`.
+- [x] (proven) `GovernanceWorkflowReviewStage` / `GovernanceSegregationRules` — API-key submitter + JWT reviewer with different display names bypassed self-approval block — **hit 2026-08-26:** mailbox bridge when reviewer carries JWT canonical key; regression in `GovernanceSegregationRulesTests.SameActor_api_key_submitter_email_matches_jwt_reviewer_mailbox_returns_true`.
+- [x] (proven) `GovernanceController.Activate` / `SubmitApprovalRequest` — mutating POST lacked controller-level `RequireScopedRunAsync` preflight present on Promote — **hit 2026-08-26:** scoped run preflight before activate/submit workflow; regression in `GovernanceControllerRunHistoryScopeTests`.
+
+2026-08-26 thorough hunt #107: proved baseline source-note-without-hours 400, digest recipient validation (enabled-without-recipients, malformed, duplicate), SoD mailbox bridge for mixed API-key/JWT review, and activate/submit scoped-run preflight parity.
 
 2026-08-26 seed hunt #106: proved funnel first-manifest committed filter, checklist GET tenant 404, preview activation manifest binding, setup-guide enabled subscriptions only, and non-prod promote approval linkage; seeded baseline note-without-hours, digest recipient validation, SoD bypass, and activate/submit scope-preflight candidates.
 

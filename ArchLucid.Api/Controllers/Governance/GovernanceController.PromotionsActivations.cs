@@ -124,6 +124,11 @@ public sealed partial class GovernanceController
         if (idempotencyError is not null)
             return idempotencyError;
 
+        IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         try
         {
             GovernanceEnvironmentActivation result = await workflowService.ActivateAsync(
