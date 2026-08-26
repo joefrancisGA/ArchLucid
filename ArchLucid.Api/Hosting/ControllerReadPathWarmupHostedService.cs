@@ -149,11 +149,14 @@ public sealed class ControllerReadPathWarmupHostedService(
         string relativePath,
         CancellationToken cancellationToken)
     {
+        using CancellationTokenSource timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeoutCts.CancelAfter(_optionsMonitor.CurrentValue.GetEffectiveRequestTimeout());
+
         using HttpRequestMessage request = new(HttpMethod.Get, new Uri(new Uri(baseUrl, UriKind.Absolute), relativePath));
         ApplyDefaultScopeHeaders(request);
 
         using HttpResponseMessage response = await client
-            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeoutCts.Token)
             .ConfigureAwait(false);
 
         if (IsExpectedWarmupStatus(relativePath, response.StatusCode))
