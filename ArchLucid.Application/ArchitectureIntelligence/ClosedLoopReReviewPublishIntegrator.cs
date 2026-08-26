@@ -83,6 +83,35 @@ public static class ClosedLoopReReviewPublishIntegrator
         }
     }
 
+    public static void RollbackIntegratorMutations(
+        int allFindingsCountBeforeIntegrate,
+        IReadOnlySet<string> validationFindingIdsBeforeIntegrate,
+        List<SpecialistReviewFinding> allFindings,
+        List<EvidenceValidationResult> validationResults,
+        Dictionary<string, EvidenceValidationResult> validationByFindingId)
+    {
+        ArgumentNullException.ThrowIfNull(allFindings);
+        ArgumentNullException.ThrowIfNull(validationResults);
+        ArgumentNullException.ThrowIfNull(validationByFindingId);
+        ArgumentNullException.ThrowIfNull(validationFindingIdsBeforeIntegrate);
+
+        if (allFindings.Count > allFindingsCountBeforeIntegrate)
+        {
+            allFindings.RemoveRange(
+                allFindingsCountBeforeIntegrate,
+                allFindings.Count - allFindingsCountBeforeIntegrate);
+        }
+
+        validationResults.RemoveAll(validation =>
+            !validationFindingIdsBeforeIntegrate.Contains(validation.FindingId));
+
+        foreach (string findingId in validationByFindingId.Keys.ToList())
+        {
+            if (!validationFindingIdsBeforeIntegrate.Contains(findingId))
+                validationByFindingId.Remove(findingId);
+        }
+    }
+
     internal static List<SpecialistReviewFinding> SelectNewIncrementalFindings(
         IncrementalReReviewResult reReview,
         IReadOnlyList<SpecialistReviewFinding> allFindings)

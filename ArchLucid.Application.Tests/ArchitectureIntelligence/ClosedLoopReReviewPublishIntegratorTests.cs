@@ -130,4 +130,40 @@ public sealed class ClosedLoopReReviewPublishIntegratorTests
             Times.Never);
         allFindings.Should().HaveCount(1);
     }
+
+    [Fact]
+    public void RollbackIntegratorMutations_removes_integrated_findings_and_validations()
+    {
+        SpecialistReviewFinding existing = new() { FindingId = "finding-existing", Title = "Existing" };
+        SpecialistReviewFinding incremental = new() { FindingId = "finding-new", Title = "New from re-review" };
+        List<SpecialistReviewFinding> allFindings = [existing];
+        List<EvidenceValidationResult> validationResults =
+        [
+            new EvidenceValidationResult { FindingId = "finding-existing", OverallPassedIntegrity = true },
+        ];
+        Dictionary<string, EvidenceValidationResult> validationByFindingId = new(StringComparer.Ordinal)
+        {
+            ["finding-existing"] = validationResults[0],
+        };
+
+        allFindings.Add(incremental);
+        validationResults.Add(new EvidenceValidationResult
+        {
+            FindingId = "finding-new",
+            OverallPassedIntegrity = true,
+        });
+        validationByFindingId["finding-new"] = validationResults[1];
+
+        ClosedLoopReReviewPublishIntegrator.RollbackIntegratorMutations(
+            1,
+            new HashSet<string>(["finding-existing"], StringComparer.Ordinal),
+            allFindings,
+            validationResults,
+            validationByFindingId);
+
+        allFindings.Should().ContainSingle(finding => finding.FindingId == "finding-existing");
+        validationResults.Should().ContainSingle(result => result.FindingId == "finding-existing");
+        validationByFindingId.Should().ContainKey("finding-existing");
+        validationByFindingId.Should().NotContainKey("finding-new");
+    }
 }
