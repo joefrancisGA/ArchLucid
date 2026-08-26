@@ -218,7 +218,7 @@ Omitted empty sections are not sent (or sent as empty arrays only where required
 | Topology hints (chips) | `topologyHints` | Patterns to prefer or avoid. |
 | Security baseline hints (chips) | `securityBaselineHints` | Expected controls in plain language. |
 | Documents (rows) | `documents[]` | `{ name, contentType, content }` — inlined UTF-8 text for agent context. |
-| Infrastructure declarations (rows) | `infrastructureDeclarations[]` | `{ name, format, content }`; `format` typically `json` or `simple-terraform`. |
+| Infrastructure declarations (rows) | `infrastructureDeclarations[]` | `{ name, format, content }`; `format` is one of `json`, `simple-terraform`, `terraform-show-json`, `bicep`, `arm-json`, `kubernetes-json`, `kubernetes-yaml`. |
 
 #### Step 6 — Review & submit
 

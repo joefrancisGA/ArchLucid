@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-27
+> **Reviewed:** 2026-08-26
 
 > **Scope:** ArchLucid competitive landscape — market matrices, capability grounding, and procurement-facing category comparison (formerly the body of ``COMPETITIVE_COMPARISON.md``; that filename remains a path-stable pack alias). Full detail, tables, and links in the sections below.
 
@@ -9,7 +9,7 @@
 
 **Audience:** Product leadership, sales, and marketing teams who need to position ArchLucid against alternatives during evaluations and deal cycles.
 
-**Last reviewed:** 2026-07-27
+**Last reviewed:** 2026-08-26
 
 **Grounding rule:** Every capability claimed for ArchLucid in this document is based on what the repository actually ships today per [V1_SCOPE.md](../library/V1_SCOPE.md), [ARCHITECTURE_CONTEXT.md](../library/ARCHITECTURE_CONTEXT.md), and verifiable code artifacts (OpenAPI snapshot, merge-blocking tests, CI guards). Claims are not aspirational.
 
@@ -82,7 +82,7 @@ ArchLucid operates at the intersection of two established markets and one emergi
 | **Durable audit** | 78 typed audit event constants. SQL append-only enforcement (`DENY UPDATE/DELETE`). Paginated search, bulk export (JSON/CSV). CI guard on event count. |
 | **Comparison and drift detection** | Two-**review** comparison with structured deltas. Comparison replay (regenerate, verify, artifact modes). Drift analysis between stored and regenerated outputs. |
 | **Policy packs** | Versioned policy documents with scope assignments. Effective governance resolution (tenant → workspace → project precedence). Coverage engines. Applicability engines. |
-| **Enterprise security** | Entra ID JWT, API key, RBAC (Admin/Operator/Reader/Auditor). **Database-per-tenant** catalog isolation per ADR 0037 (SQL RLS is not the production boundary). Private endpoints for SQL and blob. WAF via Front Door. STRIDE threat model. OWASP ZAP and Schemathesis in CI. |
+| **Enterprise security** | Entra ID JWT (default hosted path), **generic OIDC** issuers, **SAML 2.0 SP**, API key, RBAC (Admin/Operator/Reader/Auditor). **Database-per-tenant** catalog isolation per ADR 0037 (SQL RLS is not the production boundary). Private endpoints for SQL and blob. WAF via Front Door. STRIDE threat model. OWASP ZAP and Schemathesis in CI. |
 | **Export and reporting** | Markdown, DOCX (consulting-grade with embedded diagrams), ZIP bundles. Replay from persisted export records. |
 | **Knowledge graph** | Typed nodes and edges from context snapshots. Edge inference. Multiple visualization modes in architect workspace. |
 | **Observability** | 30+ custom OTel metrics. 8 activity sources. Grafana dashboards committed in repo. Business KPI narratives use **reviews** as the product term; OTel counter names may still use `runs` / `runId`-aligned label names where wired to persistence — verify names in host instrumentation before correlating dashboards. |
@@ -95,7 +95,7 @@ ArchLucid operates at the intersection of two established markets and one emergi
 
 | ArchLucid does better | LeanIX does better |
 |-----------------------|-------------------|
-| **AI-native analysis:** Multi-agent pipeline produces findings automatically from an architecture request. LeanIX requires manual data entry and survey responses. | **Ecosystem breadth:** 50+ connectors, Jira/ServiceNow integration, established CMDB import/export. ArchLucid has REST API + webhooks + CLI but no pre-built connectors to third-party tools. |
+| **AI-native analysis:** Multi-agent pipeline produces findings automatically from an architecture request. LeanIX requires manual data entry and survey responses. | **Ecosystem breadth:** 50+ connectors, Jira/ServiceNow integration, established CMDB import/export. ArchLucid ships first-party **Jira / ServiceNow / Confluence / Slack / Teams** connectors plus REST, CLI, and inventory ZIP / IaC declaration ingest — not LeanIX-class CMDB or ArchiMate catalog import. |
 | **Explainability:** Every finding has a structured trace showing what was examined, what rules applied, and what decisions were taken. LeanIX recommendations are opaque labels. | **Market presence:** Established brand, thousands of customers, SAP backing. ArchLucid is pre-revenue V1. |
 
 ### 4.2 ArchLucid vs. Ardoq
@@ -103,7 +103,7 @@ ArchLucid operates at the intersection of two established markets and one emergi
 | ArchLucid does better | Ardoq does better |
 |-----------------------|-------------------|
 | **AI agent orchestration:** Automated topology/cost/compliance/critic analysis pipeline. Ardoq requires manual scenario modeling. | **Visual modeling UX:** Ardoq has mature, polished graph and scenario visualization. ArchLucid's UI is functional but self-described as a "thin shell." |
-| **Governance + audit depth:** Pre-finalize gates, approval SLA, 78 typed audit events, segregation of duties. Ardoq has change logs but no governance workflow. | **CMDB and data source connectors:** Ardoq integrates with ServiceNow, AWS, Azure, and other inventories. ArchLucid has no inbound data connectors beyond manual input and API. |
+| **Governance + audit depth:** Pre-finalize gates, approval SLA, 78 typed audit events, segregation of duties. Ardoq has change logs but no governance workflow. | **CMDB and data source connectors:** Ardoq integrates with ServiceNow, AWS, Azure, and other inventories. ArchLucid ingests **architecture-request evidence** (IaC declarations, inventory ZIP, documents, hints) — not a live CMDB or cloud-API system of record. |
 
 ### 4.3 ArchLucid vs. AWS Well-Architected Tool
 
@@ -135,11 +135,11 @@ These are the competitive weaknesses most likely to lose deals in the current ma
 
 | Rank | Gap | Impact | Effort |
 |------|-----|--------|--------|
-| 1 | **No inbound data connectors** (cannot import from Terraform, ArchiMate, CMDB, cloud APIs) | Prospects cannot start from existing infrastructure; must re-describe everything manually | Medium-high |
+| 1 | **No ArchiMate / CMDB / live-cloud-API system-of-record import** | IaC **declaration** ingest exists (`json`, `simple-terraform`, `terraform-show-json`, `bicep`, `arm-json`, `kubernetes-json`, `kubernetes-yaml`) plus inventory ZIP / extractor paths. Prospects whose source of truth is LeanIX, ArchiMate, or a CMDB still cannot start from that catalog. | Medium-high |
 | 2 | **AWS/GCP cost/classification depth vs Azure** | AWS/GCP-target reviews are in V1, but live public pricing is narrow (compute SKUs) and classification is thinner than Azure | Medium (TB-874 remainder) |
-| 3 | **No pre-built integrations** (Jira, ServiceNow, Slack, Teams) | Finding triage stays inside ArchLucid instead of flowing into existing workflows | Medium |
+| 3 | **ITSM is ticket-shaped, not inventory-shaped** | First-party Jira, ServiceNow, Slack, and Teams connectors exist for finding triage. They do not import CSDM/CMDB as architecture truth, and enterprise field-mapping / OAuth-depth remains V2 (**TB-398**). | Medium |
 | 4 | **Thin UI / no design system** | Loses visual comparison against LeanIX and Ardoq in evaluations where non-technical buyers see the UI | Medium |
-| 5 | **Entra-only SSO** | Blocks adoption at non-Microsoft-stack enterprises (Okta, Auth0, Ping) | Low-medium |
+| 5 | **Azure-hosted product only** | Workforce SSO is Entra-default plus generic OIDC and SAML SP — not Entra-only. Re-hosting ArchLucid on AWS/GCP or air-gapped on-prem remains out of scope (ADR 0020). | Product boundary (do not “fix” in V2 as a connector) |
 
 ---
 

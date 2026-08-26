@@ -17,7 +17,7 @@ Set each `infrastructureDeclarations[]` row to:
 | **`format`** | **`terraform-show-json`** (case-insensitive) |
 | **`content`** | String body of **`terraform show -json`** (UTF-8) |
 
-Public API validation: **`InfrastructureDeclarationRequestValidator`** in **`ArchLucid.Api`** permits **`terraform-show-json`** alongside **`json`** and **`simple-terraform`**.
+Public API validation: **`InfrastructureDeclarationRequestValidator`** in **`ArchLucid.Api`** permits **`terraform-show-json`** alongside **`json`**, **`simple-terraform`**, **`bicep`**, **`arm-json`**, **`kubernetes-json`**, and **`kubernetes-yaml`**. This note covers the **`terraform-show-json`** wire format only.
 
 Parsing implementation: **`ArchLucid.ContextIngestion.Infrastructure.TerraformShowJsonInfrastructureDeclarationParser`** walks **`values.root_module`** and **`child_modules`** into **`CanonicalObject`** rows (**`InfrastructureDeclaration`** source type).
 
