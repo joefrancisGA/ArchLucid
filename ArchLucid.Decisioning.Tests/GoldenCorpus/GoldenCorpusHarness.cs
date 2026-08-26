@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Requests;
@@ -101,6 +102,27 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             FindingsJson: GoldenCorpusNormalization.SerializeFindings(findings),
             DecisionsJson: GoldenCorpusNormalization.SerializeDecisions(manifest, mergeSummary),
             AuditTypesJson: GoldenCorpusNormalization.SerializeAuditTypes(audit));
+    }
+
+    /// <summary>Runs findings orchestration only (no authority decisioning).</summary>
+    public async Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
+        Guid runId,
+        Guid contextSnapshotId,
+        GraphSnapshot graph,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(graph);
+
+        IFindingEngine[] engines = CreateEngines();
+        FindingsOrchestrator orchestrator = new(
+            engines,
+            new FindingPayloadValidator(),
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()),
+            DeterministicInsightDensityGate.CreateDefault(),
+            _timeProvider);
+
+        return await orchestrator.GenerateFindingsSnapshotAsync(runId, contextSnapshotId, graph, ct);
     }
 
     private IFindingEngine[] CreateEngines()
