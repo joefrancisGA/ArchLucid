@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { ArchitectureManifestUnifiedDiffView } from "@/components/compare/ArchitectureManifestUnifiedDiffView";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import { Button } from "@/components/ui/button";
 import {
   ARCHITECTURE_OVERVIEW_REWRITE_MIN_OVERVIEW_CHARS,
@@ -190,6 +191,7 @@ export function ArchitectureDraftOverviewRewritePanel(
         </div>
       ) : (
         <div className="space-y-3">
+          <SimulatorModeAiOperationNotice testId="architecture-draft-overview-rewrite-simulator-notice" />
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
             {GUIDED_INTAKE_OVERVIEW_REWRITE_PREVIEW_HEADING}
           </p>

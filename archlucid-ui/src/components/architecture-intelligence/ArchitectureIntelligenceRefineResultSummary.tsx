@@ -2,6 +2,7 @@
 
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
 import { ArchitectureIntelligenceRunSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRunSummary";
+import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import type { ClosedLoopReasoningResult } from "@/lib/architecture/architecture-intelligence-api";
 import { resolvePublishBlockedAlertMessage } from "@/lib/architecture/architecture-intelligence-framing-interview";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -21,6 +22,7 @@ export function ArchitectureIntelligenceRefineResultSummary(
 
   return (
     <div className="space-y-2" data-testid={`${prefix}-results`}>
+      <SimulatorModeAiOperationNotice testId={`${prefix}-simulator-notice`} />
       {result.budgetRejected ? (
         <p
           role="alert"

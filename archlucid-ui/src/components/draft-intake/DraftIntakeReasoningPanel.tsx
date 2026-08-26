@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
+import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -108,7 +109,9 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
       <DraftIntakeClaimLabel surface="llm-intake-reasoning" />
 
       {turns.length > 0 ? (
-        <ol className="m-0 list-none space-y-4 p-0">
+        <>
+          <SimulatorModeAiOperationNotice testId="draft-intake-reasoning-simulator-notice" />
+          <ol className="m-0 list-none space-y-4 p-0">
           {turns.map((turn, index) => (
             <li
               key={`${index}-${turn.message.slice(0, 24)}`}
@@ -125,6 +128,7 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
             </li>
           ))}
         </ol>
+        </>
       ) : showEmptyInBody ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{NO_SUGGESTIONS_COPY}</p>
       ) : null}

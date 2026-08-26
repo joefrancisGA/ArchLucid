@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
 import { ArchitectureIntelligenceResultSection } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceResultSection";
 import { ArchitectureIntelligenceRunSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRunSummary";
+import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import type {
   ClosedLoopReasoningResult,
   FramingQuestion,
@@ -46,6 +47,7 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
       : null;
   return (
     <div className="space-y-4" data-testid="architecture-intelligence-reasoning-results">
+      <SimulatorModeAiOperationNotice testId="architecture-intelligence-reasoning-simulator-notice" />
       {props.result.publishBlocked ? (
         <p
           role="alert"
