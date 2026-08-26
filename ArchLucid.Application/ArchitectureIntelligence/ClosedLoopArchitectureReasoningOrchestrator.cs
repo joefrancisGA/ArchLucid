@@ -90,7 +90,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         string tenantId = RequireTenantId(effectiveRequest);
         string runId = string.IsNullOrWhiteSpace(effectiveRequest.RunId)
             ? Guid.NewGuid().ToString("N")
-            : effectiveRequest.RunId.Trim();
+            : ClosedLoopRunIdNormalizer.NormalizeRequired(effectiveRequest.RunId);
 
         cancellationToken.ThrowIfCancellationRequested();
 
