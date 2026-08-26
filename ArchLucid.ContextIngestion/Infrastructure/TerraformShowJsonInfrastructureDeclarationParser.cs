@@ -179,7 +179,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         results.Add(new CanonicalObject
         {
             ObjectType = objectType,
-            Name = $"{canonicalTerraformType}.{name}",
+            Name = $"{canonicalTerraformType}.{name.ToLowerInvariant()}",
             SourceType = "InfrastructureDeclaration",
             SourceId = declaration.DeclarationId,
             Properties = properties

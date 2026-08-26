@@ -46,6 +46,22 @@ public sealed class SimpleTerraformDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_ResourceNameCasing_IsCanonicalized()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            Content = "resource \"azurerm_virtual_network\" \"Hub-Vnet\"\n"
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("hub-vnet");
+    }
+
+    [Fact]
     public async Task ParseAsync_TrimsPaddedResourceType()
     {
         InfrastructureDeclarationReference declaration = new()

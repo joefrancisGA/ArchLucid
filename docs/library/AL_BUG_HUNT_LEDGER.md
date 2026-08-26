@@ -1801,11 +1801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 19
-- **bugs-found:** 52
+- **hunts:** 20
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — prior requirement name casing, ActorsJson element order canonicalization
+- **last-bug:** 2026-08-26 — infrastructure declaration resource `Name` casing churned connector deltas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1868,9 +1868,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ContextIngestionService.ApplyScopeMetadata` built `PriorRequirementNames` from prior requirement `Name` values without lowercasing — **hit 2026-08-26:** `Availability|Encryption` vs `availability|encryption` churned metadata hashes; fixed by lowercasing requirement names before join (`ContextIngestionServiceTests.IngestAsync_PriorRequirementNameCasing_ProducesStableScopeMetadata`)
 - [x] (proven) `ContextIngestionService.CanonicalizeActorsJson` preserved actor array element order — **hit 2026-08-26:** semantically equivalent actor sets in different order churned `SourceHashes`; fixed by stable sort before serialize (`ContextIngestionServiceTests.IngestAsync_ActorsJsonElementOrder_ProducesStableScopeMetadata`)
 - [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` preserves boolean `tf.*` string literals — JSON `true` and string `"true"` both canonicalize to `"true"`; regression `TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_EquivalentBooleanRepresentations_ProduceSameTfProperties`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonBooleanStringChange_ReportsUnchanged`
-- [ ] (candidate) `ContextIngestionService.CanonicalizeActorsJson` does not normalize enum casing in serialized actor JSON — `Human` vs `human` in actor `kind` may churn `SourceHashes` when clients send non-standard enum strings.
-- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` preserves `null` vs missing `tf.*` keys — absent values vs explicit JSON null may false-modify infra declaration deltas.
-- [ ] (candidate) `ContextIngestionService.ApplyScopeMetadata` stores raw `ActorsJson` for invalid JSON — malformed actor payloads only trim whitespace, so equivalent invalid strings with different padding may churn hashes.
+- [x] (valid-no-repro) `ContextIngestionService.CanonicalizeActorsJson` does not normalize enum casing in serialized actor JSON — `Human` vs `human` deserialize to the same `ActorDescriptor` enum ordinals and serialize identically; regression `ContextIngestionServiceTests.IngestAsync_ActorsJsonEnumCasing_ProducesStableScopeMetadata`.
+- [x] (valid-no-repro) `TerraformShowJsonInfrastructureDeclarationParser` preserves `null` vs missing `tf.*` keys — explicit JSON null canonicalizes to empty and is skipped like absent keys; regression `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonNullVsMissingTfValue_ReportsUnchanged`.
+- [x] (valid-no-repro) `ContextIngestionService.ApplyScopeMetadata` stores raw `ActorsJson` for invalid JSON — malformed payloads trim to the same hash; regression `ContextIngestionServiceTests.IngestAsync_InvalidActorsJsonPadding_ProducesStableScopeMetadata`.
+- [x] (proven) Infrastructure declaration parsers preserved resource `Name` casing while `InfrastructureDeclarationConnector.DeltaAsync` keys deltas case-sensitively — **hit 2026-08-26:** `hub-vnet` vs `Hub-Vnet` reported false add/remove on JSON, simple-terraform, and terraform-show-json re-ingest; fixed by lowercasing trimmed resource names in all three parsers (`JsonInfrastructureDeclarationParserTests.ParseAsync_ResourceNameCasing_IsCanonicalized`, `SimpleTerraformDeclarationParserTests.ParseAsync_ResourceNameCasing_IsCanonicalized`, `TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_ResourceNameCasing_IsCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_*ResourceNameCasingChange_ReportsUnchanged`).
 
 ---
 

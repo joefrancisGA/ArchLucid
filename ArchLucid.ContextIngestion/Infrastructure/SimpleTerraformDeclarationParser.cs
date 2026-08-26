@@ -40,7 +40,7 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
             results.Add(new CanonicalObject
             {
                 ObjectType = objectType,
-                Name = name,
+                Name = name.ToLowerInvariant(),
                 SourceType = "InfrastructureDeclaration",
                 SourceId = declaration.DeclarationId,
                 Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

@@ -74,6 +74,28 @@ public sealed class JsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_ResourceNameCasing_IsCanonicalized()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.json",
+            Format = "json",
+            Content = """
+                      {
+                        "resources": [
+                          { "type": "vnet", "name": "Hub-Vnet" }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("hub-vnet");
+    }
+
+    [Fact]
     public async Task ParseAsync_CustomPropertyValues_AreCanonicalized()
     {
         InfrastructureDeclarationReference declaration = new()

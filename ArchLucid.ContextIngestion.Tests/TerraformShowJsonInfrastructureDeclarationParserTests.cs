@@ -899,6 +899,37 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_ResourceNameCasing_IsCanonicalized()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-case",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_virtual_network",
+                                "name": "Hub-Vnet",
+                                "values": {}
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Name.Should().Be("azurerm_virtual_network.hub-vnet");
+    }
+
+    [Fact]
     public async Task ParseAsync_whitespace_content_returns_empty()
     {
         InfrastructureDeclarationReference decl = new()
