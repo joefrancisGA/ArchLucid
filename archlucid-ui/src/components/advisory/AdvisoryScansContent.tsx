@@ -18,6 +18,7 @@ import { AdvisorySampleRecommendationPreview } from "@/components/advisory/Advis
 import { AdvisoryScanSummaryPanel } from "@/components/advisory/AdvisoryScanSummaryPanel";
 import { AdvisoryScansPickReviewBeforeScanningStrip } from "@/components/advisory/AdvisoryScansPickReviewBeforeScanningStrip";
 import { AdvisoryScansNextReviewFooterClient } from "@/components/advisory/AdvisoryScansNextReviewFooterClient";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AdvisoryResultsSchedulesVocabularyRail } from "@/components/AdvisoryResultsSchedulesVocabularyRail";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -65,6 +66,10 @@ import {
   ADVISORY_SCANS_VIEW_SAMPLE_LABEL,
 } from "@/lib/advisory-copy";
 import { buildAdvisoryScanSummary } from "@/lib/advisory-scan-summary";
+import {
+  resolveAdvisoryScansScanEmphasizedStepId,
+  resolveAdvisoryScansScanSteps,
+} from "@/lib/advisory-scans-scan-checklist";
 import { getImprovementPlan } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -190,6 +195,16 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
 
   const reviewSelected = runId.trim().length > 0;
   const hasResults = planSummary !== null || recommendations.length > 0;
+  const advisoryScanChecklistSteps = resolveAdvisoryScansScanSteps({
+    reviewPicked: reviewSelected,
+    scanConfigured: reviewSelected,
+    scanComplete: hasResults || lastLoadedUtc !== null,
+  });
+  const advisoryScanChecklistEmphasizedStepId = resolveAdvisoryScansScanEmphasizedStepId({
+    reviewPicked: reviewSelected,
+    scanConfigured: reviewSelected,
+    scanComplete: hasResults || lastLoadedUtc !== null,
+  });
   const generateDisabledReason: WhyDisabledCtaReason | null = reviewSelected
     ? null
     : { kind: "prerequisite", message: ADVISORY_SCANS_GENERATE_DISABLED_HINT };
@@ -410,9 +425,17 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
 
       {runId.trim().length === 0 ? (
         <AdvisoryScansPickReviewBeforeScanningStrip selectedReviewId={runId} onSelectReview={setRunId} />
-      ) : null}
+      ) : (
+        <IntegrationConnectChecklist
+          title="Scan checklist"
+          steps={advisoryScanChecklistSteps}
+          emphasizedStepId={advisoryScanChecklistEmphasizedStepId}
+          testIdPrefix="advisory-scans-scan"
+        />
+      )}
 
-      <section
+      {reviewSelected ? (
+        <section
         className={cn(DESIGN_TOKENS.surface.card, "mb-6 mt-4 space-y-4 p-5")}
         aria-label={ADVISORY_SCANS_FORM_SECTION_TITLE}
         data-testid="advisory-scan-form"
@@ -562,6 +585,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
           ) : null}
         </div>
       </section>
+      ) : null}
 
       {!hasResults ? (
         <div className="mb-6 flex flex-wrap items-center gap-2" data-testid="advisory-scans-empty-actions">
