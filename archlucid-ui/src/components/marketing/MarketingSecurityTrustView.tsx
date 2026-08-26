@@ -20,6 +20,8 @@ import {
   type AssuranceMaturityTier,
 } from "@/lib/security-trust-content";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
+import { formatTrustCenterReviewDate } from "@/lib/trust-center-review-date";
+import type { TrustCenterReviewDateDisplay } from "@/lib/trust-center-review-date";
 
 const MATURITY_RENDER_ORDER: AssuranceMaturityTier[] = ["available_now", "during_diligence", "planned_next"];
 
@@ -43,20 +45,6 @@ function renderSummaryAccess(row: AssuranceEngagementRow): ReactNode {
   }
 
   return <span>{row.summaryAccess.description}</span>;
-}
-
-function formatAssuranceReviewDate(lastReviewedUtc: string | null | undefined): string {
-  if (lastReviewedUtc === null || lastReviewedUtc === undefined) {
-    return "Updated with each assurance-cycle refresh";
-  }
-
-  const parsed: Date = new Date(lastReviewedUtc);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return lastReviewedUtc;
-  }
-
-  return parsed.toISOString().slice(0, 10);
 }
 
 function assuranceMaturityStatusKind(tier: AssuranceMaturityTier): "ready" | "needs-attention" | "draft" {
@@ -86,7 +74,7 @@ function assuranceAccessStatusKind(row: AssuranceEngagementRow): "ready" | "need
 /** Public engagement metadata — procurement-safe cards (no truncated wide tables). */
 export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProps): ReactNode {
   const rows = props.rows ?? securityTrustEngagementRows;
-  const reviewedLabel: string = formatAssuranceReviewDate(props.lastReviewedUtc);
+  const reviewDate: TrustCenterReviewDateDisplay = formatTrustCenterReviewDate(props.lastReviewedUtc);
   const byTier = new Map<AssuranceMaturityTier, AssuranceEngagementRow[]>();
 
   for (const row of rows) {
@@ -101,7 +89,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
 
   return (
     <MarketingPageShell variant="trust" className={cn("space-y-12", TRUST_CENTER_PUBLIC_LAYOUT.page)}>
-      <AssuranceStatusPageChrome hero={<AssuranceStatusPageHero reviewedLabel={reviewedLabel} />}>
+      <AssuranceStatusPageChrome hero={<AssuranceStatusPageHero reviewDate={reviewDate} />}>
         <AssuranceStatusVocabularyDisclosure />
 
         <section aria-labelledby="security-trust-assurance-ladder" className="space-y-6">
