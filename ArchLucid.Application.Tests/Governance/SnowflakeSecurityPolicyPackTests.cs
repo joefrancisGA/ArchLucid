@@ -38,7 +38,7 @@ public sealed class SnowflakeSecurityPolicyPackTests
         JsonObject document = LoadCuratedDocument();
         JsonArray rules = document["rules"]!.AsArray();
 
-        rules.Count.Should().BeGreaterOrEqualTo(35);
+        rules.Count.Should().BeGreaterThanOrEqualTo(35);
 
         HashSet<string> ids = new(StringComparer.OrdinalIgnoreCase);
 
@@ -127,7 +127,7 @@ public sealed class SnowflakeSecurityPolicyPackTests
             }
         }
 
-        withGuidanceLanguage.Should().BeGreaterOrEqualTo(30);
+        withGuidanceLanguage.Should().BeGreaterThanOrEqualTo(30);
     }
 
     private static string RequireRepoRoot()

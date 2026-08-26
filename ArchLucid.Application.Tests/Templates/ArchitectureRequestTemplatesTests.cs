@@ -32,13 +32,13 @@ public sealed class ArchitectureRequestTemplatesTests
 
         request.Should().NotBeNull();
         request.RequestId.Should().NotBeNullOrWhiteSpace();
-        request.RequestId.Length.Should().BeLessOrEqualTo(64);
+        request.RequestId.Length.Should().BeLessThanOrEqualTo(64);
         request.Description.Should().NotBeNullOrWhiteSpace();
         request.Description.Length.Should().BeInRange(ArchitectureRequestFieldLimits.MinDescriptionLength, ArchitectureRequestFieldLimits.MaxDescriptionLength);
         request.SystemName.Should().NotBeNullOrWhiteSpace();
-        request.SystemName.Length.Should().BeLessOrEqualTo(200);
+        request.SystemName.Length.Should().BeLessThanOrEqualTo(200);
         request.Environment.Should().NotBeNullOrWhiteSpace();
-        request.Environment.Length.Should().BeLessOrEqualTo(50);
+        request.Environment.Length.Should().BeLessThanOrEqualTo(50);
         request.CloudProvider.Should().BeOneOf(CloudProvider.Azure, CloudProvider.Aws, CloudProvider.Gcp);
 
         request.Constraints.Should().NotBeNull();

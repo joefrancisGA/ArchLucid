@@ -53,7 +53,7 @@ public sealed class StarterProofPackArchitectureRequestTests
 
         request.Should().NotBeNull();
         request.RequestId.Should().NotBeNullOrWhiteSpace();
-        request.RequestId.Length.Should().BeLessOrEqualTo(64);
+        request.RequestId.Length.Should().BeLessThanOrEqualTo(64);
         request.SystemName.Should().NotBeNullOrWhiteSpace();
         request.Description.Length.Should().BeInRange(ArchitectureRequestFieldLimits.MinDescriptionLength, ArchitectureRequestFieldLimits.MaxDescriptionLength);
         request.Environment.Should().NotBeNullOrWhiteSpace();
