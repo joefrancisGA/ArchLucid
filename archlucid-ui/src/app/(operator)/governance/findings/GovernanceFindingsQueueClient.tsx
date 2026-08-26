@@ -24,10 +24,11 @@ import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskException
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  GovernanceFindingsAssignedToMeCountMismatchBanner,
   GovernanceFindingsAssignedToMeHeaderActions,
   GovernanceFindingsAssignedToMeHeaderMetadata,
   GovernanceFindingsAssignedToMeStatusBadge,
-} from "@/app/(operator)/governance/findings/GovernanceFindingsAssignedToMeHeader";
+} from "@/app/(operator)/governance/findings/GovernanceFindingsAssignedToMeChrome";
 import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyboardTriageCoach";
 import { AssignedToMeContinueOldestFindingStrip } from "@/components/usability/AssignedToMeContinueOldestFindingStrip";
 import { FindingsTriageFirstFindingStrip } from "@/components/usability/FindingsTriageFirstFindingStrip";
@@ -566,14 +567,10 @@ export default function GovernanceFindingsQueueClient({
         ) : null}
 
         {assignedToMeCountMismatch ? (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="governance-assigned-to-me-count-reconciliation"
-            role="status"
-          >
-            Header count ({assignedToMeCountQuery.data}) differs from loaded rows ({assignedToMeLoadedFindingCount}).
-            Refresh to reconcile.
-          </p>
+          <GovernanceFindingsAssignedToMeCountMismatchBanner
+            assignedToMeCountData={assignedToMeCountQuery.data}
+            assignedToMeLoadedFindingCount={assignedToMeLoadedFindingCount}
+          />
         ) : null}
 
         {!isAssignedToMe ? (

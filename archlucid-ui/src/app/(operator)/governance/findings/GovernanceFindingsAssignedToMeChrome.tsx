@@ -4,13 +4,15 @@ import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPag
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_LAST_CHECKED_PREFIX,
   GOVERNANCE_ASSIGNED_TO_ME_REFRESHING_LABEL,
 } from "@/lib/governance/governance-assigned-to-me-empty-state";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
+import { cn } from "@/lib/utils";
 
-export type GovernanceFindingsAssignedToMeHeaderProps = {
+export type GovernanceFindingsAssignedToMeChromeProps = {
   readonly assignedToMeCount: number;
   readonly assignedToMeWorkspaceLabel: string;
   readonly assignedToMeCheckedAt: Date | null;
@@ -18,6 +20,9 @@ export type GovernanceFindingsAssignedToMeHeaderProps = {
   readonly loading: boolean;
   readonly loadFailed: boolean;
   readonly onRefresh: () => void;
+  readonly assignedToMeCountMismatch: boolean;
+  readonly assignedToMeCountData: number | undefined;
+  readonly assignedToMeLoadedFindingCount: number;
 };
 
 export function GovernanceFindingsAssignedToMeStatusBadge({
@@ -25,7 +30,7 @@ export function GovernanceFindingsAssignedToMeStatusBadge({
   loading,
   loadFailed,
 }: Pick<
-  GovernanceFindingsAssignedToMeHeaderProps,
+  GovernanceFindingsAssignedToMeChromeProps,
   "assignedToMeCount" | "loading" | "loadFailed"
 >) {
   if (loading || loadFailed) {
@@ -50,7 +55,7 @@ export function GovernanceFindingsAssignedToMeStatusBadge({
 export function GovernanceFindingsAssignedToMeHeaderActions({
   assignedToMeRefreshing,
   onRefresh,
-}: Pick<GovernanceFindingsAssignedToMeHeaderProps, "assignedToMeRefreshing" | "onRefresh">) {
+}: Pick<GovernanceFindingsAssignedToMeChromeProps, "assignedToMeRefreshing" | "onRefresh">) {
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="governance-assigned-to-me-header-actions">
       <PageContextualHelpButton />
@@ -70,7 +75,7 @@ export function GovernanceFindingsAssignedToMeHeaderMetadata({
   assignedToMeCheckedAt,
   assignedToMeRefreshing,
 }: Pick<
-  GovernanceFindingsAssignedToMeHeaderProps,
+  GovernanceFindingsAssignedToMeChromeProps,
   "assignedToMeWorkspaceLabel" | "assignedToMeCheckedAt" | "assignedToMeRefreshing"
 >) {
   const assignedToMeFreshnessLabel = assignedToMeRefreshing
@@ -94,5 +99,24 @@ export function GovernanceFindingsAssignedToMeHeaderMetadata({
         {assignedToMeFreshnessLabel}
       </OperatorPageFreshnessMetadata>
     </>
+  );
+}
+
+export function GovernanceFindingsAssignedToMeCountMismatchBanner({
+  assignedToMeCountData,
+  assignedToMeLoadedFindingCount,
+}: Pick<
+  GovernanceFindingsAssignedToMeChromeProps,
+  "assignedToMeCountData" | "assignedToMeLoadedFindingCount"
+>) {
+  return (
+    <p
+      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="governance-assigned-to-me-count-reconciliation"
+      role="status"
+    >
+      Header count ({assignedToMeCountData}) differs from loaded rows ({assignedToMeLoadedFindingCount}).
+      Refresh to reconcile.
+    </p>
   );
 }
