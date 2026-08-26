@@ -12,6 +12,10 @@ import { useWhereToGoNextVisible } from "@/components/WhereToGoNextPreferencePro
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
+import {
+  filterWhereToGoNextFollowUpLinks,
+  isWhereToGoNextFollowUpsTitle,
+} from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { cn } from "@/lib/utils";
 
@@ -70,8 +74,15 @@ export function EvidenceOrientationSourcesSection({
   promotedSourceHref,
 }: EvidenceOrientationSourcesSectionProps): React.JSX.Element | null {
   const whereToGoNextVisible = useWhereToGoNextVisible();
+  const resolvedLinks = isWhereToGoNextFollowUpsTitle(title)
+    ? filterWhereToGoNextFollowUpLinks(links)
+    : links;
 
   if (!whereToGoNextVisible) {
+    return null;
+  }
+
+  if (resolvedLinks.length === 0) {
     return null;
   }
 
@@ -83,9 +94,9 @@ export function EvidenceOrientationSourcesSection({
   const introParagraph = <p className={style.intro}>{intro}</p>;
   const listClassNameResolved = listClassName ?? OPERATOR_TYPOGRAPHY.body;
   const columnsLinkListClass =
-    links.length <= 1 ? SOURCES_COLUMNS_COMPACT_LIST_CLASS : SOURCES_COLUMNS_LIST_CLASS;
+    resolvedLinks.length <= 1 ? SOURCES_COLUMNS_COMPACT_LIST_CLASS : SOURCES_COLUMNS_LIST_CLASS;
   const columnsLinkClass = layout === "columns" ? SOURCES_LINK_COLUMNS : style.link;
-  const linkItems = links.map((link) => {
+  const linkItems = resolvedLinks.map((link) => {
           const linkLabel = distinguishFollowUpDestinations
             ? formatHelpFollowUpLinkAccessibleName(link.href, link.label)
             : link.label;

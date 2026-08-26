@@ -16,13 +16,12 @@ export const PREFERENCES_SETTINGS_CLAIM_DISCIPLINE =
   "This Preferences page saves personal appearance choices to your account — not a full audit export. Open Getting started, Sign-in methods, or Assurance status when you need onboarding or official materials.";
 
 export const PREFERENCES_SETTINGS_SOURCES_INTRO =
-  "Open these pages when you need onboarding, sign-in security, user administration, or assurance status.";
+  "Open these pages when you need onboarding, sign-in security, or assurance status.";
 
 /** Operator Sources - no self-href to preferences. */
 export const PREFERENCES_SETTINGS_SOURCES: readonly EvidenceAdminSourceLink[] = [
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Sign-in methods", href: ACCOUNT_SECURITY_PATH },
-  { label: "Users and roles", href: "/administration/users", adminOnly: true },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Assurance status", href: "/assurance-status" },
 ] as const;
