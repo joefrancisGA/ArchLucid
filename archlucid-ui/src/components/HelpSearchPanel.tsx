@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ChevronRight, ExternalLink, Search } from "lucide-react";
+import { ArrowLeft, ExternalLink, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -14,11 +14,7 @@ import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { focusHelpDrawerRow } from "@/components/help/help-drawer-list-keyboard";
 import { HelpSearchPanelHeader } from "@/components/help/HelpSearchPanelHeader";
 import { useHelpPageSituation } from "@/components/help/help-page-situation-store";
-import {
-  HELP_DRAWER_CHEVRON_CLASS,
-  HELP_DRAWER_ROW_LIST_CLASS,
-  helpDrawerRowButtonClass,
-} from "@/components/help/help-drawer-row-class";
+import { HELP_DRAWER_ROW_LIST_CLASS } from "@/components/help/help-drawer-row-class";
 import { HelpDrawerDoThisNowRow } from "@/components/help/HelpDrawerDoThisNowRow";
 import { HelpDrawerTopicRow } from "@/components/help/HelpDrawerTopicRow";
 import { OperatorShellSupportQuickLinks } from "@/components/help/OperatorShellSupportQuickLinks";
@@ -59,10 +55,15 @@ import {
   listHelpOnHelpSectionAnchors,
   prioritizeHelpSearchHitsForCurrentPage,
 } from "@/lib/help/help-on-help";
-import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HelpDrawerDocHitRow, HelpDrawerGroupHeading } from "@/components/HelpSearchDrawerHits";
+import {
+  helpRecordHref,
+  helpRecordSelectionValue,
+  helpSlugFromHref,
+} from "@/components/help-search-panel-hrefs";
 
 export type HelpSearchPanelProps = {
   open: boolean;
@@ -76,99 +77,6 @@ type ArticleState =
   | { status: "loading"; slug: string }
   | { status: "loaded"; article: HelpArticleResponse }
   | { status: "error"; slug: string };
-
-function helpSlugFromHref(href: string): string | null {
-  const match = /^\/help\/([^#?]+)/.exec(href);
-
-  return match?.[1] ?? null;
-}
-
-function helpRecordHref(record: HelpDocSearchRecord): string {
-  const path = record.docPath.startsWith("/") ? record.docPath : `/${record.docPath}`;
-  const hash = record.sectionSlug.length > 0 ? `#${record.sectionSlug}` : "";
-
-  return resolveInAppDocHref(`${path}${hash}`);
-}
-
-function helpRecordSelectionValue(record: HelpDocSearchRecord): string {
-  return `${record.docPath}::${record.sectionSlug || "root"}::${record.sectionHeading}`;
-}
-
-function stripMdLinks(text: string): string {
-  return text.replace(/\[([^\]]+)\]\(([^)]*)\)/g, "$1");
-}
-
-type HelpDrawerDocHitRowProps = {
-  readonly hit: HelpDocSearchRecord;
-  readonly isHighlighted: boolean;
-  readonly onActivate: (record: HelpDocSearchRecord) => void;
-  readonly onHighlight: () => void;
-};
-
-function HelpDrawerDocHitRow({
-  hit,
-  isHighlighted,
-  onActivate,
-  onHighlight,
-}: HelpDrawerDocHitRowProps): React.JSX.Element {
-  const excerpt = stripMdLinks(hit.excerpt);
-  const accessibleLabel = `${hit.sectionHeading}. ${excerpt}`;
-
-  return (
-    <li className="list-none">
-      <button
-        type="button"
-        data-help-drawer-row=""
-        aria-label={accessibleLabel}
-        className={cn("group", helpDrawerRowButtonClass(isHighlighted))}
-        onClick={() => {
-          onActivate(hit);
-        }}
-        onFocus={onHighlight}
-        onMouseEnter={onHighlight}
-      >
-        <span className="min-w-0 flex-1">
-          <span
-            className={cn(
-              "block font-semibold text-neutral-900 dark:text-neutral-100",
-              OPERATOR_TYPOGRAPHY.body,
-            )}
-          >
-            {hit.sectionHeading}
-          </span>
-          <span
-            className={cn(
-              "mt-1 block line-clamp-2 leading-snug text-neutral-600 dark:text-neutral-400",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-          >
-            {excerpt}
-          </span>
-        </span>
-        <ChevronRight className={HELP_DRAWER_CHEVRON_CLASS} aria-hidden />
-      </button>
-    </li>
-  );
-}
-
-function HelpDrawerGroupHeading({
-  children,
-  id,
-}: {
-  readonly children: string;
-  readonly id?: string;
-}): React.JSX.Element {
-  return (
-    <h3
-      id={id}
-      className={cn(
-        "m-0 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400",
-      )}
-    >
-      {children}
-    </h3>
-  );
-}
 
 /**
  * Right-side contextual help drawer: curated launcher, live search, and inline article reader.
