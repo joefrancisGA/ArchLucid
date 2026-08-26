@@ -76,12 +76,13 @@ export const GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER =
 export const GUIDED_INTAKE_ACTORS_SECTION_HEADING = "People, systems, and integrations";
 
 export const GUIDED_INTAKE_TRUST_BOUNDARY_HINT =
-  "Add the people, systems, services, tenants, jobs, or APIs that interact with this architecture. Missing one can hide trust boundaries.";
+  "Add the people, systems, services, tenants, jobs, or APIs that interact with this architecture. Bicep, Terraform, and Helm uploads build topology but do not create Actor nodes — trust-boundary, privileged-access, and external-exposure findings need actors from this step.";
 
 export const GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT =
   "Add people and systems manually, or enter an architecture overview to generate suggestions.";
 
-export const GUIDED_INTAKE_ACTORS_EMPTY_STATE = "No people or systems added yet.";
+export const GUIDED_INTAKE_ACTORS_EMPTY_STATE =
+  "No people or systems added yet. IaC-only uploads stay quiet on trust-boundary and privileged-access until you add actors here.";
 
 /**
  *     Interaction is a timing axis, but its first option is named after a channel

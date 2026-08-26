@@ -144,6 +144,13 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
           </HelpDisclosure>
 
+          <HelpDisclosure
+            title={CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.title}
+            testId="core-pilot-actor-intake-disclosure"
+          >
+            {CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.body}
+          </HelpDisclosure>
+
           <CorePilotHelpPostStepperPanel />
 
           <CorePilotHelpClosingPanel />
