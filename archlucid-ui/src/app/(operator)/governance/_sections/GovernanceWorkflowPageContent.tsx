@@ -64,6 +64,7 @@ import {
 import type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
 import { GovernanceWorkflowMutationHost } from "./GovernanceWorkflowMutationHost";
 import { GovernanceApprovalQueueNextReviewFooterClient } from "./GovernanceApprovalQueueNextReviewFooterClient";
+import { GovernanceApprovalQueuePickReviewBeforeSubmittingStrip } from "./GovernanceApprovalQueuePickReviewBeforeSubmittingStrip";
 import {
   GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE,
   GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD,
@@ -151,6 +152,7 @@ export function GovernanceWorkflowPageContent() {
   } = mutations;
 
   const isReviewContext = activeRunId !== null;
+  const urlScopedRunId = searchParams.get("runId")?.trim() ?? "";
   const isShowcaseSampleContext =
     isReviewContext &&
     canonicalizeDemoRunId(activeRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
@@ -199,22 +201,6 @@ export function GovernanceWorkflowPageContent() {
     setMutationErrorMessage(null);
     replaceApprovalQueueUrl(id);
   }, [queryRunId, replaceApprovalQueueUrl, setMutationErrorMessage, setMutationSuccessMessage]);
-
-  useEffect(() => {
-    const fromQuery = searchParams.get("runId")?.trim() ?? "";
-
-    if (fromQuery.length > 0) {
-      return;
-    }
-
-    const workspaceRunId = workspaceRun?.activeRunId?.trim() ?? "";
-
-    if (workspaceRunId.length === 0 || queryRunId.trim().length > 0) {
-      return;
-    }
-
-    setQueryRunId(workspaceRunId);
-  }, [queryRunId, searchParams, workspaceRun?.activeRunId]);
 
   useEffect(() => {
     const fromQuery = searchParams.get("runId")?.trim() ?? "";
@@ -407,16 +393,25 @@ export function GovernanceWorkflowPageContent() {
       <GovernanceWorkflowMutationHost mutations={mutations} />
 
       {!isReviewContext ? (
-        <GovernanceOverviewPanelDeferred
-          buyerPolishedShell={buyerPolishedShell}
-          canMutateWorkflow={canMutateWorkflow}
-          queryRunId={queryRunId}
-          setQueryRunId={setQueryRunId}
-          onLoadReview={onLoadRun}
-          onFocusSubmit={focusSubmitSection}
-          onFocusPending={focusPendingApprovals}
-          listsLoading={listsLoading}
-        />
+        urlScopedRunId.length === 0 ? (
+          <GovernanceApprovalQueuePickReviewBeforeSubmittingStrip
+            selectedReviewId=""
+            onSelectReview={(reviewId) => {
+              replaceApprovalQueueUrl(reviewId);
+            }}
+          />
+        ) : (
+          <GovernanceOverviewPanelDeferred
+            buyerPolishedShell={buyerPolishedShell}
+            canMutateWorkflow={canMutateWorkflow}
+            queryRunId={queryRunId}
+            setQueryRunId={setQueryRunId}
+            onLoadReview={onLoadRun}
+            onFocusSubmit={focusSubmitSection}
+            onFocusPending={focusPendingApprovals}
+            listsLoading={listsLoading}
+          />
+        )
       ) : null}
 
       {isReviewContext ? (
