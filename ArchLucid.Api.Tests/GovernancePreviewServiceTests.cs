@@ -241,6 +241,22 @@ public sealed class GovernancePreviewServiceTests
     }
 
     [SkippableFact]
+    public async Task PreviewActivationAsync_WhenManifestBelongsToAnotherRun_ThrowsGoldenManifestVersionNotFoundException()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-a", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail("run-a"));
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("run-b", "v1"));
+
+        Func<Task<GovernancePreviewResult>> act = () => _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = "run-a", ManifestVersion = "v1", Environment = "dev"
+        });
+
+        await act.Should().ThrowAsync<GoldenManifestVersionNotFoundException>();
+    }
+
+    [SkippableFact]
     public async Task PreviewActivationAsync_WhenManifestVersionMissing_ThrowsGoldenManifestVersionNotFoundException()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))

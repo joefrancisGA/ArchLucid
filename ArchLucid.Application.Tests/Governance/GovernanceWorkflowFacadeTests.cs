@@ -4,8 +4,9 @@ using ArchLucid.Application;
 using ArchLucid.Application.Governance.Workflow;
 using ArchLucid.Application.Governance.Workflow.Stages;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
@@ -122,6 +123,36 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task ActivateAsync_throws_when_manifest_version_belongs_to_another_run()
+    {
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        Mock<IUnifiedGoldenManifestReader> manifests = new();
+        manifests
+            .Setup(m => m.GetByVersionAsync("v-foreign", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GoldenManifest
+            {
+                RunId = "run-other",
+                SystemName = "Sys",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Metadata = new ManifestMetadata { ManifestVersion = "v-foreign", CreatedUtc = DateTime.UtcNow }
+            });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            runDetail: runDetail.Object,
+            unifiedManifestReader: manifests.Object);
+
+        Func<Task> act = () => sut.ActivateAsync("run-1", "v-foreign", "test", "operator");
+
+        await act.Should().ThrowAsync<GoldenManifestVersionNotFoundException>();
+    }
+
+    [Fact]
     public async Task ActivateAsync_deactivates_existing_active_records()
     {
         GovernanceEnvironmentActivation existing = new()
@@ -185,7 +216,8 @@ public sealed class GovernanceWorkflowFacadeTests
         IGovernancePromotionRecordRepository? promotionRepo = null,
         IGovernanceEnvironmentActivationRepository? activationRepo = null,
         IRunDetailQueryService? runDetail = null,
-        IAuditService? durableAudit = null)
+        IAuditService? durableAudit = null,
+        IUnifiedGoldenManifestReader? unifiedManifestReader = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
@@ -246,6 +278,7 @@ public sealed class GovernanceWorkflowFacadeTests
             outbox.Object,
             integrationOptions.Object,
             Options.Create(new PreCommitGovernanceGateOptions()),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            unifiedManifestReader);
     }
 }

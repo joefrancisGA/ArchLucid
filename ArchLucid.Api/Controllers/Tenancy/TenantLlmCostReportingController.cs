@@ -1,3 +1,4 @@
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Billing;
 using ArchLucid.Contracts.Billing;
 using ArchLucid.Core.Authorization;
@@ -16,14 +17,27 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 [Route("v{version:apiVersion}/tenant")]
 public sealed class TenantLlmCostReportingController(ITenantLlmCostReportingService reportingService) : ControllerBase
 {
+    private const int MaxDays = 90;
+
+    private readonly ITenantLlmCostReportingService _reportingService =
+        reportingService ?? throw new ArgumentNullException(nameof(reportingService));
+
     [HttpGet("llm-cost-reporting")]
     [ProducesResponseType(typeof(LlmCostReportingDashboardResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<LlmCostReportingDashboardResponse>> GetDashboard(
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetDashboard(
         [FromQuery] int days = 30,
         CancellationToken cancellationToken = default)
     {
+        if (days is < 1 or > MaxDays)
+        {
+            return this.BadRequestProblem(
+                $"days must be between 1 and {MaxDays}.",
+                ProblemTypes.ValidationFailed);
+        }
+
         LlmCostReportingDashboardResponse dashboard =
-            await reportingService.BuildDashboardAsync(days, cancellationToken).ConfigureAwait(false);
+            await _reportingService.BuildDashboardAsync(days, cancellationToken).ConfigureAwait(false);
 
         return Ok(dashboard);
     }

@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Billing;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
@@ -14,6 +15,20 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class TenantLlmCostReportingControllerTests
 {
+    [Fact]
+    public async Task GetDashboard_returns_bad_request_when_days_out_of_range()
+    {
+        TenantLlmCostReportingController controller = new(Mock.Of<ITenantLlmCostReportingService>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult action = await controller.GetDashboard(days: 0, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
     [Fact]
     public async Task GetDashboard_returns_service_dashboard()
     {
@@ -40,10 +55,9 @@ public sealed class TenantLlmCostReportingControllerTests
 
         TenantLlmCostReportingController controller = new(reporting.Object);
 
-        ActionResult<LlmCostReportingDashboardResponse> action =
-            await controller.GetDashboard(days: 14, CancellationToken.None);
+        IActionResult action = await controller.GetDashboard(days: 14, CancellationToken.None);
 
-        OkObjectResult ok = action.Result.Should().BeOfType<OkObjectResult>().Subject;
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         LlmCostReportingDashboardResponse body =
             ok.Value.Should().BeOfType<LlmCostReportingDashboardResponse>().Subject;
 

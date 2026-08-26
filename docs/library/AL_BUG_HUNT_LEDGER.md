@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 27
-- **bugs-found:** 63
+- **hunts:** 28
+- **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — sponsor digest timezone validation + featured sample committed-only eligibility
+- **last-bug:** 2026-08-26 — cost settings 404, manifest-run binding, LLM days validation, promote scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2294,11 +2294,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — missing tenant returned HTTP 200 `{ inMigration: false }` instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantCatalogMigrationStatusControllerTests.GetCatalogMigrationStatusAsync_returns_not_found_when_tenant_missing`.
 - [x] (proven) `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — invalid `ianaTimeZoneId` persisted and weekly scanner silently fell back to UTC — **hit 2026-08-26:** validate with `IanaTimeZonePreferenceValues.NormalizeOrNull` (exec digest parity); regression in `TenantSponsorDigestPreferencesControllerTests.PostSponsorDigestPreferences_returns_bad_request_when_iana_time_zone_invalid`.
 - [x] (proven) `TenantHomepageSettingsController.ListEligibleSamplesAsync` / `FeaturedCompletedSampleEligibility.IsEligible` — `ReadyForCommit` runs with manifest listed as eligible completed samples — **hit 2026-08-26:** require `LegacyRunStatus = Committed` (aligned with stickiness funnel / pilot value report); regression in `FeaturedCompletedSampleServiceTests.ListEligibleCandidatesAsync_excludes_ready_for_commit_runs_with_manifest`.
-- [ ] (candidate) `TenantCostSettingsController.PutAsync` — missing tenant row may surface HTTP 500 (FK violation) instead of 404 (no `ITenantRepository` preflight).
-- [ ] (candidate) `GovernancePreviewController.Preview` / `GovernancePreviewService` — in-scope `runId` with manifest version belonging to another run returns HTTP 400 instead of 404 and names foreign run id.
-- [ ] (candidate) `GovernanceController.Activate` / `GovernanceWorkflowActivateStage` — bogus or foreign `manifestVersion` may persist on activation without manifest-run binding check (Preview path validates).
-- [ ] (candidate) `TenantLlmCostReportingController.GetDashboard` — out-of-range `days` query silently clamped to 1–90 instead of HTTP 400 (ROI bundle validates `rollingDays`).
-- [ ] (candidate) `GovernanceController.Promote` — mutating POST lacks controller-level `RequireScopedRunAsync` preflight present on `GetPromotions`/`GetActivations` read paths.
+- [x] (proven) `TenantCostSettingsController.PutAsync` — missing tenant row surfaced HTTP 500 (FK violation) instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync`; regression in `TenantCostSettingsControllerTests.PutAsync_returns_not_found_when_tenant_missing`.
+- [x] (proven) `GovernancePreviewController.Preview` / `GovernancePreviewService` — in-scope `runId` with manifest version belonging to another run returned HTTP 400 instead of 404 — **hit 2026-08-26:** throw `GoldenManifestVersionNotFoundException` on run mismatch (aligned with missing-version path); regression in `GovernancePreviewServiceTests.PreviewActivationAsync_WhenManifestBelongsToAnotherRun_ThrowsGoldenManifestVersionNotFoundException`.
+- [x] (proven) `GovernanceController.Activate` / `GovernanceWorkflowActivateStage` — bogus or foreign `manifestVersion` persisted on activation without manifest-run binding check — **hit 2026-08-26:** resolve and validate manifest via `IUnifiedGoldenManifestReader` (preview parity); regression in `GovernanceWorkflowFacadeTests.ActivateAsync_throws_when_manifest_version_belongs_to_another_run`.
+- [x] (proven) `TenantLlmCostReportingController.GetDashboard` — out-of-range `days` query silently clamped to 1–90 instead of HTTP 400 — **hit 2026-08-26:** controller validates `days` range (ROI bundle parity); regression in `TenantLlmCostReportingControllerTests.GetDashboard_returns_bad_request_when_days_out_of_range`.
+- [x] (proven) `GovernanceController.Promote` — mutating POST lacked controller-level `RequireScopedRunAsync` preflight present on read paths — **hit 2026-08-26:** scoped run preflight before promote workflow; regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_not_found_when_run_is_out_of_scope`.
+
+2026-08-26 thorough hunt #103: proved cost-settings tenant 404, preview/activate manifest-run binding, LLM cost days validation, and promote run-scope preflight.
 
 2026-08-26 seed hunt #102: proved sponsor digest timezone validation and featured-sample committed-only eligibility; seeded cost-settings 404, preview manifest/run mismatch, activate manifest binding, LLM cost days validation, and promote run-scope candidates.
 

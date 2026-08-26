@@ -3,6 +3,7 @@ using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Roi;
 
 using FluentAssertions;
@@ -83,6 +84,39 @@ public sealed class TenantCostSettingsControllerTests
     }
 
     [Fact]
+    public async Task PutAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ArchLucid.Core.Tenancy.ITenantRepository> tenantRepository = new();
+        tenantRepository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchLucid.Core.Tenancy.TenantRecord?)null);
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            tenantRepository.Object);
+
+        TenantCostSettingsPutRequest body = new()
+        {
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 30_000m
+        };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repository.Verify(
+            r => r.UpsertAsync(It.IsAny<TenantCostSettingsRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PutAsync_persists_row_and_returns_configured_response()
     {
         Mock<ITenantCostSettingsRepository> repository = new();
@@ -135,12 +169,23 @@ public sealed class TenantCostSettingsControllerTests
     private static TenantCostSettingsController CreateController(
         ITenantCostSettingsRepository repository,
         IScopeContextProvider scopeProvider,
-        IAuditService auditService)
+        IAuditService auditService,
+        ITenantRepository? tenantRepository = null)
     {
         Mock<IOptions<ValueReportComputationOptions>> options = new();
         options.Setup(o => o.Value).Returns(Defaults);
 
-        return new TenantCostSettingsController(repository, scopeProvider, auditService, options.Object)
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+
+        return new TenantCostSettingsController(
+            repository,
+            scopeProvider,
+            auditService,
+            options.Object,
+            tenantRepository ?? tenants.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

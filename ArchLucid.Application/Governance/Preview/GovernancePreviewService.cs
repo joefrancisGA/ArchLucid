@@ -47,8 +47,7 @@ public sealed class GovernancePreviewService(
         if (candidateManifest is null)
             throw new GoldenManifestVersionNotFoundException(request.ManifestVersion, request.RunId);
         if (!string.Equals(candidateManifest.RunId, request.RunId, StringComparison.Ordinal))
-            throw new InvalidOperationException(
-                $"Manifest version '{request.ManifestVersion}' belongs to run '{candidateManifest.RunId}', not '{request.RunId}'.");
+            throw new GoldenManifestVersionNotFoundException(request.ManifestVersion, request.RunId);
         IReadOnlyList<GovernanceEnvironmentActivation> activationRows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
         GovernanceEnvironmentActivation? active = activationRows.FirstOrDefault(a => a.IsActive);
         GoldenManifest? currentManifest = null;

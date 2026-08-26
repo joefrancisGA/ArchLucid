@@ -48,6 +48,11 @@ public sealed partial class GovernanceController
         if (idempotencyError is not null)
             return idempotencyError;
 
+        IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (scopeError is not null)
+            return scopeError;
+
         if (!string.IsNullOrWhiteSpace(request.ApprovalRequestId))
         {
             GovernanceApprovalRequest? approval = await approvalRepo
@@ -124,6 +129,11 @@ public sealed partial class GovernanceController
         {
             logger.LogWarning(ex, "Activate failed: run not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (GoldenManifestVersionNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Activate failed: manifest version not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
         }
     }
     [HttpGet("runs/{runId}/approval-requests")]
