@@ -51,6 +51,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly packageCommitted?: boolean;
   readonly analysisStagesComplete?: boolean;
   readonly triageVisibleCount?: number;
+  readonly graphSnapshot?: unknown;
   readonly requestAssumptionTexts?: readonly string[];
 };
 
@@ -82,6 +83,7 @@ export function RunDetailRunExplanationCollapsible(
     packageCommitted,
     analysisStagesComplete,
     triageVisibleCount,
+    graphSnapshot,
   } = props;
   const findingTitlesById = buildFindingTitlesById(quickDecisionFindings);
   const showCoverageAndCuration = hasFindingsSnapshotInsightDensityContent(insightDensityView);
@@ -107,6 +109,7 @@ export function RunDetailRunExplanationCollapsible(
           packageCommitted={packageCommitted}
           analysisStagesComplete={analysisStagesComplete}
           triageVisibleCount={triageVisibleCount}
+          graphSnapshot={graphSnapshot}
           requestAssumptionTexts={props.requestAssumptionTexts}
         />
 

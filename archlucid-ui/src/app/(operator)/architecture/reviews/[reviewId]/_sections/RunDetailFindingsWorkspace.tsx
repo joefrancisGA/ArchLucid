@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { ReactElement } from "react";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
+import { ActorDependentFindingsQuietEnginesHint } from "@/components/findings/ActorDependentFindingsQuietEnginesHint";
 import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
@@ -25,12 +26,14 @@ import {
 } from "@/lib/metric-count-presentation";
 import { ReviewPackageGovernanceFindingsVocabularyRail } from "@/components/ReviewPackageGovernanceFindingsVocabularyRail";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
+import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import {
   buildWorkspaceCardRenderedFindings,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import {
   deriveRunDetailFindingsTriageCounts,
   formatFindingsExcludedSummaryLine,
@@ -58,6 +61,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly packageCommitted?: boolean;
   readonly analysisStagesComplete?: boolean;
   readonly triageVisibleCount?: number;
+  readonly graphSnapshot?: unknown;
   readonly requestAssumptionTexts?: readonly string[];
   readonly onNavigateActivity?: () => void;
   readonly onNavigateClarifications?: () => void;
@@ -86,6 +90,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const [showLowConfidence, setShowLowConfidence] = useState(false);
   const [showAdvisory, setShowAdvisory] = useState(false);
   const createHomeSurface = props.packageCommitted === false;
+  const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
+  const showActorEnginesQuietHint =
+    props.analysisStagesComplete === true && actorNodeCount === 0;
   const triageCounts = deriveRunDetailFindingsTriageCounts(props.findings);
   const triageVisibleCount = props.triageVisibleCount ?? triageCounts.triageVisibleCount;
   const excludedSummaryLine = formatFindingsExcludedSummaryLine(triageCounts);
@@ -217,6 +224,8 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
 
   return (
     <div className="space-y-4" data-testid="run-detail-findings-workspace">
+      <SimulatorModeAiOperationNotice testId="run-detail-findings-simulator-notice" />
+      <ActorDependentFindingsQuietEnginesHint show={showActorEnginesQuietHint} />
       <FindingKeyboardTriageHost resolveRunId={(findingId) => (findingId.trim().length > 0 ? props.runId : null)} />
       {createHomeSurface ? <ArchitectureCreatedFindingsEvidenceOrientationStrip /> : null}
       {findingsSecondaryViewPresentation !== null ? (

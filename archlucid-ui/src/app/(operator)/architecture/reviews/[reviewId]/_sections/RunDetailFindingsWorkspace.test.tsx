@@ -22,6 +22,17 @@ vi.mock("@/components/findings/FindingsItsmExportToolbar", () => ({
   FindingsItsmExportToolbar: () => null,
 }));
 
+const simulatorNoticeMocks = vi.hoisted(() => ({
+  isSimulator: false,
+}));
+
+vi.mock("@/components/usability/SimulatorModeAiOperationNotice", () => ({
+  SimulatorModeAiOperationNotice: (props: { testId?: string }) =>
+    simulatorNoticeMocks.isSimulator ? (
+      <div data-testid={props.testId ?? "simulator-mode-ai-operation-notice"}>Simulator notice</div>
+    ) : null,
+}));
+
 function finding(overrides: Partial<QuickDecisionFinding>): QuickDecisionFinding {
   return {
     findingId: "f-default",
@@ -41,6 +52,7 @@ function finding(overrides: Partial<QuickDecisionFinding>): QuickDecisionFinding
 describe("RunDetailFindingsWorkspace", () => {
   beforeEach(() => {
     navigationMocks.searchParams = new URLSearchParams();
+    simulatorNoticeMocks.isSimulator = false;
   });
 
   it("writes findingJobView to the url when the operator changes job view", () => {
@@ -140,5 +152,41 @@ describe("RunDetailFindingsWorkspace", () => {
     expect(
       screen.getByTestId("review-package-governance-findings-vocabulary-peer-link"),
     ).toHaveAttribute("href", "/governance/findings?runId=run-abc");
+  });
+
+  it("shows simulator rehearsal notice on the findings workspace when mode is simulator", () => {
+    simulatorNoticeMocks.isSimulator = true;
+
+    render(<RunDetailFindingsWorkspace runId="run-1" findings={[]} />);
+
+    expect(screen.getByTestId("run-detail-findings-simulator-notice")).toBeInTheDocument();
+  });
+
+  it("shows actor-engine quiet hint when analysis is complete and graph has no actors", () => {
+    render(
+      <RunDetailFindingsWorkspace
+        runId="run-1"
+        findings={[]}
+        analysisStagesComplete={true}
+        graphSnapshot={{ nodes: [{ nodeType: "service" }] }}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-actor-engines-quiet-hint")).toHaveTextContent(
+      "Trust-boundary",
+    );
+  });
+
+  it("hides actor-engine quiet hint when actor nodes exist", () => {
+    render(
+      <RunDetailFindingsWorkspace
+        runId="run-1"
+        findings={[]}
+        analysisStagesComplete={true}
+        graphSnapshot={{ nodes: [{ nodeType: "Actor" }] }}
+      />,
+    );
+
+    expect(screen.queryByTestId("run-detail-actor-engines-quiet-hint")).not.toBeInTheDocument();
   });
 });
