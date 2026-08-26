@@ -55,7 +55,7 @@ type AuthDomainsInlineError = {
   readonly recovery: typeof AUTH_DOMAINS_MUTATION_RECOVERY;
 };
 
-type AuthDomainSelectedAction = (domain: string) => Promise<{ dnsVerificationInstruction?: string }>;
+type AuthDomainSelectedAction = import("./AuthDomainsVerificationPanel").AuthDomainSelectedAction;
 
 export type UseAuthDomainsPageModel = {
   readonly domains: TenantAuthDomainRecord[];

@@ -29,7 +29,8 @@ export type FindingDetailPresentation = {
   readonly inspectHref: string;
   readonly reviewFindingsHref: string;
   readonly reviewPackageHref: string;
-  readonly decisionSummary: ReturnType<typeof deriveFindingDecisionSummary>;
+  readonly linkedManifestHref: string | null;
+  readonly decisionSummary: ReturnType<typeof deriveFindingDecisionSummary> | null;
   readonly evidenceBasisSummary: string;
   readonly demoFillGaps: boolean;
   readonly whyThisMattersNarrative: string | null;

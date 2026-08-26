@@ -28,6 +28,8 @@ import type { AzureExtractorDemoScenarioId } from "@/lib/arch-lucid-azure-extrac
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { LlmMonthlyDollarBudgetStatus } from "@/lib/llm-monthly-budget-status";
 import type { ReviewIntakeExampleTemplate } from "@/lib/operator/operator-home-example-request";
+import type { WizardCreationProgressState } from "@/components/wizard/WizardCreationProgressNotices";
+import type { WizardBaselineConfidence } from "@/lib/wizard-baseline-confidence";
 import {
   FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
   FULL_WIZARD_EVIDENCE_STEP_INDEX,
@@ -102,15 +104,15 @@ export type NewRunWizardStepBodyProps = {
   readonly setFocusedPilotModeEnabled: (enabled: boolean) => void;
   readonly baselineReviewCycleHours: string;
   readonly setBaselineReviewCycleHours: (value: string) => void;
-  readonly baselineConfidence: string;
-  readonly setBaselineConfidence: (value: string) => void;
+  readonly baselineConfidence: WizardBaselineConfidence;
+  readonly setBaselineConfidence: (value: WizardBaselineConfidence) => void;
   readonly baselineMetricsError: string | null;
   readonly setBaselineMetricsError: (error: string | null) => void;
   readonly runId: string | null;
   readonly showNav: boolean;
-  readonly creationProgress: number | null;
+  readonly creationProgress: WizardCreationProgressState;
   readonly recheckUnresolvedRun: () => Promise<void>;
-  readonly submitError: string | null;
+  readonly submitError: unknown;
   readonly isReviewStep: boolean;
   readonly goBack: () => void;
   readonly goNext: () => Promise<void>;

@@ -160,7 +160,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
           {inspectPayload !== null && buyerRecommendedActionParagraph !== null ? (
             <FindingInspectRecommendedActionSection
               tone="detail"
-              structuredActions={buyerStructuredActions}
+              structuredActions={[...buyerStructuredActions]}
               recommendedActionParagraph={buyerRecommendedActionParagraph}
               showOwnerCadence
             />

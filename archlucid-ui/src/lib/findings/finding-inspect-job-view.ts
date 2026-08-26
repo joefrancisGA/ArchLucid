@@ -8,6 +8,8 @@ import {
   classifyReviewFindingJobView,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
+
+export type { FindingJobView };
 import {
   coerceArchitectureFindingSeverity,
   type QuickDecisionFinding,

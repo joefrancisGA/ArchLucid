@@ -218,7 +218,7 @@ export function AuthDomainsPageClient() {
       <AuthDomainsDomainListPanel
         loading={loading}
         domains={domains}
-        selectedDomain={selectedDomain}
+        selectedDomain={selectedDomain ?? ""}
         setSelectedDomain={setSelectedDomain}
         setDnsInstruction={setDnsInstruction}
         newDomain={newDomain}

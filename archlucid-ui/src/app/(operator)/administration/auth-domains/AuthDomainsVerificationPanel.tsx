@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+export type AuthDomainSelectedAction = (domain: string) => Promise<{ dnsVerificationInstruction?: string }>;
+
 export type AuthDomainsVerificationPanelProps = {
   readonly selected: TenantAuthDomainRecord;
   readonly dnsInstruction: string | null;
@@ -18,7 +20,7 @@ export type AuthDomainsVerificationPanelProps = {
   readonly testEmail: string;
   readonly setTestEmail: (value: string) => void;
   readonly runForSelected: (
-    action: (domain: string) => Promise<unknown>,
+    action: AuthDomainSelectedAction,
     successMessage: string,
   ) => Promise<void>;
   readonly handlePreviewRouting: () => Promise<void>;

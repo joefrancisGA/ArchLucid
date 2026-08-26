@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 
+import type { AuditPageEventGroup } from "./audit-page-view-props";
 import {
   auditEventLifecycleSortKey,
   auditEventsAreLifecycleOnlyForGrouping,
@@ -31,7 +32,7 @@ export type UseAuditPageLifecycleGroupsArgs = {
 export type UseAuditPageLifecycleGroupsResult = {
   readonly auditSearchEmptyLine: string;
   readonly displayEvents: AuditEvent[];
-  readonly displayEventGroups: ReturnType<typeof groupAuditEventsByLifecycleStage> | null;
+  readonly displayEventGroups: AuditPageEventGroup[] | null;
   readonly uniformRunIdForDisplay: string | null;
   readonly buyerAuditTrailSummaryLine: string | null;
   readonly buyerAuditTrailMetrics: ReturnType<typeof buyerAuditTrailGovernanceSummaryCounts> | null;
@@ -57,7 +58,7 @@ export function useAuditPageLifecycleGroups(
 
   const sortedDisplayEvents = useMemo(() => {
     if (!storyPresentation) {
-      return events;
+      return [...events];
     }
 
     return [...events].sort((eventA, eventB) => {

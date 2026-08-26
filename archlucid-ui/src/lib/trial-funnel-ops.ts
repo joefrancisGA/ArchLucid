@@ -1,5 +1,7 @@
 import type { TrialFunnelPeriodDays } from "@/lib/trial-funnel-metric-contract";
 
+export type { TrialFunnelPeriodDays };
+
 export type TrialFunnelStageMetric = {
   stageId: string;
   label: string;
