@@ -71,13 +71,13 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
     : "bg-emerald-100 dark:bg-emerald-200";
 
   const chipBody = (
-  <>
-    <span
-      aria-hidden
-      className={cn("inline-block size-2 shrink-0 animate-pulse rounded-full", dotClassName)}
-    />
-    {label}
-  </>
+    <>
+      <span
+        aria-hidden
+        className={cn("inline-block size-2 shrink-0 animate-pulse rounded-full", dotClassName)}
+      />
+      {label}
+    </>
   );
 
   return (
