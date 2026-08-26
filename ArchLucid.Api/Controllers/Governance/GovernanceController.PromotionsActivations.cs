@@ -34,6 +34,7 @@ public sealed partial class GovernanceController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernancePromotionRecord), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Promote(
         [FromBody] CreateGovernancePromotionRequest? request,
         [FromQuery] bool dryRun = false,
@@ -46,6 +47,20 @@ public sealed partial class GovernanceController
 
         if (idempotencyError is not null)
             return idempotencyError;
+
+        if (!string.IsNullOrWhiteSpace(request.ApprovalRequestId))
+        {
+            GovernanceApprovalRequest? approval = await approvalRepo
+                .GetByIdAsync(request.ApprovalRequestId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (approval is null)
+            {
+                return this.NotFoundProblem(
+                    $"Approval request '{request.ApprovalRequestId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+        }
 
         string promotedBy = actorContext.GetActor();
 
