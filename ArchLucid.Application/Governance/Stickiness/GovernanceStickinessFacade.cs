@@ -28,7 +28,8 @@ public sealed partial class GovernanceStickinessFacade(
     IGovernanceDigestDecisionNeededComposer governanceDigestDecisionNeededComposer,
     IReviewsAwaitingActionQueryService reviewsAwaitingActionQueryService,
     IRealizedValueAttestationService attestationService,
-    IAuditService auditService) : IGovernanceStickinessFacade
+    IAuditService auditService,
+    IFindingInspectReadRepository findingInspectReadRepository) : IGovernanceStickinessFacade
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -75,6 +76,9 @@ public sealed partial class GovernanceStickinessFacade(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
+    private readonly IFindingInspectReadRepository _findingInspectReadRepository =
+        findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
+
     /// <inheritdoc />
     public async Task<ArchitectureRiskRegisterResponse> GetRiskRegisterAsync(
         Guid? projectId,
@@ -83,6 +87,10 @@ public sealed partial class GovernanceStickinessFacade(
         CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
+            return new ArchitectureRiskRegisterResponse { Entries = [] };
+
         ArchitectureRiskRegisterListOptions? options = null;
 
         if (assignedToMe)
@@ -102,7 +110,7 @@ public sealed partial class GovernanceStickinessFacade(
 
         return await _riskRegisterService.GetRegisterAsync(
             scope.TenantId,
-            projectId ?? scope.ProjectId,
+            resolvedProjectId,
             Math.Clamp(maxRows, 1, 500),
             options,
             ct);

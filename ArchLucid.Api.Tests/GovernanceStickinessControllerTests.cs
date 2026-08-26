@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
 
@@ -138,7 +139,8 @@ public sealed class GovernanceStickinessControllerTests
                     digestComposer.Object,
                     reviewsAwaiting.Object,
                     Mock.Of<IRealizedValueAttestationService>(),
-                    audit.Object),
+                    audit.Object,
+                    Mock.Of<IFindingInspectReadRepository>()),
                 scope.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
@@ -167,7 +169,8 @@ public sealed class GovernanceStickinessControllerTests
                     digestComposer ?? Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
                     reviewsAwaiting ?? Mock.Of<IReviewsAwaitingActionQueryService>(),
                     Mock.Of<IRealizedValueAttestationService>(),
-                    Mock.Of<IAuditService>()),
+                    Mock.Of<IAuditService>(),
+                    Mock.Of<IFindingInspectReadRepository>()),
                 scopeProvider)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
