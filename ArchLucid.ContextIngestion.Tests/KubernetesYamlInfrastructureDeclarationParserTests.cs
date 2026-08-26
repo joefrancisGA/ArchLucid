@@ -59,4 +59,36 @@ public sealed class KubernetesYamlInfrastructureDeclarationParserTests
             && o.ObjectType == "TopologyResource"
             && o.Properties["k8s.kind"] == "deployment");
     }
+
+    [Fact]
+    public async Task ParseAsync_KindList_MapsMultipleItems()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "list.yaml",
+            Format = "kubernetes-yaml",
+            DeclarationId = "decl-k8s-yaml-list",
+            Content = """
+                      apiVersion: v1
+                      kind: List
+                      items:
+                        - apiVersion: apps/v1
+                          kind: Deployment
+                          metadata:
+                            name: api
+                            namespace: prod
+                        - apiVersion: networking.k8s.io/v1
+                          kind: NetworkPolicy
+                          metadata:
+                            name: deny-all
+                            namespace: prod
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(o => o.Name == "prod/api" && o.ObjectType == "TopologyResource");
+        result.Should().ContainSingle(o => o.Name == "prod/deny-all" && o.ObjectType == "SecurityBaseline");
+    }
 }

@@ -430,10 +430,52 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         JsonElement sensitiveRoot,
         Dictionary<string, string> properties)
     {
-        foreach (string? pk in from sp in sensitiveRoot.EnumerateObject() where sp.Value.ValueKind == JsonValueKind.True select CanonicalInfrastructurePropertyBag.SanitizePropertyKey(sp.Name) into k where !string.IsNullOrEmpty(k) select $"tf.{k}" into pk where properties.ContainsKey(pk) select pk)
+        foreach (JsonProperty sensitiveProperty in sensitiveRoot.EnumerateObject())
         {
-            properties[pk] = "[REDACTED]";
+            string sanitizedKey = CanonicalInfrastructurePropertyBag.SanitizePropertyKey(sensitiveProperty.Name).ToLowerInvariant();
+
+            if (string.IsNullOrEmpty(sanitizedKey))
+                continue;
+
+            string propertyKey = $"tf.{sanitizedKey}";
+
+            if (!properties.ContainsKey(propertyKey))
+                continue;
+
+            if (sensitiveProperty.Value.ValueKind is JsonValueKind.True
+                || ContainsSensitiveMarker(sensitiveProperty.Value))
+            {
+                properties[propertyKey] = "[REDACTED]";
+            }
         }
+    }
+
+    private static bool ContainsSensitiveMarker(JsonElement value)
+    {
+        if (value.ValueKind is JsonValueKind.True)
+            return true;
+
+        if (value.ValueKind is JsonValueKind.Object)
+        {
+            foreach (JsonProperty nestedProperty in value.EnumerateObject())
+            {
+                if (ContainsSensitiveMarker(nestedProperty.Value))
+                    return true;
+            }
+
+            return false;
+        }
+
+        if (value.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement item in value.EnumerateArray())
+            {
+                if (ContainsSensitiveMarker(item))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     private static string ResolveObjectTypeFromTerraformType(string tfType)

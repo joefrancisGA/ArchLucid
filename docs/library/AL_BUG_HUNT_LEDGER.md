@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 53
-- **bugs-found:** 104
+- **hunts:** 54
+- **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — arm-json array properties dropped before network expander
+- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1953,10 +1953,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` read `values`/`root_module`/`resources`/`type`/`name` case-sensitively — **hit 2026-08-26:** exporter JSON with PascalCase `Values`/`Root_Module`/`Resources`/`Type`/`Name` returned zero resources; fixed with case-insensitive JSON property reads (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_PascalCasePropertyNames_MapsStorageAccount`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser` kept padded `type` whitespace in `terraformType` and resource `Name` — **hit 2026-08-26:** `" azurerm_virtual_network "` vs `azurerm_virtual_network` false-modified infrastructure declaration deltas and misaligned occurrence keys; fixed by trimming `type` in `TryAddResource` and `CountModuleLabelOccurrences` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_TrimsPaddedResourceType`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser.CopyBoundedProperties` dropped JSON array `properties` — **hit 2026-08-26:** `ipSecurityRestrictions` arrays were skipped so `AppServiceNetworkAccessSecurityBaselineExpander` never saw open-internet rules from arm-json declarations; fixed by serializing array/object values via `TryAddTfJsonProperty` and normalizing expander key lookup (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_WebSiteWithIpSecurityRestrictions_PreservesRulesForNetworkExpander`).
-- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser.RedactTopLevelSensitiveTfValues` redacts only top-level `sensitive_values` keys — nested sensitive markers may leak into serialized `tf.*` object blobs.
-- [ ] (candidate) `KubernetesYamlInfrastructureDeclarationParser` has no YAML-path tests for `kind: List` multi-item manifests (JSON List path covered).
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.RedactTopLevelSensitiveTfValues` ignored nested `sensitive_values` markers — **hit 2026-08-26:** nested `site_config.connection_string` leaked plaintext inside `tf.site_config` JSON blob; fixed by redacting `tf.*` keys when nested sensitive markers are present (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_redacts_nested_sensitive_tf_object_values`).
+- [x] (valid-no-repro) `KubernetesYamlInfrastructureDeclarationParser` YAML `kind: List` path — mapper already expands List items after YamlDotNet round-trip; added YAML-path regression `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_KindList_MapsMultipleItems`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+
+2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
 
 2026-08-26 thorough hunt #53: proved arm-json array property serialization gap for App Service network rules.
 

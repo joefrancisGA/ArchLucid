@@ -420,6 +420,46 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_redacts_nested_sensitive_tf_object_values()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-nested-sensitive",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_linux_web_app",
+                                "name": "app",
+                                "values": {
+                                  "site_config": {
+                                    "connection_string": "postgres://user:pass@host/db"
+                                  }
+                                },
+                                "sensitive_values": {
+                                  "site_config": {
+                                    "connection_string": true
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["tf.site_config"].Should().Be("[REDACTED]");
+    }
+
+    [Fact]
     public async Task ParseAsync_extracts_aws_ec2_topology_resource()
     {
         InfrastructureDeclarationReference decl = new()
