@@ -10,6 +10,12 @@ public sealed class PolicyTopologyOverlapResolverTests
     private readonly PolicyTopologyOverlapResolver _sut = new();
 
     [Fact]
+    public void Overlaps_canonicalizes_slash_spacing_on_policy_reference()
+    {
+        _sut.Overlaps("parentNet / childSubnet", "parentNet/childSubnet").Should().BeTrue();
+    }
+
+    [Fact]
     public void ResolveApplicableTopologyNodeIds_returns_obj_prefix_for_overlapping_hint()
     {
         string? ids = _sut.ResolveApplicableTopologyNodeIds(

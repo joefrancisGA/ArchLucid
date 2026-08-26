@@ -30,7 +30,7 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
         foreach (Match match in matches)
         {
             string terraformType = match.Groups["type"].Value;
-            string name = match.Groups["name"].Value;
+            string name = match.Groups["name"].Value.Trim();
 
             if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name))
                 continue;
