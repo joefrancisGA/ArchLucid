@@ -14,6 +14,28 @@ public sealed class KubernetesYamlInfrastructureDeclarationParserTests
         new(NullLogger<KubernetesYamlInfrastructureDeclarationParser>.Instance);
 
     [Fact]
+    public async Task ParseAsync_LowercaseKindValue_ClassifiesSecretAsSecurityBaseline()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "secret.yaml",
+            Format = "kubernetes-yaml",
+            DeclarationId = "decl-k8s-yaml-secret",
+            Content = """
+                      apiVersion: v1
+                      kind: secret
+                      metadata:
+                        name: db
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].ObjectType.Should().Be("SecurityBaseline");
+    }
+
+    [Fact]
     public async Task ParseAsync_PascalCaseKeys_MapsDeployment()
     {
         InfrastructureDeclarationReference declaration = new()

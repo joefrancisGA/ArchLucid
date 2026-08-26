@@ -70,6 +70,29 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_LowercaseKind_ClassifiesSecretAsSecurityBaseline()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "secret.json",
+            Format = "kubernetes-json",
+            Content = """
+                      {
+                        "apiVersion": "v1",
+                        "kind": "secret",
+                        "metadata": { "name": "db" }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].ObjectType.Should().Be("SecurityBaseline");
+        result[0].Properties["k8s.kind"].Should().Be("secret");
+    }
+
+    [Fact]
     public async Task ParseAsync_reparse_produces_stable_object_ids_for_deployments()
     {
         InfrastructureDeclarationReference declaration = new()

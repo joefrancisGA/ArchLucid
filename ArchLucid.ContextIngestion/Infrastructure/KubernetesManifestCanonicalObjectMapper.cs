@@ -119,10 +119,10 @@ internal static class KubernetesManifestCanonicalObjectMapper
 
     private static string ResolveObjectType(string kind)
     {
-        return kind switch
+        return kind.ToLowerInvariant() switch
         {
-            "NetworkPolicy" or "Role" or "ClusterRole" or "RoleBinding" or "ClusterRoleBinding"
-                or "ServiceAccount" or "Ingress" or "Secret" => "SecurityBaseline",
+            "networkpolicy" or "role" or "clusterrole" or "rolebinding" or "clusterrolebinding"
+                or "serviceaccount" or "ingress" or "secret" => "SecurityBaseline",
             _ => "TopologyResource",
         };
     }
