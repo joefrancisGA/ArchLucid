@@ -140,7 +140,7 @@ public static class ProblemSupportHints
                 + "(EnforceOnReject, BlockRunOnReject, PilotStrict thresholds).";
 
         if (typeUri is ProblemTypes.ValidationFailed or ProblemTypes.BadRequest or ProblemTypes.RequestBodyRequired)
-            return "Correct the request using the detail and validation entries above. Swagger (/swagger) lists required fields for each endpoint.";
+            return "Correct the request using the detail and validation entries above.";
 
         if (typeUri == ProblemTypes.InvalidRunState)
             return "Check run status (GET run detail): execute agent tasks before commit, or avoid repeating a terminal step.";
