@@ -108,7 +108,6 @@ export function AskPageContent() {
             },
           ]);
           setSelectedThreadId("thread-claims-intake-001");
-          setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
           setMessages(seeded);
 
           return;
@@ -145,7 +144,6 @@ export function AskPageContent() {
             },
           ]);
           setSelectedThreadId("thread-claims-intake-001");
-          setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
           setMessages(seeded);
 
           return;
@@ -179,7 +177,6 @@ export function AskPageContent() {
             },
           ]);
           setSelectedThreadId("thread-claims-intake-001");
-          setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
           setMessages(seeded);
         }
       }
