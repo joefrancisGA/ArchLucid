@@ -18,7 +18,6 @@ import { Label } from "@/components/ui/label";
 import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import {
-  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
