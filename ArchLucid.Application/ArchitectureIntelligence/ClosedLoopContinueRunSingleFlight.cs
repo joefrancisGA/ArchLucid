@@ -5,7 +5,7 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 /// <summary>
 ///     Continue-from-existing closed-loop flights, kept off the review-cache key space.
 /// </summary>
-internal sealed class ClosedLoopContinueRunSingleFlight
+public sealed class ClosedLoopContinueRunSingleFlight
 {
     private readonly ReviewSingleFlightCoordinator _coordinator = new();
 

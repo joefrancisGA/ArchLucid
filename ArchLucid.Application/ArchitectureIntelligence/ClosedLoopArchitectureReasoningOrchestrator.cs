@@ -579,7 +579,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 cancellationToken);
         }
 
-        if (cacheManifest is not null)
+        if (cacheManifest is not null && persistModel)
         {
             if (string.IsNullOrWhiteSpace(effectiveRequest.RunId))
             {

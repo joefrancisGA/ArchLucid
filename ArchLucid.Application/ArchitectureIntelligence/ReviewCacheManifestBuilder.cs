@@ -70,7 +70,7 @@ public static class ReviewCacheManifestBuilder
         if (!string.IsNullOrWhiteSpace(request.RunId))
         {
             builder.Append("modelfp=")
-                .Append(ReviewCacheModelFingerprint.Compute(baselineKnowledgeModel))
+                .Append(ReviewCacheModelFingerprint.Compute(baselineKnowledgeModel ?? new ArchitectureKnowledgeModel()))
                 .Append('|');
         }
 
