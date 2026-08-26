@@ -201,6 +201,12 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(within(suggestion).getByText("EU data residency")).toBeInTheDocument();
     expect(within(suggestion).getByRole("button", { name: "Confirm" })).toBeInTheDocument();
     expect(within(suggestion).getByRole("button", { name: "Deny" })).toBeInTheDocument();
+    const suggestionButtons = within(suggestion).getAllByRole("button");
+    const confirmButtonIndex = suggestionButtons.findIndex((button) => button.textContent === "Confirm");
+    const denyButtonIndex = suggestionButtons.findIndex((button) => button.textContent === "Deny");
+    expect(confirmButtonIndex).toBeGreaterThanOrEqual(0);
+    expect(denyButtonIndex).toBeGreaterThanOrEqual(0);
+    expect(confirmButtonIndex).toBeLessThan(denyButtonIndex);
     expect(within(suggestion).getByRole("button", { name: /Explain/i })).toBeInTheDocument();
     expect(screen.queryByText("Suggested", { selector: "span" })).not.toBeInTheDocument();
   });
