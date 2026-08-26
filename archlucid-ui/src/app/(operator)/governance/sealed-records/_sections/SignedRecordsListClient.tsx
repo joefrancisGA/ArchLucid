@@ -56,6 +56,7 @@ import {
 } from "./signed-records-list-copy";
 import { SignedRecordsContinueLastViewedRow } from "./SignedRecordsContinueLastViewedRow";
 import { SignedRecordsListPickReviewBeforeFilteringStrip } from "./SignedRecordsListPickReviewBeforeFilteringStrip";
+import { SignedRecordsListNextReviewFooterClient } from "./SignedRecordsListNextReviewFooterClient";
 import { SignedRecordsListPagination } from "./SignedRecordsListPagination";
 import { SignedRecordsListTableSkeleton } from "./SignedRecordsListTableSkeleton";
 import {
@@ -456,6 +457,8 @@ export default function SignedRecordsListClient() {
           onNext={goToNextPage}
         />
       ) : null}
+
+      {scopedRunFilterActive ? <SignedRecordsListNextReviewFooterClient runId={scopedRunId} /> : null}
     </OperatorPageContainer>
   );
 }
