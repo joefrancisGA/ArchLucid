@@ -15,6 +15,7 @@ vi.mock("next/navigation", () => ({
 
 import { HelpConfigurationReferenceGuideView } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceGuideView";
 import {
+  CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE,
   CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS,
 } from "@/lib/configuration-reference-help-guide-content";
 import {
@@ -26,6 +27,7 @@ import {
   configurationReferenceHelpRelatedGuides,
 } from "@/lib/configuration-reference-help-related-guides";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 /** TB-1330 — product presentation must not keep eng-library hrefs. */
@@ -60,7 +62,16 @@ describe("HelpConfigurationReferenceGuideView", () => {
     expect(screen.getByTestId("help-configuration-reference-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-configuration-reference-task-sections")).toBeInTheDocument();
-    expect(screen.getByTestId("help-configuration-reference-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-configuration-reference-claim-discipline")).toBeNull();
+    expect(screen.getByTestId("help-configuration-reference-claim-discipline-strip")).toHaveTextContent(
+      CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-configuration-reference",
+      "help-configuration-reference-claim-discipline",
+      CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId(CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("help-configuration-reference-job-matrix-current")).toHaveTextContent(
       CONFIGURATION_REFERENCE_HELP_JOB_MATRIX.find((row) => row.isCurrent === true)?.label ?? "",
@@ -82,6 +93,11 @@ describe("HelpConfigurationReferenceGuideView", () => {
     expect(appendix).not.toHaveAttribute("open");
 
     const actionPanel = screen.getByTestId("help-configuration-reference-action-panel");
+    const claimStrip = screen.getByTestId("help-configuration-reference-claim-discipline-strip");
+
+    expect(claimStrip.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(actionPanel.className).not.toMatch(/bg-teal-/);
+    expect(actionPanel.className).not.toMatch(/border-teal-/);
 
     expect(
       within(actionPanel).getByRole("link", {

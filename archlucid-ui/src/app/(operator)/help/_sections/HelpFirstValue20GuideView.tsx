@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { FirstValue20HelpClaimDisciplineStrip } from "@/components/help/FirstValue20HelpClaimDisciplineStrip";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -9,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE,
   FIRST_VALUE_20_HELP_JOB_MATRIX,
   FIRST_VALUE_20_HELP_ORIENTATION,
   FIRST_VALUE_20_HELP_OVERVIEW,
@@ -75,15 +75,42 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
         }
       />
 
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <div
-          className={cn(DESIGN_TOKENS.callout.info, "p-3")}
-          data-testid="help-first-value-20-action-panel"
+      <FirstValue20HelpClaimDisciplineStrip />
+
+      <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn, "max-w-[42rem] lg:max-w-none")}>
+        <section
+          aria-labelledby="help-first-value-20-orientation-heading"
+          data-testid="help-first-value-20-orientation"
         >
-          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          <h2
+            id="help-first-value-20-orientation-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            20-minute orientation
+          </h2>
+          <ol className={cn("m-0 mt-2 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+            {FIRST_VALUE_20_HELP_ORIENTATION.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </section>
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-first-value-20-overview">
+          {FIRST_VALUE_20_HELP_OVERVIEW}
+        </p>
+
+        <section
+          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+          data-testid="help-first-value-20-action-panel"
+          aria-labelledby="help-first-value-20-action-panel-heading"
+        >
+          <h2
+            id="help-first-value-20-action-panel-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
             Prefer customer paths first
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          </h2>
+          <div className="flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="primary" data-testid="help-first-value-20-primary-cta">
               <Link href={FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.startArchitectureReview.href}>
                 {FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.startArchitectureReview.label}
@@ -105,13 +132,7 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
               {FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openTroubleshooting.label}
             </Link>
           </div>
-        </div>
-      </div>
-
-      <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn, "max-w-[42rem] lg:max-w-none")}>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-first-value-20-overview">
-          {FIRST_VALUE_20_HELP_OVERVIEW}
-        </p>
+        </section>
 
         <section
           className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -139,23 +160,6 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
               </li>
             ))}
           </ul>
-        </section>
-
-        <section
-          aria-labelledby="help-first-value-20-orientation-heading"
-          data-testid="help-first-value-20-orientation"
-        >
-          <h2
-            id="help-first-value-20-orientation-heading"
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-          >
-            20-minute orientation
-          </h2>
-          <ol className={cn("m-0 mt-2 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-            {FIRST_VALUE_20_HELP_ORIENTATION.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
         </section>
 
         <section
@@ -189,14 +193,6 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
             ))}
           </ul>
         </section>
-
-        <aside
-          className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
-          data-testid="help-first-value-20-claim-discipline"
-        >
-          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h3>
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE}</p>
-        </aside>
 
         <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-first-value-20-content">
           <MarketingAccessibilityMarkdownFragment

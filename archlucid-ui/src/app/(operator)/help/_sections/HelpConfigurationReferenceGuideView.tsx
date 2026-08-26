@@ -1,15 +1,14 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { ConfigurationReferenceHelpClaimDisciplineStrip } from "@/components/help/ConfigurationReferenceHelpClaimDisciplineStrip";
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE,
   CONFIGURATION_REFERENCE_HELP_OVERVIEW,
   CONFIGURATION_REFERENCE_HELP_PAGE_SUBTITLE,
   CONFIGURATION_REFERENCE_HELP_PAGE_TITLE,
@@ -29,7 +28,6 @@ import {
 } from "@/lib/configuration-reference-help-related-guides";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -75,6 +73,8 @@ export function HelpConfigurationReferenceGuideView(
         }
       />
 
+      <ConfigurationReferenceHelpClaimDisciplineStrip />
+
       <section
         aria-labelledby="help-configuration-reference-job-matrix-heading"
         className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
@@ -107,17 +107,23 @@ export function HelpConfigurationReferenceGuideView(
         </ul>
       </section>
 
-      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+      <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn, "max-w-[42rem] lg:max-w-none")}>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-configuration-reference-overview">
+          {CONFIGURATION_REFERENCE_HELP_OVERVIEW}
+        </p>
+
+        <section
+          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="help-configuration-reference-action-panel"
+          aria-labelledby="help-configuration-reference-action-panel-heading"
         >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Open configuration surfaces
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+          <h2
+            id="help-configuration-reference-action-panel-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            Open configuration surfaces
+          </h2>
+          <div className="flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="primary">
               <Link href={CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openSsoWizard.href}>
                 {CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openSsoWizard.label}
@@ -138,14 +144,8 @@ export function HelpConfigurationReferenceGuideView(
             >
               {CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.label}
             </Link>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className={cn("min-w-0 space-y-6", HELP_PAGE_LAYOUT.contentColumn, "max-w-[42rem] lg:max-w-none")}>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-configuration-reference-overview">
-          {CONFIGURATION_REFERENCE_HELP_OVERVIEW}
-        </p>
+          </div>
+        </section>
 
         <section
           aria-labelledby="help-configuration-reference-tasks-heading"
@@ -166,16 +166,6 @@ export function HelpConfigurationReferenceGuideView(
             ))}
           </ol>
         </section>
-
-        <aside
-          className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
-          data-testid="help-configuration-reference-claim-discipline"
-        >
-          <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h2>
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-            {CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE}
-          </p>
-        </aside>
 
         <HelpLazyDetails
           className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
