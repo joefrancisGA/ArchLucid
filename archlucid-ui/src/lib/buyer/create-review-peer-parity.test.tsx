@@ -16,6 +16,7 @@ import {
   OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_PRIMARY_CTA_INVENTORY } from "@/lib/operator/operator-primary-cta-inventory";
+import { formatArchitectureObjectMapSentence } from "@/lib/vocabulary/architecture-object-map";
 
 vi.mock("@/hooks/use-create-architecture-navigation", () => ({
   useCreateArchitectureNavigation: () => ({
@@ -102,6 +103,15 @@ describe("ADR 0067 — Create architecture / Review peer parity", () => {
     expect(OPERATOR_HOME_INTENT_CHOOSER_HEADING).not.toMatch(ORDINAL_STEP_PREFIX);
     expect(OPERATOR_HOME_INTENT_CHOOSER_HEADING).not.toMatch(/lifecycle/i);
     expect(OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH).not.toMatch(/lifecycle/i);
+  });
+
+  it("does not tell Reviews that they begin as in-app architecture drafts", () => {
+    const reviewMap = formatArchitectureObjectMapSentence("review");
+    const sealedMap = formatArchitectureObjectMapSentence("sealed");
+
+    expect(reviewMap).not.toMatch(/begin as/i);
+    expect(reviewMap).toMatch(/already have/i);
+    expect(sealedMap).not.toMatch(/new work starts as/i);
   });
 
   it("names both jobs in the chooser heading so neither is implied to come first", () => {

@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  REVIEWS_HUB_ARCHITECTURE_INPUT_HINT,
   REVIEWS_HUB_PAGE_SUBTITLE,
   REVIEWS_HUB_PAGE_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_BODY,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
+  REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
   REVIEWS_HUB_RESUME_DRAFTS_TITLE,
   REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
   REVIEWS_HUB_SUMMARY_EMPTY_HINT,
@@ -27,6 +29,17 @@ describe("reviews-hub-copy", () => {
     expect(REVIEWS_HUB_RESUME_DRAFTS_TITLE).toBe("Architectures ready for review");
     expect(REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL).toBe("Ready for review");
     expect(REVIEWS_HUB_SUMMARY_EMPTY_HINT.toLowerCase()).toContain("ready for review");
+  });
+
+  it("lets a review start from described or imported architecture, not only an in-app draft", () => {
+    expect(REVIEWS_HUB_ARCHITECTURE_INPUT_HINT.toLowerCase()).toContain("describe or import");
+    expect(REVIEWS_HUB_RECENT_EMPTY_BODY).toContain(REVIEWS_HUB_ARCHITECTURE_INPUT_HINT);
+    expect(REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY.toLowerCase()).toContain(
+      "description or imported documents",
+    );
+    expect(REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY.toLowerCase()).not.toContain(
+      "then start a review when ready",
+    );
   });
 
   it("avoids retired package terminology in hub copy", () => {
