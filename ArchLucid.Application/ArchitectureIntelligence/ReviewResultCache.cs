@@ -16,6 +16,7 @@ public sealed class ReviewResultCache : IReviewResultCache
     private readonly object _evictionLock = new();
     private readonly Dictionary<string, int> _pinnedStorageKeyRefcounts = new(StringComparer.Ordinal);
     private readonly HashSet<string> _deferredInvalidateRunIds = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<string> _tombstoneOrder = [];
 
     public ReviewResultCache(TimeProvider? timeProvider = null)
     {
@@ -143,10 +144,26 @@ public sealed class ReviewResultCache : IReviewResultCache
 
     private void AddTombstonedRunId(string normalizedRunId)
     {
-        while (_deferredInvalidateRunIds.Count >= MaxTombstonedRunIds && _deferredInvalidateRunIds.Count > 0)
-            _deferredInvalidateRunIds.Remove(_deferredInvalidateRunIds.First());
+        if (_deferredInvalidateRunIds.Contains(normalizedRunId))
+            return;
+
+        while (_tombstoneOrder.Count >= MaxTombstonedRunIds)
+        {
+            string oldest = _tombstoneOrder[0];
+            _tombstoneOrder.RemoveAt(0);
+            _deferredInvalidateRunIds.Remove(oldest);
+        }
 
         _deferredInvalidateRunIds.Add(normalizedRunId);
+        _tombstoneOrder.Add(normalizedRunId);
+    }
+
+    private void RemoveTombstonedRunId(string normalizedRunId)
+    {
+        if (!_deferredInvalidateRunIds.Remove(normalizedRunId))
+            return;
+
+        _tombstoneOrder.Remove(normalizedRunId);
     }
 
     internal static string BuildStorageKey(ReviewCacheDependencyManifest manifest)
@@ -271,7 +288,7 @@ public sealed class ReviewResultCache : IReviewResultCache
             }
 
             if (!stillPinned)
-                _deferredInvalidateRunIds.Remove(normalizedRunId);
+                RemoveTombstonedRunId(normalizedRunId);
         }
     }
 
