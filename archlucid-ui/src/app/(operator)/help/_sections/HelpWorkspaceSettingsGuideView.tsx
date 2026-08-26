@@ -3,17 +3,16 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { WorkspaceSettingsHelpClaimDisciplineStrip } from "@/components/help/WorkspaceSettingsHelpClaimDisciplineStrip";
 import { WorkspaceSettingsHelpEvidenceOrientationStrip } from "@/components/help/WorkspaceSettingsHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -95,49 +94,43 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
       />
 
+      <WorkspaceSettingsHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div
           id={WORKSPACE_SETTINGS_HELP_PRIMARY_CONTENT_ID}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
-          {buyerPolishedShell ? (
-            <div data-testid="help-workspace-settings-orientation-top">
-              <WorkspaceSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-            </div>
-          ) : null}
+          <div data-testid="help-workspace-settings-orientation-top">
+            <WorkspaceSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          </div>
 
           <p className={readingBodyClass} data-testid="help-workspace-settings-overview">
             {WORKSPACE_SETTINGS_HELP_OVERVIEW}
           </p>
 
-          <Card
-            className="border-neutral-200 dark:border-neutral-800"
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid="help-workspace-settings-action-panel"
+            aria-label={WORKSPACE_SETTINGS_HELP_START_HERE_CARD_TITLE}
           >
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {WORKSPACE_SETTINGS_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link
-                  href={WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.href}
-                  aria-describedby={WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID}
-                >
-                  {WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-              <p
-                id={WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID}
-                className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
-                data-testid="help-workspace-settings-admin-precondition"
+            <Button asChild size="sm" variant="primary">
+              <Link
+                href={WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.href}
+                aria-describedby={WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID}
               >
-                <span className="font-medium text-al-text-primary">{WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_LABEL}</span>{" "}
-                {WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION}
-              </p>
-            </CardContent>
-          </Card>
+                {WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.label}
+              </Link>
+            </Button>
+            <p
+              id={WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID}
+              className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+              data-testid="help-workspace-settings-admin-precondition"
+            >
+              <span className="font-medium text-al-text-primary">{WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_LABEL}</span>{" "}
+              {WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION}
+            </p>
+          </section>
 
           <section
             aria-labelledby="what-workspace-settings-cover"
@@ -221,11 +214,6 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
             </p>
           </section>
 
-          {!buyerPolishedShell ? (
-            <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-              <WorkspaceSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-            </div>
-          ) : null}
         </div>
 
         <HelpTopicTableOfContents headings={WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS} />

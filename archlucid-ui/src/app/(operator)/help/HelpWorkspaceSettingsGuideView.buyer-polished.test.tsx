@@ -43,6 +43,7 @@ describe("HelpWorkspaceSettingsGuideView buyer-polished shell", () => {
     expect(screen.queryByTestId("page-heading-eyebrow")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-workspace-settings-orientation-top")).toBeInTheDocument();
     expect(screen.queryByTestId("help-workspace-settings-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-workspace-settings-claim-discipline-strip")).toBeInTheDocument();
 
     const orientationTop = screen.getByTestId("help-workspace-settings-orientation-top");
     const overview = screen.getByTestId("help-workspace-settings-overview");

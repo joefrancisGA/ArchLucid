@@ -24,7 +24,6 @@ import {
   WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION,
   WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID,
   WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_BODY,
-  WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
   WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID,
   WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS,
   WORKSPACE_SETTINGS_HELP_NEGATION_DRIFT_MARKERS,
@@ -57,11 +56,7 @@ describe("HelpWorkspaceSettingsGuideView", () => {
     render(<HelpWorkspaceSettingsGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-workspace-settings-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent("Help & Support");
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-heading-eyebrow")).toHaveTextContent(WORKSPACE_SETTINGS_HELP_PAGE_EYEBROW);
     expect(screen.getByTestId("help-workspace-settings-page-title")).toHaveTextContent(
       WORKSPACE_SETTINGS_HELP_PAGE_TITLE,
@@ -108,6 +103,9 @@ describe("HelpWorkspaceSettingsGuideView", () => {
       "help-workspace-settings",
       "help-workspace-settings-claim-discipline",
       WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.getByTestId("help-workspace-settings-claim-discipline-strip")).toHaveTextContent(
+      WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE,
     );
     expectClaimDisciplineHeading(
       screen,

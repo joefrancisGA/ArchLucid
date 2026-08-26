@@ -1,15 +1,14 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { PreferencesHelpClaimDisciplineStrip } from "@/components/help/PreferencesHelpClaimDisciplineStrip";
 import { PreferencesHelpEvidenceOrientationStrip } from "@/components/help/PreferencesHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -85,30 +84,37 @@ export function HelpPreferencesGuideView(props: HelpPreferencesGuideViewProps): 
         actions={<PageContextualHelpButton />}
       />
 
+      <PreferencesHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <PreferencesHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+
           <p className={readingBodyClass} data-testid="help-preferences-overview">
             {PREFERENCES_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-preferences-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {PREFERENCES_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-preferences-start-here-helper"
-              >
-                {PREFERENCES_HELP_START_HERE_HELPER}
-              </p>
-              <Button asChild size="sm" variant="primary">
-                <Link href={PREFERENCES_HELP_PRIMARY_ACTION.href}>{PREFERENCES_HELP_PRIMARY_ACTION.label}</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-preferences-action-panel"
+            aria-labelledby="help-preferences-action-panel-heading"
+          >
+            <h2
+              id="help-preferences-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {PREFERENCES_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-preferences-start-here-helper"
+            >
+              {PREFERENCES_HELP_START_HERE_HELPER}
+            </p>
+            <Button asChild size="sm" variant="primary">
+              <Link href={PREFERENCES_HELP_PRIMARY_ACTION.href}>{PREFERENCES_HELP_PRIMARY_ACTION.label}</Link>
+            </Button>
+          </section>
 
           <section
             aria-labelledby="what-preferences-cover"
@@ -142,10 +148,6 @@ export function HelpPreferencesGuideView(props: HelpPreferencesGuideViewProps): 
               ))}
             </ol>
           </section>
-
-          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-            <PreferencesHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-          </div>
         </div>
 
         <HelpTopicTableOfContents headings={PREFERENCES_HELP_GUIDE_HEADINGS} enableScrollSpy />

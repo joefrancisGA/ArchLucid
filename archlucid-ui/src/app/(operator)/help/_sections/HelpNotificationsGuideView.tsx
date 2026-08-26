@@ -1,15 +1,14 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { NotificationsHelpClaimDisciplineStrip } from "@/components/help/NotificationsHelpClaimDisciplineStrip";
 import { NotificationsHelpEvidenceOrientationStrip } from "@/components/help/NotificationsHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -76,32 +75,39 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
         actions={<PageContextualHelpButton />}
       />
 
+      <NotificationsHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <NotificationsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+
           <p className={readingBodyClass} data-testid="help-notifications-overview">
             {NOTIFICATIONS_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-notifications-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {NOTIFICATIONS_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={NOTIFICATIONS_HELP_PRIMARY_ACTION.href}>
-                  {NOTIFICATIONS_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-notifications-start-here-helper"
-              >
-                {NOTIFICATIONS_HELP_START_HERE_HELPER}
-              </p>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-notifications-action-panel"
+            aria-labelledby="help-notifications-action-panel-heading"
+          >
+            <h2
+              id="help-notifications-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {NOTIFICATIONS_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <Button asChild size="sm" variant="primary">
+              <Link href={NOTIFICATIONS_HELP_PRIMARY_ACTION.href}>
+                {NOTIFICATIONS_HELP_PRIMARY_ACTION.label}
+              </Link>
+            </Button>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-notifications-start-here-helper"
+            >
+              {NOTIFICATIONS_HELP_START_HERE_HELPER}
+            </p>
+          </section>
 
           <section
             aria-labelledby="what-notifications-cover"
@@ -159,10 +165,6 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
               ))}
             </dl>
           </section>
-
-          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-            <NotificationsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-          </div>
         </div>
 
         <HelpTopicTableOfContents headings={NOTIFICATIONS_HELP_GUIDE_HEADINGS} />

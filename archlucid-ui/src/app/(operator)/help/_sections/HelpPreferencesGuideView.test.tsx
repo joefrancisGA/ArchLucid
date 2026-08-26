@@ -57,6 +57,9 @@ describe("HelpPreferencesGuideView", () => {
       "help-preferences-claim-discipline",
       PREFERENCES_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.getByTestId("help-preferences-claim-discipline-strip")).toHaveTextContent(
+      PREFERENCES_HELP_CLAIM_DISCIPLINE,
+    );
     expectClaimDisciplineHeading(
       screen,
       "help-preferences",

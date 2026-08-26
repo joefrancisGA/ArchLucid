@@ -18,7 +18,6 @@ import {
   SYSTEM_HEALTH_HELP_SOURCES,
 } from "@/lib/system-health-help-evidence-copy";
 import {
-  SYSTEM_HEALTH_HELP_BREADCRUMB_TOPIC_TITLE,
   SYSTEM_HEALTH_HELP_CLAIM_HEADING_ID,
   SYSTEM_HEALTH_HELP_GUIDE_HEADINGS,
   SYSTEM_HEALTH_HELP_NEGATION_DRIFT_MARKERS,
@@ -41,10 +40,7 @@ describe("HelpSystemHealthGuideView", () => {
     render(<HelpSystemHealthGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-system-health-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      SYSTEM_HEALTH_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-system-health-readiness-helper")).toHaveTextContent(
       SYSTEM_HEALTH_HELP_READINESS_HELPER,
@@ -56,6 +52,9 @@ describe("HelpSystemHealthGuideView", () => {
       "help-system-health",
       "help-system-health-claim-discipline",
       SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.getByTestId("help-system-health-claim-discipline-strip")).toHaveTextContent(
+      SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE,
     );
     expectClaimDisciplineHeading(
       screen,

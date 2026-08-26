@@ -6,6 +6,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpNotificationsGuideView } from "@/app/(operator)/help/_sections/HelpNotificationsGuideView";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
 import {
   NOTIFICATIONS_HELP_GUIDE_HEADINGS,
   NOTIFICATIONS_HELP_HOW_TO_READ_STEPS,
@@ -18,6 +23,7 @@ import {
 import {
   NOTIFICATIONS_HELP_CLAIM_DISCIPLINE,
   NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING,
+  NOTIFICATIONS_HELP_CLAIM_HEADING_ID,
   NOTIFICATIONS_HELP_SOURCES,
   NOTIFICATIONS_HELP_TOPIC_LABEL,
 } from "@/lib/notifications-help-evidence-copy";
@@ -85,13 +91,24 @@ describe("HelpNotificationsGuideView", () => {
       expect(within(workedExamples).getByText(example.detail)).toBeInTheDocument();
     }
 
-    expect(screen.getByTestId("help-notifications-claim-discipline").textContent).toContain(
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-notifications",
+      "help-notifications-claim-discipline",
       NOTIFICATIONS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByTestId("help-notifications-claim-discipline").textContent?.toLowerCase()).not.toContain(
+    expect(screen.getByTestId("help-notifications-claim-discipline-strip")).toHaveTextContent(
+      NOTIFICATIONS_HELP_CLAIM_DISCIPLINE,
+    );
+    expect(screen.getByTestId("help-notifications-claim-discipline-strip").textContent?.toLowerCase()).not.toContain(
       "sources package",
     );
-    expect(screen.getByRole("heading", { level: 2, name: NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
+    expectClaimDisciplineHeading(
+      screen,
+      "help-notifications",
+      NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING,
+      NOTIFICATIONS_HELP_CLAIM_HEADING_ID,
+    );
 
     const sourcesStrip = screen.getByTestId("help-notifications-sources");
 
@@ -104,7 +121,11 @@ describe("HelpNotificationsGuideView", () => {
     expect(screen.queryByRole("link", { name: "Read alerts help →" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Read Slack integration help →" })).not.toBeInTheDocument();
 
-    for (const heading of NOTIFICATIONS_HELP_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-notifications",
+      NOTIFICATIONS_HELP_GUIDE_HEADINGS,
+      NOTIFICATIONS_HELP_CLAIM_HEADING_ID,
+    )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
   });

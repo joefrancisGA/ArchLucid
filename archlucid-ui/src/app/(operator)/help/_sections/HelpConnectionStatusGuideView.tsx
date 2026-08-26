@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpConnectionStatusHeaderActions } from "@/app/(operator)/help/_sections/HelpConnectionStatusHeaderActions";
 import { HelpConnectionStatusWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpConnectionStatusWorkspaceReadinessStrip";
+import { ConnectionStatusHelpClaimDisciplineStrip } from "@/components/help/ConnectionStatusHelpClaimDisciplineStrip";
 import { ConnectionStatusHelpEvidenceOrientationStrip } from "@/components/help/ConnectionStatusHelpEvidenceOrientationStrip";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -71,8 +72,12 @@ export function HelpConnectionStatusGuideView(props: HelpConnectionStatusGuideVi
         actions={<HelpConnectionStatusHeaderActions />}
       />
 
+      <ConnectionStatusHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "max-w-[75ch] space-y-6 xl:max-w-none")}>
+          <ConnectionStatusHelpEvidenceOrientationStrip />
+
           <p
             className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
             data-testid="help-connection-status-overview"
@@ -154,8 +159,6 @@ export function HelpConnectionStatusGuideView(props: HelpConnectionStatusGuideVi
               </Link>
             </p>
           </section>
-
-          <ConnectionStatusHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={CONNECTION_STATUS_HELP_GUIDE_HEADINGS} />

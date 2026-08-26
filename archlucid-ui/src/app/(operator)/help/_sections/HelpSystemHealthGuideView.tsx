@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpSystemHealthHeaderActions } from "@/app/(operator)/help/_sections/HelpSystemHealthHeaderActions";
+import { SystemHealthHelpClaimDisciplineStrip } from "@/components/help/SystemHealthHelpClaimDisciplineStrip";
 import { SystemHealthHelpEvidenceOrientationStrip } from "@/components/help/SystemHealthHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -66,8 +67,12 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
         actions={<HelpSystemHealthHeaderActions />}
       />
 
+      <SystemHealthHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <SystemHealthHelpEvidenceOrientationStrip />
+
           <p className={readingBodyClass} data-testid="help-system-health-overview">
             {SYSTEM_HEALTH_HELP_OVERVIEW}
           </p>
@@ -118,10 +123,6 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
               ))}
             </ol>
           </section>
-
-          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-            <SystemHealthHelpEvidenceOrientationStrip />
-          </div>
         </div>
 
         <HelpTopicTableOfContents headings={SYSTEM_HEALTH_HELP_GUIDE_HEADINGS} />
