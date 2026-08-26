@@ -48,7 +48,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             finding.PolicyRuleId = policyRuleId.GetString();
         }
 
-        if (root.TryGetProperty("enforcementTier", out JsonElement enforcementTier) &&
+        if (TryGetPropertyIgnoreCase(root, "enforcementTier", out JsonElement enforcementTier) &&
             TryReadEnforcementTier(enforcementTier, out FindingEnforcementTier tier))
         {
             finding.EnforcementTier = tier;
@@ -61,13 +61,10 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         {
             foreach (JsonElement item in evidenceRefs.EnumerateArray())
             {
-                if (item.ValueKind == JsonValueKind.String)
-                {
-                    string? value = item.GetString();
+                string? reference = ReadEvidenceRef(item);
 
-                    if (!string.IsNullOrWhiteSpace(value))
-                        finding.EvidenceRefs.Add(value);
-                }
+                if (!string.IsNullOrWhiteSpace(reference))
+                    finding.EvidenceRefs.Add(reference);
             }
         }
 
@@ -172,6 +169,35 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             return true;
         }
 
+        return false;
+    }
+
+    private static string? ReadEvidenceRef(JsonElement item)
+    {
+        if (item.ValueKind == JsonValueKind.String)
+            return item.GetString();
+
+        if (item.ValueKind != JsonValueKind.Object)
+            return null;
+
+        if (TryGetPropertyIgnoreCase(item, "id", out JsonElement id) && id.ValueKind == JsonValueKind.String)
+            return id.GetString();
+
+        return null;
+    }
+
+    private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+            return true;
+        }
+
+        value = default;
         return false;
     }
 

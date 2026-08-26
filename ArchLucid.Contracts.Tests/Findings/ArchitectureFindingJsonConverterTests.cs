@@ -118,6 +118,46 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_pascal_case_enforcement_tier_maps_advisory()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "message": "Consider reserved capacity for the worker pool.",
+                              "EnforcementTier": "Advisory"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.EnforcementTier.Should().Be(FindingEnforcementTier.Advisory);
+    }
+
+    [Fact]
+    public void Deserialize_object_evidence_refs_extracts_id_property()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Compliance",
+                              "message": "Policy gap on private endpoints.",
+                              "evidenceRefs": [{ "id": "pol-123" }]
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.EvidenceRefs.Should().ContainSingle().Which.Should().Be("pol-123");
+    }
+
+    [Fact]
     public void Deserialize_integer_enforcement_tier_out_of_range_throws()
     {
         const string json = """

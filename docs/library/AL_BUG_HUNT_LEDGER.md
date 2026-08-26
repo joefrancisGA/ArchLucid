@@ -1754,11 +1754,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 9
-- **bugs-found:** 12
+- **hunts:** 10
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — `ArchitectureFindingJsonConverter` mapped numeric `enforcementTier` `1` (Advisory) to default `PolicyViolation`
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — `ArchitectureFindingJsonConverter` ignored PascalCase `EnforcementTier` and dropped object-shaped `evidenceRefs` entries
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1778,9 +1778,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentResultClaimListJsonConverter` flattens structured claim text but ignores an entry-level `evidenceRefs` array, so `{"detail":"Subnet missing","evidenceRefs":["pol-123"]}` loses its evidence linkage — **hit 2026-08-25:** structured claim objects dropped claim-level refs at parse time; fixed with `AgentResultJsonConverter.MergeClaimEvidenceRefs`; regression in `Deserialize_merges_structured_claim_evidence_refs_into_result_evidence_refs`.
 - [x] (invalid) `FindingJsonConverter` reads `humanReviewStatus` only when the token is a string; persisted JSON with numeric `1` leaves the default `NotRequired`, silently downgrading pending review state on round trip — locus is `ArchLucid.Core/Findings/Serialization/FindingJsonConverter.cs`, outside zone `paths` (`ArchLucid.Contracts/` only).
 - [x] (proven) `ArchitectureFindingJsonConverter.Read` required `enforcementTier` to be a JSON string, so numeric `1` (Advisory) stayed default `PolicyViolation` and `99` was accepted silently — **hit 2026-08-25:** sibling `FindingEnforcementTierJsonConverter` already guards ordinals; the finding converter bypassed it; fixed with `TryReadEnforcementTier` (`Deserialize_numeric_enforcement_tier_maps_advisory_ordinal`, `Deserialize_integer_enforcement_tier_out_of_range_throws`).
-- [ ] (hunt-ready) `ArchitectureFindingJsonConverter.Read` uses case-sensitive `JsonDocument.TryGetProperty("enforcementTier")` while `AgentResultParser` sets `PropertyNameCaseInsensitive = true` — PascalCase `"EnforcementTier":"Advisory"` never matches and stays `PolicyViolation`.
-- [ ] (hunt-ready) `ArchitectureFindingJsonConverter` evidenceRefs loop keeps only `JsonValueKind.String` items, so `{"evidenceRefs":[{"id":"pol-123"}]}` yields an empty list while `HeuristicAgentOutputSemanticEvaluator` treats object refs as citations.
-- [ ] (hunt-ready) `RequestStatus` has no defined-value `[JsonConverter]` unlike sibling `ArchitectureRunStatusJsonConverter`, so numeric `99` can deserialize through `ContractJson.Default` / `JsonStringEnumConverter` and reach request-lifecycle switches.
+- [x] (proven) `ArchitectureFindingJsonConverter.Read` uses case-sensitive `JsonDocument.TryGetProperty("enforcementTier")` while `AgentResultParser` sets `PropertyNameCaseInsensitive = true` — PascalCase `"EnforcementTier":"Advisory"` never matches and stays `PolicyViolation` — **hit 2026-08-26:** fixed with `TryGetPropertyIgnoreCase` (`Deserialize_pascal_case_enforcement_tier_maps_advisory`).
+- [x] (proven) `ArchitectureFindingJsonConverter` evidenceRefs loop keeps only `JsonValueKind.String` items, so `{"evidenceRefs":[{"id":"pol-123"}]}` yields an empty list while eval-corpus payloads use object refs — **hit 2026-08-26:** fixed with `ReadEvidenceRef` extracting `id` from object entries (`Deserialize_object_evidence_refs_extracts_id_property`).
+- [x] (invalid) `RequestStatus` has no defined-value `[JsonConverter]` unlike sibling `ArchitectureRunStatusJsonConverter`, so numeric `99` can deserialize through `ContractJson.Default` / `JsonStringEnumConverter` and reach request-lifecycle switches — enum is forward-looking vocabulary only (`docs/library/STATE_MACHINES.md` §1); no DTO or persistence column references `RequestStatus`, so no JSON deserialization path exists in zone `paths`.
 
 ---
 
