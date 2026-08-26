@@ -91,6 +91,8 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
   const formCardRef = useRef<HTMLDivElement | null>(null);
   const scopedRunId = (props.scopedRunId ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const requiresReviewPick = props.onPickReview !== undefined;
+  const createFormVisible = scopedRunFilterActive || !requiresReviewPick;
   const subscriptionsClearScopeHref = digestsHubScopedHref("subscriptions", null);
   const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -281,8 +283,11 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         .
       </p>
 
-      {!scopedRunFilterActive && props.onPickReview !== undefined ? (
-        <DigestSubscriptionsPickReviewBeforeCreatingStrip selectedReviewId="" onSelectReview={props.onPickReview} />
+      {!scopedRunFilterActive && requiresReviewPick ? (
+        <DigestSubscriptionsPickReviewBeforeCreatingStrip
+          selectedReviewId=""
+          onSelectReview={props.onPickReview!}
+        />
       ) : scopedRunFilterActive ? (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
@@ -321,7 +326,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       />
 
       <div ref={formCardRef} className="grid gap-4">
-        {scopedRunFilterActive ? (
+        {createFormVisible ? (
           <DigestSubscriptionCreateForm
             key={`digest-create-${formResetKey}`}
             existingSubscriptions={items}
