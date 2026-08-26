@@ -172,6 +172,17 @@ public static partial class SanitizedLoggerInformationExtensions
         string outboxId);
 
     [LoggerMessage(
+        EventId = 3017,
+        Level = LogLevel.Information,
+        Message =
+            "Async create admitted: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}")]
+    private static partial void EmitAsyncCreateAdmitted(
+        ILogger logger,
+        string runId,
+        string requestId,
+        string systemName);
+
+    [LoggerMessage(
         EventId = 3014,
         Level = LogLevel.Information,
         Message =

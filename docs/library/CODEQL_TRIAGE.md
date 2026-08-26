@@ -88,6 +88,14 @@ If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the exten
 | **`ArchLucid.Application/Tenancy/TrialTenantBootstrapService.cs`** | Email verification policy block logs through **`SanitizedLoggerTrialBootstrapExtensions.LogInformationTrialBootstrapEmailVerificationBlocked`** (domain only via **`LogSanitizer.EmailDomainForLogs`**, **`[LoggerMessage]`** emitter **3016**). Static helper keeps exposure alerts off the Application call site. |
 | **`ArchLucid.Core/Costing/AwsPublicPricingClient.cs`** | HTTP probe failures use **`SanitizedLoggerDebugExtensions.LogDebugAwsPricingProbeFailed`** (region + instance type sanitized; exception forwarded for structured telemetry only). Dismiss only if CodeQL still flags after model pack + helper migration. |
 
+### Active suppressions (2026-08-26 WK-03 / WK-03b)
+
+| Rule | File | Why | Date |
+| ---- | ---- | --- | ---- |
+| `cs/insecure-sql-connection` | `SqlConnectionStringMasterCatalog.ReadInitialCatalog` | Parses `InitialCatalog` only; no connection opened; returned strings from sibling helpers apply `SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory`. | 2026-08-26 |
+| `cs/user-controlled-bypass` | `RunProvenanceQueryService.GetRunEvidenceAsync` | `AuthorityRunExistsInScopeAsync` authorizes `runId`; tenant DB connection scopes evidence reads. | 2026-08-26 |
+| `cs/user-controlled-bypass` | `ClosedLoopArchitectureReasoningOrchestrator.LiveReview` | `PublishToProduct` gated by `publishDecision.PublishBlocked` and live re-review substantiation. | 2026-08-26 |
+| `js/clear-text-storage-of-sensitive-data` | `resolve-continue-last-api-key-credential.ts` | `localStorage` stores credential **slot** enum (`Admin` / `ReadOnly`), not API key secrets. | 2026-08-26 |
 
 ---
 

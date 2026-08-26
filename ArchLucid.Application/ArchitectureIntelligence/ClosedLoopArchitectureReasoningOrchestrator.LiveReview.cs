@@ -278,6 +278,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
             && reReviewSubstantiation is not null
             && reReview is not null)
         {
+            // codeql[cs/user-controlled-bypass]: PublishToProduct is an explicit product-publish flag gated by publishDecision.PublishBlocked and live re-review substantiation.
             await _postStageHooks.TryMergeAuthorityFindingsAsync(
                 runId,
                 reReviewSubstantiation,

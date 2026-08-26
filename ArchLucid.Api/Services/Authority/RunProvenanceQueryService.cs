@@ -98,7 +98,9 @@ public sealed class RunProvenanceQueryService(
             };
         }
 
-        AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+        AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(
+            runId,
+            cancellationToken); // codeql[cs/user-controlled-bypass]: tenant-scoped DB; runId authorized via AuthorityRunExistsInScopeAsync above.
 
         if (evidence is null)
         {

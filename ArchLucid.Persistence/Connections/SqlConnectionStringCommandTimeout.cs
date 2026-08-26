@@ -1,5 +1,7 @@
 using Microsoft.Data.SqlClient;
 
+using ArchLucid.Persistence.Data.Infrastructure;
+
 namespace ArchLucid.Persistence.Connections;
 
 /// <summary>Applies <see cref="SqlConnectionStringBuilder.CommandTimeout" /> without otherwise mutating the string.</summary>
@@ -17,6 +19,6 @@ public static class SqlConnectionStringCommandTimeout
             CommandTimeout = timeoutSeconds
         };
 
-        return builder.ConnectionString;
+        return SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(builder.ConnectionString);
     }
 }
