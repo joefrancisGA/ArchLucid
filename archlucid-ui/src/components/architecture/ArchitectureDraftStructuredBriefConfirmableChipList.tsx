@@ -91,6 +91,7 @@ export function ArchitectureDraftStructuredBriefConfirmableChipList(
         htmlFor={`${props.inputId}-input`}
         label={props.label}
         required={isRequired}
+        showRequirednessSuffix={false}
       />
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>{props.hint}</p>
       {props.helpSlug !== undefined && props.helpLabel !== undefined ? (

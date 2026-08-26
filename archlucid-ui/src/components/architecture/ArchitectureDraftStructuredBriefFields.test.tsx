@@ -425,28 +425,21 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     );
   });
 
-  it("labels required capabilities as optional for review readiness", () => {
+  it("states optional-but-helpful guidance once at section level instead of per-field labels", () => {
     render(
       <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
     );
 
-    expect(
-      within(screen.getByTestId("architecture-draft-capabilities")).getByText(/^Required capabilities/i),
-    ).toHaveTextContent("(optional)");
+    expect(screen.getByText(/All fields below are optional but help reviewers ground their analysis/i)).toBeInTheDocument();
+    expect(screen.queryByText("(optional)")).not.toBeInTheDocument();
     expect(screen.queryByText(/Required capabilities.*\(required\)/i)).not.toBeInTheDocument();
   });
 
-  it("labels constraints and assumptions as optional and does not offer Mark unknown", () => {
+  it("does not offer Mark unknown on structured brief list fields", () => {
     render(
       <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
     );
 
-    expect(within(screen.getByTestId("architecture-draft-constraints")).getByText(/Constraints/i)).toHaveTextContent(
-      "(optional)",
-    );
-    expect(within(screen.getByTestId("architecture-draft-assumptions")).getByText(/Assumptions/i)).toHaveTextContent(
-      "(optional)",
-    );
     expect(screen.queryByRole("button", { name: /Mark unknown/i })).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-constraints-mark-unknown")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-assumptions-mark-unknown")).not.toBeInTheDocument();

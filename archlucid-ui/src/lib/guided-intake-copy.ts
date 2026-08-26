@@ -147,6 +147,9 @@ export function guidedIntakeStructuredBriefSuggestDisabledHint(trimmedOverviewLe
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL = "Structured Brief";
 
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPTIONAL_FIELDS_NOTE =
+  "All fields below are optional but help reviewers ground their analysis.";
+
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL = "Required Capabilities";
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_HINT =
