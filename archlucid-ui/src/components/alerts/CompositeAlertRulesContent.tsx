@@ -10,6 +10,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { CompositeAlertRulesContinueLastViewedRow } from "@/components/alerts/CompositeAlertRulesContinueLastViewedRow";
 import { CompositeAlertRulesPickReviewBeforeCombiningStrip } from "@/components/alerts/CompositeAlertRulesPickReviewBeforeCombiningStrip";
+import { CompositeAlertRulesNextReviewFooterClient } from "@/components/alerts/CompositeAlertRulesNextReviewFooterClient";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
@@ -766,6 +767,8 @@ export function CompositeAlertRulesContent() {
           void executeCreate();
         }}
       />
+
+      {scopedRunFilterActive ? <CompositeAlertRulesNextReviewFooterClient runId={scopedRunId} /> : null}
     </div>
   );
 }
