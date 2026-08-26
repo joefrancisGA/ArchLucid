@@ -19,6 +19,13 @@ function decision(overrides: Partial<ArchitectureDecisionRegisterEntry> = {}): A
 }
 
 describe("resolveContinueLastDecisionRegisterEntry", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastDecisionRegisterEntry(null)).toBeNull();
+    expect(resolveContinueLastDecisionRegisterEntry({})).toBeNull();
+    expect(resolveContinueLastDecisionRegisterEntry("nope")).toBeNull();
+    expect(resolveContinueLastDecisionRegisterEntry([])).toBeNull();
+  });
+
   it("prefers the most recently recorded decision when no recent view exists", () => {
     const match = resolveContinueLastDecisionRegisterEntry([
       decision({ decisionId: "decision-old", recordedAtUtc: "2025-01-01T00:00:00Z" }),

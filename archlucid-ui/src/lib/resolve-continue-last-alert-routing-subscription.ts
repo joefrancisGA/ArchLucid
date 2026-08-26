@@ -1,3 +1,4 @@
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
 export const ALERT_ROUTING_SUBSCRIPTION_LAST_VIEWED_STORAGE_KEY =
@@ -68,16 +69,18 @@ function compareMostRecentDelivery(
 
 /** Resolves the alert-routing subscription to pin as Continue last viewed. */
 export function resolveContinueLastAlertRoutingSubscription(
-  subscriptions: readonly AlertRoutingSubscription[],
+  subscriptions: unknown,
 ): AlertRoutingContinueLastTarget | null {
-  if (subscriptions.length === 0) {
+  const normalizedSubscriptions = asNonemptyReadonlyArray<AlertRoutingSubscription>(subscriptions);
+
+  if (normalizedSubscriptions === null) {
     return null;
   }
 
   const storedId = readStoredSubscriptionId();
 
   if (storedId !== null) {
-    const storedMatch = subscriptions.find(
+    const storedMatch = normalizedSubscriptions.find(
       (subscription) => subscription.routingSubscriptionId === storedId,
     );
 
@@ -86,7 +89,7 @@ export function resolveContinueLastAlertRoutingSubscription(
     }
   }
 
-  const mostRecent = subscriptions.slice().sort(compareMostRecentDelivery)[0];
+  const mostRecent = normalizedSubscriptions.slice().sort(compareMostRecentDelivery)[0];
 
   return mostRecent === undefined ? null : toTarget(mostRecent);
 }

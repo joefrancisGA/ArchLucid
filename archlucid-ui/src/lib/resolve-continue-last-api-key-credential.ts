@@ -1,5 +1,6 @@
 import { API_KEYS_ADMIN_KEY_NAME, API_KEYS_READONLY_KEY_NAME } from "@/lib/api-keys-settings-copy";
 import type { ApiKeyAuditEvent, ApiKeyCredentialSlot } from "@/lib/api-keys-settings-types";
+import { asNonemptyReadonlyArray, asReadonlyArray } from "@/lib/continue-last-list-guard";
 
 export const API_KEY_CREDENTIAL_LAST_VIEWED_STORAGE_KEY =
   "archlucid_api_key_credential_continue_last_v1";
@@ -87,44 +88,47 @@ function toTarget(credential: ApiKeysContinueLastCredentialInput): ApiKeysContin
 
 /** Resolves the API key credential slot to pin as Continue last viewed. Never includes secret material. */
 export function resolveContinueLastApiKeyCredential(
-  credentials: readonly ApiKeysContinueLastCredentialInput[],
-  auditEvents: readonly ApiKeyAuditEvent[] = [],
+  credentials: unknown,
+  auditEvents: unknown = [],
 ): ApiKeysContinueLastTarget | null {
-  if (credentials.length === 0) {
+  const normalizedCredentials = asNonemptyReadonlyArray<ApiKeysContinueLastCredentialInput>(credentials);
+
+  if (normalizedCredentials === null) {
     return null;
   }
 
   const storedSlot = readStoredSlot();
 
   if (storedSlot !== null) {
-    const storedMatch = credentials.find((credential) => credential.slot === storedSlot);
+    const storedMatch = normalizedCredentials.find((credential) => credential.slot === storedSlot);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const activeMatch = credentials.find((credential) => isSlotActive(credential));
+  const activeMatch = normalizedCredentials.find((credential) => isSlotActive(credential));
 
   if (activeMatch !== undefined) {
     return toTarget(activeMatch);
   }
 
-  const newestAudit = auditEvents
+  const normalizedAuditEvents = asReadonlyArray<ApiKeyAuditEvent>(auditEvents);
+  const newestAudit = (normalizedAuditEvents ?? [])
     .slice()
     .sort((left, right) => right.occurredAtUtc.localeCompare(left.occurredAtUtc))[0];
 
   if (newestAudit !== undefined) {
     const auditSlot = slotFromKeyName(newestAudit.keyName);
     const auditMatch =
-      auditSlot === null ? undefined : credentials.find((credential) => credential.slot === auditSlot);
+      auditSlot === null ? undefined : normalizedCredentials.find((credential) => credential.slot === auditSlot);
 
     if (auditMatch !== undefined) {
       return toTarget(auditMatch);
     }
   }
 
-  const first = credentials[0];
+  const first = normalizedCredentials[0];
 
   return first === undefined ? null : toTarget(first);
 }

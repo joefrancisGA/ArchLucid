@@ -1,4 +1,5 @@
 import type { RiskExceptionRecord } from "@/lib/api/governance-stickiness-api";
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 
@@ -82,29 +83,31 @@ function toTarget(record: RiskExceptionRecord): RiskExceptionsContinueLastTarget
 
 /** Resolves the exception to pin as Continue last viewed. */
 export function resolveContinueLastRiskException(
-  records: readonly RiskExceptionRecord[],
+  records: unknown,
 ): RiskExceptionsContinueLastTarget | null {
-  if (records.length === 0) {
+  const normalizedRecords = asNonemptyReadonlyArray<RiskExceptionRecord>(records);
+
+  if (normalizedRecords === null) {
     return null;
   }
 
   const storedKey = readStoredExceptionId();
 
   if (storedKey !== null) {
-    const idMatch = records.find((record) => record.riskExceptionId === storedKey);
+    const idMatch = normalizedRecords.find((record) => record.riskExceptionId === storedKey);
 
     if (idMatch !== undefined) {
       return toTarget(idMatch);
     }
 
-    const findingMatch = records.find((record) => record.findingId === storedKey);
+    const findingMatch = normalizedRecords.find((record) => record.findingId === storedKey);
 
     if (findingMatch !== undefined) {
       return toTarget(findingMatch);
     }
   }
 
-  const mostRecent = records.slice().sort((left, right) => right.riskExceptionId.localeCompare(left.riskExceptionId))[0];
+  const mostRecent = normalizedRecords.slice().sort((left, right) => right.riskExceptionId.localeCompare(left.riskExceptionId))[0];
 
   return mostRecent === undefined ? null : toTarget(mostRecent);
 }

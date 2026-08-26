@@ -22,6 +22,13 @@ function pack(overrides: Partial<PolicyPack> = {}): PolicyPack {
 }
 
 describe("resolveContinueLastPolicyPack", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastPolicyPack(null)).toBeNull();
+    expect(resolveContinueLastPolicyPack({})).toBeNull();
+    expect(resolveContinueLastPolicyPack("nope")).toBeNull();
+    expect(resolveContinueLastPolicyPack([])).toBeNull();
+  });
+
   it("prefers the most recently activated pack when no recent view exists", () => {
     const match = resolveContinueLastPolicyPack([
       pack({ policyPackId: "pack-old", activatedUtc: "2025-01-01T00:00:00Z" }),

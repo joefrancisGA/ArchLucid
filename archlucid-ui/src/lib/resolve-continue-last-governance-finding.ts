@@ -1,6 +1,7 @@
+import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { asReadonlyArray } from "@/lib/continue-last-list-guard";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
-import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
 const REVIEW_FINDING_HREF_PATTERN = /^\/architecture\/reviews\/([^/]+)\/findings\/([^/]+)/i;
 
@@ -61,9 +62,15 @@ function toTarget(row: GovernanceFindingQueueRow): GovernanceFindingsContinueLas
 
 /** Resolves the finding to pin as Continue last viewed on the findings queue. */
 export function resolveContinueLastGovernanceFinding(
-  rows: readonly GovernanceFindingQueueRow[],
+  rows: unknown,
 ): GovernanceFindingsContinueLastTarget | null {
-  const findingRows = rows.filter((row) => row.recordKind === "finding");
+  const normalizedRows = asReadonlyArray<GovernanceFindingQueueRow>(rows);
+
+  if (normalizedRows === null) {
+    return null;
+  }
+
+  const findingRows = normalizedRows.filter((row) => row.recordKind === "finding");
 
   if (findingRows.length === 0) {
     return null;

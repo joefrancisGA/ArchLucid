@@ -1,3 +1,4 @@
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import type { AlertRule } from "@/types/alerts";
 
 export const ALERT_RULE_LAST_VIEWED_STORAGE_KEY = "archlucid_alert_rule_continue_last_v1";
@@ -44,11 +45,11 @@ function toTarget(rule: AlertRule): AlertRulesContinueLastTarget {
 
 /** Resolves the alert rule to pin as Continue last viewed. */
 export function resolveContinueLastAlertRule(rules: unknown): AlertRulesContinueLastTarget | null {
-  if (!Array.isArray(rules) || rules.length === 0) {
+  const normalizedRules = asNonemptyReadonlyArray<AlertRule>(rules);
+
+  if (normalizedRules === null) {
     return null;
   }
-
-  const normalizedRules = rules as readonly AlertRule[];
 
   const storedId = readStoredRuleId();
 

@@ -22,6 +22,13 @@ function subscription(overrides: Partial<AlertRoutingSubscription> = {}): AlertR
 }
 
 describe("resolveContinueLastAlertRoutingSubscription", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastAlertRoutingSubscription(null)).toBeNull();
+    expect(resolveContinueLastAlertRoutingSubscription({})).toBeNull();
+    expect(resolveContinueLastAlertRoutingSubscription("nope")).toBeNull();
+    expect(resolveContinueLastAlertRoutingSubscription([])).toBeNull();
+  });
+
   it("falls back to the most recently delivered subscription when no stored id exists", () => {
     window.localStorage.removeItem("archlucid_alert_routing_subscription_continue_last_v1");
 

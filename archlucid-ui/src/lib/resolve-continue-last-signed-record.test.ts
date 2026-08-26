@@ -21,6 +21,13 @@ function row(overrides: Partial<SignedRecordsListRow> = {}): SignedRecordsListRo
 }
 
 describe("resolveContinueLastSignedRecordsListRow", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastSignedRecordsListRow(null)).toBeNull();
+    expect(resolveContinueLastSignedRecordsListRow({})).toBeNull();
+    expect(resolveContinueLastSignedRecordsListRow("nope")).toBeNull();
+    expect(resolveContinueLastSignedRecordsListRow([])).toBeNull();
+  });
+
   it("prefers the most recently committed openable row when no recent view exists", () => {
     const match = resolveContinueLastSignedRecordsListRow([
       row({ runId: "run-old", manifestId: "manifest-old", committedUtc: "2025-01-01T00:00:00Z" }),

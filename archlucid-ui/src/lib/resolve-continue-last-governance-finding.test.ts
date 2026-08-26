@@ -21,6 +21,13 @@ function row(overrides: Partial<GovernanceFindingQueueRow> = {}): GovernanceFind
 }
 
 describe("resolveContinueLastGovernanceFinding", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastGovernanceFinding(null)).toBeNull();
+    expect(resolveContinueLastGovernanceFinding({})).toBeNull();
+    expect(resolveContinueLastGovernanceFinding("nope")).toBeNull();
+    expect(resolveContinueLastGovernanceFinding([])).toBeNull();
+  });
+
   it("falls back to the oldest open finding when no recent view exists", () => {
     const match = resolveContinueLastGovernanceFinding([
       row({ findingId: "finding-new", title: "Newer", agingDays: 1 }),

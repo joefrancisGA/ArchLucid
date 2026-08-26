@@ -1,4 +1,5 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 import type { PolicyPack } from "@/types/policy-packs";
@@ -61,15 +62,17 @@ function policyPackRecencyUtc(pack: PolicyPack): string {
 }
 
 /** Resolves the policy pack to pin as Continue last viewed on the packs hub. */
-export function resolveContinueLastPolicyPack(packs: readonly PolicyPack[]): PolicyPack | null {
-  if (packs.length === 0) {
+export function resolveContinueLastPolicyPack(packs: unknown): PolicyPack | null {
+  const normalizedPacks = asNonemptyReadonlyArray<PolicyPack>(packs);
+
+  if (normalizedPacks === null) {
     return null;
   }
 
   const recentPolicyPackId = readRecentPolicyPackId();
 
   if (recentPolicyPackId !== null) {
-    const recentMatch = packs.find((pack) => pack.policyPackId === recentPolicyPackId);
+    const recentMatch = normalizedPacks.find((pack) => pack.policyPackId === recentPolicyPackId);
 
     if (recentMatch !== undefined) {
       return recentMatch;
@@ -77,7 +80,7 @@ export function resolveContinueLastPolicyPack(packs: readonly PolicyPack[]): Pol
   }
 
   return (
-    packs
+    normalizedPacks
       .slice()
       .sort((left, right) => policyPackRecencyUtc(right).localeCompare(policyPackRecencyUtc(left)))[0] ?? null
   );

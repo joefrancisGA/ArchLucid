@@ -1,4 +1,5 @@
 import type { ArchitectureReviewRecurrenceSchedule } from "@/lib/api/governance-stickiness-api";
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 
 export const RECURRENCE_SCHEDULE_LAST_VIEWED_STORAGE_KEY = "archlucid_recurrence_schedule_continue_last_v1";
 
@@ -69,23 +70,25 @@ function compareSoonestNextRun(
 
 /** Resolves the recurrence schedule to pin as Continue last viewed. */
 export function resolveContinueLastRecurrenceSchedule(
-  schedules: readonly ArchitectureReviewRecurrenceSchedule[],
+  schedules: unknown,
 ): RecurrenceSchedulesContinueLastTarget | null {
-  if (schedules.length === 0) {
+  const normalizedSchedules = asNonemptyReadonlyArray<ArchitectureReviewRecurrenceSchedule>(schedules);
+
+  if (normalizedSchedules === null) {
     return null;
   }
 
   const storedId = readStoredScheduleId();
 
   if (storedId !== null) {
-    const storedMatch = schedules.find((schedule) => schedule.scheduleId === storedId);
+    const storedMatch = normalizedSchedules.find((schedule) => schedule.scheduleId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const soonest = schedules.slice().sort(compareSoonestNextRun)[0];
+  const soonest = normalizedSchedules.slice().sort(compareSoonestNextRun)[0];
 
   return soonest === undefined ? null : toTarget(soonest);
 }

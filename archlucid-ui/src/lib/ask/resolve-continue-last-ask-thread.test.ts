@@ -18,6 +18,13 @@ function thread(overrides: Partial<ConversationThread> = {}): ConversationThread
 }
 
 describe("resolveContinueLastAskThread", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastAskThread(null)).toBeNull();
+    expect(resolveContinueLastAskThread({})).toBeNull();
+    expect(resolveContinueLastAskThread("nope")).toBeNull();
+    expect(resolveContinueLastAskThread([])).toBeNull();
+  });
+
   it("prefers the most recently updated thread when no stored thread exists", () => {
     const match = resolveContinueLastAskThread([
       thread({ threadId: "thread-old", lastUpdatedUtc: "2025-01-01T00:00:00Z" }),

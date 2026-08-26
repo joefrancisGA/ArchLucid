@@ -32,6 +32,13 @@ function auditEvent(overrides: Partial<ApiKeyAuditEvent> = {}): ApiKeyAuditEvent
 }
 
 describe("resolveContinueLastApiKeyCredential", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastApiKeyCredential(null)).toBeNull();
+    expect(resolveContinueLastApiKeyCredential({})).toBeNull();
+    expect(resolveContinueLastApiKeyCredential("nope")).toBeNull();
+    expect(resolveContinueLastApiKeyCredential([])).toBeNull();
+  });
+
   it("returns the stored slot when it still exists", () => {
     window.localStorage.setItem(API_KEY_CREDENTIAL_LAST_VIEWED_STORAGE_KEY, "ReadOnly");
 

@@ -21,6 +21,13 @@ function subscription(overrides: Partial<DigestSubscription> = {}): DigestSubscr
 }
 
 describe("resolveContinueLastDigestSubscription", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastDigestSubscription(null)).toBeNull();
+    expect(resolveContinueLastDigestSubscription({})).toBeNull();
+    expect(resolveContinueLastDigestSubscription("nope")).toBeNull();
+    expect(resolveContinueLastDigestSubscription([])).toBeNull();
+  });
+
   it("falls back to the most recently delivered subscription when no stored id exists", () => {
     const match = resolveContinueLastDigestSubscription([
       subscription({

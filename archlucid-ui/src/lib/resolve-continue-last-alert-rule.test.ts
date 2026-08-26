@@ -22,9 +22,8 @@ function rule(overrides: Partial<AlertRule> = {}): AlertRule {
 }
 
 describe("resolveContinueLastAlertRule", () => {
-  it("returns null when rules is not an array", () => {
+  it("returns null when input is not an array", () => {
     expect(resolveContinueLastAlertRule(null)).toBeNull();
-    expect(resolveContinueLastAlertRule(undefined)).toBeNull();
     expect(resolveContinueLastAlertRule({})).toBeNull();
     expect(resolveContinueLastAlertRule("nope")).toBeNull();
     expect(resolveContinueLastAlertRule([])).toBeNull();

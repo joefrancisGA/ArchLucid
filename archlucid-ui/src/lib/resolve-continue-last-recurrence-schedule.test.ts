@@ -19,6 +19,13 @@ function schedule(
 }
 
 describe("resolveContinueLastRecurrenceSchedule", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastRecurrenceSchedule(null)).toBeNull();
+    expect(resolveContinueLastRecurrenceSchedule({})).toBeNull();
+    expect(resolveContinueLastRecurrenceSchedule("nope")).toBeNull();
+    expect(resolveContinueLastRecurrenceSchedule([])).toBeNull();
+  });
+
   it("falls back to the soonest next run when no stored id exists", () => {
     const match = resolveContinueLastRecurrenceSchedule([
       schedule({

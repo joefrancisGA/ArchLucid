@@ -1,3 +1,4 @@
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
 
 export const DIGEST_SUBSCRIPTION_LAST_VIEWED_STORAGE_KEY = "archlucid_digest_subscription_continue_last_v1";
@@ -63,23 +64,25 @@ function compareMostRecentDelivery(left: DigestSubscription, right: DigestSubscr
 
 /** Resolves the digest subscription to pin as Continue last viewed. */
 export function resolveContinueLastDigestSubscription(
-  subscriptions: readonly DigestSubscription[],
+  subscriptions: unknown,
 ): DigestSubscriptionsContinueLastTarget | null {
-  if (subscriptions.length === 0) {
+  const normalizedSubscriptions = asNonemptyReadonlyArray<DigestSubscription>(subscriptions);
+
+  if (normalizedSubscriptions === null) {
     return null;
   }
 
   const storedId = readStoredSubscriptionId();
 
   if (storedId !== null) {
-    const storedMatch = subscriptions.find((subscription) => subscription.subscriptionId === storedId);
+    const storedMatch = normalizedSubscriptions.find((subscription) => subscription.subscriptionId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const mostRecent = subscriptions.slice().sort(compareMostRecentDelivery)[0];
+  const mostRecent = normalizedSubscriptions.slice().sort(compareMostRecentDelivery)[0];
 
   return mostRecent === undefined ? null : toTarget(mostRecent);
 }

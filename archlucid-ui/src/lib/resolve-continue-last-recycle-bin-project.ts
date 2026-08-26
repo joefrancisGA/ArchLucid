@@ -1,4 +1,5 @@
 import type { DeletedProjectRow, WorkspaceBinRow } from "@/lib/projects-recycle-bin-payload";
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 
 export const RECYCLE_BIN_PROJECT_LAST_VIEWED_STORAGE_KEY =
   "archlucid_recycle_bin_project_continue_last_v1";
@@ -67,23 +68,25 @@ function toTarget(project: RecycleBinContinueLastProjectInput): RecycleBinContin
 
 /** Resolves the deleted project to pin as Continue last viewed. */
 export function resolveContinueLastRecycleBinProject(
-  projects: readonly RecycleBinContinueLastProjectInput[],
+  projects: unknown,
 ): RecycleBinContinueLastTarget | null {
-  if (projects.length === 0) {
+  const normalizedProjects = asNonemptyReadonlyArray<RecycleBinContinueLastProjectInput>(projects);
+
+  if (normalizedProjects === null) {
     return null;
   }
 
   const storedId = readStoredProjectId();
 
   if (storedId !== null) {
-    const storedMatch = projects.find((project) => project.projectId === storedId);
+    const storedMatch = normalizedProjects.find((project) => project.projectId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const newest = projects.slice().sort((left, right) => right.deletedUtcIso.localeCompare(left.deletedUtcIso))[0];
+  const newest = normalizedProjects.slice().sort((left, right) => right.deletedUtcIso.localeCompare(left.deletedUtcIso))[0];
 
   return newest === undefined ? null : toTarget(newest);
 }

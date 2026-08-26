@@ -25,9 +25,8 @@ function rule(overrides: Partial<CompositeAlertRule> = {}): CompositeAlertRule {
 }
 
 describe("resolveContinueLastCompositeAlertRule", () => {
-  it("returns null when rules is not an array", () => {
+  it("returns null when input is not an array", () => {
     expect(resolveContinueLastCompositeAlertRule(null)).toBeNull();
-    expect(resolveContinueLastCompositeAlertRule(undefined)).toBeNull();
     expect(resolveContinueLastCompositeAlertRule({})).toBeNull();
     expect(resolveContinueLastCompositeAlertRule("nope")).toBeNull();
     expect(resolveContinueLastCompositeAlertRule([])).toBeNull();

@@ -21,6 +21,13 @@ function schedule(overrides: Partial<AdvisoryScanSchedule> = {}): AdvisoryScanSc
 }
 
 describe("resolveContinueLastAdvisorySchedule", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastAdvisorySchedule(null)).toBeNull();
+    expect(resolveContinueLastAdvisorySchedule({})).toBeNull();
+    expect(resolveContinueLastAdvisorySchedule("nope")).toBeNull();
+    expect(resolveContinueLastAdvisorySchedule([])).toBeNull();
+  });
+
   it("falls back to the soonest next scan when no stored id exists", () => {
     const match = resolveContinueLastAdvisorySchedule([
       schedule({
