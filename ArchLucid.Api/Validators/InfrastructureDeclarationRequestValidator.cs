@@ -10,7 +10,11 @@ public sealed class InfrastructureDeclarationRequestValidator : AbstractValidato
     [
         "json",
         "simple-terraform",
-        "terraform-show-json"
+        "terraform-show-json",
+        "bicep",
+        "arm-json",
+        "kubernetes-json",
+        "kubernetes-yaml"
     ];
 
     public InfrastructureDeclarationRequestValidator()
