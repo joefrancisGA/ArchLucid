@@ -44,7 +44,7 @@ public sealed class HttpWebhookPosterInstrumentationTests
 
         ScopeInt(scope["archlucid.webhook.status_code"]).Should().Be((int)HttpStatusCode.OK);
 
-        ScopeLong(scope["archlucid.webhook.duration_ms"]).Should().BeGreaterOrEqualTo(0);
+        ScopeLong(scope["archlucid.webhook.duration_ms"]).Should().BeGreaterThanOrEqualTo(0);
 
         scope["archlucid.webhook.target_authority"].Should().Be("https://hooks.partner.test");
         scope["archlucid.webhook.event_type"].Should().Be("archlucid.digest.sent");
@@ -113,7 +113,7 @@ public sealed class HttpWebhookPosterInstrumentationTests
 
         ScopeInt(scope["archlucid.webhook.status_code"]).Should().Be((int)HttpStatusCode.BadRequest);
 
-        ScopeLong(scope["archlucid.webhook.duration_ms"]).Should().BeGreaterOrEqualTo(0);
+        ScopeLong(scope["archlucid.webhook.duration_ms"]).Should().BeGreaterThanOrEqualTo(0);
         scope["archlucid.webhook.target_authority"].Should().Be("https://hooks.partner.test");
         scope["archlucid.webhook.event_type"].Should().Be("alert.webhook.notify");
         scope["archlucid.webhook.tenant_id"].Should().Be(Guid.Empty);

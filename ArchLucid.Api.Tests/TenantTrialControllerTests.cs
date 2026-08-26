@@ -345,7 +345,7 @@ public sealed class TenantTrialControllerTests
         body.Status.Should().Be(TrialLifecycleStatus.Active);
         body.TrialExpiresUtc.Should().Be(expires);
         body.DaysRemaining.Should().NotBeNull();
-        body.DaysRemaining!.Value.Should().BeGreaterOrEqualTo(8).And.BeLessOrEqualTo(10);
+        body.DaysRemaining!.Value.Should().BeGreaterThanOrEqualTo(8).And.BeLessThanOrEqualTo(10);
     }
 
     [SkippableFact]
