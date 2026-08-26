@@ -145,7 +145,18 @@ public sealed class ReviewCacheManifestBuilderTests
 
         ReviewCacheManifestBuilder.Build(request, null, null).ContentHash
             .Should()
-            .Be(ReviewCacheManifestBuilder.Build(request, null, []).ContentHash);
+            .Be(        ReviewCacheManifestBuilder.Build(request, null, []).ContentHash);
+    }
+
+    [Fact]
+    public void Build_emits_model_fingerprint_when_run_id_set_even_if_model_missing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-without-model";
+
+        ReviewCacheManifestBuilder.Build(request, null).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, new ArchitectureKnowledgeModel()).ContentHash);
     }
 
     [Fact]
