@@ -137,7 +137,7 @@ describe("HelpCorePilotGuideView", () => {
       .getAllByRole("link")
       .filter((link) => link.getAttribute("href") === "/architecture/reviews/new");
 
-    expect(newReviewLinks).toHaveLength(6);
+    expect(newReviewLinks).toHaveLength(5);
     expect(newReviewLinks.map((link) => link.textContent)).toEqual(
       expect.arrayContaining([
         BUYER_START_ARCHITECTURE_REVIEW_CTA,
@@ -179,7 +179,7 @@ describe("HelpCorePilotGuideView", () => {
       "href",
       "/architecture/reviews/new",
     );
-    expect(within(stepper).getByTestId("core-pilot-step-1-cta")).toHaveAttribute("href", "/architecture/reviews/new");
+    expect(within(stepper).queryByTestId("core-pilot-step-1-cta")).toBeNull();
   });
 
   it("TB-1381: exposes create, findings, finalize, and export actions when a run is ready", () => {
@@ -199,7 +199,7 @@ describe("HelpCorePilotGuideView", () => {
 
     const stepper = screen.getByTestId("core-pilot-workflow-stepper");
 
-    expect(within(stepper).getByTestId("core-pilot-step-1-cta")).toHaveTextContent(BUYER_START_ARCHITECTURE_REVIEW_CTA);
+    expect(within(stepper).getByTestId("core-pilot-step-1-status")).toHaveTextContent("Complete");
     expect(within(stepper).getByTestId("core-pilot-step-2-cta")).toHaveTextContent("Add evidence on review detail");
     expect(within(stepper).getByTestId("core-pilot-step-3-cta")).toHaveTextContent("Open review detail");
     expect(within(stepper).getByTestId("core-pilot-step-3-findings-link")).toHaveAttribute(
@@ -311,7 +311,11 @@ describe("HelpCorePilotGuideView", () => {
       expect(
         within(stepper).getByRole("heading", { name: new RegExp(`Step ${stepNumber} of 5`) }),
       ).toBeInTheDocument();
-      expect(screen.getByTestId(`core-pilot-step-${stepNumber}-status`)).toHaveTextContent("Not started");
+
+      const expectedLabel =
+        stepNumber <= 2 ? "Not started" : "Available after review starts";
+
+      expect(screen.getByTestId(`core-pilot-step-${stepNumber}-status`)).toHaveTextContent(expectedLabel);
     }
   });
 
@@ -327,7 +331,7 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.queryByRole("region", { name: "Cloud connectors are optional for your first review" })).toBeNull();
     expect(screen.queryByRole("region", { name: "Fast path: evidence-only review" })).toBeNull();
     expect(screen.queryByRole("region", { name: "What can wait" })).toBeNull();
-    expect(screen.getByTestId("core-pilot-closing-cta")).toBeInTheDocument();
+    expect(screen.getByTestId("core-pilot-help-closing-panel")).toBeInTheDocument();
   });
 
   it("frames optional cloud and evidence-only paths inside one disclosure (TB-1334)", () => {
@@ -361,7 +365,7 @@ describe("HelpCorePilotGuideView", () => {
     const jobMatrix = within(firstViewport).getByTestId(CORE_PILOT_HELP_JOB_MATRIX_TEST_ID);
 
     expect(within(jobMatrix).getByRole("heading", { name: CORE_PILOT_HELP_IA_DUAL_HEADING })).toBeInTheDocument();
-    expect(within(jobMatrix).getByText(/This first architecture review guide/i)).toBeInTheDocument();
+    expect(within(jobMatrix).getByText(/This guide/i)).toBeInTheDocument();
     expect(
       within(jobMatrix).getByRole("link", { name: EVIDENCE_ONLY_REVIEW_HELP_IA_DUAL_INBOUND_LABEL }),
     ).toHaveAttribute("href", EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF);
@@ -403,7 +407,7 @@ describe("HelpCorePilotGuideView", () => {
     ).toHaveLength(0);
   });
 
-  it("TB-1685: first-viewport job chrome shows three numbered steps before Related guides", () => {
+  it("TB-1685: first-viewport job chrome shows three phases before Related guides", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
@@ -413,28 +417,26 @@ describe("HelpCorePilotGuideView", () => {
     const firstViewport = screen.getByTestId("core-pilot-first-viewport");
     const jobChrome = within(firstViewport).getByTestId(CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID);
 
-    expect(within(jobChrome).getByRole("heading", { name: /Your first review in three steps/i })).toBeInTheDocument();
-    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-step-1")).toHaveTextContent(/Start a review/);
-    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-step-2")).toHaveTextContent(/Add evidence/);
-    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-step-3")).toHaveTextContent(/Finalize and share/);
+    expect(within(jobChrome).getByRole("heading", { name: /Your first review in three phases/i })).toBeInTheDocument();
+    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-phase-1")).toHaveTextContent(/Prepare/);
+    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-phase-2")).toHaveTextContent(/Run/);
+    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-phase-3")).toHaveTextContent(/Finalize and share/);
     expect(within(firstViewport).queryByTestId("core-pilot-related-guides")).toBeNull();
     expect(within(firstViewport).queryByTestId("core-pilot-optional-paths-disclosure")).toBeNull();
     expect(screen.getByTestId("core-pilot-workflow-stepper")).toBeInTheDocument();
   });
 
-  it("uses customer-facing deferral copy and closing CTAs", () => {
+  it("uses customer-facing deferral copy and merged closing panel", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
 
-    expect(screen.getByRole("heading", { name: "Ready to begin?" })).toBeInTheDocument();
-    expect(screen.getByTestId("core-pilot-closing-cta")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Next steps and related help" })).toBeInTheDocument();
+    expect(screen.getByTestId("core-pilot-help-closing-panel")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Ready to begin?" })).toBeNull();
     expect(screen.getByText(/compare, replay, and portfolio graph at scale/i)).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId("core-pilot-closing-cta")).getByRole("link", { name: "Jump to start control" }),
-    ).toHaveAttribute("href", "#first-review-path");
 
     const visibleText = document.body.textContent?.toLowerCase() ?? "";
 
@@ -455,8 +457,7 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(firstViewport).getByTestId(CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID)).toBeInTheDocument();
     expect(within(firstViewport).queryByTestId("core-pilot-workflow-stepper")).toBeNull();
     expect(within(firstViewport).queryByTestId("core-pilot-optional-paths-disclosure")).toBeNull();
-    expect(within(firstViewport).queryByTestId("core-pilot-related-guides")).toBeNull();
-    expect(within(firstViewport).queryByTestId("core-pilot-help-orientation")).toBeNull();
+    expect(within(firstViewport).queryByTestId("core-pilot-help-closing-panel")).toBeNull();
     expect(within(firstViewport).queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const related = screen.getByTestId("core-pilot-related-guides");
@@ -488,7 +489,7 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(related).queryByRole("link", { name: "Start a review" })).toBeNull();
   });
 
-  it("places claim discipline at the article tail, not the first viewport (TB-2092)", () => {
+  it("places claim discipline in the merged closing panel, not the first viewport (TB-2092)", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
@@ -496,11 +497,11 @@ describe("HelpCorePilotGuideView", () => {
     render(<HelpCorePilotGuideView entry={entry} />);
 
     const orientation = screen.getByTestId("core-pilot-help-orientation");
-    const related = screen.getByTestId("core-pilot-related-guides");
+    const closingPanel = screen.getByTestId("core-pilot-help-closing-panel");
     const firstViewport = screen.getByTestId("core-pilot-first-viewport");
 
     expect(within(firstViewport).queryByTestId("core-pilot-help-orientation")).toBeNull();
-    expect(orientation.compareDocumentPosition(related) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
+    expect(closingPanel.contains(orientation)).toBe(true);
     expect(screen.getByTestId("core-pilot-help-claim-discipline")).toHaveTextContent(CORE_PILOT_HELP_CLAIM_DISCIPLINE);
   });
 
@@ -543,7 +544,7 @@ describe("HelpCorePilotGuideView", () => {
 
     expect(firstArchitectureReviewHelpCopyContainsBannedPattern(visible)).toEqual([]);
     expect(visible.toLowerCase()).not.toContain("operator orientation");
-    expect(screen.getByRole("heading", { level: 2, name: "Before you share externally" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Before you share externally" })).toBeInTheDocument();
   });
 
   it("does not resolve retired first-hour-operator-path bookmark", () => {

@@ -126,30 +126,6 @@ export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
           </div>
         </details>
       </section>
-
-      <section
-        aria-labelledby="ready-to-begin"
-        className="mt-10 rounded-lg border border-neutral-200 bg-neutral-50/80 p-6 dark:border-neutral-800 dark:bg-neutral-900/30"
-        data-testid="core-pilot-closing-cta"
-      >
-        <h2 id="ready-to-begin" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Ready to begin?
-        </h2>
-        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-          Start your first review now, or explore the sample review to see a completed outcome.
-        </p>
-        <p className={cn("m-0 mt-4 flex flex-wrap gap-x-4 gap-y-2", OPERATOR_TYPOGRAPHY.body)}>
-          <Link href="#first-review-path" className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}>
-            Jump to start control
-          </Link>
-          <Link
-            href={CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.href}
-            className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)}
-          >
-            {CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.label}
-          </Link>
-        </p>
-      </section>
     </>
   );
 }
