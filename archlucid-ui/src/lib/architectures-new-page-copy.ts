@@ -6,7 +6,7 @@ export const ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER =
   `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Describe the system, outcome, and scope below. When you save, your draft is stored to your account and syncs across browsers where you sign in.`;
 
 export const ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER_WITH_DRAFTS =
-  `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Continue a saved draft above or describe a new system below. Saved drafts sync where you sign in.`;
+  `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Continue a saved draft below, or describe a new system — outcome, people, and systems it touches. Saved drafts sync where you sign in.`;
 
 /** Operator `/architectures/new` subtitles — not shared with other create-path surfaces. */
 export const ARCHITECTURES_NEW_PAGE_SUBTITLE_OPERATOR =
