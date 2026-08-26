@@ -43,22 +43,26 @@ function toTarget(rule: AlertRule): AlertRulesContinueLastTarget {
 }
 
 /** Resolves the alert rule to pin as Continue last viewed. */
-export function resolveContinueLastAlertRule(rules: readonly AlertRule[]): AlertRulesContinueLastTarget | null {
-  if (rules.length === 0) {
+export function resolveContinueLastAlertRule(rules: unknown): AlertRulesContinueLastTarget | null {
+  if (!Array.isArray(rules) || rules.length === 0) {
     return null;
   }
+
+  const normalizedRules = rules as readonly AlertRule[];
 
   const storedId = readStoredRuleId();
 
   if (storedId !== null) {
-    const storedMatch = rules.find((rule) => rule.ruleId === storedId);
+    const storedMatch = normalizedRules.find((rule) => rule.ruleId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const newest = rules.slice().sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
+  const newest = normalizedRules
+    .slice()
+    .sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
 
   return newest === undefined ? null : toTarget(newest);
 }

@@ -22,6 +22,14 @@ function rule(overrides: Partial<AlertRule> = {}): AlertRule {
 }
 
 describe("resolveContinueLastAlertRule", () => {
+  it("returns null when rules is not an array", () => {
+    expect(resolveContinueLastAlertRule(null)).toBeNull();
+    expect(resolveContinueLastAlertRule(undefined)).toBeNull();
+    expect(resolveContinueLastAlertRule({})).toBeNull();
+    expect(resolveContinueLastAlertRule("nope")).toBeNull();
+    expect(resolveContinueLastAlertRule([])).toBeNull();
+  });
+
   it("falls back to the newest created rule when no stored id exists", () => {
     const match = resolveContinueLastAlertRule([
       rule({ ruleId: "old", name: "Old", createdUtc: "2026-01-01T00:00:00.000Z" }),
