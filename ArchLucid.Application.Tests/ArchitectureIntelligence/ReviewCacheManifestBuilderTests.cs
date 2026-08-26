@@ -137,6 +137,17 @@ public sealed class ReviewCacheManifestBuilderTests
             .NotBe(ReviewCacheManifestBuilder.Build(request, null, [azureEntry]).ContentHash);
     }
 
+    [Fact]
+    public void Build_emits_ledger_fingerprint_when_run_id_set_even_if_ledger_missing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-without-ledger";
+
+        ReviewCacheManifestBuilder.Build(request, null, null).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, []).ContentHash);
+    }
+
     private static ClosedLoopReasoningRequest CreateRequest(string content)
     {
         return new ClosedLoopReasoningRequest

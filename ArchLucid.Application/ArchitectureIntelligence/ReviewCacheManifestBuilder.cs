@@ -46,7 +46,7 @@ public static class ReviewCacheManifestBuilder
                 .Append('|');
         }
 
-        if (!string.IsNullOrWhiteSpace(request.RunId) && technologyLedgerEntries is not null)
+        if (!string.IsNullOrWhiteSpace(request.RunId))
         {
             builder.Append("ledgerfp=")
                 .Append(ReviewCacheLedgerFingerprint.Compute(technologyLedgerEntries))
