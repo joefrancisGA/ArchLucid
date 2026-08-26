@@ -85,7 +85,7 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname(IMPACT_PREVIEW_PATH)).toBeNull();
 
     const architectures = routeViewExplanationForPathname(ARCHITECTURES_LIST_PATH);
-    expect(architectures?.title).toBe("Architecture drafts");
+    expect(architectures?.title).toBe("Architectures");
     expect(architectures?.summary.toLowerCase()).toContain("draft");
   });
 
