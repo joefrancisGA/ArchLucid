@@ -32,7 +32,7 @@ export function SponsorReportFinalizedReviewPickerStrip(
     >
       <h2
         id="sponsor-report-finalized-review-picker-heading"
-        className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+        className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
       >
         Pick a finalized review first
       </h2>

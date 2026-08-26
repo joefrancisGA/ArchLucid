@@ -200,7 +200,6 @@ export function PilotValueReportPageView(props: Props) {
           <OperatorPageHeader
             navHref={SPONSOR_REPORT_PATH}
             title={SPONSOR_REPORT_PAGE_TITLE}
-            headingLevel="h1"
             breadcrumb={buyerPolishedShell ? <SponsorReportBreadcrumb /> : undefined}
             subtitle={
               buyerPolishedShell ? (
@@ -277,7 +276,7 @@ export function PilotValueReportPageView(props: Props) {
         ) : null}
 
         <div ref={periodControlsRef} className="space-y-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-          <h2 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Reporting period</h2>
+          <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Reporting period</h2>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Times shown in {m.reportingTimezoneLabel}. Period boundaries are stored in UTC; the end date is exclusive
             when calculating the report window.
@@ -438,7 +437,7 @@ export function PilotValueReportPageView(props: Props) {
                 className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
                 aria-labelledby="pilot-summary-heading"
               >
-                <h2 id="pilot-summary-heading" className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>
+                <h2 id="pilot-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                   Report summary
                 </h2>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{executiveNarrative}</p>
@@ -472,7 +471,7 @@ export function PilotValueReportPageView(props: Props) {
             ) : null}
 
             <section aria-labelledby="review-activity-heading">
-              <h2 id="review-activity-heading" className={OPERATOR_NAV_GROUP_LABEL}>
+              <h2 id="review-activity-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 Review activity
               </h2>
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -493,7 +492,7 @@ export function PilotValueReportPageView(props: Props) {
             </section>
 
             <section aria-labelledby="risk-discovery-heading">
-              <h2 id="risk-discovery-heading" className={OPERATOR_NAV_GROUP_LABEL}>
+              <h2 id="risk-discovery-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 Risk discovery
               </h2>
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -503,17 +502,17 @@ export function PilotValueReportPageView(props: Props) {
                 <SponsorReportMetricCard title="Material findings" value={String(materialFindings)} />
               </div>
               <div className="mt-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Severity distribution</h3>
+                <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Severity distribution</h3>
                 <PilotValueReportSeverityBars counts={m.data.findingsBySeverity} />
               </div>
             </section>
 
             <section className="grid gap-4 lg:grid-cols-2" aria-labelledby="governance-outcomes-heading">
               <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-                <h2 id="governance-outcomes-heading" className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>
+                <h2 id="governance-outcomes-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                   Governance outcomes
                 </h2>
-                <h3 className={cn("mb-2", OPERATOR_TYPOGRAPHY.helper)}>Decisions</h3>
+                <h3 className={cn("m-0 mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Decisions</h3>
                 <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
                   <li>
                     <InlineMetadataLabel label="Approved" /> {m.data.governanceApprovals}
@@ -525,7 +524,7 @@ export function PilotValueReportPageView(props: Props) {
                     <InlineMetadataLabel label="Pending" /> {m.data.governancePendingApprovalsNow}
                   </li>
                 </ul>
-                <h3 className={cn("mb-2 mt-4", OPERATOR_TYPOGRAPHY.helper)}>Policy governance</h3>
+                <h3 className={cn("m-0 mb-2 mt-4", OPERATOR_TYPOGRAPHY.cardTitle)}>Policy governance</h3>
                 <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
                   <li>
                     <InlineMetadataLabel label="Policy packs applied" /> {m.data.policyPackAssignments}
@@ -534,7 +533,7 @@ export function PilotValueReportPageView(props: Props) {
                     <InlineMetadataLabel label="Exceptions or waivers" /> Not available
                   </li>
                 </ul>
-                <h3 className={cn("mb-2 mt-4", OPERATOR_TYPOGRAPHY.helper)}>Architecture-change signals</h3>
+                <h3 className={cn("m-0 mb-2 mt-4", OPERATOR_TYPOGRAPHY.cardTitle)}>Architecture-change signals</h3>
                 <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
                   <li>
                     <InlineMetadataLabel label="Drift detections" /> {m.data.comparisonOrDriftDetections}
@@ -542,7 +541,7 @@ export function PilotValueReportPageView(props: Props) {
                 </ul>
               </div>
               <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-                <h2 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Recommendations and remediation</h2>
+                <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Recommendations and remediation</h2>
                 <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
                   <li>
                     <InlineMetadataLabel label="Recommendations generated" /> {m.data.totalRecommendationsProduced}
@@ -557,7 +556,7 @@ export function PilotValueReportPageView(props: Props) {
                     <InlineMetadataLabel label="Findings remediated" /> Not available
                   </li>
                 </ul>
-                <h2 className={cn("mb-2 mt-6", OPERATOR_NAV_GROUP_LABEL)}>Analysis coverage</h2>
+                <h2 className={cn("m-0 mb-2 mt-6", OPERATOR_TYPOGRAPHY.sectionTitle)}>Analysis coverage</h2>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   {formatPilotOutcomesAnalysisCoverage(m.data.uniqueAgentTypes)}
                 </p>
@@ -568,7 +567,7 @@ export function PilotValueReportPageView(props: Props) {
             </section>
 
             <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-              <h2 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Finalized reviews</h2>
+              <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Finalized reviews</h2>
               {showTimelineCapNote ? (
                 <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Showing the most recent {timelineRows.length} finalized reviews.
