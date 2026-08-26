@@ -39,7 +39,7 @@ public static class ReviewCacheManifestBuilder
 
         ClosedLoopReasoningRequest resolvedRequest = new()
         {
-            TenantId = request.TenantId?.Trim(),
+            TenantId = ClosedLoopTenantIdNormalizer.NormalizeOptional(request.TenantId),
             RunId = ClosedLoopRunIdNormalizer.NormalizeRequired(resolvedRunId),
             WorkspaceId = request.WorkspaceId?.Trim(),
             ProjectId = request.ProjectId?.Trim(),
@@ -141,7 +141,9 @@ public static class ReviewCacheManifestBuilder
     {
         string payload = string.Join(
             '|',
-            request.TenantId?.Trim() ?? string.Empty,
+            request.TenantId is null
+                ? string.Empty
+                : ClosedLoopTenantIdNormalizer.NormalizeRequired(request.TenantId),
             request.WorkspaceId?.Trim() ?? string.Empty,
             request.ProjectId?.Trim() ?? string.Empty);
 

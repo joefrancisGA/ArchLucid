@@ -19,7 +19,7 @@ public sealed class ClosedLoopContinueRunSingleFlight
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(requestManifest);
 
-        string normalizedTenantId = tenantId.Trim();
+        string normalizedTenantId = ClosedLoopTenantIdNormalizer.NormalizeRequired(tenantId);
         string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
 
         return string.Join(

@@ -13,7 +13,7 @@ internal static class ClosedLoopReasoningRequestSnapshot
 
         return new ClosedLoopReasoningRequest
         {
-            TenantId = request.TenantId?.Trim(),
+            TenantId = ClosedLoopTenantIdNormalizer.NormalizeOptional(request.TenantId),
             RunId = ClosedLoopRunIdNormalizer.NormalizeOptional(request.RunId),
             WorkspaceId = request.WorkspaceId?.Trim(),
             ProjectId = request.ProjectId?.Trim(),

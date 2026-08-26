@@ -249,7 +249,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
 
     private static string RequireTenantId(ClosedLoopReasoningRequest request)
     {
-        string tenantId = request.TenantId?.Trim() ?? string.Empty;
+        string tenantId = ClosedLoopTenantIdNormalizer.NormalizeRequired(request.TenantId ?? string.Empty);
 
         if (string.IsNullOrWhiteSpace(tenantId))
         {
