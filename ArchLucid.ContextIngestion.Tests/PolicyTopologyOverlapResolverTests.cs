@@ -34,4 +34,20 @@ public sealed class PolicyTopologyOverlapResolverTests
 
         ids.Should().BeNull();
     }
+
+    [Fact]
+    public void ResolveApplicableTopologyNodeIds_is_stable_across_overlapping_hint_list_order()
+    {
+        string? firstOrder = _sut.ResolveApplicableTopologyNodeIds(
+            "prod",
+            ["prod-vnet", "prod-subnet"]);
+
+        string? reversedOrder = _sut.ResolveApplicableTopologyNodeIds(
+            "prod",
+            ["prod-subnet", "prod-vnet"]);
+
+        firstOrder.Should().NotBeNull();
+        reversedOrder.Should().Be(firstOrder);
+        firstOrder!.Split(',', StringSplitOptions.RemoveEmptyEntries).Should().HaveCount(2);
+    }
 }

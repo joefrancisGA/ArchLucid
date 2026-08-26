@@ -1801,11 +1801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 22
-- **bugs-found:** 56
+- **hunts:** 23
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — document `TOP:` lines lacked stable graph ids; policy overlap ignored document topology
+- **last-bug:** 2026-08-26 — policy overlap `applicableTopologyNodeIds` churned on overlapping hint list order
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1875,6 +1875,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ContextIngestionService.ApplyScopeMetadata` joined `TopologyHints`/`RequiredCapabilities`/`Constraints`/confirmed `Assumptions` without sorting — **hit 2026-08-26:** semantically identical lists in different order churned `SourceHashes` (same class as proven `CanonicalizeActorsJson` element-order bug); fixed with `OrderBy` before join (`ContextIngestionServiceTests.IngestAsync_TopologyHintsListOrder_ProducesStableScopeMetadata`, `IngestAsync_RequiredCapabilitiesListOrder_ProducesStableScopeMetadata`, `IngestAsync_ConstraintsListOrder_ProducesStableScopeMetadata`, `IngestAsync_AssumptionsListOrder_ProducesStableScopeMetadata`).
 - [x] (proven) `PlainTextContextDocumentParser` left default random `CanonicalObject.ObjectId` on prefixed lines — **hit 2026-08-26:** identical document re-parse rotated `obj-{ObjectId}` graph node ids; fixed with `ContextIngestionStableLineNames.StableObjectId` for REQ/POL/SEC and `TopologyHintStableObjectIds.FromHintName` for `TOP:` (`PlainTextContextDocumentParserTests.ParseAsync_TopLine_Reparse_ProducesStableObjectId`, `ParseAsync_RequirementLine_Reparse_ProducesStableObjectId`).
 - [x] (proven) `PlainTextContextDocumentParser` `TOP:` slash hints omitted stable `ObjectId` and `parentNodeId`, and `PolicyReferencePayloadExtractor` ignored document topology — **hit 2026-08-26:** document-only `TOP: parentNet/childSubnet` missed policy overlap with `parentNet`; fixed with `PlainTextDocumentTopologyResourceBuilder` and `PlainTextDocumentTopologyHintExtractor` feeding `PolicyReferencePayloadExtractor` (`PlainTextContextDocumentParserTests.ParseAsync_TopSlashHint_SetsStableObjectIdAndParentNodeId`, `PolicyReferenceConnectorTopologyTests.NormalizeAsync_WhenPolicyOverlapsDocumentTopologyHint_SetsApplicableTopologyNodeIds`).
+- [x] (proven) `PolicyTopologyOverlapResolver.ResolveApplicableTopologyNodeIds` joined overlapping hint ids without sorting — **hit 2026-08-26:** `["prod-vnet","prod-subnet"]` vs `["prod-subnet","prod-vnet"]` produced different `applicableTopologyNodeIds` strings and false modified on policy-reference connector delta; fixed with `OrderBy` before `string.Join` (`PolicyTopologyOverlapResolverTests.ResolveApplicableTopologyNodeIds_is_stable_across_overlapping_hint_list_order`, `PolicyReferenceConnectorTopologyTests.DeltaAsync_OverlappingTopologyHintListOrder_ReportsUnchanged`).
 
 ---
 

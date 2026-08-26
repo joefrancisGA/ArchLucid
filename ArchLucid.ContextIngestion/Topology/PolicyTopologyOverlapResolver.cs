@@ -44,6 +44,9 @@ public sealed class PolicyTopologyOverlapResolver : IPolicyTopologyOverlapResolv
             ids.Add($"obj-{ResolveStableObjectId(canonicalHint)}");
         }
 
-        return ids.Count == 0 ? null : string.Join(',', ids);
+        if (ids.Count == 0)
+            return null;
+
+        return string.Join(',', ids.OrderBy(static id => id, StringComparer.OrdinalIgnoreCase));
     }
 }

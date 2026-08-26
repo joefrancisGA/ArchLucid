@@ -241,6 +241,43 @@ public sealed class PolicyReferenceConnectorTopologyTests
     }
 
     [Fact]
+    public async Task DeltaAsync_OverlappingTopologyHintListOrder_ReportsUnchanged()
+    {
+        PolicyReferenceConnector connector = new(
+            new PolicyReferencePayloadExtractor(),
+            new PolicyReferencePayloadNormalizer(new PolicyTopologyOverlapResolver()),
+            new SetDiffConnectorDeltaComputer());
+
+        RawContextPayload firstRaw = new()
+        {
+            PolicyReferences = ["prod"],
+            TopologyHints = ["prod-vnet", "prod-subnet"],
+        };
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString("D"),
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            PolicyReferences = ["prod"],
+            TopologyHints = ["prod-subnet", "prod-vnet"],
+        };
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+        delta.UnchangedCount.Should().Be(1);
+    }
+
+    [Fact]
     public async Task DeltaAsync_PolicyReferenceCaseChange_ReportsUnchanged()
     {
         PolicyReferenceConnector connector = new(
