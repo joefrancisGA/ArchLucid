@@ -7,6 +7,9 @@ namespace ArchLucid.Host.Core.Diagnostics;
 /// <summary>
 ///     Drops high-cardinality <c>tenant_id</c> RAG metric tags when configured tenant estimates exceed the safe
 ///     threshold paired with <see cref="StartupValidationWarningRuleNames.RetrievalTelemetryPerTenantTagsProductionLike" />.
+///     Wired into <see cref="ArchLucid.Core.Diagnostics.ArchLucidInstrumentation" /> by
+///     <c>RetrievalTelemetryPerTenantTagCircuitBreakerHostedService</c> — do not register this type as
+///     <c>IPostConfigureOptions&lt;RetrievalTelemetryOptions&gt;</c> (DI root-cache deadlock).
 /// </summary>
 public sealed class RetrievalTelemetryPerTenantTagCircuitBreaker(IOptionsMonitor<RetrievalTelemetryOptions> optionsMonitor)
 {

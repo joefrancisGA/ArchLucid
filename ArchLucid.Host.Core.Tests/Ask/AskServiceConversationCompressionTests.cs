@@ -1,7 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Ask;
 using ArchLucid.Core.Ask;
-using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Manifest;
@@ -9,15 +8,10 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Services.Ask;
-using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
-using ArchLucid.Provenance;
-using ArchLucid.Core.Retrieval;
-using ArchLucid.Retrieval.Indexing;
 
 using FluentAssertions;
 
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -116,27 +110,12 @@ public sealed class AskServiceConversationCompressionTests
             MaxTurnsToKeepVerbatim = 4
         });
 
-        Mock<IOptionsMonitor<AskComparisonNarrativeOptions>> askOptions = new();
-        askOptions.Setup(o => o.CurrentValue).Returns(new AskComparisonNarrativeOptions());
-
-        Mock<IOptionsMonitor<AskRetrievalOptions>> askRetrievalOptions = new();
-        askRetrievalOptions.Setup(o => o.CurrentValue).Returns(new AskRetrievalOptions());
-
-        AskService sut = new(
-            query.Object,
-            Mock.Of<IProvenanceQueryService>(),
-            Mock.Of<IComparisonService>(),
-            llm.Object,
-            conversationService.Object,
-            Mock.Of<IFindingInspectReadRepository>(),
-            Mock.Of<IRetrievalQueryService>(),
-            Mock.Of<IRetrievalDocumentBuilder>(),
-            Mock.Of<IRetrievalIndexingService>(),
-            askOptions.Object,
-            compressor.Object,
-            contextOptions.Object,
-            askRetrievalOptions.Object,
-            NullLogger<AskService>.Instance);
+        AskService sut = AskServiceTestFactory.Create(
+            llm: llm.Object,
+            conversationService: conversationService.Object,
+            query: query.Object,
+            conversationContextCompressor: compressor.Object,
+            conversationContextOptions: contextOptions.Object);
 
         await sut.AskAsync(
             new AskRequest { RunId = runId, Question = "What changed?" },
