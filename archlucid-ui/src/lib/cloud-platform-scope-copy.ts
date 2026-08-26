@@ -6,7 +6,7 @@ export const PREFERENCES_CLOUD_PLATFORMS_HEADING = "Cloud platforms shown";
 export const PREFERENCES_CLOUD_PLATFORMS_SCOPE_TAG = "Only affects your view";
 
 export const PREFERENCES_CLOUD_PLATFORMS_LEAD =
-  "Choose which cloud platforms appear in your Integrations and connection flows. Hidden platforms are removed from your view until you turn them back on here. Your choices are saved to your account and sync across browsers.";
+  "Choose which cloud platforms appear in your Integrations and connection flows. Hidden platforms are removed from your view until you turn them back on here.";
 
 export const PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE =
   "Keep at least one cloud platform visible so Integrations and connection flows stay reachable.";

@@ -494,7 +494,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR: readonly ProductDo
   {
     "slug": "preferences",
     "title": "Preferences",
-    "summary": "Personal appearance settings saved to your signed-in account.",
+    "summary": "Personal appearance and theme settings.",
     "audience": "operator",
     "sourcePaths": [],
     "lastReviewed": "2026-08-13",

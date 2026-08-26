@@ -60,9 +60,7 @@ describe("PreferencesSettingsPage", () => {
 
     expect(screen.getByTestId("preferences-settings-page-title")).toHaveTextContent("Preferences");
     expect(screen.getByTestId("preferences-appearance-card")).toBeInTheDocument();
-    expect(screen.getByTestId("preferences-appearance-card")).toHaveTextContent(
-      /syncs across browsers where you sign in/i,
-    );
+    expect(screen.getByTestId("preferences-appearance-card")).toHaveTextContent(/Choose how ArchLucid appears/i);
     expect(screen.getByTestId("theme-preference-selector-stub")).toBeInTheDocument();
     expect(
       screen.queryByTestId("shell-theme-preferences-appearance-vocabulary"),

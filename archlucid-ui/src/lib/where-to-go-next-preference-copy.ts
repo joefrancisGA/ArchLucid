@@ -5,6 +5,6 @@ export const PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID = "follow-up-link-strip
 export const PREFERENCES_WHERE_TO_GO_NEXT_HEADING = "Follow-up link strips";
 
 export const PREFERENCES_WHERE_TO_GO_NEXT_LEAD =
-  "Show or hide Where to go next follow-up link strips on operator pages, including the strip at the top of this page. Your choice is saved to your account and syncs across browsers.";
+  "Show or hide Where to go next follow-up link strips on operator pages, including the strip at the top of this page.";
 
 export const PREFERENCES_WHERE_TO_GO_NEXT_TOGGLE_LABEL = "Show Where to go next strips";
