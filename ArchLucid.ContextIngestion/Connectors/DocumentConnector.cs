@@ -47,7 +47,7 @@ public sealed class DocumentConnector(
             current,
             previous,
             sourceType: "Document",
-            static o => $"{o.SourceId}:{o.Name}",
+            static o => $"{o.SourceId}:{o.ObjectType}:{o.Name}",
             deltaComputer,
             ct);
     }
