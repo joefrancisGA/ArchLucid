@@ -7,6 +7,7 @@ import {
   isScopeBulletEditable,
   isScopeBulletRemovable,
   scopeReadOnlyHint,
+  SCOPE_ACTORS_SOURCE_DEFAULT_LABEL,
   SCOPE_ITEM_MAX_LENGTH,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
@@ -45,7 +46,13 @@ export function ArchitectureScopeUnderstandingRow(
   const editable = isScopeBulletEditable(bullet.kind);
   const removable = isScopeBulletRemovable(bullet.kind);
   const inputId = `architecture-scope-bullet-${bullet.id}`;
-  const showSourcePointer = bullet.kind === "context";
+  const readOnlySourceLabel =
+    bullet.kind === "context"
+      ? props.contextSourceLabel
+      : bullet.kind === "people" || bullet.kind === "systems"
+        ? SCOPE_ACTORS_SOURCE_DEFAULT_LABEL
+        : null;
+  const showSourcePointer = readOnlySourceLabel !== null;
 
   return (
     <li className="flex flex-wrap items-start gap-2" data-testid={`architecture-scope-row-${bullet.id}`}>
@@ -81,7 +88,7 @@ export function ArchitectureScopeUnderstandingRow(
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid={`architecture-scope-readonly-hint-${bullet.id}`}
           >
-            {scopeReadOnlyHint(props.contextSourceLabel)}
+            {scopeReadOnlyHint(readOnlySourceLabel ?? props.contextSourceLabel)}
           </p>
         ) : null}
       </div>

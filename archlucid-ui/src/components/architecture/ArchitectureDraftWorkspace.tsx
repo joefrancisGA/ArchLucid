@@ -235,8 +235,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       architectureOverview: fields.freeTextIntent,
       intentText: fields.freeTextIntent,
       peopleAndSystems: actorSet.actors.map((actor) => ({
-        label: actor.label?.trim() || actor.kind,
+        label: actor.label,
         kind: actor.kind,
+        trustOrigin: actor.trustOrigin,
+        contract: actor.contract,
       })),
     }),
     [actorSet.actors, fields.businessOutcome, fields.freeTextIntent, fields.systemName],

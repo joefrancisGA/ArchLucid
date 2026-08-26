@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   canConfirmScopeUnderstanding,
   deriveScopeUnderstandingBullets,
+  isScopeBulletEditable,
   isScopeBulletRemovable,
   mergeScopeBulletsIntoBrief,
   normalizeScopeUnderstandingBullets,
@@ -46,6 +47,12 @@ describe("scopeBulletBehavior", () => {
     expect(isScopeBulletRemovable("gap")).toBe(false);
     expect(isScopeBulletRemovable("custom")).toBe(true);
   });
+
+  it("keeps people and systems rows read-only mirrors of the actor editor", () => {
+    expect(isScopeBulletEditable("people")).toBe(false);
+    expect(isScopeBulletEditable("systems")).toBe(false);
+    expect(isScopeBulletEditable("system")).toBe(true);
+  });
 });
 
 describe("deriveScopeUnderstandingBullets", () => {
@@ -68,6 +75,23 @@ describe("deriveScopeUnderstandingBullets", () => {
     );
     expect(bullets.find((entry) => entry.kind === "people")?.value).toBe("Claims adjuster");
     expect(bullets.find((entry) => entry.kind === "systems")?.value).toBe("Policy API");
+  });
+
+  it("lists every confirmed actor in the mirrored people and systems rows", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [
+        { label: "Internal users", kind: "Human" },
+        { label: "External users", kind: "Human", trustOrigin: "External" },
+        { label: "Machine integration", kind: "Machine" },
+        { label: "External API", kind: "Machine", trustOrigin: "External" },
+      ],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toBe("Internal users, External users");
+    expect(bullets.find((entry) => entry.kind === "systems")?.value).toBe(
+      "Machine integration, External API",
+    );
   });
 
   it("keeps the label out of the editable value so rows stay typed", () => {
@@ -293,6 +317,26 @@ describe("reconcileScopeUnderstandingBullets", () => {
     const reconciled = reconcileScopeUnderstandingBullets({ inferred, previous, dismissedIds: [] });
 
     expect(reconciled.find((entry) => entry.id === "system")?.value).toBe("Vertex 2");
+  });
+
+  it("refreshes mirrored actor rows even when an older scope edit tried to pin them", () => {
+    const inferred = deriveScopeUnderstandingBullets({
+      systemName: "Vertex",
+      peopleAndSystems: [
+        { label: "Machine integration", kind: "Machine" },
+        { label: "External API", kind: "Machine" },
+      ],
+    });
+    const previous = inferred.map((entry) =>
+      entry.id === "systems"
+        ? { ...entry, value: "Machine integration", source: "user" as const }
+        : entry,
+    );
+    const reconciled = reconcileScopeUnderstandingBullets({ inferred, previous, dismissedIds: [] });
+
+    expect(reconciled.find((entry) => entry.id === "systems")?.value).toBe(
+      "Machine integration, External API",
+    );
   });
 
   it("preserves operator-added rows and keeps removed rows removed", () => {
