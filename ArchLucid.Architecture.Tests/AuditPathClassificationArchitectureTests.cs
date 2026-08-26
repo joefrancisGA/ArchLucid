@@ -101,7 +101,20 @@ public sealed class AuditPathClassificationArchitectureTests
         "UserAccountRecoveryService",
         "AgentModelCatalogEvaluationRecorder",
         "ExternalSubprocessorEngineAcknowledgmentService",
-        "ReviewModelAliasOverrideAuditWriter"
+        "ReviewModelAliasOverrideAuditWriter",
+        "ClarificationAnswerReReviewCoordinator",
+        "SelectiveExecuteIncrementalReReviewCoordinator",
+        "ExecuteTimeGovernanceScopeCaptureService",
+        "PolicyPackWorkflowFacade",
+        "GovernanceStickinessFacade",
+        "PilotsApplicationService",
+        "AuthorityCommitGovernanceStage",
+        "AuthorityCommitPersistenceStage",
+        "AuthorityPipelineArtifactsStage",
+        "AuthorityPipelineDecisioningStage",
+        "AuthorityPipelineFindingsStage",
+        "TraceabilityBundleExportApplicationService",
+        "AuthorityRunReadHandlers"
     ];
 
     private static string FindRepoRoot()

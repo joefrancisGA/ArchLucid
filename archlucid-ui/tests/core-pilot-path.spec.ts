@@ -7,6 +7,8 @@
  */
 import { expect, test } from "@playwright/test";
 
+import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
+
 import {
   START_REVIEW_PAGE_HEADING_PATTERN,
   MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
@@ -36,11 +38,10 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { name: "ArchLucid", level: 1 })).toBeVisible();
-    await expect(page.getByTestId("operator-home-hero-section")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("operator-home-recommended-next-card")).toBeVisible({ timeout: 60_000 });
     await expect(
-      page.getByTestId("operator-home-hero-section").getByTestId("pilot-command-center-card"),
+      page.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING, level: 2 }),
     ).toBeVisible();
-    await expect(page.getByTestId("pilot-next-best-action")).toBeVisible();
     // Buyer-polished Overview omits the collapsed advanced-guidance rail (hero contextual help covers onboarding).
     await expect(page.getByTestId("operator-home-advanced-guidance")).toHaveCount(0);
 

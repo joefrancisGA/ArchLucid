@@ -514,27 +514,11 @@ export async function expectSponsorRoiEnvironmentPieVisible(page: Page): Promise
 
 
 export async function expectSponsorRoiSponsorSurface(page: Page): Promise<void> {
-
-  const v = BUYER_SPONSOR_SUMMARY_VOCABULARY;
-
-
-
   await expect(page.getByTestId("sponsor-dashboard-empty-state")).toHaveCount(0, { timeout: 30_000 });
 
   await expect(page.getByTestId("sponsor-primary-decisions-needed")).toBeVisible({ timeout: 30_000 });
 
-  await expect(
-
-    page
-
-      .getByTestId("sponsor-exports-heading")
-
-      .or(page.getByRole("heading", { name: /sponsor exports|sponsor exports/i }))
-
-      .or(page.getByText(v.executiveExportsTitle)),
-
-  ).toBeVisible({ timeout: 30_000 });
-
+  await expect(page.getByTestId("sponsor-exports-heading")).toBeVisible({ timeout: 30_000 });
 }
 
 

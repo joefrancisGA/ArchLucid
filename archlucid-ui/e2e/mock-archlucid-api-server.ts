@@ -469,7 +469,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
-      if (req.method === "PUT" && pathname === "/v1/user/preferences/where-to-go-next") {
+      if (req.method === "PUT" && pathname.startsWith("/v1/user/preferences")) {
         res.writeHead(204);
         res.end();
         return;

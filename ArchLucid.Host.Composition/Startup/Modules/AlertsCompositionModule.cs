@@ -12,6 +12,7 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Host.Composition.Alerts;
 using ArchLucid.Host.Core.Services;
+using ArchLucid.Host.Core.Services.Governance;
 using ArchLucid.Notifications.Alerts;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Alerts.Simulation;
@@ -90,5 +91,6 @@ public static class AlertsCompositionModule
         services.AddScoped<PlatformBundledPolicyPackRegistryBootstrapper>();
         services.AddScoped<PolicyPackWorkspaceSelectionService>();
         services.AddScoped<IPolicyPackWorkflowFacade, PolicyPackWorkflowFacade>();
+        services.AddScoped<IPolicyPackMarkdownExplainService, PolicyPackMarkdownExplainService>();
     }
 }

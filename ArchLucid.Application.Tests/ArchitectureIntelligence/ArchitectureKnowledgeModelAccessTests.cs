@@ -11,6 +11,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class ArchitectureKnowledgeModelAccessTests
 {
   private static readonly ScopeContext TestScope = new()

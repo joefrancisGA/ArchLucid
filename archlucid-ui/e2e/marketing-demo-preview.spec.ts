@@ -1,17 +1,12 @@
-/**
- * Public marketing `/showcase/[runId]` and `/see-it` — static offline payload when API is unavailable (matches production fallback).
- */
 import { expect, test } from "@playwright/test";
 
 import { showcaseTitleForRunId } from "@/lib/showcase-page-copy";
-
-import { waitForAppReady } from "./helpers/waits";
 
 test.describe("marketing-demo-preview", () => {
   test("/showcase/customer-intake-modernization loads hero and signup CTA without auth", async ({ page }) => {
     test.setTimeout(120_000);
     await page.goto("/showcase/customer-intake-modernization", { waitUntil: "load" });
-    await waitForAppReady(page);
+    await page.locator("#showcase-primary-content").waitFor({ state: "visible", timeout: 60_000 });
     await expect(
       page.getByRole("heading", {
         name: showcaseTitleForRunId("customer-intake-modernization"),
