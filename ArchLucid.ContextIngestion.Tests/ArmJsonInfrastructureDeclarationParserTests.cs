@@ -44,6 +44,36 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
         result.Should().ContainSingle();
         result[0].Name.Should().Be("docs");
         result[0].Properties["tf.allowblobpublicaccess"].Should().Be("true");
+        result[0].Properties["allowBlobPublicAccess"].Should().Be("true");
+    }
+
+    [Fact]
+    public async Task ParseAsync_PublicNetworkAccess_DualWritesTfAndArmAlias()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "docs",
+                            "properties": {
+                              "publicNetworkAccess": "Enabled"
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.publicnetworkaccess"].Should().Be("enabled");
+        result[0].Properties["publicNetworkAccess"].Should().Be("enabled");
     }
 
     [Fact]

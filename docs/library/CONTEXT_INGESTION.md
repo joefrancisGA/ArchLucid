@@ -96,15 +96,15 @@ Lightweight line-based parser over **`resource "azurerm_virtual_network" "core"`
 
 ### `bicep`
 
-Line-based match for **`resource symbolicName 'Microsoft.Provider/types@api-version'`** declarations (not a Bicep compiler). Stores **`resourceType`**, **`bicepSymbolicName`**, and optional **`apiVersion`** on each canonical object.
+Line-based match for **`resource symbolicName 'Microsoft.Provider/types@api-version'`** declarations (not a Bicep compiler). Stores **`resourceType`**, **`bicepSymbolicName`**, optional **`apiVersion`**, and a bounded set of resource-body scalars from **`properties:`** / **`siteConfig:`** blocks under **`tf.*`** keys (with ARM camelCase aliases for security fields). **`CanonicalInfrastructurePropertyBag`** compacts camelCase keys (e.g. **`publicNetworkAccess`** → **`tf.publicnetworkaccess`**); **`declaration-security-baseline`** and **`declaration-premise-conflict`** resolve aliases via **`DeclarationSecurityPropertyKeyResolver`**.
 
 ### `arm-json`
 
-Parses an ARM template JSON **`resources`** array. Skips **`Microsoft.Resources/deployments`** nested templates. Copies a bounded set of scalar **`properties`** fields onto **`tf.*`** keys.
+Parses an ARM template JSON **`resources`** array. Skips **`Microsoft.Resources/deployments`** nested templates. Copies a bounded set of scalar **`properties`** fields onto **`tf.*`** keys and dual-writes ARM camelCase aliases for known security fields.
 
 ### `kubernetes-json` / `kubernetes-yaml`
 
-Parses **`kubectl get -o json`** output or multi-document YAML manifests into **`TopologyResource`** / **`SecurityBaseline`** rows with **`k8s.*`** metadata. Secret **`data`** payloads are not ingested.
+Parses **`kubectl get -o json`** output or multi-document YAML manifests into **`TopologyResource`** / **`SecurityBaseline`** rows with **`k8s.*`** metadata plus security-relevant spec fields (**`k8s.privileged`**, **`k8s.hostNetwork`**, **`k8s.servicetype`**, etc.) for **`declaration-security-baseline`**. Secret **`data`** / **`stringData`** payloads are not ingested.
 
 ### `terraform-show-json`
 

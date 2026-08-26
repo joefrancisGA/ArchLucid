@@ -1,0 +1,28 @@
+[
+  {
+    "objectType": "TopologyResource",
+    "name": "prod/api",
+    "sourceType": "InfrastructureDeclaration",
+    "sourceId": "ingestion-case-09",
+    "properties": {
+      "k8s.apiVersion": "apps/v1",
+      "k8s.kind": "deployment",
+      "k8s.name": "api",
+      "k8s.namespace": "prod",
+      "k8s.privileged": "true"
+    }
+  },
+  {
+    "objectType": "TopologyResource",
+    "name": "prod/api-lb",
+    "sourceType": "InfrastructureDeclaration",
+    "sourceId": "ingestion-case-09",
+    "properties": {
+      "k8s.apiVersion": "v1",
+      "k8s.kind": "service",
+      "k8s.name": "api-lb",
+      "k8s.namespace": "prod",
+      "k8s.servicetype": "loadbalancer"
+    }
+  }
+]

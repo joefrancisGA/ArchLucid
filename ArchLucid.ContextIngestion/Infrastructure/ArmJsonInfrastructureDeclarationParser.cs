@@ -161,7 +161,10 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
                 _ => string.Empty,
             };
 
-            CanonicalInfrastructurePropertyBag.TryAddTfProperty(properties, property.Name, valueText);
+            InfrastructureDeclarationSecurityPropertyWriter.TryAddTfPropertyWithArmAlias(
+                properties,
+                property.Name,
+                valueText);
         }
     }
 

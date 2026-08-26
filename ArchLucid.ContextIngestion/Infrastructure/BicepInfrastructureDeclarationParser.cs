@@ -62,6 +62,17 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
             if (!string.IsNullOrWhiteSpace(apiVersion))
                 properties["apiVersion"] = apiVersion.ToLowerInvariant();
 
+            string fromMatch = declaration.Content[match.Index..];
+            int braceIndex = fromMatch.IndexOf('{', StringComparison.Ordinal);
+
+            if (braceIndex >= 0)
+            {
+                string braceBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody(fromMatch, braceIndex);
+
+                if (!string.IsNullOrWhiteSpace(braceBody))
+                    BicepResourceBodyParser.ParseBodyIntoProperties(braceBody, properties);
+            }
+
             string canonicalName = symbolicName.ToLowerInvariant();
             string canonicalResourceType = resourceType.ToLowerInvariant();
 

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Analysis;
@@ -53,25 +54,57 @@ public static class DeclarationSecurityBaselineClassifier
                 "network-isolation"));
         }
 
+        if (IsPrivilegedWorkload(properties))
+        {
+            findings.Add(new DeclarationSecurityBaselineSignal(
+                $"Workload '{resourceLabel}' declares a privileged container.",
+                FindingSeverity.Error,
+                "workload-isolation"));
+        }
+
+        if (IsHostNetworkWorkload(properties))
+        {
+            findings.Add(new DeclarationSecurityBaselineSignal(
+                $"Workload '{resourceLabel}' enables host network access.",
+                FindingSeverity.Warning,
+                "network-isolation"));
+        }
+
+        if (AllowsPrivilegeEscalation(properties))
+        {
+            findings.Add(new DeclarationSecurityBaselineSignal(
+                $"Workload '{resourceLabel}' allows container privilege escalation.",
+                FindingSeverity.Warning,
+                "workload-isolation"));
+        }
+
+        if (IsPublicLoadBalancerService(properties))
+        {
+            findings.Add(new DeclarationSecurityBaselineSignal(
+                $"Service '{resourceLabel}' exposes a LoadBalancer endpoint.",
+                FindingSeverity.Warning,
+                "data-protection"));
+        }
+
         return findings;
     }
 
     private static bool IsUnsafePublicNetworkAccess(IReadOnlyDictionary<string, string> properties)
     {
-        if (TryGetProperty(properties, "tf.public_network_access", out string? publicNetworkAccess)
+        if (DeclarationSecurityPropertyKeyResolver.TryGet(
+                properties,
+                DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+                out _,
+                out string? publicNetworkAccess)
             && IsEnabledToken(publicNetworkAccess))
             return true;
 
-        if (TryGetProperty(properties, "publicNetworkAccess", out string? armPublicNetworkAccess)
-            && IsEnabledToken(armPublicNetworkAccess))
-            return true;
-
-        if (TryGetProperty(properties, "tf.allow_blob_public_access", out string? blobPublicAccess)
+        if (DeclarationSecurityPropertyKeyResolver.TryGet(
+                properties,
+                DeclarationSecurityPropertyLogicalNames.AllowBlobPublicAccess,
+                out _,
+                out string? blobPublicAccess)
             && IsTruthy(blobPublicAccess))
-            return true;
-
-        if (TryGetProperty(properties, "allowBlobPublicAccess", out string? armBlobPublicAccess)
-            && IsTruthy(armBlobPublicAccess))
             return true;
 
         return false;
@@ -79,12 +112,12 @@ public static class DeclarationSecurityBaselineClassifier
 
     private static bool IsHttpsOnlyDisabled(IReadOnlyDictionary<string, string> properties)
     {
-        if (TryGetProperty(properties, "tf.https_only", out string? httpsOnly)
+        if (DeclarationSecurityPropertyKeyResolver.TryGet(
+                properties,
+                DeclarationSecurityPropertyLogicalNames.HttpsOnly,
+                out _,
+                out string? httpsOnly)
             && IsFalsy(httpsOnly))
-            return true;
-
-        if (TryGetProperty(properties, "httpsOnly", out string? armHttpsOnly)
-            && IsFalsy(armHttpsOnly))
             return true;
 
         return false;
@@ -92,17 +125,29 @@ public static class DeclarationSecurityBaselineClassifier
 
     private static bool IsWeakSqlPosture(IReadOnlyDictionary<string, string> properties)
     {
-        if (TryGetProperty(properties, "tf.minimum_tls_version", out string? minimumTlsVersion)
+        if (DeclarationSecurityPropertyKeyResolver.TryGet(
+                properties,
+                DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion,
+                out _,
+                out string? minimumTlsVersion)
             && !string.IsNullOrWhiteSpace(minimumTlsVersion)
             && !string.Equals(minimumTlsVersion, "1.2", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(minimumTlsVersion, "1.3", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (TryGetProperty(properties, "tf.ssl_enforcement_enabled", out string? sslEnforcement)
+        if (DeclarationSecurityPropertyKeyResolver.TryGet(
+                properties,
+                DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+                out _,
+                out string? sslEnforcement)
             && IsFalsy(sslEnforcement))
             return true;
 
-        if (TryGetProperty(properties, "tf.public_network_access", out string? sqlPublicAccess)
+        if (DeclarationSecurityPropertyKeyResolver.TryGet(
+                properties,
+                DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+                out _,
+                out string? sqlPublicAccess)
             && IsEnabledToken(sqlPublicAccess))
         {
             if (TryGetProperty(properties, "terraformType", out string? terraformType)
@@ -119,15 +164,12 @@ public static class DeclarationSecurityBaselineClassifier
 
     private static bool HasOpenAdminIngressHeuristic(IReadOnlyDictionary<string, string> properties)
     {
-        string? ingressBlob = null;
-
-        if (TryGetProperty(properties, "tf.ingress", out string? ingress))
-            ingressBlob = ingress;
-
-        if (ingressBlob is null && TryGetProperty(properties, "tf.network_rules", out string? networkRules))
-            ingressBlob = networkRules;
-
-        if (string.IsNullOrWhiteSpace(ingressBlob))
+        if (!DeclarationSecurityPropertyKeyResolver.TryGet(
+                properties,
+                DeclarationSecurityPropertyLogicalNames.IngressBlob,
+                out _,
+                out string? ingressBlob)
+            || string.IsNullOrWhiteSpace(ingressBlob))
             return false;
 
         string normalized = ingressBlob.ToLowerInvariant();
@@ -137,6 +179,31 @@ public static class DeclarationSecurityBaselineClassifier
 
         return ContainsIsolatedPort(normalized, 22)
             || ContainsIsolatedPort(normalized, 3389);
+    }
+
+    private static bool IsPrivilegedWorkload(IReadOnlyDictionary<string, string> properties) =>
+        TryGetK8sTruthy(properties, "privileged");
+
+    private static bool IsHostNetworkWorkload(IReadOnlyDictionary<string, string> properties) =>
+        TryGetK8sTruthy(properties, "hostNetwork");
+
+    private static bool AllowsPrivilegeEscalation(IReadOnlyDictionary<string, string> properties) =>
+        TryGetK8sTruthy(properties, "allowPrivilegeEscalation");
+
+    private static bool IsPublicLoadBalancerService(IReadOnlyDictionary<string, string> properties)
+    {
+        if (!TryGetProperty(properties, "k8s.servicetype", out string? serviceType))
+            return false;
+
+        return string.Equals(serviceType, "loadbalancer", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryGetK8sTruthy(IReadOnlyDictionary<string, string> properties, string keySuffix)
+    {
+        if (!TryGetProperty(properties, $"k8s.{keySuffix}", out string? value))
+            return false;
+
+        return IsTruthy(value);
     }
 
     private static bool ContainsIsolatedPort(string normalized, int port)
@@ -168,9 +235,15 @@ public static class DeclarationSecurityBaselineClassifier
         string key,
         out string? value)
     {
-        if (properties.TryGetValue(key, out string? directValue) && !string.IsNullOrWhiteSpace(directValue))
+        foreach (KeyValuePair<string, string> entry in properties)
         {
-            value = directValue.Trim();
+            if (!string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (string.IsNullOrWhiteSpace(entry.Value))
+                continue;
+
+            value = entry.Value.Trim();
 
             return true;
         }
