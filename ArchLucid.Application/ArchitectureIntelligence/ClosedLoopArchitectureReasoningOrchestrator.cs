@@ -523,7 +523,9 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 cancellationToken).ConfigureAwait(false);
         }
 
-        if (!publishDecision.PublishBlocked || !hadPersistedModelForRun)
+        bool persistModel = !publishDecision.PublishBlocked || !hadPersistedModelForRun;
+
+        if (persistModel)
             await SaveModelAsync(runId, model, cancellationToken);
 
         string workspaceId = effectiveRequest.WorkspaceId ?? tenantId;
