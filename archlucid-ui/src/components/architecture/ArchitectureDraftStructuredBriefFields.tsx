@@ -13,6 +13,7 @@ import {
 import { useStructuredBriefSuggestions } from "@/components/architecture/use-structured-brief-suggestions";
 import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 import { StructuredBriefCapabilitiesQualityVocabularyRail } from "@/components/StructuredBriefCapabilitiesQualityVocabularyRail";
 import { IntakeTextField } from "@/components/intake/IntakeTextField";
 import { Button } from "@/components/ui/button";
@@ -118,24 +119,24 @@ export function ArchitectureDraftStructuredBriefFields(
             variant="secondary"
             size="sm"
             disabled={!suggestions.canSuggestFromOverview}
+            aria-busy={suggestions.suggestBusy}
             onClick={suggestions.onSuggestFromOverview}
             data-testid="architecture-draft-suggest-structured-brief"
+            data-loading={suggestions.suggestBusy ? "true" : "false"}
           >
-            {suggestions.suggestBusy ? "Suggesting…" : "Suggest from overview"}
+            {suggestions.suggestBusy ? (
+              <>
+                <ReviewStartInlineSpinner className="h-3.5 w-3.5" />
+                <span>Suggesting…</span>
+              </>
+            ) : (
+              "Suggest from overview"
+            )}
           </Button>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
             Suggestions stay unconfirmed until you add or confirm them.
           </p>
         </div>
-        {suggestions.canSuggestFromOverview && !suggestions.suggestBusy ? (
-          <p
-            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
-            role="status"
-            data-testid="architecture-draft-suggest-structured-brief-duration-hint"
-          >
-            {suggestions.suggestDurationHint}
-          </p>
-        ) : null}
         <LongOperationWaitNotice
           active={suggestions.suggestBusy}
           operationLabel="Structured brief suggestions"
