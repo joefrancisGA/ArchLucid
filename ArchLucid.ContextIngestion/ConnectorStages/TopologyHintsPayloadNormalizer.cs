@@ -1,6 +1,7 @@
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
+using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Topology;
 
 namespace ArchLucid.ContextIngestion.ConnectorStages;
@@ -47,7 +48,7 @@ public sealed class TopologyHintsPayloadNormalizer(IPolicyTopologyOverlapResolve
             {
                 ObjectId = _overlapResolver.ResolveStableObjectId(canonicalHint),
                 ObjectType = "TopologyResource",
-                Name = canonicalHint,
+                Name = ContextIngestionStableLineNames.BuildDisplayName(canonicalHint),
                 SourceType = "TopologyHint",
                 SourceId = "topology-hint",
                 Properties = properties

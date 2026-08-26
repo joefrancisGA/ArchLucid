@@ -1808,8 +1808,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 45
-- **bugs-found:** 96
+- **hunts:** 46
+- **bugs-found:** 97
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
 - **last-bug:** 2026-08-26 — padded `baselineScope` blocked sensitivity-scope baseline linking
@@ -1925,7 +1925,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SecurityBaselineSensitivityScopeExpander` padded `baselineScope` blocked sensitivity match — **hit 2026-08-26:** `" data-bearing "` vs `data-bearing` left baselines without `protectedTopologyNodeIds`; fixed by trimming explicit scope (`SecurityBaselineSensitivityScopeExpanderTests.Expand_padded_baseline_scope_links_matching_topology`).
 - [x] (proven) `KubernetesYamlInfrastructureDeclarationParser` drops PascalCase manifest keys (`Kind`, `Metadata.Name`) after YamlDotNet camelCase serialization — **hit 2026-08-26:** exporter YAML with `Kind`/`Metadata.Name` returned zero resources; fixed with case-insensitive JSON property reads in `KubernetesManifestCanonicalObjectMapper` (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_PascalCaseKeys_MapsDeployment`).
 - [x] (proven) `PolicyTopologyOverlapResolver.Overlaps` uses bidirectional `Contains` — **hit 2026-08-26:** policy `prod` false-positived on topology hint `production-vnet`; fixed with delimited prefix/suffix matching (`PolicyTopologyOverlapResolverTests`, `PolicyReferenceConnectorTopologyTests.NormalizeAsync_prod_policy_does_not_target_production_vnet_hint`).
-- [ ] (hunt-ready) `TopologyHintsPayloadNormalizer` vs document `TOP:` path disagree on long-hint `Name` truncation — connector keeps full `canonicalHint` while `PlainTextDocumentTopologyResourceBuilder` uses `BuildDisplayName`; cheap-disproof 2026-08-26 confirmed Name mismatch when hint length > 80.
+- [x] (proven) `TopologyHintsPayloadNormalizer` vs document `TOP:` path disagree on long-hint `Name` truncation — **hit 2026-08-26:** connector kept full `canonicalHint` while document path used `BuildDisplayName`, so identical long hints produced mismatched display names and divergent graph labels for the same `ObjectId`; fixed by aligning connector `Name` with `ContextIngestionStableLineNames.BuildDisplayName` (`TopologyHintsPayloadNormalizerTests`).
+
+2026-08-26 thorough hunt #46: proved long-hint topology display name alignment.
 
 2026-08-26 thorough hunt #45: proved PascalCase kubernetes-yaml parsing and policy/topology overlap delimiter matching.
 
