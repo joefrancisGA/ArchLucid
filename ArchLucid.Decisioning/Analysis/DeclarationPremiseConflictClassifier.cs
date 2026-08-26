@@ -109,6 +109,7 @@ public static class DeclarationPremiseConflictClassifier
 
                 signals.Add(new DeclarationPremiseConflictSignal
                 {
+                    Theme = baselineSignal.Theme,
                     ConflictKind = conflictKind,
                     DeclarationPropertyKey = propertyKey!,
                     DeclarationPropertyValue = propertyValue!,

@@ -5,6 +5,13 @@ namespace ArchLucid.Decisioning.Analysis;
 /// <summary>Pure classification output for one declaration-versus-intent premise conflict.</summary>
 public sealed class DeclarationPremiseConflictSignal
 {
+    /// <summary>Classifier theme that produced this conflict (gates tenant policy vocabulary).</summary>
+    public string Theme
+    {
+        get;
+        init;
+    } = null!;
+
     public string ConflictKind
     {
         get;

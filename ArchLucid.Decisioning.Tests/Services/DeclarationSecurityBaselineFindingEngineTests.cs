@@ -1,5 +1,7 @@
+using ArchLucid.Decisioning.Compliance.Models;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.Decisioning.Tests.GoldenCorpus;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
@@ -10,7 +12,8 @@ namespace ArchLucid.Decisioning.Tests.Services;
 [Trait("Category", "Unit")]
 public sealed class DeclarationSecurityBaselineFindingEngineTests
 {
-  private readonly DeclarationSecurityBaselineFindingEngine _sut = new();
+  private readonly DeclarationSecurityBaselineFindingEngine _sut =
+      new(new FixedComplianceRulePackProvider(CreateUnmappedPack()));
 
   [Fact]
   public async Task AnalyzeAsync_emits_finding_for_unsafe_tf_property()
@@ -38,4 +41,25 @@ public sealed class DeclarationSecurityBaselineFindingEngineTests
     findings[0].EngineType.Should().Be("declaration-security-baseline");
     findings[0].Severity.Should().Be(FindingSeverity.Error);
   }
+
+  private static ComplianceRulePack CreateUnmappedPack() =>
+      new()
+      {
+          RulePackId = "test-pack",
+          Name = "Test",
+          Version = "1",
+          Rules =
+          [
+              new ComplianceRule
+              {
+                  RuleId = "soc2-001",
+                  ControlId = "c",
+                  ControlName = "n",
+                  AppliesToCategory = "cat",
+                  RequiredNodeType = "t",
+                  RequiredEdgeType = "e",
+                  Description = "d",
+              },
+          ],
+      };
 }

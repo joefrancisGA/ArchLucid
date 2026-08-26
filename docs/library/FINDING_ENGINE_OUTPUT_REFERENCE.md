@@ -58,8 +58,8 @@ These close over extractors, freshness options, or SQL. They do **not** implemen
 | `aws-inventory-reconciliation` | `GraphAwsInventoryReconciliationFindingEngine` | Graph vs AWS inventory. |
 | `gcp-inventory-reconciliation` | `GraphGcpInventoryReconciliationFindingEngine` | Graph vs GCP inventory. |
 | `azure-inventory-security-baseline` | `AzureInventorySecurityBaselineFindingEngine` | Azure inventory vs security baseline. |
-| `declaration-security-baseline` | `DeclarationSecurityBaselineFindingEngine` | Unsafe **`tf.*`**, ARM aliases, and **`k8s.*`** declaration properties on ingested topology rows (graph-pure). |
-| `declaration-premise-conflict` | `DeclarationPremiseConflictFindingEngine` | Declaration properties that contradict linked **`SecurityBaseline`** / **`PolicyControl`** intent (graph-pure). |
+| `declaration-security-baseline` | `DeclarationSecurityBaselineFindingEngine` | Unsafe **`tf.*`**, ARM aliases, and **`k8s.*`** declaration properties on ingested topology rows. Honors tenant **`complianceRuleKeys`** via **`DeclarationSignalPolicyKeyMap`** (cis-az-*, sec-base-028) when the filtered pack includes mapped keys; fail-open when unmapped. |
+| `declaration-premise-conflict` | `DeclarationPremiseConflictFindingEngine` | Declaration properties that contradict linked **`SecurityBaseline`** / **`PolicyControl`** intent. Uses the same **`DeclarationSignalPolicyKeyMap`** gate as declaration-security-baseline. |
 | `aws-inventory-security-baseline` | `AwsInventorySecurityBaselineFindingEngine` | AWS inventory vs security baseline. |
 | `gcp-inventory-security-baseline` | `GcpInventorySecurityBaselineFindingEngine` | GCP inventory vs security baseline. |
 | `advisor-cost-recommendation` | `AdvisorCostRecommendationFindingEngine` | Cloud advisor cost recommendations. |
