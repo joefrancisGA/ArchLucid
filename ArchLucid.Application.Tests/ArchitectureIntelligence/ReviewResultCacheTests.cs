@@ -556,33 +556,32 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
-    public void UnpinStorageKey_prunes_orphan_pin_refcounts()
+    public void PinStorageKey_retains_in_flight_reservation_when_another_key_unpins()
     {
         ReviewResultCache cache = new();
-        ReviewCacheDependencyManifest orphanManifest = new() { ContentHash = "orphan-pin-refcount" };
-        string orphanKey = ReviewCacheKeyBuilder.Build(orphanManifest);
-        ReviewCacheDependencyManifest trackedManifest = new() { ContentHash = "tracked-pin-refcount" };
+        ReviewCacheDependencyManifest reservedManifest = new() { ContentHash = "reserved-before-set" };
+        string reservedKey = ReviewCacheKeyBuilder.Build(reservedManifest);
+        ReviewCacheDependencyManifest trackedManifest = new() { ContentHash = "tracked-unpin-triggers-prune" };
         string trackedKey = ReviewCacheKeyBuilder.Build(trackedManifest);
 
-        cache.PinStorageKey(orphanKey);
-        cache.Set(trackedManifest, new ClosedLoopReasoningResult { RunId = "tracked-run" });
+        cache.PinStorageKey(reservedKey);
+        cache.Set(trackedManifest, new ClosedLoopReasoningResult { RunId = "trackedrun" });
         cache.PinStorageKey(trackedKey);
 
         cache.UnpinStorageKey(trackedKey);
 
-        cache.PinStorageKey(orphanKey);
-        cache.Set(orphanManifest, new ClosedLoopReasoningResult { RunId = "orphan-run" });
+        cache.Set(reservedManifest, new ClosedLoopReasoningResult { RunId = "reservedrun" });
 
         for (int index = 0; index < 150; index++)
         {
             cache.Set(
-                new ReviewCacheDependencyManifest { ContentHash = $"orphan-overflow-{index}" },
+                new ReviewCacheDependencyManifest { ContentHash = $"reservation-overflow-{index}" },
                 new ClosedLoopReasoningResult());
         }
 
-        cache.TryGet(orphanManifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
-        stillPinned!.RunId.Should().Be("orphanrun");
+        cache.TryGet(reservedManifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
+        stillPinned!.RunId.Should().Be("reservedrun");
 
-        cache.UnpinStorageKey(orphanKey);
+        cache.UnpinStorageKey(reservedKey);
     }
 }
