@@ -10,8 +10,7 @@ import { formatRelativeTime } from "@/lib/relative-time";
 import {
   clearResumableReviewsNewWizardSession,
   dismissReviewsNewWizardResumeStrip,
-  findResumableReviewsNewWizardSession,
-  isReviewsNewWizardResumeStripDismissed,
+  findVisibleReviewsNewPageLevelResumeSession,
   requestReviewsNewWizardAutoRestore,
   reviewsNewWizardResumeHref,
   type ReviewsNewResumableWizardSession,
@@ -19,13 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 
 function readVisibleResumableSession(): ReviewsNewResumableWizardSession | null {
-  const session = findResumableReviewsNewWizardSession();
-
-  if (session === null || isReviewsNewWizardResumeStripDismissed(session)) {
-    return null;
-  }
-
-  return session;
+  return findVisibleReviewsNewPageLevelResumeSession();
 }
 
 /** Dismissible resume strip for incomplete new-review wizard sessions on the RNX hub. */
