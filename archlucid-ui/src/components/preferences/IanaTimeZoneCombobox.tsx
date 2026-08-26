@@ -98,7 +98,6 @@ export function IanaTimeZoneCombobox({
   const listboxId = `${buttonId}-listbox`;
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const blurTimerRef = useRef<number | null>(null);
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -197,17 +196,6 @@ export function IanaTimeZoneCombobox({
     };
   }, []);
 
-  const scheduleClose = () => {
-    if (blurTimerRef.current !== null) {
-      window.clearTimeout(blurTimerRef.current);
-    }
-
-    blurTimerRef.current = window.setTimeout(() => {
-      setOpen(false);
-      setSearchQuery("");
-    }, 120);
-  };
-
   const selectTimeZone = (nextIanaTimeZoneId: string) => {
     const normalized = toStoredIanaTimeZoneId(nextIanaTimeZoneId);
 
@@ -282,7 +270,6 @@ export function IanaTimeZoneCombobox({
         onClick={() => {
           setOpen((previous) => !previous);
         }}
-        onBlur={scheduleClose}
         data-testid="iana-time-zone-combobox-trigger"
       >
         <span className="min-w-0 truncate font-medium text-al-text-primary">
@@ -312,7 +299,6 @@ export function IanaTimeZoneCombobox({
                   setSearchQuery(event.target.value);
                 }}
                 onKeyDown={handleSearchKeyDown}
-                onBlur={scheduleClose}
                 data-testid="iana-time-zone-combobox-search"
               />
             </div>
