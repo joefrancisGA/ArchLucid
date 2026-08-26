@@ -32,6 +32,7 @@ import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_OPTIONAL_FIELDS_NOTE,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER,
@@ -108,6 +109,8 @@ export function ArchitectureDraftStructuredBriefFields(
         </p>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
           Confirm constraints and assumptions so review engines do not invent them from free text alone.
+          {" "}
+          {GUIDED_INTAKE_STRUCTURED_BRIEF_OPTIONAL_FIELDS_NOTE}
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <Button
@@ -357,6 +360,7 @@ export function ArchitectureDraftStructuredBriefFields(
         label={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL}
         hint={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT}
         required={false}
+        showRequirednessSuffix={false}
         value={brief.failureModeNote}
         placeholder={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_PLACEHOLDER}
         disabled={props.disabled === true}
@@ -371,6 +375,7 @@ export function ArchitectureDraftStructuredBriefFields(
         label={GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL}
         hint={GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT}
         required={false}
+        showRequirednessSuffix={false}
         value={brief.operationalOwner}
         placeholder={GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER}
         disabled={props.disabled === true}
