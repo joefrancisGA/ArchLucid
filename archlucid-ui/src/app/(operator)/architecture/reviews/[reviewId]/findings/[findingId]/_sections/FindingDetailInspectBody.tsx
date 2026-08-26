@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { FindingJobViewLaneCallout } from "@/components/findings/FindingJobViewLaneCallout";
 import { FindingItsmExportPanel } from "@/components/findings/FindingItsmExportPanel";
@@ -20,6 +21,11 @@ import { FindingProvenancePanel } from "@/components/findings/FindingProvenanceP
 import { phiMinimizationBuyerConsequenceNarrative } from "@/lib/findings/finding-display-from-inspect";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  resolveFindingDetailWorkflowEmphasizedStepId,
+  resolveFindingDetailWorkflowSteps,
+  resolveFindingDetailWorkflowTraceReadyFromPayload,
+} from "@/lib/finding-detail-workflow-checklist";
 
 import { FindingInspectAuditSection } from "../FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "../FindingInspectEvidenceSection";
@@ -73,6 +79,32 @@ export function FindingDetailInspectBody({ presentation }: Props) {
     findingIsPhi,
   } = model;
 
+  const scopedRunId = runId.trim();
+  const findingDetailWorkflowSteps = resolveFindingDetailWorkflowSteps({
+    reviewPicked: scopedRunId.length > 0,
+    summaryLoaded: inspectPayload !== null,
+    traceReady:
+      inspectPayload !== null
+        ? resolveFindingDetailWorkflowTraceReadyFromPayload({
+            evidenceCount: inspectPayload.evidence.length,
+            decisionRuleId: inspectPayload.decisionRuleId,
+            reasoningTrace: inspectPayload.reasoningTrace,
+          })
+        : false,
+  });
+  const findingDetailWorkflowEmphasizedStepId = resolveFindingDetailWorkflowEmphasizedStepId({
+    reviewPicked: scopedRunId.length > 0,
+    summaryLoaded: inspectPayload !== null,
+    traceReady:
+      inspectPayload !== null
+        ? resolveFindingDetailWorkflowTraceReadyFromPayload({
+            evidenceCount: inspectPayload.evidence.length,
+            decisionRuleId: inspectPayload.decisionRuleId,
+            reasoningTrace: inspectPayload.reasoningTrace,
+          })
+        : false,
+  });
+
   return (
     <>
       {showBuyerPolishedBody ? (
@@ -81,6 +113,12 @@ export function FindingDetailInspectBody({ presentation }: Props) {
           data-testid="finding-detail-primary-content"
           className="space-y-4"
         >
+          <IntegrationConnectChecklist
+            title="Finding workflow checklist"
+            steps={findingDetailWorkflowSteps}
+            emphasizedStepId={findingDetailWorkflowEmphasizedStepId}
+            testIdPrefix="finding-detail-workflow"
+          />
           <section className={cn("overflow-hidden rounded-lg border p-5", DESIGN_TOKENS.surface.card)}>
             <div className="max-w-3xl space-y-3">
               <OperatorPageHeader
