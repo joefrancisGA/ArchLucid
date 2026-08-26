@@ -122,6 +122,17 @@ regexes = [
 ]
 
 [[allowlists]]
+description = "Declaration premise conflict classifier: K8s declaration propertyKey domain ids (k8s.privileged etc.), not API secrets; generic-api-key false positive in master git history (ci fetch-depth 0)"
+paths = [
+  '''(?:^|/)ArchLucid\.Decisioning/Analysis/DeclarationPremiseConflictClassifier\.cs$''',
+]
+regexes = [
+  "k8s\\.privileged",
+  "k8s\\.hostNetwork",
+  "k8s\\.allowPrivilegeEscalation",
+]
+
+[[allowlists]]
 description = "Host.Core E2eHarness startup validation tests: configuration key names with synthetic SharedSecret literals only (not deployed credentials)"
 paths = [
   '''(?:^|/)ArchLucid\.Host\.Core\.Tests/Startup/Validation/HostCoreStartupValidationRulesBatch2Tests\.cs$''',
