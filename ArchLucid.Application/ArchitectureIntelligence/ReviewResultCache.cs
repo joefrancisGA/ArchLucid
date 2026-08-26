@@ -147,6 +147,21 @@ public sealed class ReviewResultCache : IReviewResultCache
         return new ReviewResultCachePinScope(this, ReviewCacheKeyBuilder.Build(manifest));
     }
 
+    public IDisposable PinScope(
+        ReviewCacheDependencyManifest primaryManifest,
+        ReviewCacheDependencyManifest secondaryManifest)
+    {
+        ArgumentNullException.ThrowIfNull(primaryManifest);
+        ArgumentNullException.ThrowIfNull(secondaryManifest);
+
+        return new ReviewResultCacheCompositePinScope(
+            this,
+            [
+                ReviewCacheKeyBuilder.Build(primaryManifest),
+                ReviewCacheKeyBuilder.Build(secondaryManifest),
+            ]);
+    }
+
     internal void PinStorageKey(string storageKey)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(storageKey);

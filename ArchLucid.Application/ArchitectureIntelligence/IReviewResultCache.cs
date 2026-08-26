@@ -14,6 +14,10 @@ public interface IReviewResultCache
 
     IDisposable PinScope(ReviewCacheDependencyManifest manifest);
 
+    IDisposable PinScope(
+        ReviewCacheDependencyManifest primaryManifest,
+        ReviewCacheDependencyManifest secondaryManifest);
+
     Task<ClosedLoopReasoningResult> CoalesceAsync(
         ReviewCacheDependencyManifest manifest,
         Func<CancellationToken, Task<ClosedLoopReasoningResult>> leaderWork,
