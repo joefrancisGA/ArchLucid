@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
@@ -69,8 +70,8 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         Func<Task> act = () => sut.RecordDispositionAsync(request, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*not found in the current scope*");
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Finding was not found*");
     }
 
     [Fact]
@@ -131,8 +132,8 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         Func<Task> act = () => sut.RecordDispositionAsync(request, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*not found in the current scope*");
+        await act.Should().ThrowAsync<RunNotFoundException>()
+            .WithMessage($"*'{foreignRunId:D}'*");
     }
 
     [Fact]
@@ -328,8 +329,8 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         Func<Task> act = () => sut.CreateRiskExceptionAsync(request, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*not found in the current scope*");
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Finding was not found*");
 
         riskExceptions.VerifyNoOtherCalls();
     }

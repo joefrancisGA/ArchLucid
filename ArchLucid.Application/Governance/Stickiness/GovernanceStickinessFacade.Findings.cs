@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -98,21 +99,13 @@ public sealed partial class GovernanceStickinessFacade
             .ConfigureAwait(false);
 
         if (run is null)
-        {
-            throw new ArgumentException(
-                $"Run '{resolvedRunId:D}' was not found in the current scope.",
-                nameof(runId));
-        }
+            throw new RunNotFoundException(resolvedRunId.ToString("D"));
     }
 
     private async Task EnsureFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)
     {
         if (!await IsFindingInScopeAsync(scope, findingId, ct))
-        {
-            throw new ArgumentException(
-                $"Finding '{findingId.Trim()}' was not found in the current scope.",
-                nameof(findingId));
-        }
+            throw new InvalidOperationException("Finding was not found.");
     }
 
     private async Task<bool> IsFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)

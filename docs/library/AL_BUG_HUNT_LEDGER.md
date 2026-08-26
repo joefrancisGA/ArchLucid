@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 22
-- **bugs-found:** 56
+- **hunts:** 23
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — governance promote approval scope 404
+- **last-bug:** 2026-08-26 — finding disposition scope 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2285,8 +2285,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantCustomerSuccessController.GetFunnelSnapshotAsync` / `GetStickinessSnapshotAsync` → `SqlOperatorStickinessSnapshotReader` — `ReadyForCommit` runs with manifest reference counted as committed — **hit 2026-08-26:** filter `LegacyRunStatus = @CommittedStatus` (aligned with `PilotScorecardBuilder` / `PilotValueReportService`); regression in `SqlOperatorStickinessSnapshotReaderTests.CommittedRunsWhereClause_uses_legacy_run_status_not_manifest_reference`.
 - [x] (proven) `TenantWorkspaceBaselineArtifactsController.GetAsync` / `SqlAzureExtractorPackageRepository.GetWorkspaceBaselineArtifactsAsync` — workspace-wide `EXISTS` vs project-scoped `ScriptVersion` returned inconsistent `(true, null)` when only a sibling project had packages — **hit 2026-08-26:** filter baseline presence by `ProjectId` (aligned with script version and other in-scope probes); regression in `SqlAzureExtractorPackageRepositoryScopeIsolationSqlIntegrationTests`.
 - [x] (proven) `GovernanceController.Promote` — foreign-workspace `approvalRequestId` on prod promotion returned HTTP 400 instead of 404 — **hit 2026-08-26:** scoped `approvalRepo.GetByIdAsync` preflight before `PromoteAsync` (aligned with `Approve`/`Reject`); regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_not_found_when_approval_request_is_out_of_scope`.
-- [ ] (candidate) `GovernanceStickinessController.RecordDisposition` — foreign-workspace `findingId` or body `runId` returns HTTP 400 `ValidationFailed` instead of 404 — status parity gap vs revoke/renew risk-exception and run-scoped reads.
-- [ ] (candidate) `GovernanceStickinessController.ListDispositions` — out-of-scope `findingId` returns HTTP 200 `[]` instead of 404 — empty-success pattern; may be intentional hide-vs-reveal trade-off.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `CreateRiskException` — foreign-workspace `findingId` or body `runId` returned HTTP 400 `ValidationFailed` instead of 404 — **hit 2026-08-26:** scope misses throw `InvalidOperationException` / `RunNotFoundException`; controller maps to 404; regression in `GovernanceStickinessControllerTests` and `GovernanceStickinessFacadeScopeTests`.
+- [x] (invalid) `GovernanceStickinessController.ListDispositions` — out-of-scope `findingId` returns HTTP 200 `[]` instead of 404 — **cheap-disproof 2026-08-26:** intentional hide pattern aligned with `ListRiskExceptions` / register empty responses for scope-filtered reads; `ListDispositionsAsync_returns_empty_when_finding_is_out_of_scope` documents behavior.
+
+2026-08-26 thorough hunt #98: proved finding disposition scope 404 parity; cheap-disproved list-dispositions empty-vs-404 candidate.
 
 2026-08-26 seed hunt #97: proved governance promote approval scope 404; seeded disposition status-parity and list-empty candidates.
 

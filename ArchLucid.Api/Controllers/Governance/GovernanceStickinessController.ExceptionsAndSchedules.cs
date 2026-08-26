@@ -16,6 +16,7 @@ public sealed partial class GovernanceStickinessController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RiskExceptionRecord), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [MutatingAuditExcluded("Audit: IRiskExceptionService logs RiskExceptionCreated via IAuditService.")]
     public async Task<IActionResult> CreateRiskException(
         [FromBody] CreateRiskExceptionRequest? request,
@@ -29,6 +30,10 @@ public sealed partial class GovernanceStickinessController
             RiskExceptionRecord record = await _facade.CreateRiskExceptionAsync(request, cancellationToken);
 
             return Ok(record);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
         }
         catch (ArgumentException ex)
         {
