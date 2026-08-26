@@ -30,7 +30,9 @@ import {
 
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 
 import type { GraphReviewPickerState } from "@/lib/graph-page-state";
 
@@ -116,6 +118,8 @@ export function GraphPageControls(props: GraphPageControlsProps) {
   } = props;
 
   const runTrim = runId.trim();
+  const scopedRunFilterActive = runTrim.length > 0;
+  const graphClearScopeHref = EVIDENCE_GRAPH_PATH;
 
   const loadDisabled =
 
@@ -155,31 +159,49 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               "rounded-md border border-neutral-200/80 bg-neutral-50/60 p-2 opacity-90 dark:border-neutral-800 dark:bg-neutral-900/40",
           )}
         >
-          <div className={cn("min-w-[14rem] flex-1", compactEmptyWorkspace ? "lg:max-w-lg" : "lg:max-w-md")}>
-            <AskRunIdPicker
-              value={runId}
-              onChange={onRunIdChange}
-              selectedThreadId=""
-              fieldId="graph-run"
-              label="Review"
-              committedOnly
-              preferAutoPick={false}
-              autoSelectSyntheticSample
-              hideFieldHelper
-              reviewsLoadErrorPlaceholder={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER}
-              reviewsLoadErrorHint={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_HINT}
-              syntheticSampleHint={BUYER_EVIDENCE_GRAPH_SYNTHETIC_SAMPLE_HINT}
-              syntheticLoadErrorHint={BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT}
-              emptyListPlaceholder={BUYER_EVIDENCE_GRAPH_EMPTY_LIST_PLACEHOLDER}
-              emptyListHint={BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT}
-              onListAvailabilityChange={onReviewsListAvailabilityChange}
-            />
-            {reviewPickerState !== "no-packages" &&
-            !compactEmptyWorkspace &&
-            !(sampleGraphActive && reviewPickerState === "sample-review") ? (
-              <GraphReviewPickerStatus state={reviewPickerState} className="mt-2" />
-            ) : null}
-          </div>
+          {scopedRunFilterActive ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="evidence-graph-run-scope-banner"
+            >
+              {"Inspecting evidence graph for review "}
+              <span className="font-mono text-al-text-primary">{runTrim}</span>
+              {" · "}
+              <Link className={OPERATOR_LINK.inline} href={graphClearScopeHref}>
+                Clear review scope
+              </Link>
+              {" · "}
+              <Link className={OPERATOR_LINK.inline} href={reviewPackageHref}>
+                Open review
+              </Link>
+            </p>
+          ) : (
+            <div className={cn("min-w-[14rem] flex-1", compactEmptyWorkspace ? "lg:max-w-lg" : "lg:max-w-md")}>
+              <AskRunIdPicker
+                value={runId}
+                onChange={onRunIdChange}
+                selectedThreadId=""
+                fieldId="graph-run"
+                label="Review"
+                committedOnly
+                preferAutoPick={false}
+                autoSelectSyntheticSample={false}
+                hideFieldHelper
+                reviewsLoadErrorPlaceholder={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER}
+                reviewsLoadErrorHint={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_HINT}
+                syntheticSampleHint={BUYER_EVIDENCE_GRAPH_SYNTHETIC_SAMPLE_HINT}
+                syntheticLoadErrorHint={BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT}
+                emptyListPlaceholder={BUYER_EVIDENCE_GRAPH_EMPTY_LIST_PLACEHOLDER}
+                emptyListHint={BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT}
+                onListAvailabilityChange={onReviewsListAvailabilityChange}
+              />
+              {reviewPickerState !== "no-packages" &&
+              !compactEmptyWorkspace &&
+              !(sampleGraphActive && reviewPickerState === "sample-review") ? (
+                <GraphReviewPickerStatus state={reviewPickerState} className="mt-2" />
+              ) : null}
+            </div>
+          )}
 
           {showLoadButton ? (
 
@@ -253,29 +275,37 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
     >
 
-      <div className="min-w-[12rem] flex-1 lg:max-w-sm">
-
-        <AskRunIdPicker
-
-          value={runId}
-
-          onChange={onRunIdChange}
-
-          selectedThreadId=""
-
-          fieldId="graph-run"
-
-          label="Review"
-
-          committedOnly
-
-          preferAutoPick={false}
-
-          onListAvailabilityChange={onReviewsListAvailabilityChange}
-
-        />
-
-      </div>
+      {scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 min-w-[12rem] flex-1 text-al-text-secondary lg:max-w-sm", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="evidence-graph-run-scope-banner"
+        >
+          {"Inspecting evidence graph for review "}
+          <span className="font-mono text-al-text-primary">{runTrim}</span>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={graphClearScopeHref}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={reviewPackageHref}>
+            Open review
+          </Link>
+        </p>
+      ) : (
+        <div className="min-w-[12rem] flex-1 lg:max-w-sm">
+          <AskRunIdPicker
+            value={runId}
+            onChange={onRunIdChange}
+            selectedThreadId=""
+            fieldId="graph-run"
+            label="Review"
+            committedOnly
+            preferAutoPick={false}
+            autoSelectSyntheticSample={false}
+            onListAvailabilityChange={onReviewsListAvailabilityChange}
+          />
+        </div>
+      )}
 
       {!(demoUi || buyerPolishedShell) && runTrim.length > 0 ? (
 
