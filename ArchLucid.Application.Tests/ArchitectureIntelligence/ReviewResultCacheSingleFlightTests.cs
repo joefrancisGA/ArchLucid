@@ -94,4 +94,57 @@ public sealed class ReviewResultCacheSingleFlightTests
         waiterResult.RunId.Should().Be("waiter-run");
         calls.Should().Be(2);
     }
+
+    [Fact]
+    public async Task CoalesceAsync_does_not_share_flight_across_publish_intent()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "publish-partition-hash" };
+        int analysisCalls = 0;
+        int publishCalls = 0;
+        TaskCompletionSource startGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Task<ClosedLoopReasoningResult> analysis = Task.Run(async () =>
+        {
+            await startGate.Task;
+
+            return await cache.CoalesceAsync(
+                manifest,
+                async ct =>
+                {
+                    Interlocked.Increment(ref analysisCalls);
+
+                    await Task.Delay(40, ct);
+
+                    return new ClosedLoopReasoningResult { RunId = "analysis" };
+                },
+                CancellationToken.None,
+                publishToProduct: false);
+        });
+
+        Task<ClosedLoopReasoningResult> publish = Task.Run(async () =>
+        {
+            await startGate.Task;
+
+            return await cache.CoalesceAsync(
+                manifest,
+                async ct =>
+                {
+                    Interlocked.Increment(ref publishCalls);
+
+                    await Task.Delay(40, ct);
+
+                    return new ClosedLoopReasoningResult { RunId = "publish" };
+                },
+                CancellationToken.None,
+                publishToProduct: true);
+        });
+
+        startGate.SetResult();
+        ClosedLoopReasoningResult[] results = await Task.WhenAll(analysis, publish);
+
+        results.Select(result => result.RunId).Should().BeEquivalentTo(["analysis", "publish"]);
+        analysisCalls.Should().Be(1);
+        publishCalls.Should().Be(1);
+    }
 }
