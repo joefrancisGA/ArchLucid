@@ -130,11 +130,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 51
-- **bugs-found:** 52
+- **hunts:** 52
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_storage_share` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`storage_share` was only listed for datastore aliases)
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — `azurerm_purview_account` Terraform id omitted from `LooksLikeTerraformServiceSourceId` (`purview` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -186,9 +186,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_healthcare_workspace` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `healthcare_workspace` was only in the datastore list; `azurerm_healthcare_workspace.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_backup_vault` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `backup_vault` was only in the datastore list; `azurerm_backup_vault.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_storage_share` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `storage_share` was only in the datastore list; `azurerm_storage_share.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
-- [ ] (hunt-ready) `TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases` (overlay path) with `ManifestService.ServiceId` = full ARM resource id and relationship `SourceId` = normalized ARM form only — overlay omits `AddArmResourceIdResolutionAliases` unlike `AddDeclaredManifestServiceEndpointAliases`, so edge creation fails when the inventoried node stores the id only in a differently indexed property field.
-- [ ] (hunt-ready) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` with relationship endpoint = mixed-case ARM id — gate `EndpointKeyIsKnown` accepts via normalization, but `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` uses raw `declaredBatchEndpointKeys.Contains(relationship.SourceId)` without ARM normalize, dropping batch-local relationships the merge gate would keep.
-- [ ] (hunt-ready) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeSyntheticLabelEndpointKeys` on inventoried node `Category = Data/Storage` and `SourceId` not matching `LooksLikeTerraformServiceSourceId` — only `ds-{label}` is indexed; relationship `SourceId = svc-{label}` passes merge-gate inventory keys only when category is blank (both synthetics), and is filtered out for explicit datastore category nodes.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases` (overlay path) with `ManifestService.ServiceId` = full ARM resource id and relationship `SourceId` = normalized ARM form only — overlay omits `AddArmResourceIdResolutionAliases` unlike `AddDeclaredManifestServiceEndpointAliases`, but endpoint dictionaries use `OrdinalIgnoreCase` and `TryResolveNodeId` normalizes ARM lookups, so mixed/normalized casing does not drop edges on current code.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` with relationship endpoint = mixed-case ARM id — `FilterRelationshipOnlyProposals` uses raw `Contains`, but `declaredBatchEndpointKeys` is case-insensitive and `AddArmResourceIdEndpointKeys` registers normalized ARM aliases during batch declaration, so batch-local relationships are not dropped.
+- [x] (proven) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeSyntheticLabelEndpointKeys` on inventoried node `Category = Data/Storage` and `SourceId` not matching `LooksLikeTerraformServiceSourceId` — **hit 2026-08-26:** `azurerm_purview_account` omitted from service heuristic list; Data-category nodes indexed only `ds-{label}` so `svc-catalog` relationships were filtered and edges dropped; regression in gate + merge tests
 
 ---
 
