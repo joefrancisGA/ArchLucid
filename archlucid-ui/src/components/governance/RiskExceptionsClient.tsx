@@ -1,13 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
-import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -22,25 +18,6 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
-import { Button } from "@/components/ui/button";
-import {
-  EnterpriseTable,
-  EnterpriseTableBody,
-  EnterpriseTableCell,
-  EnterpriseTableHead,
-  EnterpriseTableHeadRow,
-  EnterpriseTableHeaderCell,
-  EnterpriseTableRow,
-} from "@/components/ui/enterprise-table";
-import { StatusTag } from "@/components/ui/status-tag";
-import { useOperateCapability } from "@/hooks/use-operate-capability";
-import {
-  defaultRiskExceptionExpiresAtUtc,
-  listRiskExceptions,
-  renewRiskException,
-  revokeRiskException,
-  type RiskExceptionRecord,
-} from "@/lib/api/governance-stickiness-api";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   BUYER_RISK_EXCEPTIONS_EMPTY_BODY,
@@ -51,21 +28,11 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { RiskExceptionsTriageFirstExpiringStrip } from "@/components/governance/RiskExceptionsTriageFirstExpiringStrip";
 import { RiskExceptionsPickReviewBeforeRenewStrip } from "@/components/governance/RiskExceptionsPickReviewBeforeRenewStrip";
 import { RiskExceptionsNextReviewFooterClient } from "@/components/governance/RiskExceptionsNextReviewFooterClient";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
-import {
-  resolveRiskExceptionsRenewEmphasizedStepId,
-  resolveRiskExceptionsRenewSteps,
-} from "@/lib/risk-exceptions-renew-checklist";
 import { RiskExceptionsContinueLastViewedRow } from "@/components/governance/RiskExceptionsContinueLastViewedRow";
-import { resolveRiskExceptionsTriageFirstExpiring } from "@/lib/governance/resolve-risk-exceptions-triage-first-expiring";
-import {
-  resolveContinueLastRiskException,
-  writeRiskExceptionLastViewedId,
-} from "@/lib/resolve-continue-last-risk-exception";
 import {
   RISK_EXCEPTIONS_EMPTY_BODY,
   RISK_EXCEPTIONS_EMPTY_TITLE,
@@ -74,205 +41,49 @@ import {
 } from "@/lib/risk-exceptions-page";
 import { RISK_EXCEPTIONS_CLAIM_DISCIPLINE } from "@/lib/risk-exceptions-evidence-copy";
 
-import {
-  formatRiskExceptionExpiresAtUtc,
-  resolveRiskExceptionDisplayStatus,
-  truncateMiddle,
-  type RiskExceptionDisplayStatus,
-} from "./risk-exception-status";
-
-function statusTagFor(displayStatus: RiskExceptionDisplayStatus): {
-  kind: "ready" | "needs-attention" | "blocked";
-  label: string;
-} {
-  if (displayStatus === "expired") {
-    return { kind: "blocked", label: "Expired" };
-  }
-
-  if (displayStatus === "expiring-soon") {
-    return { kind: "needs-attention", label: "Expiring soon" };
-  }
-
-  return { kind: "ready", label: "Active" };
-}
-
-function riskExceptionsLoadFailureMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "Failed to load risk exceptions.";
-}
-
-function sortByExpiryAsc(records: RiskExceptionRecord[]): RiskExceptionRecord[] {
-  return [...records].sort((left, right) => Date.parse(left.expiresAtUtc) - Date.parse(right.expiresAtUtc));
-}
-
-function toDatetimeLocalInputValue(isoUtc: string): string {
-  const parsed = new Date(isoUtc);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return "";
-  }
-
-  const pad = (value: number): string => String(value).padStart(2, "0");
-
-  return `${parsed.getUTCFullYear()}-${pad(parsed.getUTCMonth() + 1)}-${pad(parsed.getUTCDate())}T${pad(parsed.getUTCHours())}:${pad(parsed.getUTCMinutes())}`;
-}
-
-function matchesRiskExceptionRunScope(record: RiskExceptionRecord, scopedRunId: string): boolean {
-  if (scopedRunId.trim().length === 0) {
-    return true;
-  }
-
-  const recordRunId = (record.runId ?? "").trim();
-
-  return recordRunId.length > 0 && recordRunId === scopedRunId.trim();
-}
+import { RiskExceptionsRevokeConfirm } from "./RiskExceptionsRenewPanel";
+import { RiskExceptionsTable } from "./RiskExceptionsTable";
+import { useRiskExceptionsClient } from "./use-risk-exceptions-client";
 
 /** TB-226 — cross-finding risk exception (waiver) register with renew/revoke. */
 export default function RiskExceptionsClient() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const scopedRunId = (searchParams.get("runId") ?? "").trim();
-  const scopedRunFilterActive = scopedRunId.length > 0;
-  const canMutate = useOperateCapability();
-  const mutationDisabledHintId = "risk-exceptions-mutate-disabled-hint";
-  const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const [records, setRecords] = useState<RiskExceptionRecord[]>([]);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [renewingId, setRenewingId] = useState<string | null>(null);
-  const [renewExpiresAtUtc, setRenewExpiresAtUtc] = useState(defaultRiskExceptionExpiresAtUtc());
-  const [renewRationale, setRenewRationale] = useState("");
-  const [pendingRevoke, setPendingRevoke] = useState<RiskExceptionRecord | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [retryingLoad, setRetryingLoad] = useState(false);
-  const [reloadToken, setReloadToken] = useState(0);
-
-  const reload = useCallback(async (): Promise<void> => {
-    const rows = await listRiskExceptions();
-    setRecords(sortByExpiryAsc(rows));
-  }, []);
-
-  const retryLoad = useCallback(() => {
-    setLoadError(null);
-    setReloadToken((value) => value + 1);
-  }, []);
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      setLoading(true);
-      setLoadError(null);
-
-      try {
-        await reload();
-      } catch (error: unknown) {
-        if (!canceled) {
-          setLoadError(riskExceptionsLoadFailureMessage(error));
-        }
-      } finally {
-        if (!canceled) {
-          setLoading(false);
-          setRetryingLoad(false);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [reload, reloadToken]);
-
-  const scopedRecords = useMemo(
-    () => records.filter((record) => matchesRiskExceptionRunScope(record, scopedRunId)),
-    [records, scopedRunId],
-  );
-
-  const expiringSoonCount = useMemo(
-    () => scopedRecords.filter((row) => resolveRiskExceptionDisplayStatus(row) === "expiring-soon").length,
-    [scopedRecords],
-  );
-  const triageFirstExpiringTarget = useMemo(
-    () => (scopedRunFilterActive ? resolveRiskExceptionsTriageFirstExpiring(scopedRecords) : null),
-    [scopedRecords, scopedRunFilterActive],
-  );
-  const continueLastException = useMemo(
-    () => (scopedRunFilterActive ? resolveContinueLastRiskException(scopedRecords) : null),
-    [scopedRecords, scopedRunFilterActive],
-  );
-  const riskExceptionsRenewChecklistSteps = resolveRiskExceptionsRenewSteps({
-    reviewPicked: scopedRunFilterActive,
-    expiringReviewed: scopedRunFilterActive && (expiringSoonCount === 0 || triageFirstExpiringTarget === null),
-    renewReady: scopedRunFilterActive && scopedRecords.length > 0 && !loading,
-  });
-  const riskExceptionsRenewChecklistEmphasizedStepId = resolveRiskExceptionsRenewEmphasizedStepId({
-    reviewPicked: scopedRunFilterActive,
-    expiringReviewed: scopedRunFilterActive && (expiringSoonCount === 0 || triageFirstExpiringTarget === null),
-    renewReady: scopedRunFilterActive && scopedRecords.length > 0 && !loading,
-  });
-
-  const onPickReviewForRenew = useCallback(
-    (reviewId: string) => {
-      const trimmed = reviewId.trim();
-
-      if (trimmed.length === 0) {
-        return;
-      }
-
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("runId", trimmed);
-      router.replace(`${GOVERNANCE_EXCEPTIONS_PATH}?${params.toString()}`, { scroll: false });
-    },
-    [router, searchParams],
-  );
+  const {
+    scopedRunId,
+    scopedRunFilterActive,
+    canMutate,
+    mutationDisabledHintId,
+    mutationDisabledReason,
+    records,
+    scopedRecords,
+    loadError,
+    busyId,
+    renewingId,
+    setRenewingId,
+    renewExpiresAtUtc,
+    setRenewExpiresAtUtc,
+    renewRationale,
+    setRenewRationale,
+    pendingRevoke,
+    setPendingRevoke,
+    loading,
+    retryingLoad,
+    handleRetryLoad,
+    expiringSoonCount,
+    triageFirstExpiringTarget,
+    continueLastException,
+    riskExceptionsRenewChecklistSteps,
+    riskExceptionsRenewChecklistEmphasizedStepId,
+    onPickReviewForRenew,
+    submitRenew,
+    submitRevoke,
+    onTriageExtend,
+    onContinueLastOpen,
+    onStartRenew,
+  } = useRiskExceptionsClient();
 
   const pageTitle = buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_PAGE_TITLE : RISK_EXCEPTIONS_PAGE_TITLE;
   const pageSubtitle = riskExceptionsPageSubtitle(buyerPolishedShell);
-
-  async function submitRenew(record: RiskExceptionRecord): Promise<void> {
-    if (!canMutate) {
-      return;
-    }
-
-    setBusyId(record.riskExceptionId);
-    setLoadError(null);
-    writeRiskExceptionLastViewedId(record.riskExceptionId);
-
-    try {
-      await renewRiskException(record.riskExceptionId, {
-        expiresAtUtc: renewExpiresAtUtc,
-        rationale: renewRationale.trim().length > 0 ? renewRationale.trim() : undefined,
-      });
-
-      setRenewingId(null);
-      setRenewRationale("");
-      setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
-      await reload();
-    } catch (error: unknown) {
-      setLoadError(error instanceof Error ? error.message : "Failed to renew risk exception.");
-    } finally {
-      setBusyId(null);
-    }
-  }
-
-  async function submitRevoke(record: RiskExceptionRecord): Promise<void> {
-    if (!canMutate) {
-      return;
-    }
-
-    setBusyId(record.riskExceptionId);
-    setLoadError(null);
-    writeRiskExceptionLastViewedId(record.riskExceptionId);
-
-    try {
-      await revokeRiskException(record.riskExceptionId);
-      await reload();
-    } catch (error: unknown) {
-      setLoadError(error instanceof Error ? error.message : "Failed to revoke risk exception.");
-    } finally {
-      setBusyId(null);
-    }
-  }
 
   return (
     <OperatorPageContainer variant="dashboard">
@@ -302,10 +113,7 @@ export default function RiskExceptionsClient() {
           <RiskExceptionsLoadFailure
             message={loadError}
             retrying={retryingLoad}
-            onRetry={() => {
-              setRetryingLoad(true);
-              retryLoad();
-            }}
+            onRetry={handleRetryLoad}
           />
         ) : null}
 
@@ -314,10 +122,7 @@ export default function RiskExceptionsClient() {
             message={loadError}
             retrying={retryingLoad}
             testId="risk-exceptions-load-failure"
-            onRetry={() => {
-              setRetryingLoad(true);
-              retryLoad();
-            }}
+            onRetry={handleRetryLoad}
           />
         ) : null}
 
@@ -393,25 +198,13 @@ export default function RiskExceptionsClient() {
             {continueLastException !== null ? (
               <RiskExceptionsContinueLastViewedRow
                 target={continueLastException}
-                onOpen={(riskExceptionId) => {
-                  writeRiskExceptionLastViewedId(riskExceptionId);
-                  document
-                    .querySelector(`[data-risk-exception-id="${riskExceptionId}"]`)
-                    ?.scrollIntoView({ behavior: "smooth", block: "center" });
-                }}
+                onOpen={onContinueLastOpen}
               />
             ) : null}
             {triageFirstExpiringTarget !== null ? (
               <RiskExceptionsTriageFirstExpiringStrip
                 target={triageFirstExpiringTarget}
-                onExtend={(riskExceptionId) => {
-                  setRenewingId(riskExceptionId);
-                  setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
-                  setRenewRationale("");
-                  document
-                    .querySelector(`[data-risk-exception-id="${riskExceptionId}"]`)
-                    ?.scrollIntoView({ behavior: "smooth", block: "center" });
-                }}
+                onExtend={onTriageExtend}
               />
             ) : null}
             <WhyDisabledCtaHint
@@ -419,124 +212,22 @@ export default function RiskExceptionsClient() {
               reason={mutationDisabledReason}
               testId={mutationDisabledHintId}
             />
-            <EnterpriseTable ariaLabel="Risk exceptions">
-              <EnterpriseTableHead>
-                <EnterpriseTableHeadRow>
-                  <EnterpriseTableHeaderCell>Finding ID</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Rationale</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Expires</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
-                </EnterpriseTableHeadRow>
-              </EnterpriseTableHead>
-              <EnterpriseTableBody>
-                {scopedRecords.map((record) => {
-                  const displayStatus = resolveRiskExceptionDisplayStatus(record);
-                  const tag = statusTagFor(displayStatus);
-                  const isRenewing = renewingId === record.riskExceptionId;
-
-                  return (
-                    <EnterpriseTableRow key={record.riskExceptionId} data-risk-exception-id={record.riskExceptionId}>
-                      <EnterpriseTableCell>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-                            {truncateMiddle(record.findingId, 24)}
-                          </code>
-                          <CopyIdButton value={record.findingId} aria-label="Copy finding ID" />
-                        </div>
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>{record.ownerUserId}</EnterpriseTableCell>
-                      <EnterpriseTableCell title={record.rationale ?? undefined}>
-                        {truncateMiddle(record.rationale ?? "", 80)}
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <StatusTag kind={tag.kind} label={tag.label} />
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>{formatRiskExceptionExpiresAtUtc(record.expiresAtUtc)}</EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        {isRenewing ? (
-                          <form
-                            className="flex min-w-[16rem] flex-col gap-2"
-                            onSubmit={(event) => {
-                              event.preventDefault();
-                              void submitRenew(record);
-                            }}
-                          >
-                            <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-                              <span>New expiry (UTC)</span>
-                              <input
-                                type="datetime-local"
-                                className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
-                                value={toDatetimeLocalInputValue(renewExpiresAtUtc)}
-                                onChange={(event) => {
-                                  const next = new Date(event.target.value);
-
-                                  if (!Number.isNaN(next.getTime())) {
-                                    setRenewExpiresAtUtc(next.toISOString());
-                                  }
-                                }}
-                              />
-                            </label>
-                            <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-                              <span>Rationale (optional)</span>
-                              <input
-                                className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
-                                value={renewRationale}
-                                onChange={(event) => setRenewRationale(event.target.value)}
-                              />
-                            </label>
-                            <div className="flex flex-wrap gap-2">
-                              <Button
-                                type="submit"
-                                size="sm"
-                                disabled={busyId === record.riskExceptionId || !canMutate}
-                                aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
-                              >
-                                Save renewal
-                              </Button>
-                              <Button type="button" size="sm" variant="outline" onClick={() => setRenewingId(null)}>
-                                Cancel
-                              </Button>
-                            </div>
-                          </form>
-                        ) : (
-                          <div className="flex flex-wrap gap-2">
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              disabled={busyId === record.riskExceptionId || !canMutate}
-                              aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
-                              onClick={() => {
-                                setRenewingId(record.riskExceptionId);
-                                setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
-                                setRenewRationale("");
-                              }}
-                            >
-                              Renew
-                            </Button>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              disabled={busyId === record.riskExceptionId || !canMutate}
-                              aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
-                              onClick={() => {
-                                setPendingRevoke(record);
-                              }}
-                              data-testid={`risk-exception-revoke-${record.riskExceptionId}`}
-                            >
-                              Revoke
-                            </Button>
-                          </div>
-                        )}
-                      </EnterpriseTableCell>
-                    </EnterpriseTableRow>
-                  );
-                })}
-              </EnterpriseTableBody>
-            </EnterpriseTable>
+            <RiskExceptionsTable
+              scopedRecords={scopedRecords}
+              renewingId={renewingId}
+              busyId={busyId}
+              canMutate={canMutate}
+              mutationDisabledHintId={mutationDisabledHintId}
+              mutationDisabledReason={mutationDisabledReason}
+              renewExpiresAtUtc={renewExpiresAtUtc}
+              onRenewExpiresAtUtcChange={setRenewExpiresAtUtc}
+              renewRationale={renewRationale}
+              onRenewRationaleChange={setRenewRationale}
+              onSubmitRenew={(record) => void submitRenew(record)}
+              onCancelRenew={() => setRenewingId(null)}
+              onStartRenew={onStartRenew}
+              onRequestRevoke={setPendingRevoke}
+            />
               </>
             ) : null}
           </>
@@ -545,28 +236,16 @@ export default function RiskExceptionsClient() {
 
       {scopedRunFilterActive ? <RiskExceptionsNextReviewFooterClient runId={scopedRunId} /> : null}
 
-      <ConfirmationDialog
-        open={pendingRevoke !== null}
+      <RiskExceptionsRevokeConfirm
+        pendingRevoke={pendingRevoke}
+        busyId={busyId}
         onOpenChange={(open) => {
           if (!open) {
             setPendingRevoke(null);
           }
         }}
-        title="Revoke risk exception?"
-        description={
-          pendingRevoke !== null
-            ? `Revoking ends the active waiver for finding ${pendingRevoke.findingId}. The revocation is recorded on the audit trail.`
-            : "Revoking ends the active waiver. The revocation is recorded on the audit trail."
-        }
-        confirmLabel="Revoke exception"
-        variant="destructive"
-        busy={pendingRevoke !== null && busyId === pendingRevoke.riskExceptionId}
-        onConfirm={() => {
-          if (pendingRevoke === null) {
-            return;
-          }
-
-          void submitRevoke(pendingRevoke).finally(() => {
+        onConfirm={(record) => {
+          void submitRevoke(record).finally(() => {
             setPendingRevoke(null);
           });
         }}
