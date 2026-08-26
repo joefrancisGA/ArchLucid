@@ -63,6 +63,7 @@ public sealed partial class GovernanceController
     [HttpGet("compliance-drift-trend")]
     [ProducesResponseType(typeof(IReadOnlyList<ComplianceDriftTrendPoint>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetComplianceDriftTrend(
         [FromQuery] DateTime fromUtc,
         [FromQuery] DateTime toUtc,
@@ -82,6 +83,11 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
 
         DateTime fromUtcNormalized = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
