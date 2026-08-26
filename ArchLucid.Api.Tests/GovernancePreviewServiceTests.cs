@@ -236,6 +236,41 @@ public sealed class GovernancePreviewServiceTests
     }
 
     [SkippableFact]
+    public async Task PreviewActivationAsync_WhenCurrentActivationManifestRunMismatch_OmitsForeignManifest()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-b", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail("run-b"));
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("run-b", "v2", g => g.RiskClassification = "High"));
+
+        GovernanceEnvironmentActivation currentActivation = new()
+        {
+            ActivationId = "act-1",
+            RunId = "run-old",
+            ManifestVersion = "v-old",
+            Environment = "test",
+            IsActive = true
+        };
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GovernanceEnvironmentActivation> { currentActivation });
+
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v-old", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("run-foreign", "v-old", g => g.RiskClassification = "Low"));
+
+        GovernancePreviewResult result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = "run-b", ManifestVersion = "v2", Environment = "test"
+        });
+
+        result.Notes.Should().Contain(n =>
+            n.Contains("does not belong to activation run 'run-old'", StringComparison.OrdinalIgnoreCase));
+        result.Differences.Should().Contain(d =>
+            d.Key == "RiskClassification" && d.ChangeType == GovernanceDiffChangeType.Added);
+        result.Differences.Should().NotContain(d =>
+            d.Key == "RiskClassification" && d.ChangeType == GovernanceDiffChangeType.Changed);
+    }
+
+    [SkippableFact]
     public async Task PreviewActivationAsync_DoesNotMutateActivationRows()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-x", It.IsAny<CancellationToken>()))

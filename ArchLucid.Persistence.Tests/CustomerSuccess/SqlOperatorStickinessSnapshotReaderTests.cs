@@ -17,6 +17,15 @@ public sealed class SqlOperatorStickinessSnapshotReaderTests
     }
 
     [Fact]
+    public void FirstManifestUtcRunFilter_uses_legacy_run_status_not_manifest_reference()
+    {
+        OperatorStickinessCommittedRunSql.FirstManifestUtcRunFilter.Should().Contain("LegacyRunStatus");
+        OperatorStickinessCommittedRunSql.FirstManifestUtcRunFilter.Should().NotContain("GoldenManifestId");
+        OperatorStickinessCommittedRunSql.FirstManifestUtcRunFilter
+            .Should().Be(OperatorStickinessCommittedRunSql.CommittedRunsWhereClause);
+    }
+
+    [Fact]
     public void ToNullableUtcDateTime_ReturnsNull_WhenDbNull()
     {
         DateTime? result = SqlOperatorStickinessSnapshotReader.ToNullableUtcDateTimeForTests(DBNull.Value);

@@ -50,10 +50,9 @@ public sealed class GovernancePreviewService(
             throw new GoldenManifestVersionNotFoundException(request.ManifestVersion, request.RunId);
         IReadOnlyList<GovernanceEnvironmentActivation> activationRows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
         GovernanceEnvironmentActivation? active = activationRows.FirstOrDefault(a => a.IsActive);
-        GoldenManifest? currentManifest = null;
-        if (active is not null)
-            currentManifest = await unifiedGoldenManifestReader.GetByVersionAsync(active.ManifestVersion, cancellationToken);
         List<string> notes = [DiffOnlyNote];
+        GoldenManifest? currentManifest = null;
+
         if (active is null)
         {
             notes.Add($"No current active governance activation exists for environment '{environment}'.");
@@ -61,10 +60,9 @@ public sealed class GovernancePreviewService(
         }
         else
         {
+            currentManifest = await LoadManifestForActivationAsync(active, notes, cancellationToken);
             notes.Add(
                 $"Compared current run '{active.RunId}' (manifest '{active.ManifestVersion}') to preview run '{request.RunId}' (manifest '{request.ManifestVersion}').");
-            if (currentManifest is null)
-                notes.Add($"Could not load GoldenManifest for current activation manifest version '{active.ManifestVersion}'.");
         }
 
         List<GovernanceDiffItem> differences = GovernanceManifestComparer.Compare(currentManifest?.Governance, candidateManifest.Governance);

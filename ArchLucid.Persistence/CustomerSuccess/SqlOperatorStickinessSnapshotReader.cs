@@ -100,7 +100,8 @@ public sealed class SqlOperatorStickinessSnapshotReader(
                                 WHERE r.TenantId = @TenantId
                                   AND r.WorkspaceId = @WorkspaceId
                                   AND r.ScopeProjectId = @ProjectId
-                                  AND r.ArchivedUtc IS NULL) AS FirstManifestUtc,
+                                  AND r.ArchivedUtc IS NULL
+                                  AND {OperatorStickinessCommittedRunSql.FirstManifestUtcRunFilter}) AS FirstManifestUtc,
                                (SELECT MIN(ae.OccurredUtc)
                                 FROM dbo.AuditEvents ae
                                 WHERE ae.TenantId = @TenantId

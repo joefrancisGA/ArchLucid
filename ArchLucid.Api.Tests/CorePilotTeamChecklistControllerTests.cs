@@ -50,6 +50,40 @@ public sealed class CorePilotTeamChecklistControllerTests
     }
 
     [Fact]
+    public async Task GetAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ICorePilotTeamChecklistRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IActorContext> actor = new();
+        Mock<IAuditService> audit = new();
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        CorePilotTeamChecklistController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            actor.Object,
+            audit.Object,
+            tenants.Object);
+
+        IActionResult result = await sut.GetAsync(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.Verify(
+            r => r.ListAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task GetAsync_maps_rows_and_orders_by_merge_order_from_repository()
     {
         Mock<ICorePilotTeamChecklistRepository> repo = new();

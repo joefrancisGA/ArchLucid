@@ -100,6 +100,43 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task PromoteAsync_throws_when_non_prod_approval_request_run_mismatch()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
+        approvalRepo
+            .Setup(r => r.GetByIdAsync("ar-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = "ar-1",
+                RunId = "run-other",
+                ManifestVersion = "v1",
+                TargetEnvironment = "test",
+                Status = GovernanceApprovalStatus.Submitted,
+            });
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            approvalRepo.Object,
+            runDetail: runDetail.Object);
+
+        Func<Task> act = () => sut.PromoteAsync(
+            "run-1",
+            "v1",
+            "dev",
+            "test",
+            "operator",
+            approvalRequestId: "ar-1",
+            notes: null);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*does not match*");
+    }
+
+    [Fact]
     public async Task PromoteAsync_throws_when_manifest_version_belongs_to_another_run()
     {
         Mock<IRunDetailQueryService> runDetail = new();

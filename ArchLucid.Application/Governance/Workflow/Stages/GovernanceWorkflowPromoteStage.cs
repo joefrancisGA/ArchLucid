@@ -107,15 +107,32 @@ public sealed class GovernanceWorkflowPromoteStage(
                 $"'{sourceEnvironment}' → '{targetEnvironment}' is not a valid promotion step.");
         }
 
-        GovernanceApprovalRequest? prodApprovalToMarkPromoted = null;
-        if (string.Equals(targetEnvironment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(targetEnvironment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase)
+            && string.IsNullOrWhiteSpace(approvalRequestId))
         {
-            if (string.IsNullOrWhiteSpace(approvalRequestId))
-                throw new InvalidOperationException("Promotion to prod requires an approved approval request. Provide an approvalRequestId.");
+            throw new InvalidOperationException("Promotion to prod requires an approved approval request. Provide an approvalRequestId.");
+        }
 
+        GovernanceApprovalRequest? prodApprovalToMarkPromoted = null;
+        if (!string.IsNullOrWhiteSpace(approvalRequestId))
+        {
             GovernanceApprovalRequest? approvalRequest = await _approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
-            ThrowIfProdApprovalChainInvalid(approvalRequest, approvalRequestId, runId, manifestVersion, targetEnvironment, verbosePromotionValidationErrors);
-            prodApprovalToMarkPromoted = approvalRequest!;
+
+            if (string.Equals(targetEnvironment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase))
+            {
+                ThrowIfProdApprovalChainInvalid(approvalRequest, approvalRequestId, runId, manifestVersion, targetEnvironment, verbosePromotionValidationErrors);
+                prodApprovalToMarkPromoted = approvalRequest!;
+            }
+            else
+            {
+                ThrowIfApprovalPromotionLinkageInvalid(
+                    approvalRequest,
+                    approvalRequestId,
+                    runId,
+                    manifestVersion,
+                    targetEnvironment,
+                    verbosePromotionValidationErrors);
+            }
         }
 
         GovernancePromotionRecord record = new()
@@ -229,65 +246,92 @@ public sealed class GovernanceWorkflowPromoteStage(
             throw new InvalidOperationException(OpaqueProdApprovalValidationFailed);
         }
 
-        GovernanceApprovalRequest approved = approvalRequest;
-        if (!SameArchitectureRunKey(approved.RunId, runId))
+        ThrowIfApprovalPromotionLinkageInvalid(
+            approvalRequest,
+            approvalRequestId,
+            runId,
+            manifestVersion,
+            targetEnvironment,
+            verbosePromotionValidationErrors);
+    }
+
+    private void ThrowIfApprovalPromotionLinkageInvalid(
+        GovernanceApprovalRequest? approvalRequest,
+        string approvalRequestId,
+        string runId,
+        string manifestVersion,
+        string targetEnvironment,
+        bool verbosePromotionValidationErrors)
+    {
+        if (approvalRequest is null)
         {
             if (verbosePromotionValidationErrors)
             {
                 throw new InvalidOperationException(
-                    $"Approval request '{approvalRequestId}' was issued for run '{approved.RunId}', " +
+                    $"Approval request '{approvalRequestId}' was not found.");
+            }
+
+            throw new InvalidOperationException(OpaqueProdApprovalMismatch);
+        }
+
+        if (!SameArchitectureRunKey(approvalRequest.RunId, runId))
+        {
+            if (verbosePromotionValidationErrors)
+            {
+                throw new InvalidOperationException(
+                    $"Approval request '{approvalRequestId}' was issued for run '{approvalRequest.RunId}', " +
                     $"not '{runId}'. Use an approval request that matches the promoted run.");
             }
 
             if (_logger.IsEnabled(LogLevel.Warning))
             {
                 _logger.LogWarning(
-                    "Promotion to prod blocked: approval request {ApprovalRequestId} run mismatch (stored {StoredRunId}, caller {CallerRunId}).",
+                    "Promotion blocked: approval request {ApprovalRequestId} run mismatch (stored {StoredRunId}, caller {CallerRunId}).",
                     LogSanitizer.Sanitize(approvalRequestId),
-                    LogSanitizer.Sanitize(approved.RunId),
+                    LogSanitizer.Sanitize(approvalRequest.RunId),
                     LogSanitizer.Sanitize(runId));
             }
 
             throw new InvalidOperationException(OpaqueProdApprovalMismatch);
         }
 
-        if (!string.Equals(approved.ManifestVersion, manifestVersion, StringComparison.Ordinal))
+        if (!string.Equals(approvalRequest.ManifestVersion, manifestVersion, StringComparison.Ordinal))
         {
             if (verbosePromotionValidationErrors)
             {
                 throw new InvalidOperationException(
-                    $"Approval request '{approvalRequestId}' was issued for manifest version '{approved.ManifestVersion}', " +
+                    $"Approval request '{approvalRequestId}' was issued for manifest version '{approvalRequest.ManifestVersion}', " +
                     $"not '{manifestVersion}'. Use an approval request that matches the promoted manifest version.");
             }
 
             if (_logger.IsEnabled(LogLevel.Warning))
             {
                 _logger.LogWarning(
-                    "Promotion to prod blocked: approval request {ApprovalRequestId} manifest mismatch (stored {StoredManifestVersion}, caller {CallerManifestVersion}).",
+                    "Promotion blocked: approval request {ApprovalRequestId} manifest mismatch (stored {StoredManifestVersion}, caller {CallerManifestVersion}).",
                     LogSanitizer.Sanitize(approvalRequestId),
-                    LogSanitizer.Sanitize(approved.ManifestVersion),
+                    LogSanitizer.Sanitize(approvalRequest.ManifestVersion),
                     LogSanitizer.Sanitize(manifestVersion));
             }
 
             throw new InvalidOperationException(OpaqueProdApprovalMismatch);
         }
 
-        if (string.Equals(approved.TargetEnvironment, targetEnvironment, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(approvalRequest.TargetEnvironment, targetEnvironment, StringComparison.OrdinalIgnoreCase))
             return;
 
         if (verbosePromotionValidationErrors)
         {
             throw new InvalidOperationException(
-                $"Approval request '{approvalRequestId}' targets environment '{approved.TargetEnvironment}', " +
+                $"Approval request '{approvalRequestId}' targets environment '{approvalRequest.TargetEnvironment}', " +
                 $"not '{targetEnvironment}'. Use an approval request that matches the target environment.");
         }
 
         if (_logger.IsEnabled(LogLevel.Warning))
         {
             _logger.LogWarning(
-                "Promotion to prod blocked: approval request {ApprovalRequestId} target environment mismatch (stored {StoredTarget}, caller {CallerTarget}).",
+                "Promotion blocked: approval request {ApprovalRequestId} target environment mismatch (stored {StoredTarget}, caller {CallerTarget}).",
                 LogSanitizer.Sanitize(approvalRequestId),
-                LogSanitizer.Sanitize(approved.TargetEnvironment),
+                LogSanitizer.Sanitize(approvalRequest.TargetEnvironment),
                 LogSanitizer.Sanitize(targetEnvironment));
         }
 

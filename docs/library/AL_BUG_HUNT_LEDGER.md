@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 30
-- **bugs-found:** 78
+- **hunts:** 31
+- **bugs-found:** 83
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — checklist/LLM cost tenant 404, compare/promote manifest binding, baseline source note
+- **last-bug:** 2026-08-26 — funnel first-manifest SQL, preview activation binding, setup bundle, promote linkage
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2309,6 +2309,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreviewService.CompareEnvironmentsAsync` — activation rows loaded manifests by version without manifest-run binding — **hit 2026-08-26:** `LoadManifestForActivationAsync` rejects run mismatch (preview/activate parity); regression in `GovernancePreviewServiceTests.CompareEnvironmentsAsync_WhenActivationManifestRunMismatch_OmitsForeignManifest`.
 - [x] (proven) `GovernanceWorkflowPromoteStage.PromoteAsync` — promotion persisted without manifest-run binding — **hit 2026-08-26:** resolve and validate manifest via `IUnifiedGoldenManifestReader` (submit/activate parity); regression in `GovernanceWorkflowFacadeTests.PromoteAsync_throws_when_manifest_version_belongs_to_another_run`.
 - [x] (proven) `TenantBaselineController.PutAsync` — `baselineReviewCycleSourceNote`-only updates returned HTTP 200 without persisting when review-cycle hours already captured — **hit 2026-08-26:** `touchReviewSourceNote` path reuses `PersistTrialSignupBaselineReviewCycleAsync`; regression in `TenantBaselineControllerTests.PutAsync_persists_review_cycle_source_note_when_hours_already_captured`.
+- [x] (proven) `TenantCustomerSuccessController.GetFunnelSnapshotAsync` / `SqlOperatorStickinessSnapshotReader.GetFunnelSnapshotAsync` — `FirstManifestUtc` MIN over all manifests on non-archived runs counted ReadyForCommit manifests — **hit 2026-08-26:** apply `FirstManifestUtcRunFilter` / committed-run predicate (parity with `CommittedRuns`); regression in `SqlOperatorStickinessSnapshotReaderTests.FirstManifestUtcRunFilter_uses_legacy_run_status_not_manifest_reference`.
+- [x] (proven) `CorePilotTeamChecklistController.GetAsync` — missing tenant returned HTTP 200 checklist rows while PUT returned 404 — **hit 2026-08-26:** tenant preflight on GET (PUT parity); regression in `CorePilotTeamChecklistControllerTests.GetAsync_returns_not_found_when_tenant_missing`.
+- [x] (proven) `GovernancePreviewService.PreviewActivationAsync` — current activation manifest loaded by version without manifest-run binding — **hit 2026-08-26:** reuse `LoadManifestForActivationAsync` (compare-environments parity); regression in `GovernancePreviewServiceTests.PreviewActivationAsync_WhenCurrentActivationManifestRunMismatch_OmitsForeignManifest`.
+- [x] (proven) `GovernanceSetupController.GetSetupGuideBundle` — disabled alert-routing subscriptions included via `ListByScopeAsync` — **hit 2026-08-26:** use `ListEnabledByScopeAsync`; regression in `GovernanceSetupControllerTests.GetSetupGuideBundle_lists_only_enabled_alert_routing_subscriptions`.
+- [x] (proven) `GovernanceWorkflowPromoteStage.PromoteAsync` — non-prod promotion persisted foreign `approvalRequestId` without run/manifest/env linkage check — **hit 2026-08-26:** `ThrowIfApprovalPromotionLinkageInvalid` for optional approval id; regression in `GovernanceWorkflowFacadeTests.PromoteAsync_throws_when_non_prod_approval_request_run_mismatch`.
+- [ ] (candidate) `TenantBaselineController.PutAsync` — `baselineReviewCycleSourceNote` without captured review-cycle hours returns HTTP 200 without persisting (should 400).
+- [ ] (candidate) `TenantExecDigestPreferencesController` / `TenantSponsorDigestPreferencesController` POST — `emailEnabled: true` with zero deliverable recipients persists and weekly scanner still enqueues tenant.
+- [ ] (candidate) Exec/sponsor digest POST — malformed or duplicate recipient emails accepted without server-side validation.
+- [ ] (candidate) `GovernanceWorkflowReviewStage` / `GovernanceSegregationRules` — API-key submitter + JWT reviewer with different display names bypasses self-approval block.
+- [ ] (candidate) `GovernanceController.Activate` / `SubmitApprovalRequest` — mutating POST lacks controller-level `RequireScopedRunAsync` preflight present on Promote.
+
+2026-08-26 seed hunt #106: proved funnel first-manifest committed filter, checklist GET tenant 404, preview activation manifest binding, setup-guide enabled subscriptions only, and non-prod promote approval linkage; seeded baseline note-without-hours, digest recipient validation, SoD bypass, and activate/submit scope-preflight candidates.
 
 2026-08-26 thorough hunt #105: proved all five seeded candidates — checklist PUT tenant 404, LLM cost GET tenant 404, compare-environments manifest binding, promote manifest binding, and baseline source-note-only persistence.
 
