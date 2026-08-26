@@ -80,16 +80,6 @@ function isMarkdownBlockStart(line: string): boolean {
   return false;
 }
 
-function isTableRow(line: string): boolean {
-  const t = line.trim();
-  return t.startsWith("|") && t.endsWith("|");
-}
-
-function isTableDivider(line: string): boolean {
-  const t = line.trim();
-  return /^\|?[\s|:-]+\|?$/.test(t) && t.includes("-");
-}
-
 type MarketingAccessibilityMarkdownFragmentProps = {
   markdownBody: string;
   tableCaption: string;
