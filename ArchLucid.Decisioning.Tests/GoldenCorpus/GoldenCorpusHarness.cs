@@ -141,6 +141,8 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new SecurityCoverageFindingEngine(analyzer),
             new ComplianceFindingEngine(complianceProvider, complianceValidator, complianceEvaluator),
             new CostConstraintFindingEngine(),
+            new DeclarationSecurityBaselineFindingEngine(complianceProvider),
+            new DeclarationPremiseConflictFindingEngine(complianceProvider),
         ];
     }
 
