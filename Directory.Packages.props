@@ -6,7 +6,7 @@
     <PackageVersion Include="Google.Apis.Auth" Version="1.73.0" />
     <PackageVersion Include="Google.Cloud.Asset.V1" Version="3.11.0" />
     <PackageVersion Include="AWSSDK.ResourceExplorer2" Version="4.0.100.9" />
-    <PackageVersion Include="AWSSDK.SecurityToken" Version="3.7.401" />
+    <PackageVersion Include="AWSSDK.SecurityToken" Version="4.0.100.11" />
     <PackageVersion Include="Azure.AI.ContentSafety" Version="1.0.0" />
     <PackageVersion Include="Azure.AI.OpenAI" Version="2.1.0" />
     <PackageVersion Include="Azure.Communication.Email" Version="1.1.0" />
