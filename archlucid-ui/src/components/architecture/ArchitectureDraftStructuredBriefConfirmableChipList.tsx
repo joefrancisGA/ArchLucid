@@ -159,10 +159,10 @@ export function ArchitectureDraftStructuredBriefConfirmableChipList(
                   size="sm"
                   disabled={props.disabled}
                   onClick={() => {
-                    props.onDenySuggested(item);
+                    props.onConfirmSuggested(item);
                   }}
                 >
-                  {GUIDED_INTAKE_DENY_SUGGESTION_BUTTON}
+                  {GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON}
                 </Button>
                 <Button
                   type="button"
@@ -170,10 +170,10 @@ export function ArchitectureDraftStructuredBriefConfirmableChipList(
                   size="sm"
                   disabled={props.disabled}
                   onClick={() => {
-                    props.onConfirmSuggested(item);
+                    props.onDenySuggested(item);
                   }}
                 >
-                  {GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON}
+                  {GUIDED_INTAKE_DENY_SUGGESTION_BUTTON}
                 </Button>
                 {props.suggestionKind !== undefined
                 && props.suggestionSourceText !== undefined
