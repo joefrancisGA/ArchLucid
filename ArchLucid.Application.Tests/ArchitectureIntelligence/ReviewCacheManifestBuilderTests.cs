@@ -64,7 +64,7 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
-    public void Build_changes_hash_when_publish_intent_changes()
+    public void Build_ignores_publish_intent_for_content_hash()
     {
         ClosedLoopReasoningRequest withoutPublish = CreateRequest("Architecture note.");
         withoutPublish.PublishToProduct = false;
@@ -74,7 +74,7 @@ public sealed class ReviewCacheManifestBuilderTests
 
         ReviewCacheManifestBuilder.Build(withoutPublish).ContentHash
             .Should()
-            .NotBe(ReviewCacheManifestBuilder.Build(withPublish).ContentHash);
+            .Be(ReviewCacheManifestBuilder.Build(withPublish).ContentHash);
     }
 
     [Fact]
