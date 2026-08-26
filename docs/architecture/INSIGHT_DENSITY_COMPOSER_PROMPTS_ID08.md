@@ -3,7 +3,7 @@
 
 # Insight density — Composer prompt set ID-08 through ID-11
 
-**Created:** 2026-08-26 · **Status:** ready to run (ID-08 through ID-11)
+**Created:** 2026-08-26 · **Status:** ID-08, ID-09, and ID-10 largely **SHIPPED on `master`.** Remaining policy-pack work is expectation parameterization: [`POLICY_PACK_EXPECTATION_COMPOSER_PROMPTS.md`](POLICY_PACK_EXPECTATION_COMPOSER_PROMPTS.md) (**PP-02–PP-05**). Do **not** re-run ID-09/ID-10 declaration mapping. ID-11 (advisory density labeling) may still be open.
 
 **Do not re-run ID-01 through ID-07.** They shipped on `master` (frontier-delta harness, per-engine distribution, multi-cloud generic patterns, judge coverage + cap, open-commitment / portfolio-recurrence / premise-conflict engines, tenant admin card). Treat [`INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS.md) as an archive.
 
