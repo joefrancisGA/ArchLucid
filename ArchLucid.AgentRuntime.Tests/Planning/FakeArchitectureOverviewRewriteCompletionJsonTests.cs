@@ -73,4 +73,64 @@ public sealed class FakeArchitectureOverviewRewriteCompletionJsonTests
         rewritten.Should().Contain(overview);
         rewritten.Should().NotContain("…");
     }
+
+    [Fact]
+    public void Build_is_idempotent_when_current_overview_already_contains_simulator_intro()
+    {
+        const string userPrompt = """
+                                  System name: Vertex
+                                  Business outcome: faster and better
+
+                                  Current architecture overview:
+                                  Vertex — Business outcome: faster and better. Vertex — Business outcome: faster and better.
+                                  Tenant migration platform with private networking.
+
+                                  Confirmed constraints:
+                                  - EU data residency
+                                  """;
+
+        string json = FakeArchitectureOverviewRewriteCompletionJson.Build(userPrompt);
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        string rewritten = document.RootElement.GetProperty("rewrittenOverview").GetString() ?? string.Empty;
+
+        int introCount = CountOccurrences(
+            rewritten,
+            "Vertex — Business outcome: faster and better.");
+
+        introCount.Should().Be(1);
+        rewritten.Should().Contain("Tenant migration platform with private networking");
+    }
+
+    [Fact]
+    public void StripSimulatorGeneratedArtifacts_removes_repeated_prefixes_and_footer()
+    {
+        const string overview = """
+                                Vertex — Business outcome: faster and better. Vertex — Business outcome: faster and better.
+                                Core narrative body.
+
+                                (Simulator mode — deterministic rewrite from the confirmed structured brief. Connect a live LLM deployment for production-quality narrative polish.)
+                                """;
+
+        string stripped = FakeArchitectureOverviewRewriteCompletionJson.StripSimulatorGeneratedArtifacts(
+            overview,
+            "Vertex",
+            "faster and better");
+
+        stripped.Should().Be("Core narrative body.");
+    }
+
+    private static int CountOccurrences(string haystack, string needle)
+    {
+        int count = 0;
+        int index = 0;
+
+        while ((index = haystack.IndexOf(needle, index, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            index += needle.Length;
+        }
+
+        return count;
+    }
 }

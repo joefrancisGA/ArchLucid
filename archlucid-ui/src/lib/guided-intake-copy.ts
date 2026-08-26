@@ -209,6 +209,9 @@ export const GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_GROUNDING_HINT =
 export const GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_OVERVIEW_HINT =
   "Add at least 20 characters to the architecture overview before rewriting.";
 
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_BRIEF_UNCHANGED_HINT =
+  "Update the structured brief to run another overview rewrite.";
+
 export const GUIDED_INTAKE_OVERVIEW_REWRITE_SCROLL_TO_BRIEF_LABEL = "Jump to structured brief";
 
 export const GUIDED_INTAKE_OVERVIEW_REWRITE_PREVIEW_HEADING = "Proposed architecture overview";

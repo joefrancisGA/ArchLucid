@@ -33,7 +33,7 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
     >
       <span
         className={cn(
-          "inline-flex animate-pulse items-center gap-1.5 rounded-md border-2 border-amber-700 bg-amber-400 px-2.5 py-1 font-extrabold uppercase tracking-[0.12em] text-amber-950 shadow-[0_0_0_2px_rgba(245,158,11,0.45)] dark:border-amber-300 dark:bg-amber-500 dark:text-amber-950",
+          "inline-flex animate-pulse items-center gap-1.5 rounded-md border-2 border-red-700 bg-red-500 px-2.5 py-1 font-extrabold uppercase tracking-[0.12em] text-white shadow-[0_0_0_2px_rgba(239,68,68,0.55)] dark:border-red-300 dark:bg-red-600 dark:text-white",
           OPERATOR_TYPOGRAPHY.badge,
         )}
         role="status"
@@ -42,7 +42,7 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
       >
         <span
           aria-hidden
-          className="inline-block size-2 shrink-0 rounded-full bg-amber-900 dark:bg-amber-950"
+          className="inline-block size-2 shrink-0 animate-pulse rounded-full bg-red-100 dark:bg-red-200"
         />
         {SIMULATOR_MODE_TOP_BAR_CHIP_LABEL}
       </span>

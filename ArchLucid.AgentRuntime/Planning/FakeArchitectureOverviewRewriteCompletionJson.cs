@@ -19,6 +19,8 @@ public static class FakeArchitectureOverviewRewriteCompletionJson
         List<string> confirmedAssumptions = ExtractBulletList(userPrompt, "Confirmed assumptions:");
         List<string> confirmedCapabilities = ExtractBulletList(userPrompt, "Confirmed required capabilities:");
 
+        string overviewBody = StripSimulatorGeneratedArtifacts(currentOverview, systemName, businessOutcome);
+
         StringBuilder rewritten = new();
 
         if (systemName.Length > 0)
@@ -27,13 +29,13 @@ public static class FakeArchitectureOverviewRewriteCompletionJson
         if (businessOutcome.Length > 0)
             rewritten.Append("Business outcome: ").Append(businessOutcome).Append(". ");
 
-        if (currentOverview.Length > 0)
+        if (overviewBody.Length > 0)
         {
             // Keep the full overview. Intake rejects text above DraftIntakeValidation.MaximumFreeTextIntentLength;
             // a 4,000-character clip made realistic review packets look like a successful shorter rewrite.
             rewritten.AppendLine();
             rewritten.AppendLine();
-            rewritten.Append(currentOverview.Trim());
+            rewritten.Append(overviewBody);
         }
         else
         {
@@ -56,6 +58,48 @@ public static class FakeArchitectureOverviewRewriteCompletionJson
         };
 
         return root.ToJsonString(new JsonSerializerOptions(JsonSerializerDefaults.Web));
+    }
+
+    /// <summary>
+    ///     Removes simulator-generated intro prefixes and footers so repeated rewrites do not stack
+    ///     <c>{system} — Business outcome: …</c> lines on every accept → rewrite cycle.
+    /// </summary>
+    internal static string StripSimulatorGeneratedArtifacts(
+        string overview,
+        string systemName,
+        string businessOutcome)
+    {
+        if (string.IsNullOrWhiteSpace(overview))
+            return string.Empty;
+
+        string trimmed = overview.Trim();
+        string introPrefix = BuildIntroPrefix(systemName, businessOutcome);
+
+        if (introPrefix.Length > 0)
+        {
+            while (trimmed.StartsWith(introPrefix, StringComparison.OrdinalIgnoreCase))
+                trimmed = trimmed[introPrefix.Length..].TrimStart();
+        }
+
+        const string footerMarker = "(Simulator mode — deterministic rewrite";
+
+        int footerIndex = trimmed.LastIndexOf(footerMarker, StringComparison.Ordinal);
+
+        if (footerIndex >= 0)
+            trimmed = trimmed[..footerIndex].TrimEnd();
+
+        return trimmed;
+    }
+
+    private static string BuildIntroPrefix(string systemName, string businessOutcome)
+    {
+        if (systemName.Length == 0)
+            return string.Empty;
+
+        if (businessOutcome.Length == 0)
+            return $"{systemName} — ";
+
+        return $"{systemName} — Business outcome: {businessOutcome}.";
     }
 
     private static void AppendGroundingSection(StringBuilder builder, string title, IReadOnlyList<string> items)

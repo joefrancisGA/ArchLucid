@@ -1,5 +1,5 @@
 /** Top-bar chip — intentionally loud so simulator deployments cannot be mistaken for live AI. */
-export const SIMULATOR_MODE_TOP_BAR_CHIP_LABEL = "Simulator mode";
+export const SIMULATOR_MODE_TOP_BAR_CHIP_LABEL = "SIMULATOR";
 
 export const SIMULATOR_MODE_TOP_BAR_CHIP_DETAIL =
   "AI operations use rule-based analysis, not a live model. Results are illustrative.";
