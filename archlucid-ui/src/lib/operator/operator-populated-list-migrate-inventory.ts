@@ -37,7 +37,7 @@ export const OPERATOR_POPULATED_LIST_MIGRATE_INVENTORY: readonly OperatorPopulat
     pathOrSurface: "/governance/recurrence",
     kind: "inventory",
     disposition: "honesty-action-budget-done",
-    componentOrModule: "components/governance/RecurrenceSchedulesClient.tsx",
+    componentOrModule: "components/governance/RecurrenceSchedulesTable.tsx",
     maxVisibleRowActions: 2,
     notes: "Buyer scope link + cadence disclosure; View/Toggle primary; Edit in More actions (**TB-1649**).",
   },

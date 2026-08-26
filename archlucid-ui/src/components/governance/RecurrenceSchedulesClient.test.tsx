@@ -11,6 +11,23 @@ vi.mock("@/components/WorkspaceActiveRunContext", () => ({
   useWorkspaceActiveRun: () => ({ runId: "", displayTitle: "" }),
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useRouter: () => ({
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+      push: vi.fn(),
+      refresh: vi.fn(),
+      replace: vi.fn(),
+    }),
+    useSearchParams: () => new URLSearchParams({ runId: "22222222-2222-2222-2222-222222222222" }),
+  };
+});
+
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   createArchitectureReviewRecurrenceSchedule: vi.fn(),
   listArchitectureReviewRecurrenceSchedules: vi.fn(),
