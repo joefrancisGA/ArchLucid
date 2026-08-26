@@ -145,7 +145,7 @@ describe("CompositeAlertRulesContent", () => {
 
   it("TB-1580: composite form source avoids raw html input and button elements", () => {
     const source = readFileSync(
-      join(process.cwd(), "src", "components", "alerts", "CompositeAlertRulesContent.tsx"),
+      join(process.cwd(), "src", "components", "alerts", "CompositeAlertRulesCreateForm.tsx"),
       "utf8",
     );
 
