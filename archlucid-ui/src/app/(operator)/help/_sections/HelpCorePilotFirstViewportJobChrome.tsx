@@ -1,12 +1,12 @@
 import {
   CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID,
   CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TITLE,
-  CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS,
+  CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES,
 } from "@/lib/core-pilot-help-guide-content";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** TB-1685 — three-step first-viewport job chrome before optional paths and Related guides. */
+/** TB-1685 — three-phase first-viewport orientation before the five operational steps below. */
 export function HelpCorePilotFirstViewportJobChrome(): React.JSX.Element {
   return (
     <section
@@ -19,18 +19,18 @@ export function HelpCorePilotFirstViewportJobChrome(): React.JSX.Element {
       >
         {CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TITLE}
       </h2>
-      <ol className="m-0 mt-3 grid list-none gap-3 p-0 md:grid-cols-3">
-        {CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS.map((step) => (
+      <ol className="m-0 mt-3 grid list-none gap-2 p-0 md:grid-cols-3">
+        {CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES.map((phase) => (
           <li
-            key={step.stepNumber}
-            className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
-            data-testid={`core-pilot-first-viewport-step-${step.stepNumber}`}
+            key={phase.phaseNumber}
+            className="rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950"
+            data-testid={`core-pilot-first-viewport-phase-${phase.phaseNumber}`}
           >
             <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              <span className="sr-only">Step {step.stepNumber} of 3. </span>
-              {step.stepNumber}. {step.title}
+              <span className="sr-only">Phase {phase.phaseNumber} of 3. </span>
+              {phase.phaseNumber}. {phase.title}
             </p>
-            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{step.description}</p>
+            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{phase.description}</p>
           </li>
         ))}
       </ol>

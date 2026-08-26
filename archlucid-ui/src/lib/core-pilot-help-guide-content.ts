@@ -31,34 +31,37 @@ export type CorePilotHelpDeferredItem = {
   readonly description: string;
 };
 
-export type CorePilotHelpFirstViewportStep = {
-  readonly stepNumber: number;
+export type CorePilotHelpFirstViewportPhase = {
+  readonly phaseNumber: number;
   readonly title: string;
   readonly description: string;
 };
 
-/** TB-1685 — compact three-step orientation before optional paths and Related guides. */
-export const CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TITLE = "Your first review in three steps";
+/** TB-1685 — compact three-phase orientation before the five operational steps below. */
+export const CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TITLE = "Your first review in three phases";
 
 export const CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID = "core-pilot-first-viewport-job-chrome";
 
-export const CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS: readonly CorePilotHelpFirstViewportStep[] = [
+export const CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES: readonly CorePilotHelpFirstViewportPhase[] = [
   {
-    stepNumber: 1,
-    title: "Start a review",
-    description: "Open New architecture review — choose no cloud target when you are evidence-only.",
+    phaseNumber: 1,
+    title: "Prepare",
+    description: "Start a review and attach evidence — briefs, diagrams, documents, IaC, or exports.",
   },
   {
-    stepNumber: 2,
-    title: "Add evidence",
-    description: "Attach briefs, diagrams, documents, IaC, or exports on review detail.",
+    phaseNumber: 2,
+    title: "Run",
+    description: "Execute the review and monitor progress until findings are ready to finalize.",
   },
   {
-    stepNumber: 3,
+    phaseNumber: 3,
     title: "Finalize and share",
-    description: "Run the review, finalize the package, and share export-ready outputs.",
+    description: "Finalize the architecture review and share export-ready outputs with stakeholders.",
   },
 ];
+
+/** @deprecated Use {@link CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES}. */
+export const CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS = CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES;
 
 const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
@@ -72,7 +75,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     title: "Start review",
     description:
       "Open New architecture review and name what you want reviewed — goals, constraints, and scope. Saving an architecture draft is optional and separate from starting a review.",
-    expectedOutput: "A new architecture review on your reviews list.",
+    expectedOutput: "New architecture review on your reviews list.",
     href: CORE_PILOT_HELP_START_REVIEW_HREF,
     ctaLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   },
@@ -81,7 +84,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     title: "Add evidence",
     description:
       "After you start a review, attach briefs, diagrams, documents, IaC, or exports on review detail. Cloud connectors and Administration inventory ZIP upload are optional advanced paths.",
-    expectedOutput: "Evidence linked to the architecture review before analysis runs.",
+    expectedOutput: "Evidence linked before analysis runs.",
     href: CORE_PILOT_HELP_START_REVIEW_HREF,
     ctaLabel: "Start a review to add evidence",
   },
@@ -89,7 +92,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     stepNumber: 3,
     title: "Monitor review progress",
     description: "Watch progress on review detail until findings are ready to finalize.",
-    expectedOutput: "Findings and evidence labels ready for your review.",
+    expectedOutput: "Findings ready for your review.",
     href: "/architecture/reviews/new",
     ctaLabel: "Open review detail",
   },
@@ -98,7 +101,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     title: "Finalize review",
     description:
       "Finalize when ready — this locks the finalized review record, findings, and export surfaces on the architecture review.",
-    expectedOutput: "A finalized architecture review with artifacts and audit trail.",
+    expectedOutput: "Finalized review with artifacts and audit trail.",
     href: "/architecture/reviews/new",
     ctaLabel: "Finalize on review detail",
   },
@@ -154,11 +157,13 @@ export const CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE = "Optional paths for your fir
 export const CORE_PILOT_HELP_OPTIONAL_PATHS_SUMMARY =
   "Cloud connectors are optional. You can run an evidence-only review first, then add connectors or advanced topics later.";
 
+export const CORE_PILOT_HELP_CLOSING_PANEL_TITLE = "Next steps and related help";
+
 export const CORE_PILOT_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "first-review-path", title: CORE_PILOT_HELP_SUMMARY_TITLE },
   { level: 2, id: "run-the-first-review", title: "Run the first review" },
   { level: 2, id: "optional-paths", title: CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE },
-  { level: 2, id: "ready-to-begin", title: "Ready to begin?" },
+  { level: 2, id: "next-steps-related-help", title: CORE_PILOT_HELP_CLOSING_PANEL_TITLE },
 ];
 
 /** Hero + secondary actions for `/help/first-architecture-review` — no recursive pilot-guide link (TB-1040). */
@@ -182,6 +187,13 @@ export const CORE_PILOT_HELP_DISCLOSURE = {
       "Connect Azure, AWS, or GCP when the review needs live inventory, configuration, identity, policy, cost, or operational signals. " +
       "You can run an evidence-only review first, then connect a provider later when source-system evidence is required. " +
       "Share the cloud connections guide with your security team before enabling read-only access.",
+  },
+  actorIntakeForFindingEngines: {
+    title: "Actors for trust-boundary findings",
+    body:
+      "Bicep, Terraform, and Helm uploads build topology resources but do not create Actor nodes. " +
+      "Trust-boundary, privileged-access, and external-exposure findings need people and systems from guided intake " +
+      "(People, systems, and integrations on New architecture review). IaC-only uploads can look complete while those engines stay quiet.",
   },
   whatCanWaitUntilLater: {
     title: "What can wait until later",

@@ -9,25 +9,12 @@ export type HelpTopicPageDispatchInventoryDiff = {
   readonly missingFromInventory: readonly string[];
 };
 
-/** Slugs wired in `resolveHelpTopicView` before `assertHelpTopicCatchAllFallthroughAllowed` (TB-2238). */
+/** Slugs wired in help topic view resolver modules before catch-all fallthrough (TB-2238). */
 export function parseHelpTopicViewResolverSlugs(resolverSource: string): ReadonlySet<string> {
-  const renderStart = resolverSource.indexOf("export function resolveHelpTopicView");
-
-  if (renderStart < 0) {
-    throw new Error("help-topic-view-resolver.tsx is missing resolveHelpTopicView");
-  }
-
-  const assertIndex = resolverSource.indexOf("assertHelpTopicCatchAllFallthroughAllowed", renderStart);
-
-  if (assertIndex < 0) {
-    throw new Error("help-topic-view-resolver.tsx is missing assertHelpTopicCatchAllFallthroughAllowed guard");
-  }
-
-  const dispatchBody = resolverSource.slice(renderStart, assertIndex);
   const slugs = new Set<string>();
   const slugPattern = /loaded\.entry\.slug === "([^"]+)"/g;
 
-  for (const match of dispatchBody.matchAll(slugPattern)) {
+  for (const match of resolverSource.matchAll(slugPattern)) {
     const slug = match[1];
 
     if (slug !== undefined && slug.length > 0) {

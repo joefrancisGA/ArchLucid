@@ -45,23 +45,27 @@ function toTarget(rule: CompositeAlertRule): CompositeAlertRulesContinueLastTarg
 
 /** Resolves the composite alert rule to pin as Continue last viewed. */
 export function resolveContinueLastCompositeAlertRule(
-  rules: readonly CompositeAlertRule[],
+  rules: unknown,
 ): CompositeAlertRulesContinueLastTarget | null {
-  if (rules.length === 0) {
+  if (!Array.isArray(rules) || rules.length === 0) {
     return null;
   }
+
+  const normalizedRules = rules as readonly CompositeAlertRule[];
 
   const storedId = readStoredRuleId();
 
   if (storedId !== null) {
-    const storedMatch = rules.find((rule) => rule.compositeRuleId === storedId);
+    const storedMatch = normalizedRules.find((rule) => rule.compositeRuleId === storedId);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const newest = rules.slice().sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
+  const newest = normalizedRules
+    .slice()
+    .sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
 
   return newest === undefined ? null : toTarget(newest);
 }

@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { CorePilotHelpOrientationFooter } from "@/app/(operator)/help/_sections/CorePilotHelpOrientationFooter";
+import { CorePilotHelpClosingPanel } from "@/app/(operator)/help/_sections/CorePilotHelpClosingPanel";
 import { CORE_PILOT_HELP_CLAIM_DISCIPLINE } from "@/lib/core-pilot-help-evidence-copy";
 
-describe("CorePilotHelpOrientationFooter", () => {
+describe("CorePilotHelpClosingPanel", () => {
   it("renders claim discipline verbatim", () => {
-    render(<CorePilotHelpOrientationFooter />);
+    render(<CorePilotHelpClosingPanel />);
 
     expect(screen.getByTestId("core-pilot-help-claim-discipline")).toHaveTextContent(
       CORE_PILOT_HELP_CLAIM_DISCIPLINE,
@@ -14,12 +14,12 @@ describe("CorePilotHelpOrientationFooter", () => {
   });
 
   it("stays a quiet footer note rather than a boxed callout", () => {
-    render(<CorePilotHelpOrientationFooter />);
+    render(<CorePilotHelpClosingPanel />);
 
-    const orientation = screen.getByTestId("core-pilot-help-orientation");
+    const closingPanel = screen.getByTestId("core-pilot-help-closing-panel");
 
-    expect(orientation.className).not.toContain("amber");
-    expect(orientation.className).toContain("border-t");
+    expect(closingPanel.className).not.toContain("amber");
+    expect(closingPanel.className).toContain("border-t");
     expect(screen.queryByTestId("core-pilot-help-sources")).toBeNull();
   });
 });

@@ -15,7 +15,7 @@ export function useRunStageTimelineQuery(runId: string, options?: UseRunStageTim
   const trimmed = runId.trim();
   const pollSession = options?.pollSession ?? 0;
 
-  return createOperatorQueryHook<StageTimelineSummary>({
+  return createOperatorQueryHook<StageTimelineSummary[]>({
     queryKey: [...operatorQueryKeys.runStageTimeline(trimmed), { pollSession }] as const,
     queryFn: () => getRunStageTimeline(trimmed),
     enabled: (options?.enabled ?? true) && trimmed.length > 0,

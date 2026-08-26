@@ -4,6 +4,27 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
+import { GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
+
+const searchParamsState = { value: "tab=test-alerts&runId=run-sim-scope" };
+const replaceMock = vi.fn();
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useRouter: () => ({
+      replace: replaceMock,
+      push: vi.fn(),
+      refresh: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+    }),
+    useSearchParams: () => new URLSearchParams(searchParamsState.value),
+  };
+});
 
 const ALERT_SIMULATION_TAB_SOURCES = [
   "AlertSimulationContent.tsx",
@@ -39,7 +60,15 @@ vi.mock("@/hooks/use-operate-capability", () => ({
 }));
 
 vi.mock("@/components/AskRunIdPicker", () => ({
-  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+  AskRunIdPicker: (props: { onChange: (value: string) => void }) => (
+    <button type="button" data-testid="ask-run-id-picker" onClick={() => props.onChange("run-picked-1")}>
+      pick
+    </button>
+  ),
+}));
+
+vi.mock("@/components/alerts/AlertSimulationNextReviewFooterClient", () => ({
+  AlertSimulationNextReviewFooterClient: () => <div data-testid="alert-simulation-next-review-footer-stub" />,
 }));
 
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
@@ -58,6 +87,8 @@ vi.mock("@/lib/api", () => ({
 
 describe("AlertSimulationContent TB-1592", () => {
   beforeEach(() => {
+    searchParamsState.value = "tab=test-alerts&runId=run-sim-scope";
+    replaceMock.mockReset();
     clearOperatorScopeStorage();
     apiHoisted.simulateAlertRule.mockReset();
     apiHoisted.compareAlertRuleCandidates.mockReset();
@@ -163,6 +194,8 @@ describe("AlertSimulationContent TB-1591", () => {
 
 describe("AlertSimulationContent P0-1 review scope precedence", () => {
   beforeEach(() => {
+    searchParamsState.value = "tab=test-alerts&runId=run-sim-scope";
+    replaceMock.mockReset();
     clearOperatorScopeStorage();
     apiHoisted.simulateAlertRule.mockReset();
     apiHoisted.simulateAlertRule.mockResolvedValue({
@@ -175,16 +208,27 @@ describe("AlertSimulationContent P0-1 review scope precedence", () => {
     });
   });
 
-  it("disables compared-to review ID when specific review ID is empty", () => {
+  it("enables compared-to when URL-scoped review is set", () => {
     render(<AlertSimulationContent />);
 
-    const comparedTo = screen.getByTestId("alert-simulation-simple-compared-review-id");
-
-    expect(comparedTo).toBeDisabled();
-    expect(screen.getByText(ALERT_SIMULATION_COMPARED_REVIEW_DISABLED_HELPER)).toBeInTheDocument();
+    expect(screen.getByTestId("alert-simulation-simple-compared-review-id")).toBeEnabled();
+    expect(screen.getByLabelText(ALERT_SIMULATION_RECENT_COUNT_LABEL)).toBeDisabled();
+    expect(screen.getByLabelText("Use historical window (recent reviews)")).toBeDisabled();
+    expect(screen.getByText(ALERT_SIMULATION_SPECIFIC_REVIEW_REPLACES_WINDOW_NOTE)).toBeInTheDocument();
   });
 
-  it("enables compared-to when specific review ID is set and disables recent window controls", () => {
+  it("disables compared-to when specific review ID field is cleared", () => {
+    render(<AlertSimulationContent />);
+
+    fireEvent.change(screen.getByTestId("alert-simulation-simple-review-id"), {
+      target: { value: "" },
+    });
+
+    expect(replaceMock).toHaveBeenCalledWith(`${GOVERNANCE_ALERT_RULES_PATH}?tab=test-alerts`, { scroll: false });
+    expect(screen.queryByTestId("alert-simulation-simple-compared-review-id")).not.toBeInTheDocument();
+  });
+
+  it("enables compared-to when specific review ID is changed and disables recent window controls", () => {
     render(<AlertSimulationContent />);
 
     fireEvent.change(screen.getByTestId("alert-simulation-simple-review-id"), {
@@ -197,7 +241,7 @@ describe("AlertSimulationContent P0-1 review scope precedence", () => {
     expect(screen.getByText(ALERT_SIMULATION_SPECIFIC_REVIEW_REPLACES_WINDOW_NOTE)).toBeInTheDocument();
   });
 
-  it("does not send compared-to review ID when specific review ID is empty", async () => {
+  it("does not send compared-to review ID when specific review ID is cleared before simulate", async () => {
     render(<AlertSimulationContent />);
 
     fireEvent.change(screen.getByTestId("alert-simulation-simple-review-id"), {
@@ -210,16 +254,8 @@ describe("AlertSimulationContent P0-1 review scope precedence", () => {
       target: { value: "" },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Simulate" }));
-
-    await waitFor(() => {
-      expect(apiHoisted.simulateAlertRule).toHaveBeenCalledWith(
-        expect.objectContaining({
-          runId: null,
-          comparedToRunId: null,
-        }),
-      );
-    });
+    expect(screen.queryByRole("button", { name: "Simulate" })).not.toBeInTheDocument();
+    expect(apiHoisted.simulateAlertRule).not.toHaveBeenCalled();
   });
 
   it("sends compared-to only when specific review ID is set", async () => {
@@ -247,6 +283,8 @@ describe("AlertSimulationContent P0-1 review scope precedence", () => {
 
 describe("AlertSimulationContent P0-2 canSimulate gate", () => {
   beforeEach(() => {
+    searchParamsState.value = "tab=test-alerts&runId=run-sim-scope";
+    replaceMock.mockReset();
     clearOperatorScopeStorage();
     apiHoisted.simulateAlertRule.mockReset();
     apiHoisted.simulateAlertRule.mockResolvedValue({
@@ -285,15 +323,12 @@ describe("AlertSimulationContent P0-2 canSimulate gate", () => {
     );
   });
 
-  it("disables Simulate when historical window is unchecked without a specific review ID", () => {
+  it("shows pick strip instead of Simulate when review is not URL-scoped", () => {
+    searchParamsState.value = "tab=test-alerts";
     render(<AlertSimulationContent />);
 
-    fireEvent.click(screen.getByLabelText("Use historical window (recent reviews)"));
-
-    expect(screen.getByTestId("alert-simulation-simple-submit")).toBeDisabled();
-    expect(screen.getByTestId("alert-simulation-simple-readiness")).toHaveTextContent(
-      ALERT_SIMULATION_READINESS_REVIEW_SCOPE,
-    );
+    expect(screen.getByTestId("alert-simulation-pick-review-before-simulating-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("alert-simulation-simple-submit")).not.toBeInTheDocument();
   });
 
   it("disables Simulate when threshold is cleared", () => {
@@ -310,10 +345,45 @@ describe("AlertSimulationContent P0-2 canSimulate gate", () => {
 
 describe("AlertSimulationContent P0-3 simulated outcome empty state", () => {
   it("shows simulated-outcome empty guidance before any simulation", () => {
+    searchParamsState.value = "tab=test-alerts&runId=run-sim-scope";
     render(<AlertSimulationContent />);
 
     expect(screen.getByText(alertSimulationBehaviorEmptyLead)).toBeInTheDocument();
     expect(screen.queryByText("Current behavior")).not.toBeInTheDocument();
+  });
+});
+
+describe("AlertSimulationContent URL-scoped pick", () => {
+  beforeEach(() => {
+    replaceMock.mockReset();
+    clearOperatorScopeStorage();
+  });
+
+  it("shows pick strip when runId is not scoped", () => {
+    searchParamsState.value = "tab=test-alerts";
+    render(<AlertSimulationContent />);
+
+    expect(screen.getByTestId("alert-simulation-pick-review-before-simulating-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("alert-simulation-run-scope-banner")).not.toBeInTheDocument();
+  });
+
+  it("writes runId to the alert-rules URL when a review is picked", () => {
+    searchParamsState.value = "tab=test-alerts";
+    render(<AlertSimulationContent />);
+
+    fireEvent.click(screen.getByTestId("ask-run-id-picker"));
+
+    expect(replaceMock).toHaveBeenCalledWith(
+      `${GOVERNANCE_ALERT_RULES_PATH}?tab=test-alerts&runId=run-picked-1`,
+      { scroll: false },
+    );
+  });
+
+  it("shows scope banner when runId is scoped", () => {
+    searchParamsState.value = "tab=test-alerts&runId=run-sim-scope";
+    render(<AlertSimulationContent />);
+
+    expect(screen.getByTestId("alert-simulation-run-scope-banner")).toHaveTextContent("run-sim-scope");
   });
 });
 

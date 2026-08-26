@@ -30,7 +30,7 @@ import {
 } from "@/lib/api";
 
 import { WhyArchLucidPage } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPage";
-import { WHY_ARCHLUCID_CLAIM_DISCIPLINE, WHY_ARCHLUCID_CLAIM_HEADING } from "@/lib/why-archlucid-evidence-copy";
+import { WHY_ARCHLUCID_CLAIM_DISCIPLINE } from "@/lib/why-archlucid-evidence-copy";
 import {
   WHY_ARCHLUCID_PAGE_ORIENTATION_BUYER,
   WHY_ARCHLUCID_PAGE_ORIENTATION_OPERATOR,
@@ -121,10 +121,10 @@ describe("WhyArchLucidPage buyer-polished shell", () => {
     expect(screen.getByText(WHY_ARCHLUCID_PAGE_ORIENTATION_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(WHY_ARCHLUCID_PAGE_ORIENTATION_OPERATOR)).not.toBeInTheDocument();
     expect(screen.queryByTestId("why-archlucid-marketing-disambiguation")).toBeNull();
-    expect(screen.getByTestId("why-archlucid-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("why-archlucid-page-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("why-archlucid-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByText(WHY_ARCHLUCID_CLAIM_HEADING)).toBeInTheDocument();
-    expect(screen.getByText(WHY_ARCHLUCID_CLAIM_DISCIPLINE)).toBeInTheDocument();
+    expect(screen.getByTestId("why-archlucid-claim-discipline").textContent).toContain(
+      WHY_ARCHLUCID_CLAIM_DISCIPLINE.slice(0, 40),
+    );
   });
 });

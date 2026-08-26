@@ -4,6 +4,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { PriorManifestRetrievalHelpClaimDisciplineStrip } from "@/components/help/PriorManifestRetrievalHelpClaimDisciplineStrip";
 import { PriorManifestRetrievalHelpEvidenceOrientationStrip } from "@/components/help/PriorManifestRetrievalHelpEvidenceOrientationStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ import {
 } from "@/lib/design-tokens";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   PRIOR_MANIFEST_RETRIEVAL_HELP_OVERVIEW,
@@ -58,6 +59,8 @@ export function HelpPriorManifestRetrievalGuideView(
     extractHelpMarkdownHeadings(preparedMarkdown),
     PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_HEADING_ID,
   );
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
+  const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article
@@ -99,6 +102,8 @@ export function HelpPriorManifestRetrievalGuideView(
         }
       />
 
+      <PriorManifestRetrievalHelpClaimDisciplineStrip />
+
       <section
         aria-labelledby="help-prior-manifest-retrieval-job-matrix-heading"
         className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
@@ -131,8 +136,8 @@ export function HelpPriorManifestRetrievalGuideView(
         </ul>
       </section>
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-prior-manifest-retrieval-overview">
             {PRIOR_MANIFEST_RETRIEVAL_HELP_OVERVIEW}
           </p>
@@ -175,7 +180,7 @@ export function HelpPriorManifestRetrievalGuideView(
           <PriorManifestRetrievalHelpEvidenceOrientationStrip />
         </div>
 
-        <HelpTopicTableOfContents headings={headings} />
+        {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
       </div>
     </article>
   );

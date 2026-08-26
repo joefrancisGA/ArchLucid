@@ -42,8 +42,8 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 
 | Engine id | Implementation | Category | What it analyzes |
 |-----------|----------------|----------|------------------|
-| `cost-constraint` | `CostConstraintFindingEngine` | Cost | `CostConstraint` graph nodes → cost/architecture findings. |
-| `cost-breach` | `CostBreachFindingEngine` | Cost | Constraint breaches. |
+| `cost-constraint` | `CostConstraintFindingEngine` | Cost | `CostConstraint` graph nodes → cost/architecture findings. When `policyCostRequireBudgetCap=true` is stamped on the context snapshot, emits a warning if topology is present without a parseable `maxMonthlyCost`. |
+| `cost-breach` | `CostBreachFindingEngine` | Cost | Constraint breaches. Honors stamped `policyCostBreachSeverity` (minimum Warning) when a breach would already emit. |
 
 ## Application (effectful — `IEffectfulFindingEngine`)
 
@@ -58,8 +58,8 @@ These close over extractors, freshness options, or SQL. They do **not** implemen
 | `aws-inventory-reconciliation` | `GraphAwsInventoryReconciliationFindingEngine` | Graph vs AWS inventory. |
 | `gcp-inventory-reconciliation` | `GraphGcpInventoryReconciliationFindingEngine` | Graph vs GCP inventory. |
 | `azure-inventory-security-baseline` | `AzureInventorySecurityBaselineFindingEngine` | Azure inventory vs security baseline. |
-| `declaration-security-baseline` | `DeclarationSecurityBaselineFindingEngine` | Unsafe **`tf.*`** / declaration properties on ingested topology rows (graph-pure). |
-| `declaration-premise-conflict` | `DeclarationPremiseConflictFindingEngine` | Declaration properties that contradict linked **`SecurityBaseline`** / **`PolicyControl`** intent (graph-pure). |
+| `declaration-security-baseline` | `DeclarationSecurityBaselineFindingEngine` | Unsafe **`tf.*`**, ARM aliases, and **`k8s.*`** declaration properties on ingested topology rows. Honors tenant **`complianceRuleKeys`** via **`DeclarationSignalPolicyKeyMap`** (CIS Azure/AWS/GCP, SOC 2, GDPR, HIPAA, ISO 27001, PCI-DSS, Zero Trust, sec-base, AKS/EKS/GKE) when mapped keys survive filtering; fail-open for unmapped prefixes (cost-opt, ai-gov, dora, otel, sust-base, …). |
+| `declaration-premise-conflict` | `DeclarationPremiseConflictFindingEngine` | Declaration properties that contradict linked **`SecurityBaseline`** / **`PolicyControl`** intent. Uses the same **`DeclarationSignalPolicyKeyMap`** gate as declaration-security-baseline. |
 | `aws-inventory-security-baseline` | `AwsInventorySecurityBaselineFindingEngine` | AWS inventory vs security baseline. |
 | `gcp-inventory-security-baseline` | `GcpInventorySecurityBaselineFindingEngine` | GCP inventory vs security baseline. |
 | `advisor-cost-recommendation` | `AdvisorCostRecommendationFindingEngine` | Cloud advisor cost recommendations. |
@@ -82,6 +82,8 @@ Emit **`Finding`** records (`ArchLucid.Contracts/Findings/Finding.cs`) with:
 - **Severity**, optional **`PolicyRuleId`**, envelope fields (confidence, mute, treatment, model alias, …).
 
 **Orchestrator merge:** parallel invoke of `IFindingEngine` and `IEffectfulFindingEngine`; results are sorted by `EngineType` (ordinal) before join; total failure → `AggregateException`; partial failure → snapshot + `FindingEngineFailure` rows.
+
+**Insight-density gate (advisory):** `DeterministicInsightDensityGate` scores all findings but demotes only agent architecture rows below `DemotionThreshold`. Typed-engine findings always promote (`typed-engine-protected`). Per-engine distribution in `docs/quality/insight-density-engine-distribution.md` is measurement only — not a control on engine output.
 
 **Join key (ADR 0063, `FindingSnapshotMergeKey`):** SHA-256 hex (lower) of `NormalizeToken(category)|NormalizeToken(title)` (`Finding.Title` plays the role of `ArchitectureFinding.Message`). When `PolicyRuleId` is present: `{trimmedPolicyRuleId}:{fingerprint}`; otherwise the fuzzy `category|title` token key. Payload-equal partitions (FindingType, Title, Severity, Rationale, Category — ordinal) keep the lowest `EngineType`. Payload-unequal partitions keep that primary **and** append a `FindingEngineFailure` listing EngineType ids and FindingIds — they are not silently dropped.
 

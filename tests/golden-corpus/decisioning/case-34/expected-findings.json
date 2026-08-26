@@ -1,0 +1,77 @@
+[
+  {
+    "findingId": "9d6012ee-15d6-68bb-784e-b6d6366fb680",
+    "findingType": "DeclarationPremiseConflictFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "docs declaration conflicts with Private only network access requirement",
+    "rationale": "Declaration property \u0027tf.public_network_access\u0027 is \u0027enabled\u0027, but linked intent requires: \u0022Private only network access \u2014 Private only network access required\u0022.",
+    "relatedNodeIds": [
+      "baseline-private",
+      "obj-storage"
+    ],
+    "payloadType": "DeclarationPremiseConflictFindingPayload",
+    "rulesApplied": [
+      "declaration-premise-conflict",
+      "private-network-conflict"
+    ],
+    "decisionsTaken": [
+      "Narrow PROTECTS/APPLIES_TO edge linked declaration property to intent requirement."
+    ]
+  },
+  {
+    "findingId": "eb5cd67d-440f-1bcb-f304-3286b8881b1a",
+    "findingType": "DeclarationSecurityBaselineFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Storage or data service \u0027docs\u0027 allows public network access.",
+    "rationale": "Infrastructure declaration properties on the knowledge graph indicate a security posture risk.",
+    "relatedNodeIds": [
+      "obj-storage"
+    ],
+    "rulesApplied": [
+      "data-protection",
+      "declaration-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Unsafe or weak declaration attribute present on ingested infrastructure object."
+    ]
+  },
+  {
+    "findingId": "59f93584-d50f-fc75-21cd-8e99f8c6fa31",
+    "findingType": "SecurityControlFinding",
+    "category": "Security",
+    "severity": "Info",
+    "title": "Security baseline control: Private only network access",
+    "rationale": "A security baseline node was found; PROTECTS edges associate it with topology resources that should inherit control scope.",
+    "relatedNodeIds": [
+      "baseline-private",
+      "obj-storage"
+    ],
+    "payloadType": "SecurityControlFindingPayload",
+    "rulesApplied": [
+      "security-baseline-coverage"
+    ],
+    "decisionsTaken": [
+      "Included topology targets linked via PROTECTS edges in explainability scope."
+    ]
+  },
+  {
+    "findingId": "fe887a1a-d54b-4815-a898-2d4e7d2ef21a",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "obj-storage"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

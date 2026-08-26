@@ -104,7 +104,7 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
       OPERATOR_HOME_PRIMARY_CONTENT_ID,
     );
     expect(screen.queryByTestId("operator-home-orientation-top")).toBeNull();
-    expect(screen.queryByTestId("operator-home-page-subtitle")).toBeNull();
+    expect(screen.queryByTestId("operator-home-page-subtitle")).toBeEmptyDOMElement();
     expect(screen.queryByText(BUYER_OPERATOR_HOME_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
 

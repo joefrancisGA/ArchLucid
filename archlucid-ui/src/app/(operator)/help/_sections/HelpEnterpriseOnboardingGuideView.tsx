@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
+import { EnterpriseOnboardingHelpClaimDisciplineStrip } from "@/components/help/EnterpriseOnboardingHelpClaimDisciplineStrip";
 import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "@/components/help/EnterpriseOnboardingHelpEvidenceOrientationStrip";
 import { EnterpriseOnboardingHubSteps } from "@/components/help/EnterpriseOnboardingHubSteps";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -9,9 +10,8 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -25,7 +25,11 @@ import {
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  HELP_PAGE_LAYOUT,
+  HELP_PAGE_MIN_TOC_HEADINGS,
+  resolveHelpPageContentGridClass,
+} from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -51,6 +55,8 @@ export function HelpEnterpriseOnboardingGuideView(
     ],
     ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID,
   );
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
+  const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article
@@ -65,12 +71,11 @@ export function HelpEnterpriseOnboardingGuideView(
         primaryAction={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION}
       />
 
-      <div
-        className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
-        data-testid="help-enterprise-onboarding-first-viewport"
-      >
+      <EnterpriseOnboardingHelpClaimDisciplineStrip />
+
+      <div className="space-y-6" data-testid="help-enterprise-onboarding-first-viewport">
         <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+          className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950"
           data-testid="help-enterprise-onboarding-action-panel"
         >
           <CardHeader className={OPERATOR_CARD.header}>
@@ -82,7 +87,7 @@ export function HelpEnterpriseOnboardingGuideView(
             </p>
           </CardHeader>
           <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
+            <Button asChild size="sm" variant="outline">
               <Link href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.href}>
                 {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.label}
               </Link>
@@ -107,21 +112,25 @@ export function HelpEnterpriseOnboardingGuideView(
         </Card>
       </div>
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
-        <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-topic-content">
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")} data-testid="help-topic-content">
           <EnterpriseOnboardingHubSteps />
-          <MarketingAccessibilityMarkdownFragment
-            markdownBody={markdown}
-            tableCaption={`${entry.title} reference table`}
-            presentation="help"
-            sourceDocPath={sourceDocPath}
-            helpTopicSlug={entry.slug}
-            preparedMarkdownOverride={preparedMarkdown}
-          />
+
+          <div className="min-w-0">
+            <MarketingAccessibilityMarkdownFragment
+              markdownBody={markdown}
+              tableCaption={`${entry.title} reference table`}
+              presentation="help"
+              sourceDocPath={sourceDocPath}
+              helpTopicSlug={entry.slug}
+              preparedMarkdownOverride={preparedMarkdown}
+            />
+          </div>
+
           <EnterpriseOnboardingHelpEvidenceOrientationStrip />
         </div>
 
-        <HelpTopicTableOfContents headings={headings} enableScrollSpy />
+        {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
       </div>
     </article>
   );

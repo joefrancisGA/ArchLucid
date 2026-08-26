@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Requests;
 
 using FluentValidation;
@@ -11,6 +12,7 @@ public sealed class ChatIntakeRequestValidator : AbstractValidator<ChatIntakeReq
         RuleFor(x => x.RawText)
             .NotEmpty().WithMessage("RawText is required.")
             .MinimumLength(20).WithMessage("RawText must be at least 20 characters.")
-            .MaximumLength(50_000).WithMessage("RawText must not exceed 50000 characters.");
+            .MaximumLength(DraftIntakeValidation.MaximumFreeTextIntentLength)
+            .WithMessage($"RawText must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.");
     }
 }

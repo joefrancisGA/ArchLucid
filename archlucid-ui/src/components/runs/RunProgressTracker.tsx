@@ -47,6 +47,7 @@ import {
 } from "@/lib/review-execution-background-safety-copy";
 import { isReviewPipelineDebugEnabled } from "@/lib/review-pipeline-debug-policy";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
+import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import { formatWorkspaceReviewDurationBand } from "@/lib/workspace-review-duration-estimate";
 import type { RunSummary } from "@/types/authority";
@@ -269,6 +270,11 @@ export function RunProgressTracker({
     [activeSummary, buyerPolished, stageTimeline],
   );
 
+  const pipelineJobLabel = useMemo(
+    () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy),
+    [activeSummary, buyerAssessmentCopy],
+  );
+
   const liveStatus = useMemo(() => {
     if (preFinalizeTerminal) {
       return "Ready to finalize — use Finalize review to create the finalized review record for this architecture review.";
@@ -321,10 +327,6 @@ export function RunProgressTracker({
   const showNotificationOptIn =
     pollEnabled && canPromptForDesktopNotifications() && notificationPermission === "default";
   const showNotificationEnabled = pollEnabled && notificationPermission === "granted";
-  const pipelineJobLabel = useMemo(
-    () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy),
-    [activeSummary, buyerAssessmentCopy],
-  );
 
   const progressHeading = pipelineJobLabel.heading;
 

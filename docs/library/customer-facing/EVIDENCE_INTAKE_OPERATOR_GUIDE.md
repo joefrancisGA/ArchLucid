@@ -7,9 +7,10 @@
 ArchLucid accepts architecture evidence that helps reviewers understand your design:
 
 - **Written briefs** — goals, constraints, risks, and integration notes you type directly in the wizard.
-- **Diagrams and documents** — PDF, Word, Markdown, plain text, JSON, or YAML exports from your architecture tools.
+- **Diagrams and documents** — PDF, Word, Markdown, plain text, JSON, or YAML exports from your architecture tools. Export Visio diagrams to PDF or PNG — native `.vsdx` is not supported.
 - **Images** — PNG or JPEG snapshots of diagrams when a native export is not available.
-- **Cloud inventory archives** — ZIP bundles from supported cloud extractors when you connect a cloud account.
+- **Infrastructure as code** — Terraform (`.tf`), Bicep (`.bicep`), and YAML/JSON declarations.
+- **Cloud inventory archives** — ZIP bundles from supported Azure, AWS, or GCP extractors when you connect a cloud account or upload an inventory package.
 
 You can attach multiple files. At least one piece of evidence is required before you start analysis in most paths.
 
@@ -19,7 +20,7 @@ On [**New architecture review**](/architecture/reviews/new), pick the path that 
 
 | Path | Best when |
 | --- | --- |
-| [**Quick start**](/architecture/reviews/new?path=quick-review) | You want the fastest first review: title, optional attachments, and start analysis on one screen. |
+| [**Quick start**](/architecture/reviews/new?path=quick-review) | You want the fastest first review: title, optional attachments, required baseline clarifications, then start analysis on one screen. |
 | [**Guided questions**](/architecture/reviews/new?path=guided-intake) | You want clarifying questions and admission gates before analysis begins. |
 | [**Templates and imports**](/architecture/reviews/new?path=detailed) | You need templates, imports, or fuller configuration for an export-ready architecture package. |
 
@@ -27,11 +28,9 @@ You can switch paths before you start the review. Each path uses the same eviden
 
 ## Upload mechanics and validation {#upload-mechanics-and-validation}
 
-Use **Browse files** or **Browse folder** in the evidence upload area, or drag files into the drop zone.
-
-**Accepted extensions** include PDF, DOCX, Markdown, text, JSON, YAML, and common image formats. If validation fails, the wizard shows a specific message — for example, an unsupported file type or a cloud inventory ZIP that does not match the expected layout. Fix the file and upload again; you do not need to restart the whole review.
-
-For cloud evidence, connect the right cloud account first from **Cloud connections** in settings, then follow the extractor guidance for that provider.
+- **Drag files or browse** — use Browse files, Browse folder, or drag into the drop zone.
+- **Validation is immediate** — unsupported types and malformed cloud inventory ZIPs show a specific message before analysis starts; fix the file and upload again.
+- **Cloud evidence** — connect the account from **Cloud connections**, then follow the extractor guidance for that provider.
 
 ## Verify intake before finalize {#verify-intake-before-finalize}
 

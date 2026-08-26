@@ -108,7 +108,6 @@ export function AskPageContent() {
             },
           ]);
           setSelectedThreadId("thread-claims-intake-001");
-          setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
           setMessages(seeded);
 
           return;
@@ -145,7 +144,6 @@ export function AskPageContent() {
             },
           ]);
           setSelectedThreadId("thread-claims-intake-001");
-          setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
           setMessages(seeded);
 
           return;
@@ -179,7 +177,6 @@ export function AskPageContent() {
             },
           ]);
           setSelectedThreadId("thread-claims-intake-001");
-          setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
           setMessages(seeded);
         }
       }
@@ -287,8 +284,13 @@ export function AskPageContent() {
       const thread = threads.find((t) => t.threadId === threadId);
 
       if (thread?.runId) {
-        setRunId(canonicalizeDemoRunId(thread.runId));
-      } else {
+        const canonicalRunId = canonicalizeDemoRunId(thread.runId);
+
+        if (urlRunIdRaw.length === 0) {
+          router.replace(askReviewQuestionsHref({ runId: canonicalRunId }), { scroll: false });
+          setRunId(canonicalRunId);
+        }
+      } else if (urlRunIdRaw.length === 0) {
         setRunId("");
       }
 
@@ -304,7 +306,7 @@ export function AskPageContent() {
 
       await loadMessages(threadId);
     },
-    [threads, loadMessages],
+    [threads, loadMessages, router, urlRunIdRaw],
   );
 
   const mergePromptLine = useCallback((line: string) => {
@@ -450,8 +452,7 @@ export function AskPageContent() {
     [router],
   );
 
-  const reviewScopedForAsking =
-    urlRunIdRaw.length > 0 || selectedThreadId.trim().length > 0;
+  const reviewScopedForAsking = urlRunIdRaw.length > 0;
 
   const onNewConversation = useCallback(() => {
     setSelectedThreadId("");

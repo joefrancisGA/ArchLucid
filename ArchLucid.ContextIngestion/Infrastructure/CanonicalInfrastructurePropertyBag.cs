@@ -92,6 +92,31 @@ public static class CanonicalInfrastructurePropertyBag
         return rawValue.Trim().ToLowerInvariant();
     }
 
+    public static string StripTrailingHclComment(string rawValue)
+    {
+        if (string.IsNullOrWhiteSpace(rawValue))
+            return string.Empty;
+
+        bool inDoubleQuotes = false;
+        bool inSingleQuotes = false;
+
+        for (int index = 0; index < rawValue.Length; index++)
+        {
+            char character = rawValue[index];
+
+            if (character == '"' && !inSingleQuotes)
+                inDoubleQuotes = !inDoubleQuotes;
+
+            if (character == '\'' && !inDoubleQuotes)
+                inSingleQuotes = !inSingleQuotes;
+
+            if (character == '#' && !inDoubleQuotes && !inSingleQuotes)
+                return rawValue[..index].TrimEnd();
+        }
+
+        return rawValue;
+    }
+
     public static bool TryAddTfProperty(
         Dictionary<string, string> properties,
         string rawKey,
@@ -183,5 +208,45 @@ public static class CanonicalInfrastructurePropertyBag
         ArgumentNullException.ThrowIfNull(properties);
 
         return properties.Keys.Count(static key => key.StartsWith("tf.", StringComparison.OrdinalIgnoreCase));
+    }
+
+    public const int MaxK8sPropertyCount = 24;
+
+    public static bool TryAddK8sProperty(
+        Dictionary<string, string> properties,
+        string rawKey,
+        string rawValue)
+    {
+        ArgumentNullException.ThrowIfNull(properties);
+
+        if (CountK8sProperties(properties) >= MaxK8sPropertyCount)
+            return false;
+
+        string sanitizedKey = SanitizePropertyKey(rawKey).ToLowerInvariant();
+
+        if (string.IsNullOrEmpty(sanitizedKey))
+            return false;
+
+        if (ShouldRedactKey(rawKey))
+            return TryAddK8sProperty(properties, rawKey, "[REDACTED]");
+
+        string valueText = CanonicalizeScalarValue(rawValue);
+
+        if (string.IsNullOrWhiteSpace(valueText))
+            return false;
+
+        if (valueText.Length > MaxPropertyValueLength)
+            valueText = valueText[..MaxPropertyValueLength];
+
+        properties[$"k8s.{sanitizedKey}"] = valueText;
+
+        return true;
+    }
+
+    public static int CountK8sProperties(IReadOnlyDictionary<string, string> properties)
+    {
+        ArgumentNullException.ThrowIfNull(properties);
+
+        return properties.Keys.Count(static key => key.StartsWith("k8s.", StringComparison.OrdinalIgnoreCase));
     }
 }

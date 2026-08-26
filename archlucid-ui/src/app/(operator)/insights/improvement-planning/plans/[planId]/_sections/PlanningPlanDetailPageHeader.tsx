@@ -8,6 +8,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { planningPlanDetailPath } from "@/lib/planning-route";
 import {
+  PLANNING_PLAN_DETAIL_CLAIM_DISCIPLINE,
   PLANNING_PLAN_DETAIL_LAST_UPDATED_PREFIX,
   PLANNING_PLAN_DETAIL_PAGE_TITLE,
   PLANNING_PLAN_DETAIL_REFRESHING_LABEL,
@@ -38,6 +39,8 @@ export function PlanningPlanDetailPageHeader(props: PlanningPlanDetailPageHeader
       title={PLANNING_PLAN_DETAIL_PAGE_TITLE}
       titleTestId="planning-plan-detail-title"
       subtitle={props.subtitle}
+      claimDiscipline={PLANNING_PLAN_DETAIL_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="planning-plan-detail-claim-discipline"
       breadcrumb={<ImprovementPlanningPlanDetailBreadcrumb planLabel={props.planLabel} />}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="planning-plan-detail-header-actions">

@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
 
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { ArchitectureScorecardBreadcrumb } from "@/components/insights/ArchitectureScorecardBreadcrumb";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -15,25 +14,20 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
-import { Button } from "@/components/ui/button";
 import {
-  ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE,
-  ARCHITECTURE_SCORECARD_DIRECTIONAL_ROI_HELPER,
   ARCHITECTURE_SCORECARD_PRIMARY_CONTENT_ID,
   ARCHITECTURE_SCORECARD_SKIP_LINK_LABEL,
   ARCHITECTURE_SCORECARD_SOURCES,
   ARCHITECTURE_SCORECARD_SOURCES_INTRO,
 } from "@/lib/architecture/architecture-scorecard-page-copy";
+import { ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE } from "@/lib/architecture/architecture-scorecard-evidence-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import {
-  REVIEW_SCORECARD_FINALIZED_HREF,
-  REVIEW_SCORECARD_GOVERNANCE_HREF,
   REVIEW_SCORECARD_PAGE_SUBTITLE,
   REVIEW_SCORECARD_PAGE_TITLE,
-  REVIEW_SCORECARD_ROI_ASSUMPTIONS_HREF,
   buildReviewScorecardMetricsAsOfLabel,
   buildReviewScorecardMethodologyLines,
   buildReviewScorecardOperationalMetrics,
@@ -56,15 +50,12 @@ import {
 } from "@/lib/scorecard-scoring-checklist";
 
 import { ArchitectureScorecardBuyerChrome } from "./ArchitectureScorecardBuyerChrome";
+import { PilotScorecardMethodology } from "./PilotScorecardMethodology";
+import { PilotScorecardPrimaryOutcomes } from "./PilotScorecardPrimaryOutcomes";
+import { PilotScorecardRoiPanel } from "./PilotScorecardRoiPanel";
 import { ReviewScorecardEmptyState } from "./ReviewScorecardEmptyState";
 import { ScorecardReviewPickerStrip } from "./ScorecardReviewPickerStrip";
 import { ScorecardNextReviewFooterClient } from "./ScorecardNextReviewFooterClient";
-import {
-  ScorecardMetricCard,
-  ScorecardSavingsClaimDiscipline,
-  ScorecardSavingsHero,
-  ScorecardSummaryTile,
-} from "./ScorecardMetricCard";
 import type { UsePilotScorecardPageModel } from "./use-pilot-scorecard-page";
 
 type PilotScorecardPageViewProps = {
@@ -224,6 +215,8 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             headingLevel="h1"
             breadcrumb={buyerPolishedShell ? <ArchitectureScorecardBreadcrumb /> : undefined}
             subtitle={REVIEW_SCORECARD_PAGE_SUBTITLE}
+            claimDiscipline={ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}
+            claimDisciplineTestId="architecture-scorecard-claim-discipline"
             metadata={
               <>
                 {scopeCue !== null ? (
@@ -378,318 +371,39 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
 
       {showScorecardMetrics && summaryRow !== null ? (
         <>
-          <section aria-label="Primary outcomes" className="space-y-3" data-testid="review-scorecard-summary-row">
-            {!savingsReady ? (
-              <>
-                {finalizedDisplay !== null && governanceDisplay !== null ? (
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <ScorecardSummaryTile
-                      label="Reviews finalized"
-                      value={finalizedDisplay.value}
-                      detail={
-                        finalizedDisplay.state === "measured"
-                          ? "Finalized packages in the current workspace."
-                          : finalizedDisplay.detail
-                      }
-                      empty={finalizedDisplay.empty}
-                      metricState={finalizedDisplay.state}
-                      useKpiEmphasis={finalizedDisplay.useKpiEmphasis}
-                      emphasis="primary"
-                      href={REVIEW_SCORECARD_FINALIZED_HREF}
-                      drillDownLabel="View architecture reviews"
-                    />
-                    <ScorecardSummaryTile
-                      label="Resolve outcomes"
-                      value={governanceDisplay.value}
-                      detail={
-                        governanceDisplay.state === "measured"
-                          ? "Completed resolve outcomes in scope."
-                          : governanceDisplay.detail
-                      }
-                      empty={governanceDisplay.empty}
-                      metricState={governanceDisplay.state}
-                      useKpiEmphasis={governanceDisplay.useKpiEmphasis}
-                      emphasis="primary"
-                      href={REVIEW_SCORECARD_GOVERNANCE_HREF}
-                      drillDownLabel="View approval queue"
-                    />
-                  </div>
-                ) : null}
+          <PilotScorecardPrimaryOutcomes
+            savingsReady={savingsReady}
+            finalizedDisplay={finalizedDisplay}
+            governanceDisplay={governanceDisplay}
+            operationalMetrics={operationalMetrics}
+            summaryRow={summaryRow}
+            showPreviewBadge={showPreviewBadge}
+            quarterlySavingsLabel={quarterlySavingsLabel}
+          />
 
-                <section aria-labelledby="scorecard-metrics">
-                  <h2 id="scorecard-metrics" className={cn("mb-3", OPERATOR_NAV_GROUP_LABEL)}>
-                    Operational metrics
-                  </h2>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    {operationalMetrics.map((metric) => (
-                      <ScorecardMetricCard
-                        key={metric.key}
-                        title={metric.title}
-                        value={metric.value}
-                        detail={metric.detail}
-                        empty={metric.empty}
-                        metricState={metric.metricState}
-                        useKpiEmphasis={metric.useKpiEmphasis}
-                        href={metric.href}
-                        drillDownLabel={metric.drillDownLabel}
-                        sourceDisclosure={metric.sourceDisclosure}
-                      />
-                    ))}
-                  </div>
-                </section>
+          <PilotScorecardRoiPanel
+            showRoiEstimatePanel={showRoiEstimatePanel}
+            sampleMode={sampleMode}
+            displayHours={displayHours}
+            displayReviews={displayReviews}
+            displayRate={displayRate}
+            fieldErrors={fieldErrors}
+            assumptionsReadOnly={assumptionsReadOnly}
+            saveReadinessMessage={saveReadinessMessage}
+            saveReadinessId={saveReadinessId}
+            onSaveBaselines={onSaveBaselines}
+            canSaveAssumptions={canSaveAssumptions}
+            saving={saving}
+            setHours={setHours}
+            setReviews={setReviews}
+            setRate={setRate}
+            showPreviewBadge={showPreviewBadge}
+            annualSavingsLabel={annualSavingsLabel}
+            quarterlySavingsLabel={quarterlySavingsLabel}
+            statusQuoCostLabel={statusQuoCostLabel}
+          />
 
-                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start">
-                  <ScorecardSavingsHero
-                    compact
-                    empty={!summaryRow.estimatedReviewTimeSavingsReady}
-                    value={summaryRow.estimatedReviewTimeSavingsLabel}
-                    detail={summaryRow.estimatedReviewTimeSavingsDetail}
-                    actionHref={!summaryRow.estimatedReviewTimeSavingsReady ? REVIEW_SCORECARD_ROI_ASSUMPTIONS_HREF : null}
-                    actionLabel={!summaryRow.estimatedReviewTimeSavingsReady ? "Configure ROI assumptions" : null}
-                  />
-                  <ScorecardSavingsClaimDiscipline>{ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}</ScorecardSavingsClaimDiscipline>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start">
-                  <ScorecardSavingsHero
-                    empty={false}
-                    value={summaryRow.estimatedReviewTimeSavingsLabel}
-                    detail={
-                      showPreviewBadge
-                        ? `${summaryRow.estimatedReviewTimeSavingsDetail} Preview updates as you edit — save to persist for the workspace.`
-                        : summaryRow.estimatedReviewTimeSavingsDetail
-                    }
-                    secondaryLabel={
-                      quarterlySavingsLabel !== null ? `≈ ${quarterlySavingsLabel} per quarter` : null
-                    }
-                  />
-                  <ScorecardSavingsClaimDiscipline>{ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE}</ScorecardSavingsClaimDiscipline>
-                </div>
-
-                {finalizedDisplay !== null && governanceDisplay !== null ? (
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <ScorecardSummaryTile
-                      label="Reviews finalized"
-                      value={finalizedDisplay.value}
-                      detail={
-                        finalizedDisplay.state === "measured"
-                          ? "Finalized packages in the current workspace."
-                          : finalizedDisplay.detail
-                      }
-                      empty={finalizedDisplay.empty}
-                      metricState={finalizedDisplay.state}
-                      useKpiEmphasis={finalizedDisplay.useKpiEmphasis}
-                      emphasis="primary"
-                      href={REVIEW_SCORECARD_FINALIZED_HREF}
-                      drillDownLabel="View architecture reviews"
-                    />
-                    <ScorecardSummaryTile
-                      label="Resolve outcomes"
-                      value={governanceDisplay.value}
-                      detail={
-                        governanceDisplay.state === "measured"
-                          ? "Completed resolve outcomes in scope."
-                          : governanceDisplay.detail
-                      }
-                      empty={governanceDisplay.empty}
-                      metricState={governanceDisplay.state}
-                      useKpiEmphasis={governanceDisplay.useKpiEmphasis}
-                      emphasis="primary"
-                      href={REVIEW_SCORECARD_GOVERNANCE_HREF}
-                      drillDownLabel="View approval queue"
-                    />
-                  </div>
-                ) : null}
-
-                <section aria-labelledby="scorecard-metrics-ready">
-                  <h2 id="scorecard-metrics-ready" className={cn("mb-3", OPERATOR_NAV_GROUP_LABEL)}>
-                    Operational metrics
-                  </h2>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    {operationalMetrics.map((metric) => (
-                      <ScorecardMetricCard
-                        key={metric.key}
-                        title={metric.title}
-                        value={metric.value}
-                        detail={metric.detail}
-                        empty={metric.empty}
-                        metricState={metric.metricState}
-                        useKpiEmphasis={metric.useKpiEmphasis}
-                        href={metric.href}
-                        drillDownLabel={metric.drillDownLabel}
-                        sourceDisclosure={metric.sourceDisclosure}
-                      />
-                    ))}
-                  </div>
-                </section>
-              </>
-            )}
-          </section>
-
-          <section
-            aria-labelledby="roi-assumptions-heading"
-            className={cn("grid gap-4 lg:items-start", showRoiEstimatePanel ? "lg:grid-cols-2" : "")}
-            id="roi-assumptions"
-            data-testid="review-scorecard-roi-assumptions"
-          >
-            <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-              <h2 id="roi-assumptions-heading" className={OPERATOR_NAV_GROUP_LABEL}>
-                ROI assumptions
-              </h2>
-              <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                {sampleMode
-                  ? "Illustrative assumptions shown for evaluation — edit your workspace data to model real savings."
-                  : "Enter baseline assumptions to preview review-time savings, then save for the workspace."}{" "}
-                {ARCHITECTURE_SCORECARD_DIRECTIONAL_ROI_HELPER}
-              </p>
-              <div className="mt-4 grid gap-3">
-                <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
-                  <span className="text-al-text-primary">Hours saved per review</span>
-                  <input
-                    className={cn(
-                      "mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-950",
-                      OPERATOR_TYPOGRAPHY.body,
-                    )}
-                    value={displayHours}
-                    onChange={(e) => setHours(e.target.value)}
-                    inputMode="decimal"
-                    disabled={assumptionsReadOnly}
-                    aria-invalid={fieldErrors.hours !== null}
-                    aria-describedby={fieldErrors.hours !== null ? "scorecard-hours-error" : undefined}
-                  />
-                  {fieldErrors.hours !== null ? (
-                    <p id="scorecard-hours-error" className={cn("mt-1 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
-                      {fieldErrors.hours}
-                    </p>
-                  ) : null}
-                </label>
-                <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
-                  <span className="text-al-text-primary">Reviews per quarter</span>
-                  <input
-                    className={cn(
-                      "mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-950",
-                      OPERATOR_TYPOGRAPHY.body,
-                    )}
-                    value={displayReviews}
-                    onChange={(e) => setReviews(e.target.value)}
-                    inputMode="numeric"
-                    disabled={assumptionsReadOnly}
-                    aria-invalid={fieldErrors.reviews !== null}
-                    aria-describedby={fieldErrors.reviews !== null ? "scorecard-reviews-error" : undefined}
-                  />
-                  {fieldErrors.reviews !== null ? (
-                    <p id="scorecard-reviews-error" className={cn("mt-1 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
-                      {fieldErrors.reviews}
-                    </p>
-                  ) : null}
-                </label>
-                <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
-                  <span className="text-al-text-primary">Architect hourly cost ($/hour)</span>
-                  <input
-                    className={cn(
-                      "mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-950",
-                      OPERATOR_TYPOGRAPHY.body,
-                    )}
-                    value={displayRate}
-                    onChange={(e) => setRate(e.target.value)}
-                    inputMode="decimal"
-                    disabled={assumptionsReadOnly}
-                    aria-invalid={fieldErrors.rate !== null}
-                    aria-describedby={fieldErrors.rate !== null ? "scorecard-rate-error" : undefined}
-                  />
-                  {fieldErrors.rate !== null ? (
-                    <p id="scorecard-rate-error" className={cn("mt-1 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
-                      {fieldErrors.rate}
-                    </p>
-                  ) : null}
-                </label>
-                {saveReadinessMessage !== null ? (
-                  <p
-                    id={saveReadinessId}
-                    className={OPERATOR_TYPOGRAPHY.helper}
-                    data-testid="review-scorecard-assumptions-incomplete"
-                  >
-                    {saveReadinessMessage}
-                  </p>
-                ) : null}
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => void onSaveBaselines()}
-                  disabled={sampleMode || !canSaveAssumptions}
-                  aria-describedby={saveReadinessMessage !== null ? saveReadinessId : undefined}
-                  className="disabled:bg-neutral-200 disabled:text-neutral-700 disabled:opacity-100 dark:disabled:bg-neutral-700 dark:disabled:text-neutral-200"
-                  data-testid="review-scorecard-save-assumptions"
-                >
-                  {saving ? "Saving…" : "Save ROI assumptions"}
-                </Button>
-              </div>
-            </div>
-
-            {showRoiEstimatePanel ? (
-              <div
-                className="rounded-lg border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised p-4 dark:border-neutral-800"
-                data-testid="review-scorecard-roi-estimate"
-                aria-labelledby="roi-estimate"
-              >
-                <h2 id="roi-estimate" className={OPERATOR_NAV_GROUP_LABEL}>
-                  Estimated savings
-                </h2>
-                {showPreviewBadge ? (
-                  <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-scorecard-roi-preview-badge">
-                    Live preview — save to persist for sponsor exports.
-                  </p>
-                ) : null}
-                {annualSavingsLabel !== null ? (
-                  <div className="mt-4 space-y-3">
-                    <div>
-                      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                        Annual estimated savings
-                      </p>
-                      <p className={cn("m-0 mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary")}>
-                        {annualSavingsLabel}
-                      </p>
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div>
-                        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                          Quarterly estimate
-                        </p>
-                        <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                          {quarterlySavingsLabel ?? " — "}
-                        </p>
-                      </div>
-                      <div>
-                        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                          Status quo annual labor
-                        </p>
-                        <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                          {statusQuoCostLabel ?? " — "}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-          </section>
-
-          <CollapsibleSection title="How this is calculated" defaultOpen={true} sectionTestId="review-scorecard-methodology">
-            <ul className={cn("m-0 list-disc space-y-2 ps-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {methodologyLines.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-              <li>
-                ROI estimates apply a 50% review-time reduction lever once all three assumptions are provided.{" "}
-                <Link href={SPONSOR_REPORT_ROI_SUMMARY_PATH} className={OPERATOR_LINK.inline}>
-                  See ROI summary
-                </Link>{" "}
-                for related value reporting.
-              </li>
-            </ul>
-          </CollapsibleSection>
+          <PilotScorecardMethodology methodologyLines={methodologyLines} />
         </>
       ) : null}
       {scopedRunFilterActive ? (

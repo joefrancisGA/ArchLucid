@@ -1,0 +1,459 @@
+/**
+ * Operator shell design tokens — layout, typography, surfaces, and shared chrome.
+ * @see docs/library/UI_DESIGN_SYSTEM.md
+ */
+
+import { cn } from "@/lib/utils";
+
+/** CSS custom properties wired in `src/app/globals.css` and Tailwind `theme.extend.colors.al`. */
+export const AL_CSS_VAR_NAMES = {
+  surfaceBase: "--al-surface-base",
+  surfaceRaised: "--al-surface-raised",
+  surfaceOverlay: "--al-surface-overlay",
+  accentInteractive: "--al-accent-interactive",
+  accentBorderFocus: "--al-accent-border-focus",
+  primaryActionBg: "--al-primary-action-bg",
+  primaryActionBgHover: "--al-primary-action-bg-hover",
+  primaryActionFg: "--al-primary-action-fg",
+  primaryActionRing: "--al-primary-action-ring",
+  accentLink: "--al-accent-link",
+  accentLinkHover: "--al-accent-link-hover",
+  textPrimary: "--al-text-primary",
+  textSecondary: "--al-text-secondary",
+  textPlaceholder: "--al-text-placeholder",
+  textDisabled: "--al-text-disabled",
+  statusReadyBg: "--al-status-ready-bg",
+  statusReadyFg: "--al-status-ready-fg",
+  statusWarnBg: "--al-status-warn-bg",
+  statusWarnFg: "--al-status-warn-fg",
+  statusBlockedBg: "--al-status-blocked-bg",
+  statusBlockedFg: "--al-status-blocked-fg",
+  statusApprovedBg: "--al-status-approved-bg",
+  statusApprovedFg: "--al-status-approved-fg",
+  statusApprovedMonitoringBg: "--al-status-approved-monitoring-bg",
+  statusApprovedMonitoringFg: "--al-status-approved-monitoring-fg",
+  statusNeutralBg: "--al-status-neutral-bg",
+  statusNeutralFg: "--al-status-neutral-fg",
+  statusNeutralBorder: "--al-status-neutral-border",
+  dangerActionBg: "--al-danger-action-bg",
+  dangerActionBgHover: "--al-danger-action-bg-hover",
+  dangerActionFg: "--al-danger-action-fg",
+  dangerActionRing: "--al-danger-action-ring",
+  dangerText: "--al-danger-text",
+  dangerSurfaceBg: "--al-danger-surface-bg",
+  dangerSurfaceBorder: "--al-danger-surface-border",
+  dangerSurfaceFg: "--al-danger-surface-fg",
+  layerHover: "--al-layer-hover",
+} as const;
+
+/**
+ * Destructive affordances (TB-2375). Raw `bg-red-*` / `text-red-*` utilities do not track dark
+ * mode, so destructive controls drifted between primitives — `Button variant="destructive"` used
+ * `dark:bg-red-600` while `AlertDialogAction` used `dark:bg-red-900` for the same confirm.
+ */
+export const OPERATOR_DANGER = {
+  /** Destructive button/action fill. Prefer `Button variant="destructive"` over applying directly. */
+  action:
+    "bg-[var(--al-danger-action-bg)] text-[var(--al-danger-action-fg)] hover:bg-[var(--al-danger-action-bg-hover)] focus-visible:ring-[var(--al-danger-action-ring)]",
+  /** Inline error text beside or beneath a control. */
+  text: "text-[var(--al-danger-text)]",
+  /** Error banner / callout surface. */
+  surface:
+    "border border-[var(--al-danger-surface-border)] bg-[var(--al-danger-surface-bg)] text-[var(--al-danger-surface-fg)]",
+} as const;
+
+/** Shared card chrome for operator surfaces — prefer over per-page `px-2.5` overrides. */
+export const OPERATOR_CARD = {
+  /** CardHeader: 16px inset, 12px title → body when paired with {@link OPERATOR_CARD.content}. */
+  header: "flex flex-col space-y-1.5 p-4 pb-3",
+  /** CardContent following a header (no duplicate top padding). */
+  content: "p-4 pt-0",
+  /** Single-block cards without a split header/content pair. */
+  body: "p-4",
+  /** Nested raised surface inside a card (metrics, run rows, empty states). */
+  nested: "p-3",
+  /** Lifecycle path card that matches the current workspace phase (left accent only). */
+  lifecycleEmphasized:
+    "border-l-4 border-l-teal-700 dark:border-l-teal-500",
+  /** Grouped examples / learning resources below workspace activity. */
+  learningResourcesSurface:
+    "rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/50",
+} as const;
+
+/** Tailwind class bundles for layout and surfaces (operator shell). */
+export const OPERATOR_LAYOUT = {
+  page: "bg-al-surface-base text-al-text-primary",
+  /** Gap between items within a single functional zone (form fields, list rows). */
+  sectionStack: "space-y-4",
+  /** Gap between major page zones (hero → reviews → guidance). Target 24–32px. */
+  majorSectionGap: "space-y-6",
+  /** Section heading → content block (12px). */
+  sectionHeadingStack: "space-y-3",
+  /** Standalone section heading bottom margin when not using sectionHeadingStack. */
+  sectionHeadingMargin: "mb-3",
+  cardPadding: "p-4",
+  /** Related controls (button groups, filter chips). Target 8–12px. */
+  inlineGap: "gap-2",
+  /** Related control clusters with labels. */
+  controlClusterGap: "gap-3",
+  /** Unrelated control groups (filters → table, CTA → body). Target 16–24px. */
+  unrelatedClusterGap: "gap-4",
+  disclosure: {
+    default: "p-4",
+    slim: "p-3",
+    bodyOffset: "mt-4",
+    bodyOffsetSlim: "mt-3",
+  },
+  /** Primary column + sticky setup aside (~17.5rem) at lg+. */
+  mainWithStickyAside: "grid gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start",
+  /** Sticky positioning for setup-progress aside columns. */
+  stickyAsideTop: "lg:sticky lg:top-4",
+} as const;
+
+/** Operator workflow page width variants — left-aligned rails (no `mx-auto`). */
+export type OperatorPageContainerVariant = "full" | "workflow" | "dashboard" | "reading" | "settings";
+
+export const OPERATOR_PAGE_CONTAINER = {
+  /** Shared operator page rail — shell already applies horizontal padding. */
+  base: "w-full",
+  variant: {
+    /** Tables, filters, and multi-column workflow surfaces. */
+    full: "w-full",
+    /** Wizards and step-based flows (~1120px). */
+    workflow: "w-full max-w-[1200px]",
+    /** Portfolio, ROI dashboards, evidence trail (~1440px). */
+    dashboard: "w-full max-w-[1440px]",
+    /** Onboarding, settings forms, help prose (~768px) — still left-aligned to the rail. */
+    reading: "w-full max-w-3xl",
+    /** Administration settings and identity surfaces (~992px) — SCIM, SSO, account security rail. */
+    settings: "w-full max-w-[62rem]",
+  },
+} as const;
+
+/** Max shell width shared by operator top bar, sidebar row, and footer. */
+export const OPERATOR_SHELL_MAX_WIDTH_CLASS = "w-full max-w-[1600px]";
+
+/** Shared height for compact top-bar controls (scope switcher, help, account menu). */
+export const OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS = "h-8";
+
+/**
+ * Sidebar + main content row beneath the sticky header.
+ * Left-aligned with the top bar brand rail — never `mx-auto` (wide viewports otherwise gain a dead left gutter).
+ */
+export const OPERATOR_SHELL_BODY_ROW_CLASS = "flex min-h-0 w-full flex-1";
+
+/** Primary sidebar column width — top-bar brand rail uses {@link OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS}. */
+export const OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS = "w-[15rem]";
+
+/** Horizontal padding inside the sidebar column — matches top-bar brand rail at `lg`. */
+export const OPERATOR_SHELL_SIDEBAR_PADDING_CLASS = "px-3 py-4";
+
+/**
+ * Horizontal padding for main content and chrome aligned to that rail.
+ * 16px at all breakpoints — tighter to the sidebar than a former `lg:px-6` gutter.
+ */
+export const OPERATOR_SHELL_CONTENT_PADDING_X_CLASS = "px-4";
+
+/** Main column padding: shared X + compact vertical (extra top/bottom at lg). */
+export const OPERATOR_SHELL_MAIN_PADDING_CLASS = "px-4 py-4 lg:py-6";
+
+/**
+ * Sticky wizard footers that bleed to the shell content edge (negate {@link OPERATOR_SHELL_CONTENT_PADDING_X_CLASS}).
+ */
+export const OPERATOR_SHELL_CONTENT_BLEED_X_CLASS = "-mx-4 px-4";
+
+/**
+ * Scroll offset for in-page anchors below the sticky operator header stack.
+ * Sticky budget is optional trial banner + one-row top bar; journey captions are non-sticky.
+ */
+export const OPERATOR_SHELL_SCROLL_OFFSET_CLASS = "scroll-mt-[var(--app-shell-sticky,6rem)]";
+
+/** Sticky sub-nav offset below the operator header stack (TOC rails, section nav). */
+export const OPERATOR_SHELL_STICKY_TOP_CLASS = "top-[calc(var(--app-shell-sticky,6rem)+0.5rem)]";
+
+/** Sidebar width from the `lg` breakpoint — matches hidden sidebar below `lg`. */
+export const OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS = "lg:w-[15rem]";
+
+/**
+ * Canonical operator type scale — one treatment per role; avoid ad-hoc size/weight pairs.
+ * CSS utilities in `globals.css` (`.text-page-title`, …) mirror these tokens.
+ * @see docs/library/UI_DESIGN_SYSTEM.md — Typography convention (TB-119)
+ */
+export const OPERATOR_TYPE_SCALE = {
+  /** Page title — 20/28, semibold. */
+  pageTitle: "text-xl font-semibold leading-7 tracking-tight text-al-text-primary",
+  /** Section heading — 18/26, semibold. */
+  sectionTitle: "text-lg font-semibold leading-[26px] text-al-text-primary",
+  /** Card / subsection title — 15/22, semibold. */
+  cardTitle: "text-[15px] font-semibold leading-[22px] text-al-text-primary",
+  /** Body — 13/20, normal. */
+  body: "text-[13px] font-normal leading-5 text-al-text-primary",
+  /** Help topic long-form body — 15/24 (~1.6) for procurement and security reading surfaces. */
+  helpReadingBody: "text-[15px] font-normal leading-6 text-al-text-primary",
+  /** Helper / caption — 12/18, normal. */
+  helper: "text-xs font-normal leading-[18px] text-al-text-secondary",
+  /** Sidebar nav item — 13/18, medium. */
+  navLabel: "text-[13px] font-medium leading-[18px] text-al-text-primary",
+  /** Sidebar nav helper — 11/15, normal (sparse use). */
+  navHelper: "text-[11px] font-normal leading-[15px] text-al-text-secondary",
+  /** Button label — 13/18, semibold. */
+  button: "text-[13px] font-semibold leading-[18px]",
+  /** Tab / table header label — 12/16, semibold. */
+  tab: "text-xs font-semibold leading-4 text-al-text-primary",
+  /** Dense metadata / chips — 11/15, normal. */
+  micro: "text-[11px] font-normal leading-[15px] text-al-text-secondary",
+} as const;
+
+/** Sidebar group labels — uppercase tab scale. */
+export const OPERATOR_NAV_GROUP_LABEL = `${OPERATOR_TYPE_SCALE.tab} uppercase tracking-wide text-al-text-secondary`;
+
+/** Zone headings on operator/buyer home — dominant workspace surface (TB-347). */
+export const OPERATOR_HOME_PRIMARY_SECTION_HEADING =
+  "m-0 text-xl font-bold leading-7 tracking-tight text-al-text-primary";
+
+/** Peer overview card h2 — matches {@link OPERATOR_TYPE_SCALE.cardTitle} and CardTitle chrome. */
+export const OPERATOR_HOME_CARD_SECTION_HEADING = `m-0 tracking-tight ${OPERATOR_TYPE_SCALE.cardTitle}`;
+
+/** Lifecycle path card h3 — one step below peer card h2; must not borrow sectionTitle scale. */
+export const OPERATOR_HOME_LIFECYCLE_CARD_TITLE = `m-0 ${OPERATOR_TYPE_SCALE.cardTitle}`;
+
+/** Zone headings one step below primary — e.g. First-hour path, Latest in workspace. */
+export const OPERATOR_HOME_SECTION_HEADING = `m-0 ${OPERATOR_TYPE_SCALE.sectionTitle}`;
+
+/** Accordion / disclosure triggers and tertiary labels — sentence case. */
+export const OPERATOR_HOME_SUBSECTION_LABEL = `m-0 ${OPERATOR_TYPE_SCALE.cardTitle} text-al-text-secondary`;
+
+/** Tertiary accordion trigger on dense operator surfaces. */
+export const OPERATOR_DISCLOSURE_TRIGGER_CLASS = `${OPERATOR_TYPE_SCALE.cardTitle} text-al-text-secondary`;
+
+/** KPI / metric tile label on dashboard, portfolio, and scorecard cards. */
+export const OPERATOR_KPI_CARD_TITLE = `${OPERATOR_TYPE_SCALE.tab} text-al-text-secondary`;
+
+/** KPI / metric tile caption under the label. */
+export const OPERATOR_KPI_CARD_DESCRIPTION = OPERATOR_TYPE_SCALE.helper;
+
+/** KPI / metric tile primary value — scorecard and portfolio headline numbers. */
+export const OPERATOR_KPI_VALUE =
+  "text-3xl font-semibold tabular-nums tracking-tight text-al-text-primary";
+
+/** Page-level actions (primary/secondary CTAs). */
+export const OPERATOR_BUTTON_PAGE_CLASS = `h-9 px-4 ${OPERATOR_TYPE_SCALE.button}`;
+
+/** Compact actions in tables and dense cards. */
+export const OPERATOR_BUTTON_COMPACT_CLASS = `h-7 px-3 ${OPERATOR_TYPE_SCALE.tab}`;
+
+/** Inline link treatments — reserve strong teal underline for navigation, not step labels. */
+const OPERATOR_LINK_FOCUS =
+  "rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]";
+
+export const OPERATOR_LINK = {
+  nav: cn(
+    "inline-flex min-h-8 items-center font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]",
+    OPERATOR_LINK_FOCUS,
+  ),
+  inline: cn(
+    "font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)]",
+    OPERATOR_LINK_FOCUS,
+  ),
+  step: cn(
+    "font-medium text-al-text-primary no-underline hover:text-[var(--al-accent-link)] hover:underline underline-offset-2",
+    OPERATOR_LINK_FOCUS,
+  ),
+  /** Compact bordered chip for numbered journey steps — clearly interactive without primary-button weight. */
+  stepPill:
+    "inline-flex min-h-7 max-w-full items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-[13px] font-medium leading-5 text-al-text-primary shadow-sm transition-colors hover:border-[var(--al-accent-interactive)] hover:bg-al-surface-raised hover:text-[var(--al-accent-link)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-interactive)] focus-visible:ring-offset-2 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
+  /** Highlights the journey step that matches the current route. */
+  stepPillCurrent:
+    "border-[var(--al-accent-interactive)] bg-al-surface-raised text-al-text-primary ring-1 ring-[var(--al-accent-interactive)]/35",
+  /** Highlights the suggested next step when the operator is not already on a journey route. */
+  stepPillRecommended:
+    "border-neutral-400 bg-al-surface-raised dark:border-neutral-500",
+  optional: cn(
+    `${OPERATOR_TYPE_SCALE.helper} font-medium text-al-text-secondary underline decoration-al-text-secondary/40 underline-offset-2 hover:text-al-text-primary hover:decoration-[var(--al-accent-interactive)]`,
+    OPERATOR_LINK_FOCUS,
+  ),
+} as const;
+
+/** Body-scale inline links in operator tables, banners, and list rows (TB-1671). */
+export const OPERATOR_BODY_INLINE_LINK_CLASS = cn(OPERATOR_TYPE_SCALE.body, OPERATOR_LINK.inline);
+
+/**
+ * Form field caption — `<Label>` and `<legend>` on operator forms (TB-2111).
+ * Never compose with {@link OPERATOR_TYPOGRAPHY.body}: it carries `font-normal`, which wins in Tailwind merge.
+ */
+export const OPERATOR_FORM_FIELD_LABEL_CLASS = "text-[13px] font-semibold leading-5 text-al-text-primary";
+
+/**
+ * Vertical rhythm inside one form field stack (label → control → helper). TB-2000.
+ * Coexists with compact page chrome (Done TB-118) — do not use page-scale `space-y-8` here.
+ */
+export const OPERATOR_FORM_FIELD_STACK_CLASS = "space-y-3";
+
+/**
+ * Multi-line helper copy under a control — relaxed leading vs default helper crush. TB-2000.
+ */
+export const OPERATOR_FORM_FIELD_HELPER_CLASS = `${OPERATOR_TYPE_SCALE.helper} leading-relaxed`;
+
+/**
+ * Checkbox / radio row with a wrapping description — minimum gap before multi-line body copy. TB-2000.
+ */
+export const OPERATOR_FORM_CONTROL_DESCRIPTION_GAP_CLASS = "gap-3";
+
+/** Semibold scan marker on inline guidance lines — pair with normal-weight body copy after the colon. */
+export const INLINE_GUIDANCE_LABEL_CLASS = "font-semibold text-al-text-primary";
+
+/** @deprecated Use {@link INLINE_GUIDANCE_LABEL_CLASS}. */
+export const OPERATOR_GUIDANCE_NEXT_LABEL_CLASS = INLINE_GUIDANCE_LABEL_CLASS;
+
+/**
+ * Medium scan marker for inline metadata keys (`Label: value`) — quieter than guidance semibold.
+ * Pair with normal-weight value text; do not use for instructional prefixes (use {@link INLINE_GUIDANCE_LABEL_CLASS}).
+ */
+export const INLINE_METADATA_LABEL_CLASS = "font-medium text-al-text-primary";
+
+/** Short operator page leads and dashboard intros — full work-surface width (TB-2038). Do not cap at prose measure. */
+export const OPERATOR_SHORT_HELPER_MEASURE_CLASS = "max-w-none";
+
+/** @deprecated Prefer {@link OPERATOR_SHORT_HELPER_MEASURE_CLASS} on operator dashboards; reserve measure for long reading bodies. */
+export const OPERATOR_PAGE_LEAD_MEASURE = "max-w-3xl";
+
+export const OPERATOR_TYPOGRAPHY = {
+  pageTitle: OPERATOR_TYPE_SCALE.pageTitle,
+  sectionTitle: OPERATOR_TYPE_SCALE.sectionTitle,
+  cardTitle: OPERATOR_TYPE_SCALE.cardTitle,
+  body: OPERATOR_TYPE_SCALE.body,
+  helper: OPERATOR_TYPE_SCALE.helper,
+  label: OPERATOR_TYPE_SCALE.helper,
+  navLabel: OPERATOR_TYPE_SCALE.navLabel,
+  navHelper: OPERATOR_TYPE_SCALE.navHelper,
+  button: OPERATOR_TYPE_SCALE.button,
+  tab: OPERATOR_TYPE_SCALE.tab,
+  micro: OPERATOR_TYPE_SCALE.micro,
+  /** Status chips (11px). Do not use arbitrary `text-[10px]` on operator surfaces. */
+  badge: "text-[11px] font-medium leading-none",
+  dataValue: `${OPERATOR_TYPE_SCALE.body} font-medium tabular-nums`,
+  /** Dashboard / metric tiles only — not page titles. */
+  kpiValue: "font-mono text-4xl font-semibold tabular-nums text-al-text-primary",
+  /** Sponsor dashboard numbers (KPI tiles + ROI summary) — one treatment (BDA-139). */
+  executiveDashboardMetric: "text-2xl font-semibold tabular-nums text-al-text-primary",
+} as const;
+
+/** Inverse tooltip surface — paired with `--al-tooltip-*` in `globals.css`; do not reuse page caption tokens inside tooltips. */
+export const TOOLTIP_SURFACE = {
+  content:
+    "border border-[var(--al-tooltip-border)] bg-[var(--al-tooltip-bg)] text-[var(--al-tooltip-fg)] shadow-[var(--al-tooltip-shadow)]",
+} as const;
+
+export const TOOLTIP_TYPOGRAPHY = {
+  body: "text-[13px] font-normal leading-5 text-[var(--al-tooltip-fg)]",
+  title: "text-[13px] font-semibold leading-5 text-[var(--al-tooltip-fg)]",
+  muted: "text-xs font-normal leading-[18px] text-[var(--al-tooltip-fg-muted)]",
+  link: "font-medium text-[var(--al-tooltip-link)] underline decoration-[var(--al-tooltip-link)]/60 underline-offset-2 hover:text-[var(--al-tooltip-link-hover)] hover:decoration-[var(--al-tooltip-link-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-tooltip-link)]",
+} as const;
+
+export const DESIGN_TOKENS = {
+  typography: OPERATOR_TYPOGRAPHY,
+  surface: {
+    page: OPERATOR_LAYOUT.page,
+    card: "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800",
+    muted: "rounded-md border border-neutral-200 bg-neutral-100/80 dark:border-neutral-800 dark:bg-neutral-900/50",
+  },
+  accent: {
+    link: "font-medium text-[var(--al-accent-link)] underline hover:text-[var(--al-accent-link-hover)]",
+    focusRing:
+      "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]",
+  },
+  callout: {
+    success:
+      "rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-emerald-800/50",
+    warn: "rounded-md border border-amber-600/60 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/60",
+    warnShell:
+      "flex gap-3 rounded-md border border-amber-600/60 border-l-4 border-l-amber-600 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/60 dark:border-l-amber-500",
+    blocked:
+      "rounded-md border border-rose-600/60 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/60",
+    blockedShell:
+      "flex gap-3 rounded-md border border-rose-600/60 border-l-4 border-l-rose-600 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/60 dark:border-l-rose-500",
+    info: "rounded-md border border-neutral-300 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-neutral-700",
+    neutral:
+      "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 text-sm text-al-text-secondary dark:border-neutral-800",
+  },
+  calloutSeverity: {
+    warn: {
+      label: "Caution",
+      labelClass: "text-amber-900 dark:text-amber-200",
+      iconClass: "text-amber-800 dark:text-amber-200",
+    },
+    blocked: {
+      label: "Blocked",
+      labelClass: "text-rose-900 dark:text-rose-200",
+      iconClass: "text-rose-800 dark:text-rose-200",
+    },
+  },
+  banner: {
+    page:
+      "rounded-xl border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800",
+    trial:
+      "rounded-xl border border-neutral-200 border-l-4 border-l-amber-600 bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800",
+    governanceApproval:
+      "rounded-md border border-neutral-200 border-l-4 border-l-[var(--al-status-approved-monitoring-fg)] bg-[var(--al-status-approved-monitoring-bg)] px-4 py-3 dark:border-neutral-800",
+  },
+  interactive: {
+    rowHover:
+      "transition-colors hover:border-neutral-300 hover:bg-[var(--al-layer-hover)] dark:hover:border-neutral-700 dark:hover:bg-neutral-800/80",
+    chip:
+      `inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-1 ${OPERATOR_TYPOGRAPHY.badge} text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600`,
+    asidePanel: "rounded-lg border border-neutral-200 bg-al-surface-raised p-4 shadow-sm dark:border-neutral-800",
+    navActive:
+      "border-l-2 border-l-[var(--al-accent-interactive)] bg-[var(--al-layer-hover)] font-semibold text-al-text-primary dark:bg-neutral-800/80",
+  },
+  table: {
+    shell: "w-full overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800",
+    table: "w-full border-collapse text-[13px]",
+    headRow: "border-b border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900",
+    headCell: `px-3 py-2.5 text-left ${OPERATOR_TYPE_SCALE.tab} text-al-text-secondary`,
+    body: "divide-y divide-neutral-100 dark:divide-neutral-800",
+    row: "content-visibility-auto outline-none transition-colors hover:bg-[var(--al-layer-hover)] dark:hover:bg-neutral-800/80",
+    rowSelected:
+      "border-l-2 border-l-[var(--al-accent-interactive)] bg-[var(--al-layer-hover)] dark:bg-neutral-800/80",
+    cell: "px-3 py-3 align-top text-[13px] leading-snug text-al-text-primary",
+    cellSecondary: "text-[13px] leading-snug text-al-text-secondary",
+    rowLabel: `${OPERATOR_TYPE_SCALE.body} font-semibold`,
+  },
+} as const;
+/** GitBook-like reading column — descendant typography for {@link DocumentLayout}. */
+export const OPERATOR_DOCUMENT_ARTICLE_BODY = [
+  "[&_p]:text-[13px] [&_p]:leading-relaxed",
+  "[&_h2]:scroll-mt-20 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-neutral-900 dark:[&_h2]:text-neutral-50",
+  "[&_h3]:scroll-mt-20 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-neutral-900 dark:[&_h3]:text-neutral-100",
+  "[&_h4]:scroll-mt-16 [&_h4]:text-[13px] [&_h4]:font-semibold [&_h4]:text-neutral-900 dark:[&_h4]:text-neutral-100",
+  "[&_.doc-meta]:text-xs [&_.doc-meta]:text-neutral-500 dark:[&_.doc-meta]:text-neutral-400",
+  "[&_ul]:my-0 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5 [&_ul]:text-[13px] [&_ul]:leading-relaxed",
+  "[&_pre]:overflow-x-auto [&_pre]:whitespace-pre-wrap [&_pre]:rounded-md [&_pre]:border [&_pre]:border-neutral-200 [&_pre]:bg-neutral-100 [&_pre]:p-3 [&_pre]:text-xs dark:[&_pre]:border-neutral-700 dark:[&_pre]:bg-neutral-800",
+  "[&_table]:w-full [&_table]:border-collapse [&_table]:text-xs",
+  "[&_thead_th]:border-b [&_thead_th]:border-neutral-200 [&_thead_th]:bg-neutral-50/90 [&_thead_th]:p-2 [&_thead_th]:text-left [&_thead_th]:font-semibold dark:[&_thead_th]:border-neutral-700 dark:[&_thead_th]:bg-neutral-900/50",
+  "[&_tbody_tr:nth-child(odd)]:bg-neutral-50/70 dark:[&_tbody_tr:nth-child(odd)]:bg-neutral-900/35",
+  "[&_td]:border-b [&_td]:border-neutral-100 [&_td]:p-2 [&_td]:align-top dark:[&_td]:border-neutral-800",
+].join(" ");
+
+/** Shared class strings for bulk migration off pastel Tailwind fills (TB-115). */
+export const OPERATOR_CALLOUT_WARN_CLASS = DESIGN_TOKENS.callout.warn;
+export const OPERATOR_CALLOUT_BLOCKED_CLASS = DESIGN_TOKENS.callout.blocked;
+export const OPERATOR_CALLOUT_SUCCESS_CLASS = DESIGN_TOKENS.callout.success;
+export const OPERATOR_SURFACE_CARD_CLASS = DESIGN_TOKENS.surface.card;
+
+/** TB-2279 — filled teal is for forward/irreversible workflow commits only; navigation opens use outline/link. */
+export const OPERATOR_PRIMARY_FILL_USAGE_CONTRACT = {
+  filledPrimary:
+    "Use Button variant=\"primary\" (filled teal) only for forward or irreversible workflow commits — start review, submit, approve, save.",
+  navigationOpens:
+    "Use variant=\"outline\", quiet text links, or OPERATOR_LINK for opening another surface — drafts list, help topic, audit trail, settings tab.",
+} as const;
+
+/** TB-2290 — operator Button variant/color matrix; see UI_DESIGN_SYSTEM.md § Button variant/color matrix. */
+export const OPERATOR_BUTTON_VARIANT_COLOR_MATRIX = {
+  canonicalSource: "archlucid-ui/src/components/ui/button.tsx",
+  variants: ["primary", "outline", "default", "secondary", "destructive"] as const,
+  bannedClassNamePrefixes: ["bg-teal-", "bg-emerald-", "bg-rose-", "bg-amber-", "text-teal-"] as const,
+  filledPrimaryRule: OPERATOR_PRIMARY_FILL_USAGE_CONTRACT.filledPrimary,
+  navigationOpensRule: OPERATOR_PRIMARY_FILL_USAGE_CONTRACT.navigationOpens,
+} as const;

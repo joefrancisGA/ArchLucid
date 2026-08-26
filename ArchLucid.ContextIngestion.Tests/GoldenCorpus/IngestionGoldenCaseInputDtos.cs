@@ -54,6 +54,14 @@ internal sealed class IngestionInfrastructureDeclarationInput
         get;
         set;
     }
+
+  /// <summary>Raw declaration source (Bicep, Kubernetes JSON/YAML, etc.).</summary>
+    [JsonPropertyName("content")]
+    public string? Content
+    {
+        get;
+        set;
+    }
 }
 
 internal sealed class IngestionDocumentInput
@@ -91,8 +99,17 @@ internal static class IngestionGoldenCaseInputDtos
 {
     public static InfrastructureDeclarationReference ToDeclaration(IngestionInfrastructureDeclarationInput i)
     {
+        if (!string.IsNullOrWhiteSpace(i.Content))
+            return new InfrastructureDeclarationReference
+            {
+                Name = i.Name,
+                Format = i.Format,
+                DeclarationId = i.DeclarationId,
+                Content = i.Content,
+            };
+
         if (i.TerraformDocument is not { } doc)
-            throw new InvalidOperationException("terraformDocument is required for infrastructure cases.");
+            throw new InvalidOperationException("terraformDocument or content is required for infrastructure cases.");
 
         string content = JsonSerializer.Serialize(doc, GoldenCorpusJson.SerializerOptions);
         return new InfrastructureDeclarationReference

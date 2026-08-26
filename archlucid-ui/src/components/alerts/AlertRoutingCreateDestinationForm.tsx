@@ -7,6 +7,7 @@ import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCrit
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { alertRoutingCreateSubscriptionButtonLabelReaderRank } from "@/lib/enterprise-controls-context-copy";
+import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import type { AlertRoutingCriteria } from "@/lib/alert-routing-criteria";
 import {
   destinationFieldHelper,
@@ -38,7 +39,7 @@ export type AlertRoutingCreateDestinationFormProps = {
   };
   readonly alertRoutingCreateSteps: readonly IntegrationConnectChecklistStep[];
   readonly alertRoutingCreateEmphasizedStepId: string;
-  readonly mutationDisabledReason: string | null;
+  readonly mutationDisabledReason: WhyDisabledCtaReason | null;
   readonly mutationDisabledHintId: string;
   readonly onNameChange: (value: string) => void;
   readonly onChannelTypeChange: (value: string) => void;

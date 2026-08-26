@@ -56,7 +56,7 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
     );
   }
 
-  if (data === null) {
+  if (data === null || data === undefined) {
     return (
       <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="run-cost-preview-loading">
         Loading cost preview…

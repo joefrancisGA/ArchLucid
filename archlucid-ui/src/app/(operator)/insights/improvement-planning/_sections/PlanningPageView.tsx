@@ -159,7 +159,9 @@ export function PlanningPageView(props: Props) {
         </p>
       ) : null}
 
-      {continueLastPlan !== null && !m.empty ? <PlanningContinueLastPlanRow plan={continueLastPlan} /> : null}
+      {continueLastPlan !== null && !m.empty ? (
+        <PlanningContinueLastPlanRow plan={continueLastPlan} scopedRunId={scopedRunId} />
+      ) : null}
 
       {!buyerPolishedShell ? <PlanningReviewsVocabularyRail currentSurfaceId="improvement-planning" /> : null}
       {!buyerPolishedShell ? (
@@ -308,7 +310,7 @@ export function PlanningPageView(props: Props) {
 
                 {!showThemeFilterNoMatch ? (
                   <div className={m.selectedThemeId === null ? "mt-3" : undefined}>
-                    <PlanningPlansTable plans={m.visiblePlans} themeTitleById={m.themeTitleById} />
+                    <PlanningPlansTable plans={m.visiblePlans} themeTitleById={m.themeTitleById} scopedRunId={scopedRunId} />
                   </div>
                 ) : null}
               </section>

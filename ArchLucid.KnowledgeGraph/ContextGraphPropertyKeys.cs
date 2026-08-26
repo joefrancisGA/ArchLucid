@@ -18,6 +18,21 @@ public static class ContextGraphPropertyKeys
     /// <summary>Pipe-separated requirement names from the prior committed context snapshot.</summary>
     public const string PriorRequirementNames = "priorRequirementNames";
 
+    /// <summary>Pipe-separated topology categories added by tenant policy packs (additive floor).</summary>
+    public const string PolicyExpectedTopologyCategories = "policyExpectedTopologyCategories";
+
+    /// <summary>Pipe-separated security control families added by tenant policy packs.</summary>
+    public const string PolicyExpectedSecurityControlFamilies = "policyExpectedSecurityControlFamilies";
+
+    /// <summary>Pipe-separated requirement themes added by tenant policy packs.</summary>
+    public const string PolicyExpectedRequirementThemes = "policyExpectedRequirementThemes";
+
+    /// <summary>When <c>true</c>, a monthly budget cap is required by policy.</summary>
+    public const string PolicyCostRequireBudgetCap = "policyCostRequireBudgetCap";
+
+    /// <summary>Policy override for cost-breach severity when a breach would already emit.</summary>
+    public const string PolicyCostBreachSeverity = "policyCostBreachSeverity";
+
     public const string Assumptions = "assumptions";
 
     public const string Actors = "actors";

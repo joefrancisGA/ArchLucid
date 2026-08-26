@@ -35,9 +35,9 @@ describe("RunDetailPageView progressive disclosure", () => {
   });
 
   it("places related surfaces rail in a bottom disclosure after primary content", () => {
-    expectSourceContains(source, 'data-testid="review-detail-related-surfaces-disclosure"', "run-detail-page-view");
+    expectSourceContains(source, 'testId="review-detail-related-surfaces-disclosure"', "run-detail-page-view");
     expectSourceContains(source, '<SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />', "run-detail-page-view");
-    const disclosureIndex = requireSourceIndex(source, 'data-testid="review-detail-related-surfaces-disclosure"', "run-detail-page-view");
+    const disclosureIndex = requireSourceIndex(source, 'testId="review-detail-related-surfaces-disclosure"', "run-detail-page-view");
     const workspaceProviderCloseIndex = source.lastIndexOf("</RunDetailWorkspaceDisclosureProvider>");
     const ctoGuardIndex = requireSourceIndex(source, "<RunDetailCtoDemoReviewRouteGuardDeferred", "run-detail-page-view");
 

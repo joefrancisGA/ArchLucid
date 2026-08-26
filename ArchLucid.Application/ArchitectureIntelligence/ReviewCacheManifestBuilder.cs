@@ -40,7 +40,7 @@ public static class ReviewCacheManifestBuilder
         ClosedLoopReasoningRequest resolvedRequest = new()
         {
             TenantId = request.TenantId,
-            RunId = resolvedRunId.Trim(),
+            RunId = ClosedLoopRunIdNormalizer.NormalizeRequired(resolvedRunId),
             WorkspaceId = request.WorkspaceId,
             ProjectId = request.ProjectId,
             SourceTexts = request.SourceTexts,
@@ -67,12 +67,15 @@ public static class ReviewCacheManifestBuilder
         ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
+        string normalizedTenantId = tenantId.Trim();
+        string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
+
         ReviewCacheDependencyManifest contentManifest =
             Build(request, baselineKnowledgeModel, technologyLedgerEntries);
 
         return new ReviewCacheDependencyManifest
         {
-            ContentHash = Sha256Hex($"continue|{tenantId}|{runId}|{contentManifest.ContentHash}"),
+            ContentHash = Sha256Hex($"continue|{normalizedTenantId}|{normalizedRunId}|{contentManifest.ContentHash}"),
             PromptVersion = contentManifest.PromptVersion,
             ModelVersion = contentManifest.ModelVersion,
             PolicyPackVersion = contentManifest.PolicyPackVersion,
@@ -113,19 +116,17 @@ public static class ReviewCacheManifestBuilder
         }
 
         foreach (ClosedLoopReasoningSourceText source in request.SourceTexts
+                     .Select(ClosedLoopReasoningSourceTextNormalizer.Normalize)
                      .OrderBy(item => item.FileName, StringComparer.Ordinal)
                      .ThenBy(item => item.ContentType, StringComparer.Ordinal))
         {
-            builder.Append(source.FileName ?? string.Empty).Append('\n');
-            builder.Append(source.ContentType ?? string.Empty).Append('\n');
+            builder.Append(source.FileName).Append('\n');
+            builder.Append(source.ContentType).Append('\n');
             builder.Append(source.Content ?? string.Empty).Append("\n---\n");
         }
 
-        foreach (KeyValuePair<string, string> answer in request.FramingAnswers
-                     .Where(pair => !string.IsNullOrWhiteSpace(pair.Key))
-                     .Select(pair => new KeyValuePair<string, string>(
-                         pair.Key.Trim(),
-                         pair.Value?.Trim() ?? string.Empty))
+        foreach (KeyValuePair<string, string> answer in ClosedLoopFramingAnswersNormalizer
+                     .Normalize(request.FramingAnswers)
                      .OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             builder.Append(answer.Key).Append('=').Append(answer.Value).Append('\n');
@@ -138,9 +139,9 @@ public static class ReviewCacheManifestBuilder
     {
         string payload = string.Join(
             '|',
-            request.TenantId ?? string.Empty,
-            request.WorkspaceId ?? string.Empty,
-            request.ProjectId ?? string.Empty);
+            request.TenantId?.Trim() ?? string.Empty,
+            request.WorkspaceId?.Trim() ?? string.Empty,
+            request.ProjectId?.Trim() ?? string.Empty);
 
         return Sha256Hex(payload);
     }
@@ -149,10 +150,7 @@ public static class ReviewCacheManifestBuilder
     {
         string payload = string.Join(
             '|',
-            priorities
-                .Where(priority => !string.IsNullOrWhiteSpace(priority))
-                .Select(priority => priority.Trim())
-                .OrderBy(priority => priority, StringComparer.Ordinal));
+            ClosedLoopDeclaredPrioritiesNormalizer.Normalize(priorities));
 
         return Sha256Hex(payload);
     }

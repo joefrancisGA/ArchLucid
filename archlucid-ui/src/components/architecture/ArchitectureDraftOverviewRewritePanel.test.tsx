@@ -8,6 +8,7 @@ import {
 import { rewriteArchitectureOverviewFromBrief } from "@/lib/api/architecture-overview-rewrite-api";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import {
+  GUIDED_INTAKE_OVERVIEW_REWRITE_BRIEF_UNCHANGED_HINT,
   GUIDED_INTAKE_OVERVIEW_REWRITE_BUTTON,
   GUIDED_INTAKE_OVERVIEW_REWRITE_NEED_GROUNDING_HINT,
 } from "@/lib/guided-intake-copy";
@@ -62,6 +63,14 @@ describe("canOfferArchitectureOverviewRewrite", () => {
         structuredBrief: brief,
       }),
     ).toBe(true);
+
+    expect(
+      canOfferArchitectureOverviewRewrite({
+        currentOverview: overview,
+        structuredBrief: brief,
+        briefUnchangedSinceAccept: true,
+      }),
+    ).toBe(false);
   });
 });
 
@@ -142,5 +151,49 @@ describe("ArchitectureDraftOverviewRewritePanel", () => {
     expect(onRequestResuggestFromOverview).toHaveBeenCalledTimes(1);
 
     expect(screen.queryByTestId("architecture-draft-overview-rewrite-resuggest")).not.toBeInTheDocument();
+  });
+
+  it("disables rewrite after accept until the structured brief changes", async () => {
+    mockedRewrite.mockResolvedValue({
+      rewrittenOverview: "Grounded overview with EU data residency.",
+    });
+    const onOverviewAccepted = vi.fn();
+    const brief = {
+      ...emptyArchitectureDraftStructuredBrief(),
+      confirmedConstraints: ["EU data residency"],
+    };
+
+    const { rerender } = render(
+      <ArchitectureDraftOverviewRewritePanel
+        currentOverview={overview}
+        structuredBrief={brief}
+        onOverviewAccepted={onOverviewAccepted}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: GUIDED_INTAKE_OVERVIEW_REWRITE_BUTTON }));
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-overview-rewrite-accept")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("architecture-draft-overview-rewrite-accept"));
+
+    expect(onOverviewAccepted).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("architecture-draft-overview-rewrite")).toBeDisabled();
+    expect(screen.getByTestId("architecture-draft-overview-rewrite-disabled-hint")).toHaveTextContent(
+      GUIDED_INTAKE_OVERVIEW_REWRITE_BRIEF_UNCHANGED_HINT,
+    );
+
+    rerender(
+      <ArchitectureDraftOverviewRewritePanel
+        currentOverview="Grounded overview with EU data residency."
+        structuredBrief={{
+          ...brief,
+          confirmedConstraints: ["EU data residency "],
+        }}
+        onOverviewAccepted={onOverviewAccepted}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-draft-overview-rewrite")).not.toBeDisabled();
   });
 });

@@ -1641,7 +1641,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SecurityDeltaRegressionClassifier` substring tokens (`on`, `pass`, `off`) matched inside unrelated words — **hit 2026-08-24:** `Information only` ranked as compliant and `Bypass` as pass, emitting false `SecurityRegression` signals; fixed with whole-token matching.
 - [x] (proven) `NewComplianceGapCount` alert counted security improvements as compliance gaps — **hit 2026-08-25:** `AlertEvaluator` and `AlertMetricSnapshotBuilder` used `SecurityChanges.Count` instead of `SecurityDeltaRegressionClassifier`; fixing controls raised false compliance alerts; regression in `Evaluate_NewComplianceGapCount_SecurityImprovements_NotCounted` and `Build_SecurityImprovements_NotCountedAsComplianceGaps`
 - [x] (proven) `DeclarationSecurityBaselineClassifier.HasOpenAdminIngressHeuristic` substring-matched port tokens — **hit 2026-08-26:** `Contains("22")` flagged `0.0.0.0/0:2200` as SSH admin ingress; fixed with digit-bounded port matching; regression in `Classify_does_not_flag_port_2200_as_admin_ingress`
-- [ ] (hunt-ready) `DeclarationSecurityBaselineClassifier` / `DeclarationPremiseConflictClassifier.TryGetDeclarationProperty` with ARM-canonical `tf.*` keys from ingestion (`tf.publicnetworkaccess`, `tf.httpsonly`) — classifiers only read snake_case Terraform keys, so unsafe ARM-ingested properties are silently skipped.
+- [x] (proven) `DeclarationSecurityBaselineClassifier` / `DeclarationPremiseConflictClassifier.TryGetDeclarationProperty` with ARM-canonical `tf.*` keys from ingestion (`tf.publicnetworkaccess`, `tf.httpsonly`) — fixed 2026-08-26 via `DeclarationSecurityPropertyKeyResolver` and ARM alias dual-write in declaration parsers (`DeclarationSecurityPropertyKeyResolverTests`, `ArmJsonInfrastructureDeclarationParserTests.ParseAsync_PublicNetworkAccess_DualWritesTfAndArmAlias`).
 - [ ] (hunt-ready) `DeclarationPremiseConflictClassifier.IntentMatchesConflictKind` with negated intent phrases (`"do not disable public"`) — substring phrase list matches inside negated requirements and emits false premise-conflict signals.
 - [ ] (hunt-ready) `DeclarationPremiseConflictFindingEngine.ResolveApplicableIntentNodes` with PROTECTS/APPLIES_TO edge weight just below `GraphEdgeDecisioningThresholds.MinWeightForSemanticLink` — sub-threshold edges are dropped, graph-wide intent fallback downgrades severity from Error to Warning.
 - [ ] (hunt-ready) `PortfolioRecurrenceFindingEngine.ResolveCurrentScopeIdentities` when the current system's persisted findings snapshot is empty on first pass — recurrence scan only reads persisted snapshots, missing cross-system identities during in-flight generation.
@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 54
-- **bugs-found:** 105
+- **hunts:** 55
+- **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
+- **last-bug:** 2026-08-26 — simple-terraform nested block lines leaked as top-level scalars
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1957,6 +1957,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `KubernetesYamlInfrastructureDeclarationParser` YAML `kind: List` path — mapper already expands List items after YamlDotNet round-trip; added YAML-path regression `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_KindList_MapsMultipleItems`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+
+- [x] (proven) `SimpleTerraformResourceBlockParser.ResourceHeaderRegex` accepted only double-quoted resource headers — **hit 2026-08-26:** `resource 'azurerm_virtual_network' 'core'` returned zero resources; fixed with single-quoted header alternation (`SimpleTerraformDeclarationParserTests.ParseAsync_SingleQuotedResourceHeader_MapsResource`).
+- [x] (proven) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` re-parsed nested block inner lines as top-level scalars — **hit 2026-08-26:** `site_config { public_network_access = "Disabled" }` also emitted spurious `tf.public_network_access`; fixed by advancing `lineIndex` past consumed nested block lines (`SimpleTerraformDeclarationParserTests.ParseAsync_NestedBlock_DoesNotEmitDuplicateTopLevelScalars`).
+- [x] (proven) `SimpleTerraformResourceBlockParser` preserved inline `#` comments in scalar values — **hit 2026-08-26:** `location = "eastus" # primary` false-modified infra declaration deltas; fixed with `StripTrailingHclComment` before unquoting (`SimpleTerraformDeclarationParserTests.ParseAsync_InlineHashComment_DoesNotChangeTfLocation`).
+- [x] (proven) `JsonInfrastructureDeclarationParser` accepted only `{ "resources": [...] }` shape — **hit 2026-08-26:** top-level resource array `[{ "type": "vnet", ... }]` returned zero resources; fixed by parsing root arrays (`JsonInfrastructureDeclarationParserTests.ParseAsync_TopLevelResourceArray_MapsVnet`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` early-return on `Microsoft.Resources/deployments` dropped child `resources[]` — **hit 2026-08-26:** nested VNet inside deployment wrapper returned zero resources; fixed by recursing into deployment children before return (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_DeploymentWrapperChildren_MapsNestedVnet`).
+
+2026-08-26 seed hunt #55: reseeded simple-terraform headers/nested blocks/comments / JSON top-level array / ARM deployment children; proved all five hunt-ready rows.
 
 2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
 

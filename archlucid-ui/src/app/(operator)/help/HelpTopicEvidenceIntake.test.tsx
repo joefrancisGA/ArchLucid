@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -11,6 +11,8 @@ import {
   EVIDENCE_INTAKE_HELP_PRIMARY_ACTION,
 } from "@/lib/evidence-intake-help-evidence-copy";
 import {
+  EVIDENCE_INTAKE_HELP_ACCEPTED_FORMATS_DISCLOSURE_LABEL,
+  EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_DISCLOSURE_LABEL,
   EVIDENCE_INTAKE_HELP_HERO_OVERVIEW,
   EVIDENCE_INTAKE_HELP_PATH_OPTIONS,
   EVIDENCE_INTAKE_HELP_PRIMARY_ACTIONS,
@@ -43,7 +45,7 @@ describe("HelpEvidenceIntakeGuideView (EVI)", () => {
     expect(entry?.pdfStatus).toBe("customer");
   });
 
-  it("renders one header primary, reference content first, and distinct path CTAs", () => {
+  it("renders one header primary, path chooser before reference content, and distinct path CTAs", () => {
     if (loaded === null || entry === null) {
       throw new Error("Expected evidence-intake help to load.");
     }
@@ -69,13 +71,21 @@ describe("HelpEvidenceIntakeGuideView (EVI)", () => {
 
     const firstViewport = screen.getByTestId("help-evidence-intake-first-viewport");
     const pathStrip = screen.getByTestId("help-evidence-intake-path-strip");
+    const reference = screen.getByTestId("help-evidence-intake-reference");
 
     expect(firstViewport.compareDocumentPosition(pathStrip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(pathStrip.compareDocumentPosition(reference) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(within(firstViewport).getByTestId("help-evidence-intake-accepted-formats")).toBeInTheDocument();
-    expect(within(firstViewport).getByTestId("help-evidence-intake-reference")).toBeInTheDocument();
+
+    const formatsSection = within(firstViewport).getByTestId("help-evidence-intake-accepted-formats");
+
+    expect(within(formatsSection).getByText("Documents:")).toBeInTheDocument();
+    expect(within(formatsSection).getByText("Structured and IaC:")).toBeInTheDocument();
+
+    fireEvent.click(within(formatsSection).getByText(EVIDENCE_INTAKE_HELP_ACCEPTED_FORMATS_DISCLOSURE_LABEL));
 
     for (const extension of EVIDENCE_UPLOAD_ACCEPTED_EXTENSIONS) {
-      expect(within(firstViewport).getByText(extension)).toBeInTheDocument();
+      expect(within(formatsSection).getByText(extension)).toBeInTheDocument();
     }
 
     for (const pathOption of EVIDENCE_INTAKE_HELP_PATH_OPTIONS) {
@@ -170,7 +180,8 @@ describe("HelpEvidenceIntakeGuideView (EVI)", () => {
     expect(visibleText).not.toContain("Guided intake");
     expect(visibleText).not.toMatch(/admission gates?/i);
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
-    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
+    expect(screen.getByText(EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_DISCLOSURE_LABEL)).toBeInTheDocument();
   });
 
   it("keeps the accepted-formats table aligned with the wizard extension list", () => {

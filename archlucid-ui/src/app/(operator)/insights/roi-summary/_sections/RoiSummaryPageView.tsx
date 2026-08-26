@@ -51,6 +51,7 @@ import {
   ROI_SUMMARY_PRIMARY_CONTENT_ID,
   ROI_SUMMARY_SKIP_LINK_LABEL,
 } from "@/lib/roi-summary-page-copy";
+import { ROI_SUMMARY_CLAIM_DISCIPLINE } from "@/lib/roi-summary-evidence-copy";
 import {
   resolveRoiSummarySummarizingEmphasizedStepId,
   resolveRoiSummarySummarizingSteps,
@@ -184,6 +185,8 @@ export function RoiSummaryPageView(props: Props) {
             headingLevel="h1"
             breadcrumb={buyerPolishedShell ? <RoiSummaryBreadcrumb /> : undefined}
             subtitle={buyerPolishedShell ? ROI_SUMMARY_PAGE_SUBTITLE : null}
+            claimDiscipline={ROI_SUMMARY_CLAIM_DISCIPLINE}
+            claimDisciplineTestId="roi-summary-claim-discipline"
             actions={
               buyerPolishedShell ? (
                 <PageContextualHelpButton />

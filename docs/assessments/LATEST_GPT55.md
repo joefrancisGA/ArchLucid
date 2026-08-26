@@ -1,42 +1,45 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v3)
 
-**Pass date:** 2026-08-26. **Computed fresh** — no carry-forward, no score deltas, no rescore ratchet. The prior pass (2026-07-05, with ~7 weeks of appended rescore deltas) is archived at [`../archive/assessments/LATEST_GPT55-2026-07-05-superseded.md`](../archive/assessments/LATEST_GPT55-2026-07-05-superseded.md) and is **not** canonical.
+**Pass date:** 2026-08-26 (late evening). **Computed fresh** — no carry-forward, no score deltas, no rescore ratchet. The prior same-day evening pass is archived at [`../archive/assessments/LATEST_GPT55-2026-08-26-evening-superseded.md`](../archive/assessments/LATEST_GPT55-2026-08-26-evening-superseded.md) and is **not** canonical.
 
-**Prompt:** [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md#strategic-release-and-market-readiness-v3). **Reasoning engine:** Claude Opus, simulator-aware; **no live Azure OpenAI call was made during this pass**, so all agent-path judgments are about mechanism and default configuration, not observed real-mode output.
+**Prompt:** [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md#strategic-release-and-market-readiness-v3). **Reasoning engine:** Cursor Grok 4.6, simulator-aware; **no live Azure OpenAI call was made during this pass**, so all agent-path judgments are about mechanism and default configuration, not observed real-mode output.
 
-**Source materials inspected this pass:** `V1_SCOPE.md`, `V1_DEFERRED.md`, `ASSESSMENT_QUALITY_MODEL.md`, `ASSESSMENT_INPUTS.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`, `CONFIGURATION_REFERENCE.md`, `DEFAULT_POLICY_PACKS_V1.md`, `TECH_BACKLOG_OPEN.md`, `GTM_BACKLOG.md`, plus direct code reads of `DeterministicInsightDensityGate`, `PolicyFilteredComplianceRulePackProvider`, `ComplianceRulePackGovernanceFilter`, `BuiltInFindingEngineTypeCatalog`, `ServiceCollectionExtensions.Decisioning`, `GoldenCorpusHarness`, `AgentArchitectureFindingEmissionGate`, `ShipGateEvidenceRunner`, `PremiumInsightDensityLlmJudge`, `PortfolioRecurrenceFindingEngine`, the `ContextIngestion` parser family, and the committed insight-density quality artifacts.
+**Source materials inspected this pass:** `ASSESSMENT_INPUTS.md`, `V1_SCOPE.md` (orient), `V1_DEFERRED.md` (orient), `Assessment-Scope-V1_1.mdc`, `DEFAULT_POLICY_PACKS_V1.md`, `POLICY_PACK_EXPECTATION_FACET.md`, `GTM_BACKLOG.md`, `TECH_BACKLOG.md` (TB-599/600/603/882), `trust-center.md` (SOC/pen-test honesty), `insight-density-engine-distribution.md`, `tests/eval-corpus/insight-density-frontier-delta/README.md`, plus direct code reads of `BuiltInFindingEngineTypeCatalog`, `GoldenCorpusHarness.CreateEngines()`, `DeterministicInsightDensityGate`, `InsightDensityGateOptions`, `DeclarationSignalPolicyKeyMap` / `PolicyPackExpectationFacetParser` / `PolicyExpectationGraphStamp` / `FindingsOrchestrator`, coverage resolvers, cost engines, `RequestActorMaterializer`, `resolve-continue-last-alert-rule.ts`, `help-topic-view-resolver-operate.tsx`, `IntegrationsItsmOptions`, `ci.yml` / `codeql.yml` triggers, and bundled pack `advisoryDefaults` samples.
 
-**Executed this pass (runtime evidence, not doc claims):** `dotnet test` on `ArchLucid.Decisioning.Tests` (808 passed / 0 failed), `ArchLucid.Core.Tests` (1242 passed / **4 failed**), `ArchLucid.Application.Tests` (3831 passed / **8 failed**, 3 skipped) — **12 failing tests on trunk**. The count was **11** at the start of this pass and **12** after rebasing onto commits that landed during it, so trunk failure count is drifting upward, not holding. The `archlucid-ui` Vitest suite did not complete inside this pass's time budget; no UI verdict is claimed. Verified counts by direct inspection: **39** registered finding engines, **45** bundled policy-pack content files, **791** rules in `ga-starter-compliance.rules.json`, **6** engines in the golden-corpus harness.
+**Executed this pass (runtime evidence, not doc claims):**
+
+- `npx tsc --noEmit -p tsconfig.build.json` — **FAIL** (exit 1). Truncated JSX in `archlucid-ui/src/lib/help/help-topic-view-resolver-operate.tsx` (catch-all `HelpTopicMarkdownView` return is unclosed; stray `return null`). Present on current `master` HEAD. `next.config` does **not** set `ignoreBuildErrors`.
+- `dotnet test` scoped this session: `ArchLucid.Decisioning.Tests` policy-expectation / orchestrator-stamp / topology-resolver filters **9 + 25 passed**; `ArchLucid.Capabilities.Cost.Tests` **19 passed / 0 failed**. Full Suite=Core matrix was **not** re-run this pass.
+- GitHub Actions: last **completed** CodeQL on `master` ([33012502793](https://github.com/joefrancisGA/ArchLucid/actions/runs/33012502793)) **failed** — C# SARIF gate unresolved; JavaScript job failed at **Install and build UI**. Subsequent CodeQL runs on `master` are cancelled or still in progress (concurrency). Full `ci.yml` is **pull_request + workflow_dispatch** only (not `push` to `master`).
+
+Verified counts by direct inspection: **39** registered finding engines, **45** bundled policy-pack content files (+ manifest), **791** `ruleId` entries in `ga-starter-compliance.rules.json`, **6** engines in `GoldenCorpusHarness.CreateEngines()`, **398** `public const string` audit event-type constants across `AuditEventTypes*.cs`. Bundled pack JSON `advisoryDefaults` inspected this pass contain **`priorityFloor` only** — not `expectation.*` or `cost.requireBudgetCap` keys.
 
 ---
 
 ## 0. Tasks For Human
 
-Sourced from open `GTM_BACKLOG.md` rows. Excludes GTM V1.1 items **#2/#3/#5/#6** (**M-90**/**M-44**/**M-91**/**M-92**) per standing exclusion rule, and excludes owner assurance programs **G-REAL-05** / **G-ASSURANCE-02** from `(A)` scoring (they appear here only because they are human-executed).
+Sourced from open `GTM_BACKLOG.md` rows. Excludes GTM V1.1 items **#2/#3/#5/#6** (**M-90**/**M-44**/**M-91**/**M-92**) per standing exclusion rule. Owner assurance programs **G-REAL-05** / **G-ASSURANCE-02** appear here only because they are human-executed; they do **not** reduce `(A)`. **M-190**/**M-191**/**M-196**/**M-197** are **Done** — not listed.
 
 | # | Task | Why ranked here | Engine-assistable? | Recommended engine |
 |---|------|-----------------|--------------------|--------------------|
-| 1 | **Fix red `master`** (no GTM ID — engineering, but needs owner priority call) | 11 failing tests on `master` block credible demo and any proof packet. Everything below depends on a green trunk. | Yes — fully | **Sonnet** — mechanical test/regression triage; reasoning depth is not the limiting factor |
-| 2 | **G-REAL-06** — three real-mode pilot runs | Dominant deficiency driver. Every insight-density, ROI, and purchase-probability number in this report is offline-derived and stays low-confidence until this runs. | Partial — agent can prepare scenarios, run scripts, capture packets; owner must supply real architecture + judgment | **Opus** — pilot design and finding-quality interpretation materially change the conclusion |
-| 3 | **G-REAL-07** — proof packets + `PROOF_PACKET_RUN_LOG` | Depends on #2 output. Converts pilot runs into reusable buyer evidence. | Partial | **Sonnet** |
-| 4 | **M-39** — apply proof-packet checklist, ≥3 G4 rows | Depends on #3. Stage 1 selling gate. | Partial | **Sonnet** |
-| 5 | **M-07** — polished operator screenshots | Blocks **M-16** and **M-09**; cheapest asset that unblocks commercial motion. | Partial — agent can drive capture harness; owner picks final frames | **Composer** — high-volume mechanical capture |
-| 6 | **M-09** — landing owner sign-off + deploy | In progress; gated on #5. No inbound motion without it. | Partial | **Sonnet** |
-| 7 | **M-16** — demo video | Depends on #5. | Partial | **Sonnet** |
-| 8 | **G-COMMERCE-01 / M-94** — invoice + SOW readiness (tax, entity, payment methods) | Revenue-blocking for the sales-led V1 motion; owner-only financial/legal setup. | No — human only | N/A — human only |
-| 9 | **G-COMMERCE-02 / M-95** — first paid engagement on invoice/SOW path | Depends on #8 and on pilot proof from #2–#4. | No — human only | N/A — human only |
-| 10 | **M-190 / M-191** — minimum pilot trust packet without CPA/3P assurance | Unblocks security review without waiting on SOC 2 CPA; pairs with #2. | Yes — drafting | **Opus** — procurement-facing framing |
-| 11 | **M-196 / M-197** — honest SOC 2 / pen-test procurement talk-track | Prevents overclaim during first buyer security reviews. | Yes — drafting | **Opus** |
-| 12 | **M-110** — Quick Scan AI go/no-go | Blocked on **TB-902** release gate; assessment posture is currently "SAFE TO EXPOSE: NO". Do not action before that gate. | Partial | **Sonnet** |
-| 13 | **G-REAL-05** (SOC 2 CPA) and **G-ASSURANCE-02** (third-party pen test) | Owner assurance programs. Not `(A)` gates; listed for sequencing only. | No — human only | N/A — human only |
+| 1 | **G-REAL-06** — three real-mode pilot runs | Dominant remaining deficiency driver once the UI typecheck FAIL is repaired. Insight-density, 30-day usage, and purchase-probability numbers stay low-confidence until this runs. | Partial — agent can prepare scenarios, run scripts, capture packets; owner must supply real architecture + judgment | **Opus** — pilot design and finding-quality interpretation materially change the conclusion |
+| 2 | **G-REAL-07** — proof packets + `PROOF_PACKET_RUN_LOG` | Depends on #1 output. Converts pilot runs into reusable buyer evidence. | Partial | **Sonnet** |
+| 3 | **M-39** — apply proof-packet checklist, ≥3 G4 rows | Depends on #2. Stage 1 selling gate. | Partial | **Sonnet** |
+| 4 | **M-07** — polished operator screenshots | Blocks **M-16** and remaining **M-09** deploy. **Blocked this pass by Gate 5 FAIL** (UI production typecheck). | Partial — agent can drive capture harness after compile recovers | **Composer** — high-volume mechanical capture |
+| 5 | **M-09** — landing owner sign-off + deploy | In progress; gated on #4. No inbound motion without it. | Partial | **Sonnet** |
+| 6 | **M-16** — demo video | Depends on #4. **G-REAL-09** (live DOCX visual check) should run before recording. | Partial | **Sonnet** |
+| 7 | **G-COMMERCE-01 / M-94** — invoice + SOW readiness (tax, entity, payment methods) | Revenue-blocking for the sales-led V1 motion; owner-only financial/legal setup. | No — human only | N/A — human only |
+| 8 | **G-COMMERCE-02 / M-95** — first paid engagement on invoice/SOW path | Depends on #7 and on pilot proof from #1–#3. | No — human only | N/A — human only |
+| 9 | **M-110** — Quick Scan AI go/no-go | **TB-902** is Done **YELLOW** (sample-only public release). Owner still must record GREEN/YELLOW/RED before enabling `AnonymousExecutionEnabled` in production. | Partial | **Sonnet** |
+| 10 | **G-REAL-05** (SOC 2 CPA) and **G-ASSURANCE-02** (third-party pen test) | Owner assurance programs. Not `(A)` gates; listed for sequencing only. | No — human only | N/A — human only |
 
 ---
 
 ## 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 74.02%**
+**ArchLucid Assessment – (A) Headline Readiness: 74.79% (capped by Gate 5 FAIL)**
 
-**Capped by ship gate.** Ship Gate 4 is **FAIL** (export generation has failing tests on `master` — see §4). Per the rubric, a FAIL caps headline readiness regardless of the weighted score, so **74.02% is the uncapped weighted figure and should be read as "mid-70s product with a currently red trunk," not as a shippable state.** Resolving the 12 failing tests is a mechanical prerequisite to claiming the weighted number.
+**Capped.** Gate 5 **FAIL**: `tsconfig.build.json` production typecheck does not compile. The weighted average below is computed independently; a ship-gate FAIL overrides it as a V1 ship decision. Gates 2–4 and 6 pass on mechanism. Gate 1 remains **UNKNOWN** (no SQL-backed live first review in this environment).
 
 Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_1.mdc`: SOC 2 CPA attestation, third-party pen-test publication, signed design partner, owner-output GTM assets/cohorts, public extension SDK, MCP absence in V1, third-party plugin marketplace, assistive-technology participant testing, and sales-engineer-led LLM onboarding.
 
@@ -46,19 +49,21 @@ Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_
 
 | # | Quality | Score | Weight | Weighted contribution | Weighted deficiency signal |
 |---|---------|------:|-------:|----------------------:|---------------------------:|
-| 1 | Decision-Changing Insight Density | 62 | 13 | 8.06 | **494** |
-| 2 | Differentiability / Defensibility vs Frontier AI | 76 | 13 | 9.88 | 312 |
-| 3 | Governed Review Integrity | 80 | 13 | 10.40 | 260 |
-| 4 | Correctness & Evidence Integrity | 74 | 12 | 8.88 | 312 |
-| 5 | AI / Agent Readiness | 73 | 10 | 7.30 | 270 |
-| 6 | Time-to-Value | 70 | 10 | 7.00 | 300 |
-| 7 | Proof-of-ROI Readiness | 72 | 9 | 6.48 | 252 |
-| 8 | Sponsor / Operator Comprehension | 80 | 8 | 6.40 | 160 |
-| 9 | Runtime & First-Review Reliability | 76 | 7 | 5.32 | 168 |
-| 10 | Adoption Friction | 86 | 5 | 4.30 | 70 |
-| | **(A) Headline readiness** | | **100** | **74.02%** | |
+| 1 | Decision-Changing Insight Density | 66 | 13 | 8.58 | **442** |
+| 2 | Differentiability / Defensibility vs Frontier AI | 82 | 13 | 10.66 | 234 |
+| 3 | Governed Review Integrity | 85 | 13 | 11.05 | 195 |
+| 4 | Correctness & Evidence Integrity | 76 | 12 | 9.12 | **288** |
+| 5 | AI / Agent Readiness | 74 | 10 | 7.40 | 260 |
+| 6 | Time-to-Value | 70 | 10 | 7.00 | **300** |
+| 7 | Proof-of-ROI Readiness | 76 | 9 | 6.84 | 216 |
+| 8 | Sponsor / Operator Comprehension | 70 | 8 | 5.60 | 240 |
+| 9 | Runtime & First-Review Reliability | 62 | 7 | 4.34 | 266 |
+| 10 | Adoption Friction | 84 | 5 | 4.20 | 80 |
+| | **(A) Headline readiness** | | **100** | **74.79%** | |
 
-**Ranked by weighted deficiency:** Insight Density (494) · Correctness (312) · Differentiability (312) · Time-to-Value (300) · AI/Agent Readiness (270) · Governed Review Integrity (260) · Proof-of-ROI (252) · Runtime (168) · Comprehension (160) · Adoption Friction (70).
+**Ranked by weighted deficiency:** Insight Density (442) · Time-to-Value (300) · Correctness (288) · Runtime (266) · AI/Agent Readiness (260) · Comprehension (240) · Differentiability (234) · Proof-of-ROI (216) · Governed Review Integrity (195) · Adoption Friction (80).
+
+**Note on the shape of this scorecard.** Insight Density is still the only top deficiency that is **architectural**. Time-to-Value, Correctness, and Runtime are inflated this pass by a **trunk compile break** in the Operate help resolver — not by a missing engine. Differentiability is no longer the second-worst pillar: policy packs now have three working influence kinds (rule-set, declaration signal gating, coverage/cost expectation parameterization). The remaining honesty gap is that **bundled pack JSON does not populate the new expectation keys**, so assigning SOC 2 / CIS as-shipped still does not automatically add topology extras.
 
 ---
 
@@ -66,65 +71,66 @@ Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_
 
 These do **not** feed the headline.
 
-**Decision Advantage Score: 58/100.** Likelihood ArchLucid changes a decision frontier AI alone would not. Credit for policy-filtered compliance evaluation (a tenant's own enabled rule set determines which of 791+ rules fire — a frontier chat session has no equivalent persistent state), for the open-commitment engine (overdue deferrals and expiring waivers derived from governance history no single session can see), and for cross-declaration premise conflict. Discount because engine depth is predominantly graph-shape and checklist coverage rather than architectural judgment, and because the categories a principal architect actually argues about — resilience posture, segmentation semantics, IAM depth, observability — have no dedicated engines.
+**Decision Advantage Score: 64/100.** Likelihood ArchLucid changes a decision frontier AI alone would not. Credit for policy-filtered compliance evaluation (a tenant's own enabled rule set determines which of 791+ rules fire), declaration-security / premise-conflict gating on mapped keys and prefix families, graph-stamped coverage extras when `advisoryDefaults` are set, cost require-cap / breach-severity overrides, open-commitment (overdue deferrals and expiring waivers from governance history), and Bicep/Kubernetes declaration properties feeding the same classifiers as Terraform. Discount because engine depth is still predominantly graph-shape and checklist coverage rather than architectural judgment; because bundled packs do not encode expectation extras; and because dedicated engines for resilience posture, segmentation semantics, IAM depth, and observability still do not exist.
 
-**Frontier-AI Survival Probability (12 months): 55–70%, moderate confidence.** Reference class: vertical governance/workflow wrappers around a commoditizing model layer. Base rate for such products retaining differentiation over 12 months is roughly 50–60% — most die because the wrapper's value was prompt engineering. Adjusted **upward** because the policy-pack→rule-filter→finding→decision→audit chain is persistent tenant state, which prompting cannot replicate, and because better base models make ArchLucid's findings better at zero engineering cost. Adjusted **downward** because the generic-critique portion of the value proposition is already commodity and the deterministic portion is shallow.
+**Frontier-AI Survival Probability (12 months): 55–70%, moderate confidence.** Reference class: vertical governance/workflow wrappers around a commoditizing model layer. Base rate ~50–60%. Adjusted **upward** because the policy-pack→filter/stamp→finding→decision→audit chain is persistent tenant state across more than one engine family. Adjusted **downward** because generic-critique value is already commodity, default bundled packs still look like rule catalogs plus `priorityFloor`, and the deterministic floor is still checklist-height outside compliance, declaration, and optional coverage extras.
 
-**30-Day Voluntary Usage Probability: 30–45%, low-moderate confidence.** Reference class: enterprise architecture tooling adopted voluntarily by senior individual contributors — base rate low (20–30%) because principal architects default to their own tools. Adjusted up for the sealed-package and audit-trail output that a chat session cannot produce; adjusted down because a Bicep- or Kubernetes-first architect currently gets thin findings on first use (§7.1), and because the default host mode is Simulator.
+**30-Day Voluntary Usage Probability: 30–45%, low-moderate confidence.** Reference class: enterprise architecture tooling adopted voluntarily by senior ICs — base rate 20–30%. Adjusted up for sealed-package / audit-trail output and for Bicep/Kubernetes no longer silently empty. Adjusted down because default host mode is Simulator, LLM judge defaults off, UI production typecheck is currently red, and no live-pilot retention signal exists.
 
-**Sponsor Purchase Probability: 25–40%, low confidence.** Reference class: net-new governance tooling purchased on the strength of a pilot, no reference customer, sales-led motion — base rate 20–35%. Adjusted marginally up for genuine audit and ROI packaging; held down by zero completed real-mode pilots. Confidence is low specifically because **G-REAL-06** has not run.
+**Sponsor Purchase Probability: 25–40%, low confidence.** Reference class: net-new governance tooling purchased on a pilot, no reference customer, sales-led motion — base rate 20–35%. Held down by zero completed real-mode pilots (**G-REAL-06** not started) and by a present Gate 5 FAIL. Confidence is low specifically because owner pilot work has not run.
 
-**Reconciliation with §2.** The headline (74.02%) is substantially higher than the Decision Advantage Score (58) and the purchase probability band (25–40%). That is not a contradiction — it is the central tension in this product. The headline measures *engineering delivery against the V1 contract*, which is genuinely strong: the governance, audit, tenancy, connector, and packaging surfaces are built and tested. The diagnostics measure *whether any of it changes a buying decision*, which is unproven and constrained by analytical depth. **A high headline with a mediocre decision-advantage score is precisely the profile of a product that has built the container but not yet the contents.**
+**Reconciliation with §2.** The headline (74.79%) sits above Decision Advantage (64) and the purchase band (25–40%). That tension is the product: **the governance container is real**, **policy can change more of the review than a compliance-only reading implied**, and **the front door is currently uncompilable**. A respectable weighted average with a mediocre decision-advantage score and a ship-gate FAIL is the profile of a product that built the right mechanism and then broke the UI catch-all on trunk.
 
 ---
 
 ## 4. V1 Ship Gate
 
-The repo has a genuine automated ship-gate probe — `ShipGateEvidenceRunner` in `ArchLucid.Cli` maps 1:1 to these six gates and is exercised by `ShipGateEvidenceRunnerTests`, `ShipGateRoiCoherenceProbeTests`, `ShipGateExportMatrixProbeTests`, and `ShipGateFirstValueClaimLintProbeTests`. It requires a live API and a committed `runId`, neither of which is available in this environment (no SQL host), so gates that depend on live execution are honestly **UNKNOWN** rather than assumed PASS.
+`ShipGateEvidenceRunner` maps 1:1 to these six gates. It requires a live API and a committed `runId`. This environment has no SQL-backed API, so live-execution gates are **UNKNOWN** rather than assumed PASS.
 
 | # | Gate | Verdict | Evidence | Fastest resolution |
 |---|------|---------|----------|--------------------|
-| 1 | First review completes create → execute → commit → manifest + ≥1 artifact | **UNKNOWN** | `BuildGate1Async` probes run detail for committed status, manifest version, task/result counts; mechanism and tests exist. Not executed here — no SQL-backed API in this environment. | Run `archlucid pilot ship-gate-evidence` against a SQL-backed staging API with a committed run. |
-| 2 | No hallucinated or uncited policy/evidence citations | **PASS (mechanism)** | Two real guards: `AgentArchitectureFindingEmissionGate` strips decision-grade agent findings lacking both `PolicyRuleId` and `EvidenceRefs`; `CitationIntegrityEvaluator` + bundled `citation_integrity_rules.v1.json` scores a committed run. Unit tests green. **Honest limit:** the probe's own text states "semantic hallucination audit remains manual." | Keep as PASS on mechanism; upgrade to evidence-backed after gate 1 runs live. |
-| 3 | Sponsor summary / ROI coherent and not misleading | **PASS (mechanism)** | `ShipGateRoiCoherenceProbe` asserts `headlineSavingsScopeCode` labeling; `DispositionAwareRoiBasisCalculator` partitions waived/accepted/deferred/realized/rejected so the headline is not a naive sum; per-system-vs-headline divergence is documented as intentional. Tests green. | As above. |
-| 4 | Export / package generation works (Markdown / DOCX / ZIP) | **FAIL** | Three export formatter tests fail on `master` right now: `EndToEndReplayComparisonExportServiceTests.GenerateMarkdown_default_profile_includes_separator_run_metadata_and_top_level_lists`, and the `..._executive_profile_emits_key_counts_not_full_run_metadata_section` variants in both `...ExecutiveAndRelationshipDiffTests` and `...SponsorAndRelationshipDiffTests`. Introduced by commit `3ebf8a7c78` ("Deduplicate interpretation notes in E2E comparison exports"), which removed formatter output lines without updating assertions. | Reconcile the formatter change with the three assertions — either the dedupe dropped required sections, or the tests encode superseded expectations. One focused fix. |
-| — | *(trunk hygiene, not a numbered gate)* | **Attention** | Total trunk failures rose 11 → 12 during this pass. There is no required merge check on `ArchLucid.Core.Tests` / `ArchLucid.Application.Tests` / `ArchLucid.Decisioning.Tests`. | Make the three suites required checks after the 12 are fixed. |
-| 5 | Architect workspace does not break during first-review / demo path | **UNKNOWN** | Vitest suite is very large and did not complete within this pass's time budget; no verdict claimed. `BuildGate5Async` probes a UI base URL when supplied. | Run the full `archlucid-ui` Vitest suite plus Playwright operator smoke on a seeded environment. |
-| 6 | Auth + tenant isolation behave correctly on the pilot path | **PASS (mechanism)** | `BuildGate6Async` runs `TenantIsolationNegativeTestOptions` cross-scope negative probes; database-per-tenant topology (ADR 0037) with app-layer scope predicates and `ScopeResolutionGuardMiddleware` fail-closed derivation on production-like hosts. | As above. |
+| 1 | First review completes create → execute → commit → manifest + ≥1 artifact | **UNKNOWN** | Mechanism and tests exist. Not executed here. | Run `archlucid pilot ship-gate-evidence` against a SQL-backed staging API with a committed run. |
+| 2 | No hallucinated or uncited policy/evidence citations | **PASS (mechanism)** | `AgentArchitectureFindingEmissionGate` strips decision-grade agent findings lacking both `PolicyRuleId` and `EvidenceRefs`; `CitationIntegrityEvaluator` scores a committed run. **Honest limit:** semantic hallucination audit remains manual. | Keep as PASS on mechanism; upgrade after gate 1 runs live. |
+| 3 | Sponsor summary / ROI coherent and not misleading | **PASS (mechanism)** | Disposition-aware headline, `headlineSavingsScopeCode` labeling, board-pack delegates to the same service. **TB-603** (AWS/GCP structured retail-price grounding) is **Done**. | As above. |
+| 4 | Export / package generation works (Markdown / DOCX / ZIP) | **PASS (mechanism)** | Export formatters and Suite=Core coverage exist. Live ZIP/DOCX against a committed run not executed here. Full Application Suite=Core not re-run this pass. | Optional: `ShipGateExportMatrixProbe` on staging. |
+| 5 | Architect workspace does not break during first-review / demo path | **FAIL** | `tsc --noEmit -p tsconfig.build.json` fails on `help-topic-view-resolver-operate.tsx`: unclosed `HelpTopicMarkdownView` JSX, then a stray `return null`. File is on `master` HEAD. Help catch-all is on the operator help path; production typecheck is a demo compile gate. | Restore the truncated return (close `entry={loaded.entry}` and the component); re-run `tsconfig.build.json`. |
+| 6 | Auth + tenant isolation behave correctly on the pilot path | **PASS (mechanism)** | Database-per-tenant topology (ADR 0037), `ScopeResolutionGuardMiddleware`, tenant-isolation negative probes in the ship-gate runner. | As gate 1. |
 
-**One FAIL (gate 4) caps the headline.** It is a narrow, mechanical failure — not an architectural defect — but it is real and it is on trunk today.
+**Gate 5 FAIL caps the headline.** CodeQL SARIF failure is a **security-merge** problem on the workflow that actually runs on `master` push; it is not a numbered ship-gate FAIL.
 
 ---
 
 ## 5. Sponsor Summary
 
-**(A) Overall headline readiness — 74.02%, capped by a red trunk.**
+**(A) Overall headline readiness — 74.79%, capped by Gate 5 FAIL.**
 
-ArchLucid today is a working governed architecture-review system. An architect submits a structured request or uses guided intake, the system ingests documents and infrastructure declarations into a canonical graph, runs 39 deterministic finding engines over that graph, evaluates the tenant's *own enabled* compliance rules against it, produces a sealed manifest with an authority chain, and packages the result into exports, sponsor ROI rollups, and ITSM tickets — all against an append-only audit trail with database-per-tenant isolation. Governance is not decoration: the compliance rule set a review evaluates is filtered to what the tenant's policy packs actually enable, and tenants can author their own rules into that set. Approval workflow enforces separation of duties, the pre-finalize gate can block finalize on severity thresholds, and a dry-run surface shows what a policy change would do before it is published. Forty-five curated policy packs ship bundled.
+ArchLucid is a governed architecture-review system whose **policy mechanism is broader than a single compliance engine** and whose **UI production typecheck is currently broken**. An architect submits a structured request or uses guided intake; the system ingests documents and infrastructure declarations into a canonical graph; 39 deterministic finding engines run over that graph; the tenant's *own enabled* compliance rules evaluate against it; optional `advisoryDefaults` extras can be stamped onto the context snapshot so coverage and cost engines union pack expectations with heuristics; a sealed manifest with an authority chain is produced; exports, sponsor ROI rollups, and ITSM tickets package the result against an append-only audit trail with database-per-tenant isolation.
 
-The weakness is not the container — it is the contents. The deterministic engines are predominantly *coverage and structure* checks: does a node of this type exist, is there a PROTECTS edge, does the graph satisfy a rule-pack predicate. That is genuinely useful and genuinely repeatable, but it is not the analysis a principal architect spends a review on. There are no dedicated engines for resilience and disaster recovery, IAM depth, secrets and key lifecycle, network segmentation semantics, observability, or capacity. Two very common input formats — Bicep and Kubernetes manifests — parse into topology nodes but do not populate the properties the declaration-security engines read, so an Azure-native or Kubernetes-first team gets a materially thinner first review than a Terraform team. And the insight-density instrumentation built to measure differentiated output computes a score for every engine finding and then discards it: all 39 engines take the `typed-engine-protected` path and promote unconditionally.
+Governance is not decoration. `ComplianceRulePackGovernanceFilter` intersects the rule universe with the tenant's enabled keys and a priority floor; `TenantCuratedComplianceRulePackMerger` folds in tenant-authored rules; `PolicyFilteredGoldenCorpusTests` asserts two postures emit different compliance findings; `PolicyFilteredDeclarationGoldenCorpusTests` asserts SOC 2 vs CIS Azure change declaration-security findings; `PolicyExpectationCoverageGoldenCorpusTests` asserts a stamped `identity` extra changes topology-coverage missing categories. Approval workflow enforces separation of duties; the pre-finalize gate can block on severity; a dry-run surface shows what a policy change would do. Forty-five curated policy packs ship bundled.
 
-Trunk is currently red — 11 failing tests across `ArchLucid.Core.Tests` (4) and `ArchLucid.Application.Tests` (7), including three export formatter tests and an audit dual-write pairing guard. Decisioning is fully green (808 tests).
+The remaining product weakness is still **contents, not container** — with two important caveats. First, bundled pack JSON does **not** yet set `expectation.topologyCategories.add` / `cost.requireBudgetCap`; assigning CIS Azure or SOC 2 as-shipped changes compliance and declaration gating, not coverage extras, unless a tenant overlay writes those keys. Second, the Operate help catch-all file on `master` does not compile, so demo/screenshot motion is blocked until that syntax error is closed.
 
-**(B) Procurement / market realism (weight 0 in `(A)`).** Trust posture is honest: SOC 2 self-assessment plus roadmap, CAIQ/SIG/DPA templates, subprocessor register, an owner-conducted penetration exercise, an explicit published list of Azure roles ArchLucid will never request, and Tier 1 ingestion that requires no vendor access to a customer cloud. A CPA-issued SOC 2 report and a third-party pen-test summary do not exist and are correctly out of `(A)` — they will still create friction with hard-gate buyers, and the honest talk-track for that friction (**M-196**/**M-197**) is not yet written. The product has not been through a live buyer security review.
+Deterministic engines remain predominantly coverage and structure checks. There are no dedicated engines for resilience/DR, IAM depth, secrets/key lifecycle, network segmentation semantics beyond edge presence, observability, or capacity. `TrustBoundaryFindingEngine` and `PrivilegedAccessFindingEngine` need `Actor` nodes; those materialize from **request/intake** (`RequestActorMaterializer`) and knowledge-model stakeholders, **not** from IaC documents. Insight-density scoring still computes a number for every engine finding and then **promotes unconditionally** via `typed-engine-protected`.
 
-**Commercial picture.** The V1 motion is sales-led: a pricing page with real numbers, an order-form template, and a TEST-mode trial funnel. Live commerce un-hold (Stripe live keys, Marketplace `Published`, DNS cutover) is V1.1 owner-only and is not a V1 blocker. What *is* compelling today: audit-ready packaging and repeatability that a chat transcript cannot produce. What is unproven: that any architect voluntarily returns, and that any sponsor pays. Invoice/SOW readiness (**G-COMMERCE-01**) is not done, so even a willing first buyer has no clean path to pay.
+**(B) Procurement / market realism (weight 0 in `(A)`).** Trust posture is honest: SOC 2 self-assessment plus roadmap, CAIQ/SIG/DPA templates, subprocessor register, owner-conducted penetration exercise, published Azure roles ArchLucid will never request, Tier 1 ingestion with no vendor access to a customer cloud. A CPA-issued SOC 2 report and a third-party pen-test summary do not exist — correctly out of `(A)`, still friction for hard-gate buyers. Honest talk-tracks (**M-196**/**M-197**) and the minimum pilot trust packet (**M-190**/**M-191**) are **Done** as content. Live buyer security review has not happened.
 
-**Enterprise picture.** Tenancy, RBAC, SCIM, SAML and OIDC, private endpoints, and audit coverage are at a credible enterprise bar. Hesitation will come from assurance paperwork and from the depth question a technical evaluator will ask in the first 20 minutes: "what did this find that I wouldn't have?"
+**Commercial picture.** Sales-led V1: pricing page, order-form template, TEST-mode trial. Live commerce un-hold is V1.1 owner-only. Compelling today: audit-ready packaging and repeatability a chat transcript cannot produce. Unproven: voluntary return and paid conversion. **G-COMMERCE-01** is not done, so a willing first buyer still has no clean invoice path.
 
-**Engineering picture.** Robust in structure, currently untidy in execution. The contract discipline is real — OpenAPI snapshot gating, architecture invariant tests, configuration key catalogs, DDL discipline, a ship-gate evidence runner. Against that, trunk is red, the golden corpus exercises 6 of 39 engines and 4 of 791 compliance rules, and the InMemory composition root cannot boot for OpenAPI/worker host tests because `IArchitectureIdentityRepository` is unregistered — a whole test-host path is broken and worked around with skips.
+**Enterprise picture.** Tenancy, RBAC, SCIM, SAML and OIDC, private endpoints, and audit coverage are at a credible enterprise bar. ITSM native-create defaults **on** (`Integrations:Itsm:NativeEnabled = true`); Jira/ServiceNow/Confluence OAuth is **Done** (**TB-600**). Hesitation will come from assurance paperwork, from the depth question in the first 20 minutes, and — this week — from a trunk that does not typecheck.
 
-**Frontier-AI picture.** ArchLucid gets *more* valuable as base models improve, because better models produce better findings that flow into the same policy mappings and audit structures at zero engineering cost — but only if the deterministic layer is deep enough that the product is not merely a wrapper around whichever model is current.
+**Engineering picture.** Policy-expectation stamp, declaration prefix-family gating, and coverage-resolver UNION are in tree with unit and golden-sibling tests. Against that: UI `tsconfig.build.json` is red on `master`; CodeQL C# SARIF gate failed on the last completed `master` run and JS analysis did not start because UI install/build failed; full `ci.yml` does not run on `master` push; Alert rules continue-last still calls `.slice` without an array guard; golden corpus still exercises 6 of 39 engines and still constructs `FileComplianceRulePackProvider` directly.
+
+**Frontier-AI picture.** ArchLucid gets *more* valuable as base models improve, because better models produce better findings that flow into the same policy mappings and audit structures at zero engineering cost — but only if the deterministic floor is deep enough that the product is not merely a wrapper around whichever model is current, and only if the workspace actually builds.
 
 ---
 
 ## 6. Deferred Scope Uncertainty
 
-**V1.1:** CloudEvents outbound webhooks and customer-operated recipe bridges; MCP read-only membrane; multi-region active/active; commerce un-hold. Deferral is safe for V1 — the V1 automation contract (REST, CLI, workspace, SCIM, CI decoration, first-party Jira/ServiceNow/Confluence/Slack/Teams) covers pilot needs. Seam needed: none new; the integration-event catalog already exists behind configuration.
+**V1.1:** CloudEvents outbound webhooks and customer-operated recipe bridges; MCP read-only membrane; multi-region active/active; commerce un-hold. Deferral is safe for V1 — the V1 automation contract (REST, CLI, workspace, SCIM, CI decoration, first-party Jira/ServiceNow/Confluence/Slack/Teams) covers pilot needs.
 
 **V2:** third-party pen-test program; SOC 2 CPA; automated tenant-erasure quarantine; Redis-as-default substrate; DTF / Container Apps Jobs. Safe for V1. Erasure has operator purge paths as the interim seam.
 
-**Genuine uncertainty worth naming:** Graph-RAG community summarization stays deferred per ADR 0057 pending pilot signal, and Graph-RAG quality is self-flagged "unproven without a production vector index." This is a *market* uncertainty masquerading as an engineering one — do not build it before **G-REAL-06** says retrieval depth is the limiter.
+**Genuine uncertainty:** Graph-RAG community summarization stays deferred per ADR 0057 pending pilot signal. Do not build it before **G-REAL-06** says retrieval depth is the limiter.
 
 ---
 
@@ -132,119 +138,104 @@ Trunk is currently red — 11 failing tests across `ArchLucid.Core.Tests` (4) an
 
 Ordered by weighted deficiency signal.
 
-### 7.1 Decision-Changing Insight Density — 62 · weight 13 · contribution 8.06 · deficiency 494
+### 7.1 Decision-Changing Insight Density — 66 · weight 13 · contribution 8.58 · deficiency 442
 
-**Justification.** The product's own instrumentation is honest that this pillar is unaddressed. `docs/architecture/INSIGHT_DENSITY_COMPOSER_PROMPTS.md` states the pillar clause "miss" is not covered: existing mechanisms penalize generic phrasing, prune weak Critic prose, and optionally LLM-judge — all **subtractive**. Nothing generates a non-obvious finding.
+**Justification.** `docs/architecture/INSIGHT_DENSITY_COMPOSER_PROMPTS.md` still states the pillar clause **"miss"** is not covered: existing mechanisms penalize generic phrasing, prune weak Critic prose, and optionally LLM-judge — all **subtractive**. A filter raises precision, never density.
 
-Three specific structural limits, each verified in code this pass:
+Verified this pass:
 
-1. **The density gate does not gate engine findings.** In `DeterministicInsightDensityGate.Score`, any candidate where `IsAgentArchitectureFinding` is false adds `typed-engine-protected` and returns `Promote` with `DecisionGradeFinding` unconditionally. The score is computed and discarded. All 39 engines take this path, so `docs/quality/insight-density-engine-distribution.md` (six engines, medians 60–100) is advisory only.
-2. **Frontier baselines are not frontier baselines.** `tests/eval-corpus/insight-density-frontier-delta/README.md` states "these are **not** captured frontier-model transcripts," and the committed JSON carries a `claimBoundary` disclaiming that it is "evidence that ArchLucid beats any named frontier model." Three fixtures; the 100% novelty scenario is an empty baseline by construction.
-3. **The ingestion→finding chain breaks for two major formats.** `BicepInfrastructureDeclarationParser` extracts only `resourceType`, `bicepSymbolicName`, `apiVersion` — no property body. Kubernetes mappers store `k8s.*` metadata only. `DeclarationSecurityBaselineClassifier` reads `tf.*` and ARM scalars exclusively. Net effect: Bicep and Kubernetes inputs yield topology nodes and near-zero declaration-security findings, silently (parse gaps log a warning and return an empty list).
+1. **The density gate still does not gate engine findings.** `DeterministicInsightDensityGate.Score` returns `Promote` / `DecisionGradeFinding` whenever `IsAgentArchitectureFinding` is false, after adding `typed-engine-protected`. The score is computed and discarded. All **39** engines take this path. `docs/quality/insight-density-engine-distribution.md` labels itself advisory-only.
+2. **Frontier baselines are still not frontier baselines.** `tests/eval-corpus/insight-density-frontier-delta/README.md` states they are **not** captured frontier-model transcripts.
+3. **Bicep/Kubernetes silent-empty is no longer true.** `BicepResourceBodyParser` exists; Kubernetes security spec projection exists; declaration classifiers consume those keys.
+4. **Policy extras can add a missing-identity coverage finding** when stamped. That is still a coverage-shaped finding, not a judgment a skilled architect would miss.
 
-Engine depth compounds this. The 25 graph-pure engines are dominated by coverage/gap/traceability checks over graph shape. Absent entirely: resilience and DR (no RPO/RTO engine), IAM depth, secrets and key lifecycle, network segmentation semantics beyond edge presence, observability, capacity. `TrustBoundaryFindingEngine` and `PrivilegedAccessFindingEngine` require `Actor` nodes that no ingestion path materializes from documents.
+Engine depth still compounds the pillar. Graph-pure engines are dominated by coverage/gap/traceability over graph shape. Absent: dedicated RPO/RTO, IAM depth, secrets/key lifecycle, segmentation *semantics*, observability, capacity. Actor-dependent engines fire from **intake**, not from IaC-only uploads.
 
-**Credit where due.** Three genuinely non-obvious sources exist: policy-filtered compliance (the tenant's enabled subset of 791+ rules), `OpenCommitmentFindingEngine` (overdue deferrals, unanswered evidence requests, expiring waivers from the governance trail — invisible to any single chat session), and `DeclarationPremiseConflictFindingEngine` (stated intent contradicting declared infrastructure). These are the seeds of real decision advantage.
+**Credit.** Policy-filtered compliance; declaration gating; open-commitment; premise-conflict; optional coverage extras.
 
-**Tradeoffs.** Typed-engine protection was a reasonable choice — it prevents a heuristic from suppressing deterministic output. But it means density is unmeasured where most findings originate.
+**Tradeoffs.** Typed-engine protection prevents a heuristic from suppressing deterministic output. It also means density is unmeasured where most findings originate.
 
-**Recommendations.** Make Bicep and Kubernetes populate the properties the declaration engines consume; build one genuinely generative engine in a category architects argue about (resilience or segmentation semantics); stop treating the frontier-delta harness as evidence until it runs against real transcripts.
+**Recommendations.** Repair the UI compile first. Do not add more coverage-shaped engines. Capture real frontier transcripts after a real architecture exists. Owner-decide whether engine findings should ever demote. One deep judgment engine only after **G-REAL-06** names the category.
 
-**Classification:** V1 engineering (ingestion chain, one deep engine) + market validation (novelty measurement). **Affects outcomes 1, 3, 5.**
+**Classification:** V1 residual (measurement honesty) + market validation. **Affects outcomes 1, 3, 5.**
 
-### 7.2 Correctness & Evidence Integrity — 74 · weight 12 · contribution 8.88 · deficiency 312
+### 7.2 Time-to-Value — 70 · weight 10 · contribution 7.00 · deficiency 300
 
-**Justification.** The evidence-integrity mechanisms are among the strongest things in the repo: `AgentArchitectureFindingEmissionGate` refuses decision-grade agent findings with neither a `PolicyRuleId` nor an `EvidenceRefs` entry; `CitationIntegrityEvaluator` scores a committed run against bundled rules; `FindingPayloadValidator` enforces typed payload shape; the citation contract requires cost lines to cite the extractor `manifest.json` `collectionTimestamp` and schema version. `ArchLucid.Decisioning.Tests` is fully green at 808 tests.
+**Justification.** The designed pilot path is short: configure, start, create review, execute, finalize, review package. Guided intake, reference-architecture exemplars, sample/demo runs, and `stack doctor` reduce first-run friction.
 
-The deduction is empirical and fresh: **12 tests fail on `master` right now**, and the count rose from 11 to 12 during this pass as new commits landed — trunk is not merely red, it is drifting. In `ArchLucid.Core.Tests` (4): a ServiceBus app-property/operator-documentation guard, and three `CorePackageCoverageBatchRc27Tests` failures around legacy vendor alias resolution and a governance-promotion webhook schema sample. In `ArchLucid.Application.Tests` (8): three E2E comparison export formatter assertions, `CommitPathRedundantLoadContractTests` (commit orchestrator preloaded-governance contract), `BaselineMutationAuditDualWritePairingTests` (audit dual-write pairing guard), `TechnologyLedgerTopologyProposalSeederTests`, `KnowledgeModelClarificationAnswerApplicatorTests`, and `ReviewResultCacheSingleFlightTests` (leader-abort retry inside an aggregate exception). Three of these — the audit pairing guard, the commit-path contract, and the single-flight cache retry — are precisely the class of guard whose failure matters for evidence integrity and correctness under concurrency.
+This pass's deduction is the **compile FAIL**: a deployed first screen is undefined until `tsconfig.build.json` is green. Remaining: first-review live E2E was not run here (gate 1 UNKNOWN); extractor-based cost/inventory still needs customer credentials for Tier 2; Simulator default means the first "wow" may be canned.
 
-The upward drift is the more important signal than the absolute number. Multiple agents are merging to trunk without a green gate, which means the failure set is a moving target and any proof packet captured today is captured against an unknown baseline.
+**Classification:** V1 residual + validation. **Affects outcomes 1, 3.**
 
-Second deduction: the citation probe's own text concedes that **semantic** hallucination audit remains manual. The guards prove a citation *exists*, not that it supports the claim.
+### 7.3 Correctness & Evidence Integrity — 76 · weight 12 · contribution 9.12 · deficiency 288
 
-**Tradeoffs.** Presence-based citation checking is cheap, deterministic, and CI-safe; semantic verification would require a judge pass and cost.
+**Justification.** Citation and payload machinery is strong: emission gate, citation evaluator, typed payloads, extractor `collectionTimestamp` citation contract. Policy-expectation parser/stamp/resolver tests passed this session; cost-engine tests passed.
 
-**Recommendations.** Restore green trunk before any pilot or demo. Then decide whether semantic citation verification is worth a Premium judge pass on a sampled basis.
+Deductions: production UI typecheck FAIL; citation probes prove a citation *exists*, not that it supports the claim; Alert rules continue-last still assumes an array; last completed CodeQL C# SARIF gate failed; JS CodeQL did not analyze because UI build failed.
 
 **Classification:** V1. **Affects outcomes 1, 2, 4.**
 
-### 7.3 Differentiability / Defensibility vs Frontier AI — 76 · weight 13 · contribution 9.88 · deficiency 312
+### 7.4 Runtime & First-Review Reliability — 62 · weight 7 · contribution 4.34 · deficiency 266
 
-**Justification — rubric level: High, approaching Excellent on the compliance path.** This is where a surface reading of the codebase undersells the product, and it deserves precision.
+**Justification.** Health endpoints, correlation IDs, outbox/DLQ, idempotency, run-execute leases, budget cutoffs, Redis auto-selection, `ShipGateEvidenceRunner` exist. `InMemoryArchitectureIdentityRepository` is registered on the InMemory composition path. **TB-882** nav-authority guard is **Done**.
 
-`PolicyFilteredComplianceRulePackProvider` loads the full file-backed rule universe, resolves the *effective governance document* for the ambient tenant/workspace/project scope, merges tenant-authored curated rules via `TenantCuratedComplianceRulePackMerger`, then applies `ComplianceRulePackGovernanceFilter` so **only rules the tenant's policy packs reference and enable survive**, subject to a priority floor. Both the merger and the filter have unit tests. Concretely: changing a policy pack changes which of 791+ rules evaluate, which changes findings, which changes severity counts, which changes the pre-finalize gate outcome, sponsor ROI basis, and the audit record. That is the rubric's "Excellent" definition, and it is not reproducible by prompting — it requires persistent, versioned, per-scope tenant state.
-
-Around it: 45 bundled packs, versioned rule sets with scope assignments, a dry-run delta surface showing what a policy change would do before publishing, approval workflow with separation of duties and SLA escalation, disposition-aware ROI partitioning, stable `FindingId` correlation into Jira/ServiceNow, and an append-only typed audit catalog.
-
-**The deduction is narrowness, not absence.** Exactly one of 39 engines is policy-filtered. The other 38 — including everything structural, declaration-based, and cross-run — run identically regardless of the tenant's policy posture. So the moat is real but thin: it is a *compliance rule-set* moat, not a *review* moat. A buyer probing "does my standard change what this finds" gets an impressive answer for compliance and a much weaker one everywhere else.
-
-**Tradeoffs.** Filtering compliance rules by governance is cheap and semantically clean because rules are already declarative. Extending policy awareness to structural engines needs a policy vocabulary those engines can consume — real design work, not a config flag.
-
-**Recommendations.** Extend policy awareness to at least the security-baseline and declaration engines so the moat covers the findings buyers care about most. Build the demo moment where toggling one pack visibly changes findings, severity, gate outcome, and audit trail in one screen.
-
-**Classification:** V1.1 engineering. **Affects outcomes 1, 2, 5.**
-
-### 7.4 Time-to-Value — 70 · weight 10 · contribution 7.00 · deficiency 300
-
-**Justification.** The pilot path is genuinely short and documented: configure, start, create review (wizard or CLI), execute, finalize, review package — six steps, nothing beyond step 6 required to call a pilot successful. Guided intake, ten indexed reference-architecture exemplars, sample/demo runs, and a `stack doctor` readiness router all reduce first-run friction.
-
-Deductions: the Bicep/Kubernetes ingestion gap (§7.1) means a large share of Azure-native evaluators reach a *credible-looking but thin* first review, which is worse for time-to-value than an obvious failure because it is not visibly wrong. Extractor-based evidence requires credential setup before cost and inventory findings appear. And the open UI backlog is large, with owner screenshot scores in the 40–55/100 range on many affected routes, so the path is functional but not yet frictionless.
-
-**Recommendations.** Close the Bicep/Kubernetes property gap — it is the single highest-leverage time-to-value fix because it changes what a new evaluator sees in the first ten minutes.
-
-**Classification:** V1. **Affects outcomes 1, 3.**
-
-### 7.5 AI / Agent Readiness — 73 · weight 10 · contribution 7.30 · deficiency 270
-
-**Justification.** Operationally mature: clean real/simulator separation, `AuthorityRunOrchestrator` in the Application layer, `AgentResult` JSON schema validation with parse-time enforcement, quality-gate modes (`WarnOnly` / `PilotStrict`) with tenant override, tier escalation on retry, LLM budget reservation and monthly caps, prompt-cache prefix alignment, OTel counters on judge completions and cap skips, per-snapshot judge ceilings, and — as of this cycle — tenant-administrator control over judge and portfolio-recurrence engines with host-default fallback and audit events.
-
-Deductions: default host mode is Simulator with canned agent output; `EnableLlmJudge` and `EnableLlmJudgeForEngineFindings` default false, so `WhyThisIsNotGeneric`, `PrincipalArchitectValue`, and `DecisionConsequence` are null on engine findings out of the box; Graph-RAG is bounded multi-hop with community summarization deferred and quality self-flagged unproven without a production vector index; iterative retrieve-critique-retry ships default off; the eval corpus is explicitly synthetic (49 scenarios, 44 hand-authored expected finding lists, 28 agent-result exemplars) and the nightly real-mode loop is offline exemplar scoring, not a live model tripwire.
-
-**Recommendations.** Nothing new to build here before pilots. The gap is evidence, not mechanism.
-
-**Classification:** V1 mechanism complete; validation required. **Affects outcomes 1, 5.**
-
-### 7.6 Governed Review Integrity — 80 · weight 13 · contribution 10.40 · deficiency 260
-
-**Justification.** The policy→evidence→finding→decision→audit chain is materially complete. Sealed golden manifests with an authority chain as the run of record; authority replay re-validating that chain with drift flags; append-only typed audit events (398 event-type constants in `AuditEventTypes.*`, well beyond the 78 the scope doc still claims) with CSV export; approval workflow with self-approval blocked, SLA tracking, and webhook escalation; pre-finalize gate blocking on severity thresholds; policy dry-run with redacted proposed-threshold audit payloads; disposition trail feeding both ROI basis and the open-commitment engine; ITSM correlation rows preserving stable `FindingId` across ticket lifecycle.
-
-Deductions: the golden corpus constructs `FileComplianceRulePackProvider` directly, **bypassing the policy filter that is the core of the governance claim** — so the most differentiating behavior in the product has unit tests but no system-level regression coverage. The dual finding model also splits the chain: the sealed `FindingsSnapshot` carries engine findings while `AgentResult.Findings` carries the agent stream that buyer-facing exports often lead with, and only the former is inside the sealed record.
-
-**Recommendations.** Add a golden-corpus case that exercises the policy-filtered provider with two different governance documents and asserts different findings. That single test converts the moat from "believed" to "guarded."
-
-**Classification:** V1. **Affects outcomes 2, 4, 5.**
-
-### 7.7 Proof-of-ROI Readiness — 72 · weight 9 · contribution 6.48 · deficiency 252
-
-**Justification.** The layered model is well designed and honestly labeled: latest-committed-run-per-system selection, dedup by stable `FindingId`, tenant-rate and EA-discount adjusted per-finding savings, a disposition-aware portfolio headline that partitions waived/accepted/deferred/realized/rejected, explicit `headlineSavingsScopeCode` so multi-tenant and single-tenant totals cannot be conflated, a 30-day value-report window kept deliberately separate, and a board-pack export that delegates to the same service so it is identical by construction. The documented, intentional non-summation of per-system rows to the headline is the kind of honesty that survives a CFO reading it.
-
-Deductions: AWS and GCP cost findings lack structured retail-price grounding (**TB-603**) and fall back to illustrative framing; GCP live catalog requires an API key with heuristic fallback when absent; and there are zero real pilot deltas, so every savings figure is model- or fixture-derived.
-
-**Classification:** V1 residual + validation required. **Affects outcomes 3, 4.**
-
-### 7.8 Runtime & First-Review Reliability — 76 · weight 7 · contribution 5.32 · deficiency 168
-
-**Justification.** Solid runtime posture: live/ready/health endpoints, `/version` attribution, correlation IDs, outbox with DLQ, idempotency records, run-execute ownership leases with reconciliation, stale in-flight run and missing-request remediators, budget cutoffs, hot-path cache with Redis auto-selection above one replica, Core Web Vitals field telemetry, First Load JS regression gating, and the `ShipGateEvidenceRunner` itself as an operational readiness instrument.
-
-Deductions: the InMemory composition root **cannot boot** — `OpenApiContractSnapshotTests` fails DI validation because `IArchitectureIdentityRepository` is registered only on the SQL path, and `WorkerHostStartupTests` carries explicit skips citing the same cause. A composition root that cannot start under its own test host is a latent reliability gap and it currently blocks OpenAPI contract regeneration. Gates 1 and 5 are unverified in this environment.
-
-**Recommendations.** Register an InMemory `IArchitectureIdentityRepository` so the InMemory host boots and the OpenAPI snapshot gate is usable again.
+Deductions dominate this pass: Gate 5 FAIL on production typecheck; CodeQL on `master` last-completed **failure**; `ci.yml` full matrix is **not** a `master` push check; gate 1 live first-review UNKNOWN; Alert rules client crash is a real Operate-route defect.
 
 **Classification:** V1. **Affects outcomes 2, 3.**
 
-### 7.9 Sponsor / Operator Comprehension — 80 · weight 8 · contribution 6.40 · deficiency 160
+### 7.5 AI / Agent Readiness — 74 · weight 10 · contribution 7.40 · deficiency 260
 
-**Justification.** Disciplined design system work: Carbon-derived tokens, neutral operator surfaces, `StatusTag`/`SeverityTag` with canonical vocabulary, enterprise tables, compact spacing scale, an operator typography scale, technical detail behind disclosure, in-app `/help/{topic}` routing rather than GitHub blobs, insight-density curation banner explaining suppression versus retention, and buyer-label vocabulary separating strict from warn-only quality modes.
+**Justification.** Operationally mature: real/simulator separation, Application-layer orchestration, `AgentResult` schema validation, `WarnOnly` / `PilotStrict` quality-gate modes, LLM budget reservation and monthly caps, prompt-cache prefix, per-snapshot judge ceilings, tenant overrides for judge and portfolio-recurrence.
 
-Deductions: the open UI backlog is large with many routes owner-scored 40–55/100; the dual finding model risks a sponsor seeing two differently-derived finding counts; and the recurring "UI/API/nav says one thing, enforced authority says another" defect class has been closed manually 17 times with the automated guard (**TB-882**) still held.
+Deductions: default host mode is Simulator (`ArchLucid.Api/appsettings.json`); `EnableLlmJudge` and `EnableLlmJudgeForEngineFindings` **default false**; Graph-RAG bounded multi-hop with community summarization deferred; eval corpus is synthetic; nightly real-mode loop is not a live tripwire executed this pass.
 
-**Classification:** V1 polish. **Affects outcomes 2, 4.**
+**Recommendations.** Nothing new to build before pilots except restoring the UI compile. The gap is evidence, not mechanism.
 
-### 7.10 Adoption Friction — 86 · weight 5 · contribution 4.30 · deficiency 70
+**Classification:** V1 mechanism complete; validation required. **Affects outcomes 1, 5.**
 
-**Justification.** Broad configuration surface with sane defaults: development bypass, JWT bearer against any OIDC issuer, native SAML 2.0 SP, API keys, SCIM 2.0 inbound with group→role mapping, RBAC across four roles, database-per-tenant provisioning, docker compose profiles, Terraform modules including Entra and Key Vault with same-apply RBAC, private endpoints and WAF, no SMB/445 exposure, `Integrations:Itsm:NativeEnabled` defaulting true, and CLI `doctor` / `support-bundle` for diagnostics.
+### 7.6 Sponsor / Operator Comprehension — 70 · weight 8 · contribution 5.60 · deficiency 240
 
-Deductions: Tier 2 extractor paths need customer-provisioned credentials before inventory and cost value appears; connector authentication is still basic-auth/API-token MVP with OAuth as tightening backlog (**TB-600**).
+**Justification.** Design-system work is real: Carbon-derived tokens, `StatusTag`/`SeverityTag`, enterprise tables, in-app `/help/{topic}`, insight-density curation banner, buyer-label vocabulary.
+
+This pass: Operate help catch-all does not compile, so help dispatch is a live break. Alert rules continue-last still throws if `rules` is not an array. Dual finding counts (sealed snapshot vs agent stream) can confuse a sponsor.
+
+**Classification:** V1. **Affects outcomes 2, 4.**
+
+### 7.7 Differentiability / Defensibility vs Frontier AI — 82 · weight 13 · contribution 10.66 · deficiency 234
+
+**Justification — rubric level: High, approaching Excellent on compliance and declaration; High-but-opt-in on coverage/cost.**
+
+Changing a policy pack changes which of 791+ rules evaluate (`PolicyFilteredGoldenCorpusTests`). Declaration-security and premise-conflict honor mapped keys and prefix families (`PolicyFilteredDeclarationGoldenCorpusTests`). Coverage resolvers UNION stamped extras (`PolicyExpectationCoverageGoldenCorpusTests`). Cost engines honor require-cap and breach-severity stamps. Prompting cannot hold that chain.
+
+**The remaining deduction is default content, not missing mechanism.** Bundled pack JSON this pass sets `priorityFloor` only. Assigning SOC 2 or CIS Azure as-shipped gates compliance + declaration; it does **not** automatically stamp `identity` or `cost.requireBudgetCap` unless a tenant overlay writes those `advisoryDefaults` keys. Open-commitment, portfolio-recurrence, and `*-cross-run-diff` stay pack-independent by design. Inventory/orphaned engines stay pack-inert.
+
+That is **not** “one engine of 39.” It is also **not** “all 39 engines are policy-aware.” Count of engines that *can* consume pack state when keys/stamps are present: compliance, two declaration engines, the coverage-family consumers of the three resolvers, and two cost engines — a minority of 39, concentrated where buyers argue about standards, gaps, and budget.
+
+**Recommendations.** One-screen policy-toggle demo (compliance + declaration + optional overlay extras). Optionally seed FinOps / CIS overlays with documented `advisoryDefaults` examples — do not invent OpenAPI fields.
+
+**Classification:** V1 mechanism complete for three influence kinds; content/demo residual. **Affects outcomes 1, 2, 5.**
+
+### 7.8 Proof-of-ROI Readiness — 76 · weight 9 · contribution 6.84 · deficiency 216
+
+**Justification.** Layered, honestly labeled ROI: latest-committed-run-per-system, `FindingId` dedup, tenant-rate/EA-discount math, disposition-aware headline, `headlineSavingsScopeCode`, 30-day value-report kept separate, board-pack identical by construction. **TB-603 is Done** — AWS/GCP structured retail-price lookups exist with heuristic fallback.
+
+Deduction: zero real pilot deltas, so every savings figure is model- or fixture-derived.
+
+**Classification:** V1 residual + validation required. **Affects outcomes 3, 4.**
+
+### 7.9 Governed Review Integrity — 85 · weight 13 · contribution 11.05 · deficiency 195
+
+**Justification.** Policy→evidence→finding→decision→audit is materially complete and now has **three** pack-influence kinds. Sealed golden manifests; authority replay; 398 typed audit event constants; SoD approvals; pre-finalize gate; policy dry-run; disposition trail feeding ROI and open-commitment; ITSM `FindingId` correlation. Orchestrator fail-open on governance loader exceptions is documented.
+
+Deductions: `GoldenCorpusHarness.CreateEngines()` still constructs `FileComplianceRulePackProvider` and does not inject `IEffectiveGovernanceLoader`, so the six-engine merge-blocking harness path does not stamp extras. Dual finding model: sealed `FindingsSnapshot` vs `AgentResult.Findings` often leading buyer-facing exports.
+
+**Classification:** V1. **Affects outcomes 2, 4, 5.**
+
+### 7.10 Adoption Friction — 84 · weight 5 · contribution 4.20 · deficiency 80
+
+**Justification.** Broad configuration surface: OIDC, SAML SP, API keys, SCIM, four RBAC roles, database-per-tenant, docker compose, Terraform including Entra/Key Vault, private endpoints/WAF, `Integrations:Itsm:NativeEnabled` default **true** (**TB-599** Done), Jira/ServiceNow/Confluence OAuth (**TB-600** Done), CLI `doctor` / `support-bundle`.
+
+Deductions: UI currently does not typecheck, so local first-run of the architect workspace is blocked until Gate 5 is repaired; Tier 2 extractor still needs customer-provisioned credentials.
 
 **Classification:** V1 residual. **Affects outcomes 2, 3.**
 
@@ -252,16 +243,16 @@ Deductions: Tier 2 extractor paths need customer-provisioned credentials before 
 
 ## 8. Top 10 Weaknesses
 
-1. **Deterministic substance is checklist-depth while the promise is judgment-depth.** The categories a principal architect argues about have no engines. Design uncertainty, reducible by building. **Not a V1 blocker** for the contract as written, but it is the binding constraint on outcomes 1 and 5. Fastest path: one deep engine in resilience or segmentation semantics.
-2. **Red and drifting trunk — 12 failing tests on `master`, up from 11 during this pass.** Design uncertainty, trivially reducible per-test, but the drift indicates a missing merge gate rather than a one-off regression. **V1 blocker** and a ship-gate FAIL. Fastest path: reconcile the three export formatter assertions with commit `3ebf8a7c78`, fix the remaining nine, then make the three suites a required check so the count cannot climb again.
-3. **Bicep and Kubernetes inputs produce near-zero declaration-security findings.** Parsers do not populate what the classifiers read, and the failure is silent. Design uncertainty. **V1 blocker in practice** for Azure-native evaluators. Fastest path: extend property extraction to Bicep resource bodies and K8s spec fields.
-4. **Insight-density measurement is pointed at synthetic data and gates nothing.** Typed-engine protection discards the score for all 39 engines; frontier baselines are self-declared non-transcripts. Mixed design/market uncertainty. Not a V1 blocker. Fastest path: capture real frontier transcripts for the corpus before treating novelty numbers as evidence.
-5. **Zero completed real-mode pilots (G-REAL-06).** Purely market uncertainty — no amount of building reduces it. Not a V1 blocker; it is the blocker on every commercial diagnostic in §3.
-6. **Golden corpus covers 6 of 39 engines and 4 of 791 compliance rules, and bypasses the policy filter.** The merge gate protects roughly a sixth of the engine surface and none of the differentiating governance path. Design uncertainty. Fastest path: one policy-filtered corpus case plus coverage for the declaration and cross-run engines.
-7. **The policy-aware moat covers one engine of 39.** Differentiation is a compliance rule-set moat, not a review moat. Design uncertainty. Fastest path: policy vocabulary for security-baseline and declaration engines.
-8. **Dual finding model splits substance between sealed and unsealed streams.** The auditable stream is the shallow one; the impressive stream is LLM-dependent and defaults to Simulator. Design uncertainty. Fastest path: decide which stream is the product of record and make exports lead with it.
-9. **InMemory composition root cannot boot**, blocking OpenAPI contract regeneration and worker host tests. Design uncertainty, small fix. Fastest path: register an InMemory `IArchitectureIdentityRepository`.
-10. **UI/authority drift is a defect class without a guard.** 17 manual closures, **TB-882** held. Design uncertainty. It will recur until automated.
+1. **Insight density is still subtractive.** The gate, pruner, and optional LLM judge discard generic output; nothing generates a finding a skilled architect would miss. Design uncertainty. **Not a V1 contract blocker**; it is the binding constraint on outcomes 1 and 5. Fastest path: stop adding coverage engines; run **G-REAL-06**; then one deep engine in the category the pilot actually argued about.
+2. **UI production typecheck FAIL (Gate 5).** Truncated JSX in `help-topic-view-resolver-operate.tsx` on `master`. Design/process uncertainty. **This is a V1 ship-gate FAIL.** Fastest path: restore the catch-all `HelpTopicMarkdownView` return; `tsc -p tsconfig.build.json` exit 0.
+3. **Zero completed real-mode pilots (G-REAL-06).** Pure market uncertainty. Not a V1 engineering blocker once Gate 5 is green; it is the blocker on every commercial diagnostic in §3. Fastest path: owner-executed three-run protocol.
+4. **Bundled packs do not encode expectation extras.** Mechanism exists; default content still `priorityFloor` only. Design uncertainty. Fastest path: one overlay example (FinOps `cost.requireBudgetCap` and/or CIS `expectation.topologyCategories.add=identity`) plus the policy-toggle demo.
+5. **CodeQL on `master` is red or un-run.** Last completed run failed C# SARIF; JS job failed UI build. Subsequent pushes cancelled the analysis. Process/security uncertainty. Fastest path: fix UI compile so JS analysis can start; then structural SARIF fixes or suppressions that populate `suppressions`.
+6. **Golden corpus still covers 6 of 39 engines.** Merge-blocking harness path does not include declaration, open-commitment, or production governance stamp. Design uncertainty. Fastest path: add declaration engines to the harness incrementally; do not expand rule count.
+7. **Alert rules client crash.** `resolveContinueLastAlertRule` calls `.slice` with no array guard. Design uncertainty. Not first-review blocking. Fastest path: null/shape-guard the helper.
+8. **Full CI does not run on `master` push.** `ci.yml` is PR + `workflow_dispatch`. Typecheck can regress on direct pushes until the next PR — this pass is the exhibit. Process uncertainty.
+9. **Actor-dependent engines stay silent on IaC-only reviews.** `RequestActorMaterializer` covers guided intake; Bicep/Helm dumps do not create `Actor` nodes. Design uncertainty. Fastest path: document the intake requirement in first-review UX.
+10. **Dual finding model + Simulator default.** Sealed engine snapshot vs agent stream that buyer exports often lead with. Simulator default plus judge-off means the impressive stream is canned. Design uncertainty. Fastest path: founder decision which stream is the product of record.
 
 ---
 
@@ -271,116 +262,120 @@ Deductions: Tier 2 extractor paths need customer-provisioned credentials before 
 
 | Capability | 12-month outlook | Reason / evidence |
 |---|---|---|
-| Generic architecture critique prose | **Commodity now** | Any frontier model produces comparable output from a good prompt; `GenericArchitectureAdvicePatterns` exists precisely to detect and penalize it |
-| Graph coverage / structure checks | **Commodity within 12 months** | A model with a file-tree tool can enumerate missing pillars; the check is shape, not judgment |
-| Declaration property extraction | **Commodity** | Models parse Terraform and ARM well already |
-| **Tenant-specific enabled rule set driving evaluation** | **Durable** | `PolicyFilteredComplianceRulePackProvider` requires persistent, versioned, per-scope state; prompting cannot hold it across sessions or architects |
-| **Sealed manifest + authority chain + replay validation** | **Durable** | Cryptographic run-of-record with drift detection is infrastructure, not inference |
-| **Append-only typed audit reconstruction** | **Durable, more valuable over time** | Value compounds with history; a chat session has no audit surface |
-| **Cross-run and portfolio state** (open-commitment, portfolio recurrence, cross-run diff) | **Durable** | Requires tenant history no session can see |
-| **Approval workflow with separation of duties** | **Durable** | Organizational process, not model capability |
-| ROI disposition-aware basis | **Durable-ish** | The math is simple; the *disposition state* it partitions on is persistent product state |
-| Retrieval depth (Graph-RAG) | **Commodity within 12 months** | Long-context and native retrieval erode bounded multi-hop advantage |
+| Generic architecture critique prose | **Commodity now** | Any frontier model produces comparable output from a good prompt |
+| Graph coverage / structure checks | **Commodity within 12 months** | Shape checks, not judgment — even when a pack adds an extra expected category |
+| Declaration property extraction | **Commodity** | Models parse Terraform/ARM/Bicep well; ArchLucid's parsers feed classifiers (packaging) |
+| **Tenant-specific enabled rule set** | **Durable** | Persistent, versioned, per-scope state |
+| **Declaration signal gating from that rule set** | **Durable-ish** | Same persistent state, now consumed by two more engines |
+| **Expectation extras in `advisoryDefaults`** | **Durable if used** | Mechanism is product state; unused keys are decoration |
+| **Sealed manifest + authority chain + replay** | **Durable** | Infrastructure, not inference |
+| **Append-only typed audit reconstruction** | **Durable, more valuable over time** | Compounds with history |
+| **Cross-run / portfolio state** | **Durable** | Open-commitment, portfolio recurrence, cross-run diff — pack-independent on purpose |
+| **Approval workflow with SoD** | **Durable** | Organizational process |
+| ROI disposition-aware basis | **Durable-ish** | Math is simple; disposition state is product state |
+| Retrieval depth (Graph-RAG) | **Commodity within 12 months** | Long-context erodes bounded multi-hop |
 
 ### What resists prompting
 
-Persistent policy state, evidence→finding→policy→decision→audit traceability, repeatability across different architects, role separation between sponsor and operator, disposition lifecycle, and remediation correlation into ITSM. None of these are model capabilities. What does **not** resist prompting: the analytical content of most current findings.
+Persistent policy state, evidence→finding→policy→decision→audit traceability, repeatability across architects, sponsor/operator role separation, disposition lifecycle, ITSM correlation. **Does not resist prompting:** analytical content of most current findings.
 
 ### Leverage / upside — the first-class bet
 
-This is the strongest strategic argument available and it is currently under-exploited. Every base-model improvement flows through unchanged plumbing: a better model produces better agent findings, which map onto the same policy packs, land in the same sealed manifests, accrue the same audit trail, and feed the same ROI partitioning — at zero ArchLucid engineering cost. ArchLucid is structurally *long* frontier AI. The bet only pays if the deterministic floor is high enough that customers do not conclude the wrapper is all there is. Today the floor is checklist-height, which converts a leveraged bet into a dependency.
+Every base-model improvement flows through unchanged plumbing: better agent findings → same policy packs → same sealed manifests → same audit trail → same ROI partitioning, at ~zero ArchLucid engineering cost. The bet only pays if the deterministic floor is high enough that customers do not conclude the wrapper is all there is.
 
 ### Displacement timeline
 
-One model release away from commoditization: generic critique quality, retrieval depth, declaration parsing, and structural coverage. Multiple releases away, or never, purely from model progress: policy state, audit reconstruction, approval workflow, disposition lifecycle, portfolio history.
+One model release away: generic critique, retrieval depth, declaration parsing, structural coverage. Multiple releases / never from model progress alone: policy state, audit reconstruction, approval workflow, disposition lifecycle, portfolio history.
 
 Survival probability is in §3.
 
 ### Final verdict
 
-**Not yet, but the trajectory is winnable.** ArchLucid is becoming more valuable roughly in step with frontier AI, not faster, because the durable half of the product — governance infrastructure — is largely built and improving slowly, while the commodity half — analytical content — is where the remaining effort is going and where models improve fastest. The way to get ahead of the curve is counterintuitive: invest in the *deterministic* floor (deeper engines, wider policy awareness, real ingestion fidelity) rather than in better prompting, because the deterministic floor is the part frontier AI does not erode.
+**Not yet faster than frontier AI.** The container is the bet; the UI currently does not compile, so the bet cannot even be demoed. Invest in restoring the build, then in the *deterministic* floor and **real pilots**, not in more prompting or more coverage engines.
 
 ---
 
 ## 10. Policy-Aware Governance Test
 
-1. **Are policy packs first-class objects whose content drives behavior, or effectively inert?** **They drive behavior, for compliance.** `ComplianceRulePackGovernanceFilter` intersects the rule universe with the tenant's enabled rule IDs/keys and applies a priority floor; `TenantCuratedComplianceRulePackMerger` folds in tenant-authored rules. Verified in code and unit tests. For the other 38 engines, packs are effectively inert.
-2. **Can each major finding trace input → evidence → policy → recommendation → decision → audit?** For compliance and engine findings: yes — `EvidenceRefs`, `PolicyRuleId`, typed payload, disposition trail, audit events. For agent findings: only those surviving `AgentArchitectureFindingEmissionGate`, which is the point of the gate.
-3. **Would a skilled architect using frontier AI reproduce this consistently without ArchLucid?** No for the governed package, repeatability, and audit reconstruction. Largely yes for the analytical content of most findings.
-4. **What is merely AI-generated analysis vs governed infrastructure?** AI-generated: agent architecture findings, cost narratives, comparison explanations. Governed infrastructure: policy filtering, sealed manifests, authority replay, audit catalog, approval workflow, disposition lifecycle, ITSM correlation.
-5. **What evidence would prove the moat is real?** A single demonstration where two tenants with identical architecture and different policy packs receive materially different findings, severities, gate outcomes, and sponsor totals — captured as an artifact. The mechanism exists; the artifact does not.
-6. **Fastest validation path that policy-aware review changes customer decisions?** In **G-REAL-06**, run one pilot architecture twice under two governance postures and ask the architect which output they would act on.
-7. **What V1 behavior would make the moat obvious in a demo?** Toggle one policy pack and show findings, severity counts, pre-finalize gate verdict, and audit entry all change on one screen. This is buildable now and is the single highest-leverage demo asset.
+1. **Do policy packs drive behavior?** **Yes, for three kinds.** Rule-set selection (`compliance`). Signal gating (`declaration-security-baseline`, `declaration-premise-conflict`). Expectation parameterization / cost thresholds **when** `advisoryDefaults` extras are present and stamped. Bundled defaults today drive the first two (via `complianceRuleKeys` + `priorityFloor`), not the third. For open-commitment, portfolio-recurrence, and cross-run diffs, packs are inert by design.
+2. **Can each major finding trace the chain?** Engine/compliance: yes when `EvidenceRefs` / `PolicyRuleId` / disposition / audit are populated. Agent: only those surviving the emission gate.
+3. **Would a skilled architect reproduce this without ArchLucid?** No for the governed package, repeatability, and audit reconstruction. Largely yes for analytical content.
+4. **AI-generated vs governed infrastructure?** AI: agent findings, cost narratives, comparison explanations. Governed: policy filtering, graph stamp, sealed manifests, replay, audit, approvals, disposition, ITSM correlation.
+5. **What would prove the moat?** Two tenants, identical architecture, different packs **including an overlay extra**, materially different findings/severities/gate/sponsor totals — captured as an artifact. Mechanism exists; buyer-facing artifact does not.
+6. **Fastest validation?** In **G-REAL-06**, run one architecture twice under two governance postures (and once with an expectation overlay).
+7. **Demo that makes the moat obvious?** Toggle one pack; show findings, severity, pre-finalize verdict, and audit entry change on one screen. Optionally show an overlay that adds Identity to missing categories.
 
 ---
 
 ## 11. Principal Architect Dismissal Test
 
-**What makes them say "I need this":** the sealed, replayable review record with an audit trail they can hand to a governance board; the disposition lifecycle that survives across reviews; overdue-commitment and expiring-waiver findings that no chat session can produce; ticket correlation that closes the loop into Jira.
+**"I need this":** sealed, replayable review record; disposition lifecycle; overdue-commitment and expiring-waiver findings; Jira/ServiceNow correlation; a pack change that actually changes the review.
 
-**What makes them voluntarily return:** portfolio-level state — "the same finding recurs across seven systems," "these three waivers expire this quarter." Cross-run memory is the retention mechanism, not critique quality.
+**Voluntary return:** portfolio-level state — recurrence across systems, waivers expiring this quarter. Cross-run memory is the retention mechanism, not critique quality.
 
-**What causes immediate dismissal:** pasting their Bicep or Helm charts and getting topology nodes with no security findings. This is the most likely dismissal trigger and I would put it at **55–70%** for an Azure-native or Kubernetes-first architect today, calibrated against the verified gap between what the parsers extract and what the classifiers read. Second trigger: reading a findings list and recognizing every item as something they already knew — likelier than not given engine depth.
+**Immediate dismissal:** recognizing every finding as already-known (still the most likely trigger, **45–60%** on a first IaC-only review). Second trigger: Simulator-labeled canned output presented as Real. Third: a help page or typecheck failure if they wander off first-review. Fourth: being told "policy packs drive the review" and then assigning SOC 2 without seeing coverage extras (because bundled JSON has no expectation keys).
 
-**Would they believe ArchLucid is materially better than "Claude + a good prompt + my company standards pasted in"?** **For a single review: no.** Pasting standards into a long-context model produces comparable or better analytical output today. **For the tenth review across the fifth system with a governance board asking for the audit trail: yes, clearly** — the pasted-standards approach has no persistence, no repeatability across architects, no disposition lifecycle, and no audit reconstruction. The honest positioning is therefore *organizational repeatability*, not per-review insight — and that is a harder sell to an individual architect, which is exactly why the sponsor is the buyer and the architect is the gatekeeper.
+**Would they believe ArchLucid is materially better than "Claude + a good prompt + my company standards pasted in"?** **For a single review: still no.** **For the tenth review across the fifth system with a governance board asking for the audit trail: yes.** Position *organizational repeatability*, not per-review insight. The sponsor is the buyer; the architect is the gatekeeper.
 
 ---
 
 ## 12. Founder Delusion Check
 
-**Strongest assumption with weakest evidence:** that decision-changing insight density is a measurement and curation problem. Everything built for it — the deterministic gate, the LLM judge, the frontier-delta harness, the per-engine distribution report — measures or subtracts. The pillar's own prompt doc concedes the "miss" clause is unaddressed. If findings are not non-obvious, better measurement of their obviousness does not help.
+**Strongest assumption with weakest evidence:** that decision-changing insight density is a measurement and curation problem. Everything built for it measures or subtracts. The "miss" clause is unaddressed.
 
-**Looks differentiated, already commodity:** generic critique quality, structural coverage checks, declaration parsing, retrieval depth.
+**Looks differentiated, already commodity:** generic critique, structural coverage, declaration parsing, retrieval depth.
 
-**Looks ordinary, may be the strongest moat:** the disposition trail. It is unglamorous bookkeeping, and it is the thing that makes the open-commitment engine possible, makes ROI honest, and makes the tenth review more valuable than the first. Frontier AI cannot have it.
+**Looks ordinary, may be the strongest moat:** the disposition trail. Unglamorous bookkeeping that makes open-commitment, honest ROI, and the tenth review possible.
 
-**Could burn months without improving any of the five outcomes:** more curated policy-pack content (45 packs, 791 rules already — the constraint is that only one engine consumes them); more UI route polish across the 200+ open backlog rows; Graph-RAG community summarization; more synthetic eval corpus expansion.
+**Could burn months without improving the five outcomes:** more curated policy-pack *rules* without encoding expectation extras; more UI route polish across 200+ open rows; Graph-RAG community summarization; more synthetic eval corpus.
 
-**If features froze for six months, what most improves the five outcomes:** running three real pilots and rewriting the positioning around organizational repeatability instead of per-review insight.
+**If features froze for six months:** fix the UI compile; run three real pilots; rewrite positioning around organizational repeatability.
 
-**Most dangerous attractive distraction:** building more finding engines of the same shape. Going from 39 to 60 coverage-style engines moves no outcome and will feel like progress.
+**Most dangerous attractive distraction:** going from 39 to 60 coverage-style engines, or treating unused `advisoryDefaults` keys as if every bundled pack already parameterized coverage.
 
-**Most boring thing that may be the real moat:** the audit event catalog and the disposition trail.
+**Most boring real moat:** audit catalog + disposition trail.
+
+**This pass's correction:** the assumption that "policy packs drive one engine of 39" is **stale**. Compliance + declaration gating + optional coverage/cost extras are in tree. The new trap is claiming all 39 engines are policy-aware, or claiming bundled SOC 2 assignment stamps topology extras. It does not.
 
 ---
 
 ## 13. Competitive Reality Check & Moat Assessment
 
-**What a skilled architect with frontier AI already does manually:** reads IaC and spots misconfigurations; critiques topology; produces a review document; cites standards from memory or paste.
+**What a skilled architect with frontier AI already does:** reads IaC, spots misconfigurations, critiques topology, produces a review document, cites standards from memory or paste.
 
-**What ArchLucid does substantially faster or more consistently:** produces the same *shaped* package every time regardless of which architect ran it; evaluates the organization's enabled rule set rather than whatever the architect remembered; preserves decisions and exceptions across reviews; reconstructs who decided what and when; correlates findings to tickets.
+**What ArchLucid does substantially faster/more consistently:** same *shaped* package every time; evaluates the organization's enabled rule set; can gate declaration findings and (with overlays) add coverage/cost expectations; preserves decisions/exceptions across reviews; reconstructs who decided what; correlates findings to tickets.
 
 **Commodity within 12 months:** analytical content, retrieval depth, parsing.
 
-**More valuable as AI improves:** every governance surface, because better findings flow through unchanged plumbing.
+**More valuable as AI improves:** every governance surface.
 
-**Requires enterprise workflow, not model intelligence:** approval separation of duties, pre-finalize gating, audit reconstruction, disposition lifecycle, sponsor/operator separation.
+**Requires enterprise workflow:** SoD approvals, pre-finalize gating, audit reconstruction, disposition lifecycle, sponsor/operator separation.
 
-**Requires customer-specific policy state, not prompting:** the enabled rule subset, priority floors, scope assignments, curated tenant rules.
+**Requires customer-specific policy state:** enabled rule subset, priority floors, scope assignments, curated tenant rules, optional expectation extras.
 
-**Current moat:** governed repeatability plus audit reconstruction. Real, narrow, defensible. **Potential future moat:** portfolio-level architectural memory — cross-system recurrence, commitment tracking, drift over time. Partially built (`portfolio-recurrence` ships default off; `open-commitment` ships on). **Weakest moat assumption:** that policy-pack awareness differentiates review *broadly* — it currently differentiates compliance only. **Most durable moat assumption:** that audit reconstruction and disposition history cannot be prompted. **Probably illusory:** insight-density superiority over frontier models. **Boring but durable:** the audit catalog. **What would make the moat obvious to a buyer:** the one-screen policy-toggle demo in §10.7.
+**Current moat:** governed repeatability plus audit reconstruction, with a real (not decorative) policy filter on compliance and declaration. **Potential future moat:** portfolio-level architectural memory (partially built) plus expectation extras actually shipped in bundled FinOps/CIS content. **Weakest moat assumption:** that unused advisory keys differentiate review *by default*. **Most durable:** audit reconstruction and disposition history cannot be prompted. **Probably illusory:** insight-density superiority over frontier models. **Boring but durable:** the audit catalog. **Buyer-obvious moat:** §10.7 policy-toggle demo.
 
 ---
 
 ## 14. Adoption & Monetization
 
-**30-Day Voluntary Usage (10 principal architects).** Strongest positive factor: portfolio and commitment findings that accumulate value with use. Strongest negative: a thin first review from Bicep/Kubernetes input. Most likely reason to return: an expiring-waiver or recurrence finding that mattered. Most likely reason to stop: recognizing every finding as already-known.
+**30-Day Voluntary Usage (10 principal architects).** Strongest positive: portfolio and commitment findings that accumulate. Strongest negative: first review still checklist-shaped; this week, a workspace that may not build. Most likely return reason: an expiring-waiver or recurrence finding that mattered. Most likely stop reason: recognizing every finding as already-known.
 
-**Sponsor Purchase.** Strongest driver: audit-ready governance packaging that survives architecture, security, compliance, and board review — a defensible answer to "how do you know your architecture reviews happened and were consistent." Strongest blocker: no completed pilot, no reference. Minimum proof for a paid pilot: three real-mode runs with proof packets (**G-REAL-06** → **G-REAL-07** → **M-39**). Likely objection: "our architects already use Claude."
+**Sponsor Purchase.** Strongest driver: audit-ready packaging that survives architecture, security, compliance, and board review. Strongest blocker: no completed pilot, no reference, and a present compile FAIL. Minimum proof: Gate 5 green → **G-REAL-06** → **G-REAL-07** → **M-39**. Likely objection: "our architects already use Claude."
 
-**Why buy ArchLucid instead of more frontier-AI licenses?** Because licenses give you analysis and ArchLucid gives you a *record*. More licenses do not give you: a governance board answer for which standards were evaluated on which system when; consistency across architects of different seniority; exception and waiver lifecycle with expiry; audit reconstruction of who approved what; ticket correlation closing findings to remediation; portfolio-level recurrence. That argument is honest today. The argument that ArchLucid finds things Claude cannot is **not** honest today, and using it will fail a technical evaluation.
+**Why buy ArchLucid instead of more frontier-AI licenses?** Licenses give analysis; ArchLucid gives a *record*. More licenses do not give: which standards were evaluated on which system when; consistency across architects; exception/waiver lifecycle; audit reconstruction; ticket correlation; portfolio recurrence. The argument that ArchLucid finds things Claude cannot is **still not honest** as a blanket claim.
 
-**Top 6 monetization blockers.** (1) No pilot proof — sponsors cannot justify spend on a demo; overcome by **G-REAL-06**; validation. (2) No case study or reference; overcome by **M-32**; validation. (3) Invoice/SOW readiness incomplete (**G-COMMERCE-01**) — a willing buyer has no clean payment path; owner implementation. (4) Landing page and demo assets not live (**M-07**/**M-09**/**M-16**) — no top of funnel; mixed. (5) Depth objection from the technical evaluator who gatekeeps the sponsor; overcome by engine depth plus honest repositioning; implementation. (6) SOC 2 CPA absence for hard-gate buyers; `(B)` friction, overcome by **M-190**/**M-196** talk-track short of the report.
+**Top 6 monetization blockers.** (1) UI typecheck FAIL — Gate 5; implementation. (2) No pilot proof — **G-REAL-06**; validation. (3) No case study/reference — **M-32**; validation. (4) Invoice/SOW incomplete — **G-COMMERCE-01**; owner. (5) Landing/demo assets not live — **M-07**/**M-09**/**M-16**; mixed, blocked on #1. (6) Depth objection from the technical evaluator — engine depth + honest repositioning.
 
-**Top 6 enterprise adoption blockers.** (1) No pilot case study — trust; scale blocker. (2) Connector and extractor credential setup — workflow fit; pilot blocker. (3) Thin findings on Bidep/Kubernetes-native estates — buyer value; pilot blocker. (4) Retrieval-depth and eval-realism due diligence from a sophisticated security or AI review — auditability; scale blocker. (5) Change management: architects must accept a governed workflow over their own tools — process integration; scale blocker. (6) Procurement timing and assurance paperwork — trust; scale blocker.
+**Top 6 enterprise adoption blockers.** (1) Workspace compile break — trust; pilot. (2) No pilot case study — trust; scale. (3) Connector/extractor credential setup — workflow fit; pilot. (4) Checklist-depth findings — buyer value; pilot. (5) Architects preferring their own tools — process; scale. (6) Procurement timing/assurance paperwork — trust; scale (`(B)`).
 
 ---
 
 ## 15. Most Important Truth
 
-**ArchLucid has built a genuinely defensible governance container around an analytical core that is still shallower than the frontier AI it is meant to surpass, and the instrumentation built to prove otherwise measures hand-authored fixtures while gating nothing.**
+**Policy packs now change more of the review than a compliance-only story allowed — and none of that matters this week because the architect workspace does not typecheck, and no real-mode pilot has proven the container changes a decision.**
 
-The governance infrastructure — policy-filtered rule evaluation, sealed manifests, authority replay, append-only audit, disposition lifecycle, approval separation of duties — is real, tested, and not reproducible by prompting. That is a legitimate moat and it is undersold. But the findings that flow through it are predominantly coverage and structure checks; two of the most common IaC input formats produce almost no security findings; and the insight-density apparatus computes a score for every engine finding and then discards it. The product's honest position today is *organizational repeatability*, not superior insight. Selling the latter will fail the first serious technical evaluation.
+What is current: 39 engines still mostly coverage-shaped; density scoring still discarded for every typed engine; golden corpus still 6/39; bundled packs still `priorityFloor`-only for extras; **G-REAL-06** still unstarted; Gate 5 FAIL on a truncated help resolver; CodeQL last-completed failure on `master`. The honest position remains *organizational repeatability*, not superior insight. Selling the latter will still fail a serious technical evaluation. Selling “every engine is policy-aware” will also fail: count the kinds, then look at bundled JSON.
 
 ---
 
@@ -388,90 +383,102 @@ The governance infrastructure — policy-filtered rule evaluation, sealed manife
 
 ## 16. Stop Doing List
 
-**Top 3 improvements not worth doing before V1:** more curated policy-pack content (only one engine consumes it); Graph-RAG community summarization (ADR 0057 already says wait for pilot signal); more synthetic eval-corpus scenarios (realism is the constraint, not count).
+**Top 3 not worth doing before V1:** more curated policy-pack *rules* without encoding expectation extras; Graph-RAG community summarization (ADR 0057: wait for pilot signal); more synthetic eval-corpus scenarios.
 
-**Top 3 diminishing-returns areas:** UI route polish across the 200+ open backlog rows; additional coverage-shaped finding engines; expanding the compliance rule count past 791.
+**Top 3 diminishing-returns areas:** UI route polish across 200+ open backlog rows (except the compile FAIL); additional coverage-shaped finding engines; expanding compliance rule count past 791.
 
-**Top 3 founder behaviors that could delay validation:** treating assessment scores as the progress metric instead of pilot outcomes; adding engines because they are tractable rather than because they change decisions; letting trunk stay red while planning new work.
+**Top 3 founder behaviors that delay validation:** treating assessment scores as the progress metric instead of pilot outcomes; claiming all 39 engines are policy-aware; adding engines because they are tractable.
 
 **Top 3 features that feel enterprise-important but may not improve V1 adoption:** MCP membrane; CloudEvents webhooks; multi-region active/active.
 
 ## 17. Top Improvement Opportunities
 
-Ship gate 4 is FAIL, so validation-first ordering does not yet apply — one engineering item precedes validation work.
+Gate 5 **FAIL** leads. Validation-first work follows once the workspace compiles. Engineering items below are in-contract, verified-absent-or-broken this pass.
 
-### Tier 1 — Must Fix
+**Shipped — do not re-open:** declaration prefix-family gating (PP-01); expectation facet parser/stamp/resolver UNION and cost require-cap / breach-severity (PP-02–PP-05); Bicep body → `tf.*` bag; Kubernetes security spec projection; `PolicyFilteredGoldenCorpusTests` / declaration / expectation coverage siblings; **TB-599** native ITSM default on; **TB-600** connector OAuth; **TB-603** AWS/GCP retail grounding; **TB-882** nav-authority guard; GTM **M-190**/**M-191**/**M-196**/**M-197**. Do **not** re-run ID-08–ID-10 declaration/parser/filter prompts.
 
-**1. Restore green trunk (12 failing tests) and add a merge gate.**
-Tier 1 · **Why it matters:** a ship-gate FAIL caps headline readiness and no proof packet or demo is credible from a red trunk. The count rose 11 → 12 during this pass, so a fix without a gate will not hold. · **Expected impact:** unblocks gate 4; removes the cap; stops the drift. · **Affected qualities:** Correctness (74), Runtime (76). · **Evidence:** `dotnet test` this pass — `ArchLucid.Core.Tests` 4 failed, `ArchLucid.Application.Tests` 8 failed; three export failures trace to commit `3ebf8a7c78`. · **Actionability:** high. · **Design uncertainty reduced: 9** · **Market uncertainty reduced: 1** · **Classification: V1.**
+### Tier 1 — Must Fix / Must Validate
 
-> **Cursor prompt.** Trunk is red on `master` and the failure count is rising. Fix these 12 failing tests and add a merge gate. **Current problem:** (a) `ArchLucid.Application.Tests.Analysis.EndToEndReplayComparisonExportServiceTests.GenerateMarkdown_default_profile_includes_separator_run_metadata_and_top_level_lists` plus the `..._executive_profile_emits_key_counts_not_full_run_metadata_section` cases in `EndToEndReplayComparisonExportServiceExecutiveAndRelationshipDiffTests` and `EndToEndReplayComparisonExportServiceSponsorAndRelationshipDiffTests` — commit `3ebf8a7c78` removed interpretation-note lines from the markdown/HTML/DOCX/PDF formatters without updating these assertions; determine whether the dedupe dropped required sections (fix the formatter) or the assertions encode superseded expectations (fix the tests) and state which. (b) `ArchLucid.Core.Tests.Integration.PublisherIntegrationPayloadAndRecipeDocumentationGuardTests.ServiceBus_app_property_resolver_reads_alert_payload_keys_documented_for_operators`. (c) Three `ArchLucid.Core.Tests.CorePackageCoverageBatchRc27Tests` cases on legacy vendor alias resolution and the `GovernancePromotionActivated` webhook sample schema. (d) `ArchLucid.Application.Tests` — `Runs.Finalization.CommitPathRedundantLoadContractTests`, `Audit.BaselineMutationAuditDualWritePairingTests`, `Orchestration.TechnologyLedgerTopologyProposalSeederTests`, `ArchitectureIntelligence.KnowledgeModelClarificationAnswerApplicatorTests`, and `ArchitectureIntelligence.ReviewResultCacheSingleFlightTests.CoalesceAsync_retries_when_leader_abort_is_wrapped_in_aggregate_exception`. **Desired behavior:** all three suites green, and a CI job that fails the build when they are not. **Scope boundaries:** do not weaken or delete a guard test to make it pass — the audit dual-write pairing, commit-path contract, and single-flight retry tests exist to catch real regressions; if an assertion is genuinely obsolete, say so explicitly in the commit message. **Acceptance criteria:** `dotnet test` green on `ArchLucid.Core.Tests`, `ArchLucid.Application.Tests`, `ArchLucid.Decisioning.Tests`; a required CI check runs all three. **Tests:** no new product tests required; update only where an expectation is provably superseded. **Non-goals:** unrelated refactoring; touching the insight-density or finding-engine code.
+**1. Restore UI production typecheck (`help-topic-view-resolver-operate.tsx`).**
+Tier 1 · **Why it matters:** Gate 5 FAIL. `tsconfig.build.json` does not compile. Demo, **M-07**, and CodeQL JS analysis are blocked. · **Expected impact:** Gate 5 can return to PASS (compile); unblocks screenshot/demo motion. · **Affected qualities:** Runtime (62), Time-to-Value (70), Comprehension (70), Correctness (76). · **Evidence:** `tsc --noEmit -p tsconfig.build.json` this pass; file on `master` HEAD ends with unclosed JSX then `return null`. · **Actionability:** high. · **Design uncertainty reduced: 9** · **Market uncertainty reduced: 1** · **Classification: V1.**
 
-**2. Make Bicep and Kubernetes declarations feed the declaration-security engines.**
-Tier 1 · **Why it matters:** the highest-leverage substance fix. Azure-native and Kubernetes-first evaluators — a large share of the target market — currently get topology nodes and near-zero declaration-security findings, and the gap is silent. This is simultaneously the top time-to-value fix and the top dismissal-risk fix. · **Expected impact:** materially more findings on the most common enterprise IaC inputs. · **Affected qualities:** Insight Density (62), Time-to-Value (70). · **Evidence:** `BicepInfrastructureDeclarationParser` extracts only `resourceType`/`bicepSymbolicName`/`apiVersion`; `KubernetesManifestCanonicalObjectMapper` stores `k8s.*` metadata only; `DeclarationSecurityBaselineClassifier` reads `tf.*` and ARM scalars exclusively. · **Actionability:** high. · **Design uncertainty reduced: 8** · **Market uncertainty reduced: 4** · **Classification: V1.**
+> **Cursor prompt.** **Current problem:** `archlucid-ui/src/lib/help/help-topic-view-resolver-operate.tsx` catch-all return is truncated: `<HelpTopicMarkdownView entry={loaded.entry` is not closed; a stray `return null` follows. `npx tsc --noEmit -p tsconfig.build.json` fails with TS1005/TS1003. **Desired behavior:** catch-all returns `HelpTopicMarkdownView` with `entry={loaded.entry}` and `markdown={loaded.markdown}` (match sibling resolvers); no stray `return null`; typecheck exit 0. **Scope boundaries:** do not redesign help dispatch; do not silently swallow unknown slugs if `assertHelpTopicCatchAllFallthroughAllowed` is the contract. **Acceptance criteria:** `npx tsc --noEmit -p tsconfig.build.json` exit 0. **Tests:** existing help-topic dispatch inventory tests stay green. **Non-goals:** full Vitest matrix; rewriting help content.
 
-> **Cursor prompt.** **Current problem:** `DeclarationSecurityBaselineClassifier` and `DeclarationPremiseConflictClassifier` read canonical `tf.*` property keys and ARM scalars. The Bicep parser (`BicepInfrastructureDeclarationParser`) extracts only the declaration line, and the Kubernetes mappers (`KubernetesManifestCanonicalObjectMapper`) store only `k8s.*` metadata. Consequently Bicep and Kubernetes inputs produce topology nodes but almost no declaration-security findings, and parse gaps are silent (warning + empty list). **Desired behavior:** (1) Bicep parser extracts resource *body* properties into `CanonicalInfrastructurePropertyBag` under the same normalized key space the Terraform/ARM paths use, respecting the existing 24-key and 512-char caps and sensitive-key redaction. (2) Kubernetes mappers project security-relevant spec fields — `hostNetwork`, `privileged`, `runAsNonRoot`, `readOnlyRootFilesystem`, `allowPrivilegeEscalation`, NetworkPolicy ingress/egress presence, Service `type=LoadBalancer` — into the same key space. (3) Extend the declaration classifiers to recognize the added keys, including new signal families for K8s workload security and public LoadBalancer exposure. **Scope boundaries:** no new finding engine; reuse `DeclarationSecurityBaselineFindingEngine` and `DeclarationPremiseConflictFindingEngine`. Do not add a Bicep compiler dependency — stay line/body-scanning. Do not ingest Kubernetes `Secret.data`. **Acceptance criteria:** a Bicep fixture with a public-network-access property yields a declaration-security finding; a K8s fixture with `privileged: true` and no NetworkPolicy yields findings; existing Terraform/ARM behavior unchanged. **Tests:** new parser cases in `ArchLucid.ContextIngestion.Tests` for Bicep bodies and K8s security fields; new classifier cases in `ArchLucid.Decisioning.Tests`; at least one golden-corpus ingestion case. **Non-goals:** Helm templating, Kustomize overlays, Pulumi, CDK.
+**2. Execute three real-mode pilot runs (G-REAL-06) and collect packets (G-REAL-07 / M-39).**
+Tier 1 · **Why it matters:** every commercial diagnostic in §3 is offline-derived. Depends on item 1 for a buildable workspace. · **Expected impact:** replaces opinion with observed insight density, dismissal triggers, and ROI credibility. · **Affected qualities:** Insight Density (66), Time-to-Value (70), Proof-of-ROI (76), Decision Advantage (64). · **Evidence:** GTM rows Not started; no `PROOF_PACKET_RUN_LOG` G4 rows required this pass. · **Actionability:** owner-executed; agent-assistable for scripts. · **Design uncertainty reduced: 2** · **Market uncertainty reduced: 9** · **Classification: validation first.**
+
+**3. Clear the CodeQL SARIF gate on `master`.**
+Tier 1 · **Why it matters:** it is the workflow that actually runs on `master` push. Last completed run [33012502793](https://github.com/joefrancisGA/ArchLucid/actions/runs/33012502793) failed C# SARIF; JS job failed installing/building UI. · **Expected impact:** restores the only automated security merge signal on direct `master` pushes. · **Affected qualities:** Runtime (62), Correctness (76). · **Evidence:** Actions run above; later runs cancelled by concurrency. · **Actionability:** high after item 1. · **Design uncertainty reduced: 8** · **Market uncertainty reduced: 1** · **Classification: V1.**
+
+> **Cursor prompt.** **Current problem:** CodeQL on `master` fails `scripts/ci/assert_codeql_sarif_clean.py` (C#) and/or never produces JS SARIF because UI install/build fails. **Desired behavior:** SARIF gate exit 0 with zero unresolved findings on both language jobs. **Scope boundaries:** prefer structural fixes. If a suppression is unavoidable, use a form that **populates SARIF `suppressions`**. Document remaining suppressions in `docs/library/CODEQL_TRIAGE.md`. **Acceptance criteria:** a CodeQL run on the fixed SHA is green, or local `assert_codeql_sarif_clean.py` on produced SARIF is green. **Non-goals:** disabling the SARIF gate; reopening TB-135/TB-136.
+
+**4. Fix Alert rules continue-last crash (`rules.slice`).**
+Tier 1 · **Why it matters:** `resolveContinueLastAlertRule` still calls `.slice` with no runtime array guard. · **Expected impact:** Alert rules page does not throw when `rules` is missing or not an array. · **Affected qualities:** Comprehension (70), Runtime (62). · **Evidence:** `archlucid-ui/src/lib/resolve-continue-last-alert-rule.ts` lines 46–61 this pass. · **Actionability:** high. · **Design uncertainty reduced: 7** · **Market uncertainty reduced: 1** · **Classification: V1.**
+
+> **Cursor prompt.** **Current problem:** `resolveContinueLastAlertRule` in `archlucid-ui/src/lib/resolve-continue-last-alert-rule.ts` (and the composite sibling) calls `rules.slice()`; a non-array `rules` throws. **Desired behavior:** helper returns `null` when `rules` is missing, not an array, or empty. **Scope boundaries:** do not redesign the alert-rules hub; add a type/runtime guard and a unit test for non-array input. **Acceptance criteria:** unit test covers non-array; page render does not throw. **Non-goals:** the full Vitest matrix.
 
 ### Tier 2 — High Leverage
 
-**3. Guard the policy-aware moat with a golden-corpus case.**
-Tier 2 · **Why it matters:** the single most differentiating behavior in the product — policy-pack content changing which rules evaluate — has unit tests but no system-level regression, because `GoldenCorpusHarness` constructs `FileComplianceRulePackProvider` directly and bypasses `PolicyFilteredComplianceRulePackProvider`. A refactor could silently make the moat inert. · **Expected impact:** converts the moat from believed to guarded; also produces the artifact needed for the §10.7 demo. · **Affected qualities:** Governed Review Integrity (80), Differentiability (76). · **Evidence:** `GoldenCorpusHarness.CreateEngines()`; `PolicyFilteredComplianceRulePackProvider`. · **Design uncertainty reduced: 7** · **Market uncertainty reduced: 3** · **Classification: V1.**
+**5. One-screen policy-toggle demo artifact (include overlay extras).**
+Tier 2 · **Why it matters:** the moat exists in code (three golden siblings) and is invisible to buyers. Bundled packs will not show coverage extras without an overlay. · **Affected qualities:** Differentiability (82), Comprehension (70). · **Design uncertainty reduced: 3** · **Market uncertainty reduced: 7** · **Classification: V1.1 / validation.**
 
-> **Cursor prompt.** **Current problem:** the golden corpus exercises `ComplianceFindingEngine` through `FileComplianceRulePackProvider`, so `PolicyFilteredComplianceRulePackProvider` — which merges tenant curated rules and filters the pack to the tenant's enabled rule set with a priority floor — has unit coverage but no end-to-end regression. **Desired behavior:** a golden-corpus case that runs one fixed architecture graph twice against two different `PolicyPackContentDocument` values and asserts the resulting `FindingsSnapshot` differs in a specified, committed way (different compliance findings, different severity counts). **Scope boundaries:** do not change production filtering behavior; add coverage only. Keep the existing six-engine harness path intact and add the policy-filtered path alongside it. **Acceptance criteria:** the new case fails if `ComplianceRulePackGovernanceFilter.Filter` is stubbed to return its input unchanged. Committed summary artifact under `docs/quality/` showing the two-posture delta. **Tests:** new case in `ArchLucid.Decisioning.Tests/GoldenCorpus`. **Non-goals:** expanding golden coverage to the other 33 engines in this change.
+**6. Seed one bundled or sample overlay with expectation `advisoryDefaults`.**
+Tier 2 · **Why it matters:** mechanism without default content is a demo lie. Prefer FinOps `cost.requireBudgetCap=true` and/or a documented CIS overlay `expectation.topologyCategories.add=identity`. Do not add OpenAPI fields. · **Affected qualities:** Differentiability (82), Governed Review Integrity (85). · **Evidence:** bundled JSON this pass has `priorityFloor` only. · **Design uncertainty reduced: 6** · **Market uncertainty reduced: 3** · **Classification: V1.1.**
 
-**4. Extend golden-corpus coverage past six engines.**
-Tier 2 · **Why it matters:** the merge-blocking gate protects 6 of 39 engines, 4 of 791 rules, and zero effectful engines. Everything shipped recently — declaration premise conflict, portfolio recurrence, open commitment — has unit tests only. · **Affected qualities:** Correctness (74), Insight Density (62). · **Evidence:** verified engine count 39 vs 6 in `GoldenCorpusHarness`; production DI merges 795 rules vs 4 in tests. · **Design uncertainty reduced: 7** · **Market uncertainty reduced: 2** · **Classification: V1.1.**
+> **Cursor prompt.** **Current problem:** `PolicyPackExpectationFacetParser` keys exist but bundled `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/*.json` `advisoryDefaults` only set `priorityFloor`. Assigning SOC 2 / CIS as-shipped does not stamp coverage extras. **Desired behavior:** add documented example keys to **one** FinOps or sample overlay content file (not all 45 packs); keep unknown-key ignore behavior; add a test that parsing that file yields a non-empty facet. **Scope boundaries:** no new `PolicyPackContentDocument` properties; no `*-rules-v1.json` rule explosion. **Acceptance criteria:** parser test on the seeded file; existing packs without the keys still parse empty extras. **Non-goals:** making all 39 engines pack-aware.
 
-**5. Register an InMemory `IArchitectureIdentityRepository` so the InMemory host boots.**
-Tier 2 · **Why it matters:** `OpenApiContractSnapshotTests` cannot run (DI validation failure) and `WorkerHostStartupTests` carries explicit skips for the same cause, so the OpenAPI contract gate is currently unusable and snapshot updates must be hand-maintained. · **Affected qualities:** Runtime (76), Correctness (74). · **Evidence:** DI validation error naming `IArchitectureIdentityRepository` while activating `ArchitectureIdentityService`; `ArchitectureIdentityRepository` registered only on the SQL path in `ArchLucidReferenceDataHotPathRegistrar`. · **Design uncertainty reduced: 6** · **Market uncertainty reduced: 1** · **Classification: V1.**
+**7. Extend golden-corpus harness past six engines.**
+Tier 2 · **Why it matters:** declaration and expectation-coverage have sibling tests; the merge-blocking harness still registers six engines and `FileComplianceRulePackProvider`. · **Affected qualities:** Correctness (76), Governed Review Integrity (85). · **Evidence:** `GoldenCorpusHarness.CreateEngines()` this pass. · **Design uncertainty reduced: 7** · **Market uncertainty reduced: 2** · **Classification: V1.1.**
 
-**6. Build the one-screen policy-toggle demo artifact.**
-Tier 2 · **Why it matters:** the moat exists in code and is invisible to buyers. The fastest way to make it obvious is a captured demonstration where toggling one pack changes findings, severity, pre-finalize gate verdict, and audit entry together. Depends on item 3's fixture. · **Affected qualities:** Differentiability (76), Comprehension (80). · **Design uncertainty reduced: 3** · **Market uncertainty reduced: 7** · **Classification: V1.1.**
+> **Cursor prompt.** **Current problem:** `GoldenCorpusHarness.CreateEngines()` registers only requirement, topology-coverage, security-baseline, security-coverage, compliance (`FileComplianceRulePackProvider`), and cost-constraint. **Desired behavior:** add `DeclarationSecurityBaselineFindingEngine` and `DeclarationPremiseConflictFindingEngine` to the harness with committed fixtures that assert at least one finding each; keep the existing six-engine snapshots stable. **Scope boundaries:** do not switch the default compliance provider to the full production filter in this change. Do not add all remaining engines. **Acceptance criteria:** new cases fail if those two engines are removed from `CreateEngines()`. **Non-goals:** portfolio-recurrence I/O in the in-process harness.
+
+**8. Capture 6–8 operator screenshots (M-07) once typecheck is green.**
+Tier 2 · **Why it matters:** unblocks **M-09**/**M-16** commercial motion. · **Classification: validation / owner-output** (not a V1 engineering defect). · **Market uncertainty reduced: 5.**
 
 ### Tier 3 — Hold For Reassessment
 
-**7. One deep engine in resilience or segmentation semantics.** Hold until **G-REAL-06** indicates which category buyers actually argue about. Building the wrong deep engine is expensive; the pilot answers it cheaply. **Market uncertainty reduced: 8.** **Classification: validation first.**
+**9. One deep engine in resilience or segmentation semantics.** Hold until **G-REAL-06** indicates which category buyers argue about. **Classification: validation first.**
 
-**8. Capture real frontier transcripts for the insight-density corpus.** Hold until there is a real pilot architecture worth baselining. The harness (`scripts/ci/insight_density_frontier_delta.py`) is built and passing; only the corpus is synthetic. **Classification: validation first.**
+**10. Real frontier transcripts for the insight-density corpus.** Harness exists; corpus is synthetic. **Classification: validation first.**
 
-**9. Decide whether density scoring should apply to engine findings.** The `typed-engine-protected` bypass may be correct — deterministic findings arguably should not be suppressed by a heuristic. But then the per-engine distribution report should be labeled advisory-only in its own header rather than reading as a control. Owner decision. **Classification: blocked on user input.**
-
-**10. Automate the UI/authority drift guard (TB-882).** Held pending pilot signal in prior cycles; the defect class has been closed manually 17 times and will recur. Reassess after trunk is green. **Classification: V1.1.**
+**11. Owner decision: should density scoring apply to engine findings?** `typed-engine-protected` may be correct. Keep the distribution report explicitly advisory. **Classification: blocked on user input.**
 
 ## 18. Prompt Batching Guidance
 
-**First batch — safe-for-Sonnet.** Item 1 (green trunk) and item 5 (InMemory host registration). Both mechanical, both unblock verification infrastructure. Do these before anything else; item 1 removes the ship-gate cap.
+**First batch — safe-for-Sonnet.** Item 1 (help resolver syntax) then item 4 (Alert rules guard). Removes the remaining *known broken* UI surfaces.
 
-**Second batch — strong-model-recommended.** Item 2 (Bicep/Kubernetes property extraction into the declaration classifiers). Touches ingestion normalization and classifier semantics across several parsers; a shallow fix here produces wrong findings rather than no findings.
+**Second batch — safe-for-Sonnet with review.** Item 3 (CodeQL) after item 1 so JS analysis can run.
 
-**Third batch — safe-for-Sonnet with review.** Items 3 and 4 (policy-filtered golden case, then broader corpus coverage), followed by item 6 (demo artifact) once item 3's fixture exists.
+**Third batch — owner + Opus.** Item 2 (**G-REAL-06**). Not a coding-agent substitute for live architecture judgment.
 
-Ordering rationale against the stated priorities: reliability of first review generation (batch 1), evidence/policy traceability (batch 3), review-package credibility (batch 1 item 1), demo reliability (batch 3 item 6), guided-intake clarity and comprehension (deferred — the 200+ UI backlog rows are diminishing returns per §16).
+**Fourth batch — safe-for-Sonnet with review.** Items 6–7 (seed one overlay; golden-corpus declaration engines); item 5 (policy-toggle demo) once a staging tenant exists.
+
+Do **not** batch “expand declaration maps,” “re-implement expectation stamp,” or “register InMemory architecture identity” — those are already in tree.
 
 ## 19. Model Usage Guidance
 
-**Composer-safe:** screenshot capture runs, snapshot regeneration, copy cleanup, mechanical test-name updates.
+**Composer-safe:** screenshot capture (**M-07**) after compile recovers, snapshot regeneration, copy cleanup, the help-resolver syntax close.
 
-**Sonnet-safe (default choice given current pricing):** item 1 trunk repair, item 5 DI registration, items 3–4 test authoring, GTM drafting tasks in §0. Reasoning depth is not the limiting factor for any of these.
+**Sonnet-safe (default):** Alert-rules null-guard, CodeQL structural sanitizers, golden-corpus fixture authoring, overlay `advisoryDefaults` seeding, GTM drafting.
 
-**Strong-model-recommended:** item 2 ingestion/classifier work; any change to policy filtering, authority pipeline, scope resolution, or evidence-graph semantics.
+**Strong-model-recommended:** any change to policy filtering, authority pipeline, scope resolution, or evidence-graph semantics; CodeQL `user-controlled-bypass` sites if they touch authorization.
 
-**Opus-or-Gemini-assessment-recommended:** this assessment; pilot design and finding-quality interpretation for **G-REAL-06**; procurement objection framing (**M-196**/**M-197**); the repositioning decision in §20.
+**Opus-or-Gemini-assessment-recommended:** this class of assessment; **G-REAL-06** finding-quality interpretation; the positioning decision in §20.
 
 ## 20. Pending Questions For Later
 
-**Blocks V1:** none — the only V1 blocker is item 1, which is engineering, not a decision.
+**Blocks V1:** Gate 5 FAIL (help resolver) as *execution*, not an owner *decision*. Remaining V1 execution after that: **G-REAL-06**, **G-COMMERCE-01**, CodeQL SARIF, Alert-rules crash.
 
-**Blocks V1.1:** Should policy awareness extend beyond the compliance engine, and with what policy vocabulary for structural engines? This determines whether the moat stays narrow (§7.3).
+**Blocks V1.1:** Should bundled packs ship expectation extras by default, or only tenant overlays?
 
-**Requires customer validation:** Which analytical category do buyers actually argue about — resilience, segmentation, IAM, or cost? Determines item 7. Also: does policy-aware review change a real decision (§10.6)?
+**Requires customer validation:** Which analytical category do buyers actually argue about? Does policy-aware review change a real decision (§10.6)?
 
-**Requires founder decision:** (a) Should the product's positioning lead with *organizational repeatability* rather than *superior insight*? §11 argues the insight claim fails a technical evaluation today. (b) Should `typed-engine-protected` remain a hard bypass (§17 item 9)? (c) Which finding stream is the product of record — the sealed `FindingsSnapshot` or `AgentResult.Findings` — given exports currently lead with the latter (§8 item 8)?
+**Requires founder decision:** (a) Lead with *organizational repeatability* rather than *superior insight*? (b) Keep `typed-engine-protected` as a hard bypass? (c) Which finding stream is the product of record — sealed `FindingsSnapshot` or `AgentResult.Findings`? (d) Seed FinOps/CIS overlays with expectation keys, or keep mechanism test-only?
 
 ---
 
 # Appendix A — Author Signal (qualitative, NON-HEADLINE)
 
-The repository demonstrates serious principal-architect judgment, and the evidence is in the unglamorous places. Someone built `DispositionAwareRoiBasisCalculator` and then *documented* that per-system rows deliberately do not sum to the portfolio headline, with a scope code on the wire so the two cannot be conflated — that is a person who has been challenged by a CFO. Someone wrote `claimBoundary` into the insight-density artifact stating it is not evidence of beating any frontier model, and a fixture README saying "these are not captured frontier-model transcripts" — that is unusual intellectual honesty in a file nobody would have audited. The `AgentArchitectureFindingEmissionGate` that refuses prose-only decision-grade findings, the ship-gate evidence runner that returns FAIL when it cannot load a run rather than assuming success, the published list of Azure roles the product will never request, and the enforced absence of `terraform apply` code paths all point the same direction: enterprise realism over demo appeal.
+The repository still demonstrates serious principal-architect judgment in unglamorous places: disposition-aware ROI that *documents* non-summation of per-system rows; `claimBoundary` on insight-density artifacts refusing to claim victory over named frontier models; an emission gate that refuses prose-only decision-grade findings; a ship-gate runner that returns FAIL when it cannot load a run; additive-floor expectation extras that cannot drop heuristic pillars; fail-open governance stamp that does not fail the review; a published list of Azure roles the product will never request; enforced absence of `terraform apply`.
 
-The taste failure is proportion. There are 39 finding engines and 6 in the merge gate; 45 policy packs and 1 engine that consumes them; 791 compliance rules and 4 in the corpus; an elaborate density-measurement apparatus that gates nothing. The instinct to build the *system* is strong and correct; the instinct to make each layer earn its keep before adding the next one is weaker. The prior assessment file — 450 lines with a header of accumulated rescore deltas ratcheting a score upward item by item, in direct violation of its own prompt's no-carry-forward rule — is the clearest symptom: measurement machinery elaborating faster than the thing being measured.
+The taste failure remains proportion: 39 engines and 6 in the harness; 45 packs whose bundled JSON still does not use the new expectation keys; 791 rules and a thin corpus; density instrumentation that gates nothing; a help catch-all truncated on `master`. The remaining author-signal risk is talking about policy-aware review as if default pack assignment already parameterized coverage — it does not — and elaborating measurement faster than repairing the compile and running three real reviews.

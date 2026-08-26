@@ -43,15 +43,15 @@ if [[ -n "${ARCHLUCID_GIT_DIFF_RANGE:-}" ]]; then
   python3 scripts/ci/check_no_sync_over_async.py
 fi
 
-python -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_sql.py"
-python -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_system_sql.py"
-python -m unittest discover -s scripts/ci/tests -p "test_assert_tenant_table_isolation_classifications.py"
-python -m unittest discover -s scripts/ci/tests -p "test_csharp_style_guards.py"
-python -m unittest discover -s scripts/ci/tests -p "test_maintainability_batch_5cm.py"
-python -m unittest discover -s scripts/ci/tests -p "test_decision_explainability_batch_tb050_tb053_tb051.py"
-python -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5ce.py"
-python -m unittest discover -s scripts/ci/tests -p "test_stickiness_batch_tb057.py"
-python -m unittest discover -s scripts/ci/tests -p "test_check_api_latency_tiers.py"
+python3 -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_sql.py"
+python3 -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_system_sql.py"
+python3 -m unittest discover -s scripts/ci/tests -p "test_assert_tenant_table_isolation_classifications.py"
+python3 -m unittest discover -s scripts/ci/tests -p "test_csharp_style_guards.py"
+python3 -m unittest discover -s scripts/ci/tests -p "test_maintainability_batch_5cm.py"
+python3 -m unittest discover -s scripts/ci/tests -p "test_decision_explainability_batch_tb050_tb053_tb051.py"
+python3 -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5ce.py"
+python3 -m unittest discover -s scripts/ci/tests -p "test_stickiness_batch_tb057.py"
+python3 -m unittest discover -s scripts/ci/tests -p "test_check_api_latency_tiers.py"
 
 python3 scripts/ci/check_migration_numbering.py || true
 python3 scripts/ci/check_test_configure_await.py
@@ -137,8 +137,8 @@ else
   fi
 fi
 
-python scripts/assert_context_ingestion_di_guards.py
-python scripts/ci/assert_list_endpoint_pagination.py
+python3 scripts/assert_context_ingestion_di_guards.py
+python3 scripts/ci/assert_list_endpoint_pagination.py
 
 python3 scripts/ci/sweep_trust_procurement_freshness.py --warn-only
 python3 scripts/ci/check_doc_source_of_truth_headers.py

@@ -4,6 +4,7 @@ import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
 export type CorePilotHelpWorkflowStepStatusLabel =
   | "Not started"
+  | "Available after review starts"
   | "In progress"
   | "Ready to finalize"
   | "Complete";
@@ -20,6 +21,22 @@ function hasNewerInProgressRun(ctx: CorePilotCommitContext): boolean {
     ctx.firstCommittedRunId !== null &&
     ctx.latestRunId !== ctx.firstCommittedRunId
   );
+}
+
+function lockedAfterReviewStarts(): CorePilotHelpWorkflowStepStatus {
+  return { kind: "draft", label: "Available after review starts" };
+}
+
+/** True when the step cannot be acted on until a review exists (steps 3–5 on an empty workspace). */
+export function isCorePilotHelpWorkflowStepLocked(
+  step: CorePilotHelpWorkflowStep,
+  ctx: CorePilotCommitContext,
+): boolean {
+  if (ctx.latestRunId !== null || ctx.hasCommittedManifest) {
+    return false;
+  }
+
+  return step.stepNumber >= 3;
 }
 
 /**
@@ -41,7 +58,7 @@ export function resolveCorePilotHelpWorkflowStepStatus(
     return { kind: "draft", label: "Not started" };
   }
 
-  if (stepNumber === 2 || stepNumber === 3) {
+  if (stepNumber === 2) {
     if (newerInProgress && !ctx.latestRunReadyToFinalize) {
       return { kind: "in-progress", label: "In progress" };
     }
@@ -57,6 +74,22 @@ export function resolveCorePilotHelpWorkflowStepStatus(
     return { kind: "draft", label: "Not started" };
   }
 
+  if (stepNumber === 3) {
+    if (newerInProgress && !ctx.latestRunReadyToFinalize) {
+      return { kind: "in-progress", label: "In progress" };
+    }
+
+    if (ctx.hasCommittedManifest || ctx.latestRunReadyToFinalize) {
+      return { kind: "ready", label: "Complete" };
+    }
+
+    if (ctx.latestRunId !== null) {
+      return { kind: "in-progress", label: "In progress" };
+    }
+
+    return lockedAfterReviewStarts();
+  }
+
   if (stepNumber === 4) {
     if (ctx.hasCommittedManifest && !newerInProgress) {
       return { kind: "ready", label: "Complete" };
@@ -70,15 +103,19 @@ export function resolveCorePilotHelpWorkflowStepStatus(
       return { kind: "in-progress", label: "In progress" };
     }
 
-    return { kind: "draft", label: "Not started" };
+    return lockedAfterReviewStarts();
   }
 
   if (stepNumber === 5) {
-    if (ctx.hasCommittedManifest || ctx.latestRunId !== null) {
+    if (ctx.hasCommittedManifest && !newerInProgress) {
+      return { kind: "ready", label: "Complete" };
+    }
+
+    if (ctx.latestRunId !== null) {
       return { kind: "in-progress", label: "In progress" };
     }
 
-    return { kind: "draft", label: "Not started" };
+    return lockedAfterReviewStarts();
   }
 
   return { kind: "draft", label: "Not started" };

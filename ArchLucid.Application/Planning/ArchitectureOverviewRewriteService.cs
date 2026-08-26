@@ -15,6 +15,14 @@ namespace ArchLucid.Application.Planning;
 public sealed class ArchitectureOverviewRewriteService(
     IAgentCompletionClient completionClient) : IArchitectureOverviewRewriteService
 {
+    /// <summary>
+    ///     Output budget for a full-document overview rewrite. Intake allows up to
+    ///     <see cref="DraftIntakeValidation.MaximumFreeTextIntentLength" /> characters; ~4 characters per token
+    ///     plus JSON wrapping still fits in 16,384, the typical Azure OpenAI gpt-4o output cap. Passing null
+    ///     would fall back to the host default of 4,096 tokens and silently truncate customer overviews.
+    /// </summary>
+    internal const int RewriteMaxCompletionTokens = 16_384;
+
     private const string RewriteSystemPrompt =
         "You are an enterprise architecture intake assistant. " +
         "Rewrite the operator's architecture overview so the narrative matches their confirmed structured brief. " +
@@ -23,6 +31,8 @@ public sealed class ArchitectureOverviewRewriteService(
         "Do not add design, topology, services, or controls the operator did not confirm. " +
         "Do not start a review, publish findings, or invent regulation citations. " +
         "Preserve useful structure from the current overview when it still applies. " +
+        "Keep comparable length and completeness — do not summarize, omit, or truncate sections unless the operator denied those facts. " +
+        "Return the full rewritten overview, not a shorter digest. " +
         "Respond with a single JSON object only (no markdown fences), key: rewrittenOverview (string).";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -48,11 +58,15 @@ public sealed class ArchitectureOverviewRewriteService(
         string responseJson = await _completionClient.CompleteJsonAsync(
             RewriteSystemPrompt,
             userPrompt,
-            maxTokens: null,
+            maxTokens: RewriteMaxCompletionTokens,
             temperature: null,
             cancellationToken: cancellationToken);
 
-        RewriteResponseShape? response = JsonSerializer.Deserialize<RewriteResponseShape>(responseJson, JsonOptions);
+        if (string.IsNullOrWhiteSpace(responseJson))
+            throw new InvalidOperationException("Rewrite response was empty.");
+
+        string normalizedJson = NormalizeLlmJsonPayload(responseJson);
+        RewriteResponseShape? response = JsonSerializer.Deserialize<RewriteResponseShape>(normalizedJson, JsonOptions);
 
         if (response is null || string.IsNullOrWhiteSpace(response.RewrittenOverview))
             throw new InvalidOperationException("Rewrite response was empty.");
@@ -112,6 +126,27 @@ public sealed class ArchitectureOverviewRewriteService(
             builder.AppendLine($"- {item}");
 
         builder.AppendLine();
+    }
+
+    internal static string NormalizeLlmJsonPayload(string raw)
+    {
+        string trimmed = raw.Trim();
+
+        if (!trimmed.StartsWith("```", StringComparison.Ordinal))
+            return trimmed;
+
+        int firstNewline = trimmed.IndexOf('\n');
+
+        if (firstNewline < 0)
+            return trimmed;
+
+        int contentStart = firstNewline + 1;
+        int fenceEnd = trimmed.LastIndexOf("```", StringComparison.Ordinal);
+
+        if (fenceEnd <= contentStart)
+            return trimmed;
+
+        return trimmed.Substring(contentStart, fenceEnd - contentStart).Trim();
     }
 
     private sealed class RewriteResponseShape

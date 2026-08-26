@@ -3,6 +3,8 @@ import type { ReactElement } from "react";
 
 import { QuickScanClient } from "./QuickScanClient";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Quick scan · ArchLucid",
   description:

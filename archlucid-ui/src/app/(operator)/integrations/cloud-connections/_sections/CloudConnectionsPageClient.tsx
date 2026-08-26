@@ -155,7 +155,9 @@ export function CloudConnectionsPageClient() {
     if (azureOutcome.status === "fulfilled") {
       const azureConnections = azureOutcome.value;
       const azureIndicatesPull = azureConnections.some((connection) =>
-        cloudConnectionIndicatesSuccessfulPull(connection),
+        cloudConnectionIndicatesSuccessfulPull({
+          lastPolledUtc: connection.updatedUtc ?? null,
+        }),
       );
 
       setSuccessfulPullByProvider((previous) => ({ ...previous, azure: azureIndicatesPull }));
@@ -175,7 +177,10 @@ export function CloudConnectionsPageClient() {
     if (awsOutcome.status === "fulfilled") {
       const awsConnections = awsOutcome.value;
       const awsIndicatesPull = awsConnections.some((connection) =>
-        cloudConnectionIndicatesSuccessfulPull(connection),
+        cloudConnectionIndicatesSuccessfulPull({
+          lastPolledUtc: connection.lastPolledUtc ?? connection.updatedUtc ?? null,
+          status: connection.status ?? null,
+        }),
       );
 
       setSuccessfulPullByProvider((previous) => ({ ...previous, aws: awsIndicatesPull }));
@@ -197,7 +202,10 @@ export function CloudConnectionsPageClient() {
     if (gcpOutcome.status === "fulfilled") {
       const gcpConnections = gcpOutcome.value;
       const gcpIndicatesPull = gcpConnections.some((connection) =>
-        cloudConnectionIndicatesSuccessfulPull(connection),
+        cloudConnectionIndicatesSuccessfulPull({
+          lastPolledUtc: connection.lastPolledUtc ?? connection.updatedUtc ?? null,
+          status: connection.status ?? null,
+        }),
       );
 
       setSuccessfulPullByProvider((previous) => ({ ...previous, gcp: gcpIndicatesPull }));

@@ -93,6 +93,55 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_ProjectsPrivilegedDeploymentAndLoadBalancerService()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "cluster.json",
+            Format = "kubernetes-json",
+            Content = """
+                      {
+                        "apiVersion": "v1",
+                        "kind": "List",
+                        "items": [
+                          {
+                            "apiVersion": "apps/v1",
+                            "kind": "Deployment",
+                            "metadata": { "name": "api", "namespace": "prod" },
+                            "spec": {
+                              "template": {
+                                "spec": {
+                                  "containers": [
+                                    {
+                                      "name": "api",
+                                      "securityContext": { "privileged": true }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "apiVersion": "v1",
+                            "kind": "Service",
+                            "metadata": { "name": "api-lb", "namespace": "prod" },
+                            "spec": { "type": "LoadBalancer" }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        CanonicalObject deployment = result.Should().ContainSingle(o => o.Name == "prod/api").Subject;
+        deployment.Properties["k8s.privileged"].Should().Be("true");
+
+        CanonicalObject service = result.Should().ContainSingle(o => o.Name == "prod/api-lb").Subject;
+        service.Properties["k8s.servicetype"].Should().Be("loadbalancer");
+    }
+
+    [Fact]
     public async Task ParseAsync_reparse_produces_stable_object_ids_for_deployments()
     {
         InfrastructureDeclarationReference declaration = new()

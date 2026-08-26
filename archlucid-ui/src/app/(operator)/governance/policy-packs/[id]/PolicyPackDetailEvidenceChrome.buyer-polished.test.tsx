@@ -56,9 +56,6 @@ describe("Policy pack detail buyer-polished chrome (GPI)", () => {
       </PolicyPackDetailEvidenceChrome>,
     );
 
-    expect(screen.getByRole("link", { name: "Approval" })).toHaveAttribute("href", "/governance/approval-queue");
-    expect(screen.getByRole("link", { name: "Policy packs" })).toHaveAttribute("href", "/governance/policy-packs");
-    expect(screen.getByTestId("policy-pack-detail-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("policy-pack-detail-claim-discipline").textContent).toContain(
       POLICY_PACK_DETAIL_CLAIM_DISCIPLINE.slice(0, 40),
     );

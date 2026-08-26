@@ -13,7 +13,7 @@ import {
   type CorePilotHelpWorkflowStep,
 } from "@/lib/core-pilot-help-guide-content";
 import { cn } from "@/lib/utils";
-import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
@@ -22,7 +22,10 @@ import {
   resolveCorePilotHelpWorkflowStepCta,
   type CorePilotHelpWorkflowStepCta,
 } from "@/lib/resolve-core-pilot-help-workflow-step-cta";
-import { resolveCorePilotHelpWorkflowStepStatus } from "@/lib/resolve-core-pilot-help-workflow-step-status";
+import {
+  isCorePilotHelpWorkflowStepLocked,
+  resolveCorePilotHelpWorkflowStepStatus,
+} from "@/lib/resolve-core-pilot-help-workflow-step-status";
 
 const EMPTY_COMMIT_CONTEXT: CorePilotCommitContext = {
   hasCommittedManifest: false,
@@ -137,6 +140,23 @@ function StepContextPendingPlaceholder(props: { readonly stepNumber: number }): 
   );
 }
 
+function resolveCurrentStepNumber(
+  resolvedSteps: readonly ResolvedWorkflowStep[],
+  statusContext: CorePilotCommitContext,
+): number | null {
+  for (const entry of resolvedSteps) {
+    const status = resolveCorePilotHelpWorkflowStepStatus(entry.step, statusContext);
+
+    if (status.label === "Complete") {
+      continue;
+    }
+
+    return entry.step.stepNumber;
+  }
+
+  return null;
+}
+
 /**
  * Five-step first-review stepper with commit-aware CTAs for steps 3–5 (TB-1042).
  * When several steps resolve to the same "no review yet" gate, the control is shown once
@@ -161,6 +181,7 @@ export function HelpCorePilotWorkflowStepper(): React.ReactElement {
   const groupGate = gatedSteps.length > 1;
   const gateCta = gatedSteps[0]?.cta ?? null;
   const showGroupGate = groupGate && gateCta !== null && !isPending;
+  const currentStepNumber = resolveCurrentStepNumber(resolvedSteps, statusContext);
 
   return (
     <div data-testid="core-pilot-workflow-stepper">
@@ -170,27 +191,52 @@ export function HelpCorePilotWorkflowStepper(): React.ReactElement {
           const isLast = index === resolvedSteps.length - 1;
           const deferToGroupGate = groupGate && isCorePilotHelpStartReviewFirstCta(cta);
           const stepStatus = resolveCorePilotHelpWorkflowStepStatus(step, statusContext);
+          const isLocked = isCorePilotHelpWorkflowStepLocked(step, statusContext);
+          const isCurrent = currentStepNumber === step.stepNumber;
+          const hideDuplicateStartCta = step.stepNumber === 1;
           const showStepCta =
-            !deferToGroupGate && !isPending && !isCorePilotHelpWorkflowContextPendingCta(cta);
+            !hideDuplicateStartCta && !deferToGroupGate && !isPending && !isCorePilotHelpWorkflowContextPendingCta(cta);
           const showPendingPlaceholder = isPending && step.stepNumber >= 2;
 
           return (
-            <li key={step.stepNumber} className="relative flex gap-4 pb-6 last:pb-0">
+            <li key={step.stepNumber} className="relative flex gap-3 pb-3 last:pb-0">
               {!isLast ? (
                 <span
                   aria-hidden
-                  className="absolute left-[0.9375rem] top-8 h-[calc(100%-1.5rem)] w-px bg-neutral-200 dark:bg-neutral-700"
+                  className={cn(
+                    "absolute left-[0.8125rem] top-7 h-[calc(100%-0.75rem)] w-px",
+                    isLocked ? "bg-neutral-100 dark:bg-neutral-800" : "bg-neutral-200 dark:bg-neutral-700",
+                  )}
                 />
               ) : null}
               <span
                 aria-hidden
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-teal-700/30 bg-teal-50 text-sm font-semibold text-teal-900 dark:border-teal-600/40 dark:bg-teal-950/50 dark:text-teal-100"
+                className={cn(
+                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-sm font-semibold",
+                  isLocked
+                    ? "border-neutral-200 bg-neutral-50 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-500"
+                    : isCurrent
+                      ? "border-teal-700/40 bg-teal-50 text-teal-900 dark:border-teal-600/50 dark:bg-teal-950/50 dark:text-teal-100"
+                      : stepStatus.label === "Complete"
+                        ? "border-neutral-300 bg-neutral-100 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+                        : "border-teal-700/30 bg-teal-50 text-teal-900 dark:border-teal-600/40 dark:bg-teal-950/50 dark:text-teal-100",
+                )}
               >
                 {step.stepNumber}
               </span>
-              <div className="min-w-0 flex-1 space-y-2 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+              <div
+                className={cn(
+                  "min-w-0 flex-1 space-y-1.5 rounded-md border px-3 py-2",
+                  isLocked
+                    ? "border-neutral-100 bg-neutral-50/60 dark:border-neutral-800/80 dark:bg-neutral-900/30"
+                    : isCurrent
+                      ? "border-teal-200/80 bg-white dark:border-teal-900/40 dark:bg-neutral-950"
+                      : "border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950",
+                  isCurrent ? "border-l-[3px] border-l-teal-600 dark:border-l-teal-500" : null,
+                )}
+              >
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle, isLocked ? "text-al-text-secondary" : null)}>
                     <StepOrdinalLabel stepNumber={step.stepNumber} />
                     {step.title}
                   </h3>
@@ -200,9 +246,11 @@ export function HelpCorePilotWorkflowStepper(): React.ReactElement {
                     data-testid={`core-pilot-step-${step.stepNumber}-status`}
                   />
                 </div>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{step.description}</p>
-                <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  <span className="font-medium text-al-text-primary">Expected output:</span> {step.expectedOutput}
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body, isLocked ? "text-al-text-secondary" : null)}>
+                  {step.description}
+                </p>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  <span className="font-medium text-al-text-primary">Expected:</span> {step.expectedOutput}
                 </p>
 
                 {showPendingPlaceholder ? <StepContextPendingPlaceholder stepNumber={step.stepNumber} /> : null}
@@ -218,7 +266,7 @@ export function HelpCorePilotWorkflowStepper(): React.ReactElement {
 
       {isError ? (
         <p
-          className={cn("m-0 mt-4", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="core-pilot-workflow-context-error"
         >
           Couldn&apos;t check workspace status. You can still start a review.

@@ -1,5 +1,11 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
+import {
+  PATH_CHOOSER_HELP_CLAIM_DISCIPLINE_HEADING,
+  PATH_CHOOSER_HELP_CLAIM_HEADING_ID,
+  PATH_CHOOSER_HELP_FOLLOW_UPS_TITLE,
+} from "@/lib/path-chooser-help-evidence-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const PATH_CHOOSER_HELP_BREADCRUMB_TOPIC_TITLE = "Choose your next step";
@@ -141,3 +147,18 @@ export const PATH_CHOOSER_HELP_BRANCHES: readonly PathChooserHelpBranch[] = [
 ] as const;
 
 export const PATH_CHOOSER_HELP_CANONICAL_PATH = PATH_CHOOSER_HELP_PATH;
+
+/** Structured sections rendered outside markdown — included in the on-page TOC (TB-1711 companion). */
+export function buildPathChooserHelpTocHeadings(
+  markdownHeadings: readonly HelpMarkdownHeading[],
+): readonly HelpMarkdownHeading[] {
+  return [
+    { level: 2, id: "choose-by-goal", title: "Choose by goal" },
+    { level: 2, id: "common-next-steps", title: PATH_CHOOSER_HELP_ACTION_PANEL_TITLE },
+    { level: 2, id: "evaluator-session-flow", title: "Evaluator session flow" },
+    { level: 2, id: "reference-detail", title: "Buyer orientation reference" },
+    ...markdownHeadings,
+    { level: 2, id: PATH_CHOOSER_HELP_CLAIM_HEADING_ID, title: PATH_CHOOSER_HELP_CLAIM_DISCIPLINE_HEADING },
+    { level: 2, id: "related-next-steps", title: PATH_CHOOSER_HELP_FOLLOW_UPS_TITLE },
+  ];
+}

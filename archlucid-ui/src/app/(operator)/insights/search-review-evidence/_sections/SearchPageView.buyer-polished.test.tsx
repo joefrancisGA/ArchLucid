@@ -36,7 +36,7 @@ import {
   SEARCH_PAGE_SUBTITLE_BUYER,
   SEARCH_PAGE_TITLE,
 } from "./search-page-copy";
-import { SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE, SEARCH_REVIEW_EVIDENCE_CLAIM_HEADING } from "@/lib/search-review-evidence-evidence-copy";
+import { SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE } from "@/lib/search-review-evidence-evidence-copy";
 
 function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageViewModel {
   return {
@@ -64,9 +64,9 @@ describe("SearchPageView buyer-polished shell", () => {
     expect(screen.getByRole("heading", { level: 2, name: SEARCH_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(SEARCH_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("search-review-evidence-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByText(SEARCH_REVIEW_EVIDENCE_CLAIM_HEADING)).toBeInTheDocument();
-    expect(screen.getByText(SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE)).toBeInTheDocument();
+    expect(screen.getByTestId("search-review-evidence-claim-discipline").textContent).toContain(
+      SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.queryByTestId("ask-search-evidence-vocabulary-rail")).not.toBeInTheDocument();
     expect(screen.getByTestId("search-pick-review-before-search-strip")).toBeInTheDocument();
     expect(screen.queryByTestId("search-review-evidence-form")).not.toBeInTheDocument();

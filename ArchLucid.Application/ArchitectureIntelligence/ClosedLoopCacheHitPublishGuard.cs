@@ -45,7 +45,8 @@ public static class ClosedLoopCacheHitPublishGuard
 
         return !request.PublishToProduct
             || !result.PublishedToProduct
-            || !string.Equals(result.RunId, runId, StringComparison.Ordinal);
+            || string.IsNullOrWhiteSpace(result.RunId)
+            || !ClosedLoopRunIdComparer.Equals(result.RunId, runId);
     }
 
     public static void ApplyAnalysisOnlyCoalescedIsolation(
@@ -58,9 +59,26 @@ public static class ClosedLoopCacheHitPublishGuard
         if (request.PublishToProduct)
             return;
 
+        ClearAnalysisOnlyPublishIsolation(isolated);
+    }
+
+    public static void ClearAnalysisOnlyPublishIsolation(ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(isolated);
+
         isolated.PublishBlocked = false;
         isolated.PublishBlockReasons = [];
         isolated.PublishSkipReason = null;
+    }
+
+    public static void ClearCoalescedFollowerPublishLeaks(ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(isolated);
+
+        ClearAnalysisOnlyPublishIsolation(isolated);
+        isolated.ReviewCompleteBlocked = false;
+        isolated.IntegrityPassedFindingIds = [];
+        isolated.MustNotFailViolations = [];
     }
 
     public static void SanitizeForStorage(ClosedLoopReasoningResult result)
@@ -71,6 +89,10 @@ public static class ClosedLoopCacheHitPublishGuard
         result.PublishedFindingsSnapshotId = null;
         result.PublishedRecommendationCount = 0;
         result.PublishSkipReason = null;
+        result.PublishBlocked = false;
+        result.PublishBlockReasons = [];
+        result.CacheHit = false;
+        result.CacheReuseReason = null;
         StripProductPayloads(result);
     }
 

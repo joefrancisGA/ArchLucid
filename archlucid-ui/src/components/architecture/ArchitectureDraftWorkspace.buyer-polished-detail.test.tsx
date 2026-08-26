@@ -84,8 +84,8 @@ vi.mock("@/components/architecture/ArchitectureDraftAiRefinePanel", () => ({
 
 import { ArchitectureDraftWorkspace } from "@/components/architecture/ArchitectureDraftWorkspace";
 import {
+  ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE,
   ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
-  ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import {
   ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE,
@@ -135,9 +135,12 @@ describe("ArchitectureDraftWorkspace buyer-polished detail shell", () => {
     });
 
     const workspaceLead = screen.getByTestId("architecture-draft-workspace-lead");
-    expect(workspaceLead).toHaveTextContent(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER);
-    expect(workspaceLead).toHaveTextContent(ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE);
-    expect(screen.queryByText(ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE)).not.toBeInTheDocument();
+    expect(workspaceLead.textContent).toContain(ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE);
+    expect(workspaceLead.textContent).toMatch(/Required before review:.*Complete the system name/i);
+    expect(workspaceLead.textContent).toContain(ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE);
+    expect(screen.getByTestId("architecture-draft-detail-claim-discipline").textContent).toContain(
+      ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByRole("heading", { name: ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Diligence artifact index" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();

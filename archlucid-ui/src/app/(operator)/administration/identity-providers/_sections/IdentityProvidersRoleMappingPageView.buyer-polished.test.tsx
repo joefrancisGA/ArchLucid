@@ -96,7 +96,7 @@ describe("IdentityProvidersRoleMappingPageView buyer-polished shell (ADO)", () =
       "id",
       ROLE_MAPPING_SETTINGS_PRIMARY_CONTENT_ID,
     );
-    expect(screen.getByTestId("identity-providers-role-mapping-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("identity-providers-role-mapping-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-role-mapping-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("role-mapping-settings-sources")).toBeInTheDocument();
     expect(screen.getByText(BUYER_IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE)).toBeInTheDocument();

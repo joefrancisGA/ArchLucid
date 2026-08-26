@@ -1,18 +1,14 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 import { describe, expect, it } from "vitest";
 
-const source = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "RunDetailPageView.tsx"),
-  "utf8",
-);
+import { readRegisteredSource } from "@/testing/source-scan-harness";
+
+const pageViewSource = readRegisteredSource("run-detail-page-view");
+const createHomeSource = readRegisteredSource("run-detail-page-view-create-home");
 
 describe("RunDetailPageView create-home governance (TB-1858)", () => {
   it("hides sponsor share and work-item panels until the package is committed", () => {
-    const governancePanelIndex = source.indexOf("governance: (");
-    const governancePanelSource = source.slice(governancePanelIndex, governancePanelIndex + 2_500);
+    const governancePanelIndex = createHomeSource.indexOf("governance: (");
+    const governancePanelSource = createHomeSource.slice(governancePanelIndex, governancePanelIndex + 2_500);
 
     expect(governancePanelSource).toContain("{m.manifestId ? (");
     expect(governancePanelSource).toContain("<RunDetailArchitectureCreateWorkItemSectionDeferred");
@@ -24,8 +20,8 @@ describe("RunDetailPageView create-home governance (TB-1858)", () => {
   });
 
   it("passes pagePrimaryOwnedElsewhere to create-home activity outcome cards", () => {
-    const outcomeCardsIndex = source.indexOf("const createHomeActivityOutcomeCardsEl = (");
-    const outcomeCardsSource = source.slice(outcomeCardsIndex, outcomeCardsIndex + 900);
+    const outcomeCardsIndex = pageViewSource.indexOf("const createHomeActivityOutcomeCardsEl = (");
+    const outcomeCardsSource = pageViewSource.slice(outcomeCardsIndex, outcomeCardsIndex + 900);
 
     expect(outcomeCardsSource).toContain("pagePrimaryOwnedElsewhere");
   });

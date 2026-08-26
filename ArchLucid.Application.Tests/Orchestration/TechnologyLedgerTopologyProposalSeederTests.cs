@@ -67,8 +67,8 @@ public sealed class TechnologyLedgerTopologyProposalSeederTests
             await ledgerRepository.GetByRunIdAsync(scope, runId, CancellationToken.None);
 
         entries.Should().Contain(entry =>
-            entry.Role == TechnologyLedgerRole.ComputeRuntime
+            entry.Role == TechnologyLedgerRole.CloudPlatform
             && entry.Source == TechnologyLedgerSource.AgentProposed
-            && entry.Status == TechnologyLedgerStatus.Assumed);
+            && entry.Status == TechnologyLedgerStatus.Chosen);
     }
 }

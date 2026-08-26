@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findPatternLibraryRecord } from "@/lib/pattern-library-catalog";
 import {
   derivePatternLibrarySummary,
@@ -18,6 +19,7 @@ import { PATTERN_LIBRARY_POLICY_RULES_SECTION_TITLE } from "@/lib/pattern-librar
 import { PATTERN_LIBRARY_LOAD_RETRY_LABEL, patternLibraryDetailSubtitle } from "@/lib/pattern-library-copy";
 import { PATTERN_LIBRARY_DETAIL_PATTERN_KEY_LABEL } from "@/lib/pattern-library-detail-evidence-copy";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { patternLibraryHref } from "@/lib/pattern-library-route";
 import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +35,7 @@ import { PatternLibraryLoadFailurePanel } from "./PatternLibraryLoadFailurePanel
 import { Button } from "@/components/ui/button";
 import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import { PatternLibraryDetailNextPatternFooter } from "./PatternLibraryDetailNextPatternFooter";
+import { PatternLibraryNextReviewFooterClient } from "./PatternLibraryNextReviewFooterClient";
 import { resolveNextPatternLibraryRecord } from "@/lib/resolve-next-pattern-library-record";
 
 type PatternLibraryDetailClientProps = {
@@ -59,6 +62,9 @@ function toPatternLibraryLoadFailure(error: Error): ApiLoadFailureState {
 }
 
 export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProps): React.JSX.Element {
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
   const queryClient = useQueryClient();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const record = findPatternLibraryRecord(props.patternKey);
@@ -142,6 +148,27 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
 
       <PatternLibraryDetailBuyerChrome />
 
+      {scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="pattern-library-detail-run-scope-banner"
+        >
+          {"Browsing patterns for review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={patternLibraryHref()}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : null}
+
       {isPending ? <PatternLibraryDetailSkeleton /> : null}
 
       {!isPending && loadFailure !== null ? (
@@ -167,7 +194,9 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
               </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
-              <Link href="/insights/patterns">Back to library</Link>
+              <Link href={patternLibraryHref(scopedRunFilterActive ? { runId: scopedRunId } : undefined)}>
+                Back to library
+              </Link>
             </Button>
           </div>
 
@@ -267,7 +296,10 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
               ) : null}
             </div>
           </section>
-          {nextPattern !== null ? <PatternLibraryDetailNextPatternFooter target={nextPattern} /> : null}
+          {scopedRunFilterActive ? <PatternLibraryNextReviewFooterClient runId={scopedRunId} /> : null}
+          {nextPattern !== null ? (
+            <PatternLibraryDetailNextPatternFooter target={nextPattern} scopedRunId={scopedRunId} />
+          ) : null}
         </>
       ) : null}
     </OperatorPageContainer>

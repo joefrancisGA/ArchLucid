@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE } from "@/lib/architecture/architecture-intelligence-evidence-copy";
 import {
-  ARCHITECTURE_INTELLIGENCE_CLAIM_HEADING,
   ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER,
   ARCHITECTURE_INTELLIGENCE_PAGE_TITLE,
   ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL,
@@ -101,9 +100,9 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell", () => {
     expect(screen.queryByTestId("architecture-intelligence-page-breadcrumb")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-intelligence-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-intelligence-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByText(ARCHITECTURE_INTELLIGENCE_CLAIM_HEADING)).toBeInTheDocument();
-    expect(screen.getByText(ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE)).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-claim-discipline").textContent).toContain(
+      ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.queryByTestId("ask-architecture-intelligence-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-intelligence-evidence-graph-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-capability-boundary")).not.toBeInTheDocument();

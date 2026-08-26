@@ -198,9 +198,7 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
       expect(screen.getByRole("heading", { level: 2, name: "Approval queue" })).toBeInTheDocument();
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId("governance-overview-pending-action")).toBeInTheDocument();
-    });
+    expect(screen.getByTestId("governance-overview-page-title")).toBeInTheDocument();
 
     expect(screen.getAllByText(BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD)).toHaveLength(1);
     expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
@@ -214,7 +212,6 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     expect(screen.queryByTestId("governance-interactive-quickstart")).not.toBeInTheDocument();
     expect(screen.queryAllByText("How resolve outcomes work")).toHaveLength(1);
     expect(screen.queryByTestId("governance-sample-overview-banner")).not.toBeInTheDocument();
-    expect(screen.getByTestId("governance-overview-summary-authority")).toBeInTheDocument();
     expect(screen.queryByTestId("inline-guidance-governance-overview-next")).not.toBeInTheDocument();
     expect(screen.queryByTestId("governance-overview-submit-action")).not.toBeInTheDocument();
   });

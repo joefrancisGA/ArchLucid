@@ -138,7 +138,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(screen.getByTestId("getting-started-mental-model-diagram")).toBeInTheDocument();
     expect(screen.getByTestId("getting-started-plain-language-table")).toBeInTheDocument();
     expect(screen.getByText("Architecture package")).toBeInTheDocument();
-    expect(screen.getByText("Resolve outcomes")).toBeInTheDocument();
+    expect(screen.getByText("Sealed review record")).toBeInTheDocument();
   });
 
   it("renders the authority pipeline with text stages and Mermaid diagram", () => {
@@ -162,9 +162,9 @@ describe("HelpGettingStartedGuideView", () => {
 
     const mermaid = within(pipelineDiagram).getByTestId("mermaid-diagram");
     expect(mermaid).toHaveTextContent("subgraph pipeline [Authority pipeline]");
-    expect(mermaid).toHaveTextContent("gov{Approval check}");
-    expect(mermaid).toHaveTextContent("SR[Finalized review record]");
-    expect(mermaid.getAttribute("data-description")).toMatch(/approval check/i);
+    expect(mermaid).toHaveTextContent("gov{Governance gate}");
+    expect(mermaid).toHaveTextContent("SR[Sealed review record]");
+    expect(mermaid.getAttribute("data-description")).toMatch(/governance gate/i);
     expect(within(pipelineDiagram).queryByText(/Diagram source \(Mermaid\)/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("getting-started-pipeline-diagram-details")).not.toBeInTheDocument();
   });

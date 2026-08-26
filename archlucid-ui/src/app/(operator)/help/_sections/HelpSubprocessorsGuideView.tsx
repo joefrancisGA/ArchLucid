@@ -6,6 +6,7 @@ import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { SubprocessorsHelpClaimDisciplineStrip } from "@/components/help/SubprocessorsHelpClaimDisciplineStrip";
 import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ import {
 } from "@/lib/design-tokens";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   SUBPROCESSORS_HELP_JOB_MATRIX,
@@ -70,6 +71,8 @@ export function HelpSubprocessorsGuideView(
     extractHelpMarkdownHeadings(preparedMarkdown),
     SUBPROCESSORS_HELP_CLAIM_HEADING_ID,
   );
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
+  const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
   const relatedGuides = subprocessorsHelpRelatedGuides();
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
@@ -108,8 +111,13 @@ export function HelpSubprocessorsGuideView(
         }
       />
 
+      <SubprocessorsHelpClaimDisciplineStrip />
+
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <Card data-testid="help-subprocessors-action-panel">
+        <Card
+          className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950"
+          data-testid="help-subprocessors-action-panel"
+        >
           <CardHeader className={OPERATOR_CARD.header}>
             <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
               Continue diligence
@@ -182,10 +190,10 @@ export function HelpSubprocessorsGuideView(
         </ul>
       </section>
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+      <div className={contentGridClass}>
         <div
           id={SUBPROCESSORS_HELP_PRIMARY_CONTENT_ID}
-          className={cn("min-w-0 scroll-mt-24 space-y-6", "max-w-[42rem] lg:max-w-none")}
+          className={cn("min-w-0 scroll-mt-24 space-y-6", HELP_PAGE_LAYOUT.contentColumn)}
         >
           {buyerPolishedShell ? (
             <div data-testid="help-subprocessors-orientation-top">
@@ -244,7 +252,7 @@ export function HelpSubprocessorsGuideView(
           ) : null}
         </div>
 
-        <HelpTopicTableOfContents headings={headings} />
+        {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
       </div>
     </article>
   );

@@ -18,6 +18,7 @@ import {
   POLICY_PACKS_RESOLUTION_LINK_HREF,
   POLICY_PACKS_RESOLUTION_LINK_LABEL,
 } from "@/lib/policy/policy-packs-page";
+import { POLICY_PACKS_HUB_CLAIM_DISCIPLINE } from "@/lib/policy/policy-packs-hub-evidence-copy";
 
 export type PolicyPacksPageHeaderProps = {
   readonly subtitle: string;
@@ -43,6 +44,8 @@ export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.
       title={POLICY_PACKS_PAGE_TITLE}
       titleTestId="policy-packs-page-title"
       subtitle={props.subtitle}
+      claimDiscipline={POLICY_PACKS_HUB_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="policy-packs-claim-discipline"
       breadcrumb={props.breadcrumb}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="policy-packs-header-actions">

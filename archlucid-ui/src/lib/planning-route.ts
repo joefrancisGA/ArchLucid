@@ -24,3 +24,15 @@ export function isPlanningPath(pathname: string): boolean {
 export function planningPlanDetailPath(planId: string): string {
   return `${PLANNING_PLAN_DETAIL_PATH_PREFIX}/${encodeURIComponent(planId.trim())}`;
 }
+
+/** Plan detail deep link preserving optional review scope. */
+export function planningPlanDetailHref(planId: string, runId?: string | null): string {
+  const base = planningPlanDetailPath(planId);
+  const trimmed = (runId ?? "").trim();
+
+  if (trimmed.length === 0) {
+    return base;
+  }
+
+  return `${base}?runId=${encodeURIComponent(trimmed)}`;
+}

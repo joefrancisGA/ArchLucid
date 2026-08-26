@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
@@ -41,11 +42,17 @@ import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import type { StatedConstraintContext } from "@/lib/review-quality/assumption-and-severity";
 import { buildSeverityConstraintNoteForInspectPayload } from "@/lib/review-quality/finding-severity-constraint-note";
 import { classifyInspectPayloadJobView } from "@/lib/findings/finding-inspect-job-view";
+import {
+  resolveFindingInspectCompleteFromPayload,
+  resolveFindingInspectEmphasizedStepId,
+  resolveFindingInspectSteps,
+} from "@/lib/finding-inspect-checklist";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingEvidenceTraceBuyerChrome } from "./FindingEvidenceTraceBuyerChrome";
 import { FindingEvidenceTraceBreadcrumb } from "./FindingEvidenceTraceBreadcrumb";
 import { evidenceTracePageSubtitle } from "./evidence-trace-page-copy";
+import { EVIDENCE_TRACE_CLAIM_DISCIPLINE } from "@/lib/evidence-trace-evidence-copy";
 
 import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeverityConstraintNote";
 import { FindingJobViewLaneCallout } from "@/components/findings/FindingJobViewLaneCallout";
@@ -53,6 +60,7 @@ import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
 import { FindingInspectNextFindingEvidenceFooterClient } from "./_sections/FindingInspectNextFindingEvidenceFooterClient";
+import { RunDetailNextReviewFooterClient } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailNextReviewFooterClient";
 
 /** Compares authority run ids from URL vs API (hyphenated vs `N` GUID, case). */
 export function sameAuthorityRunId(a: string, b: string): boolean {
@@ -179,12 +187,37 @@ export function FindingInspectView({
       ? buildSeverityConstraintNoteForInspectPayload(payload, statedConstraintContext)
       : null;
   const findingJobView = payload !== null ? classifyInspectPayloadJobView(payload) : null;
+  const scopedRunId = runId.trim();
+  const findingInspectSteps = resolveFindingInspectSteps({
+    reviewPicked: scopedRunId.length > 0,
+    evidenceLoaded: payload !== null,
+    inspectComplete: resolveFindingInspectCompleteFromPayload({
+      evidenceCount: payload.evidence.length,
+      decisionRuleId: payload.decisionRuleId,
+      reasoningTrace: payload.reasoningTrace,
+    }),
+  });
+  const findingInspectEmphasizedStepId = resolveFindingInspectEmphasizedStepId({
+    reviewPicked: scopedRunId.length > 0,
+    evidenceLoaded: payload !== null,
+    inspectComplete: resolveFindingInspectCompleteFromPayload({
+      evidenceCount: payload.evidence.length,
+      decisionRuleId: payload.decisionRuleId,
+      reasoningTrace: payload.reasoningTrace,
+    }),
+  });
 
   return (
     <OperatorPageContainer variant="dashboard" className={cn("p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="finding-inspect-view">
       <CanonicalObjectSecondaryViewStrip
         presentation={evidenceTraceSecondaryViewPresentation}
         testId="evidence-trace-secondary-view-strip"
+      />
+      <IntegrationConnectChecklist
+        title="Evidence trace checklist"
+        steps={findingInspectSteps}
+        emphasizedStepId={findingInspectEmphasizedStepId}
+        testIdPrefix="finding-evidence-trace"
       />
       <section
         className="space-y-4"
@@ -224,6 +257,8 @@ export function FindingInspectView({
                 </>
               )
             }
+            claimDiscipline={EVIDENCE_TRACE_CLAIM_DISCIPLINE}
+            claimDisciplineTestId="finding-eru-claim-discipline"
             subtitleClassName="max-w-3xl leading-relaxed"
             actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
           >
@@ -309,6 +344,7 @@ export function FindingInspectView({
       />
 
       <FindingInspectNextFindingEvidenceFooterClient runId={runId} findingId={decodedFindingId} />
+      <RunDetailNextReviewFooterClient runId={runId} />
     </OperatorPageContainer>
   );
 }

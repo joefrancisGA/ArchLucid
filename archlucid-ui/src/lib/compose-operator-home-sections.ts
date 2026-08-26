@@ -66,9 +66,7 @@ function operatorShellSections(phase: OperatorHomeWorkspacePhase): OperatorHomeS
       { id: "below-fold", testId: "operator-home-below-fold" },
     ];
 
-    if (phase !== "operational") {
-      sections.push({ id: "stickiness", testId: "operator-home-stickiness-cockpit" });
-    }
+    sections.push({ id: "stickiness", testId: "operator-home-stickiness-cockpit" });
 
     sections.push({ id: "sponsor-roi", testId: "operator-home-sponsor-roi" });
 

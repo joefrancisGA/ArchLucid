@@ -41,7 +41,7 @@ describe("HelpSubprocessorsGuideView buyer-polished shell", () => {
     );
     expect(screen.getByText(SUBPROCESSORS_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(SUBPROCESSORS_HELP_PAGE_SUBTITLE)).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-subprocessors-header-metadata")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-heading-eyebrow")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-subprocessors-header-actions")).not.toBeInTheDocument();

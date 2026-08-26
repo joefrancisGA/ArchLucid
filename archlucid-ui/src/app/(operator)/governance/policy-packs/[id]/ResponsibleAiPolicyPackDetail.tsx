@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { POLICY_PACK_DETAIL_CLAIM_DISCIPLINE } from "@/lib/policy/policy-pack-detail-evidence-copy";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
@@ -225,6 +226,8 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
         navHref={GOVERNANCE_POLICY_PACKS_PATH}
         title={RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE}
         subtitle={RESPONSIBLE_AI_POLICY_PACK_SUBTITLE}
+        claimDiscipline={POLICY_PACK_DETAIL_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="policy-pack-detail-claim-discipline"
         titleTestId="policy-pack-detail-title"
         breadcrumb={<GovernancePolicyPackBreadcrumb packLabel={RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL} />}
         statusBadge={

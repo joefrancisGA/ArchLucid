@@ -13,7 +13,8 @@ internal sealed class ReviewSingleFlightCoordinator
     public async Task<ClosedLoopReasoningResult> CoalesceAsync(
         string key,
         Func<CancellationToken, Task<ClosedLoopReasoningResult>> leaderWork,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool stripCoalescedFollowerPublishLeaks = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
         ArgumentNullException.ThrowIfNull(leaderWork);
@@ -33,9 +34,10 @@ internal sealed class ReviewSingleFlightCoordinator
                 try
                 {
                     ClosedLoopReasoningResult result = await leaderWork(cancellationToken).ConfigureAwait(false);
-                    entry.Completion.TrySetResult(result);
+                    ClosedLoopReasoningResult waitersResult = ClosedLoopReasoningResultCloner.Clone(result);
+                    entry.Completion.TrySetResult(waitersResult);
 
-                    return result;
+                    return ClosedLoopReasoningResultCloner.Clone(result);
                 }
                 catch (OperationCanceledException)
                 {
@@ -60,7 +62,20 @@ internal sealed class ReviewSingleFlightCoordinator
 
             try
             {
-                return await existing.Completion.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+                ClosedLoopReasoningResult waitersResult =
+                    await existing.Completion.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+                ClosedLoopReasoningResult followerClone = ClosedLoopReasoningResultCloner.Clone(waitersResult);
+
+                if (stripCoalescedFollowerPublishLeaks)
+                {
+                    if (waitersResult.PublishBlocked)
+                        ClosedLoopCacheHitPublishGuard.ClearCoalescedFollowerPublishLeaks(followerClone);
+                    else if (waitersResult.PublishedToProduct)
+                        ClosedLoopCacheHitPublishGuard.ClearAnalysisOnlyPublishIsolation(followerClone);
+                }
+
+                return followerClone;
             }
             catch (Exception exception) when (IsLeaderAborted(exception))
             {

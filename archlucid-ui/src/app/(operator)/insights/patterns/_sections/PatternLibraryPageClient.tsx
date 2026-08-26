@@ -193,7 +193,7 @@ export function PatternLibraryPageClient(): React.JSX.Element {
             <>
           <PatternLibrarySummaryRow summary={summary} />
           {continueLastPattern !== null ? (
-            <PatternLibraryContinueLastViewedRow record={continueLastPattern} />
+            <PatternLibraryContinueLastViewedRow record={continueLastPattern} scopedRunId={scopedRunId} />
           ) : null}
           <PatternLibraryFiltersPanel filters={filters} onChange={setFilters} />
 
@@ -218,7 +218,7 @@ export function PatternLibraryPageClient(): React.JSX.Element {
           {filteredRecords.length > 0 ? (
             <div className="grid gap-4 lg:grid-cols-2" data-testid="pattern-library-card-grid">
               {filteredRecords.map((record) => (
-                <PatternLibraryPatternCard key={record.patternKey} record={record} />
+                <PatternLibraryPatternCard key={record.patternKey} record={record} scopedRunId={scopedRunId} />
               ))}
             </div>
           ) : null}

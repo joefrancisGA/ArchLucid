@@ -10,11 +10,11 @@ public interface IReviewResultCache
 
     void InvalidateForRun(string runId);
 
-    string BuildInFlightKey(ReviewCacheDependencyManifest manifest, bool publishToProduct);
+    IDisposable PinScope(ReviewCacheDependencyManifest manifest);
 
-    void MarkCoalesceLeaderReviewCacheHit(string inFlightKey, string? reuseReason);
-
-    bool TryConsumeCoalesceLeaderReviewCacheHit(string inFlightKey, out string? reuseReason);
+    IDisposable PinScope(
+        ReviewCacheDependencyManifest primaryManifest,
+        ReviewCacheDependencyManifest secondaryManifest);
 
     Task<ClosedLoopReasoningResult> CoalesceAsync(
         ReviewCacheDependencyManifest manifest,

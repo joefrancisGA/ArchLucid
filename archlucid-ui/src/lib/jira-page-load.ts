@@ -14,8 +14,8 @@ export type JiraPageLoadSliceResult<T> = {
 
 export type JiraPageLoadResult = {
   readonly health: JiraPageLoadSliceResult<ItsmIntegrationHealthResponse>;
-  readonly settings: JiraPageLoadSliceResult<TenantItsmOutboundSettingsResponse>;
-  readonly connection: JiraPageLoadSliceResult<TenantItsmConnectorConnectionResponse>;
+  readonly settings: JiraPageLoadSliceResult<TenantItsmOutboundSettingsResponse | null>;
+  readonly connection: JiraPageLoadSliceResult<TenantItsmConnectorConnectionResponse | null>;
   readonly failedSliceLabels: readonly string[];
   readonly loadError: string | null;
 };
@@ -55,8 +55,8 @@ export function settleJiraPageLoadSlice<T>(
 
 export function buildJiraPageLoadResult(args: {
   readonly health: PromiseSettledResult<ItsmIntegrationHealthResponse>;
-  readonly settings: PromiseSettledResult<TenantItsmOutboundSettingsResponse>;
-  readonly connection: PromiseSettledResult<TenantItsmConnectorConnectionResponse>;
+  readonly settings: PromiseSettledResult<TenantItsmOutboundSettingsResponse | null>;
+  readonly connection: PromiseSettledResult<TenantItsmConnectorConnectionResponse | null>;
 }): JiraPageLoadResult {
   const health = settleJiraPageLoadSlice(args.health, "health");
   const settings = settleJiraPageLoadSlice(args.settings, "settings");

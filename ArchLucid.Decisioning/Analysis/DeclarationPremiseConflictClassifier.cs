@@ -1,3 +1,4 @@
+using ArchLucid.Core.Findings;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Decisioning.Analysis;
@@ -10,6 +11,7 @@ public static class DeclarationPremiseConflictClassifier
     public const string PrivateNetworkConflictKind = "private-network-conflict";
     public const string HttpsTlsConflictKind = "https-tls-conflict";
     public const string AdminIngressConflictKind = "admin-ingress-conflict";
+    public const string WorkloadIsolationConflictKind = "workload-isolation-conflict";
 
     private static readonly string[] PrivateNetworkIntentPhrases =
     [
@@ -48,6 +50,18 @@ public static class DeclarationPremiseConflictClassifier
         "block rdp",
         "administrative access",
         "deny internet ssh",
+    ];
+
+    private static readonly string[] WorkloadIsolationIntentPhrases =
+    [
+        "restricted workload",
+        "no privileged",
+        "pod security",
+        "restricted pss",
+        "restricted pod security",
+        "non-root",
+        "run as non-root",
+        "host network",
     ];
 
     public static IReadOnlyList<DeclarationPremiseConflictSignal> Classify(
@@ -95,6 +109,7 @@ public static class DeclarationPremiseConflictClassifier
 
                 signals.Add(new DeclarationPremiseConflictSignal
                 {
+                    Theme = baselineSignal.Theme,
                     ConflictKind = conflictKind,
                     DeclarationPropertyKey = propertyKey!,
                     DeclarationPropertyValue = propertyValue!,
@@ -116,6 +131,8 @@ public static class DeclarationPremiseConflictClassifier
         {
             "data-protection" => PrivateNetworkConflictKind,
             "transport-security" => HttpsTlsConflictKind,
+            "workload-isolation" => WorkloadIsolationConflictKind,
+            "network-isolation" when TryGetK8sProperty(properties, "hostNetwork", out _) => WorkloadIsolationConflictKind,
             "network-isolation" => AdminIngressConflictKind,
             "encryption" when HasPublicNetworkProperty(properties) => PrivateNetworkConflictKind,
             "encryption" when HasWeakTlsProperty(properties) => HttpsTlsConflictKind,
@@ -135,6 +152,7 @@ public static class DeclarationPremiseConflictClassifier
             PrivateNetworkConflictKind => ContainsAnyPhrase(normalized, PrivateNetworkIntentPhrases),
             HttpsTlsConflictKind => ContainsAnyPhrase(normalized, HttpsTlsIntentPhrases),
             AdminIngressConflictKind => ContainsAnyPhrase(normalized, AdminIngressIntentPhrases),
+            WorkloadIsolationConflictKind => ContainsAnyPhrase(normalized, WorkloadIsolationIntentPhrases),
             _ => false,
         };
     }
@@ -166,73 +184,75 @@ public static class DeclarationPremiseConflictClassifier
 
         if (conflictKind == PrivateNetworkConflictKind)
         {
-            if (TryGetProperty(properties, "tf.public_network_access", out propertyValue))
-            {
-                propertyKey = "tf.public_network_access";
+            if (DeclarationSecurityPropertyKeyResolver.TryGet(
+                    properties,
+                    DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+                    out propertyKey,
+                    out propertyValue))
                 return true;
-            }
 
-            if (TryGetProperty(properties, "publicNetworkAccess", out propertyValue))
-            {
-                propertyKey = "publicNetworkAccess";
+            if (DeclarationSecurityPropertyKeyResolver.TryGet(
+                    properties,
+                    DeclarationSecurityPropertyLogicalNames.AllowBlobPublicAccess,
+                    out propertyKey,
+                    out propertyValue))
                 return true;
-            }
-
-            if (TryGetProperty(properties, "tf.allow_blob_public_access", out propertyValue))
-            {
-                propertyKey = "tf.allow_blob_public_access";
-                return true;
-            }
-
-            if (TryGetProperty(properties, "allowBlobPublicAccess", out propertyValue))
-            {
-                propertyKey = "allowBlobPublicAccess";
-                return true;
-            }
 
             return false;
         }
 
         if (conflictKind == HttpsTlsConflictKind)
         {
-            if (TryGetProperty(properties, "tf.https_only", out propertyValue))
-            {
-                propertyKey = "tf.https_only";
+            if (DeclarationSecurityPropertyKeyResolver.TryGet(
+                    properties,
+                    DeclarationSecurityPropertyLogicalNames.HttpsOnly,
+                    out propertyKey,
+                    out propertyValue))
                 return true;
-            }
 
-            if (TryGetProperty(properties, "httpsOnly", out propertyValue))
-            {
-                propertyKey = "httpsOnly";
+            if (DeclarationSecurityPropertyKeyResolver.TryGet(
+                    properties,
+                    DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion,
+                    out propertyKey,
+                    out propertyValue))
                 return true;
-            }
 
-            if (TryGetProperty(properties, "tf.minimum_tls_version", out propertyValue))
-            {
-                propertyKey = "tf.minimum_tls_version";
+            if (DeclarationSecurityPropertyKeyResolver.TryGet(
+                    properties,
+                    DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+                    out propertyKey,
+                    out propertyValue))
                 return true;
-            }
-
-            if (TryGetProperty(properties, "tf.ssl_enforcement_enabled", out propertyValue))
-            {
-                propertyKey = "tf.ssl_enforcement_enabled";
-                return true;
-            }
 
             return false;
         }
 
         if (conflictKind == AdminIngressConflictKind)
         {
-            if (TryGetProperty(properties, "tf.ingress", out propertyValue))
+            return DeclarationSecurityPropertyKeyResolver.TryGet(
+                properties,
+                DeclarationSecurityPropertyLogicalNames.IngressBlob,
+                out propertyKey,
+                out propertyValue);
+        }
+
+        if (conflictKind == WorkloadIsolationConflictKind)
+        {
+            if (TryGetK8sProperty(properties, "privileged", out propertyValue))
             {
-                propertyKey = "tf.ingress";
+                propertyKey = "k8s.privileged";
                 return true;
             }
 
-            if (TryGetProperty(properties, "tf.network_rules", out propertyValue))
+            if (TryGetK8sProperty(properties, "hostNetwork", out propertyValue))
             {
-                propertyKey = "tf.network_rules";
+                propertyKey = "k8s.hostNetwork";
+                return true;
+            }
+
+            if (TryGetK8sProperty(properties, "allowPrivilegeEscalation", out propertyValue))
+            {
+                propertyKey = "k8s.allowPrivilegeEscalation";
                 return true;
             }
         }
@@ -241,16 +261,56 @@ public static class DeclarationPremiseConflictClassifier
     }
 
     private static bool HasPublicNetworkProperty(IReadOnlyDictionary<string, string> properties) =>
-        TryGetProperty(properties, "tf.public_network_access", out _)
-        || TryGetProperty(properties, "publicNetworkAccess", out _)
-        || TryGetProperty(properties, "tf.allow_blob_public_access", out _)
-        || TryGetProperty(properties, "allowBlobPublicAccess", out _);
+        DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+            out _,
+            out _)
+        || DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.AllowBlobPublicAccess,
+            out _,
+            out _);
 
     private static bool HasWeakTlsProperty(IReadOnlyDictionary<string, string> properties) =>
-        TryGetProperty(properties, "tf.https_only", out _)
-        || TryGetProperty(properties, "httpsOnly", out _)
-        || TryGetProperty(properties, "tf.minimum_tls_version", out _)
-        || TryGetProperty(properties, "tf.ssl_enforcement_enabled", out _);
+        DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.HttpsOnly,
+            out _,
+            out _)
+        || DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion,
+            out _,
+            out _)
+        || DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+            out _,
+            out _);
+
+    private static bool TryGetK8sProperty(
+        IReadOnlyDictionary<string, string> properties,
+        string keySuffix,
+        out string? value)
+    {
+        foreach (KeyValuePair<string, string> entry in properties)
+        {
+            if (!string.Equals(entry.Key, $"k8s.{keySuffix}", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (string.IsNullOrWhiteSpace(entry.Value))
+                continue;
+
+            value = entry.Value.Trim();
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
+    }
 
     private static bool ContainsAnyPhrase(string normalizedIntentText, IReadOnlyList<string> phrases)
     {
@@ -260,21 +320,6 @@ public static class DeclarationPremiseConflictClassifier
                 return true;
         }
 
-        return false;
-    }
-
-    private static bool TryGetProperty(
-        IReadOnlyDictionary<string, string> properties,
-        string key,
-        out string? value)
-    {
-        if (properties.TryGetValue(key, out string? directValue) && !string.IsNullOrWhiteSpace(directValue))
-        {
-            value = directValue.Trim();
-            return true;
-        }
-
-        value = null;
         return false;
     }
 }

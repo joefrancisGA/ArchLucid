@@ -9,6 +9,7 @@ vi.mock("next/navigation", () => ({
     get: (key: string) => searchParamsGet(key),
   }),
   usePathname: () => "/architecture/reviews/new",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
 }));
 
 vi.mock("./use-reviews-new-specimen-preview-presentation", () => ({
@@ -71,7 +72,7 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
       "id",
       REVIEWS_NEW_PRIMARY_CONTENT_ID,
     );
-    expect(screen.getByTestId("reviews-new-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-settings-sources")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Related resources" })).toBeInTheDocument();
@@ -132,8 +133,7 @@ describe("ReviewsNewPageChrome buyer-polished shell (REQ)", () => {
       "id",
       REVIEWS_NEW_PRIMARY_CONTENT_ID,
     );
-    expect(screen.getByTestId("reviews-new-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByText("Quick start")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-settings-sources")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-subtitle")).toHaveTextContent(

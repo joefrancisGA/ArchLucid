@@ -90,16 +90,6 @@ export function AdvisoryScanForm(props: AdvisoryScanFormProps): React.JSX.Elemen
           </h3>
         </div>
 
-        {bootstrappedRunId.length > 0 ? (
-          <p
-            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="advisory-scans-run-scope-banner"
-          >
-            Scoped to review <span className="font-mono text-al-text-primary">{bootstrappedRunId}</span>.
-            Persisted recommendations load automatically; generate a scan if you need a fresh plan.
-          </p>
-        ) : null}
-
         <div className="grid gap-4">
           <RunIdPicker
             label={ADVISORY_SCANS_FINALIZED_REVIEW_LABEL}

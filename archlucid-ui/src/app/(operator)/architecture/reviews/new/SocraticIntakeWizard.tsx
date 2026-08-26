@@ -4,31 +4,19 @@ import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
-import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
 import { DraftIntakeRequiredClarificationField, REQUIRED_CLARIFICATION_BASELINE_LABEL } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
-import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
-import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
-import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/WizardPolicyPackCloudMismatchCallout";
-import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
-import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
+import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
-import { CREATE_ARCHITECTURE_STARTING_LABEL, REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
-import { SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT } from "@/lib/architecture/architecture-scope-understanding-check";
 import {
-  OPERATOR_FORM_FIELD_HELPER_CLASS,
-  OPERATOR_FORM_FIELD_STACK_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -37,45 +25,32 @@ import {
   WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS,
   WIZARD_STICKY_FOOTER_TEST_ID,
 } from "@/lib/wizard-sticky-progress";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { deriveGuidedIntakeCloudTargetForMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
 import {
-  GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
-  GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
-  GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING,
-  GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
-  GUIDED_INTAKE_CONTINUE_TO_DISCOVERY,
-  GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER,
-  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
-  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER,
   GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION,
-  GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
-  GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER,
   GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_TAIL,
-  GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,
   GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD,
-  guidedIntakeArchitectureIntentHelperText,
   guidedIntakeClarificationsAnsweredCounter,
-  guidedIntakeCreationArchitectureOverviewHelperText,
   GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
 } from "@/lib/guided-intake-copy";
 import {
   DraftIntakeDecisionReceiptCard,
   SocraticIntakeWizardAdvancedRail,
 } from "./SocraticIntakeWizardDeferredPanels";
+import { SocraticIntakeWizardStepConfirm } from "./SocraticIntakeWizardStepConfirm";
+import { SocraticIntakeWizardStepScope } from "./SocraticIntakeWizardStepScope";
 import { ReviewsNewBuyerChrome } from "./ReviewsNewBuyerChrome";
 import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
 import { GuidedIntakeAlreadySubmittedCallout } from "./GuidedIntakeAlreadySubmittedCallout";
-import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
-import { INTAKE_STEPS, INTAKE_WIZARD_STEPPER_STEPS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
+import { INTAKE_STEPS, INTAKE_WIZARD_STEPPER_STEPS } from "./guided-intake-steps";
 import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
 export function SocraticIntakeWizard() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
   const {
     // Intake context (query string, budget gate)
     exampleTemplate,
@@ -222,7 +197,7 @@ export function SocraticIntakeWizard() {
       data-testid="socratic-intake-wizard"
     >
       <div className="min-w-0 space-y-4">
-      {wizardSession.pendingRestore !== null ? (
+      {wizardSession.pendingRestore !== null && !suppressWizardResumePrompt ? (
         <WizardSessionResumePrompt
           onResume={wizardSession.acceptRestore}
           onDismiss={wizardSession.dismissRestore}
@@ -307,183 +282,33 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {step === 0 ? (
-        <Card data-testid="guided-intake-primary-panel">
-          {!isCreateArchitectureFlow ? (
-            <CardHeader>
-              <CardTitle>{INTAKE_STEPS[0].cardTitle}</CardTitle>
-              <CardDescription>{INTAKE_STEPS[0].description}</CardDescription>
-            </CardHeader>
-          ) : null}
-          <CardContent className={cn(OPERATOR_LAYOUT.sectionStack, isCreateArchitectureFlow && "pt-4")}>
-            {isCreateArchitectureFlow ? (
-              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-                <IntakeFieldLabel
-                  htmlFor="socratic-system-name"
-                  label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL}
-                  required
-                />
-                <Input
-                  id="socratic-system-name"
-                  value={systemName}
-                  onChange={(event) => setSystemName(event.target.value)}
-                  disabled={busy}
-                  placeholder={GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER}
-                  data-testid="socratic-system-name"
-                  aria-required
-                />
-              </div>
-            ) : null}
-
-            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-              <IntakeFieldLabel htmlFor="socratic-intent" label={intentFieldLabel} required />
-              <Textarea
-                id="socratic-intent"
-                value={freeTextIntent}
-                onChange={(event) => setFreeTextIntent(event.target.value)}
-                rows={isCreateArchitectureFlow ? 4 : 3}
-                disabled={busy}
-                placeholder={
-                  isCreateArchitectureFlow
-                    ? GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER
-                    : GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER
-                }
-                data-testid="socratic-intent"
-                aria-invalid={intentTrimmedLength > 0 && !intentMeetsMinimum}
-                aria-describedby="socratic-intent-helper"
-                aria-required
-              />
-              <p
-                id="socratic-intent-helper"
-                className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-neutral-600 dark:text-neutral-400")}
-                role={intentTrimmedLength > 0 && !intentMeetsMinimum ? "alert" : "status"}
-                data-testid="socratic-intent-helper"
-              >
-                {isCreateArchitectureFlow
-                  ? guidedIntakeCreationArchitectureOverviewHelperText(intentTrimmedLength)
-                  : guidedIntakeArchitectureIntentHelperText(intentTrimmedLength)}
-              </p>
-            </div>
-
-            {isCreateArchitectureFlow ? (
-              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-                <IntakeFieldLabel
-                  htmlFor="socratic-outcome"
-                  label={GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}
-                  required
-                />
-                <Textarea
-                  id="socratic-outcome"
-                  value={businessOutcome}
-                  onChange={(event) => setBusinessOutcome(event.target.value)}
-                  rows={2}
-                  disabled={busy}
-                  placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
-                  data-testid="socratic-outcome"
-                  aria-invalid={outcomeTrimmedLength > 0 && !outcomeMeetsMinimum}
-                  aria-describedby="socratic-outcome-helper"
-                  aria-required
-                />
-                <p
-                  id="socratic-outcome-helper"
-                  className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-neutral-600 dark:text-neutral-400")}
-                  role={outcomeTrimmedLength > 0 && !outcomeMeetsMinimum ? "alert" : "status"}
-                  data-testid="socratic-outcome-helper"
-                >
-                  {outcomeTrimmedLength === 0
-                    ? GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER
-                    : outcomeMeetsMinimum
-                      ? `${outcomeTrimmedLength} characters.`
-                      : `${outcomeTrimmedLength} / ${MIN_OUTCOME_CHARS} characters. ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER}`}
-                </p>
-              </div>
-            ) : (
-              <>
-                <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-                  <IntakeFieldLabel htmlFor="socratic-system-name" label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL} required={false} />
-                  <Input
-                    id="socratic-system-name"
-                    value={systemName}
-                    onChange={(event) => setSystemName(event.target.value)}
-                    disabled={busy}
-                    data-testid="socratic-system-name"
-                  />
-                </div>
-                <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-                  <IntakeFieldLabel htmlFor="socratic-outcome" label={GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL} required />
-                  <Textarea
-                    id="socratic-outcome"
-                    value={businessOutcome}
-                    onChange={(event) => setBusinessOutcome(event.target.value)}
-                    rows={2}
-                    disabled={busy}
-                    placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
-                    data-testid="socratic-outcome"
-                    aria-required
-                  />
-                </div>
-              </>
-            )}
-
-            <DraftIntakeActorEditor
-              actorSet={actorSet}
-              intentText={freeTextIntent}
-              disabled={busy}
-              creationFlow={isCreateArchitectureFlow}
-              onChange={setActorSet}
-            />
-
-            <ReviewAssuranceCoverageSection
-              focusedPilotModeEnabled={focusedPilotModeEnabled}
-              onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
-              togglePresentation={isCreateArchitectureFlow ? "scope-card" : "checkbox"}
-              className={isCreateArchitectureFlow ? "max-w-md" : undefined}
-            />
-
-            <ArchitectureScopeUnderstandingCheckPanel
-              input={scopeUnderstandingInput}
-              contextSourceLabel={`${intentFieldLabel} above`}
-              readyHint={SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT}
-              // Local editing only — an exhausted LLM budget must not lock the operator out of step 0.
-              disabled={busy}
-              onBulletsChange={setScopeBullets}
-              onGateChange={setScopeGateOpen}
-            />
-
-            {!canAdvanceIntent && advanceHint.length > 0 ? (
-              <p
-                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
-                role="status"
-                data-testid="socratic-advance-hint"
-              >
-                {advanceHint}
-              </p>
-            ) : null}
-
-            {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
-
-            <Button
-              type="button"
-              disabled={!canAdvanceIntent}
-              onClick={() => {
-                if (isCreateArchitectureFlow) {
-                  void runCreateArchitectureContinuation();
-                  return;
-                }
-
-                void runAdmission();
-              }}
-              data-testid="socratic-admit"
-            >
-              {busy
-                ? isCreateArchitectureFlow
-                  ? CREATE_ARCHITECTURE_STARTING_LABEL
-                  : "Checking readiness…"
-                : isCreateArchitectureFlow
-                  ? GUIDED_INTAKE_CONTINUE_TO_DISCOVERY
-                  : GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS}
-            </Button>
-          </CardContent>
-        </Card>
+        <SocraticIntakeWizardStepScope
+          isCreateArchitectureFlow={isCreateArchitectureFlow}
+          busy={busy}
+          systemName={systemName}
+          setSystemName={setSystemName}
+          freeTextIntent={freeTextIntent}
+          setFreeTextIntent={setFreeTextIntent}
+          businessOutcome={businessOutcome}
+          setBusinessOutcome={setBusinessOutcome}
+          actorSet={actorSet}
+          setActorSet={setActorSet}
+          focusedPilotModeEnabled={focusedPilotModeEnabled}
+          setFocusedPilotModeEnabled={setFocusedPilotModeEnabled}
+          intentFieldLabel={intentFieldLabel}
+          intentTrimmedLength={intentTrimmedLength}
+          intentMeetsMinimum={intentMeetsMinimum}
+          outcomeTrimmedLength={outcomeTrimmedLength}
+          outcomeMeetsMinimum={outcomeMeetsMinimum}
+          scopeUnderstandingInput={scopeUnderstandingInput}
+          setScopeBullets={setScopeBullets}
+          setScopeGateOpen={setScopeGateOpen}
+          canAdvanceIntent={canAdvanceIntent}
+          advanceHint={advanceHint}
+          submitError={submitError}
+          onCreateArchitectureContinuation={runCreateArchitectureContinuation}
+          onAdmission={runAdmission}
+        />
       ) : null}
 
       {step === 1 ? (
@@ -608,67 +433,19 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {step === 2 && !isSubmitBlocked ? (
-        <Card data-testid="guided-intake-primary-panel">
-          <CardHeader>
-            <CardTitle>{INTAKE_STEPS[2].cardTitle}</CardTitle>
-            <CardDescription>{GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <ul className={cn("list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-              <li>
-                <InlineMetadataLabel label="Intent" />{" "}
-                {freeTextIntent.trim().slice(0, 120)}
-                {freeTextIntent.trim().length > 120 ? "…" : ""}
-              </li>
-              <li>
-                <InlineMetadataLabel label="Outcome" /> {businessOutcome.trim()}
-              </li>
-              {systemName.trim() ? (
-                <li>
-                  <InlineMetadataLabel label="System" /> {systemName.trim()}
-                </li>
-              ) : null}
-            </ul>
-            <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} presentation="summary" />
-            {confirmedScopeLines.length > 0 ? (
-              <section className="space-y-1" data-testid="socratic-confirmed-scope-summary">
-                <h3 className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.label)}>
-                  {GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING}
-                </h3>
-                <ul
-                  className={cn(
-                    "m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300",
-                    OPERATOR_TYPOGRAPHY.helper,
-                  )}
-                >
-                  {confirmedScopeLines.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-            {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
-            {policyPackCloudMismatch !== null ? (
-              <WizardPolicyPackCloudMismatchCallout detail={policyPackCloudMismatch} />
-            ) : null}
-            <div className="flex flex-wrap gap-2">
-              <Button type="button" variant="outline" disabled={busy} onClick={() => setStep(1)}>
-                Back to questions
-              </Button>
-              <ReviewStartLoadingButton
-                type="button"
-                disabled={!canSubmit}
-                isLoading={busy}
-                idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
-                loadingLabel={REVIEW_START_LOADING_LABEL}
-                onClick={() => {
-                  void submitDraft();
-                }}
-                data-testid="socratic-submit"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <SocraticIntakeWizardStepConfirm
+          freeTextIntent={freeTextIntent}
+          businessOutcome={businessOutcome}
+          systemName={systemName}
+          guidedIntakeEvidencePresence={guidedIntakeEvidencePresence}
+          confirmedScopeLines={confirmedScopeLines}
+          submitError={submitError}
+          policyPackCloudMismatch={policyPackCloudMismatch}
+          busy={busy}
+          canSubmit={canSubmit}
+          onBack={() => setStep(1)}
+          onSubmit={submitDraft}
+        />
       ) : null}
 
       {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}

@@ -9,7 +9,6 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.GraphSnapshots;
 using ArchLucid.Persistence.RelationalRead;
-using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
@@ -25,41 +24,12 @@ namespace ArchLucid.Persistence.Repositories;
 ///     (same query and ordering).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class SqlGraphSnapshotRepository(
+public sealed partial class SqlGraphSnapshotRepository(
     ISqlConnectionFactory connectionFactory,
     IScopeContextProvider scopeContextProvider) : IGraphSnapshotRepository, IGraphSnapshotSqlAuthorityWriter
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    public async Task SaveAsync(
-        GraphSnapshot snapshot,
-        CancellationToken ct,
-        IDbConnection? connection = null,
-        IDbTransaction? transaction = null)
-    {
-        ArgumentNullException.ThrowIfNull(snapshot);
-
-        if (connection is not null)
-        {
-            await SaveCoreAsync(snapshot, connection, transaction, ct);
-            return;
-        }
-
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await using SqlTransaction tx = owned.BeginTransaction();
-
-        try
-        {
-            await SaveCoreAsync(snapshot, owned, tx, ct);
-            tx.Commit();
-        }
-        catch
-        {
-            tx.Rollback();
-            throw;
-        }
-    }
 
     public async Task<GraphSnapshot?> GetByIdAsync(ScopeContext scope, Guid graphSnapshotId, CancellationToken ct)
     {
@@ -121,166 +91,6 @@ public sealed class SqlGraphSnapshotRepository(
             .ToList();
     }
 
-    private async Task SaveCoreAsync(
-        GraphSnapshot snapshot,
-        IDbConnection connection,
-        IDbTransaction? transaction,
-        CancellationToken ct)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        const string headerSql = """
-                                 INSERT INTO dbo.GraphSnapshots
-                                 (
-                                     GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                                     TenantId, WorkspaceId, ScopeProjectId,
-                                     NodesJson, EdgesJson, WarningsJson
-                                 )
-                                 VALUES
-                                 (
-                                     @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                                     @TenantId, @WorkspaceId, @ScopeProjectId,
-                                     @NodesJson, @EdgesJson, @WarningsJson
-                                 );
-                                 """;
-
-        object headerArgs = new
-        {
-            snapshot.GraphSnapshotId,
-            snapshot.ContextSnapshotId,
-            snapshot.RunId,
-            snapshot.CreatedUtc,
-            scope.TenantId,
-            scope.WorkspaceId,
-            ScopeProjectId = scope.ProjectId,
-            NodesJson = JsonEntitySerializer.Serialize(snapshot.Nodes),
-            EdgesJson = JsonEntitySerializer.Serialize(snapshot.Edges),
-            WarningsJson = JsonEntitySerializer.Serialize(snapshot.Warnings)
-        };
-
-        await connection.ExecuteAsync(new CommandDefinition(headerSql, headerArgs, transaction, cancellationToken: ct))
-            ;
-
-        await InsertNodesAndPropertiesAsync(snapshot, connection, transaction, scope, ct);
-        await InsertWarningsAsync(snapshot, connection, transaction, scope, ct);
-        await InsertIndexedEdgesAsync(connection, transaction, snapshot, scope, ct);
-        await InsertEdgePropertiesAsync(snapshot, connection, transaction, scope, ct);
-    }
-
-    /// <summary>
-    ///     Child-table writes use <see cref="Microsoft.Data.SqlClient.SqlBulkCopy" />; callers must supply a
-    ///     <see cref="SqlConnection" />.
-    /// </summary>
-    private static SqlConnection RequireSqlConnection(IDbConnection connection)
-    {
-        if (connection is SqlConnection sqlConnection)
-            return sqlConnection;
-
-        throw new InvalidOperationException(
-            "Graph snapshot persistence requires Microsoft.Data.SqlClient.SqlConnection for SqlBulkCopy on child tables. "
-            + $"Received connection type '{connection.GetType().FullName ?? "(null)"}'.");
-    }
-
-    /// <summary>
-    ///     When a transaction is supplied alongside bulk copy, it must be a SQL Client transaction on the same connection.
-    /// </summary>
-    private static SqlTransaction? RequireSqlTransactionOrNull(IDbTransaction? transaction)
-    {
-        if (transaction is null)
-            return null;
-
-        if (transaction is SqlTransaction sqlTransaction)
-            return sqlTransaction;
-
-        throw new InvalidOperationException(
-            "Graph snapshot persistence requires Microsoft.Data.SqlClient.SqlTransaction when a transaction is supplied "
-            + $"for SqlBulkCopy. Received transaction type '{transaction.GetType().FullName}'.");
-    }
-
-    private static async Task InsertNodesAndPropertiesAsync(
-        GraphSnapshot snapshot,
-        IDbConnection connection,
-        IDbTransaction? transaction,
-        ScopeContext scope,
-        CancellationToken ct)
-    {
-        SqlConnection sqlConnection = RequireSqlConnection(connection);
-        SqlTransaction? sqlTransaction = RequireSqlTransactionOrNull(transaction);
-
-        List<(Guid RowId, GraphNode Node, int SortOrder)> planned = GraphSnapshotSqlBulkCopy.PlanNodeRows(snapshot);
-
-        await GraphSnapshotSqlBulkCopy.CopyNodeRowsAsync(
-            sqlConnection,
-            sqlTransaction,
-            snapshot,
-            scope,
-            planned,
-            ct);
-        await GraphSnapshotSqlBulkCopy.CopyNodePropertyRowsAsync(
-            sqlConnection,
-            sqlTransaction,
-            scope,
-            planned,
-            ct);
-    }
-
-    private static async Task InsertWarningsAsync(
-        GraphSnapshot snapshot,
-        IDbConnection connection,
-        IDbTransaction? transaction,
-        ScopeContext scope,
-        CancellationToken ct)
-    {
-        SqlConnection sqlConnection = RequireSqlConnection(connection);
-        SqlTransaction? sqlTransaction = RequireSqlTransactionOrNull(transaction);
-
-        await GraphSnapshotSqlBulkCopy.CopyWarningRowsAsync(
-            sqlConnection,
-            sqlTransaction,
-            snapshot.GraphSnapshotId,
-            snapshot.Warnings,
-            scope,
-            ct);
-    }
-
-    private static async Task InsertIndexedEdgesAsync(
-        IDbConnection connection,
-        IDbTransaction? transaction,
-        GraphSnapshot snapshot,
-        ScopeContext scope,
-        CancellationToken ct)
-    {
-        SqlConnection sqlConnection = RequireSqlConnection(connection);
-        SqlTransaction? sqlTransaction = RequireSqlTransactionOrNull(transaction);
-
-        IReadOnlyList<GraphSnapshotEdgeRow> rows = GraphSnapshotEdgeIndexer.BuildRows(snapshot);
-
-        await GraphSnapshotSqlBulkCopy.CopyIndexedEdgeRowsAsync(
-            sqlConnection,
-            sqlTransaction,
-            rows,
-            scope,
-            ct);
-    }
-
-    private static Task InsertEdgePropertiesAsync(
-        GraphSnapshot snapshot,
-        IDbConnection connection,
-        IDbTransaction? transaction,
-        ScopeContext scope,
-        CancellationToken ct)
-    {
-        SqlConnection sqlConnection = RequireSqlConnection(connection);
-        SqlTransaction? sqlTransaction = RequireSqlTransactionOrNull(transaction);
-
-        return GraphSnapshotSqlBulkCopy.CopyEdgePropertyRowsAsync(
-            sqlConnection,
-            sqlTransaction,
-            snapshot,
-            scope,
-            ct);
-    }
-
     public async Task<GraphSnapshot?> GetByIdAsync(
         ScopeContext scope,
         Guid graphSnapshotId,
@@ -319,102 +129,6 @@ public sealed class SqlGraphSnapshotRepository(
             jsonRowForMerge: null,
             ct);
     }
-
-    /// <summary>
-    ///     Inserts relational graph slices that are still empty while JSON columns contain data (idempotent per slice).
-    /// </summary>
-    [TenantScopeExempt(
-        TenantScopeExemptReason.Operational,
-        "Backfill scope lookup by GraphSnapshotId surrogate key before slice insert.")]
-    internal static async Task BackfillRelationalSlicesAsync(
-        GraphSnapshot snapshot,
-        IDbConnection connection,
-        IDbTransaction? transaction,
-        CancellationToken ct)
-    {
-        ArgumentNullException.ThrowIfNull(snapshot);
-        ArgumentNullException.ThrowIfNull(connection);
-
-        Guid graphSnapshotId = snapshot.GraphSnapshotId;
-
-        int nodesCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            transaction,
-            "SELECT COUNT(1) FROM dbo.GraphSnapshotNodes WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
-            ct);
-
-        int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            transaction,
-            "SELECT COUNT(1) FROM dbo.GraphSnapshotWarnings WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
-            ct);
-
-        int edgesCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            transaction,
-            "SELECT COUNT(1) FROM dbo.GraphSnapshotEdges WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
-            ct);
-
-        int edgePropsCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            transaction,
-            "SELECT COUNT(1) FROM dbo.GraphSnapshotEdgeProperties WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
-            ct);
-
-        bool needsRelationalSlices = (nodesCount == 0 && snapshot.Nodes.Count > 0)
-                                     || (warningsCount == 0 && snapshot.Warnings.Count > 0)
-                                     || (edgesCount == 0 && snapshot.Edges.Count > 0)
-                                     || (edgesCount > 0 && edgePropsCount == 0 && snapshot.Edges.Count > 0);
-
-        if (!needsRelationalSlices)
-            return;
-
-        const string scopeSql = """
-                                SELECT
-                                    COALESCE(gs.TenantId, cs.TenantId) AS TenantId,
-                                    COALESCE(gs.WorkspaceId, cs.WorkspaceId) AS WorkspaceId,
-                                    COALESCE(gs.ScopeProjectId, cs.ScopeProjectId) AS ScopeProjectId
-                                FROM dbo.GraphSnapshots AS gs
-                                LEFT JOIN dbo.ContextSnapshots AS cs ON gs.ContextSnapshotId = cs.SnapshotId
-                                WHERE gs.GraphSnapshotId = @GraphSnapshotId;
-                                """;
-
-        GraphSnapshotDenormScopeRow? scopeHdr =
-            await connection.QuerySingleOrDefaultAsync<GraphSnapshotDenormScopeRow>(
-                new CommandDefinition(scopeSql, new { GraphSnapshotId = graphSnapshotId }, transaction,
-                    cancellationToken: ct));
-
-        if (scopeHdr?.TenantId is null || scopeHdr.WorkspaceId is null || scopeHdr.ScopeProjectId is null)
-            throw new InvalidOperationException(
-                $"dbo.GraphSnapshots row {graphSnapshotId} (and ContextSnapshots join fallback) lacks denormalized RLS scope "
-                + "(tenant/workspace/scope-project); cannot backfill graph relational tables.");
-
-        ScopeContext scopeFill = new()
-        {
-            TenantId = scopeHdr.TenantId!.Value, WorkspaceId = scopeHdr.WorkspaceId!.Value, ProjectId = scopeHdr.ScopeProjectId!.Value
-        };
-
-        if (nodesCount == 0 && snapshot.Nodes.Count > 0)
-            await InsertNodesAndPropertiesAsync(snapshot, connection, transaction, scopeFill, ct);
-
-        if (warningsCount == 0 && snapshot.Warnings.Count > 0)
-            await InsertWarningsAsync(snapshot, connection, transaction, scopeFill, ct);
-
-        if (edgesCount == 0 && snapshot.Edges.Count > 0)
-        {
-            await InsertIndexedEdgesAsync(connection, transaction, snapshot, scopeFill, ct);
-            await InsertEdgePropertiesAsync(snapshot, connection, transaction, scopeFill, ct);
-        }
-        else if (edgesCount > 0 && edgePropsCount == 0 && snapshot.Edges.Count > 0)
-            await InsertEdgePropertiesAsync(snapshot, connection, transaction, scopeFill, ct);
-    }
-
-    /// <summary>Nullable row for COALESCE-loaded graph snapshot RLS scope during JSON→relational backfill.</summary>
-    private sealed record GraphSnapshotDenormScopeRow(Guid? TenantId, Guid? WorkspaceId, Guid? ScopeProjectId);
 
     private sealed class IndexedEdgeRow
     {

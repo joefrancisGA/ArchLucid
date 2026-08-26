@@ -55,10 +55,9 @@ public static class IntegrationEventServiceBusApplicationProperties
         {
             using JsonDocument doc = JsonDocument.Parse(payloadUtf8);
 
-            if (!doc.RootElement.TryGetProperty("environment", out JsonElement envEl))
+            if (!TryGetStringPropertyCaseInsensitive(doc.RootElement, "targetEnvironment", out string? env)
+                && !TryGetStringPropertyCaseInsensitive(doc.RootElement, "environment", out env))
                 return null;
-
-            string? env = envEl.GetString();
 
             if (string.IsNullOrWhiteSpace(env))
                 return null;

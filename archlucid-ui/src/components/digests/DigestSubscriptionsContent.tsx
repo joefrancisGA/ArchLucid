@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -17,16 +17,20 @@ import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { DigestsHubNextReviewFooterClient } from "@/components/digests/DigestsHubNextReviewFooterClient";
 import { DigestSubscriptionCreateForm } from "@/components/digests/DigestSubscriptionCreateForm";
 import { DigestSubscriptionList } from "@/components/digests/DigestSubscriptionList";
 import { DigestSubscriptionsContinueLastViewedRow } from "@/components/digests/DigestSubscriptionsContinueLastViewedRow";
+import { DigestSubscriptionsPickReviewBeforeCreatingStrip } from "@/components/digests/DigestSubscriptionsPickReviewBeforeCreatingStrip";
 import { DigestSubscriptionsReadinessPanel } from "@/components/digests/DigestSubscriptionsReadinessPanel";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { createDigestSubscription, listSubscriptionDeliveryAttempts, toggleDigestSubscription } from "@/lib/api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { DIGESTS_BROWSE_RECIPIENTS_HELPER } from "@/lib/digests-browse-copy";
+import { digestsHubScopedHref } from "@/lib/digests-route-paths";
 import {
   DIGEST_SUBSCRIPTION_PAUSE_DIALOG_DESCRIPTION,
   resolveDigestSubscriptionPauseDialogTitle,
@@ -37,6 +41,10 @@ import {
   DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_HELP_HREF,
   DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_NOTE,
 } from "@/lib/digest-subscriptions-workflow";
+import {
+  resolveDigestSubscriptionsWorkflowEmphasizedStepId,
+  resolveDigestSubscriptionsWorkflowSteps,
+} from "@/lib/digest-subscriptions-workflow-checklist";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 import {
@@ -49,6 +57,8 @@ const EMPTY_SUBSCRIPTIONS: DigestSubscription[] = [];
 export type DigestSubscriptionsContentProps = {
   readonly healthSnap: WeeklyDigestHealthDto | null;
   readonly refreshToken?: number;
+  readonly scopedRunId?: string | null;
+  readonly onPickReview?: (reviewId: string) => void;
 };
 
 /**
@@ -85,7 +95,24 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
     (subscriptionsQuery.isError ? toApiLoadFailure(subscriptionsQuery.error) : null);
 
   const formCardRef = useRef<HTMLDivElement | null>(null);
+  const scopedRunId = (props.scopedRunId ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
+  const requiresReviewPick = props.onPickReview !== undefined;
+  const createFormVisible = scopedRunFilterActive || !requiresReviewPick;
+  const subscriptionsClearScopeHref = digestsHubScopedHref("subscriptions", null);
   const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const subscriptionWorkflowInput = {
+    reviewPicked: scopedRunFilterActive,
+    destinationConfigured: items.length > 0,
+    subscriptionEnabled: items.some((item) => item.isEnabled),
+  };
+  const subscriptionWorkflowSteps =
+    scopedRunFilterActive && createFormVisible
+      ? resolveDigestSubscriptionsWorkflowSteps(subscriptionWorkflowInput)
+      : [];
+  const subscriptionWorkflowEmphasizedStepId = resolveDigestSubscriptionsWorkflowEmphasizedStepId(
+    subscriptionWorkflowInput,
+  );
 
   useEffect(() => {
     if (refreshToken === 0) {
@@ -274,6 +301,41 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         .
       </p>
 
+      {!scopedRunFilterActive && requiresReviewPick ? (
+        <DigestSubscriptionsPickReviewBeforeCreatingStrip
+          selectedReviewId=""
+          onSelectReview={props.onPickReview!}
+        />
+      ) : scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="digest-subscriptions-run-scope-banner"
+        >
+          {"Creating subscriptions for review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={subscriptionsClearScopeHref}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : null}
+
+      {subscriptionWorkflowSteps.length > 0 ? (
+        <IntegrationConnectChecklist
+          title="Subscription checklist"
+          steps={subscriptionWorkflowSteps}
+          emphasizedStepId={subscriptionWorkflowEmphasizedStepId}
+          testIdPrefix="digest-subscriptions-workflow"
+        />
+      ) : null}
+
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
@@ -291,17 +353,19 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
       />
 
       <div ref={formCardRef} className="grid gap-4">
-        <DigestSubscriptionCreateForm
-          key={`digest-create-${formResetKey}`}
-          existingSubscriptions={items}
-          prefillFrom={prefillFrom}
-          canMutate={canMutateSubscriptions}
-          collapsedByDefault={items.length > 0}
-          creating={creating}
-          createSuccess={createSuccess}
-          focusRequestToken={focusCreateToken}
-          onCreate={onCreate}
-        />
+        {createFormVisible ? (
+          <DigestSubscriptionCreateForm
+            key={`digest-create-${formResetKey}`}
+            existingSubscriptions={items}
+            prefillFrom={prefillFrom}
+            canMutate={canMutateSubscriptions}
+            collapsedByDefault={items.length > 0}
+            creating={creating}
+            createSuccess={createSuccess}
+            focusRequestToken={focusCreateToken}
+            onCreate={onCreate}
+          />
+        ) : null}
 
         {continueLastSubscription !== null ? (
           <DigestSubscriptionsContinueLastViewedRow
@@ -326,6 +390,17 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           onFocusCreateForm={focusCreateForm}
         />
       </div>
+
+      {scopedRunFilterActive ? (
+        <DigestsHubNextReviewFooterClient
+          runId={scopedRunId}
+          tab="subscriptions"
+          title="Next review digest subscriptions"
+          actionLabel="Create next subscriptions"
+          ariaLabel="Next review digest subscriptions"
+          testIdPrefix="digest-subscriptions"
+        />
+      ) : null}
 
       <ConfirmationDialog
         open={pendingPause !== null}

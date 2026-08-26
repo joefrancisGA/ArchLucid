@@ -118,7 +118,7 @@ export function PreFinalizeChecklistPanel({
   }
 
   return (
-    <Card className={OPERATOR_CARD}>
+    <Card className={OPERATOR_CARD.body}>
       <CardHeader className="space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Pre-finalize checklist</h3>

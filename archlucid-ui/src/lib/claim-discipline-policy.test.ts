@@ -17,12 +17,17 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("sealed-record-detail")).toBe(true);
   });
 
-  it("keeps diligence-sensitive slugs", () => {
-    expect(shouldOmitClaimDisciplineBand("help-evidence-graph")).toBe(false);
-    expect(shouldOmitClaimDisciplineBand("audit-trail-help")).toBe(false);
-    expect(shouldOmitClaimDisciplineBand("security-trust-help")).toBe(false);
-    expect(shouldOmitClaimDisciplineBand("see-it")).toBe(false);
-    expect(shouldOmitClaimDisciplineBand("architecture-findings")).toBe(false);
+  it("keeps print-orientation slugs that must ship a visible claim band", () => {
+    expect(shouldOmitClaimDisciplineBand("package-print")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("package-print")).toBe(true);
+  });
+
+  it("folds operator hub slugs into the page title block", () => {
+    expect(shouldOmitClaimDisciplineBand("pilot-outcomes")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("roi-summary")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("architecture-scorecard")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("audit-trail")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("help-hub")).toBe(true);
   });
 
   it("resolveClaimDisciplineForStrip returns undefined for omitted slugs", () => {

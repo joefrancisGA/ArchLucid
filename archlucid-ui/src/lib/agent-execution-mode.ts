@@ -48,7 +48,17 @@ export function resolveClientAgentExecutionMode(input: {
   readonly devOverride?: DevAgentExecutionModeOverride | null;
 }): AgentExecutionModeWire | null {
   if (isDevTestingOverridesEnabled()) {
-    return resolveEffectiveDevAgentExecutionMode(input.devOverride ?? null);
+    if (input.devOverride !== null && input.devOverride !== undefined) {
+      return input.devOverride;
+    }
+
+    const fromHealth = parseAgentExecutionModeWire(input.healthAgentExecutionMode);
+
+    if (fromHealth !== null) {
+      return fromHealth;
+    }
+
+    return resolveEffectiveDevAgentExecutionMode(null);
   }
 
   return parseAgentExecutionModeWire(input.healthAgentExecutionMode);

@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
   MermaidDiagram: ({
@@ -142,17 +143,18 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     const sources = screen.getByTestId("comparison-replay-help-sources");
 
     for (const source of COMPARISON_REPLAY_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      expectFollowUpLink(within(sources), source);
     }
 
     expect(screen.getByTestId("help-comparison-replay-compare-action")).toHaveAttribute(
       "href",
       "/insights/compare-two-reviews",
     );
-    expect(screen.getByRole("link", { name: COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label })).toHaveAttribute(
-      "href",
-      "/internal/validate-route",
-    );
+    const decisionPanel = screen.getByTestId(COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID);
+
+    expect(
+      within(decisionPanel).getByRole("link", { name: COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label }),
+    ).toHaveAttribute("href", "/internal/validate-route");
 
     expect(screen.getByRole("heading", { name: "When to compare" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "When to replay" })).toBeInTheDocument();
@@ -207,7 +209,10 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     expect(relatedLinks.map((link) => link.getAttribute("href"))).toEqual(
       COMPARISON_REPLAY_HELP_RELATED_GUIDES.map((guide) => guide.href),
     );
-    expect(screen.queryByRole("heading", { name: "Related guides" })).toBeNull();
+    const relatedHeadings = screen.getAllByRole("heading", { name: "Related guides" });
+
+    expect(relatedHeadings).toHaveLength(1);
+    expect(screen.getByTestId(COMPARISON_REPLAY_HELP_RELATED_TEST_ID)).toContainElement(relatedHeadings[0]!);
   });
 
   it("discloses Validate review unavailable copy in demo workspace mode", () => {
@@ -219,7 +224,11 @@ describe("HelpTopicComparisonReplay (CO)", () => {
 
     render(<HelpComparisonReplayGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.queryByRole("link", { name: COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label })).toBeNull();
+    const decisionPanel = screen.getByTestId(COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID);
+
+    expect(
+      within(decisionPanel).queryByRole("link", { name: COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label }),
+    ).toBeNull();
     expect(screen.getByTestId("comparison-replay-validate-unavailable")).toHaveTextContent(
       "Validate review is not available in this workspace mode",
     );

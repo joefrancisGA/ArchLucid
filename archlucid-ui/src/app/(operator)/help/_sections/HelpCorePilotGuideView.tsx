@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { HelpCorePilotFirstViewportJobChrome } from "@/app/(operator)/help/_sections/HelpCorePilotFirstViewportJobChrome";
 import { HelpCorePilotJobMatrix } from "@/app/(operator)/help/_sections/HelpCorePilotJobMatrix";
-import { CorePilotHelpOrientationFooter } from "@/app/(operator)/help/_sections/CorePilotHelpOrientationFooter";
+import { CorePilotHelpClosingPanel } from "@/app/(operator)/help/_sections/CorePilotHelpClosingPanel";
 import { CorePilotHelpPostStepperPanel } from "@/app/(operator)/help/_sections/CorePilotHelpPostStepperPanel";
 import { FirstReviewGuideFirstArchitectureReviewVocabularyRail } from "@/components/FirstReviewGuideFirstArchitectureReviewVocabularyRail";
 import { PilotGuideGettingStartedFirstReviewVocabularyRail } from "@/components/PilotGuideGettingStartedFirstReviewVocabularyRail";
@@ -24,15 +24,16 @@ import {
 } from "@/lib/core-pilot-help-guide-content";
 import { cn } from "@/lib/utils";
 import {
-  DESIGN_TOKENS,
-  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { corePilotHelpRelatedGuides } from "@/lib/core-pilot-help-related-guides";
+import {
+  HELP_PAGE_LAYOUT,
+  HELP_PAGE_MIN_TOC_HEADINGS,
+  resolveHelpPageContentGridClass,
+} from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpCorePilotGuideViewProps = {
@@ -66,6 +67,8 @@ function HelpDisclosure(props: {
 /** Guided first-review workflow for `/help/first-architecture-review` — action-oriented, not prose documentation. */
 export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const contentGridClass = resolveHelpPageContentGridClass(CORE_PILOT_HELP_GUIDE_HEADINGS.length);
+  const showSectionNav = CORE_PILOT_HELP_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-core-pilot-guide">
@@ -81,10 +84,21 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
         </div>
       </header>
 
-      <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="first-architecture-review" />
-      <FirstReviewGuideFirstArchitectureReviewVocabularyRail currentSurfaceId="first-architecture-review" />
+      <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-guide-vocabulary-disclosure">
+        <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>About this guide</summary>
+        <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-0")}>
+          <PilotGuideGettingStartedFirstReviewVocabularyRail
+            currentSurfaceId="first-architecture-review"
+            variant="full"
+          />
+          <FirstReviewGuideFirstArchitectureReviewVocabularyRail
+            currentSurfaceId="first-architecture-review"
+            variant="full"
+          />
+        </div>
+      </details>
 
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+      <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <div className="space-y-6" data-testid="core-pilot-first-viewport">
             <HelpCorePilotJobMatrix />
@@ -93,7 +107,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
               id="first-review-path"
               className={cn(
                 OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-                "border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20",
+                "border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950",
               )}
               data-testid="core-pilot-summary-card"
             >
@@ -120,11 +134,9 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             <HelpCorePilotFirstViewportJobChrome />
           </div>
 
-          <section aria-labelledby="run-the-first-review" className="space-y-4">
+          <section aria-labelledby="run-the-first-review" className="space-y-3">
             <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              Follow these five steps in order. Each step links to the product surface where you take action.
-            </p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Follow these five steps in order.</p>
             <HelpCorePilotWorkflowStepper />
           </section>
 
@@ -132,34 +144,19 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
           </HelpDisclosure>
 
+          <HelpDisclosure
+            title={CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.title}
+            testId="core-pilot-actor-intake-disclosure"
+          >
+            {CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.body}
+          </HelpDisclosure>
+
           <CorePilotHelpPostStepperPanel />
 
-          <CorePilotHelpOrientationFooter />
-
-          <section
-            aria-labelledby="depth-guides-heading"
-            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-            data-testid="core-pilot-related-guides"
-          >
-            <h2 id="depth-guides-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              Related guides
-            </h2>
-            <ul className={cn("m-0 flex flex-wrap gap-x-4 gap-y-2 p-0 list-none", OPERATOR_TYPOGRAPHY.body)}>
-              {corePilotHelpRelatedGuides().map((guide) => (
-                <li key={guide.href}>
-                  <Link
-                    href={guide.href}
-                    className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                  >
-                    {guide.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <CorePilotHelpClosingPanel />
         </div>
 
-        <HelpTopicTableOfContents headings={CORE_PILOT_HELP_GUIDE_HEADINGS} />
+        {showSectionNav ? <HelpTopicTableOfContents headings={CORE_PILOT_HELP_GUIDE_HEADINGS} /> : null}
       </div>
     </article>
   );

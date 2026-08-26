@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
@@ -53,6 +53,10 @@ import {
   type RecurrenceScheduleExample,
 } from "@/lib/recurrence-schedules-copy";
 import { recurrenceSchedulesLoadFailureMessage } from "@/components/governance/recurrence-schedules-presentation";
+import {
+  resolveRecurrenceSchedulesWorkflowEmphasizedStepId,
+  resolveRecurrenceSchedulesWorkflowSteps,
+} from "@/lib/recurrence-schedules-workflow-checklist";
 
 /** TB-222 — governance workspace for architecture review recurrence schedules. */
 export default function RecurrenceSchedulesClient() {
@@ -260,6 +264,23 @@ export default function RecurrenceSchedulesClient() {
   ] as const;
 
   const isEmpty = schedules.length === 0;
+  const scopedSchedules = useMemo(
+    () =>
+      scopedRunFilterActive
+        ? schedules.filter((schedule) => schedule.sourceRunId.trim() === scopedRunId)
+        : schedules,
+    [scopedRunFilterActive, scopedRunId, schedules],
+  );
+  const recurrenceWorkflowSteps = resolveRecurrenceSchedulesWorkflowSteps({
+    reviewPicked: scopedRunFilterActive,
+    scheduleConfigured: scopedSchedules.length > 0 || showCreatePanel,
+    scheduleEnabled: scopedSchedules.some((schedule) => schedule.isEnabled),
+  });
+  const recurrenceWorkflowEmphasizedStepId = resolveRecurrenceSchedulesWorkflowEmphasizedStepId({
+    reviewPicked: scopedRunFilterActive,
+    scheduleConfigured: scopedSchedules.length > 0 || showCreatePanel,
+    scheduleEnabled: scopedSchedules.some((schedule) => schedule.isEnabled),
+  });
   const continueLastSchedule = useMemo(
     () => resolveContinueLastRecurrenceSchedule(schedules),
     [schedules],
@@ -388,6 +409,15 @@ export default function RecurrenceSchedulesClient() {
               </Link>
             </p>
           )}
+
+          {scopedRunFilterActive ? (
+            <IntegrationConnectChecklist
+              title="Recurrence checklist"
+              steps={recurrenceWorkflowSteps}
+              emphasizedStepId={recurrenceWorkflowEmphasizedStepId}
+              testIdPrefix="recurrence-schedules"
+            />
+          ) : null}
 
           {scopedRunFilterActive && showCreatePanel ? (
             <RecurrenceScheduleCreatePanel

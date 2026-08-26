@@ -3,20 +3,21 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { signedRecordDetailPath } from "@/lib/signed-records-paths";
+import { signedRecordScopedHref } from "@/lib/signed-records-paths";
 import type { ArchitectureDecisionRegisterEntry } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type DecisionRegisterContinueLastViewedRowProps = {
   readonly decision: ArchitectureDecisionRegisterEntry;
+  readonly scopedRunId?: string;
 };
 
 /** Pinned continue row for the most recently viewed architecture decision. */
 export function DecisionRegisterContinueLastViewedRow(
   props: DecisionRegisterContinueLastViewedRowProps,
 ): React.JSX.Element {
-  const href = signedRecordDetailPath(props.decision.manifestId);
+  const href = signedRecordScopedHref(props.decision.manifestId, props.scopedRunId);
 
   return (
     <section

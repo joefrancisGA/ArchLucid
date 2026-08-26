@@ -274,7 +274,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Recent searches</p>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   className="h-auto px-2 py-1"
                   data-testid="search-recent-queries-clear"

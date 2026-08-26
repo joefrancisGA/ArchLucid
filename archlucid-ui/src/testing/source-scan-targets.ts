@@ -9,6 +9,10 @@ import { join } from "node:path";
 export const SOURCE_SCAN_TARGETS = {
   "run-detail-page-view":
     "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageView.tsx",
+  "run-detail-page-view-create-home":
+    "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageViewCreateHome.tsx",
+  "run-detail-page-view-committed":
+    "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageViewCommitted.tsx",
   "run-detail-tabbed-workspace":
     "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailTabbedWorkspace.tsx",
   "run-detail-page-presentation":

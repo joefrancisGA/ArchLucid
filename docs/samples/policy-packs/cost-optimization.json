@@ -13,7 +13,8 @@
   "advisoryDefaults": {
     "severityFloor": "warning",
     "priorityFloor": "P0",
-    "scanDepth": "standard"
+    "scanDepth": "standard",
+    "cost.requireBudgetCap": "true"
   },
   "metadata": {
     "templateId": "cost-optimization-v1",

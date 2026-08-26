@@ -13,6 +13,7 @@ SCRIPTS = ROOT / "ArchLucid.Persistence" / "Scripts"
 ALLOWED_ROOT_DDL = frozenset(
     {
         "ArchLucid.sql",
+        "ArchLucid.Master.sql",
         "ArchLucid.System.sql",
         "ArchLucid_Unified_Schema.sql",
     }

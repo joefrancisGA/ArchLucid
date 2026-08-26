@@ -24,9 +24,11 @@ describe("SimulatorModeTopBarChip", () => {
 
     render(<SimulatorModeTopBarChip />);
 
-    expect(screen.getByTestId("simulator-mode-top-bar-chip-label")).toHaveTextContent(
-      SIMULATOR_MODE_TOP_BAR_CHIP_LABEL,
-    );
+    const label = screen.getByTestId("simulator-mode-top-bar-chip-label");
+
+    expect(label).toHaveTextContent(SIMULATOR_MODE_TOP_BAR_CHIP_LABEL);
+    expect(label.className).toContain("animate-pulse");
+    expect(label.className).toContain("bg-red-500");
     expect(screen.getByRole("status")).toBeInTheDocument();
   });
 

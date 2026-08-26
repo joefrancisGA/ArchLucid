@@ -19,17 +19,15 @@ describe("ComplianceJourneyPageBody buyer-polished shell", () => {
       "href",
       `#${COMPLIANCE_JOURNEY_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("compliance-journey-breadcrumb")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    expect(screen.queryByTestId("compliance-journey-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.getByTestId("compliance-journey-claim-discipline")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: COMPLIANCE_JOURNEY_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const orientation = screen.getByTestId("compliance-journey-orientation-top");
     const stages = screen.getByTestId("compliance-journey-stages");
 
     expect(screen.getByTestId("compliance-journey-primary-content")).toContainElement(stages);
-    expect(orientation.compareDocumentPosition(stages) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(stages) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getAllByTestId("compliance-journey-sources")).toHaveLength(1);
   });
 });

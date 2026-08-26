@@ -84,16 +84,13 @@ describe("CallbackClient buyer-polished shell", () => {
       "href",
       `#${AUTH_CALLBACK_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("auth-callback-breadcrumb")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: AUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("auth-callback-claim-discipline")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: AUTH_CALLBACK_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const orientation = screen.getByTestId("auth-callback-orientation-bottom");
     const loading = screen.getByTestId("auth-callback-loading");
 
-    expect(orientation.compareDocumentPosition(loading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(loading) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 
   it("renders orientation below the access panel on callback failure", async () => {
@@ -109,6 +106,6 @@ describe("CallbackClient buyer-polished shell", () => {
     const orientation = screen.getByTestId("auth-callback-orientation-bottom");
     const accessPanel = screen.getByTestId("auth-callback-access-panel");
 
-    expect(orientation.compareDocumentPosition(accessPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(accessPanel) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 });

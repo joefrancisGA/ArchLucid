@@ -6,6 +6,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { PLANNING_PATH } from "@/lib/planning-route";
+import { PLANNING_CLAIM_DISCIPLINE } from "@/lib/planning-evidence-copy";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import {
   IMPROVEMENT_PLANNING_LAST_UPDATED_PREFIX,
@@ -36,6 +37,8 @@ export function PlanningPageHeader(props: PlanningPageHeaderProps): React.JSX.El
       title={IMPROVEMENT_PLANNING_PAGE_TITLE}
       titleTestId="planning-page-title"
       subtitle={props.subtitle}
+      claimDiscipline={PLANNING_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="improvement-planning-claim-discipline"
       breadcrumb={<ImprovementPlanningBreadcrumb />}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="planning-header-actions">

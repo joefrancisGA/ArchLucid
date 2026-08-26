@@ -208,4 +208,64 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().HaveCount(2);
         result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
     }
+
+    [Fact]
+    public async Task ParseAsync_SingleQuotedResourceHeader_MapsResource()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            Content = "resource 'azurerm_virtual_network' 'hub-vnet'\n"
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("hub-vnet");
+        result[0].Properties["terraformType"].Should().Be("azurerm_virtual_network");
+    }
+
+    [Fact]
+    public async Task ParseAsync_NestedBlock_DoesNotEmitDuplicateTopLevelScalars()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "storage.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_storage_account" "docs" {
+                        site_config {
+                          public_network_access = "Disabled"
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties.Should().ContainKey("tf.site_config");
+        result[0].Properties.Should().NotContainKey("tf.public_network_access");
+    }
+
+    [Fact]
+    public async Task ParseAsync_InlineHashComment_DoesNotChangeTfLocation()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_resource_group" "rg" {
+                        location = "eastus" # primary region
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.location"].Should().Be("eastus");
+    }
 }

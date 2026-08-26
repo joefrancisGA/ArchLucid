@@ -46,6 +46,13 @@ export const HELP_CLAIM_DISCIPLINE_DEFAULT_HEADING = "What this guide does not c
 export const HELP_FOLLOW_UPS_DEFAULT_TITLE = "Where to go next" as const;
 
 /** Appends claim-discipline and follow-up TOC rows when markdown guides omit them. */
+/** Concatenates structured and markdown TOC rows in display order. */
+export function mergeHelpTocHeadings(
+  ...headingGroups: readonly (readonly HelpMarkdownHeading[])[]
+): readonly HelpMarkdownHeading[] {
+  return headingGroups.flat();
+}
+
 export function appendHelpClaimDisciplineTocHeadings(
   headings: readonly HelpMarkdownHeading[],
   claimHeadingId: string,

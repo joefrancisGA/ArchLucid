@@ -23,6 +23,7 @@ import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/Wizard
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useInferredUniversalIntakeAnswers } from "@/hooks/use-inferred-universal-intake-answers";
+import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { type CreateArchitectureRunRequestPayload } from "@/lib/api";
@@ -40,7 +41,7 @@ import {
   ARCHITECTURE_DOCUMENT_TEXT_EXTRACTION_IN_PROGRESS_HELPER,
   evidenceFilesIncludeBinaryArchitectureDocument,
 } from "@/lib/evidence-readable-text";
-import { EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX } from "@/lib/evidence-upload-accepted-formats";
+import { QUICK_START_EVIDENCE_UPLOAD_DESCRIPTION } from "@/lib/evidence-upload-accepted-formats";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL } from "@/lib/architecture/architecture-draft-structured-brief";
@@ -185,6 +186,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       wizardSessionHasTextContent(state.runTitle) || wizardSessionHasTextContent(state.briefText),
     onRestore: handleSessionRestore,
   });
+  const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
 
   useEffect(() => {
     const refreshWriteDestination = () => {
@@ -368,7 +370,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
   return (
     <div className="space-y-5" data-testid="first-pilot-intake-wizard">
-      {wizardSession.pendingRestore !== null ? (
+      {wizardSession.pendingRestore !== null && !suppressWizardResumePrompt ? (
         <WizardSessionResumePrompt
           onResume={wizardSession.acceptRestore}
           onDismiss={wizardSession.dismissRestore}
@@ -433,7 +435,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           <WizardEvidenceUploadZone
             labelId="first-pilot-evidence"
             title="Attach architecture evidence"
-            description={`Diagram, PDF export, or architecture document. ${EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX}.`}
+            description={QUICK_START_EVIDENCE_UPLOAD_DESCRIPTION}
             attachmentSummarySuffix="architecture context optional"
             onFilesSelected={(files: File[]) => {
               setEvidenceFiles(files);

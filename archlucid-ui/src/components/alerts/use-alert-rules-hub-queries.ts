@@ -31,6 +31,14 @@ type AlertRulesHubListQueryResult<TItem> = {
   readonly refresh: () => Promise<void>;
 };
 
+function normalizeHubListItems<TItem>(data: unknown, emptyItems: readonly TItem[]): readonly TItem[] {
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  return emptyItems;
+}
+
 function useAlertRulesHubListQuery<TItem>(args: {
   readonly queryKey: readonly unknown[];
   readonly queryFn: () => Promise<TItem[]>;
@@ -48,7 +56,7 @@ function useAlertRulesHubListQuery<TItem>(args: {
   }, [query]);
 
   return {
-    items: query.data ?? args.emptyItems,
+    items: normalizeHubListItems(query.data, args.emptyItems),
     loading: query.isPending || query.isFetching,
     failure: query.isError ? toApiLoadFailure(query.error) : null,
     refresh,

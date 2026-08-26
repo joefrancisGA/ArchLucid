@@ -25,6 +25,18 @@ vi.mock("@/lib/api", () => ({
   saveExecDigestPreferences: vi.fn(),
 }));
 
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: (props: { onChange: (value: string) => void }) => (
+    <button type="button" data-testid="ask-run-id-picker" onClick={() => props.onChange("run-picked-1")}>
+      pick
+    </button>
+  ),
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => null,
+}));
+
 import { ExecDigestScheduleContent } from "@/components/digests/ExecDigestScheduleContent";
 import { getExecDigestPreferences, saveExecDigestPreferences } from "@/lib/api";
 
@@ -81,6 +93,25 @@ describe("ExecDigestScheduleContent", () => {
       hourOfDay: 8,
       updatedUtc: "2026-07-08T13:00:00Z",
     });
+  });
+
+  it("shows pick-review strip and hides schedule until review is scoped in hub context", async () => {
+    const onPickReview = vi.fn();
+    render(<ExecDigestScheduleContent onPickReview={onPickReview} />);
+
+    expect(await screen.findByTestId("exec-digest-pick-review-before-scheduling-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("exec-digest-schedule-layout")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("ask-run-id-picker"));
+    expect(onPickReview).toHaveBeenCalledWith("run-picked-1");
+  });
+
+  it("shows scoped banner and schedule when review is scoped", async () => {
+    render(<ExecDigestScheduleContent scopedRunId="run-scope-1" onPickReview={vi.fn()} />);
+
+    expect(await screen.findByTestId("exec-digest-run-scope-banner")).toHaveTextContent("run-scope-1");
+    expect(screen.getByTestId("exec-digest-schedule-layout")).toBeInTheDocument();
+    expect(screen.queryByTestId("exec-digest-pick-review-before-scheduling-strip")).toBeNull();
   });
 
   it("uses Schedule sponsor digest identity and relationship copy", async () => {

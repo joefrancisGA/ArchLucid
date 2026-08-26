@@ -1,7 +1,9 @@
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Findings;
+using ArchLucid.Decisioning.Compliance.Models;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.Decisioning.Tests.GoldenCorpus;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -13,8 +15,10 @@ namespace ArchLucid.Decisioning.Tests.Services;
 [Trait("Category", "Unit")]
 public sealed class DeclarationPremiseConflictFindingEngineTests
 {
-    private readonly DeclarationPremiseConflictFindingEngine _sut = new();
-    private readonly DeclarationSecurityBaselineFindingEngine _siblingEngine = new();
+    private readonly DeclarationPremiseConflictFindingEngine _sut =
+        new(new FixedComplianceRulePackProvider(CreateUnmappedPack()));
+    private readonly DeclarationSecurityBaselineFindingEngine _siblingEngine =
+        new(new FixedComplianceRulePackProvider(CreateUnmappedPack()));
 
     [Fact]
     public async Task AnalyzeAsync_emits_error_for_private_baseline_and_public_declaration_on_narrow_edge()
@@ -167,4 +171,25 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
         siblingFindings[0].Title.Should().Contain("allows public network access");
         siblingFindings[0].Title.Should().NotContain("conflicts with");
     }
+
+    private static ComplianceRulePack CreateUnmappedPack() =>
+        new()
+        {
+            RulePackId = "test-pack",
+            Name = "Test",
+            Version = "1",
+            Rules =
+            [
+                new ComplianceRule
+                {
+                    RuleId = "soc2-001",
+                    ControlId = "c",
+                    ControlName = "n",
+                    AppliesToCategory = "cat",
+                    RequiredNodeType = "t",
+                    RequiredEdgeType = "e",
+                    Description = "d",
+                },
+            ],
+        };
 }

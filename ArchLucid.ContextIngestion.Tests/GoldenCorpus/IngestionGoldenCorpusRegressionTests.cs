@@ -22,6 +22,14 @@ public sealed class IngestionGoldenCorpusRegressionTests
     private readonly TerraformShowJsonInfrastructureDeclarationParser _terraform =
         new(NullLogger<TerraformShowJsonInfrastructureDeclarationParser>.Instance);
 
+    private readonly BicepInfrastructureDeclarationParser _bicep = new();
+
+    private readonly KubernetesJsonInfrastructureDeclarationParser _kubernetesJson =
+        new(NullLogger<KubernetesJsonInfrastructureDeclarationParser>.Instance);
+
+    private readonly KubernetesYamlInfrastructureDeclarationParser _kubernetesYaml =
+        new(NullLogger<KubernetesYamlInfrastructureDeclarationParser>.Instance);
+
     private readonly PlainTextContextDocumentParser _documents = new();
 
     [Theory]
@@ -31,14 +39,17 @@ public sealed class IngestionGoldenCorpusRegressionTests
     [InlineData("case-05")]
     [InlineData("case-06")]
     [InlineData("case-07")]
-    public async Task Terraform_case_matches_golden(string caseName)
+    [InlineData("case-08")]
+    [InlineData("case-09")]
+    public async Task Infrastructure_case_matches_golden(string caseName)
     {
         IngestionGoldenCaseFile? file = await ReadCaseFileAsync(caseName);
         file.Should().NotBeNull();
         file.InfrastructureDeclaration.Should().NotBeNull();
 
-        InfrastructureDeclarationReference decl = IngestionGoldenCaseInputDtos.ToDeclaration(file.InfrastructureDeclaration!);
-        IReadOnlyList<CanonicalObject> objects = await _terraform.ParseAsync(decl, CancellationToken.None);
+        InfrastructureDeclarationReference decl =
+            IngestionGoldenCaseInputDtos.ToDeclaration(file.InfrastructureDeclaration!);
+        IReadOnlyList<CanonicalObject> objects = await ParseInfrastructureDeclarationAsync(decl);
 
         await AssertMatchesExpectedAsync(caseName, objects);
     }
@@ -54,6 +65,23 @@ public sealed class IngestionGoldenCorpusRegressionTests
         IReadOnlyList<CanonicalObject> objects = await _documents.ParseAsync(doc, CancellationToken.None);
 
         await AssertMatchesExpectedAsync("case-03", objects);
+    }
+
+    private Task<IReadOnlyList<CanonicalObject>> ParseInfrastructureDeclarationAsync(
+        InfrastructureDeclarationReference declaration)
+    {
+        string format = declaration.Format?.Trim() ?? string.Empty;
+
+        if (string.Equals(format, "bicep", StringComparison.OrdinalIgnoreCase))
+            return _bicep.ParseAsync(declaration, CancellationToken.None);
+
+        if (string.Equals(format, "kubernetes-json", StringComparison.OrdinalIgnoreCase))
+            return _kubernetesJson.ParseAsync(declaration, CancellationToken.None);
+
+        if (string.Equals(format, "kubernetes-yaml", StringComparison.OrdinalIgnoreCase))
+            return _kubernetesYaml.ParseAsync(declaration, CancellationToken.None);
+
+        return _terraform.ParseAsync(declaration, CancellationToken.None);
     }
 
     private static async Task<IngestionGoldenCaseFile?> ReadCaseFileAsync(string caseName)

@@ -11,6 +11,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         string runId,
         ArchitectureIntelligenceBudgetDecision budget,
         ReviewCacheDependencyManifest? cacheManifest,
+        ReviewCacheStorageKind? storageKind,
         CancellationToken cancellationToken)
     {
         ArchitectureKnowledgeModel model;
@@ -340,32 +341,29 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
                 cancellationToken);
         }
 
-        if (cacheManifest is not null && persistModel)
+        if (cacheManifest is not null && persistModel && storageKind is not null)
         {
             IReadOnlyList<TechnologyLedgerEntry>? postSaveLedgerEntries =
                 await TryLoadLedgerEntriesAsync(runId, cancellationToken);
 
             ReviewCacheDependencyManifest storageManifest =
-                string.Equals(
-                    cacheManifest.ReuseReason,
-                    "closed-loop-continue-existing",
-                    StringComparison.Ordinal)
+                storageKind == ReviewCacheStorageKind.ContinueFromExistingRun
                     ? ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
                         effectiveRequest,
                         tenantId,
                         runId,
                         model,
                         postSaveLedgerEntries)
-                    : ReviewCacheManifestBuilder.BuildWithResolvedRunId(
-                        effectiveRequest,
-                        runId,
-                        model,
-                        postSaveLedgerEntries);
+                    : string.IsNullOrWhiteSpace(effectiveRequest.RunId)
+                        ? cacheManifest
+                        : ReviewCacheManifestBuilder.BuildWithResolvedRunId(
+                            effectiveRequest,
+                            runId,
+                            model,
+                            postSaveLedgerEntries);
 
+            using IDisposable storagePinScope = _reviewResultCache.PinScope(storageManifest);
             _reviewResultCache.Set(storageManifest, result);
-
-            if (string.IsNullOrWhiteSpace(effectiveRequest.RunId))
-                _reviewResultCache.Set(cacheManifest, result);
         }
 
         return result;

@@ -1437,6 +1437,27 @@
         },
         "type": "object"
       },
+      "AdvisoryRunRecommendationsListResponse": {
+        "properties": {
+          "improveLoopEvidence": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RecommendationImproveLoopEvidenceResponse"
+              }
+            ]
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationRecordResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "AdvisoryScanExecution": {
         "properties": {
           "completedUtc": {
@@ -2621,153 +2642,7 @@
         },
         "type": "object"
       },
-      "AgentResult": {
-        "properties": {
-          "agentType": {
-            "$ref": "#/components/schemas/AgentType"
-          },
-          "cacheServed": {
-            "type": "boolean"
-          },
-          "calibratedConfidence": {
-            "format": "double",
-            "maximum": 1,
-            "minimum": 0,
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ]
-          },
-          "checklistCoverage": {
-            "items": {
-              "$ref": "#/components/schemas/ArchitectureFinding"
-            },
-            "type": "array"
-          },
-          "citations": {
-            "items": {
-              "$ref": "#/components/schemas/Citation"
-            },
-            "type": [
-              "null",
-              "array"
-            ]
-          },
-          "claims": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "confidence": {
-            "format": "double",
-            "maximum": 1,
-            "minimum": 0,
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
-            "type": [
-              "number",
-              "string"
-            ]
-          },
-          "createdUtc": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "degradationReasonCode": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "evidenceRefs": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "findings": {
-            "items": {
-              "$ref": "#/components/schemas/ArchitectureFinding"
-            },
-            "type": "array"
-          },
-          "insightDensityCuration": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/InsightDensityCurationSummary"
-              }
-            ]
-          },
-          "proposedChanges": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/AgentTopologyProposal"
-              }
-            ]
-          },
-          "reasoningTrace": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "resultId": {
-            "type": "string"
-          },
-          "retrievalGroundingTrace": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/AgentResultRetrievalGroundingTrace"
-              }
-            ]
-          },
-          "runId": {
-            "type": "string"
-          },
-          "taskId": {
-            "type": "string"
-          },
-          "taskStructuralExecutionMode": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/StructuralExecutionMode"
-              }
-            ]
-          },
-          "upstreamResultFingerprints": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "type": [
-              "null",
-              "object"
-            ]
-          }
-        },
-        "required": [
-          "agentType",
-          "claims",
-          "evidenceRefs",
-          "resultId",
-          "runId",
-          "taskId"
-        ],
-        "type": "object"
-      },
+      "AgentResult": {},
       "AgentResultCompareResponse": {
         "properties": {
           "diff": {
@@ -2905,19 +2780,6 @@
         },
         "type": "object"
       },
-      "AgentResultRetrievalGroundingTrace": {
-        "properties": {
-          "citationCoverage": {
-            "format": "double",
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
-            "type": [
-              "number",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
       "AgentTask": {
         "properties": {
           "agentType": {
@@ -2999,47 +2861,6 @@
           "Failed"
         ],
         "type": "string"
-      },
-      "AgentTopologyProposal": {
-        "properties": {
-          "addedDatastores": {
-            "items": {
-              "$ref": "#/components/schemas/ManifestDatastore"
-            },
-            "type": "array"
-          },
-          "addedRelationships": {
-            "items": {
-              "$ref": "#/components/schemas/ManifestRelationship"
-            },
-            "type": "array"
-          },
-          "addedServices": {
-            "items": {
-              "$ref": "#/components/schemas/ManifestService"
-            },
-            "type": "array"
-          },
-          "proposalId": {
-            "type": "string"
-          },
-          "requiredControls": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "sourceAgent": {
-            "$ref": "#/components/schemas/AgentType"
-          },
-          "warnings": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          }
-        },
-        "type": "object"
       },
       "AgentType": {
         "enum": [
@@ -3600,6 +3421,39 @@
         },
         "type": "object"
       },
+      "ApplyKnowledgeModelClarificationAnswersRequest": {
+        "properties": {
+          "answers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "ApplyKnowledgeModelClarificationAnswersResponse": {
+        "properties": {
+          "appliedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "mergedFindingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "partialScopeDisclaimer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reReviewTriggered": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ApproveGovernanceRequest": {
         "properties": {
           "reviewComment": {
@@ -3949,6 +3803,12 @@
             },
             "type": "array"
           },
+          "deniedFailureModeNote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "deniedRequiredCapabilities": {
             "items": {
               "type": "string"
@@ -3984,6 +3844,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "suggestedFailureModeNote": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "suggestedRequiredCapabilities": {
             "items": {
@@ -4023,154 +3889,6 @@
           "Contradiction"
         ],
         "type": "string"
-      },
-      "ArchitectureFinding": {
-        "properties": {
-          "category": {
-            "type": "string"
-          },
-          "classification": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/FindingClassification"
-              }
-            ]
-          },
-          "confidenceLevel": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/FindingConfidenceLevel"
-              }
-            ]
-          },
-          "confidenceScore": {
-            "format": "double",
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ]
-          },
-          "decisionConsequence": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "enforcementTier": {
-            "$ref": "#/components/schemas/FindingEnforcementTier"
-          },
-          "estimatedUsdSavings": {
-            "format": "double",
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ]
-          },
-          "evaluationConfidenceScore": {
-            "format": "int32",
-            "type": [
-              "null",
-              "integer"
-            ]
-          },
-          "evidenceRefs": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "findingId": {
-            "type": "string"
-          },
-          "iacStub": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "insightDensityScore": {
-            "format": "int32",
-            "type": [
-              "null",
-              "integer"
-            ]
-          },
-          "isMuted": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          },
-          "muteReason": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "policyRuleId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "principalArchitectValue": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "reasoningTrace": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "severity": {
-            "$ref": "#/components/schemas/FindingSeverity"
-          },
-          "sourceAgent": {
-            "$ref": "#/components/schemas/AgentType"
-          },
-          "treatment": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/FindingTreatment"
-              }
-            ]
-          },
-          "trustLabel": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "trustLabelReason": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "whyThisIsNotGeneric": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
       },
       "ArchitectureFindingFeedbackPostRequest": {
         "properties": {
@@ -4796,6 +4514,12 @@
               "string"
             ]
           },
+          "priorRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "qualityAttributeSnapshot": {
             "type": [
               "null",
@@ -4884,6 +4608,13 @@
       },
       "ArchitectureReviewRecurrenceSchedule": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "consecutiveFailureCount": {
             "format": "int32",
             "type": "integer"
@@ -5240,9 +4971,6 @@
             ]
           },
           "results": {
-            "items": {
-              "$ref": "#/components/schemas/AgentResult"
-            },
             "type": "array"
           },
           "run": {
@@ -6806,7 +6534,7 @@
       "ChatIntakeRequest": {
         "properties": {
           "rawText": {
-            "maxLength": 50000,
+            "maxLength": 2000000,
             "minLength": 20,
             "type": "string"
           }
@@ -6915,6 +6643,27 @@
             "$ref": "#/components/schemas/SupportStatus"
           }
         },
+        "type": "object"
+      },
+      "ClarificationAnswerRephraseItem": {
+        "properties": {
+          "extractedAnswer": {
+            "minLength": 3,
+            "type": "string"
+          },
+          "questionKey": {
+            "type": "string"
+          },
+          "questionPrompt": {
+            "minLength": 10,
+            "type": "string"
+          }
+        },
+        "required": [
+          "extractedAnswer",
+          "questionKey",
+          "questionPrompt"
+        ],
         "type": "object"
       },
       "ClientErrorReport": {
@@ -7388,6 +7137,18 @@
       },
       "CommittedGovernancePackAssignmentSnapshot": {
         "properties": {
+          "complianceRuleKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "evaluationOutcome": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "policyPackId": {
             "format": "uuid",
             "type": "string"
@@ -11999,9 +11760,6 @@
       "ExecuteRunResponse": {
         "properties": {
           "results": {
-            "items": {
-              "$ref": "#/components/schemas/AgentResult"
-            },
             "type": "array"
           },
           "runId": {
@@ -12928,7 +12686,14 @@
         "type": "string"
       },
       "FindingDisposition": {
-        "type": "integer"
+        "enum": [
+          "Accepted",
+          "Deferred",
+          "NeedsEvidence",
+          "Remediated",
+          "RejectedAsNotApplicable"
+        ],
+        "type": "string"
       },
       "FindingDispositionEventDto": {
         "properties": {
@@ -13610,6 +13375,14 @@
         },
         "type": "object"
       },
+      "FindingMergeConflictResolutionAction": {
+        "enum": [
+          "AcceptPrimary",
+          "AcceptAlternate",
+          "KeepBoth"
+        ],
+        "type": "string"
+      },
       "FindingMuteRequest": {
         "properties": {
           "expiresAtUtc": {
@@ -13815,9 +13588,7 @@
         ],
         "type": "object"
       },
-      "FindingTreatment": {
-        "type": "integer"
-      },
+      "FindingTreatment": {},
       "FindingsSnapshot": {
         "properties": {
           "checklistCoverage": {
@@ -15826,6 +15597,12 @@
           "globalInvariantResults": {
             "items": {
               "$ref": "#/components/schemas/GlobalInvariantCheckResult"
+            },
+            "type": "array"
+          },
+          "mergedFindingIds": {
+            "items": {
+              "type": "string"
             },
             "type": "array"
           },
@@ -18278,8 +18055,20 @@
           "class": {
             "$ref": "#/components/schemas/MustNotFailClass"
           },
+          "findingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "message": {
             "type": "string"
+          },
+          "recommendationId": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -21503,6 +21292,63 @@
         ],
         "type": "object"
       },
+      "PreFinalizeChecklistItem": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PreFinalizeChecklistItemStatus"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PreFinalizeChecklistItemStatus": {
+        "enum": [
+          "Clear",
+          "Advisory",
+          "Blocking"
+        ],
+        "type": "string"
+      },
+      "PreFinalizeChecklistResult": {
+        "properties": {
+          "advisoryCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "blockingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PreFinalizeChecklistItem"
+            },
+            "type": "array"
+          },
+          "readyToFinalize": {
+            "type": "boolean"
+          },
+          "runId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PreviewRecurrenceScheduleRunsRequest": {
         "properties": {
           "count": {
@@ -22577,6 +22423,24 @@
         },
         "type": "object"
       },
+      "RecommendationActionResponse": {
+        "properties": {
+          "improveLoop": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RecommendationImproveLoopEvidenceResponse"
+              }
+            ]
+          },
+          "recommendation": {
+            "$ref": "#/components/schemas/RecommendationRecordResponse"
+          }
+        },
+        "type": "object"
+      },
       "RecommendationAlternative": {
         "properties": {
           "path": {
@@ -22590,6 +22454,42 @@
       },
       "RecommendationConfidence": {
         "type": "integer"
+      },
+      "RecommendationImproveLoopEvidenceResponse": {
+        "properties": {
+          "diffEntries": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureModelDiffEntry"
+            },
+            "type": "array"
+          },
+          "fullReReviewTriggered": {
+            "type": "boolean"
+          },
+          "impact": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChangeImpactResult"
+              }
+            ]
+          },
+          "mergedFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "partialScopeDisclaimer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
       },
       "RecommendationLearningOperationalStatusResponse": {
         "properties": {
@@ -23573,6 +23473,32 @@
         ],
         "type": "object"
       },
+      "RephraseClarificationAnswersInput": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ClarificationAnswerRephraseItem"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "RephraseClarificationAnswersResponse": {
+        "properties": {
+          "rephrasedAnswers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
       "ReplayComparisonMetadataResponse": {
         "properties": {
           "comparisonRecordId": {
@@ -23890,9 +23816,6 @@
             "type": "string"
           },
           "results": {
-            "items": {
-              "$ref": "#/components/schemas/AgentResult"
-            },
             "type": "array"
           },
           "warnings": {
@@ -24123,6 +24046,14 @@
               "$ref": "#/components/schemas/RequirementCoverageItem"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ResolveFindingMergeConflictRequest": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/FindingMergeConflictResolutionAction"
           }
         },
         "type": "object"
@@ -24519,6 +24450,7 @@
             ]
           },
           "currentOverview": {
+            "maxLength": 2000000,
             "minLength": 20,
             "type": "string"
           },
@@ -25450,9 +25382,6 @@
             ]
           },
           "results": {
-            "items": {
-              "$ref": "#/components/schemas/AgentResult"
-            },
             "type": [
               "null",
               "array"
@@ -25577,9 +25506,6 @@
             ]
           },
           "results": {
-            "items": {
-              "$ref": "#/components/schemas/AgentResult"
-            },
             "type": "array"
           },
           "run": {
@@ -26371,6 +26297,13 @@
       },
       "RunRecord": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "architectureRequestId": {
             "type": [
               "null",
@@ -26467,6 +26400,12 @@
           "hasWarnings": {
             "type": "boolean"
           },
+          "improveLoopEvidenceJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "isDeadLettered": {
             "type": "boolean"
           },
@@ -26481,6 +26420,12 @@
           },
           "isSample": {
             "type": "boolean"
+          },
+          "knowledgeModelId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "lastFailureReason": {
             "type": [
@@ -27225,6 +27170,15 @@
       },
       "SelectiveExecuteRunRequest": {
         "properties": {
+          "affectedElementIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
           "agentTypes": {
             "items": {
               "type": "string"
@@ -29618,6 +29572,52 @@
           "jobId",
           "offboardedUtc"
         ],
+        "type": "object"
+      },
+      "TenantFindingEngineControlsResponse": {
+        "properties": {
+          "effectiveEnableLlmJudge": {
+            "type": "boolean"
+          },
+          "effectiveEnableLlmJudgeForEngineFindings": {
+            "type": "boolean"
+          },
+          "effectivePortfolioRecurrenceEnabled": {
+            "type": "boolean"
+          },
+          "enableLlmJudgeForEngineFindingsOverridden": {
+            "type": "boolean"
+          },
+          "enableLlmJudgeOverridden": {
+            "type": "boolean"
+          },
+          "hostDefaultEnableLlmJudge": {
+            "type": "boolean"
+          },
+          "hostDefaultEnableLlmJudgeForEngineFindings": {
+            "type": "boolean"
+          },
+          "hostDefaultPortfolioRecurrenceEnabled": {
+            "type": "boolean"
+          },
+          "portfolioRecurrenceEnabledOverridden": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "TenantFindingEngineControlsUpdateRequest": {
+        "properties": {
+          "enableLlmJudge": {
+            "type": "boolean"
+          },
+          "enableLlmJudgeForEngineFindings": {
+            "type": "boolean"
+          },
+          "portfolioRecurrenceEnabled": {
+            "type": "boolean"
+          }
+        },
         "type": "object"
       },
       "TenantHealthScoreResponse": {
@@ -38502,6 +38502,9 @@
     },
     {
       "name": "AuthorityQuery"
+    },
+    {
+      "name": "AuthorityReads"
     },
     {
       "name": "AuthorityReplay"

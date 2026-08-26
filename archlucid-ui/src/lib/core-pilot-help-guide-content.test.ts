@@ -5,7 +5,8 @@ import {
   CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_DEPTH_GUIDES,
   CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID,
-  CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS,
+  CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TITLE,
+  CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES,
   CORE_PILOT_HELP_GUIDE_HEADINGS,
   CORE_PILOT_HELP_IN_PRODUCT_CHECKLIST_LABEL,
   CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE,
@@ -71,13 +72,14 @@ describe("core-pilot-help-guide-content sample CTA (TB-1332)", () => {
     expect(CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href).toBe(CORE_PILOT_HELP_START_REVIEW_HREF);
   });
 
-  it("TB-1685: exposes three first-viewport job steps before deferred optional paths", () => {
-    expect(CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS).toHaveLength(3);
-    expect(CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS.map((step) => step.title)).toEqual([
-      "Start a review",
-      "Add evidence",
+  it("TB-1685: exposes three first-viewport phases before deferred optional paths", () => {
+    expect(CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES).toHaveLength(3);
+    expect(CORE_PILOT_HELP_FIRST_VIEWPORT_PHASES.map((phase) => phase.title)).toEqual([
+      "Prepare",
+      "Run",
       "Finalize and share",
     ]);
     expect(CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID).toBe("core-pilot-first-viewport-job-chrome");
+    expect(CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TITLE).toMatch(/three phases/i);
   });
 });

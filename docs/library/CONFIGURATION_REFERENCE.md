@@ -47,7 +47,7 @@ Premium-tier judge calls are metered and capped. Each judged finding is one Reas
 
 | Key | Default | Purpose |
 |-----|---------|---------|
-| `ArchLucid:Findings:InsightDensityGate:DemotionThreshold` | `50` | Scores below this demote agent architecture findings lacking anchors/evidence. Typed engine findings remain protected (`typed-engine-protected`). |
+| `ArchLucid:Findings:InsightDensityGate:DemotionThreshold` | `50` | Scores below this demote **agent architecture** findings lacking anchors/evidence. Typed engine findings remain protected (`typed-engine-protected`) — the score is advisory for engines, not a production control. |
 | `ArchLucid:Findings:InsightDensityGate:EnableLlmJudge` | `false` | Enables Premium judge for **agent architecture** findings (Critic path). |
 | `ArchLucid:Findings:InsightDensityGate:EnableLlmJudgeForEngineFindings` | `false` | When `true` with `EnableLlmJudge`, also judges deterministic engine findings after snapshot build (authority pipeline). |
 | `ArchLucid:Findings:InsightDensityGate:MaxJudgedFindingsPerSnapshot` | `12` | Hard per-snapshot ceiling on judge completions — cost guard for large finding sets. |

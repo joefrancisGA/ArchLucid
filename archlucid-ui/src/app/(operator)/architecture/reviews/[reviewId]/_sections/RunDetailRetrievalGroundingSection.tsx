@@ -29,7 +29,7 @@ export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGrou
 
   return (
     <RunRetrievalGroundingPanel
-      payload={payload}
+      payload={payload ?? null}
       failure={failure}
       sectionId="run-retrieval-grounding"
       title="Retrieval grounding"

@@ -6,6 +6,19 @@ namespace ArchLucid.Decisioning.Findings;
 /// <summary>
 ///     Measures insight-density scores per engine without changing demotion behavior.
 /// </summary>
+/// <remarks>
+///     <para>
+///         <strong>claimBoundary:</strong> Advisory-only. Typed-engine findings are never demoted —
+///         <see cref="DeterministicInsightDensityGate" /> short-circuits with penalty reason
+///         <c>typed-engine-protected</c>. Distribution rows report computed scores and
+///         <see cref="InsightDensityEngineDistributionRow.WouldDemoteIfUnprotectedCount" /> as a
+///         counterfactual, not production behavior.
+///     </para>
+///     <para>
+///         The golden corpus harness exercises six engines; thirty-three built-in engines are absent
+///         from a corpus-derived distribution table.
+///     </para>
+/// </remarks>
 public static class InsightDensityEngineDistributionCalculator
 {
     public static InsightDensityEngineDistribution Calculate(

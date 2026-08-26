@@ -15,7 +15,7 @@ export const REVIEWS_NEW_GUIDED_INTAKE_PATH_TOKEN = "guided-intake";
 export const REVIEWS_NEW_DETAILED_HREF = "/architecture/reviews/new?path=detailed" as const;
 
 /** Shown under the featured starter template cards when more templates exist in the catalog. */
-export const REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_LEAD = "Need a different footprint?";
+export const REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_LEAD = "Need a different starting point?";
 
 export const REVIEWS_NEW_STARTER_TEMPLATE_BROWSE_MORE_ACTION = "Browse more templates";
 

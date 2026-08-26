@@ -89,6 +89,8 @@ export function DigestsHubClient(): ReactElement {
   const [refreshing, setRefreshing] = useState(false);
 
   const hubPathname = useMemo(() => digestsHubNavigationPathname(pathname), [pathname]);
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
   const activeTab: DigestsHubTabId = useMemo(
     () => digestsHubTabFromLocation(pathname, rawTab),
     [pathname, rawTab],
@@ -120,13 +122,36 @@ export function DigestsHubClient(): ReactElement {
   }, [rawTab, searchParams, hubPathname, router]);
 
   // Always carry `?tab=` so shared and traffic deep links survive tab selection (TB-1505).
+  const onPickReview = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(TAB_PARAM, activeTab);
+      params.set("runId", trimmed);
+
+      router.replace(`${hubPathname}?${params.toString()}`, { scroll: false });
+    },
+    [activeTab, hubPathname, router, searchParams],
+  );
+
   const onSelectTab = useCallback(
     (id: string) => {
       const tabId: DigestsHubTabId = digestsHubTabFromLocation(hubPathname, id);
+      const params = new URLSearchParams();
+      params.set(TAB_PARAM, tabId);
 
-      router.push(`${hubPathname}?${TAB_PARAM}=${encodeURIComponent(tabId)}`);
+      if (scopedRunId.length > 0) {
+        params.set("runId", scopedRunId);
+      }
+
+      router.push(`${hubPathname}?${params.toString()}`);
     },
-    [hubPathname, router],
+    [hubPathname, router, scopedRunId],
   );
 
   const onHealthLoaded = useCallback((snap: WeeklyDigestHealthDto | null) => {
@@ -305,10 +330,17 @@ export function DigestsHubClient(): ReactElement {
             onLoaded={onBrowseLoaded}
             hidePageHeader
             healthSnap={healthSnap}
+            scopedRunId={scopedRunId}
+            onPickReview={onPickReview}
           />
         </TabsContent>
         <TabsContent value="subscriptions" className="mt-4">
-          <DigestSubscriptionsContent healthSnap={healthSnap} refreshToken={healthRefreshToken} />
+          <DigestSubscriptionsContent
+            healthSnap={healthSnap}
+            refreshToken={healthRefreshToken}
+            scopedRunId={scopedRunId}
+            onPickReview={onPickReview}
+          />
         </TabsContent>
         <TabsContent value="schedule" className="mt-4">
           <ExecDigestScheduleContent
@@ -316,6 +348,8 @@ export function DigestsHubClient(): ReactElement {
             healthSnap={healthSnap}
             onRefresh={onRefresh}
             refreshing={refreshing}
+            scopedRunId={scopedRunId}
+            onPickReview={onPickReview}
           />
           {buyerPolishedShell ? <DigestsScheduleBuyerChrome /> : null}
         </TabsContent>

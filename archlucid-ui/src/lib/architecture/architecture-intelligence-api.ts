@@ -10,6 +10,7 @@ export type ArchitectureIntelligenceFramingQuestion = {
   questionId: string;
   prompt: string;
   isAnswered?: boolean;
+  inferredAnswer?: string | null;
   confirmedAnswer?: string | null;
   source?: string;
 };
@@ -83,7 +84,7 @@ export async function continueArchitectureIntelligenceReasoning(
   );
 }
 
-export function primaryDescriptionFromSources(sources: ClosedLoopReasoningSourceText[]): string {
+export function primaryDescriptionFromSources(sources: readonly ClosedLoopReasoningSourceText[]): string {
   const descriptionSource =
     sources.find((source) => source.fileName === DEFAULT_ARCHITECTURE_FILE_NAME) ?? sources[0];
 

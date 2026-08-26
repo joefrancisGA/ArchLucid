@@ -33,7 +33,7 @@ import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 const EVIDENCE_TRAIL_SAMPLE_HONESTY_MARKERS = [
   "Claims Intake",
   "illustrative",
-  "sample graph",
+  "sample evidence graph",
 ] as const;
 
 const EVIDENCE_TRAIL_GRAPH_MODES = [
@@ -46,7 +46,7 @@ const EVIDENCE_TRAIL_LINEAGE_NODES = [
   "evidence and artifacts",
   "findings",
   "approval decisions",
-  "finalized review record",
+  "Finalized review record",
   "exports and downloads",
 ] as const;
 

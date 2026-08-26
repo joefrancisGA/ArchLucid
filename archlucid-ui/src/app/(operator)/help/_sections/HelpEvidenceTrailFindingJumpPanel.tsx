@@ -17,9 +17,10 @@ export function HelpEvidenceTrailFindingJumpPanel(): React.ReactElement {
     <Card
       className="border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950"
       data-testid="help-evidence-trail-finding-jump-panel"
+      id="jump-from-a-finding"
     >
       <CardHeader className={OPERATOR_CARD.header}>
-        <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+        <CardTitle as="h2" className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {EVIDENCE_TRAIL_HELP_FINDING_JUMP_TITLE}
         </CardTitle>
         <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

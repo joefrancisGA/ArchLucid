@@ -1,3 +1,4 @@
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING,
   BUYER_EVIDENCE_TRAIL_LOAD_BUTTON,
@@ -73,3 +74,17 @@ export const EVIDENCE_TRAIL_HELP_RELATED_GUIDES: readonly EvidenceTrailHelpRelat
 ] as const;
 
 export const EVIDENCE_TRAIL_HELP_CANONICAL_ROUTE_PATH = EVIDENCE_TRAIL_HELP_CANONICAL_PATH;
+
+export const EVIDENCE_TRAIL_HELP_RELATED_GUIDES_TITLE = "Related guides" as const;
+
+/** Structured sections rendered outside markdown — included in the on-page TOC (TB-1360 companion). */
+export function buildEvidenceTrailHelpTocHeadings(
+  markdownHeadings: readonly HelpMarkdownHeading[],
+): readonly HelpMarkdownHeading[] {
+  return [
+    { level: 2, id: "open-the-evidence-graph", title: EVIDENCE_TRAIL_HELP_ACTION_PANEL_TITLE },
+    { level: 2, id: "jump-from-a-finding", title: EVIDENCE_TRAIL_HELP_FINDING_JUMP_TITLE },
+    ...markdownHeadings,
+    { level: 2, id: "related-guides", title: EVIDENCE_TRAIL_HELP_RELATED_GUIDES_TITLE },
+  ];
+}

@@ -1,10 +1,21 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   isSimulatorAgentExecutionMode,
   parseAgentExecutionModeWire,
   resolveClientAgentExecutionMode,
 } from "@/lib/agent-execution-mode";
+
+const devOverridesEnabled = vi.hoisted(() => ({ value: false }));
+
+vi.mock("@/lib/dev-testing-overrides", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/dev-testing-overrides")>();
+
+  return {
+    ...actual,
+    isDevTestingOverridesEnabled: () => devOverridesEnabled.value,
+  };
+});
 
 describe("agent-execution-mode", () => {
   it("parses simulator and real wire values", () => {
@@ -23,6 +34,8 @@ describe("agent-execution-mode", () => {
   });
 
   it("prefers health agentExecutionMode outside dev overrides", () => {
+    devOverridesEnabled.value = false;
+
     expect(
       resolveClientAgentExecutionMode({
         healthAgentExecutionMode: "Simulator",
@@ -34,6 +47,28 @@ describe("agent-execution-mode", () => {
       resolveClientAgentExecutionMode({
         healthAgentExecutionMode: "Real",
         devOverride: null,
+      }),
+    ).toBe("Real");
+  });
+
+  it("prefers health when dev override cookie is unset in development", () => {
+    devOverridesEnabled.value = true;
+
+    expect(
+      resolveClientAgentExecutionMode({
+        healthAgentExecutionMode: "Simulator",
+        devOverride: null,
+      }),
+    ).toBe("Simulator");
+  });
+
+  it("prefers explicit dev override over health in development", () => {
+    devOverridesEnabled.value = true;
+
+    expect(
+      resolveClientAgentExecutionMode({
+        healthAgentExecutionMode: "Simulator",
+        devOverride: "Real",
       }),
     ).toBe("Real");
   });

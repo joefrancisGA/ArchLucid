@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -53,7 +54,8 @@ import { getImprovementPlan } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { showSuccess } from "@/lib/toast";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
+import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
 import { isExperimentalAdvisoryPanelsEnabled } from "@/lib/feature-flags";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -83,9 +85,26 @@ function dispositionActionLabel(action: string): string {
  * Scans tab: governance follow-up workspace for advisory recommendations.
  */
 export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const isAdminCaller = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const bootstrappedRunId = (props.initialRunId ?? "").trim();
+
+  const onPickReview = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      router.push(buildAdvisoryHubHref({ pathname, tab: "scans", runId: trimmed }));
+    },
+    [pathname, router],
+  );
+
+  const scansClearScopeHref = buildAdvisoryHubHref({ pathname, tab: "scans", runId: null });
   const queryClient = useQueryClient();
   const scope = useOperatorScopeQueryKey();
   const generateDisabledHintId = useId();
@@ -357,9 +376,28 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
       />
 
       {runId.trim().length === 0 ? (
-        <AdvisoryScansPickReviewBeforeScanningStrip selectedReviewId={runId} onSelectReview={setRunId} />
+        <AdvisoryScansPickReviewBeforeScanningStrip selectedReviewId="" onSelectReview={onPickReview} />
       ) : (
-        <AdvisoryScanForm
+        <>
+          <p
+            className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="advisory-scans-run-scope-banner"
+          >
+            {"Scanning advisory recommendations for review "}
+            <span className="font-mono text-al-text-primary">{bootstrappedRunId}</span>
+            {" · "}
+            <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={scansClearScopeHref}>
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
+              href={`/architecture/reviews/${encodeURIComponent(bootstrappedRunId)}`}
+            >
+              Open review
+            </Link>
+          </p>
+          <AdvisoryScanForm
           bootstrappedRunId={bootstrappedRunId}
           reviewSelected={reviewSelected}
           loading={loading}
@@ -379,6 +417,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
             void refreshPersistedOnly();
           }}
         />
+        </>
       )}
 
       {!hasResults ? (

@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+using ArchLucid.Contracts.Drafts;
+
 namespace ArchLucid.Contracts.Requests;
 
 /// <summary>
@@ -10,7 +12,7 @@ public sealed class ChatIntakeRequest
     /// <summary>Raw pasted text (Slack thread, Jira ticket, markdown brief, etc.).</summary>
     [Required]
     [MinLength(20)]
-    [MaxLength(50_000)]
+    [MaxLength(DraftIntakeValidation.MaximumFreeTextIntentLength)]
     public string RawText
     {
         get;

@@ -143,6 +143,33 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
                 "leader-run",
                 published)
             .Should().BeTrue();
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                publishRequest,
+                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                new ClosedLoopReasoningResult
+                {
+                    RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    PublishedToProduct = true,
+                })
+            .Should().BeFalse();
+    }
+
+    [Fact]
+    public void ShouldApplyCacheHitPolicyOnCoalescedResult_treats_hyphenated_run_ids_as_equal()
+    {
+        ClosedLoopReasoningRequest publishRequest = new() { PublishToProduct = true };
+        ClosedLoopReasoningResult published = new()
+        {
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            PublishedToProduct = true,
+        };
+
+        ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                publishRequest,
+                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                published)
+            .Should().BeFalse();
     }
 
     [Fact]
@@ -154,6 +181,18 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
             PublishBlocked = true,
             PublishBlockReasons = ["MustNotFailClass: blocked"],
             PublishSkipReason = "skip",
+            ReviewCompleteBlocked = true,
+            IntegrityPassedFindingIds = ["finding-1"],
+            MustNotFailViolations =
+            [
+                new MustNotFailViolation
+                {
+                    Class = MustNotFailClass.FabricatedCitation,
+                    Message = "Blocked",
+                    Blocked = true,
+                    FindingId = "finding-1",
+                },
+            ],
         };
 
         ClosedLoopCacheHitPublishGuard.ApplyAnalysisOnlyCoalescedIsolation(request, isolated);
@@ -161,6 +200,9 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         isolated.PublishBlocked.Should().BeFalse();
         isolated.PublishBlockReasons.Should().BeEmpty();
         isolated.PublishSkipReason.Should().BeNull();
+        isolated.ReviewCompleteBlocked.Should().BeTrue();
+        isolated.IntegrityPassedFindingIds.Should().Contain("finding-1");
+        isolated.MustNotFailViolations.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -204,6 +246,10 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         result.PublishedFindingsSnapshotId.Should().BeNull();
         result.PublishedRecommendationCount.Should().Be(0);
         result.PublishSkipReason.Should().BeNull();
+        result.PublishBlocked.Should().BeFalse();
+        result.PublishBlockReasons.Should().BeEmpty();
+        result.CacheHit.Should().BeFalse();
+        result.CacheReuseReason.Should().BeNull();
         result.ProductFindings.Should().BeEmpty();
         result.ProductRecommendations.Should().BeEmpty();
     }

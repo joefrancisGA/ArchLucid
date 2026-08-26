@@ -34,6 +34,17 @@ describe("InlineGuidanceText", () => {
     expect(screen.getByText(/Use Routing to notify email/i)).toBeInTheDocument();
   });
 
+  it("emphasizes the required before review scan label", () => {
+    render(
+      <InlineGuidanceText text="Required before review: complete the system name, architecture overview, business outcome, and at least one confirmed person or system in this draft." />,
+    );
+
+    expect(screen.getByText("Required before review:").tagName).toBe("STRONG");
+    expect(
+      screen.getByText(/Complete the system name, architecture overview, business outcome/i),
+    ).toBeInTheDocument();
+  });
+
   it("renders plain copy when no guidance label prefix is present", () => {
     render(<InlineGuidanceText text="Finish architecture reviews first." />);
 

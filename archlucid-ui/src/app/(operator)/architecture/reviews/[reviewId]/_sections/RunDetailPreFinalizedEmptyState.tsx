@@ -2,7 +2,10 @@
 
 import type { ReactElement } from "react";
 
-import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import {
+  EnterpriseCompactEmptyState,
+  type EnterpriseCompactEmptyStateAction,
+} from "@/components/EnterpriseCompactEmptyState";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
@@ -17,7 +20,7 @@ export function RunDetailPreFinalizedEmptyState(props: RunDetailPreFinalizedEmpt
   const corePilot = useCorePilotDerivedStepStatus();
   const showFirstReviewGuide = !corePilot.isPending && corePilot.nextStepIndex !== null;
 
-  const actions = [
+  const actions: EnterpriseCompactEmptyStateAction[] = [
     {
       label: "See pipeline / findings",
       href: buildReviewDetailTabHref(props.runId, "overview", { hash: "pipeline-timeline" }),

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { useTransition } from "react";
 
@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { PlanningPlanDetailHubVocabularyRail } from "@/components/PlanningPlanDetailHubVocabularyRail";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { PLANNING_PATH } from "@/lib/planning-route";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { PLANNING_PATH, planningPlanDetailHref } from "@/lib/planning-route";
 import {
   PLANNING_PLAN_DETAIL_LOAD_RETRY_LABEL,
   PLANNING_PLAN_DETAIL_MISSING_PLAN_ID_BODY,
@@ -24,6 +24,7 @@ import { PlanningPlanDetailBuyerChrome } from "./PlanningPlanDetailBuyerChrome";
 import { PlanningPlanDetailNextPlanFooter } from "./PlanningPlanDetailNextPlanFooter";
 import { PlanningPlanDetailPageHeader } from "./PlanningPlanDetailPageHeader";
 import { PlanningPlanDetailSections } from "./PlanningPlanDetailSections";
+import { PlanningNextReviewFooterClient } from "../../../_sections/PlanningNextReviewFooterClient";
 import type { UsePlanningPlanDetailPageModel } from "./use-planning-plan-detail-page";
 
 type PlanningPlanDetailPageViewProps = {
@@ -32,6 +33,9 @@ type PlanningPlanDetailPageViewProps = {
 
 export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageViewProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
   const [refreshing, startRefreshTransition] = useTransition();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { failure, plan, planId, plans } = model;
@@ -66,6 +70,27 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
 
       <PlanningPlanDetailBuyerChrome />
 
+      {scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="planning-plan-detail-run-scope-banner"
+        >
+          {"Viewing plan for review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={planningPlanDetailHref(trimmedPlanId)}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : null}
+
       {missingPlanId ? (
         <EnterpriseCompactEmptyState
           testId="planning-plan-detail-missing-plan-id"
@@ -98,7 +123,11 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
 
       {!missingPlanId && failure === null && plan !== null ? <PlanningPlanDetailSections plan={plan} /> : null}
 
-      {nextPlanInTheme !== null ? <PlanningPlanDetailNextPlanFooter plan={nextPlanInTheme} /> : null}
+      {scopedRunFilterActive ? <PlanningNextReviewFooterClient runId={scopedRunId} /> : null}
+
+      {nextPlanInTheme !== null ? (
+        <PlanningPlanDetailNextPlanFooter plan={nextPlanInTheme} scopedRunId={scopedRunId} />
+      ) : null}
     </div>
   );
 }

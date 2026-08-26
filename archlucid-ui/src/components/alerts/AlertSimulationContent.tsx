@@ -1,6 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect } from "react";
 import { AlertSimulationPickReviewBeforeSimulatingStrip } from "@/components/alerts/AlertSimulationPickReviewBeforeSimulatingStrip";
 import { AlertSimulationNextReviewFooterClient } from "@/components/alerts/AlertSimulationNextReviewFooterClient";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -19,10 +22,18 @@ import {
   ALERT_SIMULATION_MODE_TABS,
   type AlertSimulationModeTabId,
 } from "@/lib/alert-simulation-form";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GOVERNANCE_ALERT_RULES_PATH,
+  governanceAlertRulesTabHref,
+} from "@/lib/governance/governance-route-paths";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useAlertSimulation } from "./use-alert-simulation";
 
 export function AlertSimulationContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
   const simulation = useAlertSimulation();
   const {
     tab,
@@ -109,6 +120,45 @@ export function AlertSimulationContent() {
     canMutateEnterpriseShell,
   } = simulation;
 
+  useEffect(() => {
+    setSRunId(scopedRunId);
+  }, [scopedRunId, setSRunId]);
+
+  const onPickReview = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", "test-alerts");
+      params.set("runId", trimmed);
+
+      router.replace(`${GOVERNANCE_ALERT_RULES_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  const onScopedRunIdChange = useCallback(
+    (reviewId: string) => {
+      setSRunId(reviewId);
+      const trimmed = reviewId.trim();
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", "test-alerts");
+
+      if (trimmed.length > 0) {
+        params.set("runId", trimmed);
+      } else {
+        params.delete("runId");
+      }
+
+      router.replace(`${GOVERNANCE_ALERT_RULES_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams, setSRunId],
+  );
+
   const simpleSimulationReadiness = resolveSimpleSimulationReadiness(
     hasSpecificReviewId,
     recentCountValid,
@@ -118,13 +168,13 @@ export function AlertSimulationContent() {
   const dryRunComplete =
     simpleResult !== null || compositeResult !== null || compareResult !== null;
   const alertSimulationRunChecklistSteps = resolveAlertSimulationRunSteps({
-    reviewPicked: sRunId.trim().length > 0,
-    inputsConfigured: sRunId.trim().length > 0 && simpleFormValid,
+    reviewPicked: scopedRunFilterActive,
+    inputsConfigured: scopedRunFilterActive && simpleFormValid,
     dryRunComplete,
   });
   const alertSimulationRunChecklistEmphasizedStepId = resolveAlertSimulationRunEmphasizedStepId({
-    reviewPicked: sRunId.trim().length > 0,
-    inputsConfigured: sRunId.trim().length > 0 && simpleFormValid,
+    reviewPicked: scopedRunFilterActive,
+    inputsConfigured: scopedRunFilterActive && simpleFormValid,
     dryRunComplete,
   });
 
@@ -134,18 +184,39 @@ export function AlertSimulationContent() {
         Simulate alerts
       </h3>
 
-      {sRunId.trim().length === 0 ? (
-        <AlertSimulationPickReviewBeforeSimulatingStrip selectedReviewId={sRunId} onSelectReview={setSRunId} />
+      {!scopedRunFilterActive ? (
+        <AlertSimulationPickReviewBeforeSimulatingStrip selectedReviewId="" onSelectReview={onPickReview} />
       ) : (
+        <p
+          className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="alert-simulation-run-scope-banner"
+        >
+          {"Simulating alerts for review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={governanceAlertRulesTabHref("test-alerts")}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      )}
+
+      {scopedRunFilterActive ? (
         <IntegrationConnectChecklist
           title="Dry-run checklist"
           steps={alertSimulationRunChecklistSteps}
           emphasizedStepId={alertSimulationRunChecklistEmphasizedStepId}
           testIdPrefix="alert-simulation-run"
         />
-      )}
+      ) : null}
 
-      {sRunId.trim().length > 0 ? (
+      {scopedRunFilterActive ? (
         <>
         <OperatorSegmentedModeToolbar
         tabs={ALERT_SIMULATION_MODE_TABS.map((mode) => ({
@@ -186,7 +257,7 @@ export function AlertSimulationContent() {
           sSlug={sSlug}
           setSSlug={setSSlug}
           sRunId={sRunId}
-          setSRunId={setSRunId}
+          setSRunId={onScopedRunIdChange}
           sCompareRun={sCompareRun}
           setSCompareRun={setSCompareRun}
           sUseHistory={sUseHistory}
@@ -268,7 +339,7 @@ export function AlertSimulationContent() {
       ) : null}
         </>
       ) : null}
-      {sRunId.trim().length > 0 ? <AlertSimulationNextReviewFooterClient runId={sRunId.trim()} /> : null}
+      {scopedRunFilterActive ? <AlertSimulationNextReviewFooterClient runId={scopedRunId} /> : null}
     </div>
   );
 }

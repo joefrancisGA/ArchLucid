@@ -1,0 +1,620 @@
+/**
+ * Customer-visible in-app documentation registry entries (operator).
+ * Source of truth: `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`.
+ */
+import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-page-copy";
+import { ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE } from "@/lib/admin-diagnostics-help-page-copy";
+import { CUSTOMER_GLOSSARY_CONTRACT_VERSION } from "@/lib/customer-glossary-manifest";
+import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
+import { REVIEW_PACKAGES_HELP_PAGE_TITLE } from "@/lib/review-packages-help-page-copy";
+import type { ProductDocumentationRegistryInput } from "./product-documentation-registry-types";
+
+export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR: readonly ProductDocumentationRegistryInput[] = [
+  {
+    "slug": "prior-manifest-retrieval",
+    "title": "Ask memory from finalized reviews",
+    "summary": "How finalized architecture reviews become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy reviews.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/PRIOR_MANIFEST_RETRIEVAL_GUIDE.md"
+    ]
+  },
+  {
+    "slug": "getting-started",
+    "title": "Getting started",
+    "summary": "Learn how ArchLucid turns architecture evidence into review findings, decisions, and export-ready outputs.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"
+    ],
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "product orientation and first review workflow",
+    "pdfStatus": "public"
+  },
+  {
+    "slug": "scope",
+    "title": "Workspace and scope guide",
+    "summary": "Understand tenant, workspace, and project scope, including how the header switcher and sample workspace work.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/WORKSPACE_SCOPE_GUIDE.md"
+    ],
+    "pdfStatus": "public"
+  },
+  {
+    "slug": "glossary",
+    "title": "Glossary",
+    "summary": "Definitions for the terms used throughout ArchLucid reviews, evidence, approval, and administration.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-07-13",
+    "releaseApplicability": "product vocabulary for reviews, evidence, and approval"
+  },
+  {
+    "slug": "evidence-intake",
+    "title": "Start a review",
+    "summary": "Use this guide when you need accepted evidence formats, upload validation, and the right starting path on New architecture review.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/EVIDENCE_INTAKE_OPERATOR_GUIDE.md"
+    ],
+    "lastReviewed": "2026-08-10",
+    "releaseApplicability": "evidence intake and review starting paths",
+    "pdfStatus": "customer"
+  },
+  {
+    "slug": "review-packages",
+    "title": "Architecture packages",
+    "summary": "Find architecture packages in Reviews, inspect findings and evidence, and share export-ready artifacts.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/REVIEW_PACKAGES_OPERATOR_GUIDE.md"
+    ],
+    "lastReviewed": "2026-08-11",
+    "releaseApplicability": "architecture package browse, inspect, and export workflow",
+    "pdfStatus": "customer"
+  },
+  {
+    "slug": "findings",
+    "title": "Findings",
+    "summary": "Understand architecture risks, inspect supporting evidence, and decide how each finding should be addressed.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/FINDINGS_OPERATOR_GUIDE.md"
+    ]
+  },
+  {
+    "slug": "evidence-trail",
+    "title": "Evidence graph",
+    "summary": "Trace findings, artifacts, and provenance without exposing raw engineering logs.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/EVIDENCE_TRAIL_OPERATOR_GUIDE.md"
+    ]
+  },
+  {
+    "slug": "governance-approval",
+    "title": "Resolve outcomes",
+    "summary": "Learn how architecture work moves from submission to approval, revision, or rejection.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/GOVERNANCE_APPROVAL_OPERATOR_GUIDE.md"
+    ],
+    "pdfStatus": "customer"
+  },
+  {
+    "slug": "policy-packs",
+    "title": "Policy packs",
+    "summary": "See which pack and rules apply to reviews, and how ArchLucid resolves conflicts when packs disagree.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/POLICY_PACKS_OPERATOR_GUIDE.md"
+    ],
+    "pdfStatus": "customer",
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "policy pack assignment and conflict resolution"
+  },
+  {
+    "slug": "policy-pack-delta-demo",
+    "title": "Policy-pack delta demo (internal runbook)",
+    "summary": "Admin/SE demo script: same finalized architecture review, stricter pack enforcement, different finalize-gate outcome — dry-run, simulation, and audit slice. Not buyer self-serve help.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"
+    ],
+    "pdfStatus": null
+  },
+  {
+    "slug": "report-a-problem",
+    "title": "Report a problem",
+    "summary": "Structured in-product support intake — captured fields, consent, optional bundle attach, and next-business-day response commitment.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/REPORT_A_PROBLEM.md"
+    ],
+    "pdfStatus": "customer",
+    "lastReviewed": "2026-08-11",
+    "releaseApplicability": "Applies to in-product support intake, captured fields, and the redacted support bundle"
+  },
+  {
+    "slug": "contact-support",
+    "title": "Contact support",
+    "summary": "How to reach ArchLucid support — Report problem on error pages, email, troubleshooting, and redacted diagnostics bundles.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/CONTACT_SUPPORT.md"
+    ],
+    "pdfStatus": "customer",
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "Applies to in-product support discovery and escalation paths for all architect roles"
+  },
+  {
+    "slug": "cloud-connections",
+    "title": "Cloud connections",
+    "summary": "Optional Azure, AWS, and GCP connections for read-only evidence — or evidence-only reviews without any connector.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/CLOUD_CONNECTIONS.md"
+    ],
+    "sectionAnchors": [
+      "choose-your-cloud-platform",
+      "related-topics"
+    ],
+    "includeIntroWithSections": true,
+    "pdfStatus": "customer",
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "optional cloud evidence connectors"
+  },
+  {
+    "slug": "cloud-connections-azure",
+    "title": "Connect Azure securely",
+    "summary": "Workload identity federation, read-only Azure roles, subscription scope, and connection validation — without long-lived secrets.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/CLOUD_CONNECTIONS.md"
+    ],
+    "sectionAnchors": [
+      "connect-azure-securely"
+    ],
+    "pdfStatus": "customer",
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "optional cloud evidence connectors"
+  },
+  {
+    "slug": "cloud-connections-aws",
+    "title": "Connect AWS securely",
+    "summary": "OIDC-federated read-only IAM role, Resource Explorer inventory, and connection validation — without long-lived access keys.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/CLOUD_CONNECTIONS.md"
+    ],
+    "sectionAnchors": [
+      "connect-aws-securely"
+    ],
+    "pdfStatus": "customer",
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "optional cloud evidence connectors"
+  },
+  {
+    "slug": "cloud-connections-gcp",
+    "title": "Connect GCP securely",
+    "summary": "Workload Identity Federation, Cloud Asset Viewer, project scope, and connection validation — without service-account JSON keys.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/CLOUD_CONNECTIONS.md"
+    ],
+    "sectionAnchors": [
+      "connect-gcp-securely"
+    ],
+    "pdfStatus": "customer",
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "optional cloud evidence connectors (GCP Workload Identity Federation connector)"
+  },
+  {
+    "slug": "azure-permissions",
+    "title": "Azure permissions for cloud connections",
+    "summary": "Grant ArchLucid the minimum read-only Azure roles, scopes, and verification steps for hosted cloud connections.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/AZURE_CLOUD_CONNECTION_PERMISSIONS.md"
+    ],
+    "pdfStatus": "customer",
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "optional cloud evidence connectors"
+  },
+  {
+    "slug": "enterprise-onboarding",
+    "title": "Hosted SaaS enterprise onboarding checklist",
+    "summary": "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, approval workflows, policy packs, audit export, and optional Azure cloud evidence.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"
+    ],
+    "pdfStatus": "customer",
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "hosted enterprise tenant onboarding checklist"
+  },
+  {
+    "slug": "integration-readiness",
+    "title": "Integration readiness",
+    "summary": "Understand ready, recommended, and optional notification, ticketing, publishing, and delivery integrations for your workspace.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/INTEGRATION_READINESS.md"
+    ]
+  },
+  {
+    "slug": "azure-boards",
+    "title": "Azure Boards integration",
+    "summary": "Connect Azure DevOps for work item creation from ArchLucid findings — independent of your architecture cloud provider.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/AZURE_BOARDS_INTEGRATION.md"
+    ],
+    "pdfStatus": "public",
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "Azure Boards work item connector"
+  },
+  {
+    "slug": "billing-and-plans",
+    "title": "Billing and plans",
+    "summary": "How ArchLucid billing works — manage subscriptions, payment methods, seats, and usage from Billing and plans.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/BILLING_AND_PLANS.md"
+    ],
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "workspace billing and subscriptions"
+  },
+  {
+    "slug": "accelerator-chooser",
+    "title": "Starter proof packs",
+    "summary": "Map buyer jobs to existing accelerator packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/go-to-market/DEMO_QUICKSTART.md"
+    ],
+    "sectionAnchors": [
+      "accelerator-chooser"
+    ],
+    "pdfStatus": null
+  },
+  {
+    "slug": "specialty-walkthroughs",
+    "title": "Specialty review templates",
+    "summary": "Start with focused guidance for a specific architecture, approval, or industry scenario.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/walkthroughs/README.md"
+    ]
+  },
+  {
+    "slug": "users-and-roles",
+    "title": "Users and roles",
+    "summary": "Understand ArchLucid roles, who can manage access, and how permissions apply across your workspace.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/USERS_AND_ROLES_GUIDE.md"
+    ],
+    "pdfStatus": "customer"
+  },
+  {
+    "slug": "troubleshooting",
+    "title": "Troubleshooting",
+    "summary": "Find common issues, try the first fix, and collect support details when needed.",
+    "audience": "operator",
+    "sourcePaths": []
+  },
+  {
+    "slug": "admin-diagnostics",
+    "title": "Platform health",
+    "summary": "System health, workspace readiness, assistant diagnostics, and observability signals for platform health.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md"
+    ],
+    "pdfStatus": "customer",
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "platform health and workspace readiness signals"
+  },
+  {
+    "slug": "comparison-replay",
+    "title": "Compare and replay",
+    "summary": "Diff two architecture reviews, replay a saved comparison, and verify drift without re-running a full review.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/COMPARISON_REPLAY_OPERATOR_GUIDE.md"
+    ],
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "Compare two reviews and Validate review workspace tools"
+  },
+  {
+    "slug": "repeat-review-loop",
+    "title": "Your repeat architecture review",
+    "summary": "After the first finalized architecture review: compare, replay, policy dry-runs, and second-review proof checklist.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/REPEAT_REVIEW_LOOP.md"
+    ],
+    "lastReviewed": "2026-07-27"
+  },
+  {
+    "slug": "digests",
+    "title": "Architecture digests",
+    "summary": "Schedule summaries of review activity, approval signals, findings, and advisory scans for architects.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-10",
+    "releaseApplicability": "architecture digests orientation"
+  },
+  {
+    "slug": "recurrence-schedules",
+    "title": "Recurrence schedules",
+    "summary": "Automate follow-up review cadences for architecture reviews.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-12",
+    "releaseApplicability": "recurrence schedule orientation"
+  },
+  {
+    "slug": "decision-register",
+    "title": "Decision register",
+    "summary": "Browse architecture decisions locked with finalized review records.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "decision register orientation"
+  },
+  {
+    "slug": "improvement-planning",
+    "title": "Improvement planning",
+    "summary": "Convert review feedback into themes and prioritized improvement plans.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "insights improvement planning orientation"
+  },
+  {
+    "slug": "impact-preview",
+    "title": "Impact preview",
+    "summary": "Simulate before-and-after effects of proposed changes against a finalized baseline.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "insights impact preview orientation"
+  },
+  {
+    "slug": "advisory-scans",
+    "title": "Advisory scans",
+    "summary": "Generate prioritized follow-up recommendations from finalized reviews.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "advisory scans orientation"
+  },
+  {
+    "slug": "roi-summary",
+    "title": "ROI summary",
+    "summary": "Portfolio KPI framing for review-cycle reduction, effort saved, and export-ready artifacts.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-12",
+    "releaseApplicability": "sponsor ROI summary orientation"
+  },
+  {
+    "slug": "architecture-scorecard",
+    "title": "Architecture scorecard",
+    "summary": "Workspace throughput tiles and directional review-time savings for pilot discussions.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-12",
+    "releaseApplicability": "sponsor architecture scorecard orientation"
+  },
+  {
+    "slug": "connection-status",
+    "title": "Connection status",
+    "summary": "Workspace integration readiness tiles and connector follow-up surfaces.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-12",
+    "releaseApplicability": "administration connection status orientation"
+  },
+  {
+    "slug": "standards-and-rules",
+    "title": "Standards & rules",
+    "summary": "Effective policy resolution rows, enforcement mode, and linked evidence for a review.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "Policy resolution, enforced rules, and diagnostic export"
+  },
+  {
+    "slug": "baseline-settings",
+    "title": "Baseline settings",
+    "summary": "Workspace ROI measurement anchors for review-cycle hours, prep time, and people per review.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "administration baseline settings orientation"
+  },
+  {
+    "slug": "slack-integration",
+    "title": "Slack notifications",
+    "summary": "Configure Slack incoming webhook destinations for alert delivery.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "integrations slack notifications orientation"
+  },
+  {
+    "slug": "teams-integration",
+    "title": "Microsoft Teams notifications",
+    "summary": "Configure Microsoft Teams channel destinations for alert delivery.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "integrations teams notifications orientation"
+  },
+  {
+    "slug": "webhooks-integration",
+    "title": "Webhooks",
+    "summary": "Configure HTTPS webhook subscriptions for alert delivery.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "integrations webhooks orientation"
+  },
+  {
+    "slug": "api-keys",
+    "title": "API keys",
+    "summary": "Workspace automation credentials, rotation, and when in-product management is available.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "administration api keys orientation"
+  },
+  {
+    "slug": "system-health",
+    "title": "System health",
+    "summary": "Workspace operational readiness probes, dependencies, and deployment identity.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "administration system health orientation"
+  },
+  {
+    "slug": "ai-usage",
+    "title": "AI usage",
+    "summary": "Estimated AI spend, budget signals, and workflow cost filters for the workspace.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "Administration · AI usage orientation"
+  },
+  {
+    "slug": "preferences",
+    "title": "Preferences",
+    "summary": "Personal appearance settings saved to your signed-in account.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "Scope: personal account settings · Audience: all signed-in users"
+  },
+  {
+    "slug": "notifications",
+    "title": "Notifications",
+    "summary": "Channel launcher for digests, alerts, alert rules, Teams, and Slack — routes to where each destination configures.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "administration notifications orientation"
+  },
+  {
+    "slug": "workspace-settings",
+    "title": "Workspace settings",
+    "summary": "Tenant-wide defaults, quality gates, cost settings, and organization options.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "Administration · Workspace settings orientation"
+  },
+  {
+    "slug": "evidence-graph",
+    "title": "Evidence graph",
+    "summary": "How evidence connects to findings, decisions, approvals, and audit records for a finalized review.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "insights evidence graph orientation"
+  },
+  {
+    "slug": "search-review-evidence",
+    "title": "Search review evidence",
+    "summary": "How to search findings, decisions, and finalized review evidence across the workspace index.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "insights search review evidence orientation"
+  },
+  {
+    "slug": "sponsor-dashboard",
+    "title": "Sponsor dashboard",
+    "summary": "Portfolio ROI trends, workspace-health KPI tiles, and sponsor exports for the selected scope.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "architecture sponsor dashboard orientation"
+  },
+  {
+    "slug": "architecture-intelligence",
+    "title": "Architecture intelligence",
+    "summary": "Closed-loop architecture reasoning, golden harness runs, and publish-to-findings orientation.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "architecture intelligence orientation"
+  },
+  {
+    "slug": "architecture-drafts",
+    "title": "Architecture drafts",
+    "summary": "Browse, resume, and refine saved architecture drafts before filing evidence for review.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "architecture drafts orientation"
+  },
+  {
+    "slug": "structured-brief",
+    "title": "Structured brief fields",
+    "summary": "How to fill constraints, assumptions, required capabilities, and quality attributes before evidence intake.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-20",
+    "releaseApplicability": "architecture draft structured brief orientation"
+  },
+  {
+    "slug": "model-governance",
+    "title": "AI and model governance",
+    "summary": "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "administration model governance orientation"
+  },
+  {
+    "slug": "jira-integration",
+    "title": "Jira integration",
+    "summary": "Outbound Jira work-item routing, connection health, and workspace mapping settings.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "integrations jira orientation"
+  },
+  {
+    "slug": "servicenow-integration",
+    "title": "ServiceNow integration",
+    "summary": "Outbound ServiceNow incident routing, CMDB behavior, and connection health.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-13",
+    "releaseApplicability": "Integrations · ServiceNow orientation"
+  },
+  {
+    "slug": "alerts",
+    "title": "Alerts",
+    "summary": "Learn how ArchLucid identifies policy and approval risks, routes them to the right owners, and tracks resolution.",
+    "audience": "operator",
+    "sourcePaths": [],
+    "lastReviewed": "2026-08-09",
+    "releaseApplicability": "policy alerts orientation"
+  },
+  {
+    "slug": "pilot-feedback",
+    "title": "Pilot feedback (internal runbook)",
+    "summary": "Admin/product-owner guide for human judgment signals on findings and architecture reviews — separate from recommendation learning. Not default buyer help.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/PRODUCT_LEARNING.md"
+    ]
+  }
+] as const;
