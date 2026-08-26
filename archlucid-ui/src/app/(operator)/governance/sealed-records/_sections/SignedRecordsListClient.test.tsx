@@ -5,6 +5,15 @@ const listRunsByProjectPaged = vi.fn();
 const enrichSignedRecordsListRows = vi.fn();
 const areSpineStaticDemoPayloadsAvailable = vi.fn();
 const tryStaticDemoRunSummariesPaged = vi.fn();
+const searchParamsState = { value: "runId=00000000-0000-0000-0000-000000000099" };
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    useSearchParams: () => new URLSearchParams(searchParamsState.value),
+  });
+});
 
 vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: (...args: unknown[]) => listRunsByProjectPaged(...args),
@@ -47,6 +56,18 @@ vi.mock("./enrich-signed-records-list-rows", () => ({
   enrichSignedRecordsListRows: (...args: unknown[]) => enrichSignedRecordsListRows(...args),
 }));
 
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", activeRunId: "" }),
+}));
+
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+}));
+
+vi.mock("./SignedRecordsListNextReviewFooterClient", () => ({
+  SignedRecordsListNextReviewFooterClient: () => <div data-testid="signed-records-next-review-footer-stub" />,
+}));
+
 import SignedRecordsListClient from "./SignedRecordsListClient";
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance/governance-overview-copy";
 import {
@@ -82,6 +103,7 @@ const enrichedRow = {
 };
 
 beforeEach(() => {
+  searchParamsState.value = "runId=00000000-0000-0000-0000-000000000099";
   listRunsByProjectPaged.mockReset();
   enrichSignedRecordsListRows.mockReset();
   areSpineStaticDemoPayloadsAvailable.mockReturnValue(true);
@@ -110,6 +132,7 @@ describe("SignedRecordsListClient", () => {
     expect(screen.getByTestId("signed-records-list-page-title")).toHaveTextContent("Finalized review records");
     expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
     expect(screen.getByText(SIGNED_RECORDS_LIST_LIST_LEAD)).toBeInTheDocument();
+    expect(screen.getByTestId("signed-records-filter-setup-progress")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByRole("link", { name: "Claims modernization" })).toBeInTheDocument();
@@ -128,7 +151,10 @@ describe("SignedRecordsListClient", () => {
       "/governance/sealed-records/manifest-abc",
     );
     expect(screen.getByTestId(`signed-record-integrity-${finalizedRun.runId}`)).toHaveTextContent("Finalized");
-    expect(screen.queryAllByRole("link", { name: "Open review" })).toHaveLength(0);
+    expect(screen.getByRole("link", { name: "Open review" })).toHaveAttribute(
+      "href",
+      `/architecture/reviews/${finalizedRun.runId}`,
+    );
   });
 
   it("requests keyset cursor pages of 100 runs and keeps pagination mounted while loading (TB-1944)", async () => {

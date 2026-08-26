@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GovernanceSealedRecordsListBreadcrumb } from "@/components/governance/GovernanceSealedRecordsListBreadcrumb";
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
@@ -30,6 +31,10 @@ import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { resolveContinueLastSignedRecordsListRow } from "@/lib/resolve-continue-last-signed-record";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import {
+  resolveSignedRecordsFilterEmphasizedStepId,
+  resolveSignedRecordsFilterSteps,
+} from "@/lib/signed-records-filter-checklist";
 import { cn } from "@/lib/utils";
 
 import { filterSignedRecordsListRows } from "./signed-records-list-client-filter";
@@ -254,6 +259,16 @@ export default function SignedRecordsListClient() {
     lastRefreshedAt: loading ? null : lastRefreshedAt,
     refreshingLabel: loading ? "Refreshing…" : null,
   });
+  const signedRecordsFilterChecklistSteps = resolveSignedRecordsFilterSteps({
+    reviewPicked: scopedRunFilterActive,
+    recordsLoaded: scopedRunFilterActive && hasRows && !loading,
+    filterReady: scopedRunFilterActive && hasRows && filteredRows.length > 0 && !loading,
+  });
+  const signedRecordsFilterChecklistEmphasizedStepId = resolveSignedRecordsFilterEmphasizedStepId({
+    reviewPicked: scopedRunFilterActive,
+    recordsLoaded: scopedRunFilterActive && hasRows && !loading,
+    filterReady: scopedRunFilterActive && hasRows && filteredRows.length > 0 && !loading,
+  });
   const headerActions = (
     <div className="flex flex-wrap items-center gap-2" data-testid="signed-records-list-header-actions">
       <PageContextualHelpButton />
@@ -322,6 +337,15 @@ export default function SignedRecordsListClient() {
           onSelectReview={onPickReviewForFiltering}
         />
       )}
+
+      {scopedRunFilterActive ? (
+        <IntegrationConnectChecklist
+          title="Filter checklist"
+          steps={signedRecordsFilterChecklistSteps}
+          emphasizedStepId={signedRecordsFilterChecklistEmphasizedStepId}
+          testIdPrefix="signed-records-filter"
+        />
+      ) : null}
 
       {showEmptyState ? (
         workspaceScopeTeaching !== null ? (
