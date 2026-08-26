@@ -2238,11 +2238,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — curated rule metadata key lookup was case-sensitive after JSON deserialization, rejecting PascalCase pack.curatedRules.v1 entries
+- **last-hunt:** 2026-08-26
+- **last-bug:** 2026-08-26 — missing findings snapshot marked pack assignments Evaluated instead of Skipped
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -2257,9 +2257,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Waiver expiry reminder swallows provider send failures and counts the reminder as sent — **hit 2026-08-24:** `WaiverExpiryNotificationService.TrySendReminderAsync` reserved the ledger then caught `SendAsync` exceptions without rethrowing, so `RunTenantPassAsync` returned success while recipients received no mail and idempotency blocked resend; fixed by rethrowing after log (ExecDigest pattern)
 - [x] (proven) Synthetic pre-commit simulation reports a missing or foreign scoped run as allowed — **hit 2026-08-24:** `PreCommitGovernanceGate.SimulateSyntheticFindingsInternalAsync` returned `Allowed()` when scoped `GetByIdAsync(runId)` returned null, so the CI simulation endpoint could report a pass without evaluating the requested synthetic Critical finding; simulation now throws `RunNotFoundException` while live evaluation semantics remain unchanged
 - [x] (proven) Curated rule metadata key lookup is case-sensitive after JSON deserialization — **hit 2026-08-25:** `PolicyPackCuratedRuleKeyReader` used `metadata.TryGetValue` for `pack.curatedRules.v1`, so PascalCase `Pack.CuratedRules.V1` from deserialized pack content was ignored and authoring validation warned on tenant-authored rule keys; fixed via `PolicyPackContentMetadataReader`; regression in `ValidateAsync_when_curated_metadata_key_uses_PascalCase_accepts_matching_rule`
-- [ ] (candidate) Pack assignment outcome marks Evaluated when findings snapshot row is missing — `PolicyPackAssignmentOutcomeRecorder` falls through to `Evaluated` when `findingsSnapshot` is null even with zero matching findings
-- [ ] (candidate) Policy pack coverage proof ignores muted findings in outcome recorder mismatch — `PolicyPackCoverageProofEvaluator` and `PolicyPackAssignmentOutcomeRecorder` both filter muted findings but may diverge when snapshot generation status is `PartiallyComplete`
-- [ ] (candidate) Governance dry-run returns null for invalid run id format — `PolicyPackGovernanceDryRunService.EvaluateAsync` returns null on non-GUID `targetRunId` without distinguishing malformed ids from out-of-scope runs
+- [x] (proven) `PolicyPackAssignmentOutcomeRecorder` marked assignments `evaluated` when `findingsSnapshot` was null — **hit 2026-08-26:** pre-finalize coverage refresh with no snapshot row fell through to `Evaluated` even with zero matching findings, overstating pack evaluation proof; fixed by returning `Skipped` when snapshot is absent (`PolicyPackAssignmentOutcomeRecorderTests.ApplyOutcomes_marks_skipped_when_findings_snapshot_is_missing`)
+- [x] (invalid) Policy pack coverage proof ignores muted findings in outcome recorder mismatch — `PolicyPackCoverageProofEvaluator` and `PolicyPackAssignmentOutcomeRecorder` both filter `IsMuted` before matching; `PartiallyComplete` snapshots use the same incomplete branch as `Generating` (muted-only signals → `Skipped`, active signals → `Evaluated`; coverage proof agrees)
+- [x] (invalid) Governance dry-run returns null for invalid run id format — `PolicyPackGovernanceDryRunService.EvaluateAsync` intentionally returns null for non-GUID `targetRunId` so the API surfaces the same 404 as an out-of-scope run (no id-format oracle)
+
+2026-08-26 thorough hunt #7: proved missing-snapshot pack outcome; retired muted-finding divergence and dry-run null-shape candidates.
 
 ---
 
