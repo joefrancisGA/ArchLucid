@@ -3,16 +3,15 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SearchReviewEvidenceHelpClaimDisciplineStrip } from "@/components/help/SearchReviewEvidenceHelpClaimDisciplineStrip";
 import { SearchReviewEvidenceHelpEvidenceOrientationStrip } from "@/components/help/SearchReviewEvidenceHelpEvidenceOrientationStrip";
-import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -23,7 +22,7 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 import { SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL } from "@/lib/search-review-evidence-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_HELP_CANONICAL_PATH } from "@/lib/search-review-evidence-help-evidence-copy";
 import {
-  SEARCH_REVIEW_EVIDENCE_HELP_BREADCRUMB_TOPIC_TITLE,
+  SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID,
   SEARCH_REVIEW_EVIDENCE_HELP_FEATURE_ITEMS,
   SEARCH_REVIEW_EVIDENCE_HELP_GUIDE_HEADINGS,
   SEARCH_REVIEW_EVIDENCE_HELP_HIT_ANATOMY_FIELDS,
@@ -65,7 +64,12 @@ export function HelpSearchReviewEvidenceGuideView(
 ): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const contentGridClass = resolveHelpPageContentGridClass(SEARCH_REVIEW_EVIDENCE_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-search-review-evidence",
+    SEARCH_REVIEW_EVIDENCE_HELP_GUIDE_HEADINGS,
+    SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -89,45 +93,47 @@ export function HelpSearchReviewEvidenceGuideView(
         subtitle={searchReviewEvidenceHelpPageSubtitle(buyerPolishedShell)}
         navHref={SEARCH_REVIEW_EVIDENCE_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={<HelpTopicBreadcrumb topicTitle={SEARCH_REVIEW_EVIDENCE_HELP_BREADCRUMB_TOPIC_TITLE} />}
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
       />
+
+      <SearchReviewEvidenceHelpClaimDisciplineStrip />
 
       <div className={contentGridClass}>
         <div
           id={SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_CONTENT_ID}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
-          {buyerPolishedShell ? (
-            <div data-testid="help-search-review-evidence-orientation-top">
-              <SearchReviewEvidenceHelpEvidenceOrientationStrip />
-            </div>
-          ) : null}
+          <div data-testid="help-search-review-evidence-orientation-top">
+            <SearchReviewEvidenceHelpEvidenceOrientationStrip />
+          </div>
 
           <p className={readingBodyClass} data-testid="help-search-review-evidence-overview">
             {SEARCH_REVIEW_EVIDENCE_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-search-review-evidence-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.href}>
-                  {SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-              <p
-                className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
-                data-testid="help-search-review-evidence-precondition"
-              >
-                {SEARCH_REVIEW_EVIDENCE_HELP_PRECONDITION}
-              </p>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-search-review-evidence-action-panel"
+            aria-labelledby="help-search-review-evidence-action-panel-heading"
+          >
+            <h2
+              id="help-search-review-evidence-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <Button asChild size="sm" variant="primary">
+              <Link href={SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.href}>
+                {SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label}
+              </Link>
+            </Button>
+            <p
+              className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+              data-testid="help-search-review-evidence-precondition"
+            >
+              {SEARCH_REVIEW_EVIDENCE_HELP_PRECONDITION}
+            </p>
+          </section>
 
           <section
             aria-labelledby={SEARCH_REVIEW_EVIDENCE_HELP_WHAT_IS_INDEXED_SECTION_ID}
@@ -204,15 +210,9 @@ export function HelpSearchReviewEvidenceGuideView(
               ))}
             </dl>
           </section>
-
-          {!buyerPolishedShell ? (
-            <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-              <SearchReviewEvidenceHelpEvidenceOrientationStrip />
-            </div>
-          ) : null}
         </div>
 
-        <HelpTopicTableOfContents headings={SEARCH_REVIEW_EVIDENCE_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );

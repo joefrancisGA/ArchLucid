@@ -7,6 +7,9 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpEvidenceGraphGuideView } from "@/app/(operator)/help/_sections/HelpEvidenceGraphGuideView";
 import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE,
   EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE_HEADING,
   EVIDENCE_GRAPH_HELP_SOURCES,
@@ -46,7 +49,13 @@ expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("
       "id",
       EVIDENCE_GRAPH_HELP_CLAIM_HEADING_ID,
     );
-    expect(screen.getByTestId("help-evidence-graph-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-evidence-graph-claim-discipline-strip")).toHaveTextContent(
+      EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-evidence-graph",
+      "help-evidence-graph-claim-discipline",
       EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByTestId("help-evidence-graph-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);

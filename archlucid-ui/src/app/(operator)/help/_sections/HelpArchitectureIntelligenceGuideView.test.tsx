@@ -7,6 +7,9 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpArchitectureIntelligenceGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureIntelligenceGuideView";
 import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING,
   ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE,
@@ -22,6 +25,7 @@ import {
   ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE,
 } from "@/lib/architecture-intelligence-help-guide-content";
 import { ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-intelligence-evidence-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpArchitectureIntelligenceGuideView", () => {
@@ -40,9 +44,7 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
 
     expect(screen.getByTestId("help-architecture-intelligence-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Guide last reviewed 2026-08-13 · architecture intelligence orientation",
-    );
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-architecture-intelligence-start-here-scope-note")).toHaveTextContent(
       ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE,
     );
@@ -58,10 +60,16 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
       "id",
       ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
     );
-    expect(screen.getByTestId("help-architecture-intelligence-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-architecture-intelligence-claim-discipline-strip")).toHaveTextContent(
+      ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-architecture-intelligence",
+      "help-architecture-intelligence-claim-discipline",
       ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByTestId("help-architecture-intelligence-claim-discipline").textContent).not.toContain(
+    expect(screen.getByTestId("help-architecture-intelligence-claim-discipline-strip").textContent).not.toContain(
       "tenant-scoped",
     );
     expect(screen.getByRole("heading", { name: ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE })).toBeInTheDocument();
@@ -84,14 +92,15 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
     expect(new Set(linkedHrefs).size).toBe(linkedHrefs.length);
 
     for (const source of ARCHITECTURE_INTELLIGENCE_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(screen.getByRole("link", { name: "Model governance help" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Read Model governance help" })).toHaveAttribute(
       "href",
       "/help/model-governance",
     );
-    expect(screen.getByRole("link", { name: "AI usage help" })).toHaveAttribute("href", "/help/ai-usage");
+    expect(screen.getByRole("link", { name: "Read AI usage help" })).toHaveAttribute("href", "/help/ai-usage");
     expect(screen.queryByRole("link", { name: "Open findings queue →" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Start a review →" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Open evidence graph →" })).toBeNull();

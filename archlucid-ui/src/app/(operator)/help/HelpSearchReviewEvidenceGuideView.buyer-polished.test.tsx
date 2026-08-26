@@ -42,8 +42,8 @@ describe("HelpSearchReviewEvidenceGuideView buyer-polished shell", () => {
     expect(screen.queryByText(SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-search-review-evidence-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("help-search-review-evidence-claim-discipline").textContent).toContain(
-      SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    expect(screen.getByTestId("help-search-review-evidence-claim-discipline-strip")).toHaveTextContent(
+      SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE,
     );
 
     const orientationTop = screen.getByTestId("help-search-review-evidence-orientation-top");

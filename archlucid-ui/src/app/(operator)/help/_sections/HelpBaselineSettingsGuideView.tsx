@@ -1,16 +1,16 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { BaselineSettingsHelpClaimDisciplineStrip } from "@/components/help/BaselineSettingsHelpClaimDisciplineStrip";
 import { BaselineSettingsHelpEvidenceOrientationStrip } from "@/components/help/BaselineSettingsHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -20,7 +20,7 @@ import {
   BASELINE_SETTINGS_HELP_ANCHOR_ITEMS,
   BASELINE_SETTINGS_HELP_BASELINE_VS_ROI_BODY,
   BASELINE_SETTINGS_HELP_BASELINE_VS_ROI_TITLE,
-  BASELINE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
+  BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID,
   BASELINE_SETTINGS_HELP_GUIDE_HEADINGS,
   BASELINE_SETTINGS_HELP_HOW_TO_READ_STEPS,
   BASELINE_SETTINGS_HELP_METHODOLOGY_HREF,
@@ -57,7 +57,12 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Operator baseline settings orientation for `/help/baseline-settings`. */
 export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(BASELINE_SETTINGS_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-baseline-settings",
+    BASELINE_SETTINGS_HELP_GUIDE_HEADINGS,
+    BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -77,32 +82,39 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
         actions={<PageContextualHelpButton />}
       />
 
+      <BaselineSettingsHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <BaselineSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+
           <p className={readingBodyClass} data-testid="help-baseline-settings-overview">
             {BASELINE_SETTINGS_HELP_OVERVIEW}
           </p>
 
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-baseline-settings-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <aside
-                className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
-                data-testid="help-baseline-settings-saved-baseline-warn"
-              >
-                <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER}</p>
-              </aside>
-              <Button asChild size="sm" variant="primary">
-                <Link href={BASELINE_SETTINGS_HELP_PRIMARY_ACTION.href}>
-                  {BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="help-baseline-settings-action-panel"
+            aria-labelledby="help-baseline-settings-action-panel-heading"
+          >
+            <h2
+              id="help-baseline-settings-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <aside
+              className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
+              data-testid="help-baseline-settings-saved-baseline-warn"
+            >
+              <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER}</p>
+            </aside>
+            <Button asChild size="sm" variant="primary">
+              <Link href={BASELINE_SETTINGS_HELP_PRIMARY_ACTION.href}>
+                {BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label}
+              </Link>
+            </Button>
+          </section>
 
           <section
             aria-labelledby="what-baseline-settings-captures"
@@ -160,11 +172,9 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
               ))}
             </ul>
           </section>
-
-          <BaselineSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
         </div>
 
-        <HelpTopicTableOfContents headings={BASELINE_SETTINGS_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );

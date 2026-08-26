@@ -43,7 +43,10 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("help-path-chooser", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-first-review", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-roi-summary", "not a package.")).toBeUndefined();
-    expect(resolveClaimDisciplineForStrip("help-evidence-graph", "not a package.")).toBe("not a package.");
+    expect(resolveClaimDisciplineForStrip("help-evidence-graph", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-search-review-evidence", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-architecture-scorecard", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-architecture-intelligence", "not a package.")).toBeUndefined();
   });
 
   it("expectsVisibleClaimDisciplineBand mirrors omit policy", () => {
@@ -67,6 +70,6 @@ describe("claim-discipline-policy", () => {
     ).toEqual([headings[0], headings[2]]);
     expect(
       resolveGuideHeadingsForStrip("help-evidence-graph", headings, "help-preferences-claim-discipline-heading"),
-    ).toEqual(headings);
+    ).toEqual([headings[0], headings[2]]);
   });
 });

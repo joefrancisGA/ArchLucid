@@ -6,6 +6,9 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpArchitectureScorecardGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardGuideView";
+import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
 import { REVIEW_SCORECARD_PAGE_TITLE } from "@/lib/pilot-scorecard-present";
 import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
 import {
@@ -18,6 +21,7 @@ import {
   ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_TITLE,
 } from "@/lib/architecture-scorecard-help-guide-content";
 import {
+  ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE,
   ARCHITECTURE_SCORECARD_HELP_SOURCES,
 } from "@/lib/architecture-scorecard-help-evidence-copy";
@@ -84,7 +88,15 @@ describe("HelpArchitectureScorecardGuideView", () => {
 
     expect(screen.getAllByRole("heading", { name: "Where to go next" })).toHaveLength(1);
     expect(screen.getByRole("heading", { name: ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE })).toBeInTheDocument();
-    expect(screen.getByTestId("help-architecture-scorecard-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("help-architecture-scorecard-claim-discipline-strip")).toHaveTextContent(
+      ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-architecture-scorecard",
+      "help-architecture-scorecard-claim-discipline",
+      ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
   });
 
   it("links the primary action and related evidence without self-referential scorecard links", () => {

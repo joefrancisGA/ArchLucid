@@ -1,18 +1,18 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { ArchitectureScorecardHelpClaimDisciplineStrip } from "@/components/help/ArchitectureScorecardHelpClaimDisciplineStrip";
 import { ArchitectureScorecardHelpEvidenceOrientationStrip } from "@/components/help/ArchitectureScorecardHelpEvidenceOrientationStrip";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   CTA_WIDTH,
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -38,7 +38,10 @@ import {
   ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_LINES,
   ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_TITLE,
 } from "@/lib/architecture-scorecard-help-guide-content";
-import { ARCHITECTURE_SCORECARD_HELP_CANONICAL_PATH } from "@/lib/architecture-scorecard-help-evidence-copy";
+import {
+  ARCHITECTURE_SCORECARD_HELP_CANONICAL_PATH,
+  ARCHITECTURE_SCORECARD_HELP_CLAIM_HEADING_ID,
+} from "@/lib/architecture-scorecard-help-evidence-copy";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
@@ -62,7 +65,12 @@ export function HelpArchitectureScorecardGuideView(
   props: HelpArchitectureScorecardGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(ARCHITECTURE_SCORECARD_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-architecture-scorecard",
+    ARCHITECTURE_SCORECARD_HELP_GUIDE_HEADINGS,
+    ARCHITECTURE_SCORECARD_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
 
   return (
     <article
@@ -81,8 +89,12 @@ export function HelpArchitectureScorecardGuideView(
         actions={<PageContextualHelpButton />}
       />
 
+      <ArchitectureScorecardHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <ArchitectureScorecardHelpEvidenceOrientationStrip />
+
           <p
             className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
             data-testid="help-architecture-scorecard-overview"
@@ -170,8 +182,6 @@ export function HelpArchitectureScorecardGuideView(
             <ScorecardRoiVocabularyRail currentSurfaceId="scorecard" variant="full" />
           </section>
 
-          <ArchitectureScorecardHelpEvidenceOrientationStrip />
-
           <section
             aria-labelledby="where-to-go-next"
             className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
@@ -179,25 +189,22 @@ export function HelpArchitectureScorecardGuideView(
             <HelpSectionHeading id="where-to-go-next">Where to go next</HelpSectionHeading>
             <div className="grid gap-3 sm:grid-cols-2" data-testid="help-architecture-scorecard-sibling-reports">
               {ARCHITECTURE_SCORECARD_HELP_SIBLING_REPORTS.map((report) => (
-                <Card key={report.id} className="border-neutral-200 dark:border-neutral-800">
-                  <CardHeader className={OPERATOR_CARD.header}>
-                    <CardTitle as="h3" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                      {report.title}
-                    </CardTitle>
-                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{report.description}</p>
-                  </CardHeader>
-                  <CardContent className={OPERATOR_CARD.content}>
-                    <Button asChild className={CTA_WIDTH.content} size="sm" variant="outline">
-                      <Link href={report.href}>{report.actionLabel}</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div
+                  key={report.id}
+                  className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                >
+                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{report.title}</h3>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{report.description}</p>
+                  <Button asChild className={CTA_WIDTH.content} size="sm" variant="outline">
+                    <Link href={report.href}>{report.actionLabel}</Link>
+                  </Button>
+                </div>
               ))}
             </div>
           </section>
         </div>
 
-        <HelpTopicTableOfContents headings={ARCHITECTURE_SCORECARD_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );

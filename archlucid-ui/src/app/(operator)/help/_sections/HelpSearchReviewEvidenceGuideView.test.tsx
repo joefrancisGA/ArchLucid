@@ -16,12 +16,14 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 import { HelpSearchReviewEvidenceGuideView } from "@/app/(operator)/help/_sections/HelpSearchReviewEvidenceGuideView";
 import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE,
   SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE_HEADING,
   SEARCH_REVIEW_EVIDENCE_HELP_SOURCES,
 } from "@/lib/search-review-evidence-help-evidence-copy";
 import {
-  SEARCH_REVIEW_EVIDENCE_HELP_BREADCRUMB_TOPIC_TITLE,
   SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID,
   SEARCH_REVIEW_EVIDENCE_HELP_EXAMPLE_QUERY,
   SEARCH_REVIEW_EVIDENCE_HELP_FEATURE_ITEMS,
@@ -52,10 +54,7 @@ describe("HelpSearchReviewEvidenceGuideView", () => {
     render(<HelpSearchReviewEvidenceGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-search-review-evidence-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      SEARCH_REVIEW_EVIDENCE_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-heading-eyebrow")).toHaveTextContent(SEARCH_REVIEW_EVIDENCE_HELP_PAGE_EYEBROW);
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-search-review-evidence-precondition")).toHaveTextContent(
@@ -64,10 +63,16 @@ describe("HelpSearchReviewEvidenceGuideView", () => {
     expect(screen.queryByTestId("help-search-review-evidence-start-here-scope-note")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-search-review-evidence-index-scope-note")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-search-review-evidence-role-precondition-tag")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-search-review-evidence-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-search-review-evidence-claim-discipline-strip")).toHaveTextContent(
+      SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-search-review-evidence",
+      "help-search-review-evidence-claim-discipline",
       SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByTestId("help-search-review-evidence-claim-discipline").textContent?.toLowerCase()).not.toContain(
+    expect(screen.getByTestId("help-search-review-evidence-claim-discipline-strip").textContent?.toLowerCase()).not.toContain(
       "signed review evidence",
     );
     expect(screen.getByRole("heading", { name: SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(

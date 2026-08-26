@@ -11,7 +11,7 @@ export function EvidenceGraphHelpClaimDisciplineStrip(): React.JSX.Element {
   return (
     <aside
       className={cn(DESIGN_TOKENS.callout.info, "p-3")}
-      data-testid="help-evidence-graph-claim-discipline"
+      data-testid="help-evidence-graph-claim-discipline-strip"
       aria-labelledby={EVIDENCE_GRAPH_HELP_CLAIM_HEADING_ID}
     >
       <h2

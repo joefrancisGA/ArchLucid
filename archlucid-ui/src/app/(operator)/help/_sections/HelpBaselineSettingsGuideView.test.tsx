@@ -7,6 +7,9 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpBaselineSettingsGuideView } from "@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView";
 import {
+  expectClaimDisciplineBandContent,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE,
   BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING,
   BASELINE_SETTINGS_HELP_SOURCES,
@@ -19,6 +22,7 @@ import {
 } from "@/lib/baseline-settings-help-guide-content";
 import { BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER } from "@/lib/baseline-settings-present";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpBaselineSettingsGuideView", () => {
@@ -33,9 +37,7 @@ describe("HelpBaselineSettingsGuideView", () => {
 
     expect(screen.getByTestId("help-baseline-settings-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Guide last reviewed 2026-08-13 · administration baseline settings orientation",
-    );
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-baseline-settings-saved-baseline-warn")).toHaveTextContent(
       BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER,
     );
@@ -45,7 +47,13 @@ describe("HelpBaselineSettingsGuideView", () => {
     expect(screen.getByTestId("help-baseline-settings-overview").textContent?.toLowerCase()).not.toContain(
       "skip this now",
     );
-    expect(screen.getByTestId("help-baseline-settings-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-baseline-settings-claim-discipline-strip")).toHaveTextContent(
+      BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-baseline-settings",
+      "help-baseline-settings-claim-discipline",
       BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByRole("heading", { name: BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
@@ -61,7 +69,8 @@ describe("HelpBaselineSettingsGuideView", () => {
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
 
     for (const source of BASELINE_SETTINGS_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
     expect(screen.queryByRole("link", { name: "Assurance status" })).not.toBeInTheDocument();

@@ -1,19 +1,21 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { ArchitectureIntelligenceHelpClaimDisciplineStrip } from "@/components/help/ArchitectureIntelligenceHelpClaimDisciplineStrip";
 import { ArchitectureIntelligenceHelpEvidenceOrientationStrip } from "@/components/help/ArchitectureIntelligenceHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_CANONICAL_PATH,
   ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE,
   ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK,
 } from "@/lib/architecture-intelligence-help-evidence-copy";
 import {
+  ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
   ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS,
   ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS,
   ARCHITECTURE_INTELLIGENCE_HELP_HOW_TO_READ_STEPS,
@@ -26,7 +28,6 @@ import {
 } from "@/lib/architecture-intelligence-help-guide-content";
 import { ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-intelligence-evidence-copy";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -57,7 +58,12 @@ export function HelpArchitectureIntelligenceGuideView(
   props: HelpArchitectureIntelligenceGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-architecture-intelligence",
+    ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS,
+    ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -77,45 +83,49 @@ export function HelpArchitectureIntelligenceGuideView(
         actions={<PageContextualHelpButton />}
       />
 
+      <ArchitectureIntelligenceHelpClaimDisciplineStrip />
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+          <ArchitectureIntelligenceHelpEvidenceOrientationStrip />
+
           <p className={readingBodyClass} data-testid="help-architecture-intelligence-overview">
             {ARCHITECTURE_INTELLIGENCE_HELP_OVERVIEW}
           </p>
 
-          <Card
-            className="border-neutral-200 dark:border-neutral-800"
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid="help-architecture-intelligence-action-panel"
+            aria-labelledby="help-architecture-intelligence-action-panel-heading"
           >
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.href}>
-                  {ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-architecture-intelligence-start-here-scope-note"
-              >
-                {ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE}
-              </p>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-architecture-intelligence-data-handling"
-              >
-                {ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE}{" "}
-                <Link className={OPERATOR_LINK.nav} href={ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK.href}>
-                  {ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK.label}
-                </Link>
-                .
-              </p>
-            </CardContent>
-          </Card>
+            <h2
+              id="help-architecture-intelligence-action-panel-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <Button asChild size="sm" variant="primary">
+              <Link href={ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.href}>
+                {ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.label}
+              </Link>
+            </Button>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-architecture-intelligence-start-here-scope-note"
+            >
+              {ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE}
+            </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-architecture-intelligence-data-handling"
+            >
+              {ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE}{" "}
+              <Link className={OPERATOR_LINK.nav} href={ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK.href}>
+                {ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK.label}
+              </Link>
+              .
+            </p>
+          </section>
 
           <section
             aria-labelledby="what-architecture-intelligence-does"
@@ -157,11 +167,9 @@ export function HelpArchitectureIntelligenceGuideView(
               ))}
             </ol>
           </section>
-
-          <ArchitectureIntelligenceHelpEvidenceOrientationStrip />
         </div>
 
-        <HelpTopicTableOfContents headings={ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );
