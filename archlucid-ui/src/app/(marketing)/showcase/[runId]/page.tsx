@@ -406,15 +406,25 @@ export default async function MarketingShowcasePage(props: PageProps) {
 
     case "http_error":
     case "missing": {
-      const fallbackPayload = getShowcaseStaticDemoPayload(decodedRunId);
+      if (hasCuratedShowcaseStaticPayload(decodedRunId)) {
+        const fallbackPayload = getShowcaseStaticDemoPayload(decodedRunId);
+
+        return (
+          <ShowcasePayloadView
+            runId={runId}
+            payload={fallbackPayload}
+            banner="api-fallback"
+            renderMode="api_fallback"
+          />
+        );
+      }
 
       return (
-        <ShowcasePayloadView
-          runId={runId}
-          payload={fallbackPayload}
-          banner="api-fallback"
-          renderMode="api_fallback"
-        />
+        <ShowcaseFailedShell runId={runId}>
+          <div className="mt-6">
+            <DemoPreviewNotAvailable />
+          </div>
+        </ShowcaseFailedShell>
       );
     }
   }

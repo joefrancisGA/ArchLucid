@@ -49,6 +49,21 @@ describe("MarketingShowcasePage", () => {
     });
   });
 
+  it("shows not-available shell for non-curated run ids when the marketing API returns 503", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    fetchMock.mockResolvedValue(new Response("upstream unavailable", { status: 503 }));
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+    expect(getShowcaseStaticDemoPayloadMock).not.toHaveBeenCalled();
+  });
+
   it("treats API payloads missing artifact arrays as invalid", async () => {
     vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
 
