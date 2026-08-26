@@ -5,9 +5,11 @@ using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
@@ -23,6 +25,41 @@ public sealed class GovernanceCoverageControllerScopeTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
+
+    private static ITenantRepository TenantExistsRepository() =>
+        Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+            Scope.TenantId,
+            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" }));
+
+    [Fact]
+    public async Task GetScopeCoverage_returns_not_found_when_tenant_missing()
+    {
+        Mock<ICoverageQueryService> coverage = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        GovernanceCoverageController controller = new(
+            coverage.Object,
+            Mock.Of<ICoveragePreviewService>(),
+            Mock.Of<IPolicyPackRepository>(),
+            scopeProvider.Object,
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.GetScopeCoverage(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        coverage.VerifyNoOtherCalls();
+    }
 
     [Fact]
     public async Task GetScopeCoverage_excludes_pack_metadata_when_pack_is_out_of_scope()
@@ -86,7 +123,8 @@ public sealed class GovernanceCoverageControllerScopeTests
             coverage.Object,
             Mock.Of<ICoveragePreviewService>(),
             packs.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            TenantExistsRepository());
 
         IActionResult action = await controller.GetScopeCoverage(CancellationToken.None);
 

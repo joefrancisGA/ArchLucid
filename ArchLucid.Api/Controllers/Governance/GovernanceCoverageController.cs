@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models.Coverage;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -28,12 +29,17 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public sealed class GovernanceCoverageController(
     ICoverageQueryService coverageQueryService,
     ICoveragePreviewService coveragePreviewService,
     IPolicyPackRepository policyPackRepository,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    ITenantRepository tenantRepository) : ControllerBase
 {
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     // idempotency-posture: dry-run-no-persist
     [HttpPost("coverage/preview")]
     [MutatingAuditExcluded("Read-only coverage preview; does not persist domain mutations.")]
@@ -53,9 +59,15 @@ public sealed class GovernanceCoverageController(
 
     [HttpGet("coverage")]
     [ProducesResponseType(typeof(CoverageSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetScopeCoverage(CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         CoverageSummary summary = await coverageQueryService.GetByScopeAsync(scope, cancellationToken);
 
         Dictionary<Guid, PolicyPack> packById = summary.Assignments.Count == 0
