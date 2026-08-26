@@ -51,6 +51,14 @@ public static class AppServiceNetworkAccessSecurityBaselineExpander
             && type.Contains("appservice", StringComparison.OrdinalIgnoreCase))
             return true;
 
+        if (item.Properties.TryGetValue("terraformType", out string? terraformType))
+        {
+            string normalized = terraformType.ToLowerInvariant();
+
+            if (normalized is "azurerm_app_service" or "azurerm_linux_web_app" or "azurerm_windows_web_app")
+                return true;
+        }
+
         return false;
     }
 

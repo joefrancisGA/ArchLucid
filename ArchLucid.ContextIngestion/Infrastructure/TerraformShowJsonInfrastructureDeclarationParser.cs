@@ -98,7 +98,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         if (!res.TryGetProperty("name", out JsonElement nameEl) || nameEl.ValueKind != JsonValueKind.String)
             return;
 
-        string name = nameEl.GetString() ?? string.Empty;
+        string name = (nameEl.GetString() ?? string.Empty).Trim();
 
         if (string.IsNullOrWhiteSpace(name))
             return;
