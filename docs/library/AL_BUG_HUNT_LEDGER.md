@@ -1808,11 +1808,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 39
-- **bugs-found:** 83
+- **hunts:** 40
+- **bugs-found:** 84
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — Terraform show-json sibling modules with same type+label collapsed to one resource
+- **last-bug:** 2026-08-26 — ARM composite `name` arrays collapsed child resources to parent-only names
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1910,6 +1910,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InfrastructureDeclarationDeltaKey` / `CanonicalDeduplicator` / `JsonInfrastructureDeclarationParser` ignored JSON `subtype` and `region` when `resourceType` and `Name` matched — **hit 2026-08-26:** two `vnet` resources both named `hub` with different `subtype`/`region` collapsed to one delta key, deduped to one object, and shared unstable `ObjectId`; fixed with `InfrastructureDeclarationResourceIdentity` disambiguators (`InfrastructureDeclarationConnectorTests.DeltaAsync_JsonSameTypeNameDifferentSubtype_CountsBothResources`, `CanonicalDeduplicatorTests.Deduplicate_KeepsJsonResourcesWithSameTypeNameDifferentSubtype`).
 - [x] (proven) `TopologyHintStableObjectIds.CanonicalizeHintName` only normalized spacing around the first `/` — **hit 2026-08-26:** `prod / vnet / subnet-a` vs `prod/vnet/subnet-a` churned topology-hints connector deltas and `ObjectId`; fixed by trimming all slash segments (`TopologyHintStableObjectIdsTests.CanonicalizeHintName_ThreeSegmentInnerSlashSpacing_EquivalentPathsMatch`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_DeltaAsync_ThreeSegmentInnerSlashSpacing_ReportsUnchanged`).
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.CollectFromModule` ignored module/resource `address` when sibling child modules declared the same Terraform type + label — **hit 2026-08-26:** two `azurerm_subnet.this` resources in `module.network` and `module.data` collapsed to one `Name`, `ObjectId`, and delta key; fixed by resolving terraform resource addresses from JSON `address` or `moduleAddress.type.label` (`TerraformShowJsonInfrastructureDeclarationParserTests.ParseAsync_SiblingChildModulesSameResourceLabel_EmitsTwoResources`, `InfrastructureDeclarationConnectorTests.DeltaAsync_TerraformShowJsonSiblingModulesSameLabel_CountsBothResources`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.ReadName` kept only the first segment of composite ARM `name` arrays — **hit 2026-08-26:** `["hub-vnet","subnet-a"]` and `["hub-vnet","subnet-b"]` both parsed as `hub-vnet`, collapsing delta keys and dedupe fingerprints; fixed by joining array segments with `/` (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_CompositeSubnetNames_EmitsDistinctChildNames`, `InfrastructureDeclarationConnectorTests.DeltaAsync_ArmJsonCompositeSubnetNames_CountsBothResources`).
+- [ ] (hunt-ready) `InfrastructureDeclarationResourceIdentity` / `CanonicalDeduplicator` with JSON resources sharing `type`+`name`+`subtype`+`region` but differing custom `properties` — identity disambiguators stop at subtype/region, so distinct resources collapse in connector delta and dedupe.
+- [ ] (hunt-ready) `TopologyHintStableObjectIds.CanonicalizeHintName` with internal whitespace (`hub  vnet` vs `hub vnet`) — slash segments are trimmed but internal runs of spaces churn stable ids and topology-hints connector deltas.
+- [ ] (hunt-ready) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` preserves nested block-name casing (`tf.Site_Config` vs `tf.site_config`) — unlike `TryAddTfProperty`, block keys are not lowercased, false-modifying simple-terraform deltas on ordinal bags.
+- [ ] (hunt-ready) `SimpleTerraformDeclarationParser` / `InfrastructureDeclarationDeltaKey` with duplicate `resource` blocks sharing type+label — stable identity is `terraformType|label` only, so malformed duplicate HCL collapses in delta.
 
 ---
 
