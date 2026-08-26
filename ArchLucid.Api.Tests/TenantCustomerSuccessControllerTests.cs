@@ -3,6 +3,8 @@ using ArchLucid.Api.Models.CustomerSuccess;
 using ArchLucid.Application.CustomerSuccess;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -27,6 +29,7 @@ public sealed class TenantCustomerSuccessControllerTests
     private static TenantCustomerSuccessController BuildSut(
         ITenantCustomerSuccessRepository repo,
         IScopeContextProvider scopeProvider,
+        IRunRepository? runRepository = null,
         IOperatorNextBestActionService? next = null,
         IOperatorStickinessSnapshotReader? stickiness = null)
     {
@@ -40,11 +43,17 @@ public sealed class TenantCustomerSuccessControllerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PilotFunnelSnapshot(null, null, null, null, null, 0, 0, 0));
 
+        Mock<IRunRepository> runMock = new();
+        runMock
+            .Setup(r => r.GetByIdAsync(Scope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
         return new TenantCustomerSuccessController(
                 repo,
                 next ?? nextMock.Object,
                 stickiness ?? stickinessMock.Object,
-                scopeProvider)
+                scopeProvider,
+                runRepository ?? runMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -121,6 +130,35 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [SkippableFact]
+    public async Task PostProductFeedbackAsync_rejects_out_of_scope_run_id()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object, runs.Object);
+        ProductFeedbackRequest request = new()
+        {
+            RunId = foreignRunId,
+            Score = 1,
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.Verify(
+            r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task PostProductFeedbackAsync_persists_and_returns_no_content()
     {
         ProductFeedbackSubmission? captured = null;
@@ -132,11 +170,17 @@ public sealed class TenantCustomerSuccessControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object);
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object, runs.Object);
         ProductFeedbackRequest request = new()
         {
             FindingRef = "finding-1",
-            RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            RunId = runId,
             Score = 1,
             Comment = "ok"
         };

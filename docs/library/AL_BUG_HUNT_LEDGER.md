@@ -2212,11 +2212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 7
-- **bugs-found:** 19
+- **hunts:** 8
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — governance dashboard leaked foreign workspace policy-pack changes
+- **last-bug:** 2026-08-26 — pre-finalize checklist persisted scope on read; compliance drift trend leaked foreign workspace scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2242,6 +2242,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` — accepted `sourceRunId` from another workspace/project when scoped `GetByIdAsync` returned null — **hit 2026-08-26:** require source run in caller scope before persist; regression in `GovernanceStickinessFacadeScopeTests.CreateRecurrenceScheduleAsync_throws_when_source_run_is_out_of_scope`.
 - [x] (proven) `TenantWorkspacesController.ListAsync` / `ListRecycleBinAsync` — enumerated all tenant workspaces and foreign recycle-bin rows — **hit 2026-08-26:** filter to `scope.WorkspaceId`; regression in `TenantWorkspacesControllerTests.ListAsync_returns_only_current_workspace` and `ListRecycleBinAsync_returns_only_current_workspace_deleted_projects`.
 - [x] (proven) `GovernanceController.GetDashboard` — `RecentChanges` used tenant-only `GetByTenantAsync`, leaking foreign workspace/project policy-pack change rows — **hit 2026-08-26:** filter change log entries to ambient workspace/project; regression in `GovernanceDashboardServiceTests.GetDashboard_FiltersRecentChangesToCurrentWorkspaceProject`.
+- [x] (proven) `PreFinalizeChecklistService.BuildPolicyPackCoverageProofItemAsync` — GET checklist persisted `GovernanceScopeJson` via `_runRepository.UpdateAsync` on read — **hit 2026-08-26:** evaluate coverage without mutating the run row; regression in `PreFinalizeChecklistServiceTests.BuildAsync_does_not_persist_governance_scope_json_on_read`.
+- [x] (proven) `ComplianceDriftTrendService.GetTrendAsync` / `GovernanceController.GetComplianceDriftTrend` — tenant-only drift trend included foreign workspace/project policy-pack changes and findings audit buckets — **hit 2026-08-26:** filter change-log rows and scope findings reader to ambient workspace/project; regression in `ComplianceDriftTrendServiceTests.GetTrendAsync_ExcludesForeignWorkspaceProjectChanges`.
+- [x] (proven) `PreFinalizeChecklistService.BuildAsync` — foreign or missing scoped run returned `ReadyToFinalize: true` when gate allowed and findings were empty — **hit 2026-08-26:** require scoped run before building checklist; regression in `PreFinalizeChecklistServiceTests.BuildAsync_returns_not_ready_when_run_is_out_of_scope`.
+- [x] (proven) `PreFinalizeChecklistService.EmptyResult` — non-GUID `runId` returned `ReadyToFinalize: true` — **hit 2026-08-26:** fail closed on invalid run id; regression in `PreFinalizeChecklistServiceTests.BuildAsync_returns_not_ready_for_non_guid_run_id`.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — accepted foreign `RunId` without scoped run lookup — **hit 2026-08-26:** require `IRunRepository.GetByIdAsync` before insert; regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_rejects_out_of_scope_run_id`.
+
+2026-08-26 seed hunt #83: proved pre-finalize checklist read-side persist, out-of-scope run finalize readiness, compliance drift trend scope, product-feedback run scope.
 
 2026-08-26 seed hunt #82: proved posture project scope, recurrence source-run scope, tenant workspace list/recycle-bin scope, dashboard change-log scope.
 

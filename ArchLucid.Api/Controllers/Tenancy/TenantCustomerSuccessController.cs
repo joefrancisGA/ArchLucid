@@ -6,6 +6,8 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Asp.Versioning;
 
@@ -24,7 +26,8 @@ public sealed class TenantCustomerSuccessController(
     ITenantCustomerSuccessRepository customerSuccessRepository,
     IOperatorNextBestActionService nextBestActionService,
     IOperatorStickinessSnapshotReader stickinessSnapshotReader,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    IRunRepository runRepository) : ControllerBase
 {
     private readonly ITenantCustomerSuccessRepository _customerSuccessRepository =
         customerSuccessRepository ?? throw new ArgumentNullException(nameof(customerSuccessRepository));
@@ -37,6 +40,9 @@ public sealed class TenantCustomerSuccessController(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     /// <summary>Returns the latest materialized health score row when the worker has populated it.</summary>
     [HttpGet("health-score")]
@@ -181,6 +187,20 @@ public sealed class TenantCustomerSuccessController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        if (request.RunId is Guid runId)
+        {
+            RunRecord? run = await _runRepository
+                .GetByIdAsync(scope, runId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (run is null)
+            {
+                return this.NotFoundProblem(
+                    $"Run '{runId:D}' was not found.",
+                    ProblemTypes.RunNotFound);
+            }
+        }
 
         ProductFeedbackSubmission submission = new()
         {

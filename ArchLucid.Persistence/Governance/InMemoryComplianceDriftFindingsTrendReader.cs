@@ -13,6 +13,8 @@ public sealed class InMemoryComplianceDriftFindingsTrendReader(InMemoryAuditRepo
     /// <inheritdoc />
     public Task<IReadOnlyDictionary<DateTime, ComplianceDriftFindingsBucketCounts>> GetBucketCountsAsync(
         Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
         DateTime fromUtc,
         DateTime toUtc,
         TimeSpan bucketSize,
@@ -35,6 +37,9 @@ public sealed class InMemoryComplianceDriftFindingsTrendReader(InMemoryAuditRepo
 
         foreach (AuditEvent entry in events)
         {
+            if (entry.WorkspaceId != workspaceId || entry.ProjectId != projectId)
+                continue;
+
             if (entry.OccurredUtc < fromUtc || entry.OccurredUtc >= toUtc)
                 continue;
 

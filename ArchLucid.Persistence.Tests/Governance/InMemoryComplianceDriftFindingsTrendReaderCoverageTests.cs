@@ -16,6 +16,8 @@ public sealed class InMemoryComplianceDriftFindingsTrendReaderCoverageTests
         InMemoryAuditRepository auditRepository = new();
         InMemoryComplianceDriftFindingsTrendReader sut = new(auditRepository);
         Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
         DateTime fromUtc = new(2026, 7, 10, 0, 0, 0, DateTimeKind.Utc);
         DateTime toUtc = fromUtc.AddHours(2);
         TimeSpan bucketSize = TimeSpan.FromHours(1);
@@ -24,6 +26,8 @@ public sealed class InMemoryComplianceDriftFindingsTrendReaderCoverageTests
             new AuditEvent
             {
                 TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
                 EventType = AuditEventTypes.FindingsSnapshotSealed,
                 OccurredUtc = fromUtc.AddMinutes(10),
                 ActorUserId = "actor",
@@ -35,6 +39,8 @@ public sealed class InMemoryComplianceDriftFindingsTrendReaderCoverageTests
             new AuditEvent
             {
                 TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
                 EventType = AuditEventTypes.FindingReviewApproved,
                 OccurredUtc = fromUtc.AddMinutes(20),
                 ActorUserId = "actor",
@@ -43,7 +49,14 @@ public sealed class InMemoryComplianceDriftFindingsTrendReaderCoverageTests
             CancellationToken.None);
 
         IReadOnlyDictionary<DateTime, ComplianceDriftFindingsBucketCounts> buckets =
-            await sut.GetBucketCountsAsync(tenantId, fromUtc, toUtc, bucketSize, CancellationToken.None);
+            await sut.GetBucketCountsAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                fromUtc,
+                toUtc,
+                bucketSize,
+                CancellationToken.None);
 
         buckets.Should().ContainKey(fromUtc);
         buckets[fromUtc].OpenFindingsCount.Should().Be(1);
@@ -59,6 +72,8 @@ public sealed class InMemoryComplianceDriftFindingsTrendReaderCoverageTests
 
         Func<Task> emptyTenant = () => sut.GetBucketCountsAsync(
             Guid.Empty,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
             fromUtc,
             toUtc,
             TimeSpan.FromHours(1),
@@ -66,12 +81,16 @@ public sealed class InMemoryComplianceDriftFindingsTrendReaderCoverageTests
 
         Func<Task> invalidRange = () => sut.GetBucketCountsAsync(
             Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
             toUtc,
             fromUtc,
             TimeSpan.FromHours(1),
             CancellationToken.None);
 
         Func<Task> invalidBucket = () => sut.GetBucketCountsAsync(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
             Guid.NewGuid(),
             fromUtc,
             toUtc,

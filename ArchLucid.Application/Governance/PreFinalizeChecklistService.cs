@@ -67,6 +67,13 @@ public sealed class PreFinalizeChecklistService(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
+
+        if (run is null)
+        {
+            return MissingRunResult(runId);
+        }
+
         List<PreFinalizeChecklistItem> items = [];
 
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
@@ -333,8 +340,27 @@ public sealed class PreFinalizeChecklistService(
         new()
         {
             RunId = runId,
-            ReadyToFinalize = true,
+            ReadyToFinalize = false,
             Items = [],
+        };
+
+    private static PreFinalizeChecklistResult MissingRunResult(string runId) =>
+        new()
+        {
+            RunId = runId,
+            ReadyToFinalize = false,
+            Items =
+            [
+                new PreFinalizeChecklistItem
+                {
+                    ItemId = "run-scope",
+                    Title = "Run in scope",
+                    Detail = "Run was not found in the current workspace/project scope.",
+                    Status = PreFinalizeChecklistItemStatus.Blocking,
+                    Count = 1,
+                },
+            ],
+            BlockingCount = 1,
         };
 
     private async Task AddArchitectureIntelligenceTrustItemsAsync(
@@ -390,12 +416,6 @@ public sealed class PreFinalizeChecklistService(
             run.GovernanceScopeJson,
             findings,
             findingsSnapshot);
-
-        if (!string.Equals(updatedScopeJson, run.GovernanceScopeJson, StringComparison.Ordinal))
-        {
-            run.GovernanceScopeJson = updatedScopeJson;
-            await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
-        }
 
         PolicyPackCoverageProofResult proof = PolicyPackCoverageProofEvaluator.Evaluate(
             updatedScopeJson,
