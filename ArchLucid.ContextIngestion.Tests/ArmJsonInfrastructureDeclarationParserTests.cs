@@ -158,4 +158,37 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_CompositeSubnetNames_EmitsDistinctChildNames()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-composite-subnets",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Network/virtualNetworks/subnets",
+                            "name": ["hub-vnet", "subnet-a"],
+                            "properties": { "addressPrefix": "10.0.1.0/24" }
+                          },
+                          {
+                            "type": "Microsoft.Network/virtualNetworks/subnets",
+                            "name": ["hub-vnet", "subnet-b"],
+                            "properties": { "addressPrefix": "10.0.2.0/24" }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(o => o.Name).Should().BeEquivalentTo(["hub-vnet/subnet-a", "hub-vnet/subnet-b"]);
+        result.Select(o => o.ObjectId).Distinct().Should().HaveCount(2);
+    }
 }

@@ -2135,4 +2135,64 @@ public sealed class InfrastructureDeclarationConnectorTests
         secondDelta.AddedCount.Should().Be(0);
         secondDelta.RemovedCount.Should().Be(0);
     }
+
+    [Fact]
+    public async Task DeltaAsync_ArmJsonCompositeSubnetNames_CountsBothResources()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([
+                new ArmJsonInfrastructureDeclarationParser(
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger<ArmJsonInfrastructureDeclarationParser>.Instance),
+            ]),
+            new SetDiffConnectorDeltaComputer());
+
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-composite-subnets",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Network/virtualNetworks/subnets",
+                            "name": ["hub-vnet", "subnet-a"],
+                            "properties": { "addressPrefix": "10.0.1.0/24" }
+                          },
+                          {
+                            "type": "Microsoft.Network/virtualNetworks/subnets",
+                            "name": ["hub-vnet", "subnet-b"],
+                            "properties": { "addressPrefix": "10.0.2.0/24" }
+                          }
+                        ]
+                      }
+                      """,
+        };
+
+        RawContextPayload raw = new()
+        {
+            InfrastructureDeclarations = [declaration],
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        firstBatch.CanonicalObjects.Should().HaveCount(2);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "p",
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        ContextDelta secondDelta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        secondDelta.UnchangedCount.Should().Be(2);
+        secondDelta.AddedCount.Should().Be(0);
+        secondDelta.RemovedCount.Should().Be(0);
+    }
 }
