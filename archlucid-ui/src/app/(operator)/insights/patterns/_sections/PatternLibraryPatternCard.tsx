@@ -8,17 +8,18 @@ import {
 } from "./PatternLibraryFiltersPanel";
 import { PatternLibraryRelatedPolicyPacks } from "./PatternLibraryPolicyGuidance";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { patternLibraryDetailPath } from "@/lib/pattern-library-route";
+import { patternLibraryDetailHref } from "@/lib/pattern-library-route";
 import type { PatternLibraryRecord } from "@/lib/pattern-library-types";
 import { cn } from "@/lib/utils";
 
 type PatternLibraryPatternCardProps = {
   readonly record: PatternLibraryRecord;
+  readonly scopedRunId?: string;
 };
 
 export function PatternLibraryPatternCard(props: PatternLibraryPatternCardProps): React.JSX.Element {
   const { record } = props;
-  const detailPath = patternLibraryDetailPath(record.patternKey);
+  const detailPath = patternLibraryDetailHref(record.patternKey, props.scopedRunId);
 
   return (
     <Card

@@ -2,17 +2,21 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { patternLibraryDetailHref } from "@/lib/pattern-library-route";
 import type { PatternLibraryDetailNextPatternTarget } from "@/lib/resolve-next-pattern-library-record";
 import { cn } from "@/lib/utils";
 
 export type PatternLibraryDetailNextPatternFooterProps = {
   readonly target: PatternLibraryDetailNextPatternTarget;
+  readonly scopedRunId?: string;
 };
 
 /** Footer CTA to continue with the next pattern in the library. */
 export function PatternLibraryDetailNextPatternFooter(
   props: PatternLibraryDetailNextPatternFooterProps,
 ): React.JSX.Element {
+  const nextPatternHref = patternLibraryDetailHref(props.target.patternKey, props.scopedRunId);
+
   return (
     <section
       className={cn(
@@ -35,7 +39,7 @@ export function PatternLibraryDetailNextPatternFooter(
         asChild
         data-testid="pattern-library-detail-next-pattern-action"
       >
-        <Link href={props.target.href}>Open next pattern</Link>
+        <Link href={nextPatternHref}>Open next pattern</Link>
       </Button>
     </section>
   );
