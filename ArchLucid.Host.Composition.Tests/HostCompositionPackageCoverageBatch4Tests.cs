@@ -48,10 +48,14 @@ public sealed class HostCompositionPackageCoverageBatch4Tests
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         services.AddSingleton(audit.Object);
         services.AddDistributedMemoryCache();
+        services.AddSingleton<IValueReportJobPollStateCache>(static sp =>
+            new DistributedCacheValueReportJobPollStateCache(sp.GetRequiredService<IDistributedCache>()));
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
-        IDistributedCache distributedCache = provider.GetRequiredService<IDistributedCache>();
-        InMemoryValueReportJobQueue sut = new(scopeFactory, distributedCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+        InMemoryValueReportJobQueue sut = new(
+            scopeFactory,
+            provider.GetRequiredService<IValueReportJobPollStateCache>(),
+            NullLogger<InMemoryValueReportJobQueue>.Instance);
         Guid tenantId = Guid.NewGuid();
         ValueReportJobRequest request = new(
             tenantId,
@@ -94,10 +98,14 @@ public sealed class HostCompositionPackageCoverageBatch4Tests
         services.AddSingleton(Mock.Of<IValueReportRenderer>());
         services.AddSingleton(Mock.Of<IAuditService>());
         services.AddDistributedMemoryCache();
+        services.AddSingleton<IValueReportJobPollStateCache>(static sp =>
+            new DistributedCacheValueReportJobPollStateCache(sp.GetRequiredService<IDistributedCache>()));
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
-        IDistributedCache distributedCache = provider.GetRequiredService<IDistributedCache>();
-        InMemoryValueReportJobQueue sut = new(scopeFactory, distributedCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+        InMemoryValueReportJobQueue sut = new(
+            scopeFactory,
+            provider.GetRequiredService<IValueReportJobPollStateCache>(),
+            NullLogger<InMemoryValueReportJobQueue>.Instance);
         Guid tenantId = Guid.NewGuid();
         Guid jobId = sut.Enqueue(new ValueReportJobRequest(tenantId, Guid.NewGuid(), Guid.NewGuid(), DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow));
 
@@ -133,13 +141,15 @@ public sealed class HostCompositionPackageCoverageBatch4Tests
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         services.AddSingleton(audit.Object);
         services.AddDistributedMemoryCache();
+        services.AddSingleton<IValueReportJobPollStateCache>(static sp =>
+            new DistributedCacheValueReportJobPollStateCache(sp.GetRequiredService<IDistributedCache>()));
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
-        IDistributedCache distributedCache = provider.GetRequiredService<IDistributedCache>();
+        IValueReportJobPollStateCache pollStateCache = provider.GetRequiredService<IValueReportJobPollStateCache>();
         InMemoryValueReportJobQueue enqueueInstance =
-            new(scopeFactory, distributedCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
         InMemoryValueReportJobQueue pollInstance =
-            new(scopeFactory, distributedCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
 
         Guid tenantId = Guid.NewGuid();
         ValueReportJobRequest request = new(

@@ -311,6 +311,31 @@ public sealed class ContainerJobsOffloadRegistrationTests
     }
 
     [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_servicebus_integration_events_registers_job_not_consumer()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.ServiceBusIntegrationEvents;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(ServiceBusIntegrationEventsArchLucidJob));
+
+        bool hasConsumer = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AzureServiceBusIntegrationEventConsumer));
+
+        hasJob.Should().BeTrue(
+            "servicebus-integration-events must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasConsumer.Should().BeFalse();
+    }
+
+    [Fact]
     public void AddArchLucidApplicationServices_Api_role_does_not_register_ServiceBus_integration_event_consumer()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
