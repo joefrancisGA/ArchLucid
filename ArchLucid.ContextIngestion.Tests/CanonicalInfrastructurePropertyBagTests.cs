@@ -68,6 +68,33 @@ public sealed class CanonicalInfrastructurePropertyBagTests
     }
 
     [Fact]
+    public void TryAddTfJsonProperty_canonicalizes_array_property_casing()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+        using JsonDocument document = JsonDocument.Parse(
+            """[{"Name":"AllowAll","IpAddress":"0.0.0.0/0","Action":"Allow"}]""");
+
+        CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(properties, "ipSecurityRestrictions", document.RootElement)
+            .Should().BeTrue();
+
+        properties["tf.ipsecurityrestrictions"].Should().Be(
+            """[{"action":"allow","ipaddress":"0.0.0.0/0","name":"allowall"}]""");
+    }
+
+    [Fact]
+    public void TryAddTfJsonProperty_redacts_nested_sensitive_object_values()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+        using JsonDocument document = JsonDocument.Parse(
+            """{"connectionString":"supersecret","enabled":true}""");
+
+        CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(properties, "siteConfig", document.RootElement)
+            .Should().BeTrue();
+
+        properties["tf.siteconfig"].Should().Be("[REDACTED]");
+    }
+
+    [Fact]
     public void TryAddTfBlockProperty_lowercases_block_keys()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal);

@@ -91,4 +91,33 @@ public sealed class KubernetesYamlInfrastructureDeclarationParserTests
         result.Should().ContainSingle(o => o.Name == "prod/api" && o.ObjectType == "TopologyResource");
         result.Should().ContainSingle(o => o.Name == "prod/deny-all" && o.ObjectType == "SecurityBaseline");
     }
+
+    [Fact]
+    public async Task ParseAsync_DuplicateDeployments_EmitDistinctObjectIds()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "dup.yaml",
+            Format = "kubernetes-yaml",
+            DeclarationId = "decl-k8s-dup",
+            Content = """
+                      apiVersion: apps/v1
+                      kind: Deployment
+                      metadata:
+                        name: api
+                        namespace: prod
+                      ---
+                      apiVersion: apps/v1
+                      kind: Deployment
+                      metadata:
+                        name: api
+                        namespace: prod
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(static o => o.ObjectId).Distinct().Should().HaveCount(2);
+    }
 }

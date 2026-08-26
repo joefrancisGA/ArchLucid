@@ -19,7 +19,14 @@ public static class InfrastructureDeclarationDeltaKey
         string baseKey = $"{obj.SourceId}|{obj.ObjectType}|{obj.Name}";
 
         if (TryGetCanonicalProperty(obj, "k8s.kind", out string? k8sKind))
-            return $"{baseKey}|k8s.kind:{k8sKind}";
+        {
+            string key = $"{baseKey}|k8s.kind:{k8sKind}";
+
+            if (TryGetCanonicalProperty(obj, "k8sOccurrence", out string? occurrence))
+                key += $"|occurrence:{occurrence}";
+
+            return key;
+        }
 
         if (TryGetCanonicalProperty(obj, "resourceType", out string? resourceType))
             return InfrastructureDeclarationResourceIdentity.AppendSubtypeRegionDisambiguators(

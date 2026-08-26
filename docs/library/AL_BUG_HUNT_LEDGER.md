@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 54
-- **bugs-found:** 105
+- **hunts:** 55
+- **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — nested terraform sensitive_values leaked in tf object blobs
+- **last-bug:** 2026-08-26 — ARM tf JSON array casing preserved exporter casing in infra deltas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1957,6 +1957,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `KubernetesYamlInfrastructureDeclarationParser` YAML `kind: List` path — mapper already expands List items after YamlDotNet round-trip; added YAML-path regression `KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_KindList_MapsMultipleItems`.
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` matched snake_case fragments only — **hit 2026-08-26:** camelCase `connectionString` leaked plaintext into `tf.connectionstring`; fixed by normalizing key/fragment comparison without underscores (`CanonicalInfrastructurePropertyBagTests.TryAddTfProperty_redacts_camelCase_sensitive_keys`).
 - [x] (proven) `TopologyHintsPayloadNormalizer` kept duplicate canonical hints in one batch — **hit 2026-08-26:** `["prod/vnet"," prod/vnet "]` emitted two `CanonicalObject` rows with the same `ObjectId`; fixed with within-batch `seenHints` dedupe like `PolicyReferencePayloadNormalizer` (`TopologyHintsPayloadNormalizerTests.NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`, `ConnectorHintNormalizationDeltaTests.TopologyHintsConnector_NormalizeAsync_DuplicateHints_EmitsSingleCanonicalObject`).
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser` / `CanonicalTfJsonSerializer` preserved exporter casing inside `tf.*` JSON array blobs — **hit 2026-08-26:** `Name`/`IpAddress` vs `name`/`ipaddress` in `ipSecurityRestrictions` false-modified infrastructure declaration deltas; fixed with sorted-key lowercase canonical JSON rewrite (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_ArrayPropertyCasing_IsCanonicalized`, `InfrastructureDeclarationConnectorTests.DeltaAsync_ArmJsonArrayPropertyCasingChange_ReportsUnchanged`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty` leaked nested sensitive keys inside ARM object `tf.*` blobs — **hit 2026-08-26:** `siteConfig.connectionString` plaintext survived inside `tf.siteconfig` JSON; fixed by redacting whole blob when `CanonicalTfJsonSerializer.ContainsSensitiveNestedKey` matches (`CanonicalInfrastructurePropertyBagTests.TryAddTfJsonProperty_redacts_nested_sensitive_object_values`, `ArmJsonInfrastructureDeclarationParserTests.ParseAsync_NestedSensitiveObjectValue_IsRedacted`).
+- [x] (proven) `SimpleTerraformResourceBlockParser` did not strip `/* */` block comments — **hit 2026-08-26:** HCL with block comments before or after assignments dropped/corrupted `location` attribute parsing; fixed with `TryConsumeBlockComment` (`SimpleTerraformDeclarationParserTests.ParseAsync_BlockCommentBeforeAssignment_StillParsesLocation`, `ParseAsync_InlineBlockCommentAfterValue_ParsesCleanLocation`).
+- [x] (proven) `KubernetesManifestCanonicalObjectMapper` / `InfrastructureDeclarationDeltaKey` / `CanonicalDeduplicator` with duplicate identical manifests — **hit 2026-08-26:** two Deployments with same kind/name shared `ObjectId`, collapsed connector delta keys, and deduped to one object; fixed with per-declaration `k8sOccurrence` suffix (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_DuplicateDeployments_EmitDistinctObjectIds`, `InfrastructureDeclarationConnectorTests.DeltaAsync_DuplicateKubernetesDeployments_CountsBothResources`, `CanonicalDeduplicatorTests.Deduplicate_KeepsDuplicateKubernetesManifestsWithOccurrence`).
+- [x] (proven) `CanonicalInfrastructurePropertyBag.MaxTfPropertyCount` dropped `ipSecurityRestrictions` before network expander — **hit 2026-08-26:** 24-property cap filled by scalar props before security JSON was copied; fixed by copying security-priority properties first and raising JSON length limit for those keys (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_ManyScalarProperties_StillPreservesIpSecurityRestrictions`).
+
+2026-08-26 seed hunt #55: proved ARM tf JSON canonicalization, nested sensitive ARM blobs, HCL block comments, duplicate K8s occurrence, security-priority tf cap.
 
 2026-08-26 thorough hunt #54: proved nested terraform sensitive_values redaction gap; disproved K8s YAML List parser gap.
 

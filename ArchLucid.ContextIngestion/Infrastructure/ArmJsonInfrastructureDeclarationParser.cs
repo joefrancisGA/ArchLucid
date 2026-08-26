@@ -138,31 +138,51 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
 
     private static void CopyBoundedProperties(JsonElement propertiesObject, Dictionary<string, string> properties)
     {
-        foreach (JsonProperty property in propertiesObject.EnumerateObject())
+        List<JsonProperty> allProperties = propertiesObject.EnumerateObject().ToList();
+
+        foreach (JsonProperty property in OrderPropertiesForCopy(allProperties))
+            TryCopyBoundedProperty(property, properties);
+    }
+
+    private static IEnumerable<JsonProperty> OrderPropertiesForCopy(IReadOnlyList<JsonProperty> properties)
+    {
+        foreach (JsonProperty property in properties)
         {
-            if (CanonicalInfrastructurePropertyBag.CountTfProperties(properties) >= CanonicalInfrastructurePropertyBag.MaxTfPropertyCount)
-                break;
-
-            if (property.Value.ValueKind is JsonValueKind.Array or JsonValueKind.Object)
-            {
-                CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(properties, property.Name, property.Value);
-                continue;
-            }
-
-            if (property.Value.ValueKind is not (JsonValueKind.String or JsonValueKind.True or JsonValueKind.False or JsonValueKind.Number))
-                continue;
-
-            string valueText = property.Value.ValueKind switch
-            {
-                JsonValueKind.String => property.Value.GetString() ?? string.Empty,
-                JsonValueKind.True => "true",
-                JsonValueKind.False => "false",
-                JsonValueKind.Number => CanonicalInfrastructurePropertyBag.CanonicalizeNumberText(property.Value),
-                _ => string.Empty,
-            };
-
-            CanonicalInfrastructurePropertyBag.TryAddTfProperty(properties, property.Name, valueText);
+            if (CanonicalInfrastructurePropertyBag.IsSecurityPriorityProperty(property.Name))
+                yield return property;
         }
+
+        foreach (JsonProperty property in properties)
+        {
+            if (!CanonicalInfrastructurePropertyBag.IsSecurityPriorityProperty(property.Name))
+                yield return property;
+        }
+    }
+
+    private static void TryCopyBoundedProperty(JsonProperty property, Dictionary<string, string> properties)
+    {
+        if (CanonicalInfrastructurePropertyBag.CountTfProperties(properties) >= CanonicalInfrastructurePropertyBag.MaxTfPropertyCount)
+            return;
+
+        if (property.Value.ValueKind is JsonValueKind.Array or JsonValueKind.Object)
+        {
+            CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(properties, property.Name, property.Value);
+            return;
+        }
+
+        if (property.Value.ValueKind is not (JsonValueKind.String or JsonValueKind.True or JsonValueKind.False or JsonValueKind.Number))
+            return;
+
+        string valueText = property.Value.ValueKind switch
+        {
+            JsonValueKind.String => property.Value.GetString() ?? string.Empty,
+            JsonValueKind.True => "true",
+            JsonValueKind.False => "false",
+            JsonValueKind.Number => CanonicalInfrastructurePropertyBag.CanonicalizeNumberText(property.Value),
+            _ => string.Empty,
+        };
+
+        CanonicalInfrastructurePropertyBag.TryAddTfProperty(properties, property.Name, valueText);
     }
 
     private static string ResolveObjectType(string resourceType)
