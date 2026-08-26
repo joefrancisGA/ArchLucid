@@ -17,7 +17,6 @@ import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { Button } from "@/components/ui/button";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import {
@@ -267,18 +266,12 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
         >
           <div className="min-w-0 space-y-1">
             {draftStatusHeadline !== null ? (
-              <div
-                className="flex flex-wrap items-center gap-2"
-                data-testid="operator-home-draft-status-row"
+              <p
+                className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+                data-testid="operator-home-draft-status-headline"
               >
-                <StatusTag kind="draft" data-testid="operator-home-draft-status-tag" />
-                <p
-                  className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
-                  data-testid="operator-home-draft-status-headline"
-                >
-                  {draftStatusHeadline}
-                </p>
-              </div>
+                {draftStatusHeadline}
+              </p>
             ) : null}
             {draftStatusHeadline !== null ? (
               <p
