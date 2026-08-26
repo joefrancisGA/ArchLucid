@@ -40,6 +40,12 @@ public sealed class ReviewResultCache : IReviewResultCache
                 return false;
             }
 
+            if (IsRunIdTombstonedUnlocked(entry.Result.RunId))
+            {
+                result = null;
+                return false;
+            }
+
             DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
 
             if (entry.ExpiresUtc <= utcNow)
@@ -59,12 +65,6 @@ public sealed class ReviewResultCache : IReviewResultCache
                 };
 
                 _cache[key] = entry;
-            }
-
-            if (IsRunIdTombstonedUnlocked(entry.Result.RunId))
-            {
-                result = null;
-                return false;
             }
 
             storedResult = entry.Result;
