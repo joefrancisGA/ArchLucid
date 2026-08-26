@@ -1,4 +1,6 @@
 using ArchLucid.ContextIngestion.Canonicalization;
+using System.Text;
+
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
 
@@ -362,5 +364,112 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
 
         result.Should().ContainSingle(o => o.Name == "hub-vnet");
         result.Should().NotContain(o => o.Name == "nested");
+    }
+
+    [Fact]
+    public async Task ParseAsync_ArrayPropertyCasing_IsCanonicalized()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-array-casing",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Web/sites",
+                            "name": "web-app",
+                            "properties": {
+                              "ipSecurityRestrictions": [
+                                {
+                                  "Name": "AllowAll",
+                                  "IpAddress": "0.0.0.0/0",
+                                  "Action": "Allow"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> parsed = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Properties["tf.ipsecurityrestrictions"].Should().Be(
+            """[{"action":"allow","ipaddress":"0.0.0.0/0","name":"allowall"}]""");
+    }
+
+    [Fact]
+    public async Task ParseAsync_NestedSensitiveObjectValue_IsRedacted()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-nested-sensitive",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Web/sites",
+                            "name": "web-app",
+                            "properties": {
+                              "siteConfig": {
+                                "connectionString": "supersecret"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> parsed = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Properties["tf.siteconfig"].Should().Be("[REDACTED]");
+    }
+
+    [Fact]
+    public async Task ParseAsync_ManyScalarProperties_StillPreservesIpSecurityRestrictions()
+    {
+        StringBuilder propertiesBuilder = new();
+        propertiesBuilder.AppendLine("\"ipSecurityRestrictions\": [{\"name\":\"AllowAll\",\"ipAddress\":\"0.0.0.0/0\",\"action\":\"Allow\"}],");
+
+        for (int index = 0; index < 30; index++)
+            propertiesBuilder.AppendLine($"\"prop{index}\": \"value{index}\",");
+
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-cap",
+            Content = $$"""
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Web/sites",
+                            "name": "web-app",
+                            "properties": {
+                              {{propertiesBuilder}}
+                              "lastProp": "tail"
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> parsed = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand(parsed);
+
+        parsed[0].Properties.Should().ContainKey("tf.ipsecurityrestrictions");
+        expanded.Any(o =>
+            o.ObjectType == "SecurityBaseline"
+            && o.Properties.TryGetValue("ruleKind", out string? kind)
+            && kind == "OpenPublicEndpoint").Should().BeTrue();
     }
 }

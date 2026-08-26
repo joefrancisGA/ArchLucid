@@ -13,6 +13,15 @@ public static class CanonicalInfrastructurePropertyBag
 
     public const int MaxPropertyValueLength = 512;
 
+    public const int MaxSecurityJsonPropertyValueLength = 4096;
+
+    private static readonly string[] SecurityPriorityPropertyNames =
+    [
+        "ipSecurityRestrictions",
+        "networkAcls",
+        "ip_security_restrictions",
+    ];
+
     private static readonly string[] SensitiveKeyFragments =
     [
         "password",
@@ -84,6 +93,11 @@ public static class CanonicalInfrastructurePropertyBag
         return rawKey.Trim().ToLowerInvariant().Replace("_", string.Empty, StringComparison.Ordinal);
     }
 
+    private static bool IsRedactionToken(string rawValue)
+    {
+        return string.Equals(rawValue, "[REDACTED]", StringComparison.OrdinalIgnoreCase);
+    }
+
     public static string CanonicalizeScalarValue(string rawValue)
     {
         if (string.IsNullOrWhiteSpace(rawValue))
@@ -132,7 +146,7 @@ public static class CanonicalInfrastructurePropertyBag
         if (string.IsNullOrEmpty(sanitizedKey))
             return false;
 
-        string valueText = ShouldRedactKey(rawKey)
+        string valueText = ShouldRedactKey(rawKey) || IsRedactionToken(rawValue)
             ? "[REDACTED]"
             : CanonicalizeScalarValue(rawValue);
 
@@ -182,10 +196,10 @@ public static class CanonicalInfrastructurePropertyBag
         if (CountTfProperties(properties) >= MaxTfPropertyCount)
             return false;
 
-        if (ShouldRedactKey(rawKey))
+        if (ShouldRedactKey(rawKey) || CanonicalTfJsonSerializer.ContainsSensitiveNestedKey(value))
             return TryAddTfProperty(properties, rawKey, "[REDACTED]");
 
-        string serialized = value.GetRawText().Trim();
+        string serialized = CanonicalTfJsonSerializer.Serialize(value);
 
         if (string.IsNullOrWhiteSpace(serialized))
             return false;
@@ -195,12 +209,32 @@ public static class CanonicalInfrastructurePropertyBag
         if (string.IsNullOrEmpty(sanitizedKey))
             return false;
 
-        if (serialized.Length > MaxPropertyValueLength)
-            serialized = serialized[..MaxPropertyValueLength];
+        int maxLength = IsSecurityPriorityProperty(rawKey)
+            ? MaxSecurityJsonPropertyValueLength
+            : MaxPropertyValueLength;
+
+        if (serialized.Length > maxLength)
+            serialized = serialized[..maxLength];
 
         properties[$"tf.{sanitizedKey}"] = serialized;
 
         return true;
+    }
+
+    public static bool IsSecurityPriorityProperty(string rawKey)
+    {
+        if (string.IsNullOrWhiteSpace(rawKey))
+            return false;
+
+        string normalized = SanitizePropertyKey(rawKey).ToLowerInvariant();
+
+        foreach (string priorityName in SecurityPriorityPropertyNames)
+        {
+            if (string.Equals(normalized, SanitizePropertyKey(priorityName).ToLowerInvariant(), StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
     }
 
     public static int CountTfProperties(IReadOnlyDictionary<string, string> properties)

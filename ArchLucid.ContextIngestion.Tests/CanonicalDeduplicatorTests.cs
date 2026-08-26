@@ -185,4 +185,41 @@ public sealed class CanonicalDeduplicatorTests
 
         result.Should().HaveCount(2);
     }
+
+    [Fact]
+    public void Deduplicate_KeepsDuplicateKubernetesManifestsWithOccurrence()
+    {
+        List<CanonicalObject> items =
+        [
+            new()
+            {
+                ObjectType = "TopologyResource",
+                Name = "prod/api",
+                SourceType = "InfrastructureDeclaration",
+                SourceId = "decl-k8s",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["k8s.kind"] = "deployment",
+                    ["k8sOccurrence"] = "1",
+                },
+            },
+
+            new()
+            {
+                ObjectType = "TopologyResource",
+                Name = "prod/api",
+                SourceType = "InfrastructureDeclaration",
+                SourceId = "decl-k8s",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["k8s.kind"] = "deployment",
+                    ["k8sOccurrence"] = "2",
+                },
+            },
+        ];
+
+        IReadOnlyList<CanonicalObject> result = _sut.Deduplicate(items);
+
+        result.Should().HaveCount(2);
+    }
 }

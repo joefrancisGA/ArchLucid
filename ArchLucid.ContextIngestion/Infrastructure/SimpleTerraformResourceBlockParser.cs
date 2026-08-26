@@ -67,10 +67,14 @@ internal static class SimpleTerraformResourceBlockParser
             return;
 
         string[] lines = body.Split('\n');
+        bool inBlockComment = false;
 
         for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
         {
             string line = lines[lineIndex].Trim();
+
+            if (TryConsumeBlockComment(ref line, ref inBlockComment))
+                continue;
 
             if (line.Length == 0 || line.StartsWith('#') || line.StartsWith("//", StringComparison.Ordinal))
                 continue;
@@ -181,6 +185,45 @@ internal static class SimpleTerraformResourceBlockParser
 
         endLineIndex = lines.Length - 1;
         return builder.ToString();
+    }
+
+    private static bool TryConsumeBlockComment(ref string line, ref bool inBlockComment)
+    {
+        if (inBlockComment)
+        {
+            int end = line.IndexOf("*/", StringComparison.Ordinal);
+
+            if (end < 0)
+            {
+                line = string.Empty;
+
+                return true;
+            }
+
+            line = line[(end + 2)..].TrimStart();
+            inBlockComment = false;
+        }
+
+        while (true)
+        {
+            int start = line.IndexOf("/*", StringComparison.Ordinal);
+
+            if (start < 0)
+                break;
+
+            int end = line.IndexOf("*/", start + 2, StringComparison.Ordinal);
+
+            if (end < 0)
+            {
+                line = line[..start].TrimEnd();
+                inBlockComment = true;
+                break;
+            }
+
+            line = string.Concat(line.AsSpan(0, start), line.AsSpan(end + 2)).Trim();
+        }
+
+        return string.IsNullOrWhiteSpace(line) && inBlockComment;
     }
 
     private static string UnquoteScalar(string rawValue)

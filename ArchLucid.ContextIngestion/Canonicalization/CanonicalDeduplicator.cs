@@ -52,7 +52,13 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
 
         if (item.Properties.TryGetValue("k8s.kind", out string? k8sKind) &&
             !string.IsNullOrEmpty(k8sKind))
+        {
+            if (item.Properties.TryGetValue("k8sOccurrence", out string? occurrence) &&
+                !string.IsNullOrWhiteSpace(occurrence))
+                return $"{k8sKind}|occurrence:{occurrence.Trim().ToLowerInvariant()}";
+
             return k8sKind;
+        }
 
         return string.Empty;
     }

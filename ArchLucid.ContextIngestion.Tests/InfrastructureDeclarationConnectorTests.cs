@@ -2438,4 +2438,115 @@ public sealed class InfrastructureDeclarationConnectorTests
         secondDelta.AddedCount.Should().Be(0);
         secondDelta.RemovedCount.Should().Be(0);
     }
+
+    [Fact]
+    public async Task DeltaAsync_DuplicateKubernetesDeployments_CountsBothResources()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([
+                new KubernetesYamlInfrastructureDeclarationParser(
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger<KubernetesYamlInfrastructureDeclarationParser>.Instance),
+            ]),
+            new SetDiffConnectorDeltaComputer());
+
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "dup.yaml",
+            Format = "kubernetes-yaml",
+            DeclarationId = "decl-k8s-dup-delta",
+            Content = """
+                      apiVersion: apps/v1
+                      kind: Deployment
+                      metadata:
+                        name: api
+                        namespace: prod
+                      ---
+                      apiVersion: apps/v1
+                      kind: Deployment
+                      metadata:
+                        name: api
+                        namespace: prod
+                      """,
+        };
+
+        RawContextPayload raw = new()
+        {
+            InfrastructureDeclarations = [declaration],
+        };
+
+        NormalizedContextBatch batch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        batch.CanonicalObjects.Should().HaveCount(2);
+
+        ContextDelta delta = await connector.DeltaAsync(batch, null, CancellationToken.None);
+
+        delta.AddedCount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task DeltaAsync_ArmJsonArrayPropertyCasingChange_ReportsUnchanged()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([
+                new ArmJsonInfrastructureDeclarationParser(
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger<ArmJsonInfrastructureDeclarationParser>.Instance),
+            ]),
+            new SetDiffConnectorDeltaComputer());
+
+        static InfrastructureDeclarationReference CreateDeclaration(string restrictionsJson) => new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-array-delta",
+            Content = $$"""
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Web/sites",
+                            "name": "web-app",
+                            "properties": {
+                              "ipSecurityRestrictions": {{restrictionsJson}}
+                            }
+                          }
+                        ]
+                      }
+                      """,
+        };
+
+        RawContextPayload firstRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                CreateDeclaration(
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]"""),
+            ],
+        };
+
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "p",
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        RawContextPayload secondRaw = new()
+        {
+            InfrastructureDeclarations =
+            [
+                CreateDeclaration(
+                    """[{"Name":"AllowAll","IpAddress":"0.0.0.0/0","Action":"Allow"}]"""),
+            ],
+        };
+
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.UnchangedCount.Should().Be(1);
+        delta.ModifiedCount.Should().Be(0);
+    }
 }

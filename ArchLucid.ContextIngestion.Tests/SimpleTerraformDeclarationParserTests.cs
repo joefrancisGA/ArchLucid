@@ -268,4 +268,45 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().ContainSingle();
         result[0].Properties["tf.location"].Should().Be("eastus");
     }
+
+    [Fact]
+    public async Task ParseAsync_BlockCommentBeforeAssignment_StillParsesLocation()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_resource_group" "core" {
+                        /* skip */
+                        location = "eastus"
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.location"].Should().Be("eastus");
+    }
+
+    [Fact]
+    public async Task ParseAsync_InlineBlockCommentAfterValue_ParsesCleanLocation()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_resource_group" "core" {
+                        location = "eastus" /* zone */
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.location"].Should().Be("eastus");
+    }
 }
