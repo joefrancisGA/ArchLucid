@@ -10,7 +10,6 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Findings;
 
@@ -21,7 +20,7 @@ public sealed class PortfolioRecurrenceFindingEngine(
     IScopeContextProvider scopeContextProvider,
     IRunDetailQueryService runDetailQueryService,
     IFindingsSnapshotRepository findingsSnapshotRepository,
-    IOptions<PortfolioRecurrenceFindingOptions> options,
+    IPortfolioRecurrenceFindingOptionsResolver optionsResolver,
     ILogger<PortfolioRecurrenceFindingEngine> logger) : IEffectfulFindingEngine
 {
     private const int RunSummaryPageSize = 100;
@@ -36,8 +35,8 @@ public sealed class PortfolioRecurrenceFindingEngine(
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
 
-    private readonly PortfolioRecurrenceFindingOptions _options =
-        options?.Value ?? throw new ArgumentNullException(nameof(options));
+    private readonly IPortfolioRecurrenceFindingOptionsResolver _optionsResolver =
+        optionsResolver ?? throw new ArgumentNullException(nameof(optionsResolver));
 
     private readonly ILogger<PortfolioRecurrenceFindingEngine> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -50,7 +49,9 @@ public sealed class PortfolioRecurrenceFindingEngine(
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
-        if (!_options.Enabled)
+        PortfolioRecurrenceFindingOptions options = _optionsResolver.Resolve(ct);
+
+        if (!options.Enabled)
         {
             return [];
         }
@@ -61,7 +62,7 @@ public sealed class PortfolioRecurrenceFindingEngine(
 
         List<KeyValuePair<string, RunSummary>> scannedSystems = latestBySystem
             .OrderByDescending(static pair => pair.Value.CreatedUtc)
-            .Take(_options.MaxSystemsScanned)
+            .Take(options.MaxSystemsScanned)
             .ToList();
 
         int scannedSystemCount = scannedSystems.Count;
@@ -123,14 +124,14 @@ public sealed class PortfolioRecurrenceFindingEngine(
         List<RecurrenceAccumulator> qualifying = recurrenceByIdentity
             .Where(pair => currentScopeIdentities.Contains(pair.Key))
             .Select(static pair => pair.Value)
-            .Where(accumulator => accumulator.SystemNames.Count >= _options.MinSystemCountToReport)
+            .Where(accumulator => accumulator.SystemNames.Count >= options.MinSystemCountToReport)
             .OrderByDescending(static accumulator => accumulator.SystemNames.Count)
             .ThenBy(static accumulator => FindingSnapshotMergeKey.FromFinding(accumulator.RepresentativeFinding), StringComparer.Ordinal)
-            .Take(_options.MaxFindings)
+            .Take(options.MaxFindings)
             .ToList();
 
         return qualifying
-            .Select(accumulator => BuildFinding(accumulator, scannedSystemCount))
+            .Select(accumulator => BuildFinding(accumulator, scannedSystemCount, options))
             .ToList();
     }
 
@@ -264,7 +265,10 @@ public sealed class PortfolioRecurrenceFindingEngine(
         return true;
     }
 
-    private Finding BuildFinding(RecurrenceAccumulator accumulator, int scannedSystemCount)
+    private Finding BuildFinding(
+        RecurrenceAccumulator accumulator,
+        int scannedSystemCount,
+        PortfolioRecurrenceFindingOptions options)
     {
         Finding representative = accumulator.RepresentativeFinding;
         int systemCount = accumulator.SystemNames.Count;
@@ -273,7 +277,7 @@ public sealed class PortfolioRecurrenceFindingEngine(
             .OrderBy(static name => name, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        FindingSeverity severity = systemCount >= _options.MinSystemCountToReport * 2
+        FindingSeverity severity = systemCount >= options.MinSystemCountToReport * 2
             ? FindingSeverity.Error
             : FindingSeverity.Warning;
 

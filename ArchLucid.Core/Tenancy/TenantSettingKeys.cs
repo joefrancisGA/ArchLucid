@@ -25,4 +25,14 @@ public static class TenantSettingKeys
 
     /// <summary>Workspace-admin acknowledgment before external-subprocessor engine use (TB-2109).</summary>
     public const string ExternalSubprocessorEngineAcknowledged = "ModelGovernance.ExternalSubprocessorEngineAcknowledged";
+
+    /// <summary>Tenant override for <c>ArchLucid:Findings:InsightDensityGate:EnableLlmJudge</c>.</summary>
+    public const string FindingsInsightDensityLlmJudgeEnabled = "Findings.InsightDensityLlmJudge.Enabled";
+
+    /// <summary>Tenant override for <c>ArchLucid:Findings:InsightDensityGate:EnableLlmJudgeForEngineFindings</c>.</summary>
+    public const string FindingsInsightDensityLlmJudgeEngineFindingsEnabled =
+        "Findings.InsightDensityLlmJudge.EngineFindingsEnabled";
+
+    /// <summary>Tenant override for <c>ArchLucid:Findings:PortfolioRecurrence:Enabled</c>.</summary>
+    public const string FindingsPortfolioRecurrenceEnabled = "Findings.PortfolioRecurrence.Enabled";
 }

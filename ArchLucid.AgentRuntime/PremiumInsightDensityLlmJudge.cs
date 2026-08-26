@@ -20,8 +20,8 @@ namespace ArchLucid.AgentRuntime;
 /// </summary>
 public sealed class PremiumInsightDensityLlmJudge(
     IAgentTierCompletionRouter tierCompletionRouter,
-    IOptionsMonitor<InsightDensityGateOptions> gateOptions,
     IOptionsMonitor<AgentModelTierOptions> tierOptions,
+    IInsightDensityGateOptionsResolver gateOptionsResolver,
     IConfiguration configuration,
     ILogger<PremiumInsightDensityLlmJudge> logger) : IInsightDensityLlmJudge
 {
@@ -31,8 +31,8 @@ public sealed class PremiumInsightDensityLlmJudge(
     private readonly IAgentTierCompletionRouter _tierCompletionRouter =
         tierCompletionRouter ?? throw new ArgumentNullException(nameof(tierCompletionRouter));
 
-    private readonly IOptionsMonitor<InsightDensityGateOptions> _gateOptions =
-        gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
+    private readonly IInsightDensityGateOptionsResolver _gateOptionsResolver =
+        gateOptionsResolver ?? throw new ArgumentNullException(nameof(gateOptionsResolver));
 
     private readonly IOptionsMonitor<AgentModelTierOptions> _tierOptions =
         tierOptions ?? throw new ArgumentNullException(nameof(tierOptions));
@@ -50,7 +50,7 @@ public sealed class PremiumInsightDensityLlmJudge(
     {
         ArgumentNullException.ThrowIfNull(findings);
 
-        InsightDensityGateOptions options = _gateOptions.CurrentValue;
+        InsightDensityGateOptions options = _gateOptionsResolver.Resolve(cancellationToken);
 
         if (!IsLlmJudgeOperational() || !options.EnableLlmJudgeForEngineFindings)
         {
@@ -116,7 +116,7 @@ public sealed class PremiumInsightDensityLlmJudge(
             return;
         }
 
-        InsightDensityGateOptions options = _gateOptions.CurrentValue;
+        InsightDensityGateOptions options = _gateOptionsResolver.Resolve(cancellationToken);
 
         List<ArchitectureFinding> candidates = findings
             .Where(static finding => finding.Treatment == FindingTreatment.Promote)
@@ -390,7 +390,7 @@ public sealed class PremiumInsightDensityLlmJudge(
 
     private bool IsLlmJudgeOperational()
     {
-        if (!_gateOptions.CurrentValue.EnableLlmJudge)
+        if (!_gateOptionsResolver.Resolve().EnableLlmJudge)
         {
             return false;
         }

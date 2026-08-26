@@ -48,6 +48,7 @@ using ArchLucid.Application.Traceability;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Connectors.Publishing;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Diagrams;
@@ -108,7 +109,9 @@ internal static class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
         services.AddScoped<IAuthorityRunDetailOperatorEnricher, AuthorityRunDetailOperatorEnricher>();
         services.AddScoped<IAgentOutputQualityGateOptionsResolver, AgentOutputQualityGateOptionsResolver>();
+        services.AddScoped<IInsightDensityGateOptionsResolver, InsightDensityGateOptionsResolver>();
         services.AddScoped<ITenantAgentOutputQualityGateModeService, TenantAgentOutputQualityGateModeService>();
+        services.AddScoped<ITenantFindingEngineControlsService, TenantFindingEngineControlsService>();
         services.AddScoped<IWorkspaceModelExecutionProfileService, WorkspaceModelExecutionProfileService>();
         services.AddScoped<IWorkspaceAllowedEngineSetService, WorkspaceAllowedEngineSetService>();
         services.AddScoped<IModelExecutionProfileResolver, ModelExecutionProfileResolver>();

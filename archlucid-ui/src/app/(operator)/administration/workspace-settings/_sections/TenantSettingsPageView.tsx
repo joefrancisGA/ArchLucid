@@ -21,8 +21,6 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 
-import { TenantLlmJudgeGuideCard } from "@/components/TenantLlmJudgeGuideCard";
-
 import { WorkspaceScopeTenantSettingsVocabularyRail } from "@/components/WorkspaceScopeTenantSettingsVocabularyRail";
 
 import { Button } from "@/components/ui/button";
@@ -79,8 +77,8 @@ import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-dra
 
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
 
+import { TenantFindingEngineControlsCard } from "./TenantFindingEngineControlsCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
-
 import { TenantWorkspaceProjectsCard } from "./TenantWorkspaceProjectsCard";
 
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
@@ -544,11 +542,8 @@ export function TenantSettingsPageView(props: Props) {
         </p>
 
         <div className="space-y-4">
-
-          <TenantLlmJudgeGuideCard />
-
+          {advancedQualityOpen ? <TenantFindingEngineControlsCard /> : null}
           {advancedQualityOpen ? <TenantQualityGatesCard /> : null}
-
         </div>
 
       </CollapsibleSection>

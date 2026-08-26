@@ -300,16 +300,22 @@ public sealed class PremiumInsightDensityLlmJudgeTests
 
         return new PremiumInsightDensityLlmJudge(
             router,
-            new FixedValueOptionsMonitor<InsightDensityGateOptions>(
+            new FixedValueOptionsMonitor<AgentModelTierOptions>(new AgentModelTierOptions()),
+            new FixedInsightDensityGateOptionsResolver(
                 new InsightDensityGateOptions
                 {
                     EnableLlmJudge = enableLlmJudge,
                     EnableLlmJudgeForEngineFindings = enableEngineJudge,
                     MaxJudgedFindingsPerSnapshot = maxJudged,
                 }),
-            new FixedValueOptionsMonitor<AgentModelTierOptions>(new AgentModelTierOptions()),
             configuration,
             NullLogger<PremiumInsightDensityLlmJudge>.Instance);
+    }
+
+    private sealed class FixedInsightDensityGateOptionsResolver(InsightDensityGateOptions options)
+        : IInsightDensityGateOptionsResolver
+    {
+        public InsightDensityGateOptions Resolve(CancellationToken cancellationToken = default) => options;
     }
 
     private sealed class ThrowingThenSuccessCompletionClient : IAgentCompletionClient

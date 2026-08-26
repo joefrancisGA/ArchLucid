@@ -52,6 +52,8 @@ Premium-tier judge calls are metered and capped. Each judged finding is one Reas
 | `ArchLucid:Findings:InsightDensityGate:EnableLlmJudgeForEngineFindings` | `false` | When `true` with `EnableLlmJudge`, also judges deterministic engine findings after snapshot build (authority pipeline). |
 | `ArchLucid:Findings:InsightDensityGate:MaxJudgedFindingsPerSnapshot` | `12` | Hard per-snapshot ceiling on judge completions — cost guard for large finding sets. |
 
+Tenant administrators may override `EnableLlmJudge`, `EnableLlmJudgeForEngineFindings`, and portfolio recurrence `Enabled` per workspace via **Workspace settings → Advanced → Finding engines** (`PUT /v1/admin/settings/finding-engine-controls`). Stored in `dbo.TenantSettings` (`Findings.InsightDensityLlmJudge.Enabled`, `Findings.InsightDensityLlmJudge.EngineFindingsEnabled`, `Findings.PortfolioRecurrence.Enabled`).
+
 ## Open-commitment finding engine (ID-05)
 
 Surfaces overdue deferrals, unanswered evidence requests, and waiver expiry from the disposition trail on every review when enabled. **Default on** — disable per tenant when trail fan-out or finding volume is undesirable.

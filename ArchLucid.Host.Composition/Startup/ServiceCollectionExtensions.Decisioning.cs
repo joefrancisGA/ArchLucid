@@ -94,6 +94,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchLucid.Application.Findings.OpenCommitmentFindingOptions.SectionPath));
         services.Configure<ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptions>(
             configuration.GetSection(ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptions.SectionPath));
+        services.AddScoped<ArchLucid.Application.Findings.IPortfolioRecurrenceFindingOptionsResolver,
+            ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptionsResolver>();
         services.AddSingleton<IInsightDensityGate, DeterministicInsightDensityGate>();
         services.TryAddSingleton<IInsightDensityLlmJudge, NoOpInsightDensityLlmJudge>();
 

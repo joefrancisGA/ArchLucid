@@ -133,6 +133,17 @@ public sealed class PortfolioRecurrenceFindingEngineTests
             ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
         });
 
+        return new PortfolioRecurrenceFindingEngine(
+            scopeProvider.Object,
+            runQuery.Object,
+            snapshotRepository.Object,
+            CreateOptionsResolver(enabled),
+            NullLogger<PortfolioRecurrenceFindingEngine>.Instance);
+    }
+
+    private static IPortfolioRecurrenceFindingOptionsResolver CreateOptionsResolver(bool enabled)
+    {
+        Mock<IPortfolioRecurrenceFindingOptionsResolver> resolver = new();
         PortfolioRecurrenceFindingOptions options = new()
         {
             Enabled = enabled,
@@ -141,12 +152,9 @@ public sealed class PortfolioRecurrenceFindingEngineTests
             MaxFindings = 10,
         };
 
-        return new PortfolioRecurrenceFindingEngine(
-            scopeProvider.Object,
-            runQuery.Object,
-            snapshotRepository.Object,
-            Options.Create(options),
-            NullLogger<PortfolioRecurrenceFindingEngine>.Instance);
+        resolver.Setup(r => r.Resolve(It.IsAny<CancellationToken>())).Returns(options);
+
+        return resolver.Object;
     }
 
     private static RunSummary CreateCommittedSummary(Guid runId, string systemName, DateTime createdUtc) =>
