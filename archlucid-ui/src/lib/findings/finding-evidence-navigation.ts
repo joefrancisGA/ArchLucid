@@ -10,11 +10,21 @@ export const EVIDENCE_TRACE_PAGE_SUBTITLE =
   "Inspect the policy, evidence, reasoning, audit linkage, and approval record supporting this finding.";
 
 /** Finding detail page — parent surface of the evidence trace drill-down. */
-export function getFindingDetailHref(runId: string, findingId: string): string {
+export function getFindingDetailHref(
+  runId: string,
+  findingId: string,
+  findingsQueueRunId?: string | null,
+): string {
   const encRun = encodeURIComponent(runId.trim());
   const encFinding = encodeURIComponent(findingId.trim());
+  const base = `/architecture/reviews/${encRun}/findings/${encFinding}`;
+  const queueRunId = (findingsQueueRunId ?? "").trim();
 
-  return `/architecture/reviews/${encRun}/findings/${encFinding}`;
+  if (queueRunId.length === 0) {
+    return base;
+  }
+
+  return `${base}?runId=${encodeURIComponent(queueRunId)}`;
 }
 
 /** Buyer-facing drill-down into the provenance chain for a finding (#7). */

@@ -215,8 +215,12 @@ export default function GovernanceFindingsQueueClient({
     [displayedRows, isAssignedToMe],
   );
   const continueLastFinding = useMemo(
-    () => resolveContinueLastFindingTarget(displayedRows),
-    [displayedRows],
+    () =>
+      resolveContinueLastFindingTarget(
+        displayedRows,
+        scopedRunFilterActive ? scopedRunId : null,
+      ),
+    [displayedRows, scopedRunFilterActive, scopedRunId],
   );
   const findingsQueueTriageSteps = useMemo(
     () =>

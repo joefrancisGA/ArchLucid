@@ -122,8 +122,9 @@ export function resolveFirstFindingTriageTarget(
 
 export function resolveContinueLastFindingTarget(
   displayedRows: readonly GovernanceFindingQueueRow[],
+  findingsQueueRunId?: string | null,
 ) {
-  return resolveContinueLastGovernanceFinding(displayedRows);
+  return resolveContinueLastGovernanceFinding(displayedRows, findingsQueueRunId);
 }
 
 export type AssignedToMeOldestFindingTarget = {

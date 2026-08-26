@@ -52,17 +52,21 @@ function readRecentFindingKey(): { readonly runId: string; readonly findingId: s
   return null;
 }
 
-function toTarget(row: GovernanceFindingQueueRow): GovernanceFindingsContinueLastTarget {
+function toTarget(
+  row: GovernanceFindingQueueRow,
+  findingsQueueRunId?: string | null,
+): GovernanceFindingsContinueLastTarget {
   return {
     findingId: row.findingId,
     title: row.title,
-    href: getFindingDetailHref(row.runId, row.findingId),
+    href: getFindingDetailHref(row.runId, row.findingId, findingsQueueRunId),
   };
 }
 
 /** Resolves the finding to pin as Continue last viewed on the findings queue. */
 export function resolveContinueLastGovernanceFinding(
   rows: unknown,
+  findingsQueueRunId?: string | null,
 ): GovernanceFindingsContinueLastTarget | null {
   const normalizedRows = asReadonlyArray<GovernanceFindingQueueRow>(rows);
 
@@ -84,13 +88,13 @@ export function resolveContinueLastGovernanceFinding(
     );
 
     if (recentMatch !== undefined) {
-      return toTarget(recentMatch);
+      return toTarget(recentMatch, findingsQueueRunId);
     }
 
     const findingIdMatch = findingRows.find((row) => row.findingId === recentKey.findingId);
 
     if (findingIdMatch !== undefined) {
-      return toTarget(findingIdMatch);
+      return toTarget(findingIdMatch, findingsQueueRunId);
     }
   }
 
@@ -98,5 +102,5 @@ export function resolveContinueLastGovernanceFinding(
     .slice()
     .sort((left, right) => (right.agingDays ?? -1) - (left.agingDays ?? -1))[0];
 
-  return oldestOpen === undefined ? null : toTarget(oldestOpen);
+  return oldestOpen === undefined ? null : toTarget(oldestOpen, findingsQueueRunId);
 }

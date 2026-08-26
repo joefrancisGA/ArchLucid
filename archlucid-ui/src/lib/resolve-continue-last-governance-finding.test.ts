@@ -28,6 +28,15 @@ describe("resolveContinueLastGovernanceFinding", () => {
     expect(resolveContinueLastGovernanceFinding([])).toBeNull();
   });
 
+  it("preserves findings queue runId on continue-last href when scoped", () => {
+    const match = resolveContinueLastGovernanceFinding(
+      [row({ findingId: "finding-old", title: "Oldest", agingDays: 12 })],
+      "run-queue-scope",
+    );
+
+    expect(match?.href).toBe("/architecture/reviews/run-1/findings/finding-old?runId=run-queue-scope");
+  });
+
   it("falls back to the oldest open finding when no recent view exists", () => {
     const match = resolveContinueLastGovernanceFinding([
       row({ findingId: "finding-new", title: "Newer", agingDays: 1 }),
