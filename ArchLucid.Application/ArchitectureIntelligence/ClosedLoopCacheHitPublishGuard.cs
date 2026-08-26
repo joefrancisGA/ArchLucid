@@ -43,8 +43,9 @@ public static class ClosedLoopCacheHitPublishGuard
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(result);
 
-        return !string.Equals(result.RunId, runId, StringComparison.Ordinal)
-            || (request.PublishToProduct && !result.PublishedToProduct);
+        return !request.PublishToProduct
+            || !result.PublishedToProduct
+            || !string.Equals(result.RunId, runId, StringComparison.Ordinal);
     }
 
     public static void SanitizeForStorage(ClosedLoopReasoningResult result)
