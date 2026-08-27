@@ -1,4 +1,7 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Api.Models;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -139,6 +142,58 @@ public sealed class PolicyPacksControllerListScopeTests
                 InitialContentJson = "{}",
             },
             CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task Simulate_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = "run-1",
+                Content = new PolicyPackContentDocument(),
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task SimulateBulk_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        IActionResult result = await sut.SimulateBulk(
+            packId,
+            new PolicyPackSimulateBulkRequest { RunIds = ["run-1"] },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task Validate_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        JsonElement body = JsonDocument.Parse("""{"name":"baseline"}""").RootElement;
+
+        IActionResult result = await sut.Validate(body, CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
