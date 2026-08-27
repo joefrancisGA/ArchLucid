@@ -3,7 +3,8 @@ import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
-import { fetchRunsByProjectPagedCached } from "@/lib/runs-by-project-paged-client";
+import { fetchPagedReviewsInventory } from "@/lib/api/reviews-paged-inventory";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { fetchTenantTrialStatusCached } from "@/lib/tenant-trial-status-client";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
@@ -110,11 +111,14 @@ export async function fetchCorePilotCommitContext(): Promise<CorePilotCommitCont
   const trialAnchoredCommit = await fetchTrialAnchoredCommit();
 
   try {
+    const scopeHeaders =
+      typeof window !== "undefined" ? getEffectiveBrowserProxyScopeHeaders() : undefined;
     const raw: unknown = await Promise.race([
-      fetchRunsByProjectPagedCached({
+      fetchPagedReviewsInventory({
         projectId: DEFAULT_PROJECT_ID,
         page: 1,
         pageSize: COMMIT_SCAN_PAGE_SIZE,
+        scopeHeaders,
       }),
       new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error("timeout")), FETCH_BUDGET_MS);
