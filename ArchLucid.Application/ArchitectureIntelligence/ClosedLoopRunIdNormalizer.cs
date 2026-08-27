@@ -12,7 +12,7 @@ internal static class ClosedLoopRunIdNormalizer
     public static string? NormalizeOptional(string? runId)
     {
         if (string.IsNullOrWhiteSpace(runId))
-            return runId;
+            return null;
 
         return ClosedLoopRunIdComparer.Normalize(runId.Trim());
     }

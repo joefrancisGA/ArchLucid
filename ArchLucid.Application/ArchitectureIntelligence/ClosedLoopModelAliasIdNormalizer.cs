@@ -12,7 +12,7 @@ internal static class ClosedLoopModelAliasIdNormalizer
     public static string? NormalizeOptional(string? modelAliasId)
     {
         if (string.IsNullOrWhiteSpace(modelAliasId))
-            return modelAliasId;
+            return null;
 
         return modelAliasId.Trim();
     }

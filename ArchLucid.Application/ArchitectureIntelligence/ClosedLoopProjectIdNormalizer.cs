@@ -12,7 +12,7 @@ internal static class ClosedLoopProjectIdNormalizer
     public static string? NormalizeOptional(string? projectId)
     {
         if (string.IsNullOrWhiteSpace(projectId))
-            return projectId;
+            return null;
 
         return projectId.Trim();
     }
