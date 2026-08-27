@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
@@ -41,6 +42,14 @@ public sealed class TenantWorkspacesController(
 
     private readonly IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions> _retentionPurgeOptions =
         retentionPurgeOptions ?? throw new ArgumentNullException(nameof(retentionPurgeOptions));
+
+    private IActionResult? ValidateRouteGuid(Guid value, string fieldName)
+    {
+        if (!GovernanceQueryRequestValidationRules.IsUsableRequiredGuid(value))
+            return this.BadRequestProblem($"{fieldName} must not be an empty GUID.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
 
     /// <summary>Workspaces for the current <see cref="ScopeContext.TenantId" /> with active projects.</summary>
     [HttpGet]
@@ -173,6 +182,16 @@ public sealed class TenantWorkspacesController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteProjectAsync(Guid workspaceId, Guid projectId, CancellationToken cancellationToken)
     {
+        IActionResult? workspaceIdProblem = ValidateRouteGuid(workspaceId, "workspaceId");
+
+        if (workspaceIdProblem is not null)
+            return workspaceIdProblem;
+
+        IActionResult? projectIdProblem = ValidateRouteGuid(projectId, "projectId");
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 
@@ -241,6 +260,16 @@ public sealed class TenantWorkspacesController(
         Guid projectId,
         CancellationToken cancellationToken)
     {
+        IActionResult? workspaceIdProblem = ValidateRouteGuid(workspaceId, "workspaceId");
+
+        if (workspaceIdProblem is not null)
+            return workspaceIdProblem;
+
+        IActionResult? projectIdProblem = ValidateRouteGuid(projectId, "projectId");
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 

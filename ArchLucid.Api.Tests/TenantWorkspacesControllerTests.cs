@@ -401,6 +401,56 @@ public sealed class TenantWorkspacesControllerTests
     }
 
     [Fact]
+    public async Task DeleteProjectAsync_returns_bad_request_when_workspace_id_is_empty_guid()
+    {
+        Mock<IArchitectureProjectRepository> projectsMock = new(MockBehavior.Strict);
+
+        TenantWorkspacesController sut = new(
+            Mock.Of<ITenantRepository>(),
+            projectsMock.Object,
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.DeleteProjectAsync(
+            Guid.Empty,
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        projectsMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RestoreProjectAsync_returns_bad_request_when_project_id_is_empty_guid()
+    {
+        Mock<IArchitectureProjectRepository> projectsMock = new(MockBehavior.Strict);
+
+        TenantWorkspacesController sut = new(
+            Mock.Of<ITenantRepository>(),
+            projectsMock.Object,
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.RestoreProjectAsync(
+            Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Guid.Empty,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        projectsMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task DeleteProjectAsync_returns_not_found_when_workspace_id_is_out_of_scope()
     {
         ScopeContext scope = new()
