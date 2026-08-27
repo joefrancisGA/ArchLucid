@@ -50,6 +50,11 @@ public sealed class GovernanceCoverageController(
     {
         ArgumentNullException.ThrowIfNull(request);
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         CoveragePreviewInput input = CoveragePreviewMapper.ToInput(request);
         CoveragePreviewResult preview = await coveragePreviewService.PreviewAsync(scope, input, cancellationToken);
         CoveragePreviewResponse response = CoveragePreviewMapper.ToResponse(preview);

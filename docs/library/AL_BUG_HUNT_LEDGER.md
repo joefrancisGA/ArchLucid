@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 39
-- **bugs-found:** 107
+- **hunts:** 40
+- **bugs-found:** 109
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — stickiness register reads ghost tenant 404 parity
+- **last-bug:** 2026-08-27 — coverage preview ghost tenant 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2379,10 +2379,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceSetupController.GetSetupGuideBundle` — ghost tenant returned HTTP 200 empty bundle instead of 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (posture/resolution parity); regression in `GovernanceSetupControllerTests.GetSetupGuideBundle_returns_not_found_when_tenant_missing`.
 - [x] (proven) `GovernancePreviewController.CompareEnvironments` — ghost tenant returned HTTP 200 empty comparison instead of 404 while posture/resolution preflight tenant row — **hit 2026-08-27:** `ITenantRepository.GetByIdAsync` preflight before `CompareEnvironmentsAsync` (`GovernancePreviewControllerUnitTests.CompareEnvironments_returns_not_found_when_tenant_missing`).
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetDecisionsNeededSummary`, `ListRiskExceptions`) — ghost tenant returned HTTP 200 empty registers instead of 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on read endpoints (`GovernanceStickinessControllerTests`).
+- [x] (proven) `GovernanceStickinessController` sibling register reads (`GetAssignedToMeFindingsCount`, `GetReviewsAwaitingAction`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — ghost tenant returned HTTP 200 empty payloads instead of 404 while risk/decisions-needed/list-exceptions already preflighted — **hit 2026-08-27:** extended `RequireTenantOrNotFoundAsync` to remaining register reads; regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceCoverageController.PreviewCoverage` — ghost tenant returned HTTP 200 preview payload while `GetScopeCoverage` already 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (GET parity); regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_not_found_when_tenant_missing`.
+- [ ] (candidate) `GovernancePreviewController.Preview` — ghost tenant may return `RunNotFound` or empty preview instead of tenant 404 while `CompareEnvironments` already preflights tenant row.
+- [ ] (candidate) `GovernanceStickinessController.ListRecurrenceSchedules` — ghost tenant returns HTTP 200 `[]` instead of 404 (sibling register reads now preflight tenant row).
 
 2026-08-27 seed hunt #121: proved policy-packs read/create and setup-guide ghost-tenant 404 parity; seeded preview compare and stickiness register tenant-preflight candidates.
 
 2026-08-27 thorough hunt #122: proved preview compare-environments and stickiness register ghost-tenant 404 parity.
+
+2026-08-27 seed hunt #123: proved stickiness sibling register reads and coverage preview ghost-tenant 404 parity; seeded preview/recurrence-list ghost-tenant candidates.
 
 2026-08-27 thorough hunt #120: proved governance-resolution ghost tenant 404.
 
