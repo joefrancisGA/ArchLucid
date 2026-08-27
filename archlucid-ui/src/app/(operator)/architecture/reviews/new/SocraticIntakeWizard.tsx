@@ -317,14 +317,16 @@ export function SocraticIntakeWizard() {
             <CardHeader>
             <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
             <CardDescription>
-              {isCreateArchitectureFlow
-                ? GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION
-                : activePendingQuestions.length === 0
-                  ? "All required clarifications are answered or skipped. You can continue."
-                  : `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
-              {isCreateArchitectureFlow
-                ? "Your answers stay with the architecture draft until you choose to start a review."
-                : "Your answers will be included when you review and submit."}
+              {isCreateArchitectureFlow ? (
+                <>
+                  {GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION}{" "}
+                  Your answers stay with the architecture draft until you choose to start a review.
+                </>
+              ) : activePendingQuestions.length === 0 ? (
+                "All required clarifications are answered or skipped. You can continue."
+              ) : (
+                `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent
