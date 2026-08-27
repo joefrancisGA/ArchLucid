@@ -71,8 +71,10 @@ internal sealed class ReviewSingleFlightCoordinator
                 {
                     if (waitersResult.PublishBlocked)
                         ClosedLoopCacheHitPublishGuard.ClearCoalescedFollowerPublishLeaks(followerClone);
-                    else if (waitersResult.PublishedToProduct)
+                    else
                         ClosedLoopCacheHitPublishGuard.ClearAnalysisOnlyPublishIsolation(followerClone);
+
+                    ClosedLoopCacheHitPublishGuard.ClearCoalescedFollowerReviewCompleteState(followerClone);
                 }
 
                 return followerClone;
