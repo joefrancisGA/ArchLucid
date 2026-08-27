@@ -78,6 +78,13 @@ public static class ClosedLoopCacheHitPublishGuard
         ArgumentNullException.ThrowIfNull(isolated);
 
         ClearAnalysisOnlyPublishIsolation(isolated);
+        ClearCoalescedFollowerReviewCompleteState(isolated);
+    }
+
+    public static void ClearCoalescedFollowerReviewCompleteState(ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(isolated);
+
         isolated.ReviewCompleteBlocked = false;
         isolated.IntegrityPassedFindingIds = [];
         isolated.MustNotFailViolations = [];
@@ -96,6 +103,8 @@ public static class ClosedLoopCacheHitPublishGuard
         result.CacheHit = false;
         result.CacheReuseReason = null;
         result.RunId = ClosedLoopRunIdNormalizer.NormalizeOptional(result.RunId);
+        if (result.Model is not null)
+            result.Model.RunId = ClosedLoopRunIdNormalizer.NormalizeOptional(result.Model.RunId);
         result.ReviewCompleteBlocked = false;
         result.IntegrityPassedFindingIds = [];
         result.MustNotFailViolations = [];
