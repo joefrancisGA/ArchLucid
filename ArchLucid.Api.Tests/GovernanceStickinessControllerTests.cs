@@ -278,6 +278,22 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task ListRecurrenceSchedules_returns_not_found_when_tenant_missing()
+    {
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+
+        GovernanceStickinessController sut = BuildSut(
+            recurrenceRepo: recurrenceRepo,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.ListRecurrenceSchedules(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        recurrenceRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetRiskRegister_returns_service_payload()
     {
         ArchitectureRiskRegisterResponse expected = new();
