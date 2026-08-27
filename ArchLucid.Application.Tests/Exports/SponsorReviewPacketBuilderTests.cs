@@ -189,17 +189,85 @@ public sealed class SponsorReviewPacketBuilderTests
         markdown.Should().BeNull();
     }
 
+    [Fact]
+    public async Task BuildMarkdownAsync_includes_only_decisions_for_the_requested_run()
+    {
+        Guid otherRunId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = RunId,
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1",
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = RunId,
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+            },
+        };
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(x => x.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        Mock<IArchitectureDecisionRegisterService> decisions = new();
+        decisions
+            .Setup(x => x.GetRegisterAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<ArchitectureDecisionRegisterQueryOptions?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureDecisionRegisterResponse
+            {
+                Decisions =
+                [
+                    new ArchitectureDecisionRegisterEntry
+                    {
+                        RunId = Guid.Parse(RunId),
+                        Title = "Run A decision",
+                        SelectedOption = "Option A",
+                    },
+                    new ArchitectureDecisionRegisterEntry
+                    {
+                        RunId = otherRunId,
+                        Title = "Run B decision",
+                        SelectedOption = "Option B",
+                    },
+                ],
+            });
+
+        SponsorReviewPacketBuilder sut = CreateSut(runDetails.Object, decisions: decisions.Object);
+
+        string? markdown = await sut.BuildMarkdownAsync(RunId, CancellationToken.None);
+
+        markdown.Should().NotBeNull();
+        markdown.Should().Contain("Run A decision");
+        markdown.Should().NotContain("Run B decision");
+    }
+
     private static SponsorReviewPacketBuilder CreateSut(
         IRunDetailQueryService runDetails,
         IScopeContextProvider? scopeContextProvider = null,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        IArchitectureDecisionRegisterService? decisions = null)
     {
         Mock<ISponsorRoiSummaryService> roi = new();
         roi.Setup(x => x.BuildAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new SponsorRoiSummaryResponse());
 
-        Mock<IArchitectureDecisionRegisterService> decisions = new();
-        decisions
+        Mock<IArchitectureDecisionRegisterService> decisionsMock = new();
+        decisionsMock
             .Setup(x => x.GetRegisterAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
@@ -216,7 +284,7 @@ public sealed class SponsorReviewPacketBuilderTests
         return new SponsorReviewPacketBuilder(
             runDetails,
             roi.Object,
-            decisions.Object,
+            decisions ?? decisionsMock.Object,
             scopeProvider,
             tenantRepository ?? Mock.Of<ITenantRepository>());
     }

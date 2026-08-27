@@ -12,6 +12,7 @@ namespace ArchLucid.Application.Exports;
 public sealed class DecisionReceiptService(
     IDraftRequestService draftRequestService,
     IAuthorityQueryService authorityQueryService,
+    IRunDetailQueryService runDetailQueryService,
     FeasibilityVerdictBuilder feasibilityVerdictBuilder) : IDecisionReceiptService
 {
     private readonly IAuthorityQueryService _authorityQueryService =
@@ -19,6 +20,9 @@ public sealed class DecisionReceiptService(
 
     private readonly IDraftRequestService _draftRequestService =
         draftRequestService ?? throw new ArgumentNullException(nameof(draftRequestService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     private readonly FeasibilityVerdictBuilder _feasibilityVerdictBuilder =
         feasibilityVerdictBuilder ?? throw new ArgumentNullException(nameof(feasibilityVerdictBuilder));
@@ -57,6 +61,15 @@ public sealed class DecisionReceiptService(
         Guid runId,
         CancellationToken cancellationToken)
     {
+        ArchitectureRunDetail? detail = await _runDetailQueryService
+            .GetRunDetailAsync(runId.ToString("N"), cancellationToken);
+
+        if (detail is null)
+            return null;
+
+        if (!detail.IsCommitted || detail.HasBrokenManifestReference)
+            return null;
+
         RunSummaryDto? summary = await _authorityQueryService.GetRunSummaryAsync(scope, runId, cancellationToken);
 
         if (summary is null)

@@ -58,7 +58,7 @@ public sealed class SponsorReviewPacketBuilder(
             .ToList();
 
         string SponsorReport = BuildDeterministicSponsorReport(detail, topFindings);
-        IReadOnlyList<SponsorReviewPacketDecisionRow> topDecisions = await BuildTopDecisionsAsync(cancellationToken)
+        IReadOnlyList<SponsorReviewPacketDecisionRow> topDecisions = await BuildTopDecisionsAsync(runId.Trim(), cancellationToken)
             .ConfigureAwait(false);
         SponsorReviewPacketPortfolioSignals portfolioSignals =
             SponsorReviewPacketPortfolioSignalsFactory.Create(roiSummary);
@@ -93,8 +93,12 @@ public sealed class SponsorReviewPacketBuilder(
     }
 
     private async Task<IReadOnlyList<SponsorReviewPacketDecisionRow>> BuildTopDecisionsAsync(
+        string runId,
         CancellationToken cancellationToken)
     {
+        if (!Guid.TryParse(runId.Trim(), out Guid runGuid))
+            return [];
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         ArchitectureDecisionRegisterResponse register = await _decisionRegisterService
             .GetRegisterAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, maxRows: 25, filters: null, cancellationToken)
@@ -102,7 +106,7 @@ public sealed class SponsorReviewPacketBuilder(
 
         List<SponsorReviewPacketDecisionRow> rows = [];
 
-        foreach (ArchitectureDecisionRegisterEntry entry in register.Decisions.Take(5))
+        foreach (ArchitectureDecisionRegisterEntry entry in register.Decisions.Where(entry => entry.RunId == runGuid).Take(5))
         {
             rows.Add(new SponsorReviewPacketDecisionRow
             {

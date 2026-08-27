@@ -72,7 +72,18 @@ public sealed class TenantReviewBoardCoverLogoStore : ITenantReviewBoardCoverLog
             byte[]? bytes = await TryReadLogicalPathAsync(logicalPath, cancellationToken).ConfigureAwait(false);
 
             if (bytes is { Length: > 0 })
+            {
+                try
+                {
+                    ArchitectureReviewBoardCoverLogoValidator.ValidateLogo(bytes);
+                }
+                catch (ArgumentException)
+                {
+                    return null;
+                }
+
                 return bytes;
+            }
         }
 
         return null;
