@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 73
-- **bugs-found:** 210
+- **hunts:** 74
+- **bugs-found:** 211
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — approval route whitespace returns 400
+- **last-bug:** 2026-08-27 — promote body approval id whitespace returns 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2470,6 +2470,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetChecklist` — whitespace-only `runId` returned HTTP 400 but lacked regression test — **cheap-disproof 2026-08-27:** `GetChecklist_returns_bad_request_when_run_id_is_whitespace` documents existing guard (Simulate parity).
 
 2026-08-27 seed hunt #156: proved approval-route whitespace validation; documented pre-commit checklist whitespace guard.
+
+- [x] (proven) `GovernanceController.Promote` — whitespace-only body `ApprovalRequestId` skipped approval linkage preflight and proceeded to `PromoteAsync` (route `ValidateApprovalRequestIdRoute` parity) — **hit 2026-08-27:** `ValidateApprovalRequestIdBody`; regression in `GovernanceControllerRunHistoryScopeTests`.
+
+2026-08-27 seed hunt #157: proved promote body approval-id whitespace validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

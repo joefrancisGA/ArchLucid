@@ -59,9 +59,15 @@ public sealed partial class GovernanceController
         if (scopeError is not null)
             return scopeError;
 
-        if (!string.IsNullOrWhiteSpace(request.ApprovalRequestId))
+        IActionResult? approvalIdProblem =
+            ValidateApprovalRequestIdBody(request.ApprovalRequestId, out string? normalizedApprovalRequestId);
+
+        if (approvalIdProblem is not null)
+            return approvalIdProblem;
+
+        if (normalizedApprovalRequestId is not null)
         {
-            string approvalRequestId = NormalizeApprovalRequestId(request.ApprovalRequestId);
+            string approvalRequestId = normalizedApprovalRequestId;
 
             GovernanceApprovalRequest? approval = await approvalRepo
                 .GetByIdAsync(approvalRequestId, cancellationToken)
@@ -93,9 +99,7 @@ public sealed partial class GovernanceController
                 request.SourceEnvironment,
                 request.TargetEnvironment,
                 promotedBy,
-                string.IsNullOrWhiteSpace(request.ApprovalRequestId)
-                    ? request.ApprovalRequestId
-                    : NormalizeApprovalRequestId(request.ApprovalRequestId),
+                normalizedApprovalRequestId,
                 request.Notes,
                 dryRun,
                 verbosePromotionValidationErrors,

@@ -122,4 +122,20 @@ public sealed partial class GovernanceController(
         return null;
     }
 
+    private IActionResult? ValidateApprovalRequestIdBody(string? approvalRequestId, out string? normalizedApprovalRequestId)
+    {
+        if (approvalRequestId is null)
+        {
+            normalizedApprovalRequestId = null;
+            return null;
+        }
+
+        normalizedApprovalRequestId = approvalRequestId.Trim();
+
+        if (string.IsNullOrEmpty(normalizedApprovalRequestId))
+            return this.BadRequestProblem("approvalRequestId is required.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
 }
