@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { ReactElement } from "react";
 
@@ -29,8 +28,7 @@ export function RoleNavDensityExpandControl(props: RoleNavDensityExpandControlPr
         variant="outline"
         size="sm"
         className={cn(
-          "sidebar-disclosure-trigger w-full justify-start px-3 py-2 text-left font-medium text-neutral-900 shadow-none hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800",
-          OPERATOR_TYPOGRAPHY.helper,
+          "sidebar-disclosure-trigger w-full justify-start px-3 py-2 text-left text-neutral-900 shadow-none hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800",
         )}
         data-testid="role-nav-density-expand-toggle"
         aria-pressed={props.showFullNav}

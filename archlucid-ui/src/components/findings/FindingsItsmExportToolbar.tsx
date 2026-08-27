@@ -112,7 +112,7 @@ export function FindingsItsmExportToolbar({
         type="button"
         variant="outline"
         size="sm"
-        className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
+        className="h-8 gap-1.5"
         disabled={exportingCsv}
         data-testid="findings-export-csv-button"
         onClick={onExportCsv}
@@ -124,7 +124,7 @@ export function FindingsItsmExportToolbar({
         type="button"
         variant="outline"
         size="sm"
-        className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
+        className="h-8 gap-1.5"
         data-testid="findings-export-json-button"
         onClick={onExportJson}
       >
@@ -192,7 +192,7 @@ export function FindingsItsmExportToolbar({
           type="button"
           variant="default"
           size="sm"
-          className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
+          className="h-8 gap-1.5"
           disabled={exportingCsv}
           data-testid="findings-export-csv-button"
           onClick={onExportCsv}
@@ -204,7 +204,7 @@ export function FindingsItsmExportToolbar({
           type="button"
           variant="outline"
           size="sm"
-          className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
+          className="h-8 gap-1.5"
           data-testid="findings-export-json-button"
           onClick={onExportJson}
         >

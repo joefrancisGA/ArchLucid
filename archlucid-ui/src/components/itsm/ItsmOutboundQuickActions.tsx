@@ -77,7 +77,7 @@ export function ItsmOutboundQuickActions({
             type="button"
             variant="outline"
             size="sm"
-            className={cn("h-7", OPERATOR_TYPOGRAPHY.helper)}
+            className="h-7"
             disabled={busy || jiraLinked}
             onClick={() => void onCreate("Jira")}
             data-testid="itsm-sync-jira"
@@ -89,7 +89,7 @@ export function ItsmOutboundQuickActions({
             type="button"
             variant="outline"
             size="sm"
-            className={cn("h-7", OPERATOR_TYPOGRAPHY.helper)}
+            className="h-7"
             disabled={busy || azureBoardsLinked}
             onClick={() => void onCreate("Azure Boards")}
             data-testid="itsm-sync-azure-boards"
@@ -107,7 +107,7 @@ export function ItsmOutboundQuickActions({
             type="button"
             variant="outline"
             size="sm"
-            className={cn("h-7", OPERATOR_TYPOGRAPHY.helper)}
+            className="h-7"
             disabled={busy || serviceNowLinked}
             onClick={() => void onCreate("ServiceNow")}
             data-testid="itsm-sync-servicenow"

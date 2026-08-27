@@ -31,7 +31,7 @@ export function ReasoningTraceReadMore({ heading, trace }: { heading: string; tr
           type="button"
           variant="outline"
           size="sm"
-          className={cn("h-8 px-2", OPERATOR_TYPOGRAPHY.helper)}
+          className="h-8 px-2"
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
         >

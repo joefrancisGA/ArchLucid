@@ -48,7 +48,7 @@ export function FindingFeedbackThumbs(props: FindingFeedbackThumbsProps): ReactE
         type="button"
         size="sm"
         variant="outline"
-        className={compact ? (cn("h-7 px-2", OPERATOR_TYPOGRAPHY.helper)) : undefined}
+        className={compact ? "h-7 px-2" : undefined}
         disabled={disabled || busy}
         aria-label={`Mark finding ${findingId} helpful`}
         onClick={() => void submit(true)}
@@ -59,7 +59,7 @@ export function FindingFeedbackThumbs(props: FindingFeedbackThumbsProps): ReactE
         type="button"
         size="sm"
         variant="outline"
-        className={compact ? (cn("h-7 px-2", OPERATOR_TYPOGRAPHY.helper)) : undefined}
+        className={compact ? "h-7 px-2" : undefined}
         disabled={disabled || busy}
         aria-label={`Mark finding ${findingId} not helpful`}
         onClick={() => void submit(false)}

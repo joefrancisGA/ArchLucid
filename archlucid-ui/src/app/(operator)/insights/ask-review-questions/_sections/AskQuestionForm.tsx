@@ -56,10 +56,7 @@ function SuggestedQuestionChips(props: {
             type="button"
             variant="outline"
             size="sm"
-            className={cn(
-              "h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left font-normal dark:border-neutral-700",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
+            className="h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left dark:border-neutral-700"
             disabled={false}
             onClick={() => props.onMergePromptLine(line)}
           >
@@ -96,10 +93,7 @@ function SuggestedQuestionChips(props: {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className={cn(
-                    "h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left font-normal dark:border-neutral-700",
-                    OPERATOR_TYPOGRAPHY.helper,
-                  )}
+                  className="h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left dark:border-neutral-700"
                   disabled={false}
                   onClick={() => props.onMergePromptLine(line)}
                 >

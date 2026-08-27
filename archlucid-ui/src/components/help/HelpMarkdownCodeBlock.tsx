@@ -32,7 +32,7 @@ export function HelpMarkdownCodeBlock(props: HelpMarkdownCodeBlockProps): React.
         type="button"
         variant="outline"
         size="sm"
-        className={cn("absolute right-2 top-2 h-7 gap-1 px-2 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+        className="absolute right-2 top-2 h-7 gap-1 px-2 text-neutral-600 dark:text-neutral-300"
         onClick={() => {
           void handleCopy();
         }}

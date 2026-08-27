@@ -49,7 +49,7 @@ export function NavPinnedLinksPanel() {
           type="button"
           variant="outline"
           size="sm"
-          className={cn("h-7 gap-1 px-2", OPERATOR_TYPOGRAPHY.helper)}
+          className="h-7 gap-1 px-2"
           onClick={pinCurrent}
           aria-pressed={currentPinned}
         >
