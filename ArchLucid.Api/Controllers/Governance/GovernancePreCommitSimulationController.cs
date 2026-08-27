@@ -118,6 +118,9 @@ public sealed class GovernancePreCommitSimulationController(
         if (body.SyntheticCount < 0)
             return this.BadRequestProblem("syntheticCount must be non-negative.", ProblemTypes.ValidationFailed);
 
+        if (body.SyntheticCount > 500)
+            return this.BadRequestProblem("syntheticCount must be at most 500.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

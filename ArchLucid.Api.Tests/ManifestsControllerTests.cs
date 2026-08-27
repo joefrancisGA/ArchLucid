@@ -276,6 +276,34 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task GetManifestSummary_returns_bad_request_when_max_relationships_is_zero()
+    {
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestSummary(
+            ManifestVersion,
+            maxRelationships: 0,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetManifestSummary_returns_bad_request_when_max_relationships_exceeds_limit()
+    {
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestSummary(
+            ManifestVersion,
+            maxRelationships: ManifestSummaryLimits.MaxRelationships + 1,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task GetManifestDiagramV2_returns_mermaid_content()
     {
         ManifestsController controller = CreateController();

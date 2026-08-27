@@ -47,6 +47,39 @@ public sealed partial class GovernanceStickinessController(
         return null;
     }
 
+    private IActionResult? ValidateFindingIdRoute(string findingId, out string normalizedFindingId)
+    {
+        normalizedFindingId = findingId.Trim();
+
+        if (string.IsNullOrEmpty(normalizedFindingId))
+            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
+    private IActionResult? ValidateDecisionRegisterFilters(
+        DateTimeOffset? recordedAfterUtc,
+        DateTimeOffset? recordedBeforeUtc,
+        double? minConfidence,
+        double? maxConfidence)
+    {
+        if (recordedAfterUtc.HasValue && recordedBeforeUtc.HasValue && recordedAfterUtc > recordedBeforeUtc)
+        {
+            return this.BadRequestProblem(
+                "recordedAfterUtc must be before recordedBeforeUtc.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (minConfidence.HasValue && maxConfidence.HasValue && minConfidence > maxConfidence)
+        {
+            return this.BadRequestProblem(
+                "minConfidence must be less than or equal to maxConfidence.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
     private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

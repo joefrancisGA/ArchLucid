@@ -96,6 +96,7 @@ public sealed partial class ManifestsController
 
     [HttpGet("manifest/{manifestVersion}/summary")]
     [ProducesResponseType(typeof(ManifestMarkdownDocumentResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestSummary(
         [FromRoute] string manifestVersion,
@@ -116,9 +117,24 @@ public sealed partial class ManifestsController
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
-        int? clampedMaxRelationships = maxRelationships.HasValue
-            ? Math.Clamp(maxRelationships.Value, 1, ManifestSummaryLimits.MaxRelationships)
-            : null;
+        if (maxRelationships.HasValue)
+        {
+            if (maxRelationships.Value <= 0)
+            {
+                return this.BadRequestProblem(
+                    "maxRelationships must be greater than 0.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            if (maxRelationships.Value > ManifestSummaryLimits.MaxRelationships)
+            {
+                return this.BadRequestProblem(
+                    $"maxRelationships must be at most {ManifestSummaryLimits.MaxRelationships}.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        int? clampedMaxRelationships = maxRelationships;
 
         string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 

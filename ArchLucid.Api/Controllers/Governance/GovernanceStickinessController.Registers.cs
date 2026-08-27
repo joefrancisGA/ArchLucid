@@ -148,6 +148,15 @@ public sealed partial class GovernanceStickinessController
         if (maxRowsProblem is not null)
             return maxRowsProblem;
 
+        IActionResult? filterProblem = ValidateDecisionRegisterFilters(
+            recordedAfterUtc,
+            recordedBeforeUtc,
+            minConfidence,
+            maxConfidence);
+
+        if (filterProblem is not null)
+            return filterProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
