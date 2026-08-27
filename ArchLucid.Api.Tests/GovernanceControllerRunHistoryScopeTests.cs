@@ -29,6 +29,25 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     };
 
     [Fact]
+    public async Task GetApprovalRequests_returns_not_found_when_tenant_missing()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            tenantRepository: TenantMissingRepository(),
+            approvalRepository: approvals.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetApprovalRequests(runId.ToString("D"), CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        approvals.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetApprovalRequests_returns_not_found_when_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -466,6 +485,99 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task Promote_returns_not_found_when_tenant_missing()
+    {
+        Guid runId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            tenantRepository: TenantMissingRepository(),
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Promote(
+            new CreateGovernancePromotionRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Activate_returns_not_found_when_tenant_missing()
+    {
+        Guid runId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            tenantRepository: TenantMissingRepository(),
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "activate-tenant-missing";
+
+        IActionResult result = await sut.Activate(
+            new CreateGovernanceActivationRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                Environment = "test",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetPromotions_returns_not_found_when_tenant_missing()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IGovernancePromotionRecordRepository> promotions = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            tenantRepository: TenantMissingRepository(),
+            promotionRepository: promotions.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetPromotions(runId.ToString("D"), CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        promotions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetActivations_returns_not_found_when_tenant_missing()
+    {
+        Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IGovernanceEnvironmentActivationRepository> activations = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            tenantRepository: TenantMissingRepository(),
+            activationRepository: activations.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetActivations(runId.ToString("D"), CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        activations.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetPromotions_returns_not_found_when_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -497,6 +609,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IRunRepository? runRepository = null,
         IGovernanceApprovalRequestRepository? approvalRepository = null,
         IGovernancePromotionRecordRepository? promotionRepository = null,
+        IGovernanceEnvironmentActivationRepository? activationRepository = null,
         IGovernanceLineageService? lineageService = null,
         IGovernanceRationaleService? rationaleService = null,
         IGovernanceWorkflowService? workflowService = null,
@@ -514,7 +627,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             workflowService ?? Mock.Of<IGovernanceWorkflowService>(),
             approvalRepository ?? Mock.Of<IGovernanceApprovalRequestRepository>(),
             promotionRepository ?? Mock.Of<IGovernancePromotionRecordRepository>(),
-            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            activationRepository ?? Mock.Of<IGovernanceEnvironmentActivationRepository>(),
             Mock.Of<IActorContext>(),
             scope.Object,
             runRepository ?? runs.Object,

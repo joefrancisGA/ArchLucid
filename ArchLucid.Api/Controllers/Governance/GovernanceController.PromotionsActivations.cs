@@ -48,6 +48,11 @@ public sealed partial class GovernanceController
         if (idempotencyError is not null)
             return idempotencyError;
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
@@ -124,6 +129,11 @@ public sealed partial class GovernanceController
         if (idempotencyError is not null)
             return idempotencyError;
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
@@ -158,6 +168,11 @@ public sealed partial class GovernanceController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IActionResult? scopeError = await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
@@ -174,6 +189,11 @@ public sealed partial class GovernanceController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IActionResult? scopeError = await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
@@ -190,6 +210,11 @@ public sealed partial class GovernanceController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IActionResult? scopeError = await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)

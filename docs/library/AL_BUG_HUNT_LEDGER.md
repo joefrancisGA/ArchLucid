@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 47
-- **bugs-found:** 146
+- **hunts:** 48
+- **bugs-found:** 156
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — approval submit/approve/reject/batch-review ghost-tenant 404 parity
+- **last-bug:** 2026-08-27 — promote/activate, run-history reads, and governance policy-pack ghost-tenant 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2394,9 +2394,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — ghost tenant returned approval-not-found instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight before approval lookup (dashboard parity); regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (proven) `GovernancePreCommitSimulationController.GetChecklist` / `Simulate` — ghost tenant proceeded to checklist/simulation without tenant preflight — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight (run-scope checklist parity); regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceController.Approve` / `Reject` / `SubmitApprovalRequest` / `BatchReviewApprovalRequests` — ghost tenant reached approval workflow without tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight before approval lookup/workflow (lineage parity); regression in `GovernanceControllerRunHistoryScopeTests`.
-- [ ] (candidate) `GovernanceController.Promote` / `Activate` — ghost tenant may reach promotion/activation workflow without tenant 404 (approval-mutation parity gap).
-- [ ] (candidate) `GovernanceController` policy-pack simulate/dry-run/draft/generate — ghost tenant may proceed without tenant preflight (PolicyPacksController parity gap).
-- [ ] (candidate) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — ghost tenant returns HTTP 200 `[]` with run-scope preflight only (dashboard parity gap).
+- [x] (proven) `GovernanceController.Promote` / `Activate` — ghost tenant reached promotion/activation workflow without tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight before scoped-run check (approval-mutation parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController` policy-pack simulate/dry-run/draft/generate — ghost tenant proceeded without tenant preflight — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on `Simulate`, `DryRunProposedPolicyPack`, `DryRunPolicyPack`, `DraftPolicyPackRule`, and `GeneratePolicyPack` (`PolicyPacksController` parity); regression in `GovernanceControllerSimulateTests`.
+- [x] (proven) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — ghost tenant returned HTTP 200 `[]` with run-scope preflight only — **hit 2026-08-27:** tenant preflight before `RequireScopedRunAsync` (dashboard parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+
+2026-08-27 thorough hunt #131: proved promote/activate, run-history reads, and governance policy-pack ghost-tenant 404 parity; zone candidate backlog cleared for this sweep.
 
 2026-08-27 thorough hunt #130: proved approval submit/approve/reject/batch-review ghost-tenant 404 parity; seeded promote/activate, governance policy-pack dry-run, and run-history read ghost-tenant candidates.
 
