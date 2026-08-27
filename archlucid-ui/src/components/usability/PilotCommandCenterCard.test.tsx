@@ -271,15 +271,14 @@ describe("PilotCommandCenterCard", () => {
       "href",
       "/architecture/architectures/draft-001",
     );
+    expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveClass(
+      "text-[var(--al-primary-action-fg)]",
+    );
     expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveTextContent(
       OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
     );
-    expect(screen.getByTestId("operator-home-lifecycle-alternatives-disclosure")).toBeInTheDocument();
-    expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: /Expand Start something else/i }));
-
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-lifecycle-alternatives-disclosure")).toBeNull();
     expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toHaveClass("border-neutral-300");
     expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toHaveClass(
       "border-neutral-300",
