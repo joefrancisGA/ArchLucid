@@ -896,6 +896,13 @@ describe("SocraticIntakeWizard", () => {
         "2 of 2 answered",
       );
     });
+
+    expect(
+      screen.getByText(/all required clarifications are answered or skipped\. you can continue/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/your answers will be included when you review and submit/i),
+    ).not.toBeInTheDocument();
   });
 
   it("routes branch submit to run detail with parentRunId when parent already spawned", async () => {
