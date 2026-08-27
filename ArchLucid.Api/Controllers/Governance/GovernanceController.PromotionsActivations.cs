@@ -155,6 +155,15 @@ public sealed partial class GovernanceController
         if (scopeError is not null)
             return scopeError;
 
+        if (string.IsNullOrWhiteSpace(request.ManifestVersion))
+            return this.BadRequestProblem("ManifestVersion is required.", ProblemTypes.ValidationFailed);
+
+        if (request.ManifestVersion.Length > 128)
+            return this.BadRequestProblem("ManifestVersion must not exceed 128 characters.", ProblemTypes.ValidationFailed);
+
+        if (string.IsNullOrWhiteSpace(request.Environment))
+            return this.BadRequestProblem("Environment is required.", ProblemTypes.ValidationFailed);
+
         try
         {
             GovernanceEnvironmentActivation result = await workflowService.ActivateAsync(
@@ -175,6 +184,16 @@ public sealed partial class GovernanceController
         {
             logger.LogWarning(ex, "Activate failed: manifest version not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Activate failed: validation error.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "Activate failed: invalid operation.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
     }
     [HttpGet("runs/{runId}/approval-requests")]

@@ -202,6 +202,9 @@ public sealed partial class PolicyPacksController
         if (string.IsNullOrWhiteSpace(packVersion))
             return this.BadRequestProblem("Version is required.", ProblemTypes.ValidationFailed);
 
+        if (packVersion.Trim().Length > 50)
+            return this.BadRequestProblem("Version must not exceed 50 characters.", ProblemTypes.ValidationFailed);
+
         IActionResult? routeIdProblem = ValidateRouteGuid(policyPackId, "policyPackId");
 
         if (routeIdProblem is not null)

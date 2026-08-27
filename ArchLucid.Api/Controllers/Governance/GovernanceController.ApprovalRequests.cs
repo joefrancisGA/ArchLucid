@@ -60,6 +60,12 @@ public sealed partial class GovernanceController
         if (scopeError is not null)
             return scopeError;
 
+        if (string.IsNullOrWhiteSpace(request.ManifestVersion))
+            return this.BadRequestProblem("ManifestVersion is required.", ProblemTypes.ValidationFailed);
+
+        if (request.ManifestVersion.Length > 128)
+            return this.BadRequestProblem("ManifestVersion must not exceed 128 characters.", ProblemTypes.ValidationFailed);
+
         string requestedBy = actorContext.GetActor();
         string requestedByActorKey = actorContext.GetActorId();
 
@@ -93,6 +99,16 @@ public sealed partial class GovernanceController
         {
             logger.LogWarning(ex, "SubmitApprovalRequest failed: manifest version not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "SubmitApprovalRequest failed: validation error.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "SubmitApprovalRequest failed: invalid operation.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
     }
 

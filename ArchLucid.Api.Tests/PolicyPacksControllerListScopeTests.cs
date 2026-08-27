@@ -425,6 +425,23 @@ public sealed class PolicyPacksControllerListScopeTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    [Fact]
+    public async Task GetVersion_returns_bad_request_when_pack_version_exceeds_max_length()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        PolicyPacksController sut = CreateSut(workflow, tenantExists: true);
+
+        IActionResult result = await sut.GetVersion(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            new string('9', 51),
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
     private static PolicyPacksController CreateSut(
         Mock<IPolicyPackWorkflowFacade> workflow,
         bool tenantExists)

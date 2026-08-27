@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 101
-- **bugs-found:** 238
+- **hunts:** 102
+- **bugs-found:** 241
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — preview runId max-length validation
+- **last-bug:** 2026-08-27 — policy pack GetVersion max-length validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2586,6 +2586,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreviewController.Preview` — `runId` longer than 64 characters reached `PreviewActivationAsync` and returned HTTP 404 `RunNotFound` instead of HTTP 400 (`CreateGovernancePreviewRequestValidator.MaximumLength` not invoked on this action) — **hit 2026-08-27:** reject oversize run id before service call; regression in `GovernancePreviewControllerUnitTests`.
 
 2026-08-27 seed hunt #184: proved governance preview runId max-length validation.
+
+- [x] (proven) `PolicyPacksController.GetVersion` — route `packVersion` longer than 50 characters reached `TryGetVersionAsync` and returned HTTP 404 `PolicyPackVersionNotFound` instead of HTTP 400 (`PublishPolicyPackVersionRequestValidator.MaximumLength` not invoked on route read) — **hit 2026-08-27:** reject oversize version before workflow lookup; regression in `PolicyPacksControllerListScopeTests.GetVersion_returns_bad_request_when_pack_version_exceeds_max_length`.
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` — `manifestVersion` longer than 128 characters reached `SubmitApprovalRequestAsync` instead of HTTP 400 (`CreateGovernanceApprovalRequestValidator.MaximumLength` not invoked on this action) — **hit 2026-08-27:** reject oversize manifest version before workflow call (preview parity); regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_returns_bad_request_when_manifest_version_exceeds_max_length`.
+- [x] (proven) `GovernanceController.Activate` — `manifestVersion` longer than 128 characters reached `ActivateAsync` instead of HTTP 400 (`CreateGovernanceActivationRequestValidator.MaximumLength` not invoked on this action) — **hit 2026-08-27:** reject oversize manifest version before workflow call (preview/submit parity); regression in `GovernanceControllerRunHistoryScopeTests.Activate_returns_bad_request_when_manifest_version_exceeds_max_length`.
+- [ ] (candidate) `TenantErasureLegalHoldController.SetLegalHoldAsync` — past or present `untilUtc` returns HTTP 409 instead of HTTP 400 when tenant is in quarantine.
+- [ ] (candidate) `PolicyPacksController.PromoteCatalogEntry` — optional `version` bypasses publish/assign SemVer and max-length validation, surfacing HTTP 404 instead of HTTP 400.
+- [ ] (candidate) `TenantIntegrationsOperationsController.GetAsync` — tenant-wide Teams/Jira/AzureBoards/ServiceNow settings may inflate connector posture for foreign workspaces within the same tenant.
+
+2026-08-27 seed hunt #185: proved policy-pack version and governance submit/activate manifest max-length validation; reseeded legal-hold, catalog-promote version, and integrations-posture candidates.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 
