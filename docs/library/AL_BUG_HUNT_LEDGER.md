@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 78
-- **bugs-found:** 215
+- **hunts:** 79
+- **bugs-found:** 216
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — governance empty-guid runId returns 400
+- **last-bug:** 2026-08-27 — policy-pack simulate empty-guid runId returns 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2492,6 +2492,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreviewController.Preview` — body `runId = 00000000-0000-0000-0000-000000000000` reached `PreviewActivationAsync` and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** reject empty guid before service call; regression in `GovernancePreviewControllerUnitTests`.
 
 2026-08-27 seed hunt #161: proved governance empty-guid runId validation parity.
+
+- [x] (proven) `PolicyPacksController.Simulate` / `GovernanceController.Simulate` — body `runId = 00000000-0000-0000-0000-000000000000` passed whitespace guard and returned HTTP 404 run-not-found instead of HTTP 400 — **hit 2026-08-27:** reject empty guid after trim (scoped-run parity); regression in `PolicyPacksControllerSimulateTests` and `GovernanceControllerSimulateTests`.
+- [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` — route `runId = Guid.Empty` skipped scope preflight and returned HTTP 404 conflict-not-found instead of HTTP 400 — **hit 2026-08-27:** reject `Guid.Empty` before facade (`CreateRecurrenceSchedule` source-run parity); regression in `GovernanceStickinessControllerTests`.
+
+2026-08-27 seed hunt #162: proved simulate and merge-conflict empty-guid runId validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

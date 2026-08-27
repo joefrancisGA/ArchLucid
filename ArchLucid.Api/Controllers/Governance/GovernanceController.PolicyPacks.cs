@@ -73,6 +73,11 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
         }
 
+        if (Guid.TryParse(request.RunId.Trim(), out Guid runGuid) && runGuid == Guid.Empty)
+        {
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+        }
+
         if (request.Content is null)
         {
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);

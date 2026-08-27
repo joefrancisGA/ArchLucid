@@ -1551,6 +1551,26 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task ResolveFindingMergeConflict_returns_bad_request_when_run_id_is_empty_guid()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        ResolveFindingMergeConflictRequest request = new()
+        {
+            Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+        };
+
+        IActionResult action = await controller.ResolveFindingMergeConflict(
+            Guid.Empty,
+            "conflict-finding",
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task UpsertRealizedValueAttestation_returns_bad_request_when_attested_incidents_negative()
     {
         RealizedValueAttestationService attestationService = new(Mock.Of<ArchLucid.Persistence.Tenancy.ITenantSettingsRepository>());
