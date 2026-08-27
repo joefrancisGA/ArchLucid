@@ -5,6 +5,7 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
@@ -105,6 +106,14 @@ public sealed partial class GovernanceController(
 
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        return null;
+    }
+
+    private IActionResult? ValidateRouteGuid(Guid value, string fieldName)
+    {
+        if (!GovernanceQueryRequestValidationRules.IsUsableRequiredGuid(value))
+            return this.BadRequestProblem($"{fieldName} must not be an empty GUID.", ProblemTypes.ValidationFailed);
 
         return null;
     }

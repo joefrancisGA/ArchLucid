@@ -207,6 +207,11 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? routeIdProblem = ValidateRouteGuid(id, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

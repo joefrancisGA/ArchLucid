@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 85
-- **bugs-found:** 222
+- **hunts:** 86
+- **bugs-found:** 223
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — policy pack route empty-guid ids return 400
+- **last-bug:** 2026-08-27 — governance dry-run empty-guid policyPackId returns 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2521,6 +2521,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController` delete/duplicate/archive/assign/publish/version/catalog/simulate-bulk routes — `policyPackId`, `assignmentId`, or `policyPackCatalogEntryId = Guid.Empty` reached workflow lookup and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** `ValidateRouteGuid` + body empty-guid guards on catalog promote/demote (stickiness route parity); regression in `PolicyPacksControllerDuplicateDeleteScopeTests`.
 
 2026-08-27 seed hunt #168: proved policy pack route empty-guid id validation.
+
+- [x] (proven) `GovernanceController.DryRunPolicyPack` — route `policyPackId = Guid.Empty` reached `PolicyPackDryRunService.EvaluateAsync` and surfaced `PolicyPackNotFoundException` (HTTP 404) instead of HTTP 400 — **hit 2026-08-27:** `ValidateRouteGuid` before dry-run service call (policy-packs controller parity); regression in `GovernanceControllerSimulateTests`.
+
+2026-08-27 seed hunt #169: proved governance dry-run empty-guid policyPackId route validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

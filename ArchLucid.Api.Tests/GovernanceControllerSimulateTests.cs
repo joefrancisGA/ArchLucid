@@ -187,6 +187,28 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task DryRunPolicyPack_returns_bad_request_when_policy_pack_id_is_empty_guid()
+    {
+        Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            Guid.Empty,
+            new PolicyPackDryRunRequest
+            {
+                EvaluateAgainstRunIds = [Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D")],
+            },
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task DryRunPolicyPack_returns_bad_request_when_more_than_fifty_evaluate_against_run_ids()
     {
         Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
