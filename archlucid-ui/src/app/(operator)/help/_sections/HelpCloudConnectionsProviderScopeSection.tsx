@@ -12,7 +12,6 @@ import {
 } from "@/lib/cloud-connections-help-guide-content";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
