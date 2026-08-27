@@ -21,6 +21,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install pytest
+        run: python3 -m pip install pytest
+
       - name: Run assessment score consistency unit tests
         run: python3 -m pytest scripts/ci/tests/test_check_assessment_score_consistency.py -q
 
