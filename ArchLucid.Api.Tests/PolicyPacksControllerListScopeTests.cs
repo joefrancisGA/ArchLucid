@@ -15,7 +15,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Tenant preflight for <c>GET /v1/policy-packs</c> (ghost tenant must not return HTTP 200).
+///     Tenant preflight for policy pack reads and mutations (ghost tenant must not return HTTP 200).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class PolicyPacksControllerListScopeTests
@@ -95,5 +95,79 @@ public sealed class PolicyPacksControllerListScopeTests
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().BeAssignableTo<IReadOnlyList<PolicyPack>>();
+    }
+
+    [Fact]
+    public async Task GetPageBundle_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.GetPageBundle(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetEffective_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.GetEffective(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task Create_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.Create(
+            new CreatePolicyPackRequest
+            {
+                Name = "baseline",
+                Description = "desc",
+                PackType = "TenantCustom",
+                InitialContentJson = "{}",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    private static PolicyPacksController CreateSut(
+        Mock<IPolicyPackWorkflowFacade> workflow,
+        bool tenantExists)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                tenantExists
+                    ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" }
+                    : null);
+
+        return new PolicyPacksController(
+            workflow.Object,
+            new CreatePolicyPackRequestValidator(),
+            new PublishPolicyPackVersionRequestValidator(),
+            new AssignPolicyPackRequestValidator(),
+            scopeProvider.Object,
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
     }
 }

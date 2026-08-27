@@ -25,6 +25,11 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(PolicyPacksPageBundleResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPageBundle(CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         PolicyPacksPageBundleResponse body = await _workflow.GetPageBundleAsync(ct);
         return Ok(body);
     }
@@ -32,9 +37,14 @@ public sealed partial class PolicyPacksController
     /// <summary>Lists workspace policy packs with assignment ids for tenant opt-in/opt-out.</summary>
     [HttpGet("workspace-selection")]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPackWorkspaceSelectionItem>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<PolicyPackWorkspaceSelectionItem>>> ListWorkspaceSelection(
+    public async Task<IActionResult> ListWorkspaceSelection(
         CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IReadOnlyList<PolicyPackWorkspaceSelectionItem> rows = await _workflow.ListWorkspaceSelectionAsync(ct);
         return Ok(rows);
     }
@@ -190,6 +200,11 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetEffective(CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         EffectivePolicyPackSet effective = await _workflow.GetEffectiveAsync(ct);
 
         ScopeContext scope = HttpContext.RequestServices.GetRequiredService<IScopeContextProvider>().GetCurrentScope();
@@ -210,6 +225,11 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     public async Task<IActionResult> GetEffectiveContent(CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         PolicyPackContentDocument doc = await _workflow.GetEffectiveContentAsync(ct);
 
         ScopeContext scope = HttpContext.RequestServices.GetRequiredService<IScopeContextProvider>().GetCurrentScope();
