@@ -1302,11 +1302,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 7
-- **bugs-found:** 12
+- **hunts:** 8
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — markdown export surfaces omitted demo/trial safety notices
+- **last-hunt:** 2026-08-27
+- **last-bug:** 2026-08-27 — sponsor packet top decisions leaked other runs in project
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1326,9 +1326,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) HTML architecture review export omits active-trial notice — **hit 2026-08-25:** `BuildMinimalHtml` ignored `activeTrialExportNotice` while PDF/DOCX passed `ActiveTrialExportNoticeFormatter` output; aligned HTML with sibling formats (`GenerateReportAsync_html_includes_active_trial_notice_when_tenant_on_active_trial`).
 - [x] (proven) `RunSummaryOnePagerExportService.GenerateMarkdownAsync` omitted demo-tenant and active-trial safety labeling — **hit 2026-08-26:** one-pager markdown ignored `IsDemoTenant` and `ActiveTrialExportNoticeFormatter` while board PDF/DOCX/HTML embed them; fixed model/template plus tenant-scoped notice resolution (`RunSummaryOnePagerExportServiceTests.GenerateMarkdownAsync_includes_demo_and_active_trial_notices`, `RunSummaryOnePagerMarkdownRendererTests.Render_includes_demo_and_active_trial_notices`).
 - [x] (proven) `SponsorReviewPacketBuilder` / `SponsorReviewPacketComposer.ComposeMarkdown` omitted active-trial export notice — **hit 2026-08-26:** executive sponsor packet lacked trial watermark present on board PDF/DOCX paths; fixed with shared `ActiveTrialExportNoticeResolver` and `ExportSafetyNoticeMarkdown` (`SponsorReviewPacketBuilderTests.BuildMarkdownAsync_includes_active_trial_notice_when_tenant_on_trial`, `SponsorReviewPacketComposerTests.ComposeMarkdown_includes_active_trial_notice_when_provided`).
-- [ ] (candidate) `SponsorReviewPacketBuilder.BuildTopDecisionsAsync` — `GetRegisterAsync` is project-scoped with no `runId` filter; per-run executive packet may list decisions from other runs in the same project.
-- [ ] (candidate) `DecisionReceiptService.BuildForRunAsync` — uses `GetRunSummaryAsync` + manifest summary only; may omit `HasBrokenManifestReference` / `IsCommitted` guards used by sibling export services.
-- [ ] (candidate) `TenantReviewBoardCoverLogoStore.TryGetBytesAsync` — returns raw blob bytes without `ArchitectureReviewBoardCoverLogoValidator` re-check at export embed time (upload validates; read path does not).
+- [x] (proven) `SponsorReviewPacketBuilder.BuildTopDecisionsAsync` — `GetRegisterAsync` is project-scoped with no `runId` filter; per-run executive packet listed decisions from other runs — **hit 2026-08-27:** filter register rows by `entry.RunId` before composing top decisions (`SponsorReviewPacketBuilderTests.BuildMarkdownAsync_includes_only_decisions_for_the_requested_run`).
+- [x] (proven) `DecisionReceiptService.BuildForRunAsync` — used `GetRunSummaryAsync` + manifest summary only; omitted `HasBrokenManifestReference` / `IsCommitted` guards used by sibling export services — **hit 2026-08-27:** preflight via `IRunDetailQueryService` before manifest verdict lookup (`DecisionReceiptServiceTests`).
+- [x] (proven) `TenantReviewBoardCoverLogoStore.TryGetBytesAsync` — returned raw blob bytes without `ArchitectureReviewBoardCoverLogoValidator` re-check at export embed time — **hit 2026-08-27:** validate on read and return null for tampered payloads (`TenantReviewBoardCoverLogoStoreTests`).
 
 ---
 
