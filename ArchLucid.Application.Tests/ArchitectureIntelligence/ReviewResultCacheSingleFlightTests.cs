@@ -302,7 +302,7 @@ public sealed class ReviewResultCacheSingleFlightTests
         ClosedLoopReasoningResult waiterResult = await waiter;
 
         waiterResult.PublishedToProduct.Should().BeTrue();
-        waiterResult.ReviewCompleteBlocked.Should().BeTrue();
-        waiterResult.IntegrityPassedFindingIds.Should().Contain("finding-1");
+        waiterResult.ReviewCompleteBlocked.Should().BeFalse();
+        waiterResult.IntegrityPassedFindingIds.Should().BeEmpty();
     }
 }

@@ -228,6 +228,7 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         ClosedLoopReasoningResult result = new()
         {
             RunId = " abc-def ",
+            Model = new ArchitectureKnowledgeModel { RunId = " abc-def " },
             PublishedToProduct = true,
             PublishedFindingsSnapshotId = Guid.NewGuid(),
             PublishedRecommendationCount = 4,
@@ -281,6 +282,7 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         result.CacheHit.Should().BeFalse();
         result.CacheReuseReason.Should().BeNull();
         result.RunId.Should().Be("abcdef");
+        result.Model.RunId.Should().Be("abcdef");
         result.ReviewCompleteBlocked.Should().BeFalse();
         result.IntegrityPassedFindingIds.Should().BeEmpty();
         result.MustNotFailViolations.Should().BeEmpty();
