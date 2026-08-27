@@ -4,14 +4,14 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public sealed partial class ReviewResultCache
 {
-    public IDisposable PinScope(ReviewCacheDependencyManifest manifest)
+    public IReviewResultCachePinScope PinScope(ReviewCacheDependencyManifest manifest)
     {
         ArgumentNullException.ThrowIfNull(manifest);
 
         return new ReviewResultCachePinScope(this, ReviewCacheKeyBuilder.Build(manifest));
     }
 
-    public IDisposable PinScope(
+    public IReviewResultCachePinScope PinScope(
         ReviewCacheDependencyManifest primaryManifest,
         ReviewCacheDependencyManifest secondaryManifest)
     {

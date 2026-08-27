@@ -653,4 +653,67 @@ public sealed class ReviewResultCacheTests
         cache.TryGet(manifest, out ClosedLoopReasoningResult? evicted).Should().BeFalse();
         evicted.Should().BeNull();
     }
+
+    [Fact]
+    public void AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries()
+    {
+        ReviewResultCache cache = new();
+        List<ReviewCacheDependencyManifest> manifests = [];
+        List<string> storageKeys = [];
+
+        for (int index = 0; index < 64; index++)
+        {
+            ReviewCacheDependencyManifest manifest = new() { ContentHash = $"tombstone-cap-{index}" };
+            string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+            manifests.Add(manifest);
+            storageKeys.Add(storageKey);
+
+            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"run-{index}" });
+            cache.PinStorageKey(storageKey);
+            cache.InvalidateForRun($"run-{index}");
+        }
+
+        cache.UnpinStorageKey(storageKeys[0]);
+
+        ReviewCacheDependencyManifest newManifest = new() { ContentHash = "tombstone-cap-new" };
+        string newKey = ReviewCacheKeyBuilder.Build(newManifest);
+
+        cache.Set(newManifest, new ClosedLoopReasoningResult { RunId = "run-new" });
+        cache.PinStorageKey(newKey);
+        cache.InvalidateForRun("run-new");
+
+        cache.TryGet(manifests[1], out ClosedLoopReasoningResult? stillTombstoned).Should().BeFalse();
+        stillTombstoned.Should().BeNull();
+        cache.TryGet(newManifest, out ClosedLoopReasoningResult? newBlocked).Should().BeFalse();
+        newBlocked.Should().BeNull();
+    }
+
+    [Fact]
+    public void PinScope_reports_not_pinned_when_distinct_key_cap_reached()
+    {
+        ReviewResultCache cache = new();
+        List<IReviewResultCachePinScope> scopes = [];
+
+        for (int index = 0; index < 64; index++)
+        {
+            ReviewCacheDependencyManifest manifest = new() { ContentHash = $"pin-report-{index}" };
+
+            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"run-{index}" });
+
+            IReviewResultCachePinScope scope = cache.PinScope(manifest);
+
+            scope.IsPinned.Should().BeTrue();
+            scopes.Add(scope);
+        }
+
+        ReviewCacheDependencyManifest rejected = new() { ContentHash = "pin-report-overflow" };
+
+        using IReviewResultCachePinScope rejectedScope = cache.PinScope(rejected);
+
+        rejectedScope.IsPinned.Should().BeFalse();
+
+        foreach (IReviewResultCachePinScope scope in scopes)
+            scope.Dispose();
+    }
 }

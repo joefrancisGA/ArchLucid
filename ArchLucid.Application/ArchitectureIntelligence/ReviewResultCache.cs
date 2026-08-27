@@ -96,6 +96,7 @@ public sealed partial class ReviewResultCache : IReviewResultCache
                 return;
 
             EvictExpiredEntries();
+            PruneOrphanPinRefcounts();
 
             if (!_cache.ContainsKey(key)
                 && _cache.Count >= MaxEntries
@@ -156,13 +157,49 @@ public sealed partial class ReviewResultCache : IReviewResultCache
 
         while (_tombstoneOrder.Count >= MaxTombstonedRunIds)
         {
-            string oldest = _tombstoneOrder[0];
-            _tombstoneOrder.RemoveAt(0);
-            _deferredInvalidateRunIds.Remove(oldest);
+            if (!TryDropOldestTombstoneWithoutPinnedEntries())
+                return;
         }
 
         _deferredInvalidateRunIds.Add(normalizedRunId);
         _tombstoneOrder.Add(normalizedRunId);
+    }
+
+    private bool TryDropOldestTombstoneWithoutPinnedEntries()
+    {
+        for (int index = 0; index < _tombstoneOrder.Count; index++)
+        {
+            string candidate = _tombstoneOrder[index];
+
+            if (HasPinnedCacheEntriesForRunUnlocked(candidate))
+                continue;
+
+            _tombstoneOrder.RemoveAt(index);
+            _deferredInvalidateRunIds.Remove(candidate);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool HasPinnedCacheEntriesForRunUnlocked(string normalizedRunId)
+    {
+        foreach (KeyValuePair<string, CacheEntry> entry in _cache)
+        {
+            string? storedRunId = entry.Value.Result.RunId;
+
+            if (string.IsNullOrWhiteSpace(storedRunId))
+                continue;
+
+            if (!ClosedLoopRunIdComparer.Equals(storedRunId, normalizedRunId))
+                continue;
+
+            if (IsStorageKeyPinnedUnlocked(entry.Key))
+                return true;
+        }
+
+        return false;
     }
 
     private void RemoveTombstonedRunId(string normalizedRunId)
@@ -171,13 +208,6 @@ public sealed partial class ReviewResultCache : IReviewResultCache
             return;
 
         _tombstoneOrder.Remove(normalizedRunId);
-    }
-
-    internal static string BuildStorageKey(ReviewCacheDependencyManifest manifest)
-    {
-        ArgumentNullException.ThrowIfNull(manifest);
-
-        return ReviewCacheKeyBuilder.Build(manifest);
     }
 
     private bool IsRunIdTombstoned(string? runId)
