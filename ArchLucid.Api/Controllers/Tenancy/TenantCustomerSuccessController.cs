@@ -61,6 +61,13 @@ public sealed class TenantCustomerSuccessController(
         if (tenantError is not null)
             return tenantError;
 
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
+
         TenantHealthScoreRecord? row = await _customerSuccessRepository.GetHealthScoreAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
@@ -100,6 +107,13 @@ public sealed class TenantCustomerSuccessController(
 
         if (tenantError is not null)
             return tenantError;
+
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
 
         IReadOnlyList<OperatorNextBestActionItem> items =
             await _nextBestActionService.GetActionsAsync(cancellationToken).ConfigureAwait(false);

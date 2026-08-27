@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 119
-- **bugs-found:** 290
+- **hunts:** 120
+- **bugs-found:** 294
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — recurrence PATCH whitespace cron, baseline actor max-length, pre-commit synthetic severity, funnel workspace scope, disposition findingId mismatch
+- **last-bug:** 2026-08-27 — disposition tradeOffAcknowledgment drop, recurrence PATCH whitespace name, customer-success health-score/next-actions workspace scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2667,6 +2667,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` — route/body `findingId` mismatch silently used route id only — **hit 2026-08-27:** body/route equality guard before facade; strict-mock regression in `GovernanceStickinessControllerTests`.
 
 2026-08-27 thorough hunt #202: proved recurrence PATCH whitespace cron, baseline actor max-length, pre-commit synthetic severity range, customer-success funnel workspace scope, and disposition findingId mismatch guards.
+
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` — `tradeOffAcknowledgment` dropped when rebuilding request body caused HTTP 400 on Accepted dispositions — **hit 2026-08-27:** copy `TradeOffAcknowledgment` into normalized request; regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.UpdateRecurrenceSchedule` — whitespace-only PATCH `name` silently skipped update instead of HTTP 400 — **hit 2026-08-27:** `IsNullOrWhiteSpace` guard on PATCH name (cron parity); strict-mock regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `TenantCustomerSuccessController.GetHealthScoreAsync` / `GetNextBestActionsAsync` — out-of-scope workspace returned HTTP 200 empty payload instead of HTTP 404 — **hit 2026-08-27:** `ListWorkspacesAsync` membership check (funnel/stickiness parity); regression in `TenantCustomerSuccessControllerTests`.
+
+2026-08-27 seed hunt #203: reseeded zone from controller scan; proved disposition tradeOffAcknowledgment forwarding, recurrence PATCH whitespace name, and customer-success health-score/next-actions workspace scope.
+
+- [ ] (candidate) `GovernanceController` workflow mutations (`SubmitApprovalRequest`, `Approve`, `Reject`, `Promote`, `Activate`) — actor display name >200 may reach workflow/audit (`NVARCHAR(200)`) instead of HTTP 400 (baseline/cost-settings parity).
+- [ ] (candidate) `GovernanceStickinessController.RecordDisposition` / `RecordBulkDisposition` — undefined `disposition` ordinal may persist as string `"99"` instead of HTTP 400.
+- [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` — undefined `action` ordinal may return HTTP 204 without resolving members.
+- [ ] (candidate) `PolicyPacksController.Simulate` / `GovernanceController.Simulate` — padded `runId` length checked before trim (reject valid scoped GUID).
+- [ ] (candidate) `ManifestsController` route reads — `manifestVersion` max-length checked before trim (reject valid in-scope version).
+- [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` — validation failures surfaced as scope-miss HTTP 400 when findings are in scope.
+- [ ] (candidate) `CorePilotTeamChecklistController` — out-of-scope workspace returns HTTP 200/204 instead of HTTP 404.
+- [ ] (candidate) `TenantTrialController` / `TenantHomepageSettingsController` / digest preference controllers — actor identity >200 may audit-fail instead of HTTP 400.
+- [ ] (candidate) `TenantErasureLegalHoldController` — actor claims >200 may platform-audit-fail instead of HTTP 400.
+- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — out-of-scope workspace may persist feedback row instead of HTTP 404.
 
 2026-08-27 thorough hunt #195: proved recurrence cron max-length, risk-exception expiry guards, and submit/promote env-path validation; cheap-disproved draft freeTextIntent max-length candidate.
 

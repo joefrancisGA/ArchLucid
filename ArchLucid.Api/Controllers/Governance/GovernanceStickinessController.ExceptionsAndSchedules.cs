@@ -345,6 +345,11 @@ public sealed partial class GovernanceStickinessController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
+        if (request.Name is not null && string.IsNullOrWhiteSpace(request.Name))
+        {
+            return this.BadRequestProblem("Name is required.", ProblemTypes.ValidationFailed);
+        }
+
         if (request.Name is not null && request.Name.Length > 300)
         {
             return this.BadRequestProblem(

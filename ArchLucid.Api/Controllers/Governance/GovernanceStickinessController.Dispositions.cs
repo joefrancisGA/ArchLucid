@@ -60,6 +60,7 @@ public sealed partial class GovernanceStickinessController
             RunId = request.RunId,
             Disposition = request.Disposition,
             Rationale = request.Rationale,
+            TradeOffAcknowledgment = request.TradeOffAcknowledgment,
             RevisitDueUtc = request.RevisitDueUtc,
             EvidenceRequestText = request.EvidenceRequestText,
         };

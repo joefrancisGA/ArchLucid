@@ -1230,6 +1230,27 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task UpdateRecurrenceSchedule_returns_bad_request_when_name_is_whitespace()
+    {
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo);
+
+        UpdateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            Name = "   ",
+        };
+
+        IActionResult action = await controller.UpdateRecurrenceSchedule(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recurrenceRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CreateRiskException_returns_bad_request_when_expires_at_utc_is_in_the_past()
     {
         Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
@@ -1457,6 +1478,50 @@ public sealed class GovernanceStickinessControllerTests
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordDisposition_persists_accepted_disposition_with_trade_off_acknowledgment()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        RecordFindingDispositionRequest? captured = null;
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<RecordFindingDispositionRequest, ScopeContext, string, CancellationToken>(
+                (request, _, _, _) => captured = request)
+            .ReturnsAsync(new FindingDispositionEventDto { FindingId = "finding-1" });
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "accepted with documented trade-off",
+            TradeOffAcknowledgment = "accepting latency trade-off for lower cost",
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        captured.Should().NotBeNull();
+        captured!.TradeOffAcknowledgment.Should().Be("accepting latency trade-off for lower cost");
     }
 
     [Fact]
