@@ -190,6 +190,13 @@ public static class AgentExecutionCompositionModule
                             services,
                             useAzureOpenAi,
                             useEchoClient);
+
+                        if (!useAzureOpenAi && !useEchoClient)
+                        {
+                            AgentCompletionPipelineCompositionModule.RegisterSchemaRemediationClient(
+                                services,
+                                useAzureOpenAi: false);
+                        }
                     }
 
                 }
