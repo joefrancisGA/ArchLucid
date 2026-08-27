@@ -1834,7 +1834,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 111
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — Bicep inline `//` comment in scalar values
+- **last-bug:** 2026-08-27 — kubernetes-json top-level resource array
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1976,6 +1976,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SimpleTerraformResourceBlockParser` preserved inline `#` comments in scalar values — **hit 2026-08-26:** `location = "eastus" # primary` false-modified infra declaration deltas; fixed with `StripTrailingHclComment` before unquoting (`SimpleTerraformDeclarationParserTests.ParseAsync_InlineHashComment_DoesNotChangeTfLocation`).
 - [x] (proven) `JsonInfrastructureDeclarationParser` accepted only `{ "resources": [...] }` shape — **hit 2026-08-26:** top-level resource array `[{ "type": "vnet", ... }]` returned zero resources; fixed by parsing root arrays (`JsonInfrastructureDeclarationParserTests.ParseAsync_TopLevelResourceArray_MapsVnet`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` early-return on `Microsoft.Resources/deployments` dropped child `resources[]` — **hit 2026-08-26:** nested VNet inside deployment wrapper returned zero resources; fixed by recursing into deployment children before return (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_DeploymentWrapperChildren_MapsNestedVnet`).
+- [x] (proven) `KubernetesJsonInfrastructureDeclarationParser.ParseAsync` accepted only single-object root documents — **hit 2026-08-27:** top-level manifest array `[{ "kind": "Deployment", ... }, { "kind": "Service", ... }]` returned zero resources (unlike `kind: List` wrapper and unlike proven `json` top-level array fix); fixed by expanding root arrays before `KubernetesManifestCanonicalObjectMapper.MapDocuments` (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_TopLevelResourceArray_MapsMultipleKinds`).
+
+- [ ] (candidate) `ArmJsonInfrastructureDeclarationParser.TryAddResource` — non-deployment parent `resources[]` (e.g. VNet nested subnets) silently dropped; only deployment-wrapper children are recursed today.
+- [ ] (candidate) `BicepResourceBodyParser.ParseBodyIntoProperties` — `/* */` block comments parsed as scalar assignments, emitting phantom `tf.*` properties from comment text.
+- [ ] (candidate) `BicepResourceBodyParser.UnquoteScalar` — inline `/* */` after scalar values pollutes `tf.*` canonical values (HCL `#` comment parity missing for Bicep).
+- [ ] (candidate) `CanonicalTfJsonSerializer.WriteValue` — array element order preserved verbatim, so semantically identical `tf.*` array reorderings false-modify infrastructure declaration deltas.
+
+2026-08-27 seed hunt #56: proved kubernetes-json top-level resource array; seeded ARM nested-child, Bicep block-comment, Bicep inline-block-comment, and tf-array-order candidates.
 
 2026-08-26 seed hunt #55: reseeded simple-terraform headers/nested blocks/comments / JSON top-level array / ARM deployment children; proved all five hunt-ready rows.
 
@@ -2237,11 +2245,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 102
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-<<<<<<< HEAD
-- **last-bug:** 2026-08-27 — governance coverage ghost tenant 404
-=======
 - **last-bug:** 2026-08-27 — policy-packs list ghost tenant 404
->>>>>>> origin/cursor/api-governance-policy-packs-list-tenant-2cd9
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2367,21 +2371,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePostureController.GetPosture` — ghost tenant returned HTTP 200 empty posture instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync` (dashboard/customer-success parity); regression in `GovernancePostureControllerTests.GetPosture_returns_not_found_when_tenant_missing`.
 - [x] (proven) `GovernanceController.GetComplianceDriftTrend` — ghost tenant returned HTTP 200 empty trend instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync` (dashboard parity); regression in `GovernanceControllerDashboardTests.GetComplianceDriftTrend_returns_not_found_when_tenant_missing`.
 
-<<<<<<< HEAD
 - [x] (proven) `GovernanceResolutionController.Resolve` — ghost tenant returned HTTP 200 default resolution instead of 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` before resolver/audit (dashboard parity); regression in `GovernanceResolutionControllerTests.Resolve_returns_not_found_when_tenant_missing`.
 - [x] (proven) `GovernanceCoverageController.GetScopeCoverage` — ghost tenant returned HTTP 200 empty coverage instead of 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (dashboard/posture parity); regression in `GovernanceCoverageControllerScopeTests.GetScopeCoverage_returns_not_found_when_tenant_missing`.
-- [ ] (candidate) `PolicyPacksController.List` — ghost tenant returns HTTP 200 empty catalog instead of 404.
-
-2026-08-27 thorough hunt #120: proved governance-resolution ghost tenant 404; coverage/list ghost-tenant candidates remain.
-
-2026-08-26 thorough hunt #119: proved governance coverage ghost tenant 404; resolution/list ghost-tenant candidates remain.
-=======
 - [x] (proven) `PolicyPacksController.List` — ghost tenant returned HTTP 200 empty catalog instead of 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (posture/dashboard parity); regression in `PolicyPacksControllerListScopeTests`.
-- [ ] (candidate) `GovernanceResolutionController.Resolve` — ghost tenant returns HTTP 200 default resolution instead of 404.
-- [ ] (candidate) `GovernanceCoverageController.GetScopeCoverage` — ghost tenant returns HTTP 200 empty coverage instead of 404.
 
-2026-08-27 thorough hunt #116: proved policy-packs list ghost tenant 404; resolution/coverage list ghost-tenant candidates remain open (fixes in flight on separate branches).
->>>>>>> origin/cursor/api-governance-policy-packs-list-tenant-2cd9
+2026-08-27 thorough hunt #120: proved governance-resolution ghost tenant 404.
+
+2026-08-27 thorough hunt #116: proved policy-packs list ghost tenant 404.
+
+2026-08-26 thorough hunt #119: proved governance coverage ghost tenant 404.
 
 2026-08-26 thorough hunt #112: proved compliance-drift-trend ghost tenant 404; cheap-disproved four stale seed candidates (dashboard tenant 404, dry-run batch semantics, simulate-bulk batch semantics, convert-trial tier validation); seeded posture/resolution/coverage/policy-packs list ghost-tenant parity candidates.
 
