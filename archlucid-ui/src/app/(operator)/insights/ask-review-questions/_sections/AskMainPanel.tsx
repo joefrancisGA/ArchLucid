@@ -15,7 +15,7 @@ import {
 } from "@/lib/ask-question-checklist";
 import { BUYER_ASK_SYNTHETIC_SAMPLE_HINT } from "@/lib/buyer/buyer-polish-copy";
 import type { ConversationMessage } from "@/types/conversation";
-import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AskCompareReviewsCollapsible } from "@/app/(operator)/insights/ask-review-questions/_sections/AskCompareReviewsCollapsible";
 import { AskMessageThreadPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskMessageThreadPanel";
 import { AskQuestionForm } from "@/app/(operator)/insights/ask-review-questions/_sections/AskQuestionForm";
@@ -82,6 +82,8 @@ export function AskMainPanel(props: AskMainPanelProps) {
     askCitationActionFollowUps,
     showPostAssistantFollowUps,
     retrievalDegraded = false,
+    hideRunPicker = false,
+    clearScopeHref,
   } = props;
 
   const reviewPicked = runId.trim().length > 0;
@@ -118,19 +120,32 @@ export function AskMainPanel(props: AskMainPanelProps) {
     <Card className="border-neutral-200 dark:border-neutral-700">
       <CardContent className="space-y-4 p-4">
         <div className="grid gap-3">
-          <div className="max-w-md">
-            <AskRunIdPicker
-              value={runId}
-              onChange={onRunIdChange}
-              selectedThreadId={selectedThreadId}
-              fieldId="ask-run-primary"
-              label="Review"
-              syntheticSampleHint={BUYER_ASK_SYNTHETIC_SAMPLE_HINT}
-              preferAutoPick={false}
-              autoSelectSyntheticSample={false}
-            />
-          </div>
-          <AskReviewScopeStrip runId={runId} buyerPolishedShell={buyerPolishedShell} />
+          {hideRunPicker ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="ask-review-scoped-target"
+            >
+              Review: <span className="font-mono text-al-text-primary">{runId}</span>
+            </p>
+          ) : (
+            <div className="max-w-md">
+              <AskRunIdPicker
+                value={runId}
+                onChange={onRunIdChange}
+                selectedThreadId={selectedThreadId}
+                fieldId="ask-run-primary"
+                label="Review"
+                syntheticSampleHint={BUYER_ASK_SYNTHETIC_SAMPLE_HINT}
+                preferAutoPick={false}
+                autoSelectSyntheticSample={false}
+              />
+            </div>
+          )}
+          <AskReviewScopeStrip
+            runId={runId}
+            buyerPolishedShell={buyerPolishedShell}
+            clearScopeHref={clearScopeHref}
+          />
           {hideCompareChrome ? null : (
             <div className="space-y-2">
               <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>

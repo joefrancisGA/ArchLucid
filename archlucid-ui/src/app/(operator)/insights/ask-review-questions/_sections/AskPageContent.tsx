@@ -83,6 +83,8 @@ export function AskPageContent() {
           <AskMainPanel
             runId={ask.runId}
             onRunIdChange={ask.setRunId}
+            hideRunPicker
+            clearScopeHref={ASK_REVIEW_QUESTIONS_PATH}
             selectedThreadId={ask.selectedThreadId}
             buyerPolishedShell={ask.buyerPolishedShell}
             hideCompareChrome={ask.hideCompareChrome}

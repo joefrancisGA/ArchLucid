@@ -18,6 +18,7 @@ import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@
 export type AskReviewScopeStripProps = {
   readonly runId: string;
   readonly buyerPolishedShell: boolean;
+  readonly clearScopeHref?: string;
 };
 
 /** Compact review context above the question input. */
@@ -39,6 +40,11 @@ export function AskReviewScopeStrip(props: AskReviewScopeStripProps) {
         {packageLabel}
       </p>
       <p className={cn("m-0 flex flex-wrap gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
+        {props.clearScopeHref !== undefined ? (
+          <Link className={OPERATOR_LINK.nav} href={props.clearScopeHref}>
+            Clear review scope
+          </Link>
+        ) : null}
         <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${encodeURIComponent(canonical)}`}>
           Open review
         </Link>
