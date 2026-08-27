@@ -142,7 +142,14 @@ public sealed class ManifestsControllerTests
                 evidenceRepo.Object,
                 diagramService.Object,
                 scopeProvider.Object,
-                runs.Object)
+                runs.Object,
+                Mock.Of<ArchLucid.Core.Tenancy.ITenantRepository>(repository => repository.GetByIdAsync(
+                    CallerScope.TenantId,
+                    It.IsAny<CancellationToken>()) == Task.FromResult<ArchLucid.Core.Tenancy.TenantRecord?>(new ArchLucid.Core.Tenancy.TenantRecord
+                    {
+                        Id = CallerScope.TenantId,
+                        Name = "contoso",
+                    })))
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };

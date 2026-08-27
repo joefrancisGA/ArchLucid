@@ -19,6 +19,11 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         return manifest is null
             ? this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound)
@@ -32,6 +37,11 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
@@ -53,6 +63,11 @@ public sealed partial class ManifestsController
         [FromQuery] string? groupBy = GroupByDefault,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
@@ -86,6 +101,11 @@ public sealed partial class ManifestsController
         [FromQuery] int? maxRelationships = null,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
@@ -174,6 +194,11 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
@@ -194,6 +219,11 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
