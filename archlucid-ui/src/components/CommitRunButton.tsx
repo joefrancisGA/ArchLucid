@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { commitArchitectureRun, getRunSummary } from "@/lib/api";
+import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
 import { readAcknowledgedAssumptionIds } from "@/lib/review-quality/review-assumption-ack-store";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -27,7 +28,9 @@ import {
   recordFirstFinalizationAttemptedOnce,
   recordFirstTenantFunnelEvent,
 } from "@/lib/first-tenant-funnel-telemetry";
+import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
 import { resolvePreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-block-problem";
+import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   FINALIZE_REPLAY_COMPARE_NOTE,
@@ -81,6 +84,8 @@ export function CommitRunButton({
         acknowledgedAssumptionIds: [...readAcknowledgedAssumptionIds(runId)],
       });
       recordFirstTenantFunnelEvent("first_run_committed");
+      syncArchitectureDraftRegistryForFinalizedReview(runId);
+      await Promise.all([invalidateOperatorHomeRunsCaches(), invalidateTenantTrialStatusCache()]);
       setDialogOpen(false);
       
       try {

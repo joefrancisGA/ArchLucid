@@ -170,16 +170,15 @@ function deriveRegistryCustomerStatus(
     registryStatus: options.customerStatus,
   });
 
-  if (fieldBasedStatus === "ready-for-review") {
-    return "ready-for-review";
+  if (
+    fieldBasedStatus === "review-linked" ||
+    fieldBasedStatus === "archived" ||
+    fieldBasedStatus === "ready-for-review"
+  ) {
+    return fieldBasedStatus;
   }
 
-  if (
-    draft.status === "Admitted" ||
-    draft.status === "Submitted" ||
-    draft.status === "RunSpawned" ||
-    draft.status === "Redirected"
-  ) {
+  if (draft.status === "Admitted" || draft.status === "Submitted") {
     return "ready-for-review";
   }
 
