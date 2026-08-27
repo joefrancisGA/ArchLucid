@@ -123,7 +123,7 @@ public sealed class SelfServiceTrialAbusePolicyTests
             claimSource: "trial",
             CancellationToken.None);
 
-        // IdentityEmailNormalizer keys are lower-invariant; repository lookups are Ordinal.
+        // IdentityEmailNormalizer keys are lower-invariant; repository email lookups are case-insensitive (SQL PK parity).
         (await repository.HasEmailClaimAsync("user@example.com", CancellationToken.None)).Should().BeTrue();
         (await repository.CountDomainClaimsSinceAsync("example.com", DateTimeOffset.UtcNow.AddDays(-1), CancellationToken.None))
             .Should()

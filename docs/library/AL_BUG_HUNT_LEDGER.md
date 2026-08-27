@@ -1656,11 +1656,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 3
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-27
+- **last-bug:** 2026-08-27 — `InMemorySelfServiceTrialAbuseRepository` case-variant email claims bypassed lifetime cap vs SQL CI PK
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1674,6 +1674,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DapperAuthenticationIdentityRepository.ReEnableAsync` threw on filtered unique-index violation — **hit 2026-08-24:** re-enabling a disabled identity while another active row held the same external key surfaced `SqlException` 2601/2627 instead of returning `false` like `InMemoryAuthenticationIdentityRepository`.
 - [x] (proven) `InMemoryPlatformTenantAuthRecoveryGrantRepository.RevokeAsync` was not idempotent — **hit 2026-08-24:** second revoke returned `true` while Dapper only updates rows with `RevokedUtc IS NULL`, masking double-revoke regressions in dev/test.
 - [x] (proven) `InMemoryTenantSignInEmailDomainRepository.UpdateAsync` could reassign domains across tenants — **hit 2026-08-24:** update keyed only by `NormalizedDomain`, unlike Dapper's `(TenantId, NormalizedDomain)` predicate, so a mismatched tenant id silently hijacked sign-in routing in memory hosts.
+- [x] (proven) `InMemorySelfServiceTrialAbuseRepository` email claim keys — case-variant `NormalizedEmail` (`USER@EXAMPLE.COM` vs `user@example.com`) stored as separate Ordinal dictionary entries so `HasEmailClaimAsync` missed existing claims and `TryInsertEmailClaimAsync` allowed duplicate lifetime-cap bypass vs SQL CI primary key — **hit 2026-08-27:** `_emailClaims` uses `StringComparer.OrdinalIgnoreCase`; regression in `HasEmailClaimAsync_matches_case_insensitive_like_sql_primary_key` and `TryInsertEmailClaimAsync_is_idempotent_for_case_variant_emails`.
+- [ ] (hunt-ready) `InMemoryEmailOtpChallengeRepository.InvalidateActiveChallengesForEmailAsync` + `TryCompleteAsync` — concurrent invalidate + complete on same email → stale challenge completes or completed row clobbered by invalidate snapshot; invalidate iterates `_byId` without `_completionLock` while `TryCompleteAsync` serializes only the complete path (`InMemoryEmailOtpChallengeRepository.cs` L122–216).
+- [ ] (hunt-ready) `InMemoryPlatformUserRepository.InsertAsync` — duplicate explicit `PlatformUserInsert.Id` silently overwrites existing user row; Dapper throws PK violation (`InMemoryPlatformUserRepository.cs` L38).
+- [x] (invalid) Identity migration review multi-reason per legacy source blocked by SQL 2-column UQ — migration `284_IdentityMigrationReviewItems_ReasonPerLegacySource.sql` adds `(LegacySourceType, LegacySourceId, ReasonCode)` unique key matching InMemory composite key and Dapper MERGE.
+- [x] (invalid) Caching tenant sign-in domain / IdP configuration decorators missing write eviction — `CachingTenantSignInEmailDomainRepository` and `CachingTenantIdentityProviderConfigurationRepository` invalidate on insert/update/upsert; covered by `CachingSecondaryReferenceDataRepositoryTests`.
+
+2026-08-27 seed hunt #167: proved trial-abuse email claim case-collision parity gap; reseeded email-OTP invalidate/complete race and platform-user duplicate-id overwrite candidates; retired migration-UQ and caching-eviction false leads.
 
 ---
 

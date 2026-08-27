@@ -9,6 +9,54 @@ namespace ArchLucid.Persistence.Tests.Identity;
 public sealed class InMemorySelfServiceTrialAbuseRepositoryCoverageTests
 {
     [Fact]
+    public async Task HasEmailClaimAsync_matches_case_insensitive_like_sql_primary_key()
+    {
+        InMemorySelfServiceTrialAbuseRepository sut = new();
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        await sut.TryInsertEmailClaimAsync(
+            new SelfServiceTrialEmailClaimInsert
+            {
+                NormalizedEmail = "user@example.com",
+                TenantId = tenantId,
+                ClaimSource = "trial",
+                ClaimedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        (await sut.HasEmailClaimAsync("USER@EXAMPLE.COM", CancellationToken.None)).Should().BeTrue();
+        (await sut.HasEmailClaimForTenantAsync("USER@EXAMPLE.COM", tenantId, CancellationToken.None)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task TryInsertEmailClaimAsync_is_idempotent_for_case_variant_emails()
+    {
+        InMemorySelfServiceTrialAbuseRepository sut = new();
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        await sut.TryInsertEmailClaimAsync(
+            new SelfServiceTrialEmailClaimInsert
+            {
+                NormalizedEmail = "USER@EXAMPLE.COM",
+                ClaimSource = "trial",
+                ClaimedUtc = now,
+            },
+            CancellationToken.None);
+
+        await sut.TryInsertEmailClaimAsync(
+            new SelfServiceTrialEmailClaimInsert
+            {
+                NormalizedEmail = "user@example.com",
+                ClaimSource = "trial-repeat",
+                ClaimedUtc = now,
+            },
+            CancellationToken.None);
+
+        (await sut.HasEmailClaimAsync("user@example.com", CancellationToken.None)).Should().BeTrue();
+        (await sut.HasEmailClaimAsync("USER@EXAMPLE.COM", CancellationToken.None)).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task HasEmailClaimForTenantAsync_matches_tenant_id_on_stored_claim()
     {
         InMemorySelfServiceTrialAbuseRepository sut = new();
