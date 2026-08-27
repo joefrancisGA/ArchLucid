@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
@@ -42,7 +43,8 @@ public sealed partial class ManifestsController(
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IManifestDiagramService manifestDiagramService,
     IScopeContextProvider scopeContextProvider,
-    IRunRepository runRepository)
+    IRunRepository runRepository,
+    ITenantRepository tenantRepository)
     : ControllerBase
 {
     private const string FormatMarkdown = "markdown";
@@ -58,4 +60,18 @@ public sealed partial class ManifestsController(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        return null;
+    }
 }
