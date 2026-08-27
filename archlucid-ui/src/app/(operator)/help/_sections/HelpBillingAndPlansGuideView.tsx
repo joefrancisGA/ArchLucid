@@ -17,12 +17,6 @@ import { BillingAndPlansHelpClaimDisciplineStrip } from "@/components/help/Billi
 import { BillingAndPlansHelpEvidenceOrientationStrip } from "@/components/help/BillingAndPlansHelpEvidenceOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
@@ -42,7 +36,6 @@ import { operatorPageContainerClass } from "@/components/operator/OperatorPageCo
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
 } from "@/lib/design-tokens";
@@ -222,27 +215,24 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
             <HelpSectionHeading id="support">Support</HelpSectionHeading>
-            <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-billing-support-card">
-              <CardHeader className={OPERATOR_CARD.header}>
-                <CardTitle as="h2" className={cn("text-base", HELP_PAGE_LAYOUT.sectionH3)}>
-                  Billing support
-                </CardTitle>
-                <p className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>
-                  {BILLING_HELP_SUPPORT_INTRO}
-                </p>
-              </CardHeader>
-              <CardContent className={OPERATOR_CARD.content}>
-                <Button asChild size="sm" variant="outline">
-                  <a href={BILLING_HELP_SUPPORT_ACTION.href}>{BILLING_HELP_SUPPORT_ACTION.label}</a>
-                </Button>
-                <Link
-                  href="/administration/billing"
-                  className={cn("mt-3 inline-block", OPERATOR_BODY_INLINE_LINK_CLASS)}
-                >
-                  Open Billing and plans
-                </Link>
-              </CardContent>
-            </Card>
+            <div
+              className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+              data-testid="help-billing-support-card"
+            >
+              <h2 className={cn("m-0", HELP_PAGE_LAYOUT.sectionH3)}>Billing support</h2>
+              <p className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>
+                {BILLING_HELP_SUPPORT_INTRO}
+              </p>
+              <Button asChild size="sm" variant="outline">
+                <a href={BILLING_HELP_SUPPORT_ACTION.href}>{BILLING_HELP_SUPPORT_ACTION.label}</a>
+              </Button>
+              <Link
+                href="/administration/billing"
+                className={cn("inline-block", OPERATOR_BODY_INLINE_LINK_CLASS)}
+              >
+                Open Billing and plans
+              </Link>
+            </div>
           </section>
 
           <BillingAndPlansHelpEvidenceOrientationStrip />

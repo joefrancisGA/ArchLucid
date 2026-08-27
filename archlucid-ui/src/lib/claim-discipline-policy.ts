@@ -84,6 +84,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "help-path-chooser",
   "help-preferences",
   "help-recurrence-schedules",
+  "help-review-guide",
   "help-roi-summary",
   "help-search-review-evidence",
   "help-servicenow-integration",

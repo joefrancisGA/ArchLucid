@@ -19,7 +19,6 @@ import { HelpAzurePermissionsVerificationPanel } from "@/app/(operator)/help/_se
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AZURE_CLOUD_CONNECTION_CANNOT_DO,
   AZURE_CLOUD_CONNECTION_CUSTOM_ROLE_READ_ACTIONS,
@@ -57,7 +56,6 @@ import {
 } from "@/lib/azure-cloud-connection-permissions-copy";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -314,18 +312,17 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <Card>
-              <CardHeader className={OPERATOR_CARD.header}>
-                <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>Not collected</CardTitle>
-              </CardHeader>
-              <CardContent className={OPERATOR_CARD.content}>
-                <ul className={HELP_PAGE_LAYOUT.bulletList}>
-                  {AZURE_CLOUD_CONNECTION_DATA_NOT_COLLECTED.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            <div
+              className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+              data-testid="azure-permissions-not-collected-panel"
+            >
+              <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Not collected</h3>
+              <ul className={HELP_PAGE_LAYOUT.bulletList}>
+                {AZURE_CLOUD_CONNECTION_DATA_NOT_COLLECTED.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
           </section>
 
           <section

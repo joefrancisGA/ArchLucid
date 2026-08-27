@@ -5,13 +5,13 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { ReviewGuideHelpClaimDisciplineStrip } from "@/components/help/ReviewGuideHelpClaimDisciplineStrip";
 import { ReviewGuideHelpHeaderAsOfLine } from "@/components/help/ReviewGuideHelpHeaderAsOfLine";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
 import {
-  DESIGN_TOKENS,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -100,12 +100,7 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
         <HelpTopicExportClaimDiscipline claimDiscipline={REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE} />
       </OperatorPageHeader>
 
-      <aside
-        className={cn(DESIGN_TOKENS.callout.warn, "p-3 print:border print:border-neutral-400")}
-        data-testid="help-review-guide-claim-discipline"
-      >
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE}</p>
-      </aside>
+      <ReviewGuideHelpClaimDisciplineStrip />
 
       <div className={REVIEW_GUIDE_CONTENT_GRID}>
         <div className="min-w-0 space-y-6">

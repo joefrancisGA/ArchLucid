@@ -81,6 +81,7 @@ describe("claim-discipline-policy", () => {
     expect(expectsVisibleClaimDisciplineBand("help-sponsor-report")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-engineering-troubleshooting")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-getting-started")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-review-guide")).toBe(false);
   });
 
   it("has no duplicate omit slugs", () => {

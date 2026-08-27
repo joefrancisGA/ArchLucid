@@ -71,7 +71,7 @@ describe("Review guide (HR)", () => {
 
     expect(screen.getByTestId("help-review-guide-page-title")).toHaveTextContent("Review guide");
     expect(screen.getByTestId("help-review-guide-provenance")).toHaveTextContent("Source: REVIEW_GUIDE.md");
-    expect(screen.getByTestId("help-review-guide-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId("help-review-guide-claim-discipline-strip")).toHaveTextContent(
       REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE,
     );
     expect(screen.getByTestId("help-review-guide-content").textContent).not.toContain(
