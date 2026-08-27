@@ -117,11 +117,31 @@ public sealed partial class ManifestsController
                 Error = this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed)
             };
 
+        if (leftVersion.Length > 128)
+        {
+            return new LoadedManifestPair
+            {
+                Error = this.BadRequestProblem(
+                    "ManifestVersion must not exceed 128 characters.",
+                    ProblemTypes.ValidationFailed)
+            };
+        }
+
         if (string.IsNullOrWhiteSpace(rightVersion))
             return new LoadedManifestPair
             {
                 Error = this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed)
             };
+
+        if (rightVersion.Length > 128)
+        {
+            return new LoadedManifestPair
+            {
+                Error = this.BadRequestProblem(
+                    "ManifestVersion must not exceed 128 characters.",
+                    ProblemTypes.ValidationFailed)
+            };
+        }
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

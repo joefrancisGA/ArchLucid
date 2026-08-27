@@ -266,6 +266,33 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task GetManifest_returns_bad_request_when_manifest_version_exceeds_max_length()
+    {
+        Mock<IUnifiedGoldenManifestReader> reader = new(MockBehavior.Strict);
+        ManifestsController controller = CreateController(manifestReader: reader.Object);
+
+        IActionResult action = await controller.GetManifest(new string('v', 129), CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        reader.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CompareManifests_returns_bad_request_when_left_version_exceeds_max_length()
+    {
+        Mock<IUnifiedGoldenManifestReader> reader = new(MockBehavior.Strict);
+        ManifestsController controller = CreateController(manifestReader: reader.Object);
+
+        IActionResult action =
+            await controller.CompareManifests(new string('v', 129), RightVersion, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        reader.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetManifest_returns_trimmed_version_in_not_found_message_when_route_is_padded()
     {
         const string missingVersion = "missing";
