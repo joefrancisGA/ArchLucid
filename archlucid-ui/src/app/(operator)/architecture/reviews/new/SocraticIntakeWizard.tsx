@@ -34,6 +34,7 @@ import {
   GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD,
   guidedIntakeClarificationsAnsweredCounter,
   GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
+  resolveGuidedIntakeClarificationsDoneLabel,
 } from "@/lib/guided-intake-copy";
 import {
   DraftIntakeDecisionReceiptCard,
@@ -423,7 +424,7 @@ export function SocraticIntakeWizard() {
               }}
               data-testid="socratic-questions-done"
             >
-              {busy ? "Saving answers…" : "Review answers"}
+              {resolveGuidedIntakeClarificationsDoneLabel(allClarificationsHandled, busy)}
             </Button>
           </div>
         </div>
