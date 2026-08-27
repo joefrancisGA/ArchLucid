@@ -226,11 +226,11 @@ export function useAskPage() {
 
       if (thread?.runId) {
         const canonicalRunId = canonicalizeDemoRunId(thread.runId);
+        const scopeRunId =
+          urlRunIdRaw.length > 0 ? canonicalizeDemoRunId(urlRunIdRaw) : canonicalRunId;
 
-        if (urlRunIdRaw.length === 0) {
-          router.replace(askReviewQuestionsHref({ runId: canonicalRunId }), { scroll: false });
-          setRunId(canonicalRunId);
-        }
+        router.replace(askReviewQuestionsHref({ runId: scopeRunId }), { scroll: false });
+        setRunId(scopeRunId);
       } else if (urlRunIdRaw.length === 0) {
         setRunId("");
       }
