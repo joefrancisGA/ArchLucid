@@ -77,6 +77,8 @@ public sealed class GovernanceWorkflowSubmitStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(targetEnvironment);
         ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
 
+        manifestVersion = manifestVersion.Trim();
+
         if (!GovernanceEnvironmentOrder.IsValidPromotion(sourceEnvironment, targetEnvironment))
         {
             throw new InvalidOperationException(

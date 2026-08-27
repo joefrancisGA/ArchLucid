@@ -5,6 +5,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
@@ -141,6 +142,60 @@ public sealed class GovernanceWorkflowServiceTests
     }
 
     // â”€â”€ Submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    [SkippableFact]
+    public async Task SubmitApprovalRequest_accepts_padded_manifest_version_when_manifest_is_in_scope()
+    {
+        Mock<IUnifiedGoldenManifestReader> manifests = new(MockBehavior.Strict);
+        manifests
+            .Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GoldenManifest
+            {
+                RunId = "run-1",
+                SystemName = "Sys",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow }
+            });
+
+        GovernanceWorkflowService sut = GovernanceWorkflowTestComposition.CreateService(
+            _approvalRepo.Object,
+            _promotionRepo.Object,
+            _activationRepo.Object,
+            _runDetailQueryService.Object,
+            _baselineAudit.Object,
+            _durableAudit.Object,
+            Mock.Of<IScopeContextProvider>(s => s.GetCurrentScope() == new ScopeContext
+            {
+                TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            }),
+            _integrationEvents.Object,
+            _integrationOutbox.Object,
+            _integrationEventOptions.Object,
+            Options.Create(new PreCommitGovernanceGateOptions()),
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            manifests.Object);
+
+        _runDetailQueryService
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
+
+        GovernanceApprovalRequest result = await sut.SubmitApprovalRequestAsync(
+            "run-1",
+            "  v1  ",
+            "dev",
+            "test",
+            "alice",
+            null,
+            null,
+            dryRun: true);
+
+        result.ManifestVersion.Should().Be("v1");
+        manifests.VerifyAll();
+    }
 
     [SkippableFact]
     public async Task SubmitApprovalRequest_RunExists_CreatesSubmittedRequest()
