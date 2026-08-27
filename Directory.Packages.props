@@ -27,7 +27,7 @@
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.1" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-    <PackageVersion Include="FsCheck" Version="3.3.2" />
+    <PackageVersion Include="FsCheck" Version="3.4.0" />
     <PackageVersion Include="FsCheck.Xunit" Version="3.3.2" />
     <!-- JsonPointer.Net (net10) needs Humanizer.Core 3.x; WireMock Handlebars 2.5.2 pinned Humanizer 2.14 — bump helpers (see test csproj refs). -->
     <PackageVersion Include="Handlebars.Net" Version="2.1.6" />
