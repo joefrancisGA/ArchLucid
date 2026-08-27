@@ -59,6 +59,7 @@ When the operator clicks **Suggest answers from evidence** (or auto-inference ru
 - Prefer a **deterministic synthesis** from structured document lines over pasting the first keyword hit.
 - If synthesis and rephrase both fail the quality gate, **leave the field empty** and keep the existing “we could not suggest…” helper. Never paste table headers or figure captions.
 - Simulator must return `{ answers: [...] }` shaped JSON for rephrase, same pattern as overview rewrite.
+- **Fill every L0 MUST question the evidence actually supports** — not only the first actors hit. The button copy promises that. Today the model never sees unanswered questions.
 
 ---
 
@@ -213,6 +214,64 @@ Behavior:
 
 Pass `isSimulator` into the hook or the panel; do not invent a second execution-mode reader.
 
+### 8. Fill the other seven clarifications (coverage — owner follow-up)
+
+The same Start review session showed **0 of 8 answered** and only clarification 1 on screen. Two bugs stack:
+
+**A. The UI hides and ignores drafts.** `QuickStartL0MustQuestionsPanel` counts a row as handled only after **Save and continue** or **Skip** (`isQuickStartClarificationHandled`). Prefills do not increment the meter. Default view is `primaryPendingQuestion` only — the other seven are behind `Show all N remaining clarifications`. So even a filled Azure select or a FinOps sentence is invisible, and the section still says `0 of 8`.
+
+**B. The “AI” never answers empty questions.** `inferUniversalIntakeAnswersFromCorpus` is a per-key regex / first-chunk grab. Rephrase is called **only for keys that already inferred**. Empty keys are never sent to the model. `l0.pillar.sustainability` has **no inferrer at all** (`INFERENCE_BY_QUESTION_KEY` omits it).
+
+The attached file is the platform handbook (`ARCHITECTURE_HANDBOOK.*.docx`, same spine as `docs/architecture/architecture_handbook/ARCHITECTURE_HANDBOOK.generated.md`). That text **does** support more than actors:
+
+| Key | Handbook evidence (do not invent beyond this) | Why today’s path misses |
+|---|---|---|
+| `l0.actor.additional-kinds` | §1 Actors table | Flatten + first `operators` hit (screenshot) |
+| `l0.pillar.reliability` | §22 DR drill: “record actual RTO vs targets”; geo failover | First-sentence grab; heading/runbook lines |
+| `l0.pillar.security` | Trust edges, Entra ID / JWT, private endpoints, “trust boundary” in security chapters | Regex is PII/PCI/HIPAA-centric; misses Entra / managed identity / private endpoint unless those exact tokens appear |
+| `l0.pillar.cost` | §20 FinOps and capacity drivers; “budget gates” | May paste the heading `FinOps and capacity drivers` |
+| `l0.pillar.operations` | §21 Observability map; operators + Worker | May paste a heading (`OTel / metrics`) |
+| `l0.pillar.performance` | Capacity / scale language is thin | `\bscale\b` is easy to miss or over-match; no synthesis |
+| `l0.pillar.sustainability` | Often none — idle / retention / utilization rarely stated | **No function registered** — always empty |
+| `l0.pillar.cloud-target` | Repeated “Azure-first”, Front Door, APIM, Azure SQL | Should infer `Azure` unless Azure and AWS tie → `null` |
+
+Do **not** treat “empty is fine” as done if the corpus clearly answers the question.
+
+#### 8a. Deterministic coverage (Simulator-safe, always run first)
+
+- Add `inferSustainabilityAnswer`. If the corpus has no utilization / idle / retention / sustainability language, return a grounded `None for this lifecycle stage.` **only** when the text says there is no such expectation **or** when the question’s own examples allow “none” **and** the corpus has no conflicting efficiency language. If unsure, return `null` (operator skips). Do not invent a green story.
+- Broaden pillar matchers with handbook-real tokens, still grounded:
+  - reliability: geo failover, failover group, paired region, zone redundant (in addition to RTO/RPO/uptime)
+  - security: Entra, managed identity, private endpoint, Key Vault, trust edge / trust boundary
+  - cost: FinOps, capacity drivers, SKU, spend kill / budget gate (do not paste the heading alone — take the following prose sentence)
+  - operations: observability, Application Insights, OpenTelemetry / OTel, on-call
+  - performance: autoscale, concurrent, latency, throughput, capacity
+  - cloud: count `Azure-first`, Front Door, APIM, Azure SQL as Azure signal so a handbook that never writes the bare word “AWS” still resolves `Azure`
+- Skip heading-only chunks (`# 20. FinOps…`, `## Diagram —`). Prefer the next prose line.
+- Apply the same quality gate as actors. A heading is not an answer.
+
+Use a **handbook-shaped fixture** (newline-preserving excerpt of generated handbook §1 actors + assumptions Azure-first + trust edges + FinOps heading+first prose + observability + DR RTO line). Assert quality-gated fills for actors, reliability, security **or** operations, cost, and cloud-target `Azure`. Sustainability may be `null` or an explicit none — never a dump.
+
+#### 8b. Answer remaining empty keys from the corpus (Real path)
+
+Regex-first will still miss. After deterministic inference, if Real LLM is allowed (`blocksLlmRephrase !== true` and not Simulator-blocked):
+
+- Send **every still-empty** MUST question (including sustainability) plus a **bounded corpus** (existing extract, already capped by `DocumentTextExtractionLimits.MaxOutputCharacters`) to a completion that returns `{ answers: [{ questionKey, rephrasedAnswer }] }` for those keys only.
+- Reuse `ClarificationAnswerRephraseService` by passing `extractedAnswer` = relevant snippet **or** a short “no deterministic snippet; answer only from this corpus” bundle per question — **or** add a sibling `ClarificationAnswerFromEvidence` method on the same service if stuffing the whole handbook into `extractedAnswer` would violate the “use only facts in extractedAnswer” prompt. Prefer one JSON shape and one Simulator marker family.
+- Prompt: answer only from the provided corpus; 1–3 sentences; yes/no first when asked; if the corpus does not support the question, **omit the key** (do not guess).
+- Gate every returned answer. Never apply a dump.
+- Simulator fake client: for empty-key items, return answers only when the user prompt’s corpus/excerpt obviously contains the fact (Azure-first → cloud `Azure`; RTO line → reliability). Omit sustainability if the excerpt has no efficiency language.
+
+Do not call this pass when the corpus is shorter than `UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS`.
+
+#### 8c. Show drafts so “AI filled nothing” is not a lie
+
+In `QuickStartL0MustQuestionsPanel`:
+
+- After suggestions apply (`inferredQuestionKeys.size > 0`), open **Show all remaining** (or equivalent) so the operator sees every prefills, not only question 1.
+- Meter: keep Save/Skip as the official “answered or marked unknown” count, **and** add a second honest line when drafts exist, e.g. `3 suggested from evidence — review and save each`. Do not claim 3 of 8 complete until Save/Skip.
+- Cloud-target select must show the inferred `Azure` / `Aws` / `Gcp` / `None` value when that key was suggested.
+
 ---
 
 ## Tests (required)
@@ -232,6 +291,8 @@ Add/extend — do not weaken existing assertions.
   - flattened single-line dump of the same table does **not** become the prefilled answer (either synthesized cleanly or omitted)
 - `clarification-answer-rephrase-api.test.ts`: merge does not reinstate a dump when rephrase omits the key
 - Panel/hook tests if you change helper visibility: Simulator shows the unused-until-now Real-LLM helper; “rewritten in plain language” is absent when rephrase did not run
+- Handbook excerpt fixture: at least actors + cloud-target `Azure` + one of reliability/cost/operations infer without dumps; sustainability does not throw and is omitted or explicit none
+- Panel: inferred drafts do not increment “N of 8 answered”; a suggested-count line appears; view-all opens or all suggested fields are visible after suggest
 
 **xUnit**
 
@@ -252,6 +313,8 @@ Add/extend — do not weaken existing assertions.
 5. Helper copy does not claim a plain-language rewrite when none occurred.
 6. Existing `SAMPLE_BRIEF` inference test and cloud-target enum behavior stay green.
 7. New units: high coverage, no `ConfigureAwait(false)` in tests.
+8. A handbook-shaped excerpt fills **more than actors** (at least cloud-target Azure plus one pillar) without dumps. Sustainability is handled explicitly (inferrer exists; omit or none — never crash).
+9. After suggest, the operator can see every suggested field without hunting. The 0-of-8 meter does not treat unsaved drafts as complete.
 
 Verify:
 
@@ -283,7 +346,7 @@ If those filter names do not match new test class names, filter on the names you
 ## Implementation notes (Composer)
 
 - Explain briefly before coding: what, why, alternatives (empty field vs synthesis vs LLM-only).
-- Start with the quality gate + newline preservation + actor synthesis. That alone stops the screenshot bug. Then fallback + Simulator stub + copy.
+- Start with the quality gate + newline preservation + actor synthesis. That alone stops the screenshot dump. Then fallback + Simulator stub + copy. Then §8 coverage (deterministic pillars + empty-key LLM + draft visibility) so the other seven questions are not silently skipped.
 - Check working-tree safety before editing tracked files (`scripts/agent/check-working-tree-path.ps1` on Windows).
 - Stage only files you changed for this task.
 - If you need a non-allowlisted model, stop and ask. Default is Composer 2.5 slow.
