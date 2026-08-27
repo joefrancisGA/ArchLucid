@@ -5,6 +5,12 @@
       "selectedOption": "Accepted",
       "title": "Auth-1",
       "rationale": "Authenticate users"
+    },
+    {
+      "category": "Requirement",
+      "selectedOption": "CloseCoverageGap",
+      "title": "Some requirements are not related to any topology resources",
+      "rationale": "Requirement coverage is incomplete because some requirements do not relate to architecture resources in the graph."
     }
   ]
 }

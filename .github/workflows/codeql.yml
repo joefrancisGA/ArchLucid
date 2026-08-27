@@ -16,12 +16,9 @@ env:
   ARCHLUCID_UI_DIR: archlucid-ui
 
 concurrency:
-  group: codeql-${{ github.ref }}
-  # Never cancel. Master receives frequent direct pushes, and each new push used to cancel the
-  # in-flight scan, so CodeQL never reached a conclusion on the trunk (runs 33024224390,
-  # 33024378118, 33024399626 were each cancelled the second the next push landed). An
-  # event_name expression here did not stop it, so this is set to a literal.
-  # Trade-off: runs queue instead of coalescing, which costs Actions minutes but keeps every scan honest.
+  # Per-commit group: cancel-in-progress=false alone still evicts the single pending slot when
+  # trunk churn is high (GitHub allows one running + one pending per group). See CODEQL_TRIAGE.md.
+  group: codeql-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:

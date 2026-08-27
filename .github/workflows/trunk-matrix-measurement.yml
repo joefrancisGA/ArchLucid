@@ -1,0 +1,40 @@
+# Measures assemblies outside the master push corset (see scripts/ci/run_trunk_matrix_measurement.sh).
+# Does not replace full ci.yml workflow_dispatch — quantifies the gap between corset-green and full-matrix.
+name: Trunk matrix measurement
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "37 9 * * 1"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: trunk-matrix-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  measure:
+    name: ".NET: trunk matrix measurement"
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore and build Active slnf
+        run: dotnet build ArchLucid.Active.slnf -c Release
+
+      - name: Run trunk matrix measurement script
+        run: bash scripts/ci/run_trunk_matrix_measurement.sh | tee trunk-matrix-measurement.log
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trunk-matrix-measurement-log
+          path: trunk-matrix-measurement.log
+          retention-days: 14

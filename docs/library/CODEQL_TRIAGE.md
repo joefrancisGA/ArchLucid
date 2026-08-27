@@ -129,13 +129,9 @@ gh run view <run-id> --json jobs \
   | python3 -c "import json,sys; [print(j['name'],'->',j['conclusion']) for j in json.load(sys.stdin)['jobs']]"
 ```
 
-**Known failure mode (found 2026-08-27, fixed):** `CodeQL (javascript)` died in the **"Install and build UI"** step on an `npm ci` **ERESOLVE**, while `CodeQL (csharp)` succeeded. Every one of the **8** `failure` conclusions among the then-latest 25 runs was this same error. The cause was `openapi-typescript@7.13.0` declaring `peer typescript@"^5.x"` against the repo's `typescript@7.0.2`.
+**Fix (2026-08-27):** set `group: codeql-${{ github.sha }}` (and the same pattern on `ui-typecheck-on-push.yml`) so each commit gets its own concurrency group and every push can complete. Trade-off: more Actions minutes on a busy trunk, in exchange for every commit actually being analyzed.
 
-**Why it matters for triage:** for the duration of that window, **JavaScript/TypeScript analysis produced no results at all**. An empty `js/*` alert list meant "the analyzer never started," not "no findings." Resolved by `archlucid-ui/.npmrc` (`legacy-peer-deps=true`); see `docs/architecture/ui_dependency_assessment.md` for the upstream unblock condition.
-
-**Generalize the lesson:** whenever `js/*` alerts vanish across a release, verify the `javascript` job **completed** before concluding the code improved. Any dependency change that can break `npm ci` can silently disable this control.
-
-Note also that **cancelled** runs (`concurrency: cancel-in-progress`) produce no SARIF. A high cancellation rate on a busy trunk means most pushes get no security analysis at all — a scheduling problem, not a triage problem. See [`CODEQL_MERGE_AND_LOCAL.md`](CODEQL_MERGE_AND_LOCAL.md) for branch-protection wiring.
+**Prior misconfiguration:** `cancel-in-progress: false` on `group: codeql-${{ github.ref }}` was insufficient — GitHub allows **one running + one pending** job per group (`queue: single` default), and `cancel-in-progress` protects only the running job. A newly queued run **always evicts** the pending one. On a trunk at 70–106 pushes/hour, nearly every run was evicted from the pending slot before starting, which is why cancelled runs had **zero jobs**. Alternative fix: `queue: max` (up to 100 pending; cannot combine with `cancel-in-progress: true`).
 
 ---
 

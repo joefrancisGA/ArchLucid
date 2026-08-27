@@ -90,6 +90,6 @@ public sealed class GoldenCorpusRegressionTests
         string dump = Path.Combine(caseDir, fileName + ".actual");
         await File.WriteAllTextAsync(dump, actualContent);
 
-        actualContent.Should().Be(expected, $"golden mismatch; actual written to {dump}");
+        actualContent.Should().Be(expected, because: $"golden mismatch; actual written to {dump}");
     }
 }

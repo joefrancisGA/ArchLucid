@@ -18,6 +18,26 @@
     ]
   },
   {
+    "findingId": "6a6693fc-daa2-f35f-2df0-d5809f3ec9ad",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "r1",
+      "s1",
+      "t1"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
     "findingId": "58437214-b9a6-96b2-c5a3-5c55b19f06b7",
     "findingType": "RequirementFinding",
     "category": "Requirement",
@@ -37,6 +57,26 @@
     ]
   },
   {
+    "findingId": "f775f055-1f21-3ab3-c38a-c0eeafe73059",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "r1",
+      "s1",
+      "t1"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
     "findingId": "559f4ed9-96fa-c7c5-ff40-ba73e1239950",
     "findingType": "SecurityControlFinding",
     "category": "Security",
@@ -53,6 +93,25 @@
     ],
     "decisionsTaken": [
       "Included topology targets linked via PROTECTS edges in explainability scope."
+    ]
+  },
+  {
+    "findingId": "d3216ad8-3acf-72d7-730b-501ffdceb238",
+    "findingType": "SecurityGap",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Missing security baseline \u0027MFA\u0027 still declares PROTECTS edges",
+    "rationale": "A baseline marked missing should not claim topology protection scope.",
+    "relatedNodeIds": [
+      "s1",
+      "t1"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "security-gap-missing-baseline-with-protects"
+    ],
+    "decisionsTaken": [
+      "Detected security traceability gap: Security baseline \u0027MFA\u0027 is missing but protects 1 resources."
     ]
   },
   {

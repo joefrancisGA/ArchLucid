@@ -18,6 +18,24 @@
     ]
   },
   {
+    "findingId": "d6754d9d-404c-3a55-519c-d760247b1351",
+    "findingType": "SecurityGap",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Security baseline \u0027TLS-1\u0027 protects no topology resources",
+    "rationale": "No PROTECTS edge links this security baseline to any graph node.",
+    "relatedNodeIds": [
+      "s1"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "security-gap-security-baseline-without-protects"
+    ],
+    "decisionsTaken": [
+      "Detected security traceability gap: Security baseline \u0027TLS-1\u0027 is isolated from topology resources."
+    ]
+  },
+  {
     "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",

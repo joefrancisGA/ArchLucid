@@ -30,7 +30,7 @@
       "description": "Golden corpus merge slice \u2014 deterministic description text.",
       "systemName": "GoldenMergeSystem",
       "environment": "prod",
-      "cloudProvider": 1,
+      "cloudProvider": "Azure",
       "constraints": [
         "HTTPS only"
       ],
@@ -55,7 +55,8 @@
       "workflowIntent": null,
       "modelExecutionProfileOverride": null,
       "modelAliasOverride": null,
-      "effectiveModelAliasId": null
+      "effectiveModelAliasId": null,
+      "priorRunId": null
     },
     "agentResults": [
       {
@@ -98,7 +99,7 @@
         },
         "reasoningTrace": null,
         "citations": null,
-        "createdUtc": "2026-08-21T18:53:20.5792083Z",
+        "createdUtc": "2026-08-27T02:32:31.2248865Z",
         "retrievalGroundingTrace": null,
         "degradationReasonCode": null,
         "taskStructuralExecutionMode": null,
