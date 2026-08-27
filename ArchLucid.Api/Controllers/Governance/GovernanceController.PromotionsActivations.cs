@@ -114,6 +114,13 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.Notes is not null && request.Notes.Length > 4000)
+        {
+            return this.BadRequestProblem(
+                "Notes must not exceed 4000 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         string promotedBy = actorContext.GetActor();
 
         try

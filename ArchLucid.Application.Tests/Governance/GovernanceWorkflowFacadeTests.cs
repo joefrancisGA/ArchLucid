@@ -61,6 +61,61 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequestAsync_normalizes_uppercase_environments_on_dry_run()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new(MockBehavior.Strict);
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        GovernanceWorkflowFacade sut = CreateFacade(approvalRepo.Object, runDetail: runDetail.Object);
+
+        GovernanceApprovalRequest result = await sut.SubmitApprovalRequestAsync(
+            "run-1",
+            "v1",
+            "DEV",
+            "TEST",
+            "alice",
+            null,
+            null,
+            dryRun: true);
+
+        result.SourceEnvironment.Should().Be("dev");
+        result.TargetEnvironment.Should().Be("test");
+        approvalRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task PromoteAsync_normalizes_uppercase_environments_on_dry_run()
+    {
+        Mock<IGovernancePromotionRecordRepository> promotionRepo = new(MockBehavior.Strict);
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            promotionRepo: promotionRepo.Object,
+            runDetail: runDetail.Object);
+
+        GovernancePromotionRecord result = await sut.PromoteAsync(
+            "run-1",
+            "v1",
+            "DEV",
+            "TEST",
+            "alice",
+            null,
+            null,
+            dryRun: true,
+            verbosePromotionValidationErrors: false);
+
+        result.SourceEnvironment.Should().Be("dev");
+        result.TargetEnvironment.Should().Be("test");
+        promotionRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task ApproveAsync_throws_self_approval_when_reviewer_matches_requester()
     {
         GovernanceApprovalRequest request = new()

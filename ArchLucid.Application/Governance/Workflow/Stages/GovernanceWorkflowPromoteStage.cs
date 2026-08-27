@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
@@ -82,6 +83,8 @@ public sealed class GovernanceWorkflowPromoteStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(targetEnvironment);
         ArgumentException.ThrowIfNullOrWhiteSpace(promotedBy);
 
+        sourceEnvironment = GovernanceEnvironmentNames.NormalizeOrThrow(sourceEnvironment, nameof(sourceEnvironment));
+        targetEnvironment = GovernanceEnvironmentNames.NormalizeOrThrow(targetEnvironment, nameof(targetEnvironment));
         manifestVersion = manifestVersion.Trim();
 
         ArchitectureRunDetail runDetail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)

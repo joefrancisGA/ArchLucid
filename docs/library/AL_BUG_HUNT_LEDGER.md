@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 107
-- **bugs-found:** 254
+- **hunts:** 108
+- **bugs-found:** 256
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — Submit/Preview env validation and approval comment max-length guards
+- **last-bug:** 2026-08-27 — Promote notes max-length and workflow env normalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2605,8 +2605,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.SubmitApprovalRequest` — `requestComment` longer than 4000 characters reached workflow instead of HTTP 400 (`CreateGovernanceApprovalRequestValidator.MaximumLength` not invoked) — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_returns_bad_request_when_request_comment_exceeds_max_length`.
 - [x] (proven) `GovernanceController.Approve` / `Reject` — `reviewComment` longer than 4000 characters reached workflow instead of HTTP 400 (`ApproveGovernanceRequestValidator` / `RejectGovernanceRequestValidator` not invoked) — **hit 2026-08-27:** controller max-length guard on both review endpoints; regression in `GovernanceControllerRunHistoryScopeTests.Approve_returns_bad_request_when_review_comment_exceeds_max_length`.
 - [x] (proven) `GovernancePreviewController.Preview` — invalid/whitespace `environment` reached `PreviewActivationAsync` instead of HTTP 400 at controller (`CreateGovernancePreviewRequestValidator` not invoked; runId/manifestVersion already guarded) — **hit 2026-08-27:** `GovernanceEnvironmentValidation` guard before service call; regression in `GovernancePreviewControllerUnitTests`.
-- [ ] (candidate) `GovernanceController.Promote` — `notes` longer than 4000 characters may reach workflow without controller guard (`CreateGovernancePromotionRequestValidator.MaximumLength` not invoked on this action).
-- [ ] (candidate) `GovernanceWorkflowSubmitStage` / `GovernanceWorkflowPromoteStage` — persist `sourceEnvironment`/`targetEnvironment` without lower-case normalization (Activate stage now normalizes via `GovernanceEnvironmentNames`).
+- [x] (proven) `GovernanceController.Promote` — `notes` longer than 4000 characters reached `PromoteAsync` instead of HTTP 400 (`CreateGovernancePromotionRequestValidator.MaximumLength` not invoked) — **hit 2026-08-27:** controller max-length guard (Submit `requestComment` parity); regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_bad_request_when_notes_exceed_max_length`.
+- [x] (proven) `GovernanceWorkflowSubmitStage` / `GovernanceWorkflowPromoteStage` — `sourceEnvironment`/`targetEnvironment` persisted with caller casing (e.g. `DEV`/`TEST`) while Activate normalizes to lowercase — **hit 2026-08-27:** `GovernanceEnvironmentNames.NormalizeOrThrow` before persist; regression in `GovernanceWorkflowFacadeTests`.
+
+2026-08-27 thorough hunt #191: proved Promote notes max-length guard and Submit/Promote workflow env normalization; zone candidate backlog cleared.
 
 2026-08-27 seed hunt #190: proved Submit/Preview env validation and approval comment max-length guards; reseeded Promote notes and workflow env-normalization candidates.
 
