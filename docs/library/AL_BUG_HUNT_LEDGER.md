@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 48
-- **bugs-found:** 156
+- **hunts:** 49
+- **bugs-found:** 168
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — promote/activate, run-history reads, and governance policy-pack ghost-tenant 404 parity
+- **last-bug:** 2026-08-27 — manifest read/export/compare ghost-tenant 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
