@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 73
-- **bugs-found:** 203
+- **hunts:** 74
+- **bugs-found:** 204
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `GovernanceCoverageController` foreign `workspaceId` returned HTTP 200 instead of workspace 404
+- **last-bug:** 2026-08-27 — `TenantCustomerSuccessController` foreign `workspaceId` returned HTTP 200 instead of workspace 404
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2456,8 +2456,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (hunt-ready) `PolicyPacksController.Assign` / `PolicyPackManagementService.AssignAsync` — project-scoped JWT + body `scopeLevel: "Tenant"` (or `"Workspace"`) → HTTP 200 tenant-wide (or workspace-wide) assignment row with `WorkspaceId`/`ProjectId` zeroed, affecting resolution for sibling workspaces/projects; controller forwards body `ScopeLevel` without matching ambient scope tier (`PolicyPacksController.cs` L174–181, `PolicyPackManagementService.cs` L207–214).
 - [x] (proven) `GovernancePostureController.GetPosture` — valid tenant + `workspaceId` not in `ListWorkspacesAsync` → HTTP 200 empty `ArchitecturePostureSummary` instead of workspace 404 (`TenantWorkspacesController` / setup-guide parity); only `GetByIdAsync` tenant preflight, no `TenantWorkspaceScopePreflight` — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight; regression in `GetPosture_returns_not_found_when_workspace_missing`.
 - [x] (proven) `GovernanceCoverageController.GetScopeCoverage` / `PreviewCoverage` — ghost workspace in JWT → HTTP 200 empty coverage/preview payload instead of workspace 404; tenant preflight only (`GovernanceCoverageController.cs` L53–76) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight; regression in `GetScopeCoverage_returns_not_found_when_workspace_missing` and `PreviewCoverage_returns_not_found_when_workspace_missing`.
-- [ ] (hunt-ready) `TenantCustomerSuccessController` GET reads (`GetHealthScoreAsync`, `GetFunnelSnapshotAsync`, `GetStickinessSnapshotAsync`) — ghost workspace → HTTP 200 `isCalculated: false` or zeroed funnel/signals instead of workspace 404; `EnsureTenantExistsAsync` checks tenant row only (`TenantCustomerSuccessController.cs` L59–62, L131–134).
+- [x] (proven) `TenantCustomerSuccessController` GET reads (`GetHealthScoreAsync`, `GetFunnelSnapshotAsync`, `GetStickinessSnapshotAsync`) — ghost workspace → HTTP 200 `isCalculated: false` or zeroed funnel/signals instead of workspace 404; `EnsureTenantExistsAsync` checks tenant row only (`TenantCustomerSuccessController.cs` L59–62, L131–134) — **hit 2026-08-27:** `TenantWorkspaceScopePreflight` on all customer-success reads (including next-actions and product-feedback POST); regression in `GetHealthScoreAsync_returns_not_found_when_workspace_missing`, `GetFunnelSnapshotAsync_returns_not_found_when_workspace_missing`, and `GetStickinessSnapshotAsync_returns_not_found_when_workspace_missing`.
 - [ ] (hunt-ready) `GovernanceStickinessController.GetDecisionRegister` — `recordedAfterUtc` > `recordedBeforeUtc` (or `minConfidence` > `maxConfidence`) → HTTP 200 empty register instead of HTTP 400; query filters forwarded to `ArchitectureDecisionRegisterReader` SQL with no controller validation (`GovernanceStickinessController.Registers.cs` L156–170, `ArchitectureDecisionRegisterReader.cs` L164–186).
+
+2026-08-27 thorough hunt #154: proved customer-success foreign-workspace preflight gap (governance-read parity).
 
 2026-08-27 thorough hunt #153: proved governance-coverage foreign-workspace preflight gap (posture/setup parity).
 
