@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Core.Audit;
@@ -141,6 +143,39 @@ public sealed class TenantCostSettingsControllerTests
         repository.Verify(
             r => r.UpsertAsync(It.IsAny<TenantCostSettingsRecord>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_bad_request_when_actor_identity_exceeds_max_length()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        ClaimsIdentity identity = new(
+            [new Claim(ClaimTypes.Name, new string('a', 201))],
+            authenticationType: "Test");
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) }
+        };
+
+        TenantCostSettingsPutRequest body = new()
+        {
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 30_000m
+        };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repository.VerifyNoOtherCalls();
     }
 
     [Fact]

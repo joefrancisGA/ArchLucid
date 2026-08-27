@@ -1439,6 +1439,27 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_one_finding_id_exceeds_max_length()
+    {
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1", new string('f', 201)],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk"
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task RecordBulkDisposition_returns_bad_request_when_more_than_fifty_finding_ids()
     {
         GovernanceStickinessController controller = BuildSut();

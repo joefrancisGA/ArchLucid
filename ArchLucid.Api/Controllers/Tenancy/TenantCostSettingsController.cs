@@ -34,6 +34,8 @@ public sealed class TenantCostSettingsController(
     IOptions<ValueReportComputationOptions> computationOptions,
     ITenantRepository tenantRepository) : ControllerBase
 {
+    private const int MaxActorIdentityLength = 200;
+
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     private readonly IAuditService _auditService =
@@ -106,6 +108,14 @@ public sealed class TenantCostSettingsController(
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         string actor = User.Identity?.Name ?? "operator";
+
+        if (actor.Length > MaxActorIdentityLength)
+        {
+            return this.BadRequestProblem(
+                "Actor identity must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         DateTimeOffset updatedUtc = TimeProvider.System.GetUtcNow();
 
         TenantCostSettingsRecord record = new()
