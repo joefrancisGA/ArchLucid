@@ -6,6 +6,7 @@ import { HelpEngineeringTroubleshootingRunbookOverview } from "@/app/(operator)/
 import { HelpEngineeringTroubleshootingSourceLinks } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingSourceLinks";
 import { HelpEngineeringTroubleshootingSymptomIndex } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingSymptomIndex";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { EngineeringTroubleshootingHelpClaimDisciplineStrip } from "@/components/help/EngineeringTroubleshootingHelpClaimDisciplineStrip";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorSeverityCallout } from "@/components/help/OperatorSeverityCallout";
@@ -103,6 +104,8 @@ export function HelpEngineeringTroubleshootingGuideView(
         }
       />
 
+      <EngineeringTroubleshootingHelpClaimDisciplineStrip />
+
       <HelpEngineeringTroubleshootingSymptomIndex />
 
       <OperatorSeverityCallout
@@ -147,13 +150,17 @@ export function HelpEngineeringTroubleshootingGuideView(
         </ul>
       </section>
 
-      <div
-        className={cn(DESIGN_TOKENS.callout.info, "space-y-2 p-3")}
+      <section
+        className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
         data-testid="help-engineering-troubleshooting-action-panel"
+        aria-labelledby="help-engineering-troubleshooting-action-panel-heading"
       >
-        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        <h2
+          id="help-engineering-troubleshooting-action-panel-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
           {ENGINEERING_TROUBLESHOOTING_HELP_ACTION_PANEL_TITLE}
-        </p>
+        </h2>
         <div className="flex flex-wrap items-center gap-2">
           <Button asChild size="sm" variant="primary" data-testid="help-engineering-troubleshooting-primary-cta">
             <Link href={ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.jumpToSymptomLookup.href}>
@@ -190,7 +197,7 @@ export function HelpEngineeringTroubleshootingGuideView(
             {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCliUsage.label}
           </Link>
         </div>
-      </div>
+      </section>
 
       {showSectionNav ? (
         <HelpTopicTableOfContents headings={headings} placement="header-inline" />

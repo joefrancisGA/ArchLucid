@@ -38,6 +38,7 @@ import { HelpGettingStartedGuideView } from "@/app/(operator)/help/_sections/Hel
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA } from "@/lib/golden-sponsor-package-walkthrough";
 import {
+  GETTING_STARTED_HELP_CLAIM_DISCIPLINE,
   GETTING_STARTED_HELP_DIAGRAM_SOURCE,
   GETTING_STARTED_HELP_PATH,
   GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES,
@@ -45,6 +46,7 @@ import {
   GETTING_STARTED_HELP_SOURCES,
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE,
 } from "@/lib/getting-started-help-guide-content";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_DEFAULT_VIEW_COPY = [
@@ -93,8 +95,15 @@ describe("HelpGettingStartedGuideView", () => {
     render(<HelpGettingStartedGuideView entry={entry} />);
 
     expect(screen.queryByTestId("help-getting-started-sources")).toBeNull();
-    expect(screen.getByTestId("help-getting-started-claim-discipline")).toHaveTextContent(
-      /Orientation only|CPA SOC 2|third-party pen/i,
+    expect(screen.queryByTestId("help-getting-started-claim-discipline")).toBeNull();
+    expect(screen.getByTestId("help-getting-started-claim-discipline-strip")).toHaveTextContent(
+      GETTING_STARTED_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-getting-started",
+      "help-getting-started-claim-discipline",
+      GETTING_STARTED_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByTestId("help-getting-started-orientation-status")).toHaveTextContent("Orientation only");
 
