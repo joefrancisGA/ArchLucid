@@ -88,15 +88,13 @@ public static class ReviewCacheManifestBuilder
         builder.Append("golden=").Append(request.UseGoldenFixture ? '1' : '0').Append('|');
         builder.Append("alias=").Append(ClosedLoopModelAliasIdNormalizer.NormalizeForHash(request.ModelAliasId)).Append('|');
 
-        if (!string.IsNullOrWhiteSpace(request.RunId))
+        string? normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeOptional(request.RunId);
+
+        if (!string.IsNullOrWhiteSpace(normalizedRunId))
         {
             builder.Append("modelfp=")
                 .Append(ReviewCacheModelFingerprint.Compute(baselineKnowledgeModel ?? new ArchitectureKnowledgeModel()))
                 .Append('|');
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.RunId))
-        {
             builder.Append("ledgerfp=")
                 .Append(ReviewCacheLedgerFingerprint.Compute(technologyLedgerEntries))
                 .Append('|');
