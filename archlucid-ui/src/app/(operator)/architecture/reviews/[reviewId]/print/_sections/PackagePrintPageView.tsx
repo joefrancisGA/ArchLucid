@@ -3,11 +3,16 @@
 import Link from "next/link";
 
 import { DocumentLayout } from "@/components/DocumentLayout";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PackagePrintButton } from "@/components/reviews/PackagePrintButton";
 import { StatusTag } from "@/components/ui/status-tag";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  resolvePackagePrintInspectEmphasizedStepId,
+  resolvePackagePrintInspectSteps,
+} from "@/lib/package-print-inspect-checklist";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { PACKAGE_PRINT_PAGE_SUBTITLE_BUYER } from "@/lib/package-print-page-copy";
 import {
@@ -19,6 +24,7 @@ import {
   PACKAGE_PRINT_STATUS_HEADING,
   PACKAGE_PRINT_SYNOPSIS_HEADING,
   buildPackagePrintBackHref,
+  buildPackagePrintPath,
   type PackagePrintPresentation,
 } from "@/lib/package-print-view";
 import { cn } from "@/lib/utils";
@@ -29,13 +35,27 @@ import { PackagePrintNextReviewFooterClient } from "./PackagePrintNextReviewFoot
 
 export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
+  readonly listScopedRunId?: string | null;
 };
 
 /** Print-friendly architecture package summary (TB-2205). */
 export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JSX.Element {
-  const { presentation } = props;
+  const { presentation, listScopedRunId = null } = props;
   const backHref = buildPackagePrintBackHref(presentation.runId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const scopedListRunId = (listScopedRunId ?? "").trim();
+  const listScopedRunFilterActive = scopedListRunId.length > 0;
+  const packagePrintInspectSteps = resolvePackagePrintInspectSteps({
+    reviewPicked: presentation.runId.trim().length > 0,
+    summaryLoaded: true,
+    printReady: true,
+  });
+  const packagePrintInspectEmphasizedStepId = resolvePackagePrintInspectEmphasizedStepId({
+    reviewPicked: presentation.runId.trim().length > 0,
+    summaryLoaded: true,
+    printReady: true,
+  });
+  const packagePrintClearScopeHref = buildPackagePrintPath(presentation.runId);
 
   return (
     <div
@@ -59,6 +79,38 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
         >
           {PACKAGE_PRINT_INSTRUCTIONS}
         </p>
+      ) : null}
+
+      {listScopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary print:hidden", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="package-print-run-scope-banner"
+        >
+          {"Print view scoped to findings queue for review "}
+          <span className="font-mono text-al-text-primary">{scopedListRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={packagePrintClearScopeHref}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={`/architecture/reviews/${encodeURIComponent(scopedListRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : null}
+
+      {buyerPolishedShell ? (
+        <div className="print:hidden">
+          <IntegrationConnectChecklist
+            title="Package print checklist"
+            steps={packagePrintInspectSteps}
+            emphasizedStepId={packagePrintInspectEmphasizedStepId}
+            testIdPrefix="package-print"
+          />
+        </div>
       ) : null}
 
       <DocumentLayout>

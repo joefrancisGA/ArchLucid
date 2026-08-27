@@ -13,14 +13,17 @@ export const metadata: Metadata = {
 /** Dedicated print stylesheet view for an architecture package (TB-2205). */
 export default async function PackagePrintPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ reviewId: string }>;
+  searchParams: Promise<{ runId?: string }>;
 }): Promise<React.JSX.Element> {
   const { reviewId: runId } = await params;
+  const { runId: listScopedRunId } = await searchParams;
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();
   }
 
-  return <PackagePrintPageClient runId={runId} />;
+  return <PackagePrintPageClient runId={runId} listScopedRunId={listScopedRunId ?? null} />;
 }

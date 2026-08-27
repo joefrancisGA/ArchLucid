@@ -19,11 +19,12 @@ import { PackagePrintPageView } from "./PackagePrintPageView";
 
 type PackagePrintPageClientProps = {
   readonly runId: string;
+  readonly listScopedRunId?: string | null;
 };
 
 /** Client loader for the lightweight print view — run summary only (TB-2205). */
 export function PackagePrintPageClient(props: PackagePrintPageClientProps): React.JSX.Element {
-  const { runId } = props;
+  const { runId, listScopedRunId = null } = props;
   const summaryQuery = useRunSummaryQuery(runId);
 
   const failure: ApiLoadFailureState | null = useMemo(
@@ -59,6 +60,9 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   }
 
   return (
-    <PackagePrintPageView presentation={buildPackagePrintPresentation(summaryQuery.data)} />
+    <PackagePrintPageView
+      presentation={buildPackagePrintPresentation(summaryQuery.data)}
+      listScopedRunId={listScopedRunId}
+    />
   );
 }
