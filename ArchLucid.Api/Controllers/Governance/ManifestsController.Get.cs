@@ -1,6 +1,7 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Diagrams;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
@@ -257,5 +258,17 @@ public sealed partial class ManifestsController
             return null;
 
         return manifest;
+    }
+
+    private async Task<bool> IsManifestRunInScopeAsync(GoldenManifest manifest, CancellationToken cancellationToken)
+    {
+        if (!AuthorityRunIdentifier.TryParse(manifest.RunId, out Guid runGuid))
+            return false;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Persistence.Models.RunRecord? run =
+            await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        return run is not null;
     }
 }

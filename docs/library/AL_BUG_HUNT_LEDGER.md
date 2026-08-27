@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 58
-- **bugs-found:** 180
+- **hunts:** 59
+- **bugs-found:** 184
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — governance workflow mutations trim padded manifestVersion before lookup
+- **last-bug:** 2026-08-27 — governance preview/approval trim and batch whitespace validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2419,10 +2419,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` / `SubmitApprovalRequest` / `Promote` / `Activate` — `RequireScopedRunAsync` trimmed internally but callers passed original padded `runId` to repositories/workflow, returning empty results despite scope preflight passing — **hit 2026-08-27:** return normalized run id from `RequireScopedRunAsync` and use downstream; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_items_when_route_run_id_is_padded`.
 - [x] (proven) `GovernanceWorkflowSubmitStage` / `GovernanceWorkflowActivateStage` / `GovernanceWorkflowPromoteStage` — padded body `manifestVersion` failed `GetByVersionAsync` lookup and returned HTTP 404 though trimmed version was in scope — **hit 2026-08-27:** trim before manifest lookup (manifest GET trim parity); regression in `GovernanceWorkflowServiceTests.SubmitApprovalRequest_accepts_padded_manifest_version_when_manifest_is_in_scope`.
 
-- [ ] (hunt-ready) `GovernancePreviewController.Preview` / `GovernancePreviewService.PreviewActivationAsync` — padded `runId` or `manifestVersion` returns HTTP 404 though trimmed values are in scope (controller forwards body strings as-is; `RunDetailQueryService.TryParseRunGuid` does not trim).
-- [ ] (hunt-ready) `GovernanceController.Approve` / `Reject` / `GetApprovalRequestLineage` / `GetApprovalRequestRationale` / `Promote` — padded `approvalRequestId` route or body value returns HTTP 404 though approval exists (`BatchReviewApprovalRequests` trims ids; single-id routes do not).
-- [ ] (hunt-ready) `PolicyPacksController.SimulateBulk` — non-empty `runIds` array of whitespace-only strings returns HTTP 200 with zero evaluated runs instead of HTTP 400 (`BatchReviewApprovalRequests` whitespace guard parity).
-- [ ] (hunt-ready) `GovernanceController.DryRunPolicyPack` — non-empty `evaluateAgainstRunIds` array of whitespace-only strings returns HTTP 200 empty page instead of HTTP 400 (service strips to empty list without validation).
+- [x] (proven) `GovernancePreviewController.Preview` / `GovernancePreviewService.PreviewActivationAsync` — padded `runId` or `manifestVersion` returned HTTP 404 though trimmed values were in scope — **hit 2026-08-27:** trim before run/manifest lookup (workflow manifest trim parity); regression in `GovernancePreviewServiceTests.PreviewActivationAsync_accepts_padded_run_id_and_manifest_version_when_in_scope`.
+- [x] (proven) `GovernanceController.Approve` / `Reject` / `GetApprovalRequestLineage` / `GetApprovalRequestRationale` / `Promote` — padded `approvalRequestId` route or body value returned HTTP 404 though approval existed — **hit 2026-08-27:** `NormalizeApprovalRequestId` before repository lookup (batch-review trim parity); regression in `GovernanceControllerRunHistoryScopeTests.Approve_returns_ok_when_approval_request_id_is_padded`.
+- [x] (proven) `PolicyPacksController.SimulateBulk` — non-empty `runIds` array of whitespace-only strings returned HTTP 200 with zero evaluated runs instead of HTTP 400 — **hit 2026-08-27:** reject when trimmed id list is empty after `Count > 0` guard; regression in `PolicyPacksControllerSimulateBulkScopeTests.SimulateBulk_returns_bad_request_when_all_run_ids_are_whitespace`.
+- [x] (proven) `GovernanceController.DryRunPolicyPack` — non-empty `evaluateAgainstRunIds` array of whitespace-only strings returned HTTP 200 empty page instead of HTTP 400 — **hit 2026-08-27:** reject when trimmed run id list is empty after `Count > 0` guard; regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_returns_bad_request_when_all_evaluate_against_run_ids_are_whitespace`.
+
+2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 
 2026-08-27 seed hunt #141: proved governance workflow manifest-version trim parity; seeded preview/approval-id/whitespace-batch candidates.
 

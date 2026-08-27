@@ -1,9 +1,7 @@
-using ArchLucid.Application.Runs;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
-using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -71,28 +69,13 @@ public sealed partial class ManifestsController
         string manifestVersion,
         CancellationToken cancellationToken)
     {
-        GoldenManifest? manifest =
-            await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
-        if (manifest is null)
-            return (null, null);
+        GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
 
-        if (!await IsManifestRunInScopeAsync(manifest, cancellationToken))
+        if (manifest is null)
             return (null, null);
 
         AgentEvidencePackage? evidence =
             await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
         return (manifest, evidence);
-    }
-
-    private async Task<bool> IsManifestRunInScopeAsync(GoldenManifest manifest, CancellationToken cancellationToken)
-    {
-        if (!AuthorityRunIdentifier.TryParse(manifest.RunId, out Guid runGuid))
-            return false;
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        Persistence.Models.RunRecord? run =
-            await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
-
-        return run is not null;
     }
 }
