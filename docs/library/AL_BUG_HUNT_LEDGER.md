@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 115
-- **bugs-found:** 281
+- **hunts:** 116
+- **bugs-found:** 283
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — approvalRequestId and bulk dry-run runId max-length
+- **last-bug:** 2026-08-27 — findingId max-length and workspace baseline scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2646,8 +2646,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-27 thorough hunt #198: cheap-disproved manifest export filename candidate; proved approvalRequestId and bulk dry-run runId max-length validation.
 
-- [ ] (candidate) `GovernanceStickinessController` disposition/risk-exception routes — `findingId` >200 (`NVARCHAR(200)`) may return HTTP 404 or SQL 500 instead of HTTP 400.
-- [ ] (candidate) `TenantWorkspaceBaselineArtifactsController.GetAsync` — out-of-scope workspace id returns HTTP 200 empty payload instead of HTTP 404 (workspace list parity).
+- [x] (proven) `GovernanceStickinessController` disposition/risk-exception routes — `findingId` >200 (`NVARCHAR(200)`) returned HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** `ValidateFindingIdRoute`, create/bulk body guards before facade; strict-mock regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `TenantWorkspaceBaselineArtifactsController.GetAsync` — out-of-scope workspace id returned HTTP 200 empty payload instead of HTTP 404 — **hit 2026-08-27:** `ListWorkspacesAsync` membership check (`TenantWorkspacesController` parity); regression in `TenantWorkspaceBaselineArtifactsControllerTests`.
+
+2026-08-27 thorough hunt #199: proved findingId max-length validation and workspace baseline artifacts scope preflight.
+
+- [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` — oversize finding id in batch may still reach facade when mixed with valid ids (partial batch 400 vs per-item not-found).
+- [ ] (candidate) `TenantCostSettingsController.PutAsync` — actor identity >256 may SQL-fail instead of HTTP 400.
 
 2026-08-27 thorough hunt #195: proved recurrence cron max-length, risk-exception expiry guards, and submit/promote env-path validation; cheap-disproved draft freeTextIntent max-length candidate.
 
