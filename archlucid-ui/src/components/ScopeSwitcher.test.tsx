@@ -293,6 +293,7 @@ describe("ScopeSwitcher — buyer-polished shell", () => {
     expect(trigger).not.toHaveTextContent("Sample workspace:");
     expect(trigger).toHaveAttribute("aria-label", sampleAccessibleLabel);
     expect(trigger).toHaveAttribute("title", sampleAccessibleLabel);
+    expect(trigger.className).toMatch(/overflow-hidden/);
     expect(trigger.querySelector("svg")).not.toBeNull();
 
     fireEvent.click(trigger);
