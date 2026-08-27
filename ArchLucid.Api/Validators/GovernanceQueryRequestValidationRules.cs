@@ -20,4 +20,12 @@ public static class GovernanceQueryRequestValidationRules
     {
         return !value.HasValue || value.Value != Guid.Empty;
     }
+
+    /// <summary>
+    ///     Returns whether <paramref name="value" /> is a non-empty GUID.
+    /// </summary>
+    public static bool IsUsableRequiredGuid(Guid value)
+    {
+        return value != Guid.Empty;
+    }
 }

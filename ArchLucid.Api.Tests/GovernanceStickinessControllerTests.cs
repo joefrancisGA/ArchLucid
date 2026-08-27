@@ -584,6 +584,19 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RevokeRiskException_returns_bad_request_when_risk_exception_id_is_empty_guid()
+    {
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+        GovernanceStickinessController sut = BuildSut(riskExceptions: riskExceptions);
+
+        IActionResult action = await sut.RevokeRiskException(Guid.Empty, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task RenewRiskException_returns_not_found_when_tenant_missing()
     {
         GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
@@ -598,6 +611,24 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RenewRiskException_returns_bad_request_when_risk_exception_id_is_empty_guid()
+    {
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+        GovernanceStickinessController sut = BuildSut(riskExceptions: riskExceptions);
+
+        RenewRiskExceptionRequest request = new()
+        {
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await sut.RenewRiskException(Guid.Empty, request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task UpdateRecurrenceSchedule_returns_not_found_when_tenant_missing()
     {
         GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
@@ -609,6 +640,22 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task UpdateRecurrenceSchedule_returns_bad_request_when_schedule_id_is_empty_guid()
+    {
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+        GovernanceStickinessController sut = BuildSut(recurrenceRepo: recurrenceRepo);
+
+        IActionResult action = await sut.UpdateRecurrenceSchedule(
+            Guid.Empty,
+            new UpdateArchitectureReviewRecurrenceScheduleRequest { Name = "updated" },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recurrenceRepo.VerifyNoOtherCalls();
     }
 
     [Fact]

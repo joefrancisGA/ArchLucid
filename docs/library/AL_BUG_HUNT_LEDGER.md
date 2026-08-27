@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 83
-- **bugs-found:** 220
+- **hunts:** 84
+- **bugs-found:** 221
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — stickiness body empty-guid run/manifest id returns 400
+- **last-bug:** 2026-08-27 — stickiness route empty-guid ids return 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2513,6 +2513,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` / `CreateRiskException` — body `RunId = Guid.Empty` or `ManifestId = Guid.Empty` skipped `EnsureRunInScopeWhenProvidedAsync` / manifest binding and returned HTTP 200 instead of HTTP 400 — **hit 2026-08-27:** `GovernanceQueryRequestValidationRules.IsUsableOptionalGuid` rejects empty guid before facade (empty-run parity); regression in `GovernanceStickinessControllerTests`.
 
 2026-08-27 seed hunt #166: proved stickiness disposition and risk-exception empty-guid body validation.
+
+- [x] (proven) `GovernanceStickinessController.RevokeRiskException` / `RenewRiskException` / `UpdateRecurrenceSchedule` — route `riskExceptionId` or `scheduleId = Guid.Empty` reached facade lookup and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** `ValidateRouteGuid` + `GovernanceQueryRequestValidationRules.IsUsableRequiredGuid` (merge-conflict runId parity); regression in `GovernanceStickinessControllerTests`.
+
+2026-08-27 seed hunt #167: proved stickiness route empty-guid id validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

@@ -95,6 +95,11 @@ public sealed partial class GovernanceStickinessController
     [MutatingAuditExcluded("Audit: IRiskExceptionService logs RiskExceptionRevoked via IAuditService.")]
     public async Task<IActionResult> RevokeRiskException(Guid riskExceptionId, CancellationToken cancellationToken = default)
     {
+        IActionResult? routeIdProblem = ValidateRouteGuid(riskExceptionId, "riskExceptionId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -125,6 +130,11 @@ public sealed partial class GovernanceStickinessController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? routeIdProblem = ValidateRouteGuid(riskExceptionId, "riskExceptionId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -233,6 +243,11 @@ public sealed partial class GovernanceStickinessController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? routeIdProblem = ValidateRouteGuid(scheduleId, "scheduleId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

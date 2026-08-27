@@ -56,6 +56,14 @@ public sealed partial class GovernanceStickinessController(
         return null;
     }
 
+    private IActionResult? ValidateRouteGuid(Guid value, string fieldName)
+    {
+        if (!GovernanceQueryRequestValidationRules.IsUsableRequiredGuid(value))
+            return this.BadRequestProblem($"{fieldName} must not be an empty GUID.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
     private IActionResult? ValidateFindingIdRoute(string findingId, out string normalizedFindingId)
     {
         normalizedFindingId = findingId.Trim();

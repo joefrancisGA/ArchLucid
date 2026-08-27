@@ -175,7 +175,7 @@ public sealed partial class GovernanceStickinessController
             return findingIdProblem;
 
         if (runId == Guid.Empty)
-            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem("runId must not be an empty GUID.", ProblemTypes.ValidationFailed);
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
