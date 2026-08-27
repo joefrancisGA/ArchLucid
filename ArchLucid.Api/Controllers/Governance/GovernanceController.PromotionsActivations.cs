@@ -170,6 +170,13 @@ public sealed partial class GovernanceController
         if (string.IsNullOrWhiteSpace(request.Environment))
             return this.BadRequestProblem("Environment is required.", ProblemTypes.ValidationFailed);
 
+        if (!IsValidGovernanceEnvironment(request.Environment))
+        {
+            return this.BadRequestProblem(
+                "Environment must be one of: dev, test, prod.",
+                ProblemTypes.ValidationFailed);
+        }
+
         try
         {
             GovernanceEnvironmentActivation result = await workflowService.ActivateAsync(
@@ -284,6 +291,13 @@ public sealed partial class GovernanceController
 
         runId = runId.Trim();
 
+        if (runId.Length > 64)
+        {
+            return (this.BadRequestProblem(
+                "RunId must not exceed 64 characters.",
+                ProblemTypes.ValidationFailed), null);
+        }
+
         if (!Guid.TryParse(runId, out Guid runGuid))
         {
             return (this.NotFoundProblem(
@@ -311,5 +325,12 @@ public sealed partial class GovernanceController
         }
 
         return (null, runId);
+    }
+
+    private static bool IsValidGovernanceEnvironment(string environment)
+    {
+        return string.Equals(environment, GovernanceEnvironment.Dev, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(environment, GovernanceEnvironment.Test, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(environment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase);
     }
 }

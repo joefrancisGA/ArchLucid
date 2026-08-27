@@ -1117,6 +1117,55 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         workflow.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task Activate_returns_bad_request_when_environment_is_invalid()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "activate-invalid-env";
+
+        IActionResult result = await sut.Activate(
+            new CreateGovernanceActivationRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                Environment = "staging",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Promote_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Promote(
+            new CreateGovernancePromotionRequest
+            {
+                RunId = new string('a', 65),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
     private static ITenantRepository TenantMissingRepository() =>
         Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
             Scope.TenantId,

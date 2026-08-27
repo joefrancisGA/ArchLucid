@@ -66,6 +66,13 @@ public sealed class TenantErasureLegalHoldController(
                 ProblemTypes.ValidationFailed);
         }
 
+        if (body.Reason is not null && body.Reason.Length > 500)
+        {
+            return this.BadRequestProblem(
+                "Reason must not exceed 500 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         ClaimsPrincipal user = User;
         string userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown";
         string userName = user.Identity?.Name ?? "unknown";

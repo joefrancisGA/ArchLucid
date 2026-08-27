@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 104
-- **bugs-found:** 244
+- **hunts:** 105
+- **bugs-found:** 247
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — governance Promote manifestVersion max-length validation
+- **last-bug:** 2026-08-27 — governance Activate environment, scoped-run runId max-length, legal-hold reason max-length validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2594,6 +2594,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — optional `version` bypassed publish/assign SemVer and max-length validation, surfacing HTTP 404 — **hit 2026-08-27:** validate explicit version with `PolicyPackRequestValidationRules` before `TryPromoteCatalogEntryAsync`; regression in `PolicyPacksControllerListScopeTests`.
 - [x] (invalid) `TenantIntegrationsOperationsController.GetAsync` — tenant-wide connector settings inflate posture for foreign workspaces — **cheap-disproof 2026-08-27:** `ConnectorOperationsSummaryReader` intentionally uses tenant-scoped `TenantItsmOutboundSettings` / Teams repos; digest/schedules/alerts remain workspace-scoped.
 - [x] (proven) `GovernanceController.Promote` — `manifestVersion` longer than 128 characters reached `PromoteAsync` instead of HTTP 400 (`CreateGovernancePromotionRequestValidator.MaximumLength` not invoked on this action) — **hit 2026-08-27:** reject oversize manifest version before workflow call (submit/activate parity); regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_bad_request_when_manifest_version_exceeds_max_length`.
+- [x] (proven) `GovernanceController.Activate` — unrecognized `environment` (e.g. `"staging"`) reached `ActivateAsync` instead of HTTP 400 (`CreateGovernanceActivationRequestValidator` enum guard not invoked on this action) — **hit 2026-08-27:** `IsValidGovernanceEnvironment` rejects non-dev/test/prod before workflow call; regression in `GovernanceControllerRunHistoryScopeTests.Activate_returns_bad_request_when_environment_is_invalid`.
+- [x] (proven) `GovernanceController.RequireScopedRunAsync` — `runId` longer than 64 characters failed `Guid.TryParse` and returned HTTP 404 instead of HTTP 400 (preview runId max-length parity) — **hit 2026-08-27:** reject oversize run id after trim before parse; regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_bad_request_when_run_id_exceeds_max_length`.
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — `reason` longer than 500 characters reached command layer instead of HTTP 400 (DB column `NVARCHAR(500)`) — **hit 2026-08-27:** reject oversize reason before command; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_reason_exceeds_max_length`.
+- [ ] (candidate) `GovernancePreviewController.CompareEnvironments` — `CreateGovernanceCompareEnvironmentsRequestValidator` exists but is not wired at controller; service layer already validates via `ArgumentException` → 400 (test-gap / validator parity only).
+
+2026-08-27 seed hunt #188: proved governance Activate environment, scoped-run runId max-length, and legal-hold reason max-length validation; reseeded compare-environments validator parity candidate.
 
 2026-08-27 thorough hunt #187: proved governance Promote manifest max-length validation; closed duplicate open candidate rows from hunt #186.
 
