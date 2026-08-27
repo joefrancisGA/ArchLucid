@@ -71,6 +71,7 @@ public sealed class GovernanceWorkflowActivateStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(environment);
         ArgumentException.ThrowIfNullOrWhiteSpace(activatedBy);
 
+        environment = GovernanceEnvironmentNames.NormalizeOrThrow(environment, nameof(environment));
         manifestVersion = manifestVersion.Trim();
 
         ArchitectureRunDetail runDetail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)

@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 105
-- **bugs-found:** 247
+- **hunts:** 106
+- **bugs-found:** 250
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — governance Activate environment, scoped-run runId max-length, legal-hold reason max-length validation
+- **last-bug:** 2026-08-27 — Promote env validation, Activate service env guard, product-feedback max-length
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2597,7 +2597,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Activate` — unrecognized `environment` (e.g. `"staging"`) reached `ActivateAsync` instead of HTTP 400 (`CreateGovernanceActivationRequestValidator` enum guard not invoked on this action) — **hit 2026-08-27:** `IsValidGovernanceEnvironment` rejects non-dev/test/prod before workflow call; regression in `GovernanceControllerRunHistoryScopeTests.Activate_returns_bad_request_when_environment_is_invalid`.
 - [x] (proven) `GovernanceController.RequireScopedRunAsync` — `runId` longer than 64 characters failed `Guid.TryParse` and returned HTTP 404 instead of HTTP 400 (preview runId max-length parity) — **hit 2026-08-27:** reject oversize run id after trim before parse; regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_bad_request_when_run_id_exceeds_max_length`.
 - [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — `reason` longer than 500 characters reached command layer instead of HTTP 400 (DB column `NVARCHAR(500)`) — **hit 2026-08-27:** reject oversize reason before command; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_reason_exceeds_max_length`.
-- [ ] (candidate) `GovernancePreviewController.CompareEnvironments` — `CreateGovernanceCompareEnvironmentsRequestValidator` exists but is not wired at controller; service layer already validates via `ArgumentException` → 400 (test-gap / validator parity only).
+- [x] (valid-no-repro) `GovernancePreviewController.CompareEnvironments` — `CreateGovernanceEnvironmentComparisonRequestValidator` exists but is not wired at controller; service layer already validates via `ArgumentException` → 400 (test-gap / validator parity only) — **cheap-disproof 2026-08-27:** `GovernancePreviewService.NormalizeAndValidateEnvironment` rejects invalid env; controller maps `ArgumentException` to 400; regression in `GovernancePreviewControllerUnitTests.CompareEnvironments_returns_bad_request_when_source_environment_is_invalid`.
+- [x] (proven) `GovernanceController.Promote` — whitespace or invalid `sourceEnvironment`/`targetEnvironment` reached `PromoteAsync` and surfaced uncaught `ArgumentException` (HTTP 500) instead of HTTP 400 (`SubmitApprovalRequest` already caught `ArgumentException`; Activate already guarded env) — **hit 2026-08-27:** controller env guards + `ArgumentException` catch; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceWorkflowActivateStage.ActivateAsync` — invalid `environment` (e.g. `"staging"`) persisted on activation row despite controller guard (service layer had no enum validation; preview/compare normalize to dev/test/prod) — **hit 2026-08-27:** `GovernanceEnvironmentNames.NormalizeOrThrow` before persist; regression in `GovernanceWorkflowFacadeTests.ActivateAsync_throws_when_environment_is_invalid`.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `comment`/`findingRef` longer than `NVARCHAR(2000)`/`NVARCHAR(512)` reached SQL insert (HTTP 500 risk) instead of HTTP 400 — **hit 2026-08-27:** controller max-length guards (legal-hold reason parity); regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_comment_exceeds_max_length`.
+
+2026-08-27 thorough hunt #189: proved Promote env validation, Activate service env guard, and product-feedback max-length; cheap-disproved CompareEnvironments validator parity candidate.
 
 2026-08-27 seed hunt #188: proved governance Activate environment, scoped-run runId max-length, and legal-hold reason max-length validation; reseeded compare-environments validator parity candidate.
 

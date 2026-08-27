@@ -196,6 +196,28 @@ public sealed class GovernancePreviewControllerUnitTests
         preview.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task CompareEnvironments_returns_bad_request_when_source_environment_is_invalid()
+    {
+        Mock<IGovernancePreviewService> preview = new();
+        preview
+            .Setup(s => s.CompareEnvironmentsAsync(It.IsAny<GovernanceEnvironmentComparisonRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ArgumentException("Environment must be one of: dev, test, prod.", nameof(GovernanceEnvironmentComparisonRequest.SourceEnvironment)));
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.CompareEnvironments(
+            new CreateGovernanceEnvironmentComparisonRequest
+            {
+                SourceEnvironment = "staging",
+                TargetEnvironment = "test",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
     private static GovernancePreviewController CreateController(IGovernancePreviewService previewService, bool tenantExists)
     {
         Mock<IScopeContextProvider> scopeProvider = new();

@@ -235,6 +235,20 @@ public sealed class TenantCustomerSuccessController(
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
         }
 
+        if (request.Comment is not null && request.Comment.Length > 2000)
+        {
+            return this.BadRequestProblem(
+                "Comment must not exceed 2000 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.FindingRef is not null && request.FindingRef.Length > 512)
+        {
+            return this.BadRequestProblem(
+                "FindingRef must not exceed 512 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (request.RunId is Guid runId)
         {
             RunRecord? run = await _runRepository

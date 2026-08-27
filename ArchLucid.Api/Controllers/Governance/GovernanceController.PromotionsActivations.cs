@@ -93,6 +93,26 @@ public sealed partial class GovernanceController
         if (request.ManifestVersion.Length > 128)
             return this.BadRequestProblem("ManifestVersion must not exceed 128 characters.", ProblemTypes.ValidationFailed);
 
+        if (string.IsNullOrWhiteSpace(request.SourceEnvironment))
+            return this.BadRequestProblem("SourceEnvironment is required.", ProblemTypes.ValidationFailed);
+
+        if (!IsValidGovernanceEnvironment(request.SourceEnvironment))
+        {
+            return this.BadRequestProblem(
+                "SourceEnvironment must be one of: dev, test, prod.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.TargetEnvironment))
+            return this.BadRequestProblem("TargetEnvironment is required.", ProblemTypes.ValidationFailed);
+
+        if (!IsValidGovernanceEnvironment(request.TargetEnvironment))
+        {
+            return this.BadRequestProblem(
+                "TargetEnvironment must be one of: dev, test, prod.",
+                ProblemTypes.ValidationFailed);
+        }
+
         string promotedBy = actorContext.GetActor();
 
         try
@@ -130,6 +150,11 @@ public sealed partial class GovernanceController
         {
             logger.LogWarning(ex, "Promote failed: manifest version not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Promote failed: validation error.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
     }
 
