@@ -196,6 +196,8 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
           answers={wizard.l0Answers}
           skippedQuestionKeys={wizard.l0SkippedQuestionKeys}
           inferredQuestionKeys={wizard.inferredL0QuestionKeys}
+          rephrasedQuestionKeys={wizard.rephrasedL0QuestionKeys}
+          isSimulator={wizard.isSimulator}
           clarificationSuggestionsUnavailable={wizard.clarificationSuggestionsUnavailable}
           canSuggestFromEvidence={wizard.canSuggestFromEvidence}
           isSuggestingFromEvidence={wizard.isExtractingEvidenceText}

@@ -43,9 +43,26 @@ describe("mergeRephrasedClarificationAnswers", () => {
       lockedQuestionKeys: new Set(),
     });
 
-    expect(merged["l0.actor.additional-kinds"]).toBe(
+    expect(merged.mergedAnswers["l0.actor.additional-kinds"]).toBe(
       "Yes — partner integrations and service accounts also call the API.",
     );
-    expect(merged["l0.pillar.cloud-target"]).toBe("Azure");
+    expect(merged.mergedAnswers["l0.pillar.cloud-target"]).toBe("Azure");
+    expect(merged.rephrasedQuestionKeys).toContain("l0.actor.additional-kinds");
+  });
+
+  it("does not reinstate a dump when rephrase omits the key", () => {
+    const dump =
+      "Actors Actor How they touch the system Operators / architects Browser — workspace Diagram —";
+
+    const merged = mergeRephrasedClarificationAnswers({
+      currentAnswers: {},
+      inferredAnswers: {
+        "l0.actor.additional-kinds": dump,
+      },
+      rephrasedAnswers: {},
+      lockedQuestionKeys: new Set(),
+    });
+
+    expect(merged.mergedAnswers["l0.actor.additional-kinds"]).toBeUndefined();
   });
 });
