@@ -106,7 +106,7 @@ public static class AgentExecutionCompositionModule
         ContentSafetyCompositionModule.Register(services, configuration);
         AgentLlmSupportCompositionModule.Register(services, configuration);
         LlmBatchCompositionModule.Register(services, configuration);
-        AgentModelTierCompositionModule.Register(services, configuration);
+        AgentRuntimeCompositionModule.Register(services, configuration);
 
                 bool allowDevAgentExecutionModeHeaderOverride = configuration.GetValue(
                     $"{DeveloperExperienceOptions.SectionName}:{nameof(DeveloperExperienceOptions.AllowAgentExecutionModeHeaderOverride)}",

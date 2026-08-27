@@ -113,7 +113,29 @@ public static class AgentModelTierCompositionModule
         services.AddSingleton<IAgentModelAliasResolver, AgentModelAliasResolver>();
     }
 
-        public static void RegisterPassThroughTierCompletionRouter(IServiceCollection services)
+    /// <summary>
+    ///     Registers a pass-through tier router when completion pipeline registrars have not yet run.
+    ///     Later <see cref="RegisterPassThroughTierCompletionRouter" /> or
+    ///     <see cref="RegisterTieredAzureCompletionRouter" /> registrations win at resolution time.
+    /// </summary>
+    public static void EnsureBaselineTierCompletionRouter(IServiceCollection services)
+    {
+        FakeAgentCompletionPipelineRegistrar.TryRegisterBaselineScopedInnerClient(services);
+
+        services.TryAddScoped<IAgentTierCompletionRouter>(static sp =>
+        {
+            ScopedInnerAgentCompletionClient innerHolder = sp.GetRequiredService<ScopedInnerAgentCompletionClient>();
+            IAgentModelTierResolver resolver = sp.GetRequiredService<IAgentModelTierResolver>();
+            IAgentModelAliasResolver aliasResolver = sp.GetRequiredService<IAgentModelAliasResolver>();
+
+            return new PassThroughAgentTierCompletionRouter(innerHolder.Inner, resolver, aliasResolver);
+        });
+
+        services.TryAddScoped<IAgentCompletionClient>(static sp =>
+            sp.GetRequiredService<IAgentTierCompletionRouter>().DefaultCompletionClient);
+    }
+
+    public static void RegisterPassThroughTierCompletionRouter(IServiceCollection services)
     {
         services.AddScoped<IAgentTierCompletionRouter>(static sp =>
         {
@@ -125,7 +147,7 @@ public static class AgentModelTierCompositionModule
         });
     }
 
-        public static void RegisterTieredAzureCompletionRouter(IServiceCollection services)
+    public static void RegisterTieredAzureCompletionRouter(IServiceCollection services)
     {
         services.AddScoped<ITenantAzureOpenAiCompletionClientFactory, TenantAzureOpenAiCompletionClientFactory>();
 
@@ -214,7 +236,7 @@ public static class AgentModelTierCompositionModule
         });
     }
 
-        public static void RegisterAgentCompletionClientFromTierRouter(IServiceCollection services)
+    public static void RegisterAgentCompletionClientFromTierRouter(IServiceCollection services)
     {
         services.AddScoped<IAgentCompletionClient>(static sp =>
             sp.GetRequiredService<IAgentTierCompletionRouter>().DefaultCompletionClient);
