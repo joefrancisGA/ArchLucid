@@ -51,6 +51,9 @@ internal static class FakeAgentCompletionPipelineRegistrar
                 if (systemPrompt.Contains(ArchitectureOverviewRewriteLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
                     return FakeArchitectureOverviewRewriteCompletionJson.Build(userPrompt);
 
+                if (systemPrompt.Contains(DraftIntakeReasoningLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
+                    return FakeDraftIntakeReasoningCompletionJson.Build(userPrompt);
+
                 if (systemPrompt.Contains("senior enterprise architect", StringComparison.OrdinalIgnoreCase))
                 {
                     return """

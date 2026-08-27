@@ -177,4 +177,207 @@ public sealed class DraftIntakeReasoningServiceTests
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*does not accept reasoning*");
     }
+
+    [Fact]
+    public async Task ReasonAsync_UsesRawText_WhenJsonHasNoAnswerKey()
+    {
+        Guid draftId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        Guid threadId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+
+        DraftRequestResponse draft = new()
+        {
+            DraftId = draftId,
+            Status = DraftRequestStatus.Drafting,
+            Document = new DraftRequestDocument
+            {
+                FreeTextIntent = "Migration platform for enterprise tenants.",
+            },
+        };
+
+        Mock<IDraftRequestRepository> repository = new();
+        repository
+            .Setup(static r => r.GetAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(draft);
+        repository
+            .Setup(r => r.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                draftId,
+                DraftRequestStatus.Drafting,
+                It.IsAny<DraftRequestDocument>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, Guid _, Guid _, Guid _, DraftRequestStatus status, DraftRequestDocument document,
+                string? _, string? _, CancellationToken _) =>
+                new DraftRequestResponse
+                {
+                    DraftId = draftId,
+                    Status = status,
+                    Document = document,
+                });
+
+        Mock<IConversationService> conversation = new();
+        conversation
+            .Setup(static c => c.GetOrCreateThreadAsync(
+                null,
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                null,
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ConversationThread
+            {
+                ThreadId = threadId,
+                TenantId = _scope.TenantId,
+                WorkspaceId = _scope.WorkspaceId,
+                ProjectId = _scope.ProjectId,
+            });
+        conversation
+            .Setup(c => c.GetHistoryAsync(threadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        conversation
+            .Setup(c => c.AppendUserMessageAsync(threadId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        conversation
+            .Setup(c => c.AppendAssistantMessageAsync(
+                threadId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAgentCompletionClient> llm = new();
+        llm
+            .Setup(static c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("Performance risk: cutover windows and back-pressure on shared services.");
+
+        DraftIntakeReasoningService sut = new(
+            repository.Object,
+            conversation.Object,
+            llm.Object,
+            NullLogger<DraftIntakeReasoningService>.Instance);
+
+        DraftIntakeReasonResponse? result = await sut.ReasonAsync(
+            draftId,
+            new DraftIntakeReasonRequest { Message = "what are your concerns about performance" },
+            _scope,
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.Answer.Should().Contain("Performance risk");
+    }
+
+    [Fact]
+    public async Task ReasonAsync_UnwrapsMarkdownFencedJson()
+    {
+        Guid draftId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        Guid threadId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        DraftRequestResponse draft = new()
+        {
+            DraftId = draftId,
+            Status = DraftRequestStatus.Drafting,
+            Document = new DraftRequestDocument(),
+        };
+
+        Mock<IDraftRequestRepository> repository = new();
+        repository
+            .Setup(static r => r.GetAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(draft);
+        repository
+            .Setup(r => r.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                draftId,
+                DraftRequestStatus.Drafting,
+                It.IsAny<DraftRequestDocument>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, Guid _, Guid _, Guid _, DraftRequestStatus status, DraftRequestDocument document,
+                string? _, string? _, CancellationToken _) =>
+                new DraftRequestResponse
+                {
+                    DraftId = draftId,
+                    Status = status,
+                    Document = document,
+                });
+
+        Mock<IConversationService> conversation = new();
+        conversation
+            .Setup(static c => c.GetOrCreateThreadAsync(
+                null,
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                null,
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ConversationThread
+            {
+                ThreadId = threadId,
+                TenantId = _scope.TenantId,
+                WorkspaceId = _scope.WorkspaceId,
+                ProjectId = _scope.ProjectId,
+            });
+        conversation
+            .Setup(c => c.GetHistoryAsync(threadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        conversation
+            .Setup(c => c.AppendUserMessageAsync(threadId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        conversation
+            .Setup(c => c.AppendAssistantMessageAsync(
+                threadId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAgentCompletionClient> llm = new();
+        llm
+            .Setup(static c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""```json\n{"answer":"Confirm RTO/RPO targets with operations."}\n```""");
+
+        DraftIntakeReasoningService sut = new(
+            repository.Object,
+            conversation.Object,
+            llm.Object,
+            NullLogger<DraftIntakeReasoningService>.Instance);
+
+        DraftIntakeReasonResponse? result = await sut.ReasonAsync(
+            draftId,
+            new DraftIntakeReasonRequest { Message = "What should I clarify first?" },
+            _scope,
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.Answer.Should().Contain("RTO/RPO");
+    }
 }
