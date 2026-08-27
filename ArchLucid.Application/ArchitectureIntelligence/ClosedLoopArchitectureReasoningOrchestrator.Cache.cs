@@ -119,8 +119,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         ClosedLoopReasoningResult shared,
         ClosedLoopReasoningRequest effectiveRequest,
         string runId,
-        ArchitectureIntelligenceBudgetDecision budget,
-        ReviewCacheHitMetadata? reviewCacheHit = null)
+        ArchitectureIntelligenceBudgetDecision budget)
     {
         ArgumentNullException.ThrowIfNull(shared);
         ArgumentNullException.ThrowIfNull(effectiveRequest);
@@ -130,13 +129,12 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         ClosedLoopReasoningResult isolated = ClosedLoopReasoningResultCloner.Clone(shared);
         ArchitectureIntelligenceBudgetResultApplier.Apply(isolated, budget);
 
-        bool isReviewCacheHit = reviewCacheHit?.IsReviewCacheHit == true || shared.CacheHit;
+        bool isReviewCacheHit = shared.CacheHit;
 
         if (isReviewCacheHit)
         {
             isolated.CacheHit = true;
-            isolated.CacheReuseReason = reviewCacheHit?.ReuseReason
-                ?? shared.CacheReuseReason
+            isolated.CacheReuseReason = shared.CacheReuseReason
                 ?? "dependency-manifest-match";
         }
 
@@ -169,7 +167,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         ArgumentNullException.ThrowIfNull(cached);
         ArgumentNullException.ThrowIfNull(manifest);
 
-        ClosedLoopReasoningResult hit = ClosedLoopReasoningResultCloner.Clone(cached);
+        ClosedLoopReasoningResult hit = cached;
         hit.CacheHit = true;
         hit.CacheReuseReason = manifest.ReuseReason ?? "dependency-manifest-match";
 
