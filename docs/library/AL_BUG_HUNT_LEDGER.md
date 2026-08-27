@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 121
-- **bugs-found:** 300
+- **hunts:** 122
+- **bugs-found:** 304
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — governance workflow actor max-length, workspace scope parity, simulate/manifest trim-first, disposition enum guards
+- **last-bug:** 2026-08-27 — merge-conflict action guard, bulk disposition validation, tenancy actor max-length parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2683,10 +2683,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-27 thorough hunt #204: proved governance workflow actor max-length, disposition enum guards, simulate/manifest trim-first length parity, pilot checklist workspace scope, and product-feedback workspace scope.
 
-- [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` — undefined `action` ordinal may return HTTP 204 without resolving members.
-- [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` — validation failures surfaced as scope-miss HTTP 400 when findings are in scope.
-- [ ] (candidate) `TenantTrialController` / `TenantHomepageSettingsController` / digest preference controllers — actor identity >200 may audit-fail instead of HTTP 400.
-- [ ] (candidate) `TenantErasureLegalHoldController` — actor claims >200 may platform-audit-fail instead of HTTP 400.
+- [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` — undefined `action` ordinal returned HTTP 204 without resolving members — **hit 2026-08-27:** reject out-of-range merge-conflict action before facade; regression in `GovernanceStickinessControllerTests.ResolveFindingMergeConflict_returns_bad_request_when_action_is_out_of_range`.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — validation failures surfaced as scope-miss HTTP 400 when findings were in scope — **hit 2026-08-27:** `FindingDispositionValidation.Validate` probe before facade; regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_disposition_validation_fails_for_in_scope_finding`.
+- [x] (proven) `TenantTrialController` / `TenantHomepageSettingsController` / digest preference controllers — actor identity >200 reached audit instead of HTTP 400 — **hit 2026-08-27:** `MaxActorIdentityLength` guard on trial link/convert, homepage PUT, exec/sponsor digest POST (baseline/cost-settings parity); regression in `TenantTrialControllerTests`, `TenantHomepageSettingsControllerTests`, `TenantExecDigestPreferencesControllerTests`, and `TenantSponsorDigestPreferencesControllerTests`.
+- [x] (proven) `TenantErasureLegalHoldController` — actor claims >200 reached platform erasure commands instead of HTTP 400 — **hit 2026-08-27:** reject oversized `NameIdentifier` / display name before legal-hold and approve; regression in `TenantErasureLegalHoldControllerTests`.
 
 2026-08-27 thorough hunt #195: proved recurrence cron max-length, risk-exception expiry guards, and submit/promote env-path validation; cheap-disproved draft freeTextIntent max-length candidate.
 

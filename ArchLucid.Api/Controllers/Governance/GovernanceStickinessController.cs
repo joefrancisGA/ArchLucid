@@ -2,6 +2,8 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance.Stickiness;
+using ArchLucid.Application.Governance.FindingDisposition;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -37,6 +39,19 @@ public sealed partial class GovernanceStickinessController(
 
     private const int RegisterMaxRowsLimit = 500;
     private const int MaxFindingIdLength = 200;
+
+    private IActionResult? ValidateMergeConflictResolutionAction(
+        ArchLucid.Contracts.Findings.FindingMergeConflictResolutionAction action)
+    {
+        if ((int)action is < 0 or > (int)ArchLucid.Contracts.Findings.FindingMergeConflictResolutionAction.KeepBoth)
+        {
+            return this.BadRequestProblem(
+                "action must be a valid finding merge conflict resolution action.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
 
     private IActionResult? ValidateRegisterMaxRows(int maxRows)
     {
@@ -130,6 +145,31 @@ public sealed partial class GovernanceStickinessController(
             return this.BadRequestProblem(
                 "maxConfidence must be between 0 and 100.",
                 ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    private IActionResult? ValidateBulkDispositionRequest(RecordBulkFindingDispositionRequest request)
+    {
+        string probeFindingId = request.FindingIds
+            .First(id => !string.IsNullOrWhiteSpace(id))
+            .Trim();
+
+        try
+        {
+            FindingDispositionValidation.Validate(
+                new RecordFindingDispositionRequest
+                {
+                    FindingId = probeFindingId,
+                    Disposition = request.Disposition,
+                    Rationale = request.Rationale,
+                    RevisitDueUtc = request.RevisitDueUtc,
+                });
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
         return null;

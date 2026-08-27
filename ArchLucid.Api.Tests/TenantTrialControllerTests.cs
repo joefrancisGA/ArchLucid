@@ -15,6 +15,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using System.Security.Claims;
+
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
@@ -514,6 +516,114 @@ public sealed class TenantTrialControllerTests
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         trialUsers.VerifyNoOtherCalls();
         tenants.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
+    public async Task LinkEntraAsync_returns_bad_request_when_actor_identity_exceeds_max_length()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+        };
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+        };
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext
+                    {
+                        User = new ClaimsPrincipal(
+                            new ClaimsIdentity([new Claim(ClaimTypes.Name, new string('a', 201))], "Test"))
+                    }
+                }
+            };
+
+        IActionResult result = await sut.LinkEntraAsync(
+            new TenantLinkEntraRequest
+            {
+                EntraTenantId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+            },
+            CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        tenants.Verify(
+            t => t.UpdateEntraTenantIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
+    public async Task ConvertTrialAsync_returns_bad_request_when_actor_identity_exceeds_max_length()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+        };
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Free,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Active,
+        };
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        Mock<IBillingTrialConversionGate> gate = new();
+        gate.Setup(g => g.EnsureManualConversionAllowedAsync(tenant.Id, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext
+                    {
+                        User = new ClaimsPrincipal(
+                            new ClaimsIdentity([new Claim(ClaimTypes.Name, new string('a', 201))], "Test"))
+                    }
+                }
+            };
+
+        IActionResult result = await sut.ConvertTrialAsync(null, CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        tenants.Verify(
+            t => t.MarkTrialConvertedAsync(It.IsAny<Guid>(), It.IsAny<TenantTier?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.VerifyNoOtherCalls();
     }
 
     private static ITrialIdentityUserRepository NoopTrialIdentityUsers() => Mock.Of<ITrialIdentityUserRepository>();

@@ -3,6 +3,7 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -147,6 +148,11 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? dispositionValidationProblem = ValidateBulkDispositionRequest(request);
+
+        if (dispositionValidationProblem is not null)
+            return dispositionValidationProblem;
+
         RecordBulkFindingDispositionResponse response;
 
         try
@@ -205,6 +211,11 @@ public sealed partial class GovernanceStickinessController
 
         if (runId == Guid.Empty)
             return this.BadRequestProblem("runId must not be an empty GUID.", ProblemTypes.ValidationFailed);
+
+        IActionResult? actionProblem = ValidateMergeConflictResolutionAction(request.Action);
+
+        if (actionProblem is not null)
+            return actionProblem;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

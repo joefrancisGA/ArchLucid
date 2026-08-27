@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using Moq;
 
+using System.Security.Claims;
+
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
@@ -306,6 +308,34 @@ public sealed class TenantExecDigestPreferencesControllerTests
                     && e.TenantId == Scope.TenantId),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task PostExecDigestPreferences_returns_bad_request_when_actor_identity_exceeds_max_length()
+    {
+        Mock<ITenantExecDigestPreferencesRepository> repository = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            Mock.Of<IAuditService>());
+        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(
+            new ClaimsIdentity([new Claim(System.Security.Claims.ClaimTypes.Name, new string('a', 201))], "Test"));
+
+        ExecDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = false,
+            RecipientEmails = [],
+            IanaTimeZoneId = "UTC",
+        };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repository.VerifyNoOtherCalls();
     }
 
     private static TenantExecDigestPreferencesController CreateController(

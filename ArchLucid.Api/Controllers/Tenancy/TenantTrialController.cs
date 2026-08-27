@@ -34,6 +34,8 @@ public sealed class TenantTrialController(
     ITrialIdentityUserRepository trialIdentityUsers,
     IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleSchedulerOptions) : ControllerBase
 {
+    private const int MaxActorIdentityLength = 200;
+
     private readonly IAuditService
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -180,6 +182,15 @@ public sealed class TenantTrialController(
                     ProblemTypes.Conflict);
         }
 
+        string actor = User.Identity?.Name ?? "admin";
+
+        if (actor.Length > MaxActorIdentityLength)
+        {
+            return this.BadRequestProblem(
+                "Actor identity must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         bool bound =
             await _tenantRepository.UpdateEntraTenantIdAsync(scope.TenantId, body.EntraTenantId, cancellationToken);
 
@@ -187,8 +198,6 @@ public sealed class TenantTrialController(
             return this.ConflictProblem(
                 "Entra directory could not be bound (already bound to a different directory, or directory id is held by another tenant).",
                 ProblemTypes.Conflict);
-
-        string actor = User.Identity?.Name ?? "admin";
 
         await _auditService.LogAsync(
             new AuditEvent
@@ -267,13 +276,20 @@ public sealed class TenantTrialController(
         if (!TryMapRequestTier(body?.TargetTier, out tier, out string? tierError))
             return this.BadRequestProblem(tierError!, ProblemTypes.ValidationFailed);
 
+        string actor = User.Identity?.Name ?? "admin";
+
+        if (actor.Length > MaxActorIdentityLength)
+        {
+            return this.BadRequestProblem(
+                "Actor identity must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         ArchLucidInstrumentation.RecordTrialConversion(
             TrialLifecycleStatus.Active,
             tier?.ToString() ?? "unspecified");
 
         await _tenantRepository.MarkTrialConvertedAsync(tenant.Id, tier, cancellationToken);
-
-        string actor = User.Identity?.Name ?? "admin";
 
         await _auditService.LogAsync(
             new AuditEvent

@@ -28,6 +28,8 @@ public sealed class TenantHomepageSettingsController(
     IAuditService auditService,
     ITenantRepository tenantRepository) : ControllerBase
 {
+    private const int MaxActorIdentityLength = 200;
+
     private readonly IFeaturedCompletedSampleService _featuredCompletedSampleService =
         featuredCompletedSampleService ?? throw new ArgumentNullException(nameof(featuredCompletedSampleService));
 
@@ -113,6 +115,14 @@ public sealed class TenantHomepageSettingsController(
         }
 
         string actor = User?.Identity?.Name ?? "operator";
+
+        if (actor.Length > MaxActorIdentityLength)
+        {
+            return this.BadRequestProblem(
+                "Actor identity must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         FeaturedCompletedSampleSnapshot snapshot;
 
         if (!body.SelectedRunId.HasValue)

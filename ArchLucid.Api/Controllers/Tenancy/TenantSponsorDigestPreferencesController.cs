@@ -32,6 +32,8 @@ public sealed class TenantSponsorDigestPreferencesController(
     IAuditService auditService,
     ITenantRepository tenantRepository) : ControllerBase
 {
+    private const int MaxActorIdentityLength = 200;
+
     private readonly IAuditService
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -116,6 +118,15 @@ public sealed class TenantSponsorDigestPreferencesController(
             return this.BadRequestProblem(recipientError!, ProblemTypes.ValidationFailed);
         }
 
+        string actor = User.Identity?.Name ?? "operator";
+
+        if (actor.Length > MaxActorIdentityLength)
+        {
+            return this.BadRequestProblem(
+                "Actor identity must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         SponsorDigestPreferencesResponse? saved = await _preferencesRepository.UpsertAsync(
             scope.TenantId,
             body.EmailEnabled,
@@ -136,8 +147,8 @@ public sealed class TenantSponsorDigestPreferencesController(
             new AuditEvent
             {
                 EventType = AuditEventTypes.SponsorDigestPreferencesUpdated,
-                ActorUserId = User.Identity?.Name ?? "operator",
-                ActorUserName = User.Identity?.Name ?? "operator",
+                ActorUserId = actor,
+                ActorUserName = actor,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,

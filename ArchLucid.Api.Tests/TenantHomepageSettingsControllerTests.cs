@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using Moq;
 
+using System.Security.Claims;
+
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
@@ -150,6 +152,24 @@ public sealed class TenantHomepageSettingsControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        service.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_bad_request_when_actor_identity_exceeds_max_length()
+    {
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(service.Object);
+        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(
+            new ClaimsIdentity([new Claim(System.Security.Claims.ClaimTypes.Name, new string('a', 201))], "Test"));
+
+        IActionResult action = await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest { SelectedRunId = null },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         service.VerifyNoOtherCalls();
     }
 

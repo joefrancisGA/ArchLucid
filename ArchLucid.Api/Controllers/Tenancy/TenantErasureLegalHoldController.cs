@@ -25,6 +25,8 @@ public sealed class TenantErasureLegalHoldController(
     ITenantRepository tenantRepository,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
+    private const int MaxActorIdentityLength = 200;
+
     private readonly ITenantErasureCommandService _tenantErasureCommands =
         tenantErasureCommands ?? throw new ArgumentNullException(nameof(tenantErasureCommands));
 
@@ -76,6 +78,14 @@ public sealed class TenantErasureLegalHoldController(
         ClaimsPrincipal user = User;
         string userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown";
         string userName = user.Identity?.Name ?? "unknown";
+
+        if (userId.Length > MaxActorIdentityLength || userName.Length > MaxActorIdentityLength)
+        {
+            return this.BadRequestProblem(
+                "Actor identity must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         string? correlation = HttpContext.TraceIdentifier;
 
         bool ok = await _tenantErasureCommands.TrySetLegalHoldAsync(
@@ -119,6 +129,14 @@ public sealed class TenantErasureLegalHoldController(
         ClaimsPrincipal user = User;
         string userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown";
         string userName = user.Identity?.Name ?? "unknown";
+
+        if (userId.Length > MaxActorIdentityLength || userName.Length > MaxActorIdentityLength)
+        {
+            return this.BadRequestProblem(
+                "Actor identity must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         string? correlation = HttpContext.TraceIdentifier;
 
         bool ok = await _tenantErasureCommands.TryApproveErasureAsync(

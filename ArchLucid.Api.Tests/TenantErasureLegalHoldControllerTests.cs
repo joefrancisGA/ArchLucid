@@ -266,6 +266,54 @@ public sealed class TenantErasureLegalHoldControllerTests
         action.Should().BeOfType<NoContentResult>();
     }
 
+    [Fact]
+    public async Task SetLegalHoldAsync_returns_bad_request_when_actor_identity_exceeds_max_length()
+    {
+        Mock<ITenantErasureCommandService> commands = new(MockBehavior.Strict);
+
+        TenantErasureLegalHoldController controller = CreateController(
+            commands.Object,
+            TenantExists(),
+            Mock.Of<IScopeContextProvider>(p => p.GetCurrentScope() == Scope));
+        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(
+            new ClaimsIdentity(
+                [new Claim(ClaimTypes.NameIdentifier, "user-1"), new Claim(ClaimTypes.Name, new string('a', 201))],
+                authenticationType: "test"));
+
+        TenantErasureLegalHoldRequest body = new()
+        {
+            UntilUtc = DateTimeOffset.UtcNow.AddDays(30),
+            Reason = "hold",
+        };
+
+        IActionResult action = await controller.SetLegalHoldAsync(body, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        commands.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ApproveErasureAsync_returns_bad_request_when_actor_identity_exceeds_max_length()
+    {
+        Mock<ITenantErasureCommandService> commands = new(MockBehavior.Strict);
+
+        TenantErasureLegalHoldController controller = CreateController(
+            commands.Object,
+            TenantExists(),
+            Mock.Of<IScopeContextProvider>(p => p.GetCurrentScope() == Scope));
+        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(
+            new ClaimsIdentity(
+                [new Claim(ClaimTypes.NameIdentifier, new string('a', 201)), new Claim(ClaimTypes.Name, "operator@test")],
+                authenticationType: "test"));
+
+        IActionResult action = await controller.ApproveErasureAsync(CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        commands.VerifyNoOtherCalls();
+    }
+
     private static ITenantRepository TenantExists()
     {
         Mock<ITenantRepository> tenants = new();

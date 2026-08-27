@@ -932,6 +932,36 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_disposition_validation_fails_for_in_scope_finding()
+    {
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        GovernanceStickinessController controller = BuildSut(findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1"],
+            Disposition = FindingDisposition.Deferred,
+            Rationale = "bulk rationale",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("Revisit due date is required");
+    }
+
+    [Fact]
     public async Task RecordBulkDisposition_returns_bad_request_when_all_findings_are_out_of_scope()
     {
         GovernanceStickinessController controller = BuildSut();
@@ -2092,6 +2122,26 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ResolveFindingMergeConflict_returns_bad_request_when_action_is_out_of_range()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        ResolveFindingMergeConflictRequest request = new()
+        {
+            Action = (FindingMergeConflictResolutionAction)99,
+        };
+
+        IActionResult action = await controller.ResolveFindingMergeConflict(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            "conflict-finding",
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
