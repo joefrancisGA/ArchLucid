@@ -578,7 +578,10 @@ describe("SocraticIntakeWizard", () => {
     expect(screen.getByTestId("socratic-review-answers-hint")).toHaveTextContent(
       /handle all required clarifications before reviewing answers/i,
     );
-    expect(screen.getByText(/your answers will be included when you review and submit/i)).toBeInTheDocument();
+    expect(
+      screen.queryByText(/your answers will be included when you review and submit/i),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/1 required clarification remaining before review/i)).toBeInTheDocument();
     expect(screen.getByTestId("socratic-questions-done")).toHaveTextContent(/review answers/i);
     expect(screen.getByTestId("socratic-questions-done")).toBeDisabled();
 
