@@ -18,6 +18,11 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
@@ -40,6 +45,11 @@ public sealed partial class ManifestsController
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)

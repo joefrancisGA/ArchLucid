@@ -34,13 +34,28 @@ public sealed class GovernancePreCommitSimulationController(
     IPreFinalizeChecklistService preFinalizeChecklistService,
     IAuditService auditService,
     IRunRepository runRepository,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    ITenantRepository tenantRepository) : ControllerBase
 {
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        return null;
+    }
     // idempotency-posture: dry-run-no-persist
     [HttpGet("checklist/{runId}")]
     [ProducesResponseType(typeof(PreFinalizeChecklistResult), StatusCodes.Status200OK)]
@@ -55,6 +70,11 @@ public sealed class GovernancePreCommitSimulationController(
 
         if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem($"Run ID '{runId}' is not valid.", ProblemTypes.BadRequest);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         Guid runGuid = Guid.Parse(runIdNormalized);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -91,6 +111,11 @@ public sealed class GovernancePreCommitSimulationController(
             return this.BadRequestProblem(
                 $"Run ID '{body.RunId}' is not valid.",
                 ProblemTypes.BadRequest);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PreCommitGateResult outcome = await gate.SimulateSyntheticFindingsAsync(
             runIdNormalized,

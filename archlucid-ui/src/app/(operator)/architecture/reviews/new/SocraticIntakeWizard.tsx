@@ -196,7 +196,8 @@ export function SocraticIntakeWizard() {
       className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
       data-testid="socratic-intake-wizard"
     >
-      <div className="min-w-0 space-y-4">
+      {/* Flex gap, not space-y: child `m-0` beats Tailwind v4 space-y (`:where()`, 0 specificity). */}
+      <div className="flex min-w-0 flex-col gap-4">
       {wizardSession.pendingRestore !== null && !suppressWizardResumePrompt ? (
         <WizardSessionResumePrompt
           onResume={wizardSession.acceptRestore}
@@ -313,10 +314,7 @@ export function SocraticIntakeWizard() {
 
       {step === 1 ? (
         <div data-testid="socratic-clarifications-step">
-          <Card
-            className={WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS}
-            data-testid="guided-intake-primary-panel"
-          >
+          <Card data-testid="guided-intake-primary-panel">
             <CardHeader>
             <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
             <CardDescription>
@@ -336,7 +334,12 @@ export function SocraticIntakeWizard() {
               {REQUIRED_CLARIFICATION_BASELINE_LABEL}
             </p>
           </CardHeader>
-          <CardContent className={OPERATOR_LAYOUT.sectionStack}>
+          <CardContent
+            className={cn(
+              OPERATOR_LAYOUT.sectionStack,
+              viewAllClarifications ? WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS : undefined,
+            )}
+          >
             {primaryPendingQuestion !== null
               ? renderClarificationField(primaryPendingQuestion, {
                   isPrimary: true,

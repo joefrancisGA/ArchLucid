@@ -67,6 +67,8 @@ describe("guided-intake band regression (TB-1880)", () => {
     );
 
     expect(wizardSource).toContain('data-testid="guided-intake-primary-panel"');
+    expect(wizardSource).toContain('data-testid="socratic-source-architecture-banner"');
+    expect(wizardSource).toContain("flex min-w-0 flex-col gap-4");
     expect(wizardSource).not.toContain("border-teal-200");
     expect(wizardSource).not.toContain("border-sky-300");
   });
