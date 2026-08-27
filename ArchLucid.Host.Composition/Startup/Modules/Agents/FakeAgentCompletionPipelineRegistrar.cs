@@ -8,6 +8,8 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentSimulation;
 using ArchLucid.Host.Composition.AzureOpenAI;
 using ArchLucid.Retrieval.PolicyPacks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 
@@ -21,76 +23,86 @@ internal static class FakeAgentCompletionPipelineRegistrar
     /// </summary>
     internal static void RegisterFakeAgentCompletionClient(IServiceCollection services)
     {
+        services.AddScoped(static _ => CreateFakeScopedInnerAgentCompletionClient());
+
+        AgentModelTierCompositionModule.RegisterPassThroughTierCompletionRouter(services);
+        SchemaRemediationCompletionRegistrar.RegisterSchemaRemediationAgentCompletionClient(services, useAzureOpenAi: false);
+        AgentModelTierCompositionModule.RegisterAgentCompletionClientFromTierRouter(services);
+    }
+
+    internal static void TryRegisterBaselineScopedInnerClient(IServiceCollection services)
+    {
+        services.TryAddScoped(static _ => CreateFakeScopedInnerAgentCompletionClient());
+    }
+
+    private static ScopedInnerAgentCompletionClient CreateFakeScopedInnerAgentCompletionClient()
+    {
         JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web)
         {
             PropertyNameCaseInsensitive = true,
             Converters = { new JsonStringEnumConverter() }
         };
 
-        services.AddScoped<ScopedInnerAgentCompletionClient>(_ => new ScopedInnerAgentCompletionClient(
+        return new ScopedInnerAgentCompletionClient(
             new FakeAgentCompletionClient(
-            (systemPrompt, userPrompt) =>
-            {
-                if (systemPrompt.Contains(QuickScanLlmPrompts.ClientRoutingMarker, StringComparison.OrdinalIgnoreCase))
-                    return FakeQuickScanCompletionJson.Build(userPrompt);
-
-                if (systemPrompt.Contains(PolicyPackExplainLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
+                (systemPrompt, userPrompt) =>
                 {
-                    return """
-                           ## Purpose
-                           Simulator stub — replace with a live LLM deployment for narrative summaries.
+                    if (systemPrompt.Contains(QuickScanLlmPrompts.ClientRoutingMarker, StringComparison.OrdinalIgnoreCase))
+                        return FakeQuickScanCompletionJson.Build(userPrompt);
 
-                           ## Key rules
-                           - Advisory only; verify against the JSON in production.
+                    if (systemPrompt.Contains(PolicyPackExplainLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
+                    {
+                        return """
+                               ## Purpose
+                               Simulator stub — replace with a live LLM deployment for narrative summaries.
 
-                           ## Operational impact
-                           None (offline completion).
-                           """;
-                }
+                               ## Key rules
+                               - Advisory only; verify against the JSON in production.
 
-                if (systemPrompt.Contains(ArchitectureOverviewRewriteLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
-                    return FakeArchitectureOverviewRewriteCompletionJson.Build(userPrompt);
+                               ## Operational impact
+                               None (offline completion).
+                               """;
+                    }
 
-                if (systemPrompt.Contains(DraftIntakeReasoningLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
-                    return FakeDraftIntakeReasoningCompletionJson.Build(userPrompt);
+                    if (systemPrompt.Contains(ArchitectureOverviewRewriteLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
+                        return FakeArchitectureOverviewRewriteCompletionJson.Build(userPrompt);
 
-                if (systemPrompt.Contains("senior enterprise architect", StringComparison.OrdinalIgnoreCase))
-                {
-                    return """
-                           {"answer":"Stub grounded answer for offline Ask completions. Risk:\n\nEvidence supports the manifest decisions in scope.\n\nMitigation:\n\nReview referenced decisions before commit.\n\nValidation:\n\nRe-run after manifest changes.","referencedDecisions":[],"referencedFindings":[],"referencedArtifacts":[]}
-                           """;
-                }
+                    if (systemPrompt.Contains(DraftIntakeReasoningLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
+                        return FakeDraftIntakeReasoningCompletionJson.Build(userPrompt);
 
-                string runId = "RUN-001";
-                string taskId = "TASK-TOPO-001";
+                    if (systemPrompt.Contains("senior enterprise architect", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return """
+                               {"answer":"Stub grounded answer for offline Ask completions. Risk:\n\nEvidence supports the manifest decisions in scope.\n\nMitigation:\n\nReview referenced decisions before commit.\n\nValidation:\n\nRe-run after manifest changes.","referencedDecisions":[],"referencedFindings":[],"referencedArtifacts":[]}
+                               """;
+                    }
 
-                foreach (string line in userPrompt.Split('\n'))
-                {
-                    ReadOnlySpan<char> span = line.AsSpan().Trim();
+                    string runId = "RUN-001";
+                    string taskId = "TASK-TOPO-001";
 
-                    if (span.StartsWith("RunId:", StringComparison.OrdinalIgnoreCase))
+                    foreach (string line in userPrompt.Split('\n'))
+                    {
+                        ReadOnlySpan<char> span = line.AsSpan().Trim();
 
-                        runId = span.Length > 6 ? span[6..].Trim().ToString() : runId;
+                        if (span.StartsWith("RunId:", StringComparison.OrdinalIgnoreCase))
 
-                    else if (span.StartsWith("TaskId:", StringComparison.OrdinalIgnoreCase))
+                            runId = span.Length > 6 ? span[6..].Trim().ToString() : runId;
 
-                        taskId = span.Length > 7 ? span[7..].Trim().ToString() : taskId;
+                        else if (span.StartsWith("TaskId:", StringComparison.OrdinalIgnoreCase))
 
-                }
+                            taskId = span.Length > 7 ? span[7..].Trim().ToString() : taskId;
 
-                ArchitectureRequest dummyRequest = new()
-                {
-                    SystemName = "Default",
-                    Description = "Default request for fake topology response.",
-                    Environment = "prod"
-                };
-                AgentResult result = FakeScenarioFactory.CreateTopologyResult(runId, taskId, dummyRequest);
+                    }
 
-                return JsonSerializer.Serialize(result, jsonOptions);
-            })));
+                    ArchitectureRequest dummyRequest = new()
+                    {
+                        SystemName = "Default",
+                        Description = "Default request for fake topology response.",
+                        Environment = "prod"
+                    };
+                    AgentResult result = FakeScenarioFactory.CreateTopologyResult(runId, taskId, dummyRequest);
 
-        AgentModelTierCompositionModule.RegisterPassThroughTierCompletionRouter(services);
-        SchemaRemediationCompletionRegistrar.RegisterSchemaRemediationAgentCompletionClient(services, useAzureOpenAi: false);
-        AgentModelTierCompositionModule.RegisterAgentCompletionClientFromTierRouter(services);
+                    return JsonSerializer.Serialize(result, jsonOptions);
+                }));
     }
 }
