@@ -66,6 +66,8 @@ public sealed partial class GovernanceController(
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
+    private const int MaxApprovalRequestIdLength = 64;
+
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -128,6 +130,13 @@ public sealed partial class GovernanceController(
         if (string.IsNullOrEmpty(normalizedApprovalRequestId))
             return this.BadRequestProblem("approvalRequestId is required.", ProblemTypes.ValidationFailed);
 
+        if (normalizedApprovalRequestId.Length > MaxApprovalRequestIdLength)
+        {
+            return this.BadRequestProblem(
+                "ApprovalRequestId must not exceed 64 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         return null;
     }
 
@@ -143,6 +152,13 @@ public sealed partial class GovernanceController(
 
         if (string.IsNullOrEmpty(normalizedApprovalRequestId))
             return this.BadRequestProblem("approvalRequestId is required.", ProblemTypes.ValidationFailed);
+
+        if (normalizedApprovalRequestId.Length > MaxApprovalRequestIdLength)
+        {
+            return this.BadRequestProblem(
+                "ApprovalRequestId must not exceed 64 characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         return null;
     }

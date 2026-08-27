@@ -399,6 +399,13 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (distinctIds.Any(static id => id.Length > MaxApprovalRequestIdLength))
+        {
+            return this.BadRequestProblem(
+                "ApprovalRequestId must not exceed 64 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         foreach (string approvalRequestId in distinctIds)
 
             try
