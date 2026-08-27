@@ -16,4 +16,12 @@ internal static class ClosedLoopTenantIdNormalizer
 
         return tenantId.Trim();
     }
+
+    public static string NormalizeForHash(string? tenantId)
+    {
+        if (string.IsNullOrWhiteSpace(tenantId))
+            return string.Empty;
+
+        return tenantId.Trim();
+    }
 }

@@ -16,4 +16,12 @@ internal static class ClosedLoopWorkspaceIdNormalizer
 
         return workspaceId.Trim();
     }
+
+    public static string NormalizeForHash(string? workspaceId)
+    {
+        if (string.IsNullOrWhiteSpace(workspaceId))
+            return string.Empty;
+
+        return workspaceId.Trim();
+    }
 }

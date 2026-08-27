@@ -16,4 +16,12 @@ internal static class ClosedLoopProjectIdNormalizer
 
         return projectId.Trim();
     }
+
+    public static string NormalizeForHash(string? projectId)
+    {
+        if (string.IsNullOrWhiteSpace(projectId))
+            return string.Empty;
+
+        return projectId.Trim();
+    }
 }

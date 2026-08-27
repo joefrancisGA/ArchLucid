@@ -141,15 +141,9 @@ public static class ReviewCacheManifestBuilder
     {
         string payload = string.Join(
             '|',
-            request.TenantId is null
-                ? string.Empty
-                : ClosedLoopTenantIdNormalizer.NormalizeRequired(request.TenantId),
-            request.WorkspaceId is null
-                ? string.Empty
-                : ClosedLoopWorkspaceIdNormalizer.NormalizeRequired(request.WorkspaceId),
-            request.ProjectId is null
-                ? string.Empty
-                : ClosedLoopProjectIdNormalizer.NormalizeRequired(request.ProjectId));
+            ClosedLoopTenantIdNormalizer.NormalizeForHash(request.TenantId),
+            ClosedLoopWorkspaceIdNormalizer.NormalizeForHash(request.WorkspaceId),
+            ClosedLoopProjectIdNormalizer.NormalizeForHash(request.ProjectId));
 
         return Sha256Hex(payload);
     }
