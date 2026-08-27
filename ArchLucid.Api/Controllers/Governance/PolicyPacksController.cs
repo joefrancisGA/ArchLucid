@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
@@ -35,11 +36,19 @@ public sealed partial class PolicyPacksController(
     IPolicyPackWorkflowFacade workflow,
     IValidator<CreatePolicyPackRequest> createPolicyPackRequestValidator,
     IValidator<PublishPolicyPackVersionRequest> publishPolicyPackVersionRequestValidator,
-    IValidator<AssignPolicyPackRequest> assignPolicyPackRequestValidator)
+    IValidator<AssignPolicyPackRequest> assignPolicyPackRequestValidator,
+    IScopeContextProvider scopeContextProvider,
+    ITenantRepository tenantRepository)
     : ControllerBase
 {
     private readonly IPolicyPackWorkflowFacade _workflow =
         workflow ?? throw new ArgumentNullException(nameof(workflow));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     private readonly IValidator<CreatePolicyPackRequest> _createPolicyPackRequestValidator =
         createPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(createPolicyPackRequestValidator));
@@ -214,8 +223,15 @@ public sealed partial class PolicyPacksController(
     /// <summary>Lists packs whose authoring scope matches the current tenant/workspace/project.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPack>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<PolicyPack>>> List(CancellationToken ct = default)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> List(CancellationToken ct = default)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, ct).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         IReadOnlyList<PolicyPack> visiblePacks = await _workflow.ListVisiblePacksAsync(ct);
         return Ok(visiblePacks);
     }
