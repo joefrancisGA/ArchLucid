@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 90
-- **bugs-found:** 227
+- **hunts:** 91
+- **bugs-found:** 228
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — batch-review null decision/ids returns 400
+- **last-bug:** 2026-08-27 — simulate-bulk/dry-run null run-id lists return 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2541,6 +2541,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — null `Decision` or `ApprovalRequestIds` dereferenced `.Trim()` / `.Count` (HTTP 500) instead of HTTP 400 (`GovernancePreviewController.Preview` / batch whitespace parity) — **hit 2026-08-27:** `IsNullOrWhiteSpace` / null-list guards before trim; regression in `GovernanceControllerRunHistoryScopeTests`.
 
 2026-08-27 seed hunt #173: proved batch-review null decision and approval id list validation.
+
+- [x] (proven) `PolicyPacksController.SimulateBulk` / `GovernanceController.DryRunPolicyPack` — null `runIds` / `evaluateAgainstRunIds` dereferenced `.Count` (HTTP 500) instead of HTTP 400 (`BatchReviewApprovalRequests` null-list parity) — **hit 2026-08-27:** null-list guards before count; regression in `PolicyPacksControllerSimulateBulkScopeTests` and `GovernanceControllerSimulateTests`.
+
+2026-08-27 seed hunt #174: proved simulate-bulk/dry-run null run-id list validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

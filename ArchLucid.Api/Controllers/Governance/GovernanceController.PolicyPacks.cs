@@ -202,7 +202,7 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (request.EvaluateAgainstRunIds.Count == 0)
+        if (request.EvaluateAgainstRunIds is null || request.EvaluateAgainstRunIds.Count == 0)
             return this.BadRequestProblem(
                 "evaluateAgainstRunIds must contain at least one run id.",
                 ProblemTypes.ValidationFailed);
