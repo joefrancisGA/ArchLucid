@@ -161,6 +161,11 @@ public sealed class DraftIntakeReasoningService(
         {
             throw;
         }
+        catch (InvalidOperationException ex) when (
+            ex.Message.Contains(DevSwitchableAgentCompletionClient.LiveCompletionUnavailableMessage, StringComparison.Ordinal))
+        {
+            return DevSwitchableAgentCompletionClient.LiveCompletionUnavailableMessage;
+        }
         catch (Exception ex)
         {
             _logger.LogWarning(

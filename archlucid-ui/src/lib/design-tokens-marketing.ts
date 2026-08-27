@@ -103,7 +103,7 @@ export const CTA_WIDTH = {
 
 /** Outline hero CTA sizing/contrast — never combine with {@link OPERATOR_TYPOGRAPHY.body} on the same control (overrides button fg). */
 export const MARKETING_HERO_SECONDARY_CTA_CLASS =
-  `h-11 min-h-11 ${CTA_WIDTH.content} border-neutral-300 bg-white px-8 text-neutral-900 shadow-sm hover:bg-neutral-100 sm:min-w-[12rem] dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800`;
+  `h-11 min-h-11 ${CTA_WIDTH.content} border-neutral-300 bg-white px-8 text-neutral-900 shadow-sm hover:bg-neutral-100 sm:min-w-[12rem] dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 ${OPERATOR_TYPOGRAPHY.button}`;
 
 /** Filled primary shell for marketing badges/step indicators — mirrors operator `Button` variant `primary` fill. */
 export const MARKETING_PRIMARY_FILL_CLASS =
@@ -111,7 +111,8 @@ export const MARKETING_PRIMARY_FILL_CLASS =
 
 /** Primary marketing CTA anchor — shares `--al-primary-action-*` with operator `Button` variant `primary` (**TB-2292**). */
 export const MARKETING_PRIMARY_CTA_CLASS = cn(
-  "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium no-underline",
+  "inline-flex items-center justify-center rounded-md px-4 py-2 no-underline",
+  OPERATOR_TYPOGRAPHY.button,
   "hover:bg-[var(--al-primary-action-bg-hover)]",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-primary-action-ring)] focus-visible:ring-offset-2",
   MARKETING_PRIMARY_FILL_CLASS,

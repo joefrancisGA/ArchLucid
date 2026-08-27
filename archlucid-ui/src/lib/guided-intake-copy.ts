@@ -270,6 +270,26 @@ export function guidedIntakeClarificationsAnsweredCounter(
 export const GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT =
   "Handle all required clarifications before reviewing answers.";
 
+export const GUIDED_INTAKE_REVIEW_ANSWERS_LABEL = "Review answers";
+
+export const GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL = "Start review";
+
+/** Clarifications-step footer CTA — advances to create-review once every MUST is handled. */
+export function resolveGuidedIntakeClarificationsDoneLabel(
+  allClarificationsHandled: boolean,
+  busy: boolean,
+): string {
+  if (busy) {
+    return "Saving answers…";
+  }
+
+  if (allClarificationsHandled) {
+    return GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL;
+  }
+
+  return GUIDED_INTAKE_REVIEW_ANSWERS_LABEL;
+}
+
 export const GUIDED_INTAKE_CREATION_DRAFT_GUIDANCE_CALLOUT =
   "Architecture draft only. Nothing is submitted for review until you explicitly create a review.";
 
