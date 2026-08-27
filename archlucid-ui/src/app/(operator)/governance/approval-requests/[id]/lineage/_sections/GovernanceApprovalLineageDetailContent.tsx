@@ -43,9 +43,13 @@ import { governanceLineageApprovalDisplayTitle } from "./governance-lineage-appr
 
 type GovernanceApprovalLineageDetailContentProps = {
   data: GovernanceLineageResult;
+  readonly findingsQueueRunId?: string | null;
 };
 
-export function GovernanceApprovalLineageDetailContent({ data }: GovernanceApprovalLineageDetailContentProps) {
+export function GovernanceApprovalLineageDetailContent({
+  data,
+  findingsQueueRunId = null,
+}: GovernanceApprovalLineageDetailContentProps) {
   const a = data.approvalRequest;
   const displayApprovalTitle = governanceLineageApprovalDisplayTitle(a.requestComment);
   const approvalStatus = governanceApprovalStatusTagPresentation(a.status);
@@ -209,7 +213,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
                     <SeverityTag severity={finding.severity} />
                     <Link
                       className={cn("font-medium", OPERATOR_LINK.inline)}
-                      href={getFindingDetailHref(a.runId, finding.findingId)}
+                      href={getFindingDetailHref(a.runId, finding.findingId, findingsQueueRunId)}
                       aria-label={`Open finding: ${finding.title}`}
                     >
                       {finding.title}

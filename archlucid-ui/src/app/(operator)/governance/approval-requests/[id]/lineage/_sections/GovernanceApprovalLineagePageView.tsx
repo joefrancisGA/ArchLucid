@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -10,6 +11,8 @@ import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessag
 import { Button } from "@/components/ui/button";
 import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
 import { GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { GovernanceApprovalLineageDetailContent } from "./GovernanceApprovalLineageDetailContent";
 import { GovernanceApprovalLineageNextRequestFooterClient } from "./GovernanceApprovalLineageNextRequestFooterClient";
@@ -18,9 +21,13 @@ import type { UseGovernanceApprovalLineagePageModel } from "./use-governance-app
 
 type GovernanceApprovalLineagePageViewProps = {
   model: UseGovernanceApprovalLineagePageModel;
+  readonly findingsQueueRunId?: string | null;
 };
 
-export function GovernanceApprovalLineagePageView({ model }: GovernanceApprovalLineagePageViewProps) {
+export function GovernanceApprovalLineagePageView({
+  model,
+  findingsQueueRunId = null,
+}: GovernanceApprovalLineagePageViewProps) {
   const { buyerPolishedShell, data, failure, load, loading, nextDemo } = model;
 
   if (failure !== null && resolveApiLoadFailurePresentation(failure) !== "error") {
@@ -93,9 +100,29 @@ export function GovernanceApprovalLineagePageView({ model }: GovernanceApprovalL
     return <EnterpriseCompactEmptyState {...GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT} />;
   }
 
+  const scopedRunId = data.approvalRequest.runId.trim();
+  const reviewPackageHref = `/architecture/reviews/${encodeURIComponent(scopedRunId)}`;
+
   return (
     <>
-      <GovernanceApprovalLineageDetailContent data={data} />
+      {scopedRunId.length > 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="approval-lineage-run-scope-banner"
+        >
+          {"Approval lineage for review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_APPROVAL_QUEUE_PATH}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={reviewPackageHref}>
+            Open review
+          </Link>
+        </p>
+      ) : null}
+      <GovernanceApprovalLineageDetailContent data={data} findingsQueueRunId={findingsQueueRunId} />
       <GovernanceApprovalLineageNextRequestFooterClient
         runId={data.run?.runId ?? data.approvalRequest.runId}
         currentApprovalRequestId={model.approvalRequestId}

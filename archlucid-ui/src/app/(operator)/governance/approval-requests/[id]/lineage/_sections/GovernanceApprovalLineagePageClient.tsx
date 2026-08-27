@@ -6,11 +6,17 @@ import { useGovernanceApprovalLineagePage } from "./use-governance-approval-line
 
 type Props = {
   readonly loaded: GovernanceApprovalLineagePageServerLoad;
+  readonly findingsQueueRunId?: string | null;
 };
 
 /** Client shell; lineage is prefetched from `page.tsx`; Retry buttons call `load()`. */
 export function GovernanceApprovalLineagePageClient(props: Props) {
   const model = useGovernanceApprovalLineagePage(props.loaded);
 
-  return <GovernanceApprovalLineagePageView model={model} />;
+  return (
+    <GovernanceApprovalLineagePageView
+      model={model}
+      findingsQueueRunId={props.findingsQueueRunId ?? null}
+    />
+  );
 }
