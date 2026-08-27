@@ -89,10 +89,10 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             sponsorPacket.Object,
             query.Object,
             deltas.Object,
-            collectionResolver,
             valueReport,
             scopeProvider.Object,
-            pilotBaselines.Object);
+            pilotBaselines.Object,
+            collectionResolver);
 
         BuyerProofPackBuildResult? result =
             await sut.TryBuildZipAsync(RunId.ToString(), "http://localhost:5000");
