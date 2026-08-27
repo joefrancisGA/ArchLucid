@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 77
-- **bugs-found:** 214
+- **hunts:** 78
+- **bugs-found:** 215
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — product feedback empty runId returns 400
+- **last-bug:** 2026-08-27 — governance empty-guid runId returns 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2486,6 +2486,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `runId = Guid.Empty` reached scoped run lookup and returned HTTP 404 `RunNotFound` instead of HTTP 400 (`null` omits run binding; empty guid is invalid input) — **hit 2026-08-27:** reject `Guid.Empty` before repository lookup; regression in `TenantCustomerSuccessControllerTests`.
 
 2026-08-27 seed hunt #160: proved product-feedback empty runId validation.
+
+- [x] (proven) `GovernanceController.RequireScopedRunAsync` / run-history routes — `runId = 00000000-0000-0000-0000-000000000000` parsed as valid GUID and returned HTTP 404 `RunNotFound` instead of HTTP 400 (`Guid.Empty` is invalid input; whitespace already 400) — **hit 2026-08-27:** reject `Guid.Empty` after parse; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernancePreCommitSimulationController.GetChecklist` / `SimulateAsync` — empty-guid `runId` reached scoped run lookup and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** reject `Guid.Empty` after parse (scoped-run parity); regression in `GovernancePreCommitSimulationControllerTests`.
+- [x] (proven) `GovernancePreviewController.Preview` — body `runId = 00000000-0000-0000-0000-000000000000` reached `PreviewActivationAsync` and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** reject empty guid before service call; regression in `GovernancePreviewControllerUnitTests`.
+
+2026-08-27 seed hunt #161: proved governance empty-guid runId validation parity.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

@@ -162,6 +162,40 @@ public sealed class GovernancePreCommitSimulationControllerTests
     }
 
     [Fact]
+    public async Task GetChecklist_returns_bad_request_when_run_id_is_empty_guid()
+    {
+        GovernancePreCommitSimulationController sut = CreateController();
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetChecklistAsync(Guid.Empty.ToString("D"), CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_run_id_is_empty_guid()
+    {
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(gate: gate.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = Guid.Empty.ToString("D"),
+                SyntheticSeverity = FindingSeverity.Critical,
+                SyntheticCount = 1,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        gate.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetChecklist_returns_bad_request_with_trimmed_run_id_when_route_is_padded_and_invalid()
     {
         GovernancePreCommitSimulationController sut = CreateController();

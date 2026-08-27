@@ -73,6 +73,9 @@ public sealed class GovernancePreCommitSimulationController(
                 $"Run ID '{runIdNormalized}' is not valid.",
                 ProblemTypes.BadRequest);
 
+        if (Guid.Parse(runIdNormalized) == Guid.Empty)
+            return this.BadRequestProblem("Run ID is required.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -116,6 +119,9 @@ public sealed class GovernancePreCommitSimulationController(
             return this.BadRequestProblem(
                 $"Run ID '{runIdNormalized}' is not valid.",
                 ProblemTypes.BadRequest);
+
+        if (Guid.Parse(runIdNormalized) == Guid.Empty)
+            return this.BadRequestProblem("Run ID is required.", ProblemTypes.ValidationFailed);
 
         if (body.SyntheticCount < 0)
             return this.BadRequestProblem("syntheticCount must be non-negative.", ProblemTypes.ValidationFailed);

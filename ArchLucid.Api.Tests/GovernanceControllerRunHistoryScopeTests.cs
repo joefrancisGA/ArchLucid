@@ -87,6 +87,23 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task GetApprovalRequests_returns_bad_request_when_run_id_is_empty_guid()
+    {
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(runRepository: runs.Object, approvalRepository: approvals.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetApprovalRequests(Guid.Empty.ToString("D"), CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        runs.VerifyNoOtherCalls();
+        approvals.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetApprovalRequests_returns_items_when_route_run_id_is_padded()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

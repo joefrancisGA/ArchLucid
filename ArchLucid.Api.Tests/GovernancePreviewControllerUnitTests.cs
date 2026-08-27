@@ -72,6 +72,27 @@ public sealed class GovernancePreviewControllerUnitTests
     }
 
     [Fact]
+    public async Task Preview_returns_bad_request_when_run_id_is_empty_guid()
+    {
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = Guid.Empty.ToString("D"),
+                ManifestVersion = "v1",
+                Environment = "dev",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CompareEnvironments_returns_not_found_when_tenant_missing()
     {
         Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);

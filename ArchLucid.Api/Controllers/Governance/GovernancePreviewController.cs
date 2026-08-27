@@ -51,6 +51,9 @@ public sealed class GovernancePreviewController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (Guid.TryParse(body.RunId.Trim(), out Guid runGuid) && runGuid == Guid.Empty)
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
