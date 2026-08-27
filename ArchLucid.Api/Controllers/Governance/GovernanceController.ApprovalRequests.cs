@@ -49,6 +49,11 @@ public sealed partial class GovernanceController
         if (idempotencyError is not null)
             return idempotencyError;
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
@@ -102,6 +107,11 @@ public sealed partial class GovernanceController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
@@ -174,6 +184,11 @@ public sealed partial class GovernanceController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
@@ -264,6 +279,11 @@ public sealed partial class GovernanceController
 
         if (!approve && !reject)
             return this.BadRequestProblem("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();

@@ -160,6 +160,56 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task Approve_returns_not_found_when_tenant_missing()
+    {
+        const string approvalRequestId = "apr-approve-tenant-missing";
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            tenantRepository: TenantMissingRepository(),
+            approvalRepository: approvals.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Approve(
+            approvalRequestId,
+            new ApproveGovernanceRequest { ReviewComment = "ok" },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        approvals.VerifyNoOtherCalls();
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Reject_returns_not_found_when_tenant_missing()
+    {
+        const string approvalRequestId = "apr-reject-tenant-missing";
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            tenantRepository: TenantMissingRepository(),
+            approvalRepository: approvals.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Reject(
+            approvalRequestId,
+            new RejectGovernanceRequest { ReviewComment = "no" },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        approvals.VerifyNoOtherCalls();
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Approve_returns_not_found_when_approval_run_is_out_of_scope()
     {
         const string approvalRequestId = "apr-approve-stale-run";
@@ -222,6 +272,60 @@ public sealed class GovernanceControllerRunHistoryScopeTests
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task SubmitApprovalRequest_returns_not_found_when_tenant_missing()
+    {
+        Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            tenantRepository: TenantMissingRepository(),
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SubmitApprovalRequest(
+            new CreateGovernanceApprovalRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task BatchReviewApprovalRequests_returns_not_found_when_tenant_missing()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            tenantRepository: TenantMissingRepository(),
+            approvalRepository: approvals.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.BatchReviewApprovalRequests(
+            new GovernanceApprovalBatchReviewRequest
+            {
+                ApprovalRequestIds = ["apr-batch-tenant-missing"],
+                Decision = "approve",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        approvals.VerifyNoOtherCalls();
         workflow.VerifyNoOtherCalls();
     }
 
