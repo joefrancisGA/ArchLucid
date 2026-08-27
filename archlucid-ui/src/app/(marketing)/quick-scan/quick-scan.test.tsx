@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { QuickScanClient } from "@/app/(marketing)/quick-scan/QuickScanClient";
@@ -48,5 +48,31 @@ describe("QuickScanClient", () => {
     fireEvent.blur(screen.getByLabelText(/System name/i));
 
     expect(document.getElementById("quick-scan-system-name-error")).toHaveTextContent("System name is required.");
+  });
+
+  it("capacity banner sign-in link returns to quick scan after authentication", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          enabled: true,
+          capacityAvailable: false,
+          requireSignIn: true,
+          sampleResultAvailable: true,
+          capacityState: "AnonymousLimit",
+          capacityStateMessage: "You have reached the anonymous Quick Scan limit.",
+        }),
+      }),
+    );
+
+    render(<QuickScanClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute(
+        "href",
+        "/auth/signin?returnUrl=%2Fquick-scan",
+      );
+    });
   });
 });
