@@ -1,7 +1,12 @@
 import { Suspense } from "react";
 
 import { cn } from "@/lib/utils";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import {
+  resolveRunDetailReviewPackageInspectEmphasizedStepId,
+  resolveRunDetailReviewPackageInspectSteps,
+} from "@/lib/run-detail-review-package-inspect-checklist";
 
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import {
@@ -52,9 +57,28 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
     showDemoMarketingChrome,
     showGovernanceCtaCard,
   } = presentation;
+  const runId = m.resolvedDetail.run.runId.trim();
+  const reviewPackageInspectSteps = resolveRunDetailReviewPackageInspectSteps({
+    reviewPicked: runId.length > 0,
+    packageLoaded: Boolean(m.manifestId),
+    findingsReviewed: (m.findingCountDisplay ?? 0) > 0,
+  });
+  const reviewPackageInspectEmphasizedStepId = resolveRunDetailReviewPackageInspectEmphasizedStepId({
+    reviewPicked: runId.length > 0,
+    packageLoaded: Boolean(m.manifestId),
+    findingsReviewed: (m.findingCountDisplay ?? 0) > 0,
+  });
 
   return (
     <>
+      {m.buyerPolishedArtifactTable && m.manifestId ? (
+        <IntegrationConnectChecklist
+          title="Review package inspect checklist"
+          steps={reviewPackageInspectSteps}
+          emphasizedStepId={reviewPackageInspectEmphasizedStepId}
+          testIdPrefix="run-detail-review-package"
+        />
+      ) : null}
       {reviewPolicyPackCallout !== null ? (
         <RunDetailPolicyPackImpactCalloutDeferred
           ruleSetId={reviewPolicyPackCallout.ruleSetId}
