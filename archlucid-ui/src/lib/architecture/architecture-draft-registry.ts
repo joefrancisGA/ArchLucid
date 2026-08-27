@@ -60,14 +60,15 @@ function writeSnapshot(snapshot: ArchitectureDraftRegistrySnapshot): void {
   }
 
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-  cachedArchitectureDraftRegistrySignature = "";
+  // Null marks the snapshot cache stale. Do not use "" — that is also the signature for an empty list.
+  cachedArchitectureDraftRegistrySignature = null;
   notifyArchitectureDraftRegistryListeners();
 }
 
 const architectureDraftRegistryListeners = new Set<() => void>();
 
 let cachedArchitectureDraftRegistrySnapshot: readonly ArchitectureDraftRegistryEntry[] = [];
-let cachedArchitectureDraftRegistrySignature = "";
+let cachedArchitectureDraftRegistrySignature: string | null = null;
 
 function architectureDraftRegistrySignature(entries: readonly ArchitectureDraftRegistryEntry[]): string {
   return entries

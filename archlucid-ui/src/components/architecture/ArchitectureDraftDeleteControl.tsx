@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
@@ -37,6 +37,7 @@ export type ArchitectureDraftDeleteControlProps = {
 /** Confirms and abandons a pre-review architecture draft (irreversible). */
 export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteControlProps): React.JSX.Element | null {
   const router = useRouter();
+  const pathname = usePathname();
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -53,9 +54,13 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
     toast.success(ARCHITECTURE_DRAFT_DELETE_SUCCESS_TOAST);
     props.onDeleted?.();
     setConfirmOpen(false);
-    router.push(ARCHITECTURES_LIST_PATH);
+
+    if (pathname !== ARCHITECTURES_LIST_PATH) {
+      router.push(ARCHITECTURES_LIST_PATH);
+    }
+
     router.refresh();
-  }, [props, router]);
+  }, [pathname, props, router]);
 
   const handleConfirm = useCallback(async () => {
     setBusy(true);
