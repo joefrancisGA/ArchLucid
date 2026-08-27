@@ -98,6 +98,11 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         PolicyPackCatalogEntryDetail? row;
 
         try
@@ -132,6 +137,11 @@ public sealed partial class PolicyPacksController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         bool ok = await _workflow.TryDemoteCatalogEntryAsync(request.PolicyPackCatalogEntryId, ct);
 
