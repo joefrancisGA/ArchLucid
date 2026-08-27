@@ -108,6 +108,27 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task DryRunPolicyPack_returns_bad_request_when_more_than_fifty_evaluate_against_run_ids()
+    {
+        Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+
+        List<string> runIds = Enumerable.Range(0, 51).Select(static i => $"run-{i}").ToList();
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            new PolicyPackDryRunRequest { EvaluateAgainstRunIds = runIds },
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task DryRunPolicyPack_returns_not_found_when_tenant_missing()
     {
         Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);

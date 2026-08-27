@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 59
-- **bugs-found:** 184
+- **hunts:** 61
+- **bugs-found:** 187
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — governance preview/approval trim and batch whitespace validation
+- **last-bug:** 2026-08-27 — bulk-disposition whitespace + dry-run 50-run cap parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2423,6 +2423,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Approve` / `Reject` / `GetApprovalRequestLineage` / `GetApprovalRequestRationale` / `Promote` — padded `approvalRequestId` route or body value returned HTTP 404 though approval existed — **hit 2026-08-27:** `NormalizeApprovalRequestId` before repository lookup (batch-review trim parity); regression in `GovernanceControllerRunHistoryScopeTests.Approve_returns_ok_when_approval_request_id_is_padded`.
 - [x] (proven) `PolicyPacksController.SimulateBulk` — non-empty `runIds` array of whitespace-only strings returned HTTP 200 with zero evaluated runs instead of HTTP 400 — **hit 2026-08-27:** reject when trimmed id list is empty after `Count > 0` guard; regression in `PolicyPacksControllerSimulateBulkScopeTests.SimulateBulk_returns_bad_request_when_all_run_ids_are_whitespace`.
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — non-empty `evaluateAgainstRunIds` array of whitespace-only strings returned HTTP 200 empty page instead of HTTP 400 — **hit 2026-08-27:** reject when trimmed run id list is empty after `Count > 0` guard; regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_returns_bad_request_when_all_evaluate_against_run_ids_are_whitespace`.
+- [x] (proven) `ManifestsController.LoadManifestWithEvidenceAsync` / `GetManifestBundle` / `GetManifestSummaryEvidence` / export paths — padded `manifestVersion` route values failed lookup and returned HTTP 404 though trimmed version was in scope (`GetManifestInScopeAsync` already trimmed) — **hit 2026-08-27:** route evidence/export loads through `GetManifestInScopeAsync`; regression in `ManifestsControllerEvidenceScopeTests.GetManifestBundle_accepts_padded_manifest_version_when_manifest_is_in_scope`.
+
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — non-empty `findingIds` array of whitespace-only strings returned HTTP 400 only after facade iteration with generic message instead of upfront validation — **hit 2026-08-27:** reject when trimmed id list is empty after `Count > 0` guard (batch-review parity); regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_all_finding_ids_are_whitespace`.
+- [x] (invalid) `TenantPilotValueReportController.GetPilotValueReport` — inverted `fromUtc`/`toUtc` window returns HTTP 200 empty report instead of HTTP 400 — **cheap-disproof 2026-08-27:** duplicate of ledger row above — `PilotValueReportService.BuildAsync` intentionally returns `EmptyReport` for `to <= from`; covered by `PilotValueReportServiceTests.BuildAsync_empty_window_returns_zeros`.
+- [x] (proven) `GovernanceController.DryRunPolicyPack` — more than 50 `evaluateAgainstRunIds` silently truncated to service max instead of HTTP 400 — **hit 2026-08-27:** reject when count exceeds 50 (`PolicyPacksController.SimulateBulk` cap parity); regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_returns_bad_request_when_more_than_fifty_evaluate_against_run_ids`.
+- [x] (invalid) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — ghost tenant returns HTTP 200 preview payload while sibling mutations return tenant 404 — **cheap-disproof 2026-08-27:** re-verify confirms static cron preview with no tenant-scoped persistence (ledger hunt #133 row above).
+
+2026-08-27 thorough hunt #144: proved bulk-disposition whitespace upfront validation and dry-run 50-run cap parity; cheap-disproved pilot inverted-date and recurrence-preview ghost-tenant re-verify candidates.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

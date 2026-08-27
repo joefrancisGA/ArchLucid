@@ -960,6 +960,25 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_all_finding_ids_are_whitespace()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["", "  "],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk"
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task CreateRecurrenceSchedule_returns_not_found_when_source_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

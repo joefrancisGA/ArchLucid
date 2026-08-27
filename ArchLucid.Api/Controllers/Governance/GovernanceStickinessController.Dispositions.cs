@@ -90,6 +90,13 @@ public sealed partial class GovernanceStickinessController
         if (request.FindingIds is null || request.FindingIds.Count == 0)
             return this.BadRequestProblem("At least one FindingId must be provided.", ProblemTypes.ValidationFailed);
 
+        if (!request.FindingIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "At least one non-empty FindingId must be provided.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

@@ -184,6 +184,13 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.EvaluateAgainstRunIds.Count > 50)
+        {
+            return this.BadRequestProblem(
+                "At most 50 run ids are allowed per request.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
