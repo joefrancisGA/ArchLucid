@@ -89,6 +89,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     canSuggestFromEvidence,
     suggestAnswersFromEvidence,
     markQuestionEdited: markL0QuestionEdited,
+    evidenceExtractionProgress,
   } = useInferredUniversalIntakeAnswers({
     briefText,
     evidenceFiles,
@@ -325,6 +326,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     canSuggestFromEvidence,
     suggestAnswersFromEvidence,
     markL0QuestionEdited,
+    evidenceExtractionProgress,
     scopeGateOpen,
     setScopeGateOpen,
     scopeBullets,

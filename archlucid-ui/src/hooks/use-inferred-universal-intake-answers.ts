@@ -6,7 +6,12 @@ import {
   rephraseClarificationAnswersFromExtractedText,
 } from "@/lib/api/clarification-answer-rephrase-api";
 import { ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS } from "@/lib/architecture/architecture-creation-question-definition";
-import { buildArchitectureIntakeInferenceCorpus } from "@/lib/evidence-readable-text";
+import { useEvidenceExtractionProgress, type EvidenceExtractionProgress } from "@/hooks/use-evidence-extraction-progress";
+import {
+  buildArchitectureIntakeInferenceCorpus,
+  evidenceFilesIncludeBinaryArchitectureDocument,
+  evidenceFilesNeedDocumentTextExtraction,
+} from "@/lib/evidence-readable-text";
 import {
   UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS,
   canSuggestUniversalIntakeAnswersFromEvidence,
@@ -29,6 +34,7 @@ type UseInferredUniversalIntakeAnswersResult = {
   readonly canSuggestFromEvidence: boolean;
   readonly suggestAnswersFromEvidence: () => void;
   readonly markQuestionEdited: (questionKey: string) => void;
+  readonly evidenceExtractionProgress: EvidenceExtractionProgress;
 };
 
 /** Prefills empty L0 clarification answers from brief/evidence text without overwriting operator edits. */
@@ -42,10 +48,13 @@ export function useInferredUniversalIntakeAnswers(
   const onAnswersChangeRef = useRef(input.onAnswersChange);
   const answersRef = useRef(input.answers);
   const inputRef = useRef(input);
+  const evidenceExtractionProgress = useEvidenceExtractionProgress();
+  const evidenceExtractionProgressRef = useRef(evidenceExtractionProgress);
 
   onAnswersChangeRef.current = input.onAnswersChange;
   answersRef.current = input.answers;
   inputRef.current = input;
+  evidenceExtractionProgressRef.current = evidenceExtractionProgress;
 
   const canSuggestFromEvidence = canSuggestUniversalIntakeAnswersFromEvidence({
     briefText: input.briefText,
@@ -54,17 +63,50 @@ export function useInferredUniversalIntakeAnswers(
 
   const applyInference = useCallback(async (): Promise<void> => {
     const currentInput = inputRef.current;
+    const progress = evidenceExtractionProgressRef.current;
+    const needsDocumentExtraction = evidenceFilesNeedDocumentTextExtraction(currentInput.evidenceFiles);
+    const hasBinaryDocuments = evidenceFilesIncludeBinaryArchitectureDocument(currentInput.evidenceFiles);
+    const canDraftClarificationAnswers = currentInput.blocksLlmRephrase !== true;
+
     setIsExtractingEvidenceText(true);
 
-    try {
-      const corpus = await buildArchitectureIntakeInferenceCorpus({
-        briefText: currentInput.briefText,
-        evidenceFiles: currentInput.evidenceFiles,
+    if (needsDocumentExtraction) {
+      progress.begin({
+        documentNames: currentInput.evidenceFiles.map((file) => file.name),
+        hasBinaryDocuments,
+        canDraftClarificationAnswers,
       });
+    }
+
+    let suggestedAnswerCount = 0;
+
+    try {
+      const corpus = await buildArchitectureIntakeInferenceCorpus(
+        {
+          briefText: currentInput.briefText,
+          evidenceFiles: currentInput.evidenceFiles,
+        },
+        {
+          onStage: (stageId) => {
+            if (needsDocumentExtraction) {
+              progress.reportStage(stageId);
+            }
+          },
+          onDocumentTextExtracted: ({ characterCount }) => {
+            if (needsDocumentExtraction) {
+              progress.reportExtractedCharacters(characterCount);
+            }
+          },
+        },
+      );
 
       const hasInferenceSource =
         currentInput.evidenceFiles.length > 0
         || currentInput.briefText.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS;
+
+      if (needsDocumentExtraction) {
+        progress.reportStage("identifying-architecture-content");
+      }
 
       const inferredAnswers = inferUniversalIntakeAnswersFromCorpus(corpus);
       let answersToApply = inferredAnswers;
@@ -73,6 +115,10 @@ export function useInferredUniversalIntakeAnswers(
         currentInput.blocksLlmRephrase !== true
         && Object.keys(inferredAnswers).length > 0
       ) {
+        if (needsDocumentExtraction) {
+          progress.reportStage("drafting-clarification-answers");
+        }
+
         const rephraseItems = buildClarificationRephraseItems({
           inferredAnswers,
           questions: ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS,
@@ -100,6 +146,8 @@ export function useInferredUniversalIntakeAnswers(
         lockedQuestionKeys: lockedQuestionKeysRef.current,
       });
 
+      suggestedAnswerCount = newlyInferredQuestionKeys.length;
+
       setClarificationSuggestionsUnavailable(
         hasInferenceSource
           && corpus.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS
@@ -122,6 +170,10 @@ export function useInferredUniversalIntakeAnswers(
       });
     }
     finally {
+      if (needsDocumentExtraction) {
+        progress.complete({ suggestedAnswerCount });
+      }
+
       setIsExtractingEvidenceText(false);
     }
   }, []);
@@ -165,5 +217,6 @@ export function useInferredUniversalIntakeAnswers(
     canSuggestFromEvidence,
     suggestAnswersFromEvidence,
     markQuestionEdited,
+    evidenceExtractionProgress,
   };
 }

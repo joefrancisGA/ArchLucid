@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { StagedProgressStepList } from "@/components/progress/StagedProgressStepList";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewStartStageDefinition, ReviewStartStageId } from "@/lib/review-start-progress-stages";
 import { reviewStartStageIndex } from "@/lib/review-start-progress-stages";
@@ -39,30 +40,12 @@ export function ReviewStartStagedProgress(props: ReviewStartStagedProgressProps)
           {props.detail}
         </p>
       ) : null}
-      <ol className="m-0 mt-3 list-none space-y-1 p-0">
-        {props.stages.map((stage, index) => {
-          const isActive = index === activeIndex;
-          const isComplete = index < activeIndex;
-
-          return (
-            <li
-              key={stage.id}
-              className={cn(
-                OPERATOR_TYPOGRAPHY.helper,
-                isActive
-                  ? "font-medium text-al-text-primary"
-                  : isComplete
-                    ? "text-al-text-secondary"
-                    : "text-al-text-secondary/70",
-              )}
-              aria-current={isActive ? "step" : undefined}
-            >
-              {isComplete ? "✓ " : isActive ? "→ " : "· "}
-              {stage.label}
-            </li>
-          );
-        })}
-      </ol>
+      <StagedProgressStepList
+        steps={props.stages}
+        activeStepIndex={activeIndex}
+        className="mt-3"
+        testId="review-start-staged-progress-steps"
+      />
     </div>
   );
 }
