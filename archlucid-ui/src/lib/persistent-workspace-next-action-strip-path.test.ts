@@ -5,8 +5,8 @@ import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { isPersistentWorkspaceNextActionStripPath } from "@/lib/persistent-workspace-next-action-strip-path";
 
 describe("isPersistentWorkspaceNextActionStripPath", () => {
-  it("allows home, reviews, architecture drafts, and first review guide", () => {
-    expect(isPersistentWorkspaceNextActionStripPath("/")).toBe(true);
+  it("allows reviews, architecture drafts, and first review guide but not home", () => {
+    expect(isPersistentWorkspaceNextActionStripPath("/")).toBe(false);
     expect(isPersistentWorkspaceNextActionStripPath(REVIEWS_LIST_PATH)).toBe(true);
     expect(isPersistentWorkspaceNextActionStripPath(`${REVIEWS_LIST_PATH}/run-123`)).toBe(true);
     expect(isPersistentWorkspaceNextActionStripPath(ARCHITECTURES_LIST_PATH)).toBe(true);
