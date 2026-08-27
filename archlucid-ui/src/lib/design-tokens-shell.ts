@@ -254,8 +254,8 @@ export const OPERATOR_KPI_VALUE =
 /** Page-level actions (primary/secondary CTAs). */
 export const OPERATOR_BUTTON_PAGE_CLASS = `h-9 px-4 ${OPERATOR_TYPE_SCALE.button}`;
 
-/** Compact actions in tables and dense cards. */
-export const OPERATOR_BUTTON_COMPACT_CLASS = `h-7 px-3 ${OPERATOR_TYPE_SCALE.tab}`;
+/** Compact actions in tables and dense cards — same label scale as page buttons. */
+export const OPERATOR_BUTTON_COMPACT_CLASS = `h-7 px-3 ${OPERATOR_TYPE_SCALE.button}`;
 
 /** Inline link treatments — reserve strong teal underline for navigation, not step labels. */
 const OPERATOR_LINK_FOCUS =

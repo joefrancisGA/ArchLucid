@@ -32,7 +32,7 @@ export function TechnicalIdDisclosure(props: TechnicalIdDisclosureProps) {
       {open ? (
         <code className={cn("break-all rounded bg-neutral-100 px-1 font-mono dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{trimmed}</code>
       ) : (
-        <Button type="button" size="sm" variant="outline" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.helper)} onClick={() => setOpen(true)}>
+        <Button type="button" size="sm" variant="outline" className="h-7 px-2" onClick={() => setOpen(true)}>
           Show details
         </Button>
       )}
