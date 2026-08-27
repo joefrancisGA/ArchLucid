@@ -33,10 +33,21 @@ vi.mock("@/lib/use-cloud-platform-scope", () => ({
 
 vi.mock("@/lib/use-iana-time-zone-preference", () => ({
   useIanaTimeZonePreference: () => ({
-    ianaTimeZoneId: "UTC",
+    ianaTimeZoneId: "America/New_York",
     mounted: true,
     accountSyncState: "idle",
     setAndPersist: vi.fn(),
+  }),
+}));
+
+vi.mock("@/lib/use-user-preferences-explicit-flags", () => ({
+  useUserPreferencesExplicitFlags: () => ({
+    appearanceIsExplicit: false,
+    cloudPlatformScopeIsExplicit: false,
+    ianaTimeZoneIsExplicit: false,
+    whereToGoNextIsExplicit: false,
+    sampleReviewsOnOverviewIsExplicit: false,
+    loaded: true,
   }),
 }));
 

@@ -1,36 +1,73 @@
-import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
+export type PreferencesSaveChecklistStepStatus = "default" | "done" | "pending";
+
+export type PreferencesSaveChecklistStep = {
+  readonly id: string;
+  readonly label: string;
+  readonly status: PreferencesSaveChecklistStepStatus;
+};
+
+export type PreferenceSaveStepInput = {
+  readonly isExplicit: boolean;
+  readonly mounted: boolean;
+  readonly accountSyncState: "idle" | "synced" | "local-only";
+};
+
+function resolvePreferenceStepStatus(input: PreferenceSaveStepInput): PreferencesSaveChecklistStepStatus {
+  if (!input.isExplicit) {
+    return "default";
+  }
+
+  if (!input.mounted) {
+    return "pending";
+  }
+
+  if (input.accountSyncState === "synced") {
+    return "done";
+  }
+
+  return "pending";
+}
 
 export function resolvePreferencesSaveSteps(input: {
-  readonly appearanceConfigured: boolean;
-  readonly localeScopeSaved: boolean;
-  readonly followUpPreferencesSaved: boolean;
-}): readonly IntegrationConnectChecklistStep[] {
+  readonly appearance: PreferenceSaveStepInput;
+  readonly timeZone: PreferenceSaveStepInput;
+  readonly cloudPlatforms: PreferenceSaveStepInput;
+  readonly sampleReviewsOnOverview: PreferenceSaveStepInput;
+  readonly followUpLinkStrips: PreferenceSaveStepInput;
+}): readonly PreferencesSaveChecklistStep[] {
   return [
     {
       id: "appearance",
       label: "Choose appearance theme",
-      complete: input.appearanceConfigured,
+      status: resolvePreferenceStepStatus(input.appearance),
     },
     {
-      id: "locale",
-      label: "Save time zone and cloud platform scope",
-      complete: input.localeScopeSaved,
+      id: "time-zone",
+      label: "Choose time zone",
+      status: resolvePreferenceStepStatus(input.timeZone),
     },
     {
-      id: "follow-up",
-      label: "Save follow-up and overview preferences",
-      complete: input.followUpPreferencesSaved,
+      id: "cloud-platforms",
+      label: "Choose cloud platform scope",
+      status: resolvePreferenceStepStatus(input.cloudPlatforms),
+    },
+    {
+      id: "sample-reviews-on-overview",
+      label: "Choose sample reviews on Overview",
+      status: resolvePreferenceStepStatus(input.sampleReviewsOnOverview),
+    },
+    {
+      id: "follow-up-link-strips",
+      label: "Choose follow-up link strips",
+      status: resolvePreferenceStepStatus(input.followUpLinkStrips),
     },
   ];
 }
 
-export function resolvePreferencesSaveEmphasizedStepId(input: {
-  readonly appearanceConfigured: boolean;
-  readonly localeScopeSaved: boolean;
-  readonly followUpPreferencesSaved: boolean;
-}): string {
-  const steps = resolvePreferencesSaveSteps(input);
-  const incomplete = steps.find((step) => !step.complete);
+export function resolvePreferencesSaveEmphasizedStepId(
+  steps: readonly PreferencesSaveChecklistStep[],
+): string {
+  const needsAttention = steps.find((step) => step.status === "default" || step.status === "pending");
 
-  return incomplete?.id ?? "follow-up";
+  return needsAttention?.id ?? steps[steps.length - 1]?.id ?? "appearance";
 }
