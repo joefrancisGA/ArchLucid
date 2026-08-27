@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 102
-- **bugs-found:** 241
+- **hunts:** 103
+- **bugs-found:** 243
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — policy pack GetVersion max-length validation
+- **last-bug:** 2026-08-27 — erasure legal-hold untilUtc validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2595,6 +2595,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `TenantIntegrationsOperationsController.GetAsync` — tenant-wide Teams/Jira/AzureBoards/ServiceNow settings may inflate connector posture for foreign workspaces within the same tenant.
 
 2026-08-27 seed hunt #185: proved policy-pack version and governance submit/activate manifest max-length validation; reseeded legal-hold, catalog-promote version, and integrations-posture candidates.
+
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — past or present `untilUtc` returned HTTP 409 instead of HTTP 400 — **hit 2026-08-27:** controller rejects `untilUtc <= UtcNow` before command; 409 reserved for not-in-quarantine; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_until_utc_is_not_in_the_future`.
+- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — optional `version` bypassed publish/assign SemVer and max-length validation, surfacing HTTP 404 — **hit 2026-08-27:** validate explicit version with `PolicyPackRequestValidationRules` before `TryPromoteCatalogEntryAsync`; regression in `PolicyPacksControllerListScopeTests`.
+- [x] (invalid) `TenantIntegrationsOperationsController.GetAsync` — tenant-wide connector settings inflate posture for foreign workspaces — **cheap-disproof 2026-08-27:** `ConnectorOperationsSummaryReader` intentionally uses tenant-scoped `TenantItsmOutboundSettings` / Teams repos; digest/schedules/alerts remain workspace-scoped.
+
+2026-08-27 thorough hunt #186: proved legal-hold untilUtc and catalog-promote version validation; cheap-disproved integrations tenant-wide connector model.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

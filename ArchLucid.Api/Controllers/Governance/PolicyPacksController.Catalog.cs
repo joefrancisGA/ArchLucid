@@ -111,6 +111,22 @@ public sealed partial class PolicyPacksController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        if (request.Version is not null)
+        {
+            if (string.IsNullOrWhiteSpace(request.Version))
+                return this.BadRequestProblem("Version is required.", ProblemTypes.ValidationFailed);
+
+            if (request.Version.Length > 50)
+                return this.BadRequestProblem("Version must not exceed 50 characters.", ProblemTypes.ValidationFailed);
+
+            if (!PolicyPackRequestValidationRules.BePolicyPackSemVerVersion(request.Version))
+            {
+                return this.BadRequestProblem(
+                    "Version must be SemVer 2 style (e.g. 1.0.0, 2.1.0-rc.1, optional leading 'v').",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         PolicyPackCatalogEntryDetail? row;
 
         try

@@ -59,6 +59,13 @@ public sealed class TenantErasureLegalHoldController(
                 ProblemTypes.ResourceNotFound);
         }
 
+        if (body.UntilUtc <= DateTimeOffset.UtcNow)
+        {
+            return this.BadRequestProblem(
+                "untilUtc must be in the future.",
+                ProblemTypes.ValidationFailed);
+        }
+
         ClaimsPrincipal user = User;
         string userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown";
         string userName = user.Identity?.Name ?? "unknown";
@@ -76,7 +83,7 @@ public sealed class TenantErasureLegalHoldController(
 
         if (!ok)
             return this.ConflictProblem(
-                "Legal hold could not be applied (not in erasure quarantine, or untilUtc is not in the future).",
+                "Legal hold could not be applied (tenant is not in erasure quarantine).",
                 ProblemTypes.Conflict);
 
         return NoContent();
