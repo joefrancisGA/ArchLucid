@@ -166,6 +166,11 @@ public static class AgentExecutionCompositionModule
                     services.AddScoped<IInsightDensityLlmJudge, PremiumInsightDensityLlmJudge>();
                     services.AddScoped<IAgentResultParser, AgentResultParser>();
 
+                    if (allowDevAgentExecutionModeHeaderOverride)
+                    {
+                        DevAgentCompletionPipelineRegistrar.RegisterDevSimulatorCompletionClient(services);
+                    }
+
                     if (useEchoClient)
                     {
                         AgentEchoExecutorRegistrar.Register(services);
@@ -174,9 +179,29 @@ public static class AgentExecutionCompositionModule
                     {
                         AgentAzureOpenAiExecutorRegistrar.Register(services, configuration);
                     }
-                    else
-
+                    else if (!allowDevAgentExecutionModeHeaderOverride)
+                    {
                         AgentCompletionPipelineCompositionModule.RegisterFakeClient(services);
+                    }
+
+                    if (allowDevAgentExecutionModeHeaderOverride)
+                    {
+                        DevAgentCompletionPipelineRegistrar.RegisterDevSwitchableCompletionClient(
+                            services,
+                            useAzureOpenAi,
+                            useEchoClient);
+
+                        if (!useAzureOpenAi && !useEchoClient)
+                        {
+                            // Echo/Azure registrars register IAgentTierCompletionRouter; dev-only Real without keys must too.
+                            services.AddScoped<ScopedInnerAgentCompletionClient>(_ => new ScopedInnerAgentCompletionClient(
+                                new FakeAgentCompletionClient(FakeAgentCompletionResolver.Resolve)));
+                            AgentModelTierCompositionModule.RegisterPassThroughTierCompletionRouter(services);
+                            SchemaRemediationCompletionRegistrar.RegisterSchemaRemediationAgentCompletionClient(
+                                services,
+                                useAzureOpenAi: false);
+                        }
+                    }
 
                 }
 
