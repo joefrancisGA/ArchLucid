@@ -150,6 +150,18 @@ public sealed class GovernancePreCommitSimulationControllerTests
     }
 
     [Fact]
+    public async Task GetChecklist_returns_bad_request_when_run_id_is_whitespace()
+    {
+        GovernancePreCommitSimulationController sut = CreateController();
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetChecklistAsync("   ", CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task GetChecklist_returns_bad_request_with_trimmed_run_id_when_route_is_padded_and_invalid()
     {
         GovernancePreCommitSimulationController sut = CreateController();

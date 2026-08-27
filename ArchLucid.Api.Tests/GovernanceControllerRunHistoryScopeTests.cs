@@ -372,6 +372,28 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task Approve_returns_bad_request_when_approval_request_id_is_whitespace()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            approvalRepository: approvals.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Approve(
+            "   ",
+            new ApproveGovernanceRequest { ReviewComment = "ok" },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        approvals.VerifyNoOtherCalls();
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Approve_returns_not_found_when_approval_request_is_out_of_scope()
     {
         const string approvalRequestId = "apr-approve-scope";

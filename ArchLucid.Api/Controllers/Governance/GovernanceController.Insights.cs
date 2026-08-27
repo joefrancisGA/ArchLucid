@@ -134,7 +134,12 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+        IActionResult? approvalIdProblem = ValidateApprovalRequestIdRoute(approvalRequestId, out string normalizedApprovalRequestId);
+
+        if (approvalIdProblem is not null)
+            return approvalIdProblem;
+
+        approvalRequestId = normalizedApprovalRequestId;
 
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
@@ -179,7 +184,12 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+        IActionResult? approvalIdProblem = ValidateApprovalRequestIdRoute(approvalRequestId, out string normalizedApprovalRequestId);
+
+        if (approvalIdProblem is not null)
+            return approvalIdProblem;
+
+        approvalRequestId = normalizedApprovalRequestId;
 
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)

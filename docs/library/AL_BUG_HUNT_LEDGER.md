@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 72
-- **bugs-found:** 209
+- **hunts:** 73
+- **bugs-found:** 210
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — governance scoped-run whitespace returns 400
+- **last-bug:** 2026-08-27 — approval route whitespace returns 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2465,6 +2465,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `GovernanceController.RequireScopedRunAsync` — non-GUID `runId` returns HTTP 404 instead of HTTP 400 — **cheap-disproof 2026-08-27:** intentional hide pattern (same as missing run); only whitespace empty-input promoted to 400.
 
 2026-08-27 seed hunt #155: proved governance scoped-run whitespace 400 parity and pre-commit invalid-run message trim.
+
+- [x] (proven) `GovernanceController` approval routes (`Approve`/`Reject`/`GetApprovalRequestLineage`/`GetApprovalRequestRationale`) — whitespace-only `approvalRequestId` trimmed to empty and returned HTTP 404 instead of HTTP 400 (`ValidateFindingIdRoute` parity) — **hit 2026-08-27:** `ValidateApprovalRequestIdRoute`; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetChecklist` — whitespace-only `runId` returned HTTP 400 but lacked regression test — **cheap-disproof 2026-08-27:** `GetChecklist_returns_bad_request_when_run_id_is_whitespace` documents existing guard (Simulate parity).
+
+2026-08-27 seed hunt #156: proved approval-route whitespace validation; documented pre-commit checklist whitespace guard.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

@@ -112,4 +112,14 @@ public sealed partial class GovernanceController(
     private static string NormalizeApprovalRequestId(string approvalRequestId) =>
         approvalRequestId.Trim();
 
+    private IActionResult? ValidateApprovalRequestIdRoute(string approvalRequestId, out string normalizedApprovalRequestId)
+    {
+        normalizedApprovalRequestId = approvalRequestId.Trim();
+
+        if (string.IsNullOrEmpty(normalizedApprovalRequestId))
+            return this.BadRequestProblem("approvalRequestId is required.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
 }

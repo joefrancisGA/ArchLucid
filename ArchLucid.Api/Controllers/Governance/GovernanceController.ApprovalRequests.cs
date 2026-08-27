@@ -109,7 +109,12 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+        IActionResult? approvalIdProblem = ValidateApprovalRequestIdRoute(approvalRequestId, out string normalizedApprovalRequestId);
+
+        if (approvalIdProblem is not null)
+            return approvalIdProblem;
+
+        approvalRequestId = normalizedApprovalRequestId;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -189,7 +194,12 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+        IActionResult? approvalIdProblem = ValidateApprovalRequestIdRoute(approvalRequestId, out string normalizedApprovalRequestId);
+
+        if (approvalIdProblem is not null)
+            return approvalIdProblem;
+
+        approvalRequestId = normalizedApprovalRequestId;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
