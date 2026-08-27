@@ -101,8 +101,14 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("findings/{findingId}/dispositions")]
     [ProducesResponseType(typeof(IReadOnlyList<FindingDispositionEventDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListDispositions(string findingId, CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IReadOnlyList<FindingDispositionEventDto> history =
             await _facade.ListDispositionsAsync(findingId, cancellationToken);
 
