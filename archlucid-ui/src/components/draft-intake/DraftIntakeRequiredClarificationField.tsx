@@ -20,6 +20,11 @@ import {
   GUIDED_INTAKE_SAVE_ANSWER_LABEL,
 } from "@/lib/guided-intake-copy";
 import { CLOUD_TARGET_QUESTION_KEY } from "@/lib/architecture/architecture-creation-question-definition";
+import {
+  DRAFT_INTAKE_SELECT_UNSET_VALUE,
+  resolveDraftIntakeSelectChange,
+  resolveDraftIntakeSelectValue,
+} from "@/lib/draft-intake-select-unset-value";
 import { UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER } from "@/lib/universal-intake-answer-inference";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
@@ -139,9 +144,12 @@ export function DraftIntakeRequiredClarificationField(
             {GUIDED_INTAKE_CLOUD_TARGET_CONTROL_HINT}
           </p>
           <Select
-            value={props.answer.length > 0 ? props.answer : undefined}
+            value={resolveDraftIntakeSelectValue(props.answer)}
             onValueChange={(value) => {
-              props.onAnswerChange(props.question.questionKey, value);
+              props.onAnswerChange(
+                props.question.questionKey,
+                resolveDraftIntakeSelectChange(value),
+              );
             }}
             disabled={props.busy}
           >
@@ -154,6 +162,14 @@ export function DraftIntakeRequiredClarificationField(
               <SelectValue placeholder="Select a cloud provider or cloud-neutral" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem
+                value={DRAFT_INTAKE_SELECT_UNSET_VALUE}
+                disabled
+                className="hidden"
+                aria-hidden
+              >
+                Select a cloud provider or cloud-neutral
+              </SelectItem>
               {CLOUD_TARGET_OPTIONS.map((option) => (
                 <SelectItem
                   key={option.value}

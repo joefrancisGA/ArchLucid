@@ -20,6 +20,11 @@ import { branchDraftRequest } from "@/lib/api/draft-intake-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { formatDraftBranchQuotaSummary } from "@/lib/draft-branch-quota-display";
 import {
+  DRAFT_INTAKE_SELECT_UNSET_VALUE,
+  resolveDraftIntakeSelectChange,
+  resolveDraftIntakeSelectValue,
+} from "@/lib/draft-intake-select-unset-value";
+import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_LABEL,
   GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
@@ -270,10 +275,10 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
           <div className="space-y-2">
             <Label htmlFor={`draft-intake-what-if-key-${props.draftId}`}>Question</Label>
             <Select
-              value={overrideKey.length > 0 ? overrideKey : undefined}
+              value={resolveDraftIntakeSelectValue(overrideKey)}
               disabled={panelDisabled || props.questionOptions.length === 0}
               onValueChange={(value) => {
-                setOverrideKey(value);
+                setOverrideKey(resolveDraftIntakeSelectChange(value));
               }}
             >
               <SelectTrigger
@@ -283,6 +288,14 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
                 <SelectValue placeholder="Select a clarification" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem
+                  value={DRAFT_INTAKE_SELECT_UNSET_VALUE}
+                  disabled
+                  className="hidden"
+                  aria-hidden
+                >
+                  Select a clarification
+                </SelectItem>
                 {props.questionOptions.map((question) => (
                   <SelectItem key={question.questionKey} value={question.questionKey}>
                     {question.prompt}
