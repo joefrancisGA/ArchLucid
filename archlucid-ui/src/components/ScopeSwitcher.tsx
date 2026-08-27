@@ -341,7 +341,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             type="button"
             variant="outline"
             className={cn(
-              "inline-flex min-w-0 shrink cursor-pointer items-center gap-2 overflow-hidden border-0 p-0 font-normal shadow-none hover:bg-transparent",
+              "inline-flex min-w-0 shrink cursor-pointer items-center gap-2 overflow-hidden border-0 p-0 shadow-none hover:bg-transparent",
               OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS,
               polishedMaxWidthClass,
             )}
