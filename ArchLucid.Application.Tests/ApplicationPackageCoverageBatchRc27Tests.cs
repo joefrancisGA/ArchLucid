@@ -526,7 +526,7 @@ public sealed class ApplicationPackageCoverageBatchRc27Tests
     }
 
     [Fact]
-    public void ReviewCacheKeyBuilder_Build_joins_manifest_fields_including_null_reuse_reason()
+    public void ReviewCacheKeyBuilder_Build_joins_manifest_fields_without_reuse_reason()
     {
         ReviewCacheDependencyManifest withReason = new()
         {
@@ -553,8 +553,8 @@ public sealed class ApplicationPackageCoverageBatchRc27Tests
             ReuseReason = null,
         };
 
-        ReviewCacheKeyBuilder.Build(withReason).Should().Be("c|p|m|pp|r|t|d|7|warm");
-        ReviewCacheKeyBuilder.Build(withoutReason).Should().Be("c|p|m|pp|r|t|d|7|");
+        ReviewCacheKeyBuilder.Build(withReason).Should().Be("c|p|m|pp|r|t|d|7");
+        ReviewCacheKeyBuilder.Build(withoutReason).Should().Be("c|p|m|pp|r|t|d|7");
     }
 
     [Theory]

@@ -15,8 +15,7 @@ internal static class ReviewCacheKeyBuilder
             manifest.RubricVersion,
             manifest.TenantConfigurationHash,
             manifest.DeclaredPrioritiesHash,
-            manifest.SchemaVersion.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            manifest.ReuseReason ?? string.Empty);
+            manifest.SchemaVersion.ToString(System.Globalization.CultureInfo.InvariantCulture));
     }
 
     public static string BuildInFlight(ReviewCacheDependencyManifest manifest, bool publishToProduct)
