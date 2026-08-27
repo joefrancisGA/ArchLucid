@@ -61,14 +61,16 @@ public sealed partial class GovernanceController
 
         if (!string.IsNullOrWhiteSpace(request.ApprovalRequestId))
         {
+            string approvalRequestId = NormalizeApprovalRequestId(request.ApprovalRequestId);
+
             GovernanceApprovalRequest? approval = await approvalRepo
-                .GetByIdAsync(request.ApprovalRequestId, cancellationToken)
+                .GetByIdAsync(approvalRequestId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (approval is null)
             {
                 return this.NotFoundProblem(
-                    $"Approval request '{request.ApprovalRequestId}' was not found.",
+                    $"Approval request '{approvalRequestId}' was not found.",
                     ProblemTypes.ResourceNotFound);
             }
 
@@ -91,7 +93,9 @@ public sealed partial class GovernanceController
                 request.SourceEnvironment,
                 request.TargetEnvironment,
                 promotedBy,
-                request.ApprovalRequestId,
+                string.IsNullOrWhiteSpace(request.ApprovalRequestId)
+                    ? request.ApprovalRequestId
+                    : NormalizeApprovalRequestId(request.ApprovalRequestId),
                 request.Notes,
                 dryRun,
                 verbosePromotionValidationErrors,

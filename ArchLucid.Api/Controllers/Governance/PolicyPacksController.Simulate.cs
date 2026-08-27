@@ -82,6 +82,13 @@ public sealed partial class PolicyPacksController
         if (request.RunIds.Count > 50)
             return this.BadRequestProblem("At most 50 run ids are allowed per request.", ProblemTypes.ValidationFailed);
 
+        if (!request.RunIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "RunIds must contain at least one non-empty id.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

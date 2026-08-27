@@ -265,6 +265,59 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task Approve_returns_ok_when_approval_request_id_is_padded()
+    {
+        const string approvalRequestId = "apr-padded-id";
+        string paddedApprovalRequestId = $"  {approvalRequestId}  ";
+        Guid runId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = approvalRequestId,
+                RunId = runId.ToString("D"),
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowService> workflow = new();
+        workflow
+            .Setup(w => w.ApproveAsync(
+                approvalRequestId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest { ApprovalRequestId = approvalRequestId });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("reviewer");
+        actor.Setup(a => a.GetActorId()).Returns("reviewer-id");
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            approvalRepository: approvals.Object,
+            workflowService: workflow.Object,
+            actorContext: actor.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Approve(
+            paddedApprovalRequestId,
+            new ApproveGovernanceRequest { ReviewComment = "ok" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        approvals.VerifyAll();
+        workflow.VerifyAll();
+    }
+
+    [Fact]
     public async Task Approve_returns_not_found_when_approval_run_is_out_of_scope()
     {
         const string approvalRequestId = "apr-approve-stale-run";

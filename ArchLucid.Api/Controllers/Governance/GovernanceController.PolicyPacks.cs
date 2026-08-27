@@ -177,6 +177,13 @@ public sealed partial class GovernanceController
                 "evaluateAgainstRunIds must contain at least one run id.",
                 ProblemTypes.ValidationFailed);
 
+        if (!request.EvaluateAgainstRunIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "evaluateAgainstRunIds must contain at least one non-empty run id.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

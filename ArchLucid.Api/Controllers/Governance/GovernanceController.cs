@@ -109,4 +109,7 @@ public sealed partial class GovernanceController(
         return null;
     }
 
+    private static string NormalizeApprovalRequestId(string approvalRequestId) =>
+        approvalRequestId.Trim();
+
 }
