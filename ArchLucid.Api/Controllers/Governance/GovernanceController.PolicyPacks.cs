@@ -138,6 +138,9 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (string.IsNullOrWhiteSpace(request.PolicyPackContentJson))
+            return this.BadRequestProblem("PolicyPackContentJson is required.", ProblemTypes.ValidationFailed);
+
         if (!string.IsNullOrWhiteSpace(request.TargetRunId)
             && Guid.TryParse(request.TargetRunId.Trim(), out Guid targetRunGuid)
             && targetRunGuid == Guid.Empty)

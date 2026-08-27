@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 92
-- **bugs-found:** 229
+- **hunts:** 93
+- **bugs-found:** 230
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — dry-run null proposedThresholds coerced
+- **last-bug:** 2026-08-27 — proposed dry-run null content JSON returns 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2549,6 +2549,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — null `proposedThresholds` passed to `PolicyPackDryRunService.EvaluateAsync` (`ArgumentNullException`, HTTP 500) instead of treating JSON null as no overrides (`null` and `{}` are equivalent for optional thresholds) — **hit 2026-08-27:** coalesce null to empty dictionary before service call; regression in `GovernanceControllerSimulateTests`.
 
 2026-08-27 seed hunt #175: proved policy-pack dry-run null proposedThresholds coercion.
+
+- [x] (proven) `GovernanceController.DryRunProposedPolicyPack` — null or whitespace `policyPackContentJson` reached `PolicyPackGovernanceDryRunService.EvaluateAsync` (`ArgumentException`, HTTP 500) instead of HTTP 400 (`PolicyPackGovernanceDryRunRequestValidator` not invoked on this action) — **hit 2026-08-27:** explicit `IsNullOrWhiteSpace` guard before service call; regression in `GovernanceControllerSimulateTests`.
+
+2026-08-27 seed hunt #176: proved proposed policy-pack dry-run null content JSON validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 
