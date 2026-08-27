@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 98
-- **bugs-found:** 235
+- **hunts:** 99
+- **bugs-found:** 236
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — policy-packs simulate severity ordinal validation
+- **last-bug:** 2026-08-27 — simulate-bulk severity ordinal validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2573,6 +2573,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.Simulate` — out-of-range `blockCommitMinimumSeverity` reached `PolicyPackWorkflowFacade.SimulateAsync` (HTTP 200 with invalid ordinal) instead of HTTP 400 (`PolicyPackSimulateRequestValidator` range rule not invoked on this action) — **hit 2026-08-27:** reject values outside 0–3 before service call; regression in `PolicyPacksControllerSimulateTests`.
 
 2026-08-27 seed hunt #181: proved policy-packs simulate severity ordinal validation.
+
+- [x] (proven) `PolicyPacksController.SimulateBulk` — out-of-range `blockCommitMinimumSeverity` reached `PolicyPackWorkflowFacade.TrySimulateBulkAsync` (HTTP 200 with invalid ordinal) instead of HTTP 400 (no FluentValidation validator on bulk request; single-run simulate parity) — **hit 2026-08-27:** reject values outside 0–3 before service call; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
+
+2026-08-27 seed hunt #182: proved policy-packs simulate-bulk severity ordinal validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

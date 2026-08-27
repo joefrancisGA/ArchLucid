@@ -5,6 +5,7 @@ using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -21,6 +22,13 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class PolicyPacksControllerSimulateBulkScopeTests
 {
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
+
     [Fact]
     public async Task SimulateBulk_returns_bad_request_when_run_ids_is_null()
     {
@@ -67,6 +75,29 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
         PolicyPacksController sut = CreateController(workflow);
 
         PolicyPackSimulateBulkRequest request = new() { RunIds = [Guid.Empty.ToString("D")] };
+
+        IActionResult result = await sut.SimulateBulk(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task SimulateBulk_returns_bad_request_when_block_commit_minimum_severity_out_of_range()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        PolicyPacksController sut = CreateController(workflow);
+
+        PolicyPackSimulateBulkRequest request = new()
+        {
+            RunIds = ["run-1"],
+            BlockCommitMinimumSeverity = 9,
+        };
 
         IActionResult result = await sut.SimulateBulk(
             Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
@@ -151,13 +182,21 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
 
     private static PolicyPacksController CreateController(Mock<IPolicyPackWorkflowFacade> workflow)
     {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+
         PolicyPacksController controller = new(
             workflow.Object,
             new CreatePolicyPackRequestValidator(),
             new PublishPolicyPackVersionRequestValidator(),
             new AssignPolicyPackRequestValidator(),
-            Mock.Of<IScopeContextProvider>(),
-            Mock.Of<ITenantRepository>());
+            scopeProvider.Object,
+            tenants.Object);
 
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
