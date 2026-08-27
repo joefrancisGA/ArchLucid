@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 42
-- **bugs-found:** 118
+- **hunts:** 43
+- **bugs-found:** 129
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — policy-pack simulate/validate and stickiness mutation ghost-tenant 404 parity
+- **last-bug:** 2026-08-27 — policy-pack mutations and stickiness sibling-mutation ghost-tenant 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2385,8 +2385,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.ListRecurrenceSchedules` — ghost tenant returned HTTP 200 `[]` instead of 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` preflight; regression in `GovernanceStickinessControllerTests.ListRecurrenceSchedules_returns_not_found_when_tenant_missing`.
 - [x] (proven) `PolicyPacksController.Simulate` / `SimulateBulk` / `Validate` — ghost tenant returned run/pack-not-found or HTTP 200 validation payload instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight on dry-run endpoints; regression in `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `GovernanceStickinessController` disposition/risk-exception/recurrence mutations (`RecordDisposition`, `RecordBulkDisposition`, `CreateRiskException`, `CreateRecurrenceSchedule`) — ghost tenant returned finding/run-not-found or FK instead of tenant 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on mutation endpoints (register read parity); regression in `GovernanceStickinessControllerTests`.
-- [ ] (candidate) `PolicyPacksController.Publish` / `Assign` / `ArchiveAssignment` / `DeletePack` / `DuplicatePack` / `SetAssignmentEnabled` — ghost tenant may return pack-not-found or FK instead of tenant 404 while list/create/simulate already preflight.
-- [ ] (candidate) `GovernanceStickinessController` remaining mutations (`RevokeRiskException`, `RenewRiskException`, `UpdateRecurrenceSchedule`, `UpsertRealizedValueAttestation`, `ResolveFindingMergeConflict`) — ghost tenant may proceed without tenant 404 while sibling reads already preflight.
+- [x] (proven) `PolicyPacksController.Publish` / `Assign` / `ArchiveAssignment` / `DeletePack` / `DuplicatePack` / `SetAssignmentEnabled` — ghost tenant returned pack-not-found or FK instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight on mutation endpoints (list/create/simulate parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `GovernanceStickinessController` remaining mutations (`RevokeRiskException`, `RenewRiskException`, `UpdateRecurrenceSchedule`, `UpsertRealizedValueAttestation`, `ResolveFindingMergeConflict`) — ghost tenant proceeded without tenant 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on sibling mutation endpoints; regression in `GovernanceStickinessControllerTests`.
+- [ ] (candidate) `PolicyPacksController` catalog mutations (`PromoteCatalogEntry`, `DemoteCatalogEntry`) and version reads without tenant preflight — ghost tenant may return catalog-not-found or HTTP 200 while page-bundle/list already guard.
+- [ ] (candidate) `GovernanceStickinessController.GetRealizedValueAttestation` / `ListDispositions` — ghost tenant may return HTTP 200 empty/attestation payload while sibling register reads already preflight.
+
+2026-08-27 thorough hunt #126: proved policy-pack publish/assign/archive/delete/duplicate/set-enabled and stickiness revoke/renew/update-recurrence/upsert-attestation/resolve-merge-conflict ghost-tenant 404 parity; seeded catalog-mutation and attestation/list-dispositions candidates.
 
 2026-08-27 thorough hunt #125: proved policy-pack simulate/validate and stickiness disposition/risk-exception/recurrence mutation ghost-tenant 404 parity; seeded policy-pack mutation and stickiness sibling-mutation candidates.
 
