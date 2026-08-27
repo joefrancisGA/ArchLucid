@@ -78,7 +78,8 @@ describe("design-tokens TB-119 typography", () => {
   it("nav and button roles have dedicated tokens", () => {
     expect(OPERATOR_TYPOGRAPHY.navLabel).toContain("font-medium");
     expect(OPERATOR_TYPOGRAPHY.navHelper).toContain("leading-[15px]");
-    expect(OPERATOR_TYPOGRAPHY.button).toContain("font-semibold");
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("text-[11px]");
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("font-bold");
     expect(OPERATOR_TYPOGRAPHY.tab).toContain("leading-4");
   });
 

@@ -34,6 +34,14 @@ describe("buttonVariants", () => {
     expect(buttonVariants({ variant: "destructive" })).toContain("bg-");
   });
 
+  it("uses uniform 11px bold caption typography aligned with execution-mode chip (REAL)", () => {
+    expect(buttonVariants({ variant: "primary", size: "default" })).toContain("text-[11px]");
+    expect(buttonVariants({ variant: "primary", size: "default" })).toContain("font-bold");
+    expect(buttonVariants({ variant: "outline", size: "sm" })).toContain("text-[11px]");
+    expect(buttonVariants({ variant: "outline", size: "sm" })).not.toContain("text-xs");
+    expect(buttonVariants({ variant: "primary", size: "lg" })).not.toContain("text-[15px]");
+  });
+
   it("uses accent focus ring on shared button chrome", () => {
     expect(buttonVariants({ variant: "default" })).toContain("focus-visible:ring-[var(--al-accent-border-focus)]");
   });
