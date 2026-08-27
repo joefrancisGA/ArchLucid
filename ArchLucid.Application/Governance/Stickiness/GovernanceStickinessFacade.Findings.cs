@@ -40,9 +40,14 @@ public sealed partial class GovernanceStickinessFacade
 
         foreach (string findingId in request.FindingIds)
         {
+            if (string.IsNullOrWhiteSpace(findingId))
+                continue;
+
+            string normalizedFindingId = findingId.Trim();
+
             RecordFindingDispositionRequest normalized = new()
             {
-                FindingId = findingId,
+                FindingId = normalizedFindingId,
                 RunId = Guid.Empty,
                 Disposition = request.Disposition,
                 Rationale = request.Rationale,
@@ -53,9 +58,9 @@ public sealed partial class GovernanceStickinessFacade
 
             try
             {
-                await EnsureFindingInScopeAsync(scope, findingId, ct);
+                await EnsureFindingInScopeAsync(scope, normalizedFindingId, ct);
                 await _findingDispositionService.RecordAsync(normalized, scope, actorId, ct);
-                updated.Add(findingId);
+                updated.Add(normalizedFindingId);
             }
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
             {
@@ -146,6 +151,8 @@ public sealed partial class GovernanceStickinessFacade
 
     private async Task<bool> IsFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)
     {
+        findingId = findingId.Trim();
+
         FindingInspectResponse? finding = await _findingInspectReadRepository.GetInspectAsync(
             scope,
             findingId,
@@ -162,12 +169,23 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        await EnsureFindingInScopeAsync(scope, request.FindingId, ct);
-        await EnsureRunInScopeWhenProvidedAsync(scope, request.RunId, ct);
-        await EnsureManifestMatchesRunWhenProvidedAsync(scope, request.RunId, request.ManifestId, ct);
+        CreateRiskExceptionRequest normalized = new()
+        {
+            FindingId = request.FindingId.Trim(),
+            RunId = request.RunId,
+            ManifestId = request.ManifestId,
+            OwnerUserId = request.OwnerUserId,
+            Rationale = request.Rationale,
+            EvidenceRef = request.EvidenceRef,
+            ExpiresAtUtc = request.ExpiresAtUtc,
+        };
+
+        await EnsureFindingInScopeAsync(scope, normalized.FindingId, ct);
+        await EnsureRunInScopeWhenProvidedAsync(scope, normalized.RunId, ct);
+        await EnsureManifestMatchesRunWhenProvidedAsync(scope, normalized.RunId, normalized.ManifestId, ct);
 
         return await _riskExceptionService.CreateAsync(
-            request,
+            normalized,
             scope,
             _actorContext.GetActorId(),
             ct);
