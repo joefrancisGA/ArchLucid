@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -35,6 +36,7 @@ namespace ArchLucid.Api.Controllers.Governance;
 /// </remarks>
 /// <param name="scopeProvider">Ambient tenant/workspace/project from JWT or dev bypass headers.</param>
 /// <param name="resolver">Decisioning implementation (<see cref="EffectiveGovernanceResolver" />).</param>
+/// <param name="tenantRepository">Tenant existence preflight for ghost-tenant parity on governance reads.</param>
 /// <param name="auditService">Emits <c>GovernanceResolutionExecuted</c> and optionally <c>GovernanceConflictDetected</c>.</param>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -46,8 +48,11 @@ namespace ArchLucid.Api.Controllers.Governance;
 public sealed class GovernanceResolutionController(
     IScopeContextProvider scopeProvider,
     IEffectiveGovernanceResolver resolver,
+    ITenantRepository tenantRepository,
     IAuditService auditService) : ControllerBase
 {
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     /// <summary>
     ///     Runs hierarchical governance resolution for the caller’s scope and returns the full
     ///     <see cref="EffectiveGovernanceResolutionResult" /> JSON.
@@ -63,9 +68,14 @@ public sealed class GovernanceResolutionController(
     [ProducesResponseType(typeof(EffectiveGovernanceResolutionResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Resolve(CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, ct).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(
             scope.TenantId,
