@@ -14,8 +14,8 @@ describe("architecture-object-map (TB-2354)", () => {
     const sealed = formatArchitectureObjectMapSentence("sealed");
 
     expect(draft).toContain(ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase());
-    expect(draft).toContain(ARCHITECTURE_OBJECT_MAP_REVIEW_LABEL.toLowerCase());
-    expect(draft).toContain(ARCHITECTURE_OBJECT_MAP_SEALED_LABEL.toLowerCase());
+    expect(draft).toMatch(/start a review/i);
+    expect(draft).not.toContain(ARCHITECTURE_OBJECT_MAP_SEALED_LABEL.toLowerCase());
 
     expect(review).toContain(ARCHITECTURE_OBJECT_MAP_REVIEW_LABEL);
     expect(review).toContain(ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase());
