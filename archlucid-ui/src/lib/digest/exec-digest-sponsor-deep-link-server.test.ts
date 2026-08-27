@@ -55,4 +55,22 @@ describe("fetchExecDigestSponsorDeepLinkView", () => {
 
     expect(view?.signInUrl).toBe("https://app.test/auth/signin");
   });
+
+  it("normalizes legacy /auth/sign-in/ trailing-slash signInUrl from API to canonical /auth/signin", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          target: "dashboard",
+          weekLabel: "Week of Aug 10, 2026",
+          topRuns: [],
+          signInUrl: "https://app.test/auth/sign-in/",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    const view = await fetchExecDigestSponsorDeepLinkView("sponsor-token");
+
+    expect(view?.signInUrl).toBe("https://app.test/auth/signin");
+  });
 });
