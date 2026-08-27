@@ -33,7 +33,7 @@ public sealed class FakeDraftIntakeReasoningCompletionJsonTests
         answer.Should().Contain("faster and better");
         answer.Should().Contain("Gaps and risks");
         answer.Should().Contain("Business outcome is still vague");
-        answer.Should().Contain("Simulator mode");
+        answer.Should().NotContain("Simulator mode");
     }
 
     [Fact]
