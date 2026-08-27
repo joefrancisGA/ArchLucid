@@ -1,14 +1,25 @@
 import type { Edge, Node } from "reactflow";
 
-/** Soften unselected graph elements so the focus node stays readable. */
-export const GRAPH_SELECTION_DIM_OPACITY = 0.34;
+import { graphNodeKindCssVar } from "@/lib/graph-node-kind-presentation";
 
-const SELECTED_BORDER = "#0f766e";
-const NEIGHBOR_BORDER = "#0d9488";
+/** Edge opacity for nodes outside the selection focus set — labels stay on white labelBg. */
+export const GRAPH_SELECTION_DIM_EDGE_OPACITY = 0.45;
+
+const GRAPH_SELECTION_DIMMED_NODE_STYLE = {
+  opacity: 1,
+  background: graphNodeKindCssVar("default", "bg"),
+  border: `1px solid ${graphNodeKindCssVar("default", "border")}`,
+  color: "var(--al-text-secondary)",
+  boxShadow: "none",
+  fontWeight: 400,
+} as const;
+
+const SELECTED_BORDER = "var(--al-accent-interactive)";
+const NEIGHBOR_BORDER = "var(--al-accent-border-focus)";
 
 /**
  * Dim nodes/edges that are not the selection or an immediate neighbor.
- * Keeps the graph scannable without hiding structure entirely.
+ * Uses muted fills instead of whole-node opacity so label text stays AA-readable.
  */
 export function applyGraphSelectionFocus(
   nodes: Node[],
@@ -44,7 +55,8 @@ export function applyGraphSelectionFocus(
           ...baseStyle,
           opacity: 1,
           border: `4px solid ${SELECTED_BORDER}`,
-          boxShadow: "0 0 0 3px rgba(15, 118, 110, 0.25)",
+          boxShadow: "0 0 0 3px color-mix(in srgb, var(--al-accent-interactive) 25%, transparent)",
+          color: "var(--al-text-primary)",
         },
       };
     }
@@ -56,6 +68,7 @@ export function applyGraphSelectionFocus(
           ...baseStyle,
           opacity: 1,
           border: `2px solid ${NEIGHBOR_BORDER}`,
+          color: "var(--al-text-primary)",
         },
       };
     }
@@ -64,7 +77,7 @@ export function applyGraphSelectionFocus(
       ...node,
       style: {
         ...baseStyle,
-        opacity: GRAPH_SELECTION_DIM_OPACITY,
+        ...GRAPH_SELECTION_DIMMED_NODE_STYLE,
       },
     };
   });
@@ -77,8 +90,7 @@ export function applyGraphSelectionFocus(
       ...edge,
       style: {
         ...baseStyle,
-        opacity: inFocus ? 1 : GRAPH_SELECTION_DIM_OPACITY,
-        strokeWidth: inFocus ? 2.25 : 1,
+        opacity: inFocus ? 1 : GRAPH_SELECTION_DIM_EDGE_OPACITY,
       },
     };
   });

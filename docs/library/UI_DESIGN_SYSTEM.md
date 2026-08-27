@@ -423,6 +423,7 @@ Authoritative implementation: `archlucid-ui/src/lib/design-tokens.ts` and CSS va
 | `--al-status-*` | Semantic fills for `StatusTag` / `SeverityTag` |
 | `--al-status-neutral-*` | Informational/limitation metadata — scope honesty, not configured, draft (**TB-2277**) |
 | `--al-status-approved-monitoring-*` | Cool gray-teal monitoring posture — distinct from ready green (**TB-2280**) |
+| `--al-graph-kind-*` | Evidence graph node categories (decision, finding, artifact, review, component) — categorical, not status hues |
 | `--al-layer-hover` | Table row hover |
 
 Use `DESIGN_TOKENS.callout.*` for warn/blocked/info banners — not decorative `bg-*-50` pastels on neutral cards.
