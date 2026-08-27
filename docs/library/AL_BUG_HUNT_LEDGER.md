@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 9
-- **bugs-found:** 14
+- **hunts:** 10
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — `FindingJsonConverter` dropped numeric `treatment`/`classification` ordinals; `MarketplaceWebhookPayloadParser.ReadQuantity` and alert-fired Service Bus props missed PascalCase keys
+- **last-hunt:** 2026-08-27
+- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1778,9 +1778,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadInsightDensityFields` requires string `treatment` / `classification` tokens — numeric `1` (DemoteToChecklist / ChecklistCoverage) silently stays null on snapshot reload — **hit 2026-08-26:** same gap as pre-fix `humanReviewStatus`; fixed with `ReadTreatment` / `ReadClassification` (`Deserialize_numeric_treatment_maps_demote_to_checklist_ordinal`, `Deserialize_numeric_classification_maps_checklist_coverage_ordinal`).
 - [x] (proven) `MarketplaceWebhookPayloadParser.ReadQuantity` is case-sensitive on `quantity` — PascalCase `"Quantity":5` falls back to `1` while `TryGetPlanId` already uses case-insensitive lookup — **hit 2026-08-26:** fixed with `TryGetPropertyCaseInsensitive` (`ReadQuantity_reads_PascalCase_quantity`).
 - [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryResolveAlertFired` uses case-sensitive `TryGetProperty("severity")` — PascalCase `"Severity":"Critical"` omits the `severity` user property and breaks SQL subscription filters — **hit 2026-08-26:** fixed with `TryGetStringPropertyCaseInsensitive` (`TryResolveForPublish_alert_fired_maps_PascalCase_severity`).
-- [ ] (candidate) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals.
-- [ ] (candidate) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize.
-- [ ] (candidate) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined`.
+- [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
+- [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
+- [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
 
 ---
 
@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 41
-- **bugs-found:** 111
+- **hunts:** 53
+- **bugs-found:** 172
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — list-recurrence-schedules ghost tenant 404 parity
+- **last-bug:** 2026-08-27 — create risk exception manifest-run binding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2383,6 +2383,57 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController` sibling register reads (`GetAssignedToMeFindingsCount`, `GetReviewsAwaitingAction`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — ghost tenant returned HTTP 200 empty payloads instead of 404 while risk/decisions-needed/list-exceptions already preflighted — **hit 2026-08-27:** extended `RequireTenantOrNotFoundAsync` to remaining register reads; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceCoverageController.PreviewCoverage` — ghost tenant returned HTTP 200 preview payload while `GetScopeCoverage` already 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (GET parity); regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_not_found_when_tenant_missing`.
 - [x] (proven) `GovernanceStickinessController.ListRecurrenceSchedules` — ghost tenant returned HTTP 200 `[]` instead of 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` preflight; regression in `GovernanceStickinessControllerTests.ListRecurrenceSchedules_returns_not_found_when_tenant_missing`.
+- [x] (proven) `PolicyPacksController.Simulate` / `SimulateBulk` / `Validate` — ghost tenant returned run/pack-not-found or HTTP 200 validation payload instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight on dry-run endpoints; regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `GovernanceStickinessController` disposition/risk-exception/recurrence mutations (`RecordDisposition`, `RecordBulkDisposition`, `CreateRiskException`, `CreateRecurrenceSchedule`) — ghost tenant returned finding/run-not-found or FK instead of tenant 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on mutation endpoints (register read parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `PolicyPacksController.Publish` / `Assign` / `ArchiveAssignment` / `DeletePack` / `DuplicatePack` / `SetAssignmentEnabled` — ghost tenant returned pack-not-found or FK instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight on mutation endpoints (list/create/simulate parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `GovernanceStickinessController` remaining mutations (`RevokeRiskException`, `RenewRiskException`, `UpdateRecurrenceSchedule`, `UpsertRealizedValueAttestation`, `ResolveFindingMergeConflict`) — ghost tenant proceeded without tenant 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on sibling mutation endpoints; regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `PolicyPacksController` catalog mutations (`PromoteCatalogEntry`, `DemoteCatalogEntry`) and version reads (`ListVersions`, `GetVersion`) — ghost tenant returned catalog/pack-not-found instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight (page-bundle/list parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `GovernanceStickinessController.GetRealizedValueAttestation` / `ListDispositions` — ghost tenant returned HTTP 200 empty/attestation payload — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` (register read parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `PolicyPacksController` catalog/list reads (`ListCatalog`, `GetCatalogEntry`, `ExplainPack`) — ghost tenant returned HTTP 200 empty/catalog-not-found instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight (page-bundle/effective parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (invalid) `PolicyPacksController.ListWorkspaceSelection` — ghost tenant catalog/list read parity — **cheap-disproof 2026-08-27:** already calls `RequireTenantOrNotFoundAsync`; regression in `PolicyPacksControllerListScopeTests.ListWorkspaceSelection_returns_not_found_when_tenant_missing`.
+- [x] (proven) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — ghost tenant returned approval-not-found instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight before approval lookup (dashboard parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernancePreCommitSimulationController.GetChecklist` / `Simulate` — ghost tenant proceeded to checklist/simulation without tenant preflight — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight (run-scope checklist parity); regression in `GovernancePreCommitSimulationControllerTests`.
+- [x] (proven) `GovernanceController.Approve` / `Reject` / `SubmitApprovalRequest` / `BatchReviewApprovalRequests` — ghost tenant reached approval workflow without tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight before approval lookup/workflow (lineage parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController.Promote` / `Activate` — ghost tenant reached promotion/activation workflow without tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight before scoped-run check (approval-mutation parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController` policy-pack simulate/dry-run/draft/generate — ghost tenant proceeded without tenant preflight — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on `Simulate`, `DryRunProposedPolicyPack`, `DryRunPolicyPack`, `DraftPolicyPackRule`, and `GeneratePolicyPack` (`PolicyPacksController` parity); regression in `GovernanceControllerSimulateTests`.
+- [x] (proven) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — ghost tenant returned HTTP 200 `[]` with run-scope preflight only — **hit 2026-08-27:** tenant preflight before `RequireScopedRunAsync` (dashboard parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `ManifestsController` manifest read/export/compare paths (`GetManifest`, diagram/summary/bundle, export/download, compare/summary/export/file) — ghost tenant with in-scope run returned HTTP 200 manifest payloads — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight (governance read parity); regression in `ManifestsControllerEvidenceScopeTests`.
+- [x] (invalid) `TenantMeasuredRoiController.GetAsync` — ghost tenant returns HTTP 200 measured ROI — **cheap-disproof 2026-08-27:** endpoint intentionally composes replica-global counters and demo disclaimer per ledger hunt #92; integration test `TenantMeasuredRoiEndpointTests`.
+- [x] (invalid) `TenantPilotValueReportController.GetRoiSummaryPageBundle` — ghost tenant returns HTTP 200 ROI bundle — **cheap-disproof 2026-08-27:** `BuildAsync` null propagates to controller 404 (same as `GetPilotValueReport`); regression in `TenantPilotValueReportControllerTests.GetPilotValueReport_returns_problem_details_when_tenant_missing`.
+- [x] (invalid) `GovernanceController.GetPolicyPackSchemaKeys` / `GetPolicyPackContentDocumentJsonSchema` — ghost tenant schema reads — **cheap-disproof 2026-08-27:** static schema keys with no tenant-scoped data access.
+- [x] (invalid) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — ghost tenant returns HTTP 200 cron preview — **cheap-disproof 2026-08-27:** dry-run cron math in `GovernanceStickinessFacade.PreviewRecurrenceScheduleRuns` with no tenant-scoped persistence or reads (aligned with static schema-key reads).
+- [x] (invalid) `PolicyPacksController.GetRuleTemplates` — ghost tenant returns HTTP 200 template list — **cheap-disproof 2026-08-27:** `_workflow.ListRuleTemplates()` serves static starter templates with no tenant-scoped data access (schema-key parity).
+- [x] (invalid) `TenantWorkspacesController` list/recycle-bin/delete/restore — ghost tenant workspace paths — **cheap-disproof 2026-08-27:** all four actions call `ITenantRepository.GetByIdAsync` before workspace/project work (`TenantWorkspacesController.cs`).
+- [x] (invalid) `TenantTrialController.LinkEntraAsync` / `ConvertTrialAsync` — ghost tenant trial mutations — **cheap-disproof 2026-08-27:** both POST paths preflight `GetByIdAsync` before mutation (`TenantTrialController.cs`).
+- [x] (invalid) `TenantBaselineController.PutAsync` / `TenantHomepageSettingsController.ListEligibleSamplesAsync` — ghost tenant PUT/list reads — **cheap-disproof 2026-08-27:** `GetByIdAsync` preflight on both endpoints (GET/PUT parity already proven for siblings).
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `GovernanceStickinessFacade.CreateRiskExceptionAsync` — in-scope `findingId` with foreign-workspace body `runId` persisted waiver without scoped run preflight — **hit 2026-08-27:** `EnsureRunInScopeWhenProvidedAsync` before create (record-disposition parity); controller maps `RunNotFoundException` to 404; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceController.GetDashboard` — `maxPending` / `maxDecisions` / `maxChanges` ≤ 0 forwarded to service and surfaced HTTP 500 (`ArgumentOutOfRangeException`) instead of 400 — **hit 2026-08-27:** controller validates query bounds before `GetDashboardAsync` (LLM cost reporting / drift-trend parity); regression in `GovernanceControllerDashboardTests.GetDashboard_returns_bad_request_when_max_pending_is_zero`.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — non-empty `approvalRequestIds` array of whitespace-only strings returned HTTP 200 `{ results: [] }` instead of 400 — **hit 2026-08-27:** reject when trimmed/distinct id list is empty after `Count > 0` guard; regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_bad_request_when_all_ids_are_whitespace`.
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `GovernanceStickinessFacade.CreateRiskExceptionAsync` — in-scope `runId` with body `manifestId` not bound to run `GoldenManifestId` persisted foreign manifest linkage — **hit 2026-08-27:** `EnsureManifestMatchesRunWhenProvidedAsync` before create (activate/submit manifest-binding parity); controller maps `GoldenManifestVersionNotFoundException` to 404; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
+
+2026-08-27 seed hunt #136: proved create-risk-exception manifest-run binding gate.
+
+2026-08-27 seed hunt #135: proved governance dashboard query validation and batch-review whitespace-id guards.
+
+2026-08-27 seed hunt #134: proved create-risk-exception out-of-scope `runId` scope gate; promoted from disposition parity gap.
+
+2026-08-27 seed hunt #133: seed-only — zone ghost-tenant parity exhausted; cheap-disproved dry-run recurrence preview, static rule templates, and remaining tenancy workspace/trial/baseline/homepage preflight siblings.
+
+2026-08-27 seed hunt #132: proved manifest read/export/compare ghost-tenant 404 parity; cheap-disproved measured ROI, ROI bundle, and static schema-key candidates.
+
+2026-08-27 thorough hunt #131: proved promote/activate, run-history reads, and governance policy-pack ghost-tenant 404 parity; zone candidate backlog cleared for this sweep.
+
+2026-08-27 thorough hunt #130: proved approval submit/approve/reject/batch-review ghost-tenant 404 parity; seeded promote/activate, governance policy-pack dry-run, and run-history read ghost-tenant candidates.
+
+2026-08-27 seed hunt #129: proved approval lineage/rationale and pre-finalize checklist/simulate ghost-tenant 404 parity; seeded governance approval-mutation ghost-tenant candidates.
+
+2026-08-27 thorough hunt #128: proved catalog/list/explain policy-pack read ghost-tenant 404 parity; cheap-disproved `ListWorkspaceSelection` (already preflighted).
+
+2026-08-27 thorough hunt #127: proved catalog promote/demote, version reads, and attestation/list-dispositions ghost-tenant 404 parity; seeded remaining catalog/read sibling candidates.
+
+2026-08-27 thorough hunt #126: proved policy-pack publish/assign/archive/delete/duplicate/set-enabled and stickiness revoke/renew/update-recurrence/upsert-attestation/resolve-merge-conflict ghost-tenant 404 parity; seeded catalog-mutation and attestation/list-dispositions candidates.
+
+2026-08-27 thorough hunt #125: proved policy-pack simulate/validate and stickiness disposition/risk-exception/recurrence mutation ghost-tenant 404 parity; seeded policy-pack mutation and stickiness sibling-mutation candidates.
 
 2026-08-27 thorough hunt #124: proved preview/compare-environments and list-recurrence-schedules ghost-tenant 404 parity; cheap-disproved setup-guide candidate (already fixed on master).
 
