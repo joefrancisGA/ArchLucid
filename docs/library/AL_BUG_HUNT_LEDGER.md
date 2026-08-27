@@ -2247,7 +2247,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-hunt:** 2026-08-28
 - **last-bug:** 2026-08-28 — simulate-bulk invalid runIds 400
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -2504,6 +2504,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #178: proved RequireScopedRunAsync empty-run 400 parity and tenant workspace delete/restore empty route-id guards; zone candidate backlog cleared.
 
 2026-08-28 seed hunt #177: proved dry-run empty pack id, update-recurrence empty schedule id, and disposition/risk-exception empty body runId guards; seeded RequireScopedRunAsync empty-run 404-vs-400 and tenant workspace empty route-id candidates.
+
+- [x] (proven) `GovernanceDashboardService.GetDashboardAsync` / `GovernanceController.GetDashboard` — tenant-wide `GetByTenantAsync` `TOP (@MaxRows)` before in-memory workspace/project filter starved `recentChanges` when newer foreign-workspace rows filled the batch — **hit 2026-08-27:** `IPolicyPackChangeLogRepository.GetByScopeAsync` applies scope in SQL before `TOP`; regression in `GovernanceDashboardServiceTests.GetDashboard_UsesScopedChangeLogQuery_WhenTenantWideTopWouldStarveInScopeRows` and `PolicyPackChangeLogRepositoryContractTests.GetByScopeAsync_FiltersWorkspaceProjectBeforeTopLimit`.
+
+- [ ] (candidate) `TenantTrialController.LinkEntraAsync` — `GetByNormalizedEmailAsync` is email-only (no tenant binding) so another tenant's trial local identity can be linked during Entra directory bind.
+
+- [x] (invalid) `TenantTrialController.ConvertTrialAsync` — null/empty JSON body converts active trial with unspecified `tier` instead of HTTP 400 — **cheap-disproof 2026-08-27:** `docs/library/BILLING.md` documents optional tier on manual convert; `TryMapRequestTier` treats null/whitespace as unspecified tier by design; regression in `ConvertTrialAsync_accepts_null_body_with_unspecified_tier`.
+
+- [x] (proven) `GovernanceSetupController.GetSetupGuideBundle` — JWT with unknown `workspaceId` returned HTTP 200 empty/minimal bundle instead of workspace 404 — **hit 2026-08-27:** `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` (`ListWorkspacesAsync` parity with `TenantWorkspacesController`); regression in `GetSetupGuideBundle_returns_not_found_when_workspace_missing`.
+
+- [x] (proven) `GovernanceResolutionController.Resolve` — unknown `workspaceId` in scope proceeded to `IEffectiveGovernanceResolver.ResolveAsync` without workspace existence validation — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight; regression in `Resolve_returns_not_found_when_workspace_missing`.
+
+2026-08-27 thorough hunt #149: proved setup-guide and governance-resolution foreign-workspace preflight gaps; cheap-disproved convert null-body; link-entra cross-tenant email remains candidate.
+
+2026-08-27 seed hunt #148: proved dashboard recentChanges TOP starvation; reseeded trial link-entra cross-tenant email, convert null-body, and setup/resolution foreign-workspace candidates.
 
 2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 
