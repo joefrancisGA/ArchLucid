@@ -237,7 +237,8 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
     [cache?.edgeOverrides, inferredReviewLocked, props.runId, runGeneration],
   );
 
-  const clarifyArchitectureVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
+  const clarifyArchitectureVariant: "outline" | "primary" =
+    props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   const onSaveMermaid = useCallback(
     (nextSource: string) => {

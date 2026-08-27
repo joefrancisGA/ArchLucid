@@ -47,7 +47,7 @@ export type UseRecurrenceSchedulesClientResult = {
   readonly recurrenceWorkflowSteps: ReturnType<typeof resolveRecurrenceSchedulesWorkflowSteps>;
   readonly recurrenceWorkflowEmphasizedStepId: ReturnType<typeof resolveRecurrenceSchedulesWorkflowEmphasizedStepId>;
   readonly continueLastSchedule: ReturnType<typeof resolveContinueLastRecurrenceSchedule>;
-  readonly mutationDisabledReason: ReturnType<typeof whyDisabledEnterpriseMutationControl>;
+  readonly mutationDisabledReason: ReturnType<typeof whyDisabledEnterpriseMutationControl> | null;
   readonly mutationDisabledHintId: string;
   readonly onPickReviewForScheduling: (reviewId: string) => void;
   readonly openCreateFromExample: (example: RecurrenceScheduleExample) => void;

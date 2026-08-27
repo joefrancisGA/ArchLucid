@@ -35,7 +35,7 @@ export type UseRiskExceptionsClientResult = {
   readonly scopedRunFilterActive: boolean;
   readonly canMutate: boolean;
   readonly mutationDisabledHintId: string;
-  readonly mutationDisabledReason: ReturnType<typeof whyDisabledEnterpriseMutationControl>;
+  readonly mutationDisabledReason: ReturnType<typeof whyDisabledEnterpriseMutationControl> | null;
   readonly records: RiskExceptionRecord[];
   readonly scopedRecords: RiskExceptionRecord[];
   readonly loadError: string | null;

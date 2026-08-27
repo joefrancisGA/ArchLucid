@@ -23,9 +23,9 @@ import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { ROI_SUMMARY_HELP_CLAIM_HEADING_ID } from "@/lib/roi-summary-help-evidence-copy";
 import {
   ROI_SUMMARY_HELP_BREADCRUMB_TOPIC_TITLE,
-  ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
   ROI_SUMMARY_HELP_DATA_NEEDS_ITEMS,
   ROI_SUMMARY_HELP_DATA_NEEDS_SECTION_TITLE,
   ROI_SUMMARY_HELP_DIRECTIONAL_DISCLAIMER,

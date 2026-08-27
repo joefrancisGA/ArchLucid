@@ -13,7 +13,7 @@ namespace ArchLucid.Decisioning.Tests.Services;
 public sealed class DeclarationSecurityBaselineFindingEngineTests
 {
   private readonly DeclarationSecurityBaselineFindingEngine _sut =
-      new(new FixedComplianceRulePackProvider(CreateUnmappedPack()));
+      new(new FixedComplianceRulePackProvider(CreateFailOpenPolicyPack()));
 
   [Fact]
   public async Task AnalyzeAsync_emits_finding_for_unsafe_tf_property()
@@ -42,7 +42,7 @@ public sealed class DeclarationSecurityBaselineFindingEngineTests
     findings[0].Severity.Should().Be(FindingSeverity.Error);
   }
 
-  private static ComplianceRulePack CreateUnmappedPack() =>
+  private static ComplianceRulePack CreateFailOpenPolicyPack() =>
       new()
       {
           RulePackId = "test-pack",
@@ -52,7 +52,7 @@ public sealed class DeclarationSecurityBaselineFindingEngineTests
           [
               new ComplianceRule
               {
-                  RuleId = "soc2-001",
+                  RuleId = "cost-opt-001",
                   ControlId = "c",
                   ControlName = "n",
                   AppliesToCategory = "cat",

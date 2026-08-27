@@ -14,6 +14,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
+import type { RiskExceptionRecord } from "@/lib/api/governance-stickiness-api";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 import { RiskExceptionsRenewPanel } from "./RiskExceptionsRenewPanel";

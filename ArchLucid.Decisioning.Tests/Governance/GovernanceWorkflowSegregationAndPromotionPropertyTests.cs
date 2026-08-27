@@ -285,11 +285,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
 
         runDetail
             .Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArchitectureRunDetail
-                {
-                    Run = new ArchitectureRun { RunId = runId, RequestId = "req1" },
-                });
+            .ReturnsAsync(GovernanceWorkflowTestComposition.CreateRunDetailWithManifest(runId, "v1"));
 
         Mock<IBaselineMutationAuditService> audit = new();
         audit
