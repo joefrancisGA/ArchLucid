@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 89
-- **bugs-found:** 226
+- **hunts:** 90
+- **bugs-found:** 227
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — governance preview null/whitespace runId returns 400
+- **last-bug:** 2026-08-27 — batch-review null decision/ids returns 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2537,6 +2537,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreviewController.Preview` — null or whitespace `runId` dereferenced `body.RunId.Trim()` (HTTP 500) or deferred validation to service instead of HTTP 400 (`GovernanceController.Simulate` / scoped-run parity) — **hit 2026-08-27:** explicit `IsNullOrWhiteSpace` guard before empty-guid check; regression in `GovernancePreviewControllerUnitTests`.
 
 2026-08-27 seed hunt #172: proved governance preview null/whitespace runId validation.
+
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — null `Decision` or `ApprovalRequestIds` dereferenced `.Trim()` / `.Count` (HTTP 500) instead of HTTP 400 (`GovernancePreviewController.Preview` / batch whitespace parity) — **hit 2026-08-27:** `IsNullOrWhiteSpace` / null-list guards before trim; regression in `GovernanceControllerRunHistoryScopeTests`.
+
+2026-08-27 seed hunt #173: proved batch-review null decision and approval id list validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 
