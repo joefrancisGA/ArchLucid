@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 84
-- **bugs-found:** 214
+- **hunts:** 85
+- **bugs-found:** 215
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `GovernancePreCommitSimulationController` pre-finalize checklist/simulate ghost workspace returned HTTP 200 instead of workspace 404
+- **last-bug:** 2026-08-27 — `TenantIntegrationsOperationsController.GetAsync` ghost workspace returned HTTP 200 instead of workspace 404
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2469,8 +2469,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ManifestsController` manifest read/export/compare paths (`GetManifest`, diagram/summary/bundle, export/download, compare) — ghost workspace → HTTP 200 manifest payloads after tenant preflight only; `RequireTenantOrNotFoundAsync` omits `ListWorkspacesAsync` (`ManifestsController.cs` L67–75) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight (policy-packs parity); regression in `GetManifest_returns_not_found_when_workspace_missing`.
 - [x] (proven) `GovernanceController` workflow reads/mutations using shared `RequireTenantOrNotFoundAsync` (`GetApprovalRequests`, `Approve`/`Reject`/`Promote`/`Activate`, policy-pack simulate/dry-run, run-history lists) — ghost workspace → HTTP 200 empty/workflow responses instead of workspace 404; tenant ghost fixed 2026-08-27 but `GovernanceController.cs` L101–108 still tenant-only — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` delegates to shared `TenantWorkspaceScopePreflight` (manifests/policy-packs parity); regression in `GetApprovalRequests_returns_not_found_when_workspace_missing`, `Approve_returns_not_found_when_workspace_missing`, `Simulate_returns_not_found_when_workspace_missing`, and `DryRunPolicyPack_returns_not_found_when_workspace_missing`.
 - [x] (proven) `GovernancePreCommitSimulationController` (`GetChecklist`, `Simulate`) — ghost workspace → HTTP 200 checklist/simulation payload instead of workspace 404; inline `RequireTenantOrNotFoundAsync` tenant-only (`GovernancePreCommitSimulationController.cs` L49–52) — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` delegates to shared `TenantWorkspaceScopePreflight` (governance-workflow parity); regression in `GetChecklist_returns_not_found_when_workspace_missing` and `Simulate_returns_not_found_when_workspace_missing`.
-- [ ] (hunt-ready) `TenantIntegrationsOperationsController.GetAsync` — ghost workspace → HTTP 200 connector posture summary instead of workspace 404; `GetSummaryAsync(scope, …)` uses ambient workspace but controller only calls `GetByIdAsync` (`TenantIntegrationsOperationsController.cs` L45–52).
+- [x] (proven) `TenantIntegrationsOperationsController.GetAsync` — ghost workspace → HTTP 200 connector posture summary instead of workspace 404; `GetSummaryAsync(scope, …)` uses ambient workspace but controller only calls `GetByIdAsync` (`TenantIntegrationsOperationsController.cs` L45–52) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight before `GetSummaryAsync` (pre-commit simulation parity); regression in `GetAsync_returns_not_found_when_workspace_missing`.
 - [ ] (hunt-ready) `TenantLlmCostReportingController.GetDashboard` — ghost workspace → HTTP 200 empty LLM cost dashboard instead of workspace 404; `BuildDashboardAsync` composes workspace-scoped breakdown but controller only preflights tenant row (`TenantLlmCostReportingController.cs` L51–58).
+
+2026-08-27 thorough hunt #165: proved integrations-operations foreign-workspace preflight gap via shared `TenantWorkspaceScopePreflight`.
 
 2026-08-27 thorough hunt #164: proved pre-commit simulation foreign-workspace preflight gap via shared `RequireTenantOrNotFoundAsync` upgrade.
 
