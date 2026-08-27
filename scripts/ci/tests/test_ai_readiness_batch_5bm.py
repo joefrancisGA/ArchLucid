@@ -21,7 +21,8 @@ class TestAiReadinessBatch5BM(unittest.TestCase):
             / "ArchLucid.Application"
             / "Runs"
             / "Orchestration"
-            / "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"
+            / "Commit"
+            / "AuthorityCommitGovernanceStage.cs"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("ExplainGovernanceBlocksOptions", text)

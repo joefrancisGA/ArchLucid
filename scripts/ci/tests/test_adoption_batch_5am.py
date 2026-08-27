@@ -16,7 +16,7 @@ class TestAdoptionBatch5AM(unittest.TestCase):
         self.assertIn("GenerateComparisonNarrative", text)
 
     def test_tb_224_ask_service_gates_narrative(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Host.Core" / "Services" / "Ask" / "AskService.cs"
+        path = REPO_ROOT / "ArchLucid.Host.Core" / "Services" / "Ask" / "AskComparisonNarrativeBuilder.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("GenerateComparisonNarrative", text)
         self.assertIn("ComparisonNarrativeSummaryBuilder", text)

@@ -15,12 +15,14 @@ class TestAdoptionBatch5AS(unittest.TestCase):
         self.assertIn("RiskExceptionsClient", text)
 
     def test_tb_226_client_lists_and_actions(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "governance" / "RiskExceptionsClient.tsx"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("listRiskExceptions", text)
-        self.assertIn("renewRiskException", text)
-        self.assertIn("revokeRiskException", text)
-        self.assertIn("risk-exceptions-expiring-warning", text)
+        client_path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "governance" / "RiskExceptionsClient.tsx"
+        hook_path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "governance" / "use-risk-exceptions-client.ts"
+        client_text = client_path.read_text(encoding="utf-8")
+        hook_text = hook_path.read_text(encoding="utf-8")
+        self.assertIn("listRiskExceptions", hook_text)
+        self.assertIn("renewRiskException", hook_text)
+        self.assertIn("revokeRiskException", hook_text)
+        self.assertIn("risk-exceptions-expiring-warning", client_text)
 
     def test_tb_226_nav_after_findings(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operate-governance-nav-group-builder.ts"

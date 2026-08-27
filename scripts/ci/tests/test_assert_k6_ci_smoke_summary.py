@@ -4,6 +4,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from ci_test_helpers import PYTHON
 
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "scripts" / "ci" / "assert_k6_ci_smoke_summary.py"
@@ -25,7 +26,7 @@ class AssertK6CiSmokeSummaryTests(unittest.TestCase):
         try:
             proc = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(SCRIPT),
                     str(tmp_path),
                     "--per-tag-ci-smoke",
@@ -64,7 +65,7 @@ class AssertK6CiSmokeSummaryTests(unittest.TestCase):
             env.pop("ARCHLUCID_K6_OPERATOR_MINIMAL", None)
             proc = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(SCRIPT),
                     str(tmp_path),
                     "--max-failed-rate",
@@ -107,7 +108,7 @@ class AssertK6CiSmokeSummaryTests(unittest.TestCase):
         try:
             proc = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(SCRIPT),
                     str(tmp_path),
                     "--max-failed-rate",
@@ -144,7 +145,7 @@ class AssertK6CiSmokeSummaryTests(unittest.TestCase):
         try:
             proc = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(SCRIPT),
                     str(tmp_path),
                     "--max-failed-rate",
