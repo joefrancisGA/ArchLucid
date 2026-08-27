@@ -157,7 +157,7 @@ ArchLucid remains a governed architecture-review system with **39 deterministic 
 
 **The honest problem is still churn velocity, not absence of gates.** **106 commits** landed on `master` in ~70 minutes during the v5 pass; **70** in the hour ending v5.1. The push corset uses `cancel-in-progress: true`, so only the latest push matters — and the corset run for the v5.1 fix commit was itself cancelled before a later commit's run went green. Gate 5 is PASS **as measured**, not PASS as a durable property. Branch protection is the one change that would convert the former into the latter, and it is an owner setting.
 
-**Product mechanism unchanged — read this next to the score:** bundled packs still `priorityFloor`-only for expectation extras; insight density still subtractive with `typed-engine-protected`; golden corpus still **8/39** engines; **G-REAL-06** still not started; **Gate 1 still UNKNOWN**; the full `ci.yml` matrix still unmeasured on trunk. Decision Advantage held flat at **65** and Insight Density at **66** precisely because v5.1 was a toolchain pass. **Improved:** declaration fail-open fixtures and governance workflow property tests green in the corset slice. `ShouldEmitTheme` empty-rule-set documentation mismatch remains.
+**Product mechanism unchanged — read this next to the score:** bundled packs still `priorityFloor`-only for expectation extras; insight density still subtractive with `typed-engine-protected`; golden corpus still **8/39** engines; the declaration policy gate still recognizes only `cis-az-*` and `sec-base-028`, so buyer-common packs fail-open; **G-REAL-06** still not started; **Gate 1 still UNKNOWN**; the full `ci.yml` matrix still unmeasured on trunk. Decision Advantage held flat at **65** and Insight Density at **66** precisely because v5.1 was a toolchain pass. **Improved:** declaration fail-open fixtures and governance workflow property tests green in the corset slice.
 
 **(B) Procurement / market realism (weight 0 in `(A)`).** Same honest trust posture as v4 — self-assessment, templates, owner pen test — without CPA SOC 2 or third-party pen-test publication.
 
@@ -197,7 +197,9 @@ Unchanged from v4. `typed-engine-protected` still promotes every engine finding 
 
 ### 7.4 Differentiability / Defensibility vs Frontier AI — 81 · weight 13 · contribution 10.53 · deficiency 247
 
-**Up from 78.** Declaration and governance property tests in the corset slice are green — the moat's regression evidence executes. `ShouldEmitTheme` empty-set fail-closed vs documented fail-open remains. Bundled packs still lack default expectation extras.
+**Up from 78.** Declaration and governance property tests in the corset slice are green — the moat's regression evidence executes. Bundled packs still lack default expectation extras.
+
+**v5.1 sharpens the deduction rather than changing the score.** The declaration policy gate recognizes only `cis-az-*` and `sec-base-028`, so SOC 2 / GDPR / HIPAA / ISO 27001 / PCI / ZTA / CIS AWS / CIS GCP / AKS-EKS-GKE **all fail-open** and receive every declaration signal. A buyer comparing SOC 2 against CIS Azure therefore sees compliance findings move while declaration findings do not — the demo that is supposed to prove "policy packs drive behavior" only half-works. Remediation is already specified as **PP-01** in `POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`. Score holds at 81 because the *mechanism* is real and tested; the *coverage* is narrow.
 
 **Classification:** V1 mechanism; content residual. **Affects outcomes 1, 2, 5.**
 
@@ -256,13 +258,25 @@ Unchanged. Mechanism complete; zero real pilot deltas.
 3. **Zero completed real-mode pilots (G-REAL-06).** Unchanged. Market uncertainty. Now the top *unblocked* item — v5's build failure no longer stands in the way.
 4. **Gate 1 remains UNKNOWN — no observed end-to-end first review.** **Promoted in v5.1.** With Gate 5 green, this is the only numbered ship gate not in a PASS state, and it cannot be closed by code changes. Validation uncertainty.
 5. **Full `ci.yml` matrix is PR-only and went unmeasured in both v5 and v5.1.** Api/Application/Integration suites have no fresh evidence; the corset covers Core + Decisioning only. The green corset invites over-reading. Process uncertainty.
-6. **`ShouldEmitTheme` fail-closed on empty rule set vs documented fail-open.** Design uncertainty — owner decision.
+6. **Declaration policy gate recognizes only `cis-az-*` and `sec-base-028`, so every other buyer-facing pack fail-opens.** **Restated in v5.1 after direct code inspection — v5 described this incorrectly** (see the correction note below). `DeclarationSignalPolicyKeyMap.TenantUsesDeclarationVocabulary` maps just those two vocabularies, so a tenant assigning **SOC 2, GDPR, HIPAA, ISO 27001, PCI-DSS, Zero Trust, CIS AWS, CIS GCP, or AKS/EKS/GKE** still receives **every** declaration signal. A buyer toggling SOC 2 versus CIS Azure sees compliance rows move and **declaration rows stay put** — this is the concrete mechanism behind "policy packs drive one of 39 engines," and it is a direct hit on Differentiability. A fully specified remediation already exists as **PP-01** in `docs/architecture/POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`. Design uncertainty.
 7. **Bundled packs lack expectation extras by default.** Design/content uncertainty.
 8. **Golden corpus 8/39 without governance loader injection.** Design uncertainty.
 9. **Actor-dependent engines silent on IaC-only reviews; dual finding model persists.** Unchanged in substance from v5. Design uncertainty.
 10. **Dependency posture rests on `legacy-peer-deps`.** The `npm ci` fix is a deliberate workaround pending upstream `openapi-typescript` TypeScript 7 support; it accepts a knowingly-inconsistent tree rather than resolving it. Lowest severity on this list, but it is debt whose unblock date is controlled by someone else. Design uncertainty.
 
-**Removed from the v5 list because fixed, not because deprioritized:** Gate 5 FAIL, production build FAIL, and CodeQL non-convergence. **A caution on the CodeQL entry specifically:** analysis now completes green, but **12 of the last 25 runs were still cancelled by churn**, so most pushes receive no analysis at all. That residual is folded into weakness **#1**, where it belongs — it is a scheduling and policy problem, not a CodeQL problem.
+**Removed from the v5 list because fixed, not because deprioritized:** Gate 5 FAIL, production build FAIL, and CodeQL non-convergence. **A caution on the CodeQL entry specifically:** analysis now completes green, but **12 of the last 25 runs were still cancelled**, so most pushes receive no analysis at all. That residual belongs to weakness **#1** — see the concurrency correction below, which makes it a workflow-configuration problem with a known fix rather than an unavoidable consequence of churn.
+
+### Correction to v5 — weakness #6 was wrong as written
+
+v5 (and the first v5.1 draft) claimed **"`ShouldEmitTheme` fail-closed on empty rule set vs documented fail-open."** Direct inspection of `ArchLucid.Decisioning/Governance/PolicyPacks/DeclarationSignalPolicyGate.cs` shows **no such mismatch**: the code returns `false` when `activeRuleIds.Count == 0`, and the class XML doc states *"Empty filtered pack fails closed."* **Code and documentation agree, and the empty-set behavior needs no owner decision.**
+
+The real defect sits one line lower, in `TenantUsesDeclarationVocabulary`, and is materially worse than the version v5 reported — it is a moat gap, not a doc nit. Weakness #6 above is restated accordingly. Carrying an inaccurate finding across three passes is itself a process signal: **assessment claims about code should be re-derived from the code each pass, not inherited from the prior write-up.**
+
+### Correction to v5 — CodeQL cancellations are a fixable misconfiguration, not churn
+
+v5 and v5.1 both attributed the cancelled CodeQL runs to trunk churn plus latest-wins concurrency. `codeql.yml` already sets **`cancel-in-progress: false`** (added after v4), so that explanation was incomplete. The actual mechanism, confirmed against GitHub's concurrency documentation: a concurrency group admits **one running plus one *pending*** run by default (`queue: single`), and **`cancel-in-progress: false` protects only the running run — a newly queued run always evicts the pending one.** With `group: codeql-${{ github.ref }}` and 70–106 pushes/hour, nearly every run is evicted from the pending slot before it starts, which matches the observed data exactly: cancelled runs have **no jobs at all**, while the runs that reached the running slot completed `success`.
+
+**This is repo-editable and does not need branch protection.** Either set `queue: max` (documented, up to 100 pending) or scope the group per commit via `group: codeql-${{ github.sha }}`. The same eviction applies to `ui-typecheck-on-push.yml`, which additionally sets `cancel-in-progress: true`. Tracked as Tier 1 item **5**.
 
 ---
 
@@ -278,7 +292,7 @@ Same commodity/durable table as v4 with updates: **Declaration signal gating** a
 
 ## 10. Policy-Aware Governance Test
 
-1. **Do policy packs drive behavior?** **Yes, for three kinds** — now with **green corset tests** for declaration gating and governance SoD/promotion guards. Empty rule set still fail-closed silently for declaration engines.
+1. **Do policy packs drive behavior?** **Yes, for three kinds** — now with **green corset tests** for declaration gating and governance SoD/promotion guards. **But narrowly:** only `cis-az-*` and `sec-base-028` are recognized declaration vocabulary, so the buyer-common packs (SOC 2, GDPR, HIPAA, ISO 27001, PCI, ZTA, CIS AWS/GCP, AKS/EKS/GKE) fail-open and change nothing in declaration findings. Empty rule set fails closed — **correctly and as documented**; v5's claim of a doc/code mismatch here was wrong (see §8 correction).
 2.–7. Same as v4 with corset evidence upgrade on #1 and #5.
 
 ---
@@ -361,8 +375,8 @@ Tier 1 · validation first · **Unblocked in v5.1** — production build complet
 **4. Re-measure the full `ci.yml` matrix at least once on a trunk commit.**
 Tier 1 · **New in v5.1** — it replaces the discharged CodeQL item and is now the largest unmeasured correctness surface. Api/Application/Integration suites are PR-only and were unmeasured in v4, v5, **and** v5.1; the green corset covers Core + Decisioning only and invites over-reading as "trunk is green." · **Desired outcome:** one `workflow_dispatch` (or scheduled) full-matrix run on `master` with results recorded, so the gap is quantified rather than assumed. · **Cheapest item on this list** — one dispatch. · **Classification: V1.**
 
-**5. Reduce CodeQL/corset cancellation rate on trunk.**
-Tier 1 · **New in v5.1.** CodeQL now *works* but **12 of the last 25 runs were cancelled**, so most pushes get no security analysis. `cancel-in-progress: true` is correct for a PR-based flow and wrong for a directly-pushed trunk at 70–106 commits/hour. · **Options, in order of preference:** (a) apply item 1, which slows the push rate by construction; (b) drop `cancel-in-progress` for `master` only, accepting queue depth in exchange for coverage; (c) run CodeQL on a schedule against `master` in addition to per-push. · **Largely a consequence of item 1** — listed separately because option (b) is a small workflow edit that helps even if branch protection is deferred. · **Classification: V1.**
+**5. Fix the concurrency configuration that evicts queued trunk runs.**
+Tier 1 · **New in v5.1, and the only Tier 1 item a coding agent can fully close.** CodeQL now *works* but **12 of the last 25 runs were cancelled before starting a single job**, so most pushes get no security analysis. · **Root cause (verified, not inferred):** a concurrency group holds **one running + one pending** run (`queue: single` default). `codeql.yml` already sets `cancel-in-progress: false`, which protects the *running* run only — **every newly queued run evicts the pending one.** With `group: codeql-${{ github.ref }}` on a trunk taking 70–106 pushes/hour, almost nothing survives the pending slot. Cancelled runs having **zero jobs** is the fingerprint. · **Fix, preferring the lower-risk option:** set `group: codeql-${{ github.sha }}` so each commit gets its own group and nothing coalesces; alternatively `queue: max` (documented, up to 100 pending) — note `queue: max` **cannot** be combined with `cancel-in-progress: true`, which matters for `ui-typecheck-on-push.yml`. · **Trade-off:** more Actions minutes, in exchange for every commit actually being analyzed. · **Independent of item 1** — worth doing even if branch protection is deferred, though item 1 also reduces push rate by construction. · **Classification: V1.**
 
 ### Tier 2 — High Leverage
 
@@ -388,13 +402,13 @@ Tier 1 · **New in v5.1.** CodeQL now *works* but **12 of the last 25 runs were 
 
 ## 19. Model Usage Guidance
 
-Same as v4. **v5.1 note:** the stickiness/SAML type alignment was Sonnet-safe as predicted, but verification turned up a TS 7-specific `TS2871` (always-nullish expression) that mechanical prop-type alignment would have missed — so **always run `npm run typecheck` after a type-alignment batch rather than trusting the named error list**, since TypeScript 7 reports diagnostics the error list did not contain. Do not batch type fixes with the `ShouldEmitTheme` behavior change.
+Same as v4. **v5.1 note:** the stickiness/SAML type alignment was Sonnet-safe as predicted, but verification turned up a TS 7-specific `TS2871` (always-nullish expression) that mechanical prop-type alignment would have missed — so **always run `npm run typecheck` after a type-alignment batch rather than trusting the named error list**, since TypeScript 7 reports diagnostics the error list did not contain. Route the declaration-vocabulary work (**PP-01**) to **Opus** on a feature branch; it changes finding emission and needs its own golden-delta test, so do not batch it with toolchain fixes.
 
 ## 20. Pending Questions For Later
 
 **Blocks V1:** item 1 (branch protection), item 2 (Gate 1 observed run), item 5 (full matrix measurement); **G-REAL-06**; **G-COMMERCE-01**. **No longer blocking:** v5 items 1 and 5 (Gate 5, npm peer) — shipped at `15836970d4`.
 
-**Requires founder decision:** (a) organizational repeatability positioning; (b) `typed-engine-protected`; (c) finding stream of record; (d) overlay seeding; (e) `ShouldEmitTheme` empty-set behavior; (f) **resolved:** mandatory PRs declined — branch protection on push corset is the chosen path, **still unapplied as of v5.1**; (g) **new:** whether to hold `legacy-peer-deps` until `openapi-typescript` ships TypeScript 7 peers, or alias `typescript` to `@typescript/typescript6` per the TypeScript 7.0 side-by-side guidance.
+**Requires founder decision:** (a) organizational repeatability positioning; (b) `typed-engine-protected`; (c) finding stream of record; (d) overlay seeding; (e) **withdrawn** — `ShouldEmitTheme` empty-set behavior needs no decision; code and docs already agree (§8 correction). Replaced by: whether to run **PP-01** and widen declaration vocabulary to the buyer-common pack prefixes; (f) **resolved:** mandatory PRs declined — branch protection on push corset is the chosen path, **still unapplied as of v5.1**; (g) **new:** whether to hold `legacy-peer-deps` until `openapi-typescript` ships TypeScript 7 peers, or alias `typescript` to `@typescript/typescript6` per the TypeScript 7.0 side-by-side guidance; (h) **new:** accept higher Actions spend to stop evicting queued trunk runs (Tier 1 item 5).
 
 ---
 
