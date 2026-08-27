@@ -48,17 +48,19 @@ public sealed class GovernanceDashboardService(
 
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask = _approvalRequestRepository.GetPendingAsync(maxPending, cancellationToken);
         Task<IReadOnlyList<GovernanceApprovalRequest>> decisionsTask = _approvalRequestRepository.GetRecentDecisionsAsync(maxDecisions, cancellationToken);
-        Task<IReadOnlyList<PolicyPackChangeLogEntry>> changesTask = _policyPackChangeLogRepository.GetByTenantAsync(tenantId, maxChanges, cancellationToken);
+        Task<IReadOnlyList<PolicyPackChangeLogEntry>> changesTask =
+            _policyPackChangeLogRepository.GetByScopeAsync(
+                tenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                maxChanges,
+                cancellationToken);
         Task<(long PromptTokens, long CompletionTokens)> tokenTask =
             GovernanceDashboardRecentRunTokenAggregator.AggregateAsync(_runDetailQueryService, _traceRepository, _scopeContextProvider, cancellationToken);
         await Task.WhenAll(pendingTask, decisionsTask, changesTask, tokenTask);
         IReadOnlyList<GovernanceApprovalRequest> pending = await pendingTask;
         IReadOnlyList<GovernanceApprovalRequest> decisions = await decisionsTask;
-        IReadOnlyList<PolicyPackChangeLogEntry> changes = await changesTask;
-        IReadOnlyList<PolicyPackChangeLogEntry> scopedChanges = changes
-            .Where(change => change.WorkspaceId == scope.WorkspaceId && change.ProjectId == scope.ProjectId)
-            .Take(maxChanges)
-            .ToList();
+        IReadOnlyList<PolicyPackChangeLogEntry> scopedChanges = await changesTask;
         (long promptTokens, long completionTokens) = await tokenTask;
         return new GovernanceDashboardSummary
         {
