@@ -74,4 +74,9 @@ public sealed partial class ManifestsController(
 
         return null;
     }
+
+    private static string FormatManifestVersionForNotFoundMessage(string manifestVersion)
+    {
+        return string.IsNullOrWhiteSpace(manifestVersion) ? manifestVersion : manifestVersion.Trim();
+    }
 }

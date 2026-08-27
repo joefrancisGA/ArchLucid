@@ -255,6 +255,39 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task GetManifest_returns_trimmed_version_in_not_found_message_when_route_is_padded()
+    {
+        const string missingVersion = "missing";
+        string paddedManifestVersion = $"  {missingVersion}  ";
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifest(paddedManifestVersion, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        Microsoft.AspNetCore.Mvc.ProblemDetails? problem = notFound.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
+        problem.Should().NotBeNull();
+        problem!.Detail.Should().Be($"Manifest '{missingVersion}' was not found.");
+    }
+
+    [Fact]
+    public async Task CompareManifests_returns_trimmed_version_in_not_found_message_when_left_query_is_padded()
+    {
+        const string missingLeftVersion = "missing-left";
+        string paddedLeftVersion = $"  {missingLeftVersion}  ";
+        ManifestsController controller = CreateController();
+
+        IActionResult action =
+            await controller.CompareManifests(paddedLeftVersion, RightVersion, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        Microsoft.AspNetCore.Mvc.ProblemDetails? problem = notFound.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
+        problem.Should().NotBeNull();
+        problem!.Detail.Should().Be($"Manifest '{missingLeftVersion}' was not found.");
+    }
+
+    [Fact]
     public async Task GetManifest_returns_ok_when_manifest_exists()
     {
         ManifestsController controller = CreateController();

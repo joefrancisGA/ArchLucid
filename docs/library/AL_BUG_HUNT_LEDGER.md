@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 69
-- **bugs-found:** 203
+- **hunts:** 70
+- **bugs-found:** 205
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — create-risk-exception whitespace findingId returns 400
+- **last-bug:** 2026-08-27 — manifest 404 messages use trimmed version strings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2448,8 +2448,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — inverted `recordedAfterUtc`/`recordedBeforeUtc` or `minConfidence`/`maxConfidence` returned HTTP 200 empty register — **hit 2026-08-27:** `ValidateDecisionRegisterFilters` (compliance-drift `fromUtc`/`toUtc` parity); regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` — whitespace-only body `findingId` trimmed to empty in facade and returns HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** controller rejects whitespace `findingId` before facade (route disposition whitespace parity); regression in `GovernanceStickinessControllerTests`.
 - [x] (valid-no-repro) `ManifestsController.CompareManifests` — base compare JSON response may lack padded-query regression test though `ManifestDiffResult` already uses canonical `Metadata.ManifestVersion` — **cheap-disproof 2026-08-27:** `CompareManifests_returns_canonical_diff_versions_when_query_params_are_padded` documents correct behavior via `ManifestDiffService.Compare`.
+- [x] (proven) `ManifestsController` manifest read/export/compare 404 Problem Details — padded route/query `manifestVersion` echoed whitespace in `Detail` though `GetManifestInScopeAsync` trimmed lookup — **hit 2026-08-27:** `FormatManifestVersionForNotFoundMessage` on all manifest-not-found branches; regression in `ManifestsControllerTests`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — negative or >100 `minConfidence`/`maxConfidence` returned HTTP 200 empty register — **hit 2026-08-27:** extend `ValidateDecisionRegisterFilters` (operator confidence scale [0,100] parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (invalid) `GovernanceController.DryRunPolicyPack` — `pageSize`/`page` silently clamped instead of HTTP 400 — **cheap-disproof 2026-08-27:** intentional server-side pagination cap; `PolicyPackDryRunServiceTests.EvaluateAsync_ClampsPageSizeToServerMaximum`.
+- [x] (invalid) `GovernanceStickinessController.GetDecisionRegister` — unrecognized `buyerConfidenceSource` should 400 instead of filtering Unknown/NotComputed — **cheap-disproof 2026-08-27:** `ArchitectureDecisionRegisterReader.ResolveConfidenceSourceNamesForBuyerLabel` intentionally maps unknown labels to Unknown/NotComputed SQL filter (buyer three-value collapse).
 
-2026-08-27 seed hunt #151: proved manifest-summary `maxRelationships`, disposition route whitespace, simulate `syntheticCount` upper bound, and decision-register filter validation; reseeded create-risk-exception body whitespace and compare-manifest metadata test-gap candidates.
+2026-08-27 seed hunt #153: proved manifest 404 trim parity and decision-register confidence bounds; cheap-disproved dry-run page clamp and buyer-confidence-source whitelist.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

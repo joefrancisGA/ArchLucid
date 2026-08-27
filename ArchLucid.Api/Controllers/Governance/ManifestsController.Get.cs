@@ -27,7 +27,9 @@ public sealed partial class ManifestsController
 
         GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         return manifest is null
-            ? this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound)
+            ? this.NotFoundProblem(
+                $"Manifest '{FormatManifestVersionForNotFoundMessage(manifestVersion)}' was not found.",
+                ProblemTypes.ManifestNotFound)
             : Ok(manifest);
     }
 
@@ -45,7 +47,9 @@ public sealed partial class ManifestsController
 
         GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem(
+                $"Manifest '{FormatManifestVersionForNotFoundMessage(manifestVersion)}' was not found.",
+                ProblemTypes.ManifestNotFound);
 
         string mermaid = diagramGenerator.GenerateMermaid(manifest);
         string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
@@ -75,7 +79,9 @@ public sealed partial class ManifestsController
 
         GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem(
+                $"Manifest '{FormatManifestVersionForNotFoundMessage(manifestVersion)}' was not found.",
+                ProblemTypes.ManifestNotFound);
 
         ManifestDiagramOptions opts = new()
         {
@@ -115,7 +121,9 @@ public sealed partial class ManifestsController
 
         GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem(
+                $"Manifest '{FormatManifestVersionForNotFoundMessage(manifestVersion)}' was not found.",
+                ProblemTypes.ManifestNotFound);
 
         if (maxRelationships.HasValue)
         {
@@ -226,7 +234,9 @@ public sealed partial class ManifestsController
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem(
+                $"Manifest '{FormatManifestVersionForNotFoundMessage(manifestVersion)}' was not found.",
+                ProblemTypes.ManifestNotFound);
 
         string markdown = summaryGenerator.GenerateMarkdown(manifest, evidence);
         string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
@@ -252,7 +262,9 @@ public sealed partial class ManifestsController
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem(
+                $"Manifest '{FormatManifestVersionForNotFoundMessage(manifestVersion)}' was not found.",
+                ProblemTypes.ManifestNotFound);
 
         string diagram = diagramGenerator.GenerateMermaid(manifest);
         string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);

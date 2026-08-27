@@ -133,7 +133,8 @@ public sealed partial class ManifestsController
         if (left is null)
             return new LoadedManifestPair
             {
-                Error = this.NotFoundProblem($"Manifest '{leftVersion}' was not found.",
+                Error = this.NotFoundProblem(
+                    $"Manifest '{FormatManifestVersionForNotFoundMessage(leftVersion)}' was not found.",
                     ProblemTypes.ManifestNotFound)
             };
 
@@ -142,7 +143,8 @@ public sealed partial class ManifestsController
         return right is null
             ? new LoadedManifestPair
             {
-                Error = this.NotFoundProblem($"Manifest '{rightVersion}' was not found.",
+                Error = this.NotFoundProblem(
+                    $"Manifest '{FormatManifestVersionForNotFoundMessage(rightVersion)}' was not found.",
                     ProblemTypes.ManifestNotFound)
             }
             : new LoadedManifestPair { Left = left, Right = right, Diff = manifestDiffService.Compare(left, right) };

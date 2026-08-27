@@ -77,6 +77,20 @@ public sealed partial class GovernanceStickinessController(
                 ProblemTypes.ValidationFailed);
         }
 
+        if (minConfidence is < 0d or > 100d)
+        {
+            return this.BadRequestProblem(
+                "minConfidence must be between 0 and 100.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (maxConfidence is < 0d or > 100d)
+        {
+            return this.BadRequestProblem(
+                "maxConfidence must be between 0 and 100.",
+                ProblemTypes.ValidationFailed);
+        }
+
         return null;
     }
 

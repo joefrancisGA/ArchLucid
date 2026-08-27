@@ -24,7 +24,9 @@ public sealed partial class ManifestsController
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem(
+                $"Manifest '{FormatManifestVersionForNotFoundMessage(manifestVersion)}' was not found.",
+                ProblemTypes.ManifestNotFound);
 
         string diagram = diagramGenerator.GenerateMermaid(manifest);
         string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
@@ -52,7 +54,9 @@ public sealed partial class ManifestsController
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem(
+                $"Manifest '{FormatManifestVersionForNotFoundMessage(manifestVersion)}' was not found.",
+                ProblemTypes.ManifestNotFound);
 
         string diagram = diagramGenerator.GenerateMermaid(manifest);
         string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
