@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { GettingStartedHelpClaimDisciplineStrip } from "@/components/help/GettingStartedHelpClaimDisciplineStrip";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 import { PilotGuideGettingStartedFirstReviewVocabularyRail } from "@/components/PilotGuideGettingStartedFirstReviewVocabularyRail";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
@@ -11,11 +12,9 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import {
   GETTING_STARTED_HELP_AUDIENCE_LINE,
   GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE,
-  GETTING_STARTED_HELP_CLAIM_DISCIPLINE,
   GETTING_STARTED_HELP_DIAGRAM_SOURCE,
   GETTING_STARTED_HELP_DIAGRAM_STEPS,
   GETTING_STARTED_HELP_DIAGRAM_SUMMARY,
@@ -156,18 +155,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
       {buyerPolishedShell ? null : (
         <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="getting-started" />
       )}
+      <GettingStartedHelpClaimDisciplineStrip />
       <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{GETTING_STARTED_HELP_AUDIENCE_LINE}</p>
-      <aside
-        className={cn(DESIGN_TOKENS.callout.neutral, "p-3")}
-        data-testid="help-getting-started-claim-discipline"
-      >
-        <StatusTag
-          kind="neutral"
-          label="Orientation only"
-          data-testid="help-getting-started-orientation-status"
-        />
-        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_CLAIM_DISCIPLINE}</p>
-      </aside>
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>

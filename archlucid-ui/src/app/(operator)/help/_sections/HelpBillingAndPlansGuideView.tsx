@@ -13,8 +13,9 @@ import {
 } from "@/app/(operator)/help/_sections/HelpBillingCurrentPlanCard";
 import { HelpBillingAndPlansPageHeader } from "@/app/(operator)/help/_sections/HelpBillingAndPlansPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { BillingAndPlansHelpClaimDisciplineStrip } from "@/components/help/BillingAndPlansHelpClaimDisciplineStrip";
 import { BillingAndPlansHelpEvidenceOrientationStrip } from "@/components/help/BillingAndPlansHelpEvidenceOrientationStrip";
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,6 +24,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   BILLING_HELP_FAQ_ITEMS,
   BILLING_HELP_GUIDE_HEADINGS,
@@ -34,6 +36,7 @@ import {
   billingHelpPageSubtitle,
   type BillingHelpFaqItem,
 } from "@/lib/billing-help-guide-content";
+import { BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID } from "@/lib/billing-and-plans-help-evidence-copy";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import {
@@ -125,6 +128,11 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
   }, []);
 
   const contentGridClass = resolveHelpPageContentGridClass(BILLING_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-billing-and-plans",
+    BILLING_HELP_GUIDE_HEADINGS,
+    BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID,
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -160,6 +168,9 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
           void onRefresh();
         }}
       />
+
+      <BillingAndPlansHelpClaimDisciplineStrip />
+
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <HelpBillingCurrentPlanCard onLoadStateChange={handlePlanLoadStateChange} />
       </div>
@@ -237,7 +248,7 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
           <BillingAndPlansHelpEvidenceOrientationStrip />
         </div>
 
-        <HelpTopicTableOfContents headings={BILLING_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );

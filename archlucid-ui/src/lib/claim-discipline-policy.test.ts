@@ -60,6 +60,8 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("help-first-value-20-minutes", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-policy-pack-delta-demo", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-sponsor-report", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-engineering-troubleshooting", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-getting-started", "not a package.")).toBeUndefined();
   });
 
   it("expectsVisibleClaimDisciplineBand mirrors omit policy", () => {
@@ -77,6 +79,8 @@ describe("claim-discipline-policy", () => {
     expect(expectsVisibleClaimDisciplineBand("help-first-value-20-minutes")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-policy-pack-delta-demo")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-sponsor-report")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-engineering-troubleshooting")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-getting-started")).toBe(false);
   });
 
   it("has no duplicate omit slugs", () => {

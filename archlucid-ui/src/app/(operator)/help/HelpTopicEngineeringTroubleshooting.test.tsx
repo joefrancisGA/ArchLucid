@@ -32,11 +32,13 @@ import { HelpEngineeringTroubleshootingGuideView } from "@/app/(operator)/help/_
 
 import {
 
+  ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
   ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS,
 
   ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS,
 
 } from "@/lib/engineering-troubleshooting-help-guide-content";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 
@@ -111,6 +113,15 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
     expect(screen.queryByTestId("help-engineering-troubleshooting-orientation")).not.toBeInTheDocument();
 
     expect(screen.queryByTestId("help-engineering-troubleshooting-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-engineering-troubleshooting-claim-discipline-strip")).toHaveTextContent(
+      ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-engineering-troubleshooting",
+      "help-engineering-troubleshooting-claim-discipline",
+      ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
 
     expect(screen.queryByTestId("help-engineering-troubleshooting-major-sections")).not.toBeInTheDocument();
 
@@ -143,13 +154,13 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
 
 
     const actionPanel = screen.getByTestId("help-engineering-troubleshooting-action-panel");
+    const claimStrip = screen.getByTestId("help-engineering-troubleshooting-claim-discipline-strip");
 
-
+    expect(claimStrip.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(actionPanel.className).not.toMatch(/bg-teal-/);
 
     expect(
-
       within(actionPanel).getByTestId("help-engineering-troubleshooting-primary-cta"),
-
     ).toHaveAttribute("href", ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.jumpToSymptomLookup.href);
 
 

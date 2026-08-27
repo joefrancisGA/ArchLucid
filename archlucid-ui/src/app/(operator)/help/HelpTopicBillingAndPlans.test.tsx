@@ -91,6 +91,9 @@ import {
   BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID,
   BILLING_AND_PLANS_HELP_SOURCES,
 } from "@/lib/billing-and-plans-help-evidence-copy";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_CUSTOMER_COPY = [
@@ -176,19 +179,40 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-faq-list").children).toHaveLength(BILLING_HELP_FAQ_ITEMS.length);
     expect(screen.queryByText(/Sources package/i)).toBeNull();
-    expect(screen.getByTestId("help-billing-claim-discipline").textContent).toContain(
+    expect(screen.queryByTestId("help-billing-claim-discipline")).toBeNull();
+    expect(screen.getByTestId("help-billing-claim-discipline-strip").textContent).toContain(
       BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByRole("heading", { name: BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
-      BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID,
-    );
+    expect(screen.queryByRole("heading", { name: BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE_HEADING })).toBeNull();
 
-    for (const source of BILLING_AND_PLANS_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+    const sourcesSection = screen.getByTestId("help-billing-and-plans-sources");
+    const visibleSources = filterWhereToGoNextFollowUpLinks(BILLING_AND_PLANS_HELP_SOURCES);
+
+    for (const source of visibleSources) {
+      expect(
+        within(sourcesSection).getByRole("link", {
+          name: formatHelpFollowUpLinkAccessibleName(source.href, source.label),
+        }),
+      ).toHaveAttribute("href", source.href);
     }
 
-    for (const heading of BILLING_HELP_GUIDE_HEADINGS) {
+    for (const source of BILLING_AND_PLANS_HELP_SOURCES) {
+      if (visibleSources.includes(source)) {
+        continue;
+      }
+
+      expect(
+        within(sourcesSection).queryByRole("link", {
+          name: formatHelpFollowUpLinkAccessibleName(source.href, source.label),
+        }),
+      ).toBeNull();
+    }
+
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-billing-and-plans",
+      BILLING_HELP_GUIDE_HEADINGS,
+      BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID,
+    )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
 

@@ -6,7 +6,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH,
   ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION,
@@ -18,7 +17,6 @@ import {
 } from "@/lib/admin-diagnostics-help-evidence-copy";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -88,14 +86,12 @@ export function HelpAdminDiagnosticsGuideView(
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION}</p>
       </aside>
 
-      <Card
-        className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
+      <section
+        className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
         data-testid="help-admin-diagnostics-action-panel"
       >
-        <CardContent className={cn(OPERATOR_CARD.content, "pt-6")}>
-          <HelpAdminDiagnosticsSourceLinks />
-        </CardContent>
-      </Card>
+        <HelpAdminDiagnosticsSourceLinks />
+      </section>
 
       <div className={contentGridClass}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>

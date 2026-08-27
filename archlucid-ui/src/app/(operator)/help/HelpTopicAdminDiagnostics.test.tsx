@@ -93,6 +93,10 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     expect(screen.getByTestId("help-admin-diagnostics-primary-admin-tag")).toHaveTextContent("Admin");
 
     const actionPanel = screen.getByTestId("help-admin-diagnostics-action-panel");
+
+    expect(actionPanel.className).not.toMatch(/bg-teal-/);
+    expect(actionPanel.tagName.toLowerCase()).toBe("section");
+
     const liveSurfaces = within(actionPanel).getByTestId("help-admin-diagnostics-live-surfaces");
     const relatedTopics = within(actionPanel).getByTestId("help-admin-diagnostics-related-topics");
 
