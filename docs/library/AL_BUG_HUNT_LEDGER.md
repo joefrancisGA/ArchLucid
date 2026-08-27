@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 62
-- **bugs-found:** 189
+- **hunts:** 63
+- **bugs-found:** 192
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — bulk-disposition 50-id cap + disposition route findingId trim parity
+- **last-bug:** 2026-08-27 — dashboard query max-50 cap + pre-finalize simulate run scope/whitespace parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2432,10 +2432,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — more than 50 `findingIds` accepted and iterated in facade instead of HTTP 400 — **hit 2026-08-27:** reject when count exceeds 50 (`BatchReviewApprovalRequests` cap parity); regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_more_than_fifty_finding_ids`.
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` / `ListDispositions` / `ResolveFindingMergeConflict` — padded route `findingId` values failed scope lookup and returned HTTP 404 though trimmed id was in scope — **hit 2026-08-27:** `NormalizeFindingId` trim before facade/repository (scoped-run trim parity); regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_ok_when_route_finding_id_is_padded`.
-- [ ] (candidate) `GovernanceController.GetDashboard` — `maxPending` / `maxDecisions` / `maxChanges` lack an upper bound and forward unbounded `Take` values to repositories (batch-cap parity with approval review / simulate-bulk).
-- [ ] (candidate) `GovernancePreCommitSimulationController.SimulateAsync` — whitespace-only `runId` returns HTTP 400 via parse failure instead of explicit empty-run guard (`GetChecklist` whitespace parity).
+- [x] (proven) `GovernanceController.GetDashboard` — `maxPending` / `maxDecisions` / `maxChanges` lacked an upper bound and forwarded unbounded `TOP` values to repositories — **hit 2026-08-27:** reject when any query bound exceeds 50 (batch-cap parity; UI already requests 50); regression in `GovernanceControllerDashboardTests.GetDashboard_returns_bad_request_when_max_pending_exceeds_fifty`.
+- [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — out-of-scope `runId` bubbled `RunNotFoundException` from the gate instead of HTTP 404 while `GetChecklist` preflighted scoped runs — **hit 2026-08-27:** scoped `IRunRepository` preflight before simulation (checklist parity); regression in `GovernancePreCommitSimulationControllerTests.Simulate_returns_not_found_for_out_of_scope_run_id`.
+- [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — whitespace-only `runId` relied on parse-failure `BadRequest` instead of explicit empty-run validation — **hit 2026-08-27:** `IsNullOrWhiteSpace` guard before trim/parse (`GetChecklist` parity); regression in `GovernancePreCommitSimulationControllerTests.Simulate_returns_bad_request_when_run_id_is_whitespace`.
 
-2026-08-27 seed hunt #145: proved bulk-disposition 50-id cap and disposition route findingId trim parity; seeded dashboard max-query and pre-finalize simulate whitespace candidates.
+2026-08-27 thorough hunt #146: proved dashboard query max-50 cap and pre-finalize simulate run-scope/whitespace parity; zone candidate backlog cleared.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

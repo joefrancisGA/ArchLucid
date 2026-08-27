@@ -95,6 +95,60 @@ public sealed class GovernancePreCommitSimulationControllerTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    [Fact]
+    public async Task Simulate_returns_not_found_for_out_of_scope_run_id()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string runId = foreignRunId.ToString("D");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(
+            gate: gate.Object,
+            runRepository: runs.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = runId,
+                SyntheticSeverity = FindingSeverity.Critical,
+                SyntheticCount = 1,
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        gate.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_run_id_is_whitespace()
+    {
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(gate: gate.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = "  ",
+                SyntheticSeverity = FindingSeverity.Critical,
+                SyntheticCount = 1,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        gate.VerifyNoOtherCalls();
+    }
+
     private static ITenantRepository TenantMissingRepository() =>
         Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
             Scope.TenantId,
