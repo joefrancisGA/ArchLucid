@@ -72,6 +72,57 @@ public sealed class GovernancePreviewControllerUnitTests
     }
 
     [Fact]
+    public async Task Preview_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(
+            preview.Object,
+            tenantExists: true,
+            workspaceId: foreignWorkspaceId);
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = "run-1",
+                ManifestVersion = "v1",
+                Environment = "dev",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CompareEnvironments_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        GovernancePreviewController controller = CreateController(
+            preview.Object,
+            tenantExists: true,
+            workspaceId: foreignWorkspaceId);
+
+        IActionResult action = await controller.CompareEnvironments(
+            new CreateGovernanceEnvironmentComparisonRequest
+            {
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CompareEnvironments_returns_not_found_when_tenant_missing()
     {
         Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
@@ -91,10 +142,20 @@ public sealed class GovernancePreviewControllerUnitTests
         preview.VerifyNoOtherCalls();
     }
 
-    private static GovernancePreviewController CreateController(IGovernancePreviewService previewService, bool tenantExists)
+    private static GovernancePreviewController CreateController(
+        IGovernancePreviewService previewService,
+        bool tenantExists,
+        Guid? workspaceId = null)
     {
+        Guid effectiveWorkspaceId = workspaceId ?? Scope.WorkspaceId;
+
         Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = effectiveWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
 
         Mock<ITenantRepository> tenants = new();
         tenants
@@ -103,6 +164,20 @@ public sealed class GovernancePreviewControllerUnitTests
                 tenantExists
                     ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" }
                     : null);
+
+        if (tenantExists)
+        {
+            tenants
+                .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                [
+                    new TenantWorkspaceListItem
+                    {
+                        WorkspaceId = Scope.WorkspaceId,
+                        Name = "primary",
+                    },
+                ]);
+        }
 
         return new GovernancePreviewController(
             previewService,
