@@ -311,6 +311,12 @@ export function resolveDeferredChunkImportLoader(
           (module) => module.TechnologyBaselineSection,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-pre-finalize-checklist":
+      return deferredChunkLoader(() =>
+        import("@/components/reviews/PreFinalizeChecklistSection").then(
+          (module) => module.PreFinalizeChecklistSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "run-detail-changes-since-last-review":
       return deferredChunkLoader(() =>
         import("@/components/ChangesSinceLastReviewBanner").then(
