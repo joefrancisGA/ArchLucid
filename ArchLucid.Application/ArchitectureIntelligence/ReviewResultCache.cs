@@ -215,9 +215,9 @@ public sealed class ReviewResultCache : IReviewResultCache
             _pinnedStorageKeyRefcounts.TryGetValue(storageKey, out int count);
 
             if (count >= MaxPinnedRefcountPerKey)
-                _pinnedStorageKeyRefcounts[storageKey] = MaxPinnedRefcountPerKey;
-            else
-                _pinnedStorageKeyRefcounts[storageKey] = count + 1;
+                return false;
+
+            _pinnedStorageKeyRefcounts[storageKey] = count + 1;
 
             if (!_cache.ContainsKey(storageKey))
                 _pinReservationsWithoutCacheEntry.Add(storageKey);
