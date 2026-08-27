@@ -18,7 +18,7 @@ import {
   listHelpCenterAdvancedGuideTopics,
   listHelpCenterGuideTopics,
 } from "@/lib/help/help-center-catalog";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -213,10 +213,7 @@ export function HelpProductGuide() {
             setTopicQuery(event.target.value);
           }}
           placeholder="Filter guides by title or summary"
-          className={cn(
-            "w-full max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 dark:border-neutral-700 dark:bg-neutral-950",
-            OPERATOR_TYPOGRAPHY.body,
-          )}
+          className={cn("max-w-xl", HELP_PAGE_TOC.referenceSearchInput)}
           autoComplete="off"
         />
 

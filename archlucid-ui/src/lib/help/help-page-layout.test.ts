@@ -40,6 +40,7 @@ describe("help-page-layout", () => {
     expect(HELP_PAGE_TOC.link).toContain("hover:underline");
     expect(HELP_PAGE_TOC.link).toContain("focus-visible:outline");
     expect(HELP_PAGE_TOC.linkActive).toContain("font-semibold");
+    expect(HELP_PAGE_TOC.linkActive).not.toMatch(/teal/);
   });
 
   it("uses document scroll for typical TOC lists without nested list scrollbars", () => {

@@ -94,7 +94,9 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
     fireEvent.click(screen.getByTestId("specialty-template-use-ai-governance"));
 
     const selectedCard = screen.getByTestId("specialty-template-card-ai-governance");
+    expect(selectedCard.className).not.toMatch(/ring-teal|border-teal|bg-teal/);
     const selectionFooter = within(selectedCard).getByTestId("specialty-template-card-selection-footer");
+    expect(selectionFooter.className).not.toMatch(/border-teal|bg-teal/);
     expect(selectionFooter).toHaveAttribute("role", "status");
     expect(selectionFooter).toHaveTextContent(/continue to review setup/i);
     expect(within(selectedCard).getByRole("button", { name: "Remove template" })).toBeInTheDocument();

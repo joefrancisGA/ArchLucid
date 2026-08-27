@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 
 import { useHelpDocsIndexQuery } from "@/hooks/use-help-docs-index-query";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
 import type { DocIndexEntry } from "@/lib/help-docs-index";
 
 export type { DocIndexEntry } from "@/lib/help-docs-index";
@@ -174,10 +175,7 @@ export function HelpDocsClient() {
         value={query}
         onChange={(ev) => setQuery(ev.target.value)}
         placeholder="Filter by title or summary"
-        className={cn(
-          "w-full max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 dark:border-neutral-700 dark:bg-neutral-950",
-          OPERATOR_TYPOGRAPHY.body,
-        )}
+        className={cn("max-w-xl", HELP_PAGE_TOC.referenceSearchInput)}
         autoComplete="off"
       />
 

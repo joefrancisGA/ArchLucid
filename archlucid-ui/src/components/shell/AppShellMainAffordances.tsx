@@ -16,19 +16,19 @@ import { CorePilotCompleteCelebrateStrip } from "@/components/usability/CorePilo
 import { GlobalSearchShortcutCoach } from "@/components/usability/GlobalSearchShortcutCoach";
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
-import { isHelpOnHelpPath } from "@/lib/help/help-on-help";
+import { isPersistentWorkspaceNextActionStripPath } from "@/lib/persistent-workspace-next-action-strip-path";
 
 /** Non-critical main-column affordances loaded after the shell paints. */
 export function AppShellMainAffordances() {
   const pathname = usePathname() ?? "/";
   const isOperatorHome = pathname === "/";
-  const isHelpTopic = isHelpOnHelpPath(pathname);
+  const showPersistentWorkspaceNextActionStrip = isPersistentWorkspaceNextActionStripPath(pathname);
   const staticDemoEnv = isExplicitStaticDemoMarketingBuild();
 
   return (
     <>
       <BuyerGoldenJourneyLayerContextStrip />
-      {isOperatorHome || isHelpTopic ? null : <PersistentWorkspaceNextActionStrip />}
+      {showPersistentWorkspaceNextActionStrip ? <PersistentWorkspaceNextActionStrip /> : null}
       {isOperatorHome ? <RecentReviewsResumeStrip /> : null}
       {isOperatorHome ? <CorePilotCompleteCelebrateStrip /> : null}
       <GlobalSearchShortcutCoach />

@@ -6,10 +6,13 @@ import { describe, expect, it } from "vitest";
 const UI_ROOT = join(process.cwd());
 
 describe("operator home primary CTA composition (TB-1539)", () => {
-  it("omits the cross-page Core Pilot strip on operator home so command center owns the sole primary", () => {
+  it("shows the cross-page Core Pilot strip only on first-review architecture surfaces", () => {
     const source = readFileSync(join(UI_ROOT, "src/components/shell/AppShellMainAffordances.tsx"), "utf8");
 
-    expect(source).toContain("isOperatorHome || isHelpTopic ? null : <PersistentWorkspaceNextActionStrip />");
+    expect(source).toContain("isPersistentWorkspaceNextActionStripPath(pathname)");
+    expect(source).toContain(
+      "{showPersistentWorkspaceNextActionStrip ? <PersistentWorkspaceNextActionStrip /> : null}",
+    );
     expect(source).not.toMatch(
       /<PersistentWorkspaceNextActionStrip\s*\/>\s*\n\s*\{isOperatorHome \? <RecentReviewsResumeStrip/,
     );
