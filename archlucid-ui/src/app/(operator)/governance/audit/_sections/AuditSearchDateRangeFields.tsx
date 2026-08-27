@@ -81,8 +81,8 @@ export function AuditSearchDatePresetButtons(props: AuditSearchDatePresetButtons
       <button
         type="button"
         className={cn(
-          "rounded border px-2 py-1 font-medium transition-colors",
-          OPERATOR_TYPOGRAPHY.tab,
+          "rounded border px-2 py-1 transition-colors",
+          OPERATOR_TYPOGRAPHY.button,
           auditDatePreset === "24h"
             ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 dark:bg-neutral-800/80"
             : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
@@ -97,8 +97,8 @@ export function AuditSearchDatePresetButtons(props: AuditSearchDatePresetButtons
       <button
         type="button"
         className={cn(
-          "rounded border px-2 py-1 font-medium transition-colors",
-          OPERATOR_TYPOGRAPHY.tab,
+          "rounded border px-2 py-1 transition-colors",
+          OPERATOR_TYPOGRAPHY.button,
           auditDatePreset === "7d"
             ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 dark:bg-neutral-800/80"
             : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
@@ -114,8 +114,8 @@ export function AuditSearchDatePresetButtons(props: AuditSearchDatePresetButtons
         <button
           type="button"
           className={cn(
-            "rounded border border-neutral-300 bg-neutral-50 px-2 py-1 font-medium text-al-text-primary hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-950 dark:hover:bg-neutral-900",
-            OPERATOR_TYPOGRAPHY.tab,
+            "rounded border border-neutral-300 bg-neutral-50 px-2 py-1 text-al-text-primary hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-950 dark:hover:bg-neutral-900",
+            OPERATOR_TYPOGRAPHY.button,
           )}
           disabled={searching}
           onClick={() => {

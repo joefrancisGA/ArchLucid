@@ -135,6 +135,7 @@ import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
+  GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
 } from "@/lib/guided-intake-copy";
 import { showError } from "@/lib/toast";
@@ -590,7 +591,10 @@ describe("SocraticIntakeWizard", () => {
     expect(screen.getByTestId("socratic-review-answers-hint")).toHaveTextContent(
       /handle all required clarifications before reviewing answers/i,
     );
-    expect(screen.getByText(/your answers will be included when you review and submit/i)).toBeInTheDocument();
+    expect(
+      screen.queryByText(/your answers will be included when you review and submit/i),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/1 required clarification remaining before review/i)).toBeInTheDocument();
     expect(screen.getByTestId("socratic-questions-done")).toHaveTextContent(/review answers/i);
     expect(screen.getByTestId("socratic-questions-done")).toBeDisabled();
 
@@ -892,7 +896,7 @@ describe("SocraticIntakeWizard", () => {
     });
   });
 
-  it("shows handled clarification count when every required clarification is already answered", async () => {
+  it("shows Start review on the clarifications footer when every required clarification is already answered", async () => {
     mockAdmittedDraftWithoutClarifications();
 
     render(<SocraticIntakeWizard />);
@@ -904,7 +908,89 @@ describe("SocraticIntakeWizard", () => {
       expect(screen.getByTestId("socratic-clarifications-answered-counter")).toHaveTextContent(
         "2 of 2 answered",
       );
+      expect(screen.getByTestId("socratic-questions-done")).toHaveTextContent(
+        GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
+      );
+      expect(screen.getByTestId("socratic-questions-done")).toBeEnabled();
     });
+
+    expect(
+      screen.getByText(/all required clarifications are answered or skipped\. you can continue/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/your answers will be included when you review and submit/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("opens the create-review step when a saved admitted architecture has no pending clarifications", async () => {
+    const sourceArchitectureId = "ef3f1b90-69e3-42be-bc2b-0533f5a6d84a";
+    const admittedMustKeys = [
+      "l0.pillar.security",
+      "l0.pillar.reliability",
+      "l0.pillar.cost",
+      "l0.pillar.operations",
+      "l0.pillar.performance",
+      "l0.pillar.deployment",
+      "l0.pillar.compliance",
+      "l0.pillar.observability",
+    ];
+
+    searchParamsGet.mockImplementation((key: string) =>
+      key === "sourceArchitectureId" ? sourceArchitectureId : null,
+    );
+
+    getDraftRequest.mockResolvedValue({
+      draftId: sourceArchitectureId,
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      status: "Admitted",
+      document: {
+        freeTextIntent: VALID_GUIDED_INTENT,
+        systemName: "Vertex",
+        businessOutcome: "Reduce manual triage time by thirty percent.",
+        actorSet: {
+          actors: [
+            {
+              label: "Claims analyst",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
+        requiredMustQuestionKeys: admittedMustKeys,
+      },
+      createdUtc: "2026-08-05T12:00:00Z",
+      updatedUtc: "2026-08-05T12:00:00Z",
+    });
+    getDraftQuestions.mockResolvedValue({
+      draftId: sourceArchitectureId,
+      status: "Admitted",
+      selection: {
+        allQuestions: admittedMustKeys.map((questionKey) => ({
+          questionKey,
+          prompt: questionKey,
+          tier: "Must" as const,
+          answerKind: "FreeText" as const,
+          source: "L0Universal" as const,
+          ruleKeys: [],
+        })),
+        requiredMustQuestionKeys: [],
+        pendingMustQuestions: [],
+      },
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    await waitFor(() => {
+      expect(getDraftQuestions).toHaveBeenCalledWith(sourceArchitectureId);
+      expect(screen.getByTestId("socratic-submit")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("socratic-questions-done")).not.toBeInTheDocument();
   });
 
   it("routes branch submit to run detail with parentRunId when parent already spawned", async () => {

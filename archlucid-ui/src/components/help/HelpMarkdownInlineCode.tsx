@@ -5,7 +5,6 @@ import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type HelpMarkdownInlineCodeProps = {
   readonly code: string;
@@ -38,10 +37,7 @@ export function HelpMarkdownInlineCode(props: HelpMarkdownInlineCodeProps): Reac
         type="button"
         variant="outline"
         size="sm"
-        className={cn(
-          "h-6 gap-1 px-1.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
-          OPERATOR_TYPOGRAPHY.micro,
-        )}
+        className="h-6 gap-1 px-1.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
         onClick={() => {
           void handleCopy();
         }}

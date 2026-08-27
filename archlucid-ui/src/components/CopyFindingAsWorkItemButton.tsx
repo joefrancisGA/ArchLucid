@@ -112,12 +112,12 @@ function WorkItemCopyControls({
   selectedFormatTestId = "copy-work-item-selected-format",
 }: WorkItemCopyControlsProps) {
   const selectTriggerClass = compact
-    ? "h-7 w-full text-[0.65rem]"
+    ? "h-7 w-full"
     : prominent
-      ? cn("h-9 w-[12rem]", OPERATOR_TYPOGRAPHY.helper)
-      : cn("h-8 w-[11.5rem]", OPERATOR_TYPOGRAPHY.helper);
+      ? "h-9 w-[12rem]"
+      : "h-8 w-[11.5rem]";
 
-  const buttonClass = compact ? "h-7 gap-1 px-2 text-[0.65rem]" : prominent ? "h-9 gap-1.5" : "h-8 gap-1.5";
+  const buttonClass = compact ? "h-7 gap-1 px-2" : prominent ? "h-9 gap-1.5" : "h-8 gap-1.5";
 
   return (
     <div className={compact ? "flex min-w-0 flex-col gap-1.5" : "flex flex-wrap items-center gap-2"}>

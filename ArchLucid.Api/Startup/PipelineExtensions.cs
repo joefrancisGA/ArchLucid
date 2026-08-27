@@ -131,7 +131,10 @@ internal static class PipelineExtensions
         app.UseResponseCompression();
         app.UseRouting();
         app.UseCors("ArchLucid");
-        app.UseOutputCache();
+
+        if (app.Configuration.GetValue<bool>("OutputCache:Enabled", true))
+            app.UseOutputCache();
+
         return app;
     }
 

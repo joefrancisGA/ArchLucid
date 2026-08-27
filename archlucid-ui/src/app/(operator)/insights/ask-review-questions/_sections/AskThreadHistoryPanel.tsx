@@ -68,14 +68,10 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
           className={
             buyerPolishedShell
               ? cn(
-                  "h-auto w-full justify-center py-1.5 font-normal underline-offset-2 hover:bg-transparent hover:underline",
-                  OPERATOR_TYPOGRAPHY.body,
+                  "h-auto w-full justify-center py-1.5 underline-offset-2 hover:bg-transparent hover:underline",
                   OPERATOR_LINK.nav,
                 )
-              : cn(
-                  "w-full border-neutral-300 text-al-text-primary hover:bg-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-800",
-                  OPERATOR_TYPOGRAPHY.body,
-                )
+              : "w-full border-neutral-300 text-al-text-primary hover:bg-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-800"
           }
           onClick={onNewConversation}
         >
@@ -94,17 +90,15 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
                     variant="outline"
                     className={cn(
                       "h-auto w-full justify-start whitespace-normal py-2 text-left",
-                      OPERATOR_TYPOGRAPHY.body,
                       selectedThreadId === thread.threadId &&
-                        "border border-neutral-300 bg-[var(--al-layer-hover)] font-semibold dark:border-neutral-600 dark:bg-neutral-800/80",
-                      selectedThreadId !== thread.threadId && "font-normal",
+                        "border border-neutral-300 bg-[var(--al-layer-hover)] dark:border-neutral-600 dark:bg-neutral-800/80",
                     )}
                     aria-current={selectedThreadId === thread.threadId ? "true" : undefined}
                     onClick={() => void onSelectThread(thread.threadId)}
                   >
                     <span>
                       {thread.title}
-                      <div className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                         {listDateFormatter(thread.lastUpdatedUtc)}
                       </div>
                     </span>

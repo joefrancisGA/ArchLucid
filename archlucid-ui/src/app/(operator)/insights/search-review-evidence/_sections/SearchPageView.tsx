@@ -211,7 +211,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-auto max-w-full whitespace-normal py-1 font-normal"
+                  className="h-auto max-w-full whitespace-normal py-1"
                   data-testid={`search-example-query-chip-${chip.id}`}
                   disabled={loading}
                   onClick={() => {
@@ -247,7 +247,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="h-auto max-w-full whitespace-normal py-1 font-normal"
+                    className="h-auto max-w-full whitespace-normal py-1"
                     data-testid={`search-recent-query-chip-${recentQuery}`}
                     disabled={loading}
                     onClick={() => {

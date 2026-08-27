@@ -29,10 +29,11 @@ public sealed partial class ManifestsController
         string diagram = diagramGenerator.GenerateMermaid(manifest);
         string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
         string markdown = exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
+        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 
         return Ok(new ManifestExportContentResponse
         {
-            ManifestVersion = manifestVersion, Format = FormatMarkdown, Content = markdown
+            ManifestVersion = canonicalManifestVersion, Format = FormatMarkdown, Content = markdown
         });
     }
 
@@ -56,8 +57,8 @@ public sealed partial class ManifestsController
         string diagram = diagramGenerator.GenerateMermaid(manifest);
         string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
         string markdown = exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
-
-        string fileName = $"architecture-export-{manifestVersion}.md";
+        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
+        string fileName = $"architecture-export-{canonicalManifestVersion}.md";
         return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
     }
 

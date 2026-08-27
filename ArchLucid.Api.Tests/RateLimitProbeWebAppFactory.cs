@@ -31,6 +31,7 @@ internal sealed class RateLimitProbeWebAppFactory : WebApplicationFactory<Progra
         builder.UseSetting("RateLimiting:FixedWindow:PermitLimit", "1");
         builder.UseSetting("RateLimiting:FixedWindow:WindowMinutes", "1");
         builder.UseSetting("RateLimiting:FixedWindow:QueueLimit", "0");
+        builder.UseSetting("OutputCache:Enabled", "false");
         builder.UseSetting("RateLimiting:RoleMultipliers:Anonymous", "1");
         builder.UseSetting("RateLimiting:RoleMultipliers:Reader", "1");
         builder.UseSetting("RateLimiting:RoleMultipliers:Operator", "1");
@@ -56,6 +57,7 @@ internal sealed class RateLimitProbeWebAppFactory : WebApplicationFactory<Progra
                 ["RateLimiting:FixedWindow:PermitLimit"] = "1",
                 ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
                 ["RateLimiting:FixedWindow:QueueLimit"] = "0",
+                ["OutputCache:Enabled"] = "false",
                 ["RateLimiting:RoleMultipliers:Anonymous"] = "1",
                 ["RateLimiting:RoleMultipliers:Reader"] = "1",
                 ["RateLimiting:RoleMultipliers:Operator"] = "1",

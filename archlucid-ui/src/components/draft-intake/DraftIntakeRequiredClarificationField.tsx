@@ -30,8 +30,6 @@ import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export { CLOUD_TARGET_QUESTION_KEY };
 
-export const REQUIRED_CLARIFICATION_BASELINE_LABEL = "Required for baseline review";
-
 const CLOUD_TARGET_OPTIONS = [
   { value: "None", label: "Cloud-neutral (no specific provider)" },
   { value: "Azure", label: "Microsoft Azure" },
@@ -54,7 +52,6 @@ export type DraftIntakeRequiredClarificationFieldProps = {
   readonly isFocused?: boolean;
   readonly compactActions?: boolean;
   readonly showAllMode?: boolean;
-  readonly showBaselineLabel?: boolean;
   readonly canSaveAndContinue?: boolean;
   readonly clarificationStatus?: ClarificationCardStatus;
   readonly isSuggested?: boolean;
@@ -112,14 +109,6 @@ export function DraftIntakeRequiredClarificationField(
           />
         ) : null}
       </div>
-      {props.showBaselineLabel !== false ? (
-        <p
-          className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="socratic-question-baseline-label"
-        >
-          {REQUIRED_CLARIFICATION_BASELINE_LABEL}
-        </p>
-      ) : null}
       <IntakeFieldLabel
         htmlFor={labelId}
         label={props.question.prompt}

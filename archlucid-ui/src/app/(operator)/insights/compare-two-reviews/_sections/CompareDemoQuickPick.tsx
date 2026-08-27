@@ -19,7 +19,6 @@ export function CompareDemoQuickPick(props: CompareDemoQuickPickProps) {
           type="button"
           className={cn(
             "rounded-md border border-neutral-200 bg-al-surface-raised p-4 text-left shadow-sm transition hover:border-neutral-400 hover:bg-[var(--al-layer-hover)] dark:border-neutral-800 dark:hover:border-neutral-600",
-            OPERATOR_TYPOGRAPHY.body,
           )}
           onClick={onPickClaimsIntake}
         >
@@ -34,7 +33,6 @@ export function CompareDemoQuickPick(props: CompareDemoQuickPickProps) {
           type="button"
           className={cn(
             "rounded-md border border-neutral-200 bg-al-surface-raised p-4 text-left shadow-sm transition hover:border-neutral-400 hover:bg-[var(--al-layer-hover)] dark:border-neutral-800 dark:hover:border-neutral-600",
-            OPERATOR_TYPOGRAPHY.body,
           )}
           onClick={onPickClaimsIntake}
         >

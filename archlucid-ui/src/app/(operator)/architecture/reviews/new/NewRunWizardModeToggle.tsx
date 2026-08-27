@@ -22,7 +22,7 @@ const UNSELECTED_CLASS =
 function modeButtonClass(selected: boolean): string {
   return selected
     ? cn(SELECTED_CLASS, OPERATOR_TYPOGRAPHY.button)
-    : cn(UNSELECTED_CLASS, OPERATOR_TYPOGRAPHY.body);
+    : cn(UNSELECTED_CLASS, OPERATOR_TYPOGRAPHY.button);
 }
 
 /** Quick start vs. all steps — or, before the first committed review, an opt-in to all steps. */

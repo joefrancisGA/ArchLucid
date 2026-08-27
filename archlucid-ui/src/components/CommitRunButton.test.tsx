@@ -14,18 +14,36 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/operator/operator-query-invalidation", () => ({
+  invalidateOperatorHomeRunsCaches: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("@/lib/tenant-trial-status-client", () => ({
+  invalidateTenantTrialStatusCache: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("@/lib/architecture/architecture-draft-registry-finalize-sync", () => ({
+  syncArchitectureDraftRegistryForFinalizedReview: vi.fn(),
+}));
+
 vi.mock("@/lib/api", () => ({
   commitArchitectureRun: vi.fn(),
   getRunSummary: vi.fn(),
 }));
 
 import { commitArchitectureRun, getRunSummary } from "@/lib/api";
+import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
 import { ApiRequestError } from "@/lib/api-request-error";
+import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
+import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
 
 import { CommitRunButton } from "./CommitRunButton";
 
 const mockCommit = vi.mocked(commitArchitectureRun);
 const mockGetRunSummary = vi.mocked(getRunSummary);
+const mockInvalidateHomeRuns = vi.mocked(invalidateOperatorHomeRunsCaches);
+const mockInvalidateTrialStatus = vi.mocked(invalidateTenantTrialStatusCache);
+const mockSyncDraftRegistry = vi.mocked(syncArchitectureDraftRegistryForFinalizedReview);
 
 describe("CommitRunButton", () => {
   it("renders disabled message when already finalized", () => {
@@ -75,8 +93,14 @@ describe("CommitRunButton", () => {
       });
     });
 
+    await waitFor(() => {
+      expect(mockSyncDraftRegistry).toHaveBeenCalledWith("run-1");
+      expect(mockInvalidateHomeRuns).toHaveBeenCalled();
+      expect(mockInvalidateTrialStatus).toHaveBeenCalled();
+    });
+
     expect(await screen.findByText(/decisions are now searchable in Ask/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /prior manifest guide/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /ask memory guide/i })).toHaveAttribute(
       "href",
       "/help/prior-manifest-retrieval",
     );
@@ -128,7 +152,7 @@ describe("CommitRunButton", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
 
     const panel = await screen.findByTestId("pre-commit-governance-block-panel");
-    expect(panel).toHaveTextContent(/approval gate/i);
+    expect(panel).toHaveTextContent(/approval bypass/i);
     expect(screen.getByTestId("pre-commit-governance-block-finding-link-finding-blocked")).toHaveAttribute(
       "href",
       "/architecture/reviews/run-blocked-structured/findings/finding-blocked",

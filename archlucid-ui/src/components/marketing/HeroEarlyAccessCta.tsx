@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useState } from "react";
 
@@ -55,7 +54,7 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
           type="button"
           variant="outline"
           size="sm"
-          className={cn("font-medium text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
+          className="text-al-text-secondary dark:text-neutral-200"
           onClick={() => setOpen(true)}
         >
           {openButtonLabel}

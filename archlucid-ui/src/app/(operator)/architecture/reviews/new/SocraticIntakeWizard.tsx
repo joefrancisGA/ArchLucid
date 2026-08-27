@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { DraftIntakeRequiredClarificationField, REQUIRED_CLARIFICATION_BASELINE_LABEL } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ import {
   GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD,
   guidedIntakeClarificationsAnsweredCounter,
   GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
+  resolveGuidedIntakeClarificationsDoneLabel,
 } from "@/lib/guided-intake-copy";
 import {
   DraftIntakeDecisionReceiptCard,
@@ -150,7 +151,6 @@ export function SocraticIntakeWizard() {
         isFocused={options.isFocused}
         compactActions={viewAllClarifications}
         showAllMode={viewAllClarifications}
-        showBaselineLabel={false}
         showRequirednessSuffix={false}
         clarificationStatus={getClarificationStatus(questionKey)}
         canSaveAndContinue={(answers[questionKey]?.trim() ?? "").length > 0}
@@ -237,7 +237,7 @@ export function SocraticIntakeWizard() {
           <span className="font-medium text-neutral-900 dark:text-neutral-100">
             {GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD}
           </span>{" "}
-          This review evaluates a snapshot of{" "}
+          This review evaluates{" "}
           <Link
             href={architectureDraftPath(sourceArchitectureId)}
             className="font-medium underline"
@@ -330,21 +330,17 @@ export function SocraticIntakeWizard() {
             <CardHeader>
             <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
             <CardDescription>
-              {isCreateArchitectureFlow
-                ? GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION
-                : activePendingQuestions.length === 0
-                  ? "All required clarifications are answered or skipped. You can continue."
-                  : `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
-              {isCreateArchitectureFlow
-                ? "Your answers stay with the architecture draft until you choose to start a review."
-                : "Your answers will be included when you review and submit."}
+              {isCreateArchitectureFlow ? (
+                <>
+                  {GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION}{" "}
+                  Your answers stay with the architecture draft until you choose to start a review.
+                </>
+              ) : activePendingQuestions.length === 0 ? (
+                "All required clarifications are answered or skipped. You can continue."
+              ) : (
+                `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`
+              )}
             </CardDescription>
-            <p
-              className={cn("m-0 pt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="socratic-clarifications-baseline-label"
-            >
-              {REQUIRED_CLARIFICATION_BASELINE_LABEL}
-            </p>
           </CardHeader>
           <CardContent
             className={cn(
@@ -440,7 +436,7 @@ export function SocraticIntakeWizard() {
               }}
               data-testid="socratic-questions-done"
             >
-              {busy ? "Saving answers…" : "Review answers"}
+              {resolveGuidedIntakeClarificationsDoneLabel(allClarificationsHandled, busy)}
             </Button>
           </div>
         </div>
