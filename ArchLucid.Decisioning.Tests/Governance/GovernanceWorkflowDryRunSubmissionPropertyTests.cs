@@ -43,11 +43,7 @@ public sealed class GovernanceWorkflowDryRunSubmissionPropertyTests
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail
             .Setup(s => s.GetRunDetailAsync("run1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArchitectureRunDetail
-                {
-                    Run = new ArchitectureRun { RunId = "run1", RequestId = "req1" },
-                });
+            .ReturnsAsync(GovernanceWorkflowTestComposition.CreateRunDetailWithManifest("run1", "v9"));
 
         Mock<IBaselineMutationAuditService> baseline = new();
         Mock<IAuditService> durableAudit = new();

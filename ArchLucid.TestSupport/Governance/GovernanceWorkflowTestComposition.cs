@@ -3,6 +3,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Workflow;
 using ArchLucid.Application.Governance.Workflow.Stages;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
@@ -167,5 +168,18 @@ public static class GovernanceWorkflowTestComposition
             Datastores = [],
             Relationships = [],
             Metadata = new ManifestMetadata { ManifestVersion = version, CreatedUtc = DateTime.UtcNow },
+        };
+
+    /// <summary>Run detail with embedded manifest so submit/promote/activate stages skip the unified reader.</summary>
+    public static ArchitectureRunDetail CreateRunDetailWithManifest(string runId, string manifestVersion) =>
+        new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = runId,
+                RequestId = "req1",
+                CurrentManifestVersion = manifestVersion,
+            },
+            Manifest = CreateManifest(runId, manifestVersion),
         };
 }

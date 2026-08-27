@@ -16,9 +16,9 @@ namespace ArchLucid.Decisioning.Tests.Services;
 public sealed class DeclarationPremiseConflictFindingEngineTests
 {
     private readonly DeclarationPremiseConflictFindingEngine _sut =
-        new(new FixedComplianceRulePackProvider(CreateUnmappedPack()));
+        new(new FixedComplianceRulePackProvider(CreateFailOpenPolicyPack()));
     private readonly DeclarationSecurityBaselineFindingEngine _siblingEngine =
-        new(new FixedComplianceRulePackProvider(CreateUnmappedPack()));
+        new(new FixedComplianceRulePackProvider(CreateFailOpenPolicyPack()));
 
     [Fact]
     public async Task AnalyzeAsync_emits_error_for_private_baseline_and_public_declaration_on_narrow_edge()
@@ -172,7 +172,7 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
         siblingFindings[0].Title.Should().NotContain("conflicts with");
     }
 
-    private static ComplianceRulePack CreateUnmappedPack() =>
+    private static ComplianceRulePack CreateFailOpenPolicyPack() =>
         new()
         {
             RulePackId = "test-pack",
@@ -182,7 +182,7 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
             [
                 new ComplianceRule
                 {
-                    RuleId = "soc2-001",
+                    RuleId = "cost-opt-001",
                     ControlId = "c",
                     ControlName = "n",
                     AppliesToCategory = "cat",

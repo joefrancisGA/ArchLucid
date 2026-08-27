@@ -12,6 +12,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.Governance;
 
 using FluentAssertions;
 
@@ -173,11 +174,7 @@ public sealed class GovernanceWorkflowPropertyTests
 
         runDetail
             .Setup(s => s.GetRunDetailAsync("run1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArchitectureRunDetail
-                {
-                    Run = new ArchitectureRun { RunId = "run1", RequestId = "req1" },
-                });
+            .ReturnsAsync(GovernanceWorkflowTestComposition.CreateRunDetailWithManifest("run1", "v2"));
 
         List<GovernanceEnvironmentActivation> existing = [];
 

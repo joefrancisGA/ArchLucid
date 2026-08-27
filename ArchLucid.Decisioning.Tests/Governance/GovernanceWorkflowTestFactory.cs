@@ -58,11 +58,8 @@ internal static class GovernanceWorkflowTestFactory
 
         runDetail
             .Setup(s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArchitectureRunDetail
-                {
-                    Run = new ArchitectureRun { RunId = "run1", RequestId = "req1" },
-                });
+            .ReturnsAsync((string runId, CancellationToken _) =>
+                GovernanceWorkflowTestComposition.CreateRunDetailWithManifest(runId, "v1"));
 
         Mock<IBaselineMutationAuditService> audit = new();
         audit
