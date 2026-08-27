@@ -232,7 +232,8 @@ public sealed partial class GovernanceController
             return tenantProblem;
 
         IReadOnlyDictionary<string, string> proposedThresholds =
-            request.ProposedThresholds;
+            request.ProposedThresholds
+            ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         PolicyPackDryRunResponse result = await _policyPackDryRunService.EvaluateAsync(
             id,

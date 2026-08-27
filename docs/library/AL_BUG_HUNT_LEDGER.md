@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 91
-- **bugs-found:** 228
+- **hunts:** 92
+- **bugs-found:** 229
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — simulate-bulk/dry-run null run-id lists return 400
+- **last-bug:** 2026-08-27 — dry-run null proposedThresholds coerced
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2545,6 +2545,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.SimulateBulk` / `GovernanceController.DryRunPolicyPack` — null `runIds` / `evaluateAgainstRunIds` dereferenced `.Count` (HTTP 500) instead of HTTP 400 (`BatchReviewApprovalRequests` null-list parity) — **hit 2026-08-27:** null-list guards before count; regression in `PolicyPacksControllerSimulateBulkScopeTests` and `GovernanceControllerSimulateTests`.
 
 2026-08-27 seed hunt #174: proved simulate-bulk/dry-run null run-id list validation.
+
+- [x] (proven) `GovernanceController.DryRunPolicyPack` — null `proposedThresholds` passed to `PolicyPackDryRunService.EvaluateAsync` (`ArgumentNullException`, HTTP 500) instead of treating JSON null as no overrides (`null` and `{}` are equivalent for optional thresholds) — **hit 2026-08-27:** coalesce null to empty dictionary before service call; regression in `GovernanceControllerSimulateTests`.
+
+2026-08-27 seed hunt #175: proved policy-pack dry-run null proposedThresholds coercion.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

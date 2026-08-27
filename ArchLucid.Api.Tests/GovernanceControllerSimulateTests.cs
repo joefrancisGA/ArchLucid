@@ -291,6 +291,40 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task DryRunPolicyPack_treats_null_proposed_thresholds_as_empty()
+    {
+        Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
+        dryRun
+            .Setup(s => s.EvaluateAsync(
+                It.IsAny<Guid>(),
+                It.Is<IReadOnlyDictionary<string, string>>(thresholds => thresholds.Count == 0),
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<int?>(),
+                It.IsAny<int?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackDryRunResponse
+            {
+                PolicyPackId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            });
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            new PolicyPackDryRunRequest
+            {
+                ProposedThresholds = null!,
+                EvaluateAgainstRunIds = [Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D")],
+            },
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        dryRun.VerifyAll();
+    }
+
+    [Fact]
     public async Task DryRunPolicyPack_returns_not_found_when_tenant_missing()
     {
         Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
