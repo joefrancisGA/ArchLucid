@@ -51,7 +51,7 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
-        DateTimeOffset nowUtc = DateTimeOffset.UtcNow;
+        DateTimeOffset nowUtc = TimeProvider.System.GetUtcNow();
 
         if (request.ExpiresAtUtc <= nowUtc)
         {
@@ -174,7 +174,7 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
-        DateTimeOffset nowUtc = DateTimeOffset.UtcNow;
+        DateTimeOffset nowUtc = TimeProvider.System.GetUtcNow();
 
         if (request.ExpiresAtUtc <= nowUtc)
         {

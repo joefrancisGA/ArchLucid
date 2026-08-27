@@ -59,7 +59,7 @@ public sealed class TenantErasureLegalHoldController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        if (body.UntilUtc <= DateTimeOffset.UtcNow)
+        if (body.UntilUtc <= TimeProvider.System.GetUtcNow())
         {
             return this.BadRequestProblem(
                 "untilUtc must be in the future.",
