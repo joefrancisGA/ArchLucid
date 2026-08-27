@@ -59,18 +59,12 @@ function buyerPolishedSections(phase: OperatorHomeWorkspacePhase): OperatorHomeS
 
 function operatorShellSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
   if (phase === "eval-empty" || phase === "eval-with-drafts") {
-    const sections: OperatorHomeSectionDescriptor[] = [
-      { id: "unfinished", testId: "operator-home-unfinished-work" },
-      { id: "command-center", testId: "operator-home-pilot-command-center-host" },
+    return [
+      { id: "hero", testId: "operator-home-hero-section" },
       { id: "recent-reviews", testId: "operator-home-recent-reviews" },
       { id: "below-fold", testId: "operator-home-below-fold" },
+      { id: "sponsor-roi", testId: "operator-home-sponsor-roi" },
     ];
-
-    sections.push({ id: "stickiness", testId: "operator-home-stickiness-cockpit" });
-
-    sections.push({ id: "sponsor-roi", testId: "operator-home-sponsor-roi" });
-
-    return sections;
   }
 
   const sections: OperatorHomeSectionDescriptor[] = [

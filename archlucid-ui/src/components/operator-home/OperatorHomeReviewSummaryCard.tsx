@@ -66,7 +66,7 @@ function ReviewSummaryMetadataItem(props: { readonly label: string; readonly val
       <dt className={cn("m-0", INLINE_METADATA_LABEL_CLASS)}>
         <InlineMetadataLabel label={props.label} withColon={false} />
       </dt>
-      <dd className={cn("m-0 mt-0.5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+      <dd className={cn("m-0 mt-0.5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.dataValue)}>
         {props.value}
       </dd>
     </div>
@@ -114,17 +114,28 @@ function FeaturedShowcaseReviewSummary(props: FeaturedShowcaseSummaryProps): Rea
       </dl>
 
       <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           {props.primaryAction !== null && props.primaryAction !== undefined ? (
-            <Button asChild variant={primaryActionVariant} size="sm" className="h-8">
-              <Link href={props.primaryAction.href}>{props.primaryAction.label}</Link>
-            </Button>
+            primaryActionVariant === "primary" ? (
+              <Button asChild variant="primary" size="sm" className="h-8">
+                <Link href={props.primaryAction.href}>{props.primaryAction.label}</Link>
+              </Button>
+            ) : (
+              <Link
+                href={props.primaryAction.href}
+                className={cn("font-medium", OPERATOR_LINK.nav)}
+              >
+                {props.primaryAction.label}
+              </Link>
+            )
           ) : null}
-          <Button asChild variant="outline" size="sm" className="h-8">
-            <Link href={recordHref} data-testid="runs-dashboard-buyer-proof-view-record-link">
-              View record
-            </Link>
-          </Button>
+          <Link
+            href={recordHref}
+            className={cn("font-medium", OPERATOR_LINK.optional)}
+            data-testid="runs-dashboard-buyer-proof-view-record-link"
+          >
+            View record
+          </Link>
         </div>
         <details className="group" data-testid="runs-dashboard-buyer-proof-details">
           <summary

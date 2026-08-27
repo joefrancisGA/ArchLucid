@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { BookOpen, ClipboardCheck, PenLine } from "lucide-react";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCompletedSampleAction } from "@/components/operator-home/OperatorHomeCompletedSampleAction";
 import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
-import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
 import { OperatorHomeReadinessStrip } from "@/components/operator-home/OperatorHomeReadinessStrip";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
@@ -35,14 +35,13 @@ import {
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_HOME_LIFECYCLE_CARD_TITLE, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_HOME_LIFECYCLE_CARD_TITLE, OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import type { OperatorHomeLifecyclePath } from "@/lib/resolve-operator-home-workspace-phase";
 import { trackOperatorHomeLifecyclePathClick } from "@/lib/operator/operator-home-lifecycle-path-telemetry";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator/operator-home-workspace-readiness";
 import {
-  OPERATOR_HOME_OPENING_CLOUD_CONNECTIONS_LABEL,
   REVIEW_START_LOADING_LABEL,
   REVIEW_START_PREPARING_LABEL,
 } from "@/lib/review-start-progress-copy";
@@ -244,18 +243,19 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
                   onClick={startCreateArchitecture}
                   data-testid="operator-home-create-architecture-cta"
                 />
-                <OperatorHomeNavigateLoadingButton
-                  variant="outline"
-                  size="sm"
-                  className="h-8 w-fit"
+                <Link
                   href={CLOUD_CONNECTIONS_PATH}
-                  idleLabel={OPERATOR_HOME_CONNECT_CLOUD_CTA}
-                  loadingLabel={OPERATOR_HOME_OPENING_CLOUD_CONNECTIONS_LABEL}
-                  onNavigate={() => {
+                  className={cn(
+                    OPERATOR_LINK.optional,
+                    "inline-flex h-8 shrink-0 items-center font-medium",
+                  )}
+                  data-testid="operator-home-connect-cloud"
+                  onClick={() => {
                     setSelectedPath("create-architecture");
                   }}
-                  data-testid="operator-home-connect-cloud"
-                />
+                >
+                  {OPERATOR_HOME_CONNECT_CLOUD_CTA}
+                </Link>
               </div>
               {!canManageCloudConnections ? (
                 <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
