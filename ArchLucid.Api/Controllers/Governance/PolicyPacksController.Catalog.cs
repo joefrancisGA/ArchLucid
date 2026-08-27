@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Http;
@@ -69,6 +70,11 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCatalogEntry(Guid policyPackCatalogEntryId, CancellationToken ct = default)
     {
+        IActionResult? routeIdProblem = ValidateRouteGuid(policyPackCatalogEntryId, "policyPackCatalogEntryId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -96,6 +102,9 @@ public sealed partial class PolicyPacksController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (!GovernanceQueryRequestValidationRules.IsUsableRequiredGuid(request.SourcePolicyPackId))
+            return this.BadRequestProblem("sourcePolicyPackId must not be an empty GUID.", ProblemTypes.ValidationFailed);
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
@@ -137,6 +146,9 @@ public sealed partial class PolicyPacksController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (!GovernanceQueryRequestValidationRules.IsUsableRequiredGuid(request.PolicyPackCatalogEntryId))
+            return this.BadRequestProblem("policyPackCatalogEntryId must not be an empty GUID.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -158,6 +170,11 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListVersions(Guid policyPackId, CancellationToken ct = default)
     {
+        IActionResult? routeIdProblem = ValidateRouteGuid(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -184,6 +201,11 @@ public sealed partial class PolicyPacksController
     {
         if (string.IsNullOrWhiteSpace(packVersion))
             return this.BadRequestProblem("Version is required.", ProblemTypes.ValidationFailed);
+
+        IActionResult? routeIdProblem = ValidateRouteGuid(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
@@ -213,6 +235,11 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExplainPack(Guid policyPackId, CancellationToken ct = default)
     {
+        IActionResult? routeIdProblem = ValidateRouteGuid(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)

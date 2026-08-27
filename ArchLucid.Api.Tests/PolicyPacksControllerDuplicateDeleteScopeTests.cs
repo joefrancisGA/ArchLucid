@@ -19,6 +19,13 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class PolicyPacksControllerDuplicateDeleteScopeTests
 {
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
+
     [Fact]
     public async Task DuplicatePack_returns_not_found_when_pack_belongs_to_another_workspace()
     {
@@ -53,15 +60,59 @@ public sealed class PolicyPacksControllerDuplicateDeleteScopeTests
         result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    [Fact]
+    public async Task DeletePack_returns_bad_request_when_policy_pack_id_is_empty_guid()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateController(workflow);
+
+        IActionResult result = await sut.DeletePack(Guid.Empty, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DuplicatePack_returns_bad_request_when_policy_pack_id_is_empty_guid()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateController(workflow);
+
+        IActionResult result = await sut.DuplicatePack(Guid.Empty, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ArchiveAssignment_returns_bad_request_when_assignment_id_is_empty_guid()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateController(workflow);
+
+        IActionResult result = await sut.ArchiveAssignment(Guid.Empty, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
     private static PolicyPacksController CreateController(Mock<IPolicyPackWorkflowFacade> workflow)
     {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+
         PolicyPacksController controller = new(
             workflow.Object,
             new CreatePolicyPackRequestValidator(),
             new PublishPolicyPackVersionRequestValidator(),
             new AssignPolicyPackRequestValidator(),
-            Mock.Of<IScopeContextProvider>(),
-            Mock.Of<ITenantRepository>());
+            scopeProvider.Object,
+            tenants.Object);
 
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 

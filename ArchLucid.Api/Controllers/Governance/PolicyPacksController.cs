@@ -71,6 +71,14 @@ public sealed partial class PolicyPacksController(
         return null;
     }
 
+    private IActionResult? ValidateRouteGuid(Guid value, string fieldName)
+    {
+        if (!GovernanceQueryRequestValidationRules.IsUsableRequiredGuid(value))
+            return this.BadRequestProblem($"{fieldName} must not be an empty GUID.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
@@ -125,6 +133,11 @@ public sealed partial class PolicyPacksController(
         if (validationProblem is not null)
             return validationProblem;
 
+        IActionResult? routeIdProblem = ValidateRouteGuid(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -165,6 +178,11 @@ public sealed partial class PolicyPacksController(
         if (validationProblem is not null)
             return validationProblem;
 
+        IActionResult? routeIdProblem = ValidateRouteGuid(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -201,6 +219,11 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ArchiveAssignment(Guid assignmentId, CancellationToken ct = default)
     {
+        IActionResult? routeIdProblem = ValidateRouteGuid(assignmentId, "assignmentId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -223,6 +246,11 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeletePack(Guid policyPackId, CancellationToken ct = default)
     {
+        IActionResult? routeIdProblem = ValidateRouteGuid(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -246,6 +274,11 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DuplicatePack(Guid policyPackId, CancellationToken ct = default)
     {
+        IActionResult? routeIdProblem = ValidateRouteGuid(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -289,6 +322,11 @@ public sealed partial class PolicyPacksController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? routeIdProblem = ValidateRouteGuid(assignmentId, "assignmentId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 

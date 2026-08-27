@@ -95,6 +95,11 @@ public sealed partial class PolicyPacksController
                 ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? routeIdProblem = ValidateRouteGuid(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
