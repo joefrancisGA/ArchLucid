@@ -108,6 +108,27 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task DryRunProposedPolicyPack_returns_bad_request_when_block_commit_minimum_severity_out_of_range()
+    {
+        Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(governanceDryRunService: dryRun.Object);
+
+        IActionResult action = await sut.DryRunProposedPolicyPack(
+            new PolicyPackGovernanceDryRunRequest
+            {
+                PolicyPackContentJson = "{}",
+                TargetRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                BlockCommitMinimumSeverity = 9,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task DryRunProposedPolicyPack_returns_bad_request_when_both_target_run_id_and_target_manifest_id_are_specified()
     {
         Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
