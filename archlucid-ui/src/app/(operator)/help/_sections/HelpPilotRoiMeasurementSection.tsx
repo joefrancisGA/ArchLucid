@@ -2,9 +2,7 @@ import Link from "next/link";
 
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  OPERATOR_CARD,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -58,14 +56,18 @@ export function HelpPilotRoiMeasurementSection(
         {PILOT_ROI_MEASUREMENT_HELP_OVERVIEW}
       </p>
 
-      <Card
-        className="border-neutral-200 dark:border-neutral-800"
+      <section
+        aria-labelledby="help-pilot-roi-measurement-action-panel-heading"
+        className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
         data-testid="help-pilot-roi-measurement-action-panel"
       >
-        <CardHeader className={OPERATOR_CARD.header}>
-          <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Set baseline and read proof labels</CardTitle>
-        </CardHeader>
-        <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
+        <h3
+          id="help-pilot-roi-measurement-action-panel-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+        >
+          Set baseline and read proof labels
+        </h3>
+        <div className="flex flex-wrap items-center gap-2">
           <Button asChild size="sm" variant="primary">
             <Link href={PILOT_ROI_MEASUREMENT_HELP_PRIMARY_ACTIONS.setBaseline.href}>
               {PILOT_ROI_MEASUREMENT_HELP_PRIMARY_ACTIONS.setBaseline.label}
@@ -81,8 +83,8 @@ export function HelpPilotRoiMeasurementSection(
               {PILOT_ROI_MEASUREMENT_HELP_PRIMARY_ACTIONS.openRoiSummary.label}
             </Link>
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-pilot-roi-measurement-lifecycle">
         {PILOT_ROI_MEASUREMENT_HELP_LIFECYCLE_LINE}

@@ -6,13 +6,12 @@ import { GlossaryHelpEvidenceOrientationStrip } from "@/components/help/Glossary
 import { GlossaryProceduralHelpVocabularyRail } from "@/components/GlossaryProceduralHelpVocabularyRail";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   GLOSSARY_HELP_ACTION_PANEL_INTRO,
   GLOSSARY_HELP_ACTION_PANEL_TITLE,
   GLOSSARY_HELP_PRIMARY_ACTIONS,
 } from "@/lib/glossary-help-guide-content";
-import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -32,39 +31,39 @@ export function HelpGlossaryPageView(props: HelpGlossaryPageViewProps): React.Re
       <HelpTopicHashScroll />
       <header className={cn(HELP_PAGE_LAYOUT.articleHeader, "space-y-4 pb-4")}>
         <HelpTopicMarkdownPageHeader entry={props.entry} showContextualHelp />
-        <Card
-          className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+        <section
+          aria-labelledby="help-glossary-action-panel-heading"
+          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="help-glossary-action-panel"
         >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle as="h2" className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              {GLOSSARY_HELP_ACTION_PANEL_TITLE}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "space-y-3")}>
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {GLOSSARY_HELP_ACTION_PANEL_INTRO}
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button asChild size="sm" variant="primary">
-                <Link href={GLOSSARY_HELP_PRIMARY_ACTIONS.openReviews.href}>
-                  {GLOSSARY_HELP_PRIMARY_ACTIONS.openReviews.label}
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={GLOSSARY_HELP_PRIMARY_ACTIONS.openFindingsGuide.href}>
-                  {GLOSSARY_HELP_PRIMARY_ACTIONS.openFindingsGuide.label}
-                </Link>
-              </Button>
-              <Link
-                className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                href={GLOSSARY_HELP_PRIMARY_ACTIONS.openFirstReviewGuide.href}
-              >
-                {GLOSSARY_HELP_PRIMARY_ACTIONS.openFirstReviewGuide.label}
+          <h2
+            id="help-glossary-action-panel-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            {GLOSSARY_HELP_ACTION_PANEL_TITLE}
+          </h2>
+          <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {GLOSSARY_HELP_ACTION_PANEL_INTRO}
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild size="sm" variant="primary">
+              <Link href={GLOSSARY_HELP_PRIMARY_ACTIONS.openReviews.href}>
+                {GLOSSARY_HELP_PRIMARY_ACTIONS.openReviews.label}
               </Link>
-            </div>
-          </CardContent>
-        </Card>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link href={GLOSSARY_HELP_PRIMARY_ACTIONS.openFindingsGuide.href}>
+                {GLOSSARY_HELP_PRIMARY_ACTIONS.openFindingsGuide.label}
+              </Link>
+            </Button>
+            <Link
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
+              href={GLOSSARY_HELP_PRIMARY_ACTIONS.openFirstReviewGuide.href}
+            >
+              {GLOSSARY_HELP_PRIMARY_ACTIONS.openFirstReviewGuide.label}
+            </Link>
+          </div>
+        </section>
         <GlossaryHelpEvidenceOrientationStrip />
         <GlossaryProceduralHelpVocabularyRail currentSurfaceId="glossary" />
       </header>
