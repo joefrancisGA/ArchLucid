@@ -21,7 +21,8 @@ public sealed class PublishPolicyPackVersionRequestValidator : AbstractValidator
             .NotEmpty()
             .Must(v => !string.IsNullOrWhiteSpace(v))
             .WithMessage("Version is required.")
-            .MaximumLength(50)
+            .Must(v => !PolicyPackRequestValidationRules.ExceedsPolicyPackVersionMaxLength(v))
+            .WithMessage("Version must not exceed 50 characters.")
             .Must(PolicyPackRequestValidationRules.BePolicyPackSemVerVersion)
             .WithMessage("Version must be SemVer 2 style (e.g. 1.0.0, 2.1.0-rc.1, optional leading 'v').");
 

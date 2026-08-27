@@ -321,4 +321,25 @@ public sealed class CorePilotTeamChecklistControllerTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task PutAsync_returns_bad_request_when_actor_identity_exceeds_max_length()
+    {
+        Mock<ICorePilotTeamChecklistRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns(new string('a', 201));
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object, audit.Object);
+        IActionResult result = await sut.PutAsync(
+            new CorePilotChecklistPutRequest { StepIndex = 2, IsCompleted = false },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repo.VerifyNoOtherCalls();
+        audit.VerifyNoOtherCalls();
+    }
 }

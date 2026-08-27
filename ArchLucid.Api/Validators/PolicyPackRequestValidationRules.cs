@@ -93,4 +93,14 @@ public static class PolicyPackRequestValidationRules
 
     public static bool ExceedsRunIdMaxLength(string? runId) =>
         !string.IsNullOrWhiteSpace(runId) && runId.Trim().Length > MaxRunIdLength;
+
+    public const int MaxManifestVersionLength = 128;
+
+    public static bool ExceedsManifestVersionMaxLength(string? manifestVersion) =>
+        !string.IsNullOrWhiteSpace(manifestVersion) && manifestVersion.Trim().Length > MaxManifestVersionLength;
+
+    public const int MaxPolicyPackVersionLength = 50;
+
+    public static bool ExceedsPolicyPackVersionMaxLength(string? version) =>
+        !string.IsNullOrWhiteSpace(version) && version.Trim().Length > MaxPolicyPackVersionLength;
 }

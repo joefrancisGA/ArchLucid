@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
@@ -87,7 +88,7 @@ public sealed partial class ManifestsController(
 
         string trimmedManifestVersion = manifestVersion.Trim();
 
-        if (trimmedManifestVersion.Length > 128)
+        if (PolicyPackRequestValidationRules.ExceedsManifestVersionMaxLength(trimmedManifestVersion))
             return this.BadRequestProblem("ManifestVersion must not exceed 128 characters.", ProblemTypes.ValidationFailed);
 
         return null;

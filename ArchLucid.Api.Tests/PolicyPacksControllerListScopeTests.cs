@@ -276,6 +276,35 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task Publish_accepts_padded_version_when_untrimmed_length_exceeds_max()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string paddedVersion = $"{new string(' ', 45)}2.0.0";
+
+        Mock<IPolicyPackWorkflowFacade> workflow = new();
+        workflow
+            .Setup(w => w.TryPublishVersionAsync(
+                packId,
+                "2.0.0",
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackVersion { PolicyPackId = packId, Version = "2.0.0" });
+
+        PolicyPacksController sut = CreateSut(workflow, tenantExists: true);
+
+        IActionResult result = await sut.Publish(
+            packId,
+            new PublishPolicyPackVersionRequest
+            {
+                Version = paddedVersion,
+                ContentJson = """{"complianceRuleIds":[]}""",
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
     public async Task Assign_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(

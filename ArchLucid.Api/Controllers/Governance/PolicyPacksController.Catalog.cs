@@ -116,7 +116,7 @@ public sealed partial class PolicyPacksController
             if (string.IsNullOrWhiteSpace(request.Version))
                 return this.BadRequestProblem("Version is required.", ProblemTypes.ValidationFailed);
 
-            if (request.Version.Length > 50)
+            if (PolicyPackRequestValidationRules.ExceedsPolicyPackVersionMaxLength(request.Version))
                 return this.BadRequestProblem("Version must not exceed 50 characters.", ProblemTypes.ValidationFailed);
 
             if (!PolicyPackRequestValidationRules.BePolicyPackSemVerVersion(request.Version))

@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 122
-- **bugs-found:** 304
+- **hunts:** 123
+- **bugs-found:** 309
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — merge-conflict action guard, bulk disposition validation, tenancy actor max-length parity
+- **last-bug:** 2026-08-27 — trim-first max-length parity on compare/preview/workflow/policy-pack version; pilot checklist actor guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2687,6 +2687,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — validation failures surfaced as scope-miss HTTP 400 when findings were in scope — **hit 2026-08-27:** `FindingDispositionValidation.Validate` probe before facade; regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_disposition_validation_fails_for_in_scope_finding`.
 - [x] (proven) `TenantTrialController` / `TenantHomepageSettingsController` / digest preference controllers — actor identity >200 reached audit instead of HTTP 400 — **hit 2026-08-27:** `MaxActorIdentityLength` guard on trial link/convert, homepage PUT, exec/sponsor digest POST (baseline/cost-settings parity); regression in `TenantTrialControllerTests`, `TenantHomepageSettingsControllerTests`, `TenantExecDigestPreferencesControllerTests`, and `TenantSponsorDigestPreferencesControllerTests`.
 - [x] (proven) `TenantErasureLegalHoldController` — actor claims >200 reached platform erasure commands instead of HTTP 400 — **hit 2026-08-27:** reject oversized `NameIdentifier` / display name before legal-hold and approve; regression in `TenantErasureLegalHoldControllerTests`.
+- [x] (proven) `ManifestsController.CompareManifests` / `LoadAndCompareManifestPairAsync` — padded query `leftVersion`/`rightVersion` with untrimmed length >128 returned HTTP 400 though trimmed version was in scope — **hit 2026-08-27:** `PolicyPackRequestValidationRules.ExceedsManifestVersionMaxLength` trim-first (manifest GET parity); regression in `ManifestsControllerTests`.
+- [x] (proven) `GovernancePreviewController.Preview` — padded body `runId` or `manifestVersion` with untrimmed length over max returned HTTP 400 though trimmed values were in scope — **hit 2026-08-27:** `ExceedsRunIdMaxLength` / `ExceedsManifestVersionMaxLength` trim-first (workflow trim parity); regression in `GovernancePreviewControllerUnitTests`.
+- [x] (proven) `GovernanceController` submit/promote/activate — padded body `manifestVersion` with untrimmed length >128 returned HTTP 400 though trimmed version was in scope — **hit 2026-08-27:** `ExceedsManifestVersionMaxLength` trim-first (preview/manifest GET parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `PolicyPacksController.Publish` / `Assign` / `PromoteCatalogEntry` — padded `version` with untrimmed length >50 failed FluentValidation/controller guard though trimmed SemVer was valid — **hit 2026-08-27:** `ExceedsPolicyPackVersionMaxLength` trim-first (catalog `GetVersion` parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `CorePilotTeamChecklistController.PutAsync` — actor id or display name >200 reached audit/SQL instead of HTTP 400 — **hit 2026-08-27:** `MaxActorIdentityLength` guard before upsert (baseline/cost-settings parity); regression in `CorePilotTeamChecklistControllerTests`.
+- [ ] (candidate) `TenantHomepageSettingsController` GET/PUT — missing workspace membership preflight when `scope.WorkspaceId` is foreign within tenant (CustomerSuccess parity gap).
+- [ ] (candidate) `TenantLlmCostReportingController.GetDashboard` — missing workspace membership preflight; foreign workspace returns HTTP 200 with fallback workspace name.
+- [ ] (candidate) `TenantWeeklyDigestHealthController.GetAsync` — missing workspace membership preflight; foreign workspace returns HTTP 200 zeroed snapshot.
+- [ ] (candidate) `GovernanceStickinessController` disposition/risk-exception mutations — `IActorContext.GetActorId()` >256 not guarded at controller while workflow display-name guard exists at 200 chars.
+
+2026-08-27 seed hunt #206: reseeded zone from controller scan; proved trim-first max-length parity on compare/preview/workflow/policy-pack version and pilot-checklist actor guard; seeded workspace-preflight and stickiness actor-id candidates.
 
 2026-08-27 thorough hunt #195: proved recurrence cron max-length, risk-exception expiry guards, and submit/promote env-path validation; cheap-disproved draft freeTextIntent max-length candidate.
 

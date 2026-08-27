@@ -29,6 +29,8 @@ public sealed class CorePilotTeamChecklistController(
     IActorContext actorContext,
     ITenantRepository tenantRepository) : ControllerBase
 {
+    private const int MaxActorIdentityLength = 200;
+
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -109,6 +111,14 @@ public sealed class CorePilotTeamChecklistController(
             return workspaceError;
 
         string actor = _actorContext.GetActorId();
+        string actorDisplayName = User.Identity?.Name ?? actor;
+
+        if (actor.Length > MaxActorIdentityLength || actorDisplayName.Length > MaxActorIdentityLength)
+        {
+            return this.BadRequestProblem(
+                "Actor identity must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         await _repository
             .UpsertAsync(
@@ -126,7 +136,7 @@ public sealed class CorePilotTeamChecklistController(
             {
                 EventType = AuditEventTypes.CorePilotTeamChecklistUpdated,
                 ActorUserId = actor,
-                ActorUserName = User.Identity?.Name ?? actor,
+                ActorUserName = actorDisplayName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,

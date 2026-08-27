@@ -1,5 +1,7 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Manifest;
 
@@ -117,7 +119,7 @@ public sealed partial class ManifestsController
                 Error = this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed)
             };
 
-        if (leftVersion.Length > 128)
+        if (PolicyPackRequestValidationRules.ExceedsManifestVersionMaxLength(leftVersion))
         {
             return new LoadedManifestPair
             {
@@ -133,7 +135,7 @@ public sealed partial class ManifestsController
                 Error = this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed)
             };
 
-        if (rightVersion.Length > 128)
+        if (PolicyPackRequestValidationRules.ExceedsManifestVersionMaxLength(rightVersion))
         {
             return new LoadedManifestPair
             {

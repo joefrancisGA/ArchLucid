@@ -293,6 +293,18 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task CompareManifests_accepts_padded_query_version_when_untrimmed_length_exceeds_max()
+    {
+        string paddedLeftVersion = $"{new string(' ', 125)}{LeftVersion}";
+        ManifestsController controller = CreateController();
+
+        IActionResult action =
+            await controller.CompareManifests(paddedLeftVersion, RightVersion, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
     public async Task GetManifest_returns_trimmed_version_in_not_found_message_when_route_is_padded()
     {
         const string missingVersion = "missing";

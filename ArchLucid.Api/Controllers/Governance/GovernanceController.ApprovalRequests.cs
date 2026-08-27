@@ -64,7 +64,7 @@ public sealed partial class GovernanceController
         if (string.IsNullOrWhiteSpace(request.ManifestVersion))
             return this.BadRequestProblem("ManifestVersion is required.", ProblemTypes.ValidationFailed);
 
-        if (request.ManifestVersion.Length > 128)
+        if (PolicyPackRequestValidationRules.ExceedsManifestVersionMaxLength(request.ManifestVersion))
             return this.BadRequestProblem("ManifestVersion must not exceed 128 characters.", ProblemTypes.ValidationFailed);
 
         if (string.IsNullOrWhiteSpace(request.SourceEnvironment))

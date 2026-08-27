@@ -177,6 +177,56 @@ public sealed class GovernancePreviewControllerUnitTests
     }
 
     [Fact]
+    public async Task Preview_accepts_padded_manifest_version_when_untrimmed_length_exceeds_max()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string paddedManifestVersion = $"{new string(' ', 125)}v1";
+
+        Mock<IGovernancePreviewService> preview = new();
+        preview
+            .Setup(p => p.PreviewActivationAsync(It.IsAny<GovernancePreviewRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernancePreviewResult());
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = paddedManifestVersion,
+                Environment = "dev",
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task Preview_accepts_padded_run_id_when_untrimmed_length_exceeds_max()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string paddedRunId = $"{new string(' ', 30)}{runId:D}{new string(' ', 30)}";
+
+        Mock<IGovernancePreviewService> preview = new();
+        preview
+            .Setup(p => p.PreviewActivationAsync(It.IsAny<GovernancePreviewRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernancePreviewResult());
+
+        GovernancePreviewController controller = CreateController(preview.Object, tenantExists: true);
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = paddedRunId,
+                ManifestVersion = "v1",
+                Environment = "dev",
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
     public async Task Preview_returns_bad_request_when_environment_is_invalid()
     {
         Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
