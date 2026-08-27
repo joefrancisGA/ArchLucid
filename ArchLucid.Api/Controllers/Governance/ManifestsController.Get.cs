@@ -15,11 +15,17 @@ public sealed partial class ManifestsController
 {
     [HttpGet("manifest/{manifestVersion}")]
     [ProducesResponseType(typeof(GoldenManifest), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifest(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? manifestVersionProblem = ValidateManifestVersionRoute(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -35,11 +41,17 @@ public sealed partial class ManifestsController
 
     [HttpGet("manifest/{manifestVersion}/diagram")]
     [ProducesResponseType(typeof(DiagramResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestDiagram(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? manifestVersionProblem = ValidateManifestVersionRoute(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -72,6 +84,11 @@ public sealed partial class ManifestsController
         [FromQuery] string? groupBy = GroupByDefault,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? manifestVersionProblem = ValidateManifestVersionRoute(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -114,6 +131,11 @@ public sealed partial class ManifestsController
         [FromQuery] int? maxRelationships = null,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? manifestVersionProblem = ValidateManifestVersionRoute(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -221,11 +243,17 @@ public sealed partial class ManifestsController
 
     [HttpGet("manifest/{manifestVersion}/summary/evidence")]
     [ProducesResponseType(typeof(ManifestMarkdownDocumentResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestSummaryEvidence(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? manifestVersionProblem = ValidateManifestVersionRoute(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -249,11 +277,17 @@ public sealed partial class ManifestsController
 
     [HttpGet("manifest/{manifestVersion}/bundle")]
     [ProducesResponseType(typeof(ManifestBundleResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestBundle(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? manifestVersionProblem = ValidateManifestVersionRoute(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

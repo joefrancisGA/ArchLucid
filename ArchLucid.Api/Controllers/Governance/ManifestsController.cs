@@ -79,4 +79,12 @@ public sealed partial class ManifestsController(
     {
         return string.IsNullOrWhiteSpace(manifestVersion) ? manifestVersion : manifestVersion.Trim();
     }
+
+    private IActionResult? ValidateManifestVersionRoute(string manifestVersion)
+    {
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+            return this.BadRequestProblem("manifestVersion is required.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
 }

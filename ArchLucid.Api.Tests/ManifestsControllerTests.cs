@@ -255,6 +255,17 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task GetManifest_returns_bad_request_when_manifest_version_is_whitespace()
+    {
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifest("   ", CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task GetManifest_returns_trimmed_version_in_not_found_message_when_route_is_padded()
     {
         const string missingVersion = "missing";

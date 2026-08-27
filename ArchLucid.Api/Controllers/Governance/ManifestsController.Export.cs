@@ -11,11 +11,17 @@ public sealed partial class ManifestsController
 {
     [HttpGet("manifest/{manifestVersion}/export")]
     [ProducesResponseType(typeof(ManifestExportContentResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestExport(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? manifestVersionProblem = ValidateManifestVersionRoute(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -41,11 +47,17 @@ public sealed partial class ManifestsController
 
     [HttpGet("manifest/{manifestVersion}/export/download")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DownloadManifestExport(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
+        IActionResult? manifestVersionProblem = ValidateManifestVersionRoute(manifestVersion);
+
+        if (manifestVersionProblem is not null)
+            return manifestVersionProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 70
-- **bugs-found:** 205
+- **hunts:** 71
+- **bugs-found:** 207
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — manifest 404 messages use trimmed version strings
+- **last-bug:** 2026-08-27 — manifest route whitespace-only version returns 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2454,6 +2454,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceStickinessController.GetDecisionRegister` — unrecognized `buyerConfidenceSource` should 400 instead of filtering Unknown/NotComputed — **cheap-disproof 2026-08-27:** `ArchitectureDecisionRegisterReader.ResolveConfidenceSourceNamesForBuyerLabel` intentionally maps unknown labels to Unknown/NotComputed SQL filter (buyer three-value collapse).
 
 2026-08-27 seed hunt #153: proved manifest 404 trim parity and decision-register confidence bounds; cheap-disproved dry-run page clamp and buyer-confidence-source whitelist.
+
+- [x] (proven) `ManifestsController` manifest route reads — whitespace-only `manifestVersion` returned HTTP 404 instead of HTTP 400 (`CompareManifests` already required `leftVersion`/`rightVersion`) — **hit 2026-08-27:** `ValidateManifestVersionRoute` on all route-based manifest GET/export paths; regression in `ManifestsControllerTests`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — whitespace-only `category` or `buyerConfidenceSource` skipped SQL filters and returned HTTP 200 unfiltered register — **hit 2026-08-27:** extend `ValidateDecisionRegisterFilters` (reader `IsNullOrWhiteSpace` skip parity); regression in `GovernanceStickinessControllerTests`.
+
+2026-08-27 seed hunt #154: proved manifest route whitespace validation and decision-register string filter validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

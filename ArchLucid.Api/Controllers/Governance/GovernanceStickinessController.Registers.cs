@@ -152,7 +152,9 @@ public sealed partial class GovernanceStickinessController
             recordedAfterUtc,
             recordedBeforeUtc,
             minConfidence,
-            maxConfidence);
+            maxConfidence,
+            category,
+            buyerConfidenceSource);
 
         if (filterProblem is not null)
             return filterProblem;

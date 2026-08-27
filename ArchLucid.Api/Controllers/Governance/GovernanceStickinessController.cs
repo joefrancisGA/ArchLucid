@@ -61,8 +61,24 @@ public sealed partial class GovernanceStickinessController(
         DateTimeOffset? recordedAfterUtc,
         DateTimeOffset? recordedBeforeUtc,
         double? minConfidence,
-        double? maxConfidence)
+        double? maxConfidence,
+        string? category,
+        string? buyerConfidenceSource)
     {
+        if (category is not null && string.IsNullOrWhiteSpace(category))
+        {
+            return this.BadRequestProblem(
+                "category is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (buyerConfidenceSource is not null && string.IsNullOrWhiteSpace(buyerConfidenceSource))
+        {
+            return this.BadRequestProblem(
+                "buyerConfidenceSource is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (recordedAfterUtc.HasValue && recordedBeforeUtc.HasValue && recordedAfterUtc > recordedBeforeUtc)
         {
             return this.BadRequestProblem(
