@@ -13,6 +13,7 @@ import {
   type CorePilotHelpWorkflowStep,
 } from "@/lib/core-pilot-help-guide-content";
 import { cn } from "@/lib/utils";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
@@ -216,10 +217,10 @@ export function HelpCorePilotWorkflowStepper(): React.ReactElement {
                   isLocked
                     ? "border-neutral-200 bg-neutral-50 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-500"
                     : isCurrent
-                      ? "border-teal-700/40 bg-teal-50 text-teal-900 dark:border-teal-600/50 dark:bg-teal-950/50 dark:text-teal-100"
+                      ? HELP_PAGE_LAYOUT.workflowStepNumberCurrent
                       : stepStatus.label === "Complete"
                         ? "border-neutral-300 bg-neutral-100 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
-                        : "border-teal-700/30 bg-teal-50 text-teal-900 dark:border-teal-600/40 dark:bg-teal-950/50 dark:text-teal-100",
+                        : HELP_PAGE_LAYOUT.workflowStepNumber,
                 )}
               >
                 {step.stepNumber}
@@ -230,9 +231,9 @@ export function HelpCorePilotWorkflowStepper(): React.ReactElement {
                   isLocked
                     ? "border-neutral-100 bg-neutral-50/60 dark:border-neutral-800/80 dark:bg-neutral-900/30"
                     : isCurrent
-                      ? "border-teal-200/80 bg-white dark:border-teal-900/40 dark:bg-neutral-950"
+                      ? "border-neutral-300 bg-white dark:border-neutral-700 dark:bg-neutral-950"
                       : "border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950",
-                  isCurrent ? "border-l-[3px] border-l-teal-600 dark:border-l-teal-500" : null,
+                  isCurrent ? HELP_PAGE_LAYOUT.workflowStepPanelCurrent : null,
                 )}
               >
                 <div className="flex flex-wrap items-center gap-2">

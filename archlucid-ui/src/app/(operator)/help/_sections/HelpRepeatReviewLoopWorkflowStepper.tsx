@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   REPEAT_REVIEW_LOOP_HELP_LOOP_HEADING,
   REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS,
@@ -63,10 +64,7 @@ export function HelpRepeatReviewLoopWorkflowStepper(): React.ReactElement {
                   className="absolute left-[0.9375rem] top-8 h-[calc(100%-1.5rem)] w-px bg-neutral-200 dark:bg-neutral-700"
                 />
               ) : null}
-              <span
-                aria-hidden
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-teal-700/30 bg-teal-50 text-sm font-semibold text-teal-900 dark:border-teal-600/40 dark:bg-teal-950/50 dark:text-teal-100"
-              >
+              <span aria-hidden className={HELP_PAGE_LAYOUT.workflowStepNumberMd}>
                 {step.stepNumber}
               </span>
               <div className="min-w-0 flex-1 space-y-2 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">

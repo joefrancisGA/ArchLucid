@@ -9,6 +9,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
     isAuthorityLoading: false,
     currentPrincipal: { authorityRank: 1 },
   }),
+  useNavCallerAuthorityRank: () => 1,
 }));
 
 describe("HelpProductGuide", () => {

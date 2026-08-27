@@ -75,7 +75,7 @@ function HowRecurrenceSchedulesWorkSteps(): React.ReactElement {
           <span className="sr-only">{`Step ${index + 1}`}</span>
           <span
             aria-hidden
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-700/30 bg-teal-50 text-sm font-semibold text-teal-900 dark:border-teal-600/40 dark:bg-teal-950/50 dark:text-teal-100"
+            className={HELP_PAGE_LAYOUT.workflowStepNumber}
           >
             {index + 1}
           </span>

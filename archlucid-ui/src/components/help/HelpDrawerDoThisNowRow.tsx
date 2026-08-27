@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 
 import { helpDrawerRowButtonClass } from "@/components/help/help-drawer-row-class";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   HELP_SEARCH_PANEL_DO_THIS_NOW_HEADING,
   type HelpSearchPanelTopic,
@@ -50,7 +51,7 @@ export function HelpDrawerDoThisNowRow({
               "group",
               helpDrawerRowButtonClass(isHighlighted),
               // The only elevated row in the drawer, so primacy is not carried by tint alone.
-              "border border-teal-300/80 bg-teal-50/80 p-3 shadow-sm dark:border-teal-700/60 dark:bg-teal-950/40",
+              cn(HELP_PAGE_LAYOUT.contentPanel, "p-3 shadow-sm"),
             )}
             onClick={() => {
               onActivate(topic);

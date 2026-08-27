@@ -7,7 +7,6 @@ import { useMemo, useState } from "react";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_HELP_SPONSOR_STEP_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getShowcaseSponsorHref } from "@/lib/buyer/buyer-safe-review-navigation";
@@ -19,6 +18,7 @@ import {
   listHelpCenterAdvancedGuideTopics,
   listHelpCenterGuideTopics,
 } from "@/lib/help/help-center-catalog";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -60,11 +60,11 @@ export function HelpProductGuide() {
         Using ArchLucid
       </h2>
 
-      <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
-        <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Getting started</CardTitle>
-        </CardHeader>
-        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
+      <section aria-labelledby="help-product-guide-getting-started" className={HELP_PAGE_LAYOUT.contentPanel}>
+        <h3 id="help-product-guide-getting-started" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Getting started
+        </h3>
+        <div className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">
             <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("getting-started", "how-archlucid-works")}>
               How ArchLucid works
@@ -102,63 +102,61 @@ export function HelpProductGuide() {
               .
             </li>
           </ol>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
-      <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
-        <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Working with a completed review</CardTitle>
-        </CardHeader>
-        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
-          <ol className="m-0 list-decimal space-y-2 pl-5">
-            <li>
-              <Link className={OPERATOR_LINK.inline} href={getShowcaseSponsorHref()}>
-                {BUYER_HELP_SPONSOR_STEP_CTA}
-              </Link>{" "}
-              — start with the business decision and monitored risks.
-            </li>
-            <li>
-              Open the <strong>finalized review record</strong> — the immutable package locked when this review was finalized.
-            </li>
-            <li>
-              Follow the{" "}
-              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("evidence-trail")}>
-                evidence trail
-              </Link>{" "}
-              to see how findings tie to decisions and artifacts.
-            </li>
-            <li>
-              Review{" "}
-              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("governance-approval")}>
-                resolve outcomes
-              </Link>{" "}
-              and the{" "}
-              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("audit-trail")}>
-                audit trail
-              </Link>{" "}
-              for accountability.
-            </li>
-            <li>
-              Use{" "}
-              <Link className={OPERATOR_LINK.inline} href="/insights/ask-review-questions">
-                Ask
-              </Link>{" "}
-              for evidence-backed questions in the context of the active review.
-            </li>
-          </ol>
-        </CardContent>
-      </Card>
+      <section aria-labelledby="help-product-guide-completed-review" className={HELP_PAGE_LAYOUT.contentPanel}>
+        <h3 id="help-product-guide-completed-review" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Working with a completed review
+        </h3>
+        <ol className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+          <li>
+            <Link className={OPERATOR_LINK.inline} href={getShowcaseSponsorHref()}>
+              {BUYER_HELP_SPONSOR_STEP_CTA}
+            </Link>{" "}
+            — start with the business decision and monitored risks.
+          </li>
+          <li>
+            Open the <strong>finalized review record</strong> — the immutable package locked when this review was finalized.
+          </li>
+          <li>
+            Follow the{" "}
+            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("evidence-trail")}>
+              evidence trail
+            </Link>{" "}
+            to see how findings tie to decisions and artifacts.
+          </li>
+          <li>
+            Review{" "}
+            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("governance-approval")}>
+              resolve outcomes
+            </Link>{" "}
+            and the{" "}
+            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("audit-trail")}>
+              audit trail
+            </Link>{" "}
+            for accountability.
+          </li>
+          <li>
+            Use{" "}
+            <Link className={OPERATOR_LINK.inline} href="/insights/ask-review-questions">
+              Ask
+            </Link>{" "}
+            for evidence-backed questions in the context of the active review.
+          </li>
+        </ol>
+      </section>
 
       <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
         ArchLucid turns an architecture review into an export-ready package: decisions, findings, artifacts, and an evidence
         trail you can export for diligence.
       </p>
 
-      <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
-        <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Troubleshooting</CardTitle>
-        </CardHeader>
-        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
+      <section aria-labelledby="help-product-guide-troubleshooting" className={HELP_PAGE_LAYOUT.contentPanel}>
+        <h3 id="help-product-guide-troubleshooting" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Troubleshooting
+        </h3>
+        <div className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
           <p className={`m-0 ${OPERATOR_TYPOGRAPHY.cardTitle}`}>If something fails:</p>
           <ol className="m-0 list-decimal space-y-2 pl-5">
             <li>Refresh once.</li>
@@ -178,8 +176,8 @@ export function HelpProductGuide() {
               Open full troubleshooting guide
             </Link>
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       <section aria-labelledby="help-in-app-topics" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <div className="flex flex-wrap items-end justify-between gap-3">

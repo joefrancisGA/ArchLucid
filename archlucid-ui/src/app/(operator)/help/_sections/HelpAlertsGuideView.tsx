@@ -57,7 +57,7 @@ function HowAlertsWorkStepper(): React.ReactElement {
             <div className="flex min-w-0 flex-1 flex-col gap-2 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950">
               <span
                 aria-hidden
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-700/30 bg-teal-50 text-sm font-semibold text-teal-900 dark:border-teal-600/40 dark:bg-teal-950/50 dark:text-teal-100"
+                className={HELP_PAGE_LAYOUT.workflowStepNumber}
               >
                 {index + 1}
               </span>

@@ -69,7 +69,7 @@ function GovernanceWorkflowStepper(): React.ReactElement {
             <div className="flex h-full flex-col gap-2 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950">
               <span
                 aria-hidden
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-teal-700/30 bg-teal-50 text-sm font-semibold text-teal-900 dark:border-teal-600/40 dark:bg-teal-950/50 dark:text-teal-100"
+                className={HELP_PAGE_LAYOUT.workflowStepNumber}
               >
                 {index + 1}
               </span>
@@ -89,7 +89,7 @@ function RoleEntryCards(): React.ReactElement {
         <a
           key={role.id}
           href={`#${role.id}`}
-          className="rounded-md border border-neutral-200 bg-white p-4 no-underline transition-colors hover:border-teal-600/40 hover:bg-teal-50/30 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-teal-600/40 dark:hover:bg-teal-950/20"
+          className={HELP_PAGE_LAYOUT.orientationLinkTile}
         >
           <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{role.title}</h3>
           <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{role.description}</p>

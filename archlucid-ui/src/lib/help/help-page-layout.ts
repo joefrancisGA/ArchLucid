@@ -55,6 +55,19 @@ export const HELP_PAGE_LAYOUT = {
   details:
     "my-5 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40",
   detailsBody: "mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700",
+  /** Neutral bordered panel for help action/orientation blocks (TB-2092). */
+  contentPanel:
+    "space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40",
+  workflowStepNumber:
+    "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-neutral-300 bg-neutral-100 text-sm font-semibold text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+  workflowStepNumberMd:
+    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-300 bg-neutral-100 text-sm font-semibold text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+  /** Emphasized current step in multi-state workflow steppers (TB-2092). */
+  workflowStepNumberCurrent:
+    "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-neutral-500 bg-neutral-100 text-sm font-semibold text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800 dark:text-neutral-100",
+  workflowStepPanelCurrent: "border-l-[3px] border-l-neutral-700 dark:border-l-neutral-400",
+  orientationLinkTile:
+    "rounded-md border border-neutral-200 bg-white p-4 no-underline transition-colors hover:border-neutral-300 hover:bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-600 dark:hover:bg-neutral-900/60",
 } as const;
 
 /** Minimum `##` / `###` headings before the sticky TOC rail renders. */
