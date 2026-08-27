@@ -4,16 +4,10 @@ import Link from "next/link";
 import { HelpSponsorReportPageHeader } from "@/app/(operator)/help/_sections/HelpSponsorReportPageHeader";
 import { HelpPilotRoiMeasurementSection } from "@/app/(operator)/help/_sections/HelpPilotRoiMeasurementSection";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { SponsorReportHelpEvidenceOrientationStrip } from "@/components/help/SponsorReportHelpEvidenceOrientationStrip";
+import { SponsorSummaryHelpClaimDisciplineStrip } from "@/components/help/SponsorSummaryHelpClaimDisciplineStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   SPONSOR_SUMMARY_HELP_OVERVIEW,
   SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS,
@@ -23,7 +17,6 @@ import { PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE } from "@/lib/sponsor/pilot-ro
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -78,46 +71,49 @@ export function HelpSponsorReportGuideView(
         subtitle={SponsorReportHelpPageSubtitle(buyerPolishedShell)}
       />
 
-      <SponsorReportHelpEvidenceOrientationStrip />
+      <SponsorSummaryHelpClaimDisciplineStrip />
 
-      <div className="space-y-4">
-        <Card data-testid="help-sponsor-report-action-panel">
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Open sponsor outputs
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-            <Button asChild size="sm" variant="primary">
-              <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.href}>
-                {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.label}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorDashboard.href}>
-                {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorDashboard.label}
-              </Link>
-            </Button>
-            <Link
-              href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.label}
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-sponsor-report-overview">
+        {SPONSOR_SUMMARY_HELP_OVERVIEW}
+      </p>
+
+      <section
+        className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+        data-testid="help-sponsor-report-action-panel"
+        aria-labelledby="help-sponsor-report-action-panel-heading"
+      >
+        <h2
+          id="help-sponsor-report-action-panel-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          Open sponsor outputs
+        </h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild size="sm" variant="primary">
+            <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.href}>
+              {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorValueReport.label}
             </Link>
-          </CardContent>
-        </Card>
-      </div>
+          </Button>
+          <Button asChild size="sm" variant="outline">
+            <Link href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorDashboard.href}>
+              {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.openSponsorDashboard.label}
+            </Link>
+          </Button>
+          <Link
+            href={SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.href}
+            className={cn(
+              "text-sm underline-offset-2 hover:underline",
+              DESIGN_TOKENS.accent.link,
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+          >
+            {SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.label}
+          </Link>
+        </div>
+      </section>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-sponsor-report-overview">
-            {SPONSOR_SUMMARY_HELP_OVERVIEW}
-          </p>
-
           {preparedSponsorBrief.trim().length > 0 ? (
             <div
               className={HELP_PAGE_LAYOUT.contentColumn}
