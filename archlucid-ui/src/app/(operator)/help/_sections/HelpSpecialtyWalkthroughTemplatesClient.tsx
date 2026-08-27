@@ -8,26 +8,15 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { SpecialtyTemplateCloudContextPicker } from "@/components/help/SpecialtyTemplateCloudContextPicker";
 import { SpecialtyTemplateComparisonTable } from "@/components/help/SpecialtyTemplateComparisonTable";
-import { SpecialtyTemplatePolicyPackProvenance } from "@/components/help/SpecialtyTemplatePolicyPackProvenance";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
-import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
 import {
-  DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -52,245 +41,18 @@ import {
   SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL,
   specialtyReviewTemplatesCompareHref,
   type SpecialtyReviewCloudContext,
-  type SpecialtyReviewPolicyPackReference,
-  type SpecialtyReviewTemplateDefinition,
   type SpecialtyReviewTemplateId,
 } from "@/lib/specialty-review-templates";
 
-const SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID = "specialty-template-permission-hint";
+import { SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID, SpecialtyTemplateCard } from "./SpecialtyTemplateCard";
+import {
+  SpecialtyTemplatePreviewDialog,
+  type SpecialtyTemplatePreviewState,
+} from "./SpecialtyTemplatePreviewDialog";
 
 type HelpSpecialtyWalkthroughTemplatesClientProps = {
   readonly entry: ProductDocumentationEntry;
 };
-
-type SpecialtyTemplatePreviewState = {
-  readonly template: SpecialtyReviewTemplateDefinition;
-};
-
-function SpecialtyTemplateFocusTags(props: { readonly areas: readonly string[] }): React.ReactElement {
-  return (
-    <ul className="m-0 flex flex-wrap gap-1.5 p-0 list-none" aria-label="Focus areas">
-      {props.areas.map((area) => (
-        <li key={area}>
-          <span className="inline-flex rounded-md border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-200">
-            {area}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function PreviewPolicyPackLinks(props: { readonly packs: readonly SpecialtyReviewPolicyPackReference[] }): React.ReactElement {
-  return (
-    <ul className={cn("m-0 mt-2 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-      {props.packs.map((pack) => (
-        <li key={pack.id}>
-          <Link href={pack.href} className={cn(OPERATOR_LINK.inline)}>
-            {pack.label} v{pack.version}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function SpecialtyTemplatePreviewDialog(props: {
-  readonly preview: SpecialtyTemplatePreviewState | null;
-  readonly onClose: () => void;
-}): React.ReactElement {
-  const template = props.preview?.template ?? null;
-
-  return (
-    <Dialog open={template !== null} onOpenChange={(open) => !open && props.onClose()}>
-      <DialogContent className="max-h-[min(90dvh,42rem)] overflow-y-auto sm:max-w-lg" data-testid="specialty-template-preview-dialog">
-        {template !== null ? (
-          <>
-            <DialogHeader>
-              <DialogTitle>{template.title} preview</DialogTitle>
-              <DialogDescription>{template.purpose}</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <PreviewSection title="Sample review questions" items={template.preview.exampleQuestions} />
-              <PreviewSection title="Evidence typically requested" items={template.preview.evidenceTypicallyRequested} />
-              <section aria-label="Policy areas involved">
-                <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Policy areas involved</h3>
-                <PreviewPolicyPackLinks packs={template.preview.policyAreas} />
-              </section>
-              <PreviewSection title="Likely outputs" items={template.preview.likelyOutputs} />
-              <PreviewSection title="Optional integrations" items={template.preview.optionalIntegrations} />
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                <Link href={template.sampleReviewHref} className={cn(OPERATOR_LINK.inline)}>
-                  Open sample review
-                </Link>
-              </p>
-            </div>
-          </>
-        ) : null}
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function PreviewSection(props: { readonly title: string; readonly items: readonly string[] }): React.ReactElement {
-  return (
-    <section aria-label={props.title}>
-      <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{props.title}</h3>
-      <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
-        {props.items.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function SpecialtyTemplateCardSelectionFooter(props: {
-  readonly canExecute: boolean;
-  readonly isContinuing: boolean;
-  readonly loadingLabel: string;
-  readonly onContinue: () => void;
-  readonly onRemove: () => void;
-}): React.ReactElement {
-  return (
-    <div
-      className="w-full space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700"
-      role="status"
-      aria-busy={props.isContinuing}
-      data-testid="specialty-template-card-selection-footer"
-    >
-      <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.helper)}>
-        Selected — continue to review setup to edit the prefilled brief.
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {props.canExecute ? (
-          <ReviewStartLoadingButton
-            size="sm"
-            idleLabel="Continue to review setup"
-            loadingLabel={props.loadingLabel}
-            isLoading={props.isContinuing}
-            onClick={props.onContinue}
-            data-testid="specialty-template-continue-setup"
-          />
-        ) : (
-          <Button
-            type="button"
-            size="sm"
-            disabled
-            aria-describedby={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
-            data-testid="specialty-template-continue-setup"
-          >
-            Continue to review setup
-          </Button>
-        )}
-        <Button type="button" size="sm" variant="outline" onClick={props.onRemove} disabled={props.isContinuing}>
-          Remove template
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function SpecialtyTemplateCard(props: {
-  readonly template: SpecialtyReviewTemplateDefinition;
-  readonly selected: boolean;
-  readonly canExecute: boolean;
-  readonly onSelect: (templateId: SpecialtyReviewTemplateId) => void;
-  readonly onPreview: (template: SpecialtyReviewTemplateDefinition) => void;
-  readonly onRemoveSelection: () => void;
-  readonly onContinue: () => void;
-  readonly isContinuing: boolean;
-  readonly loadingLabel: string;
-}): React.ReactElement {
-  const { template, selected, canExecute } = props;
-
-  return (
-    <article
-      className={cn(
-        "grid grid-rows-subgrid gap-0 rounded-md border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40",
-        "row-span-6",
-        selected && "ring-2 ring-neutral-400/80 ring-offset-2 ring-offset-white dark:ring-neutral-500/60 dark:ring-offset-neutral-950",
-      )}
-      data-testid={`specialty-template-card-${template.id}`}
-      aria-current={selected ? "true" : undefined}
-    >
-      <div className="row-start-1 space-y-2 p-4 pb-0">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{template.title}</h3>
-          {selected ? <StatusTag kind="ready" label="Selected" /> : null}
-        </div>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{template.purpose}</p>
-      </div>
-      <div className="row-start-2 row-span-4 grid grid-rows-subgrid gap-3 px-4">
-        <div className="row-start-1">
-          <p className={cn("m-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary")}>Best for</p>
-          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{template.bestFor}</p>
-        </div>
-        <div className="row-start-2">
-          <p className={cn("m-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary")}>Focus areas</p>
-          <div className="mt-2">
-            <SpecialtyTemplateFocusTags areas={template.focusAreas} />
-          </div>
-        </div>
-        <div className="row-start-3">
-          <SpecialtyTemplatePolicyPackProvenance
-            policyPacks={template.policyPacks}
-            lastReviewedUtc={template.lastReviewedUtc}
-            testId={`specialty-template-policy-packs-${template.id}`}
-          />
-        </div>
-        <div className="row-start-4">
-          <p className={cn("m-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary")}>
-            Expected outcome
-          </p>
-          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{template.expectedOutput}</p>
-        </div>
-      </div>
-      <div className="row-start-6 flex flex-col flex-wrap gap-2 border-t border-neutral-100 p-4 pt-4 dark:border-neutral-800">
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => props.onPreview(template)}
-            data-testid={`specialty-template-preview-${template.id}`}
-          >
-            Preview
-          </Button>
-          {canExecute ? (
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => props.onSelect(template.id)}
-              data-testid={`specialty-template-use-${template.id}`}
-            >
-              Use template
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              size="sm"
-              disabled
-              aria-describedby={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
-              data-testid={`specialty-template-use-${template.id}`}
-            >
-              Use template
-            </Button>
-          )}
-        </div>
-        {selected ? (
-          <SpecialtyTemplateCardSelectionFooter
-            canExecute={canExecute}
-            isContinuing={props.isContinuing}
-            loadingLabel={props.loadingLabel}
-            onContinue={props.onContinue}
-            onRemove={props.onRemoveSelection}
-          />
-        ) : null}
-      </div>
-    </article>
-  );
-}
 
 /** Customer-facing specialty template catalog for `/help/specialty-walkthroughs`. */
 export function HelpSpecialtyWalkthroughTemplatesClient(
