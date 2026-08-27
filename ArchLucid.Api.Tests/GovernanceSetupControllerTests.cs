@@ -63,6 +63,19 @@ public sealed class GovernanceSetupControllerTests
         tenants
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "workspace",
+                    DefaultProjectId = Scope.ProjectId,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
 
         GovernanceSetupController controller = new(
             scopeProvider.Object,
@@ -106,6 +119,52 @@ public sealed class GovernanceSetupControllerTests
         tenants
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantRecord?)null);
+
+        GovernanceSetupController controller = new(
+            scopeProvider.Object,
+            resolver.Object,
+            subscriptions.Object,
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.GetSetupGuideBundle(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        resolver.VerifyNoOtherCalls();
+        subscriptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetSetupGuideBundle_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IPolicyPackResolver> resolver = new(MockBehavior.Strict);
+        Mock<IAlertRoutingSubscriptionRepository> subscriptions = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = foreignWorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "foreign",
+                    DefaultProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
 
         GovernanceSetupController controller = new(
             scopeProvider.Object,

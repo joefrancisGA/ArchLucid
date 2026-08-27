@@ -54,6 +54,13 @@ public sealed class GovernanceSetupController(
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
+
         Task<EffectivePolicyPackSet> effectiveTask = _resolver.ResolveAsync(
             scope.TenantId,
             scope.WorkspaceId,
@@ -76,5 +83,26 @@ public sealed class GovernanceSetupController(
         };
 
         return Ok(body);
+    }
+
+    private async Task<IActionResult?> EnsureWorkspaceExistsForTenantAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<TenantWorkspaceListItem> workspaces =
+            await _tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        TenantWorkspaceListItem? currentWorkspace =
+            workspaces.SingleOrDefault(workspace => workspace.WorkspaceId == workspaceId);
+
+        if (currentWorkspace is null)
+        {
+            return this.NotFoundProblem(
+                "Workspace was not found for this tenant.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return null;
     }
 }

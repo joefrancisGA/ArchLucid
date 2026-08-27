@@ -276,10 +276,117 @@ public sealed class GovernancePreCommitSimulationControllerTests
         gate.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task GetChecklist_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IPreFinalizeChecklistService> checklist = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(
+            runRepository: runs.Object,
+            checklistService: checklist.Object,
+            tenantRepository: TenantWithForeignWorkspaceOnlyRepository());
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetChecklistAsync(runId.ToString("D"), CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        checklist.VerifyNoOtherCalls();
+        runs.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Simulate_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(
+            gate: gate.Object,
+            runRepository: runs.Object,
+            tenantRepository: TenantWithForeignWorkspaceOnlyRepository());
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = runId.ToString("D"),
+                SyntheticSeverity = FindingSeverity.Critical,
+                SyntheticCount = 1,
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        gate.VerifyNoOtherCalls();
+        runs.VerifyNoOtherCalls();
+    }
+
     private static ITenantRepository TenantMissingRepository() =>
         Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
             Scope.TenantId,
             It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(null));
+
+    private static ITenantRepository TenantWithForeignWorkspaceOnlyRepository()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = foreignWorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "foreign",
+                    DefaultProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
+        return tenants.Object;
+    }
+
+    private static ITenantRepository TenantExistsRepository()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "workspace",
+                    DefaultProjectId = Scope.ProjectId,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
+        return tenants.Object;
+    }
 
     private static GovernancePreCommitSimulationController CreateController(
         IPreCommitGovernanceGate? gate = null,
@@ -296,8 +403,6 @@ public sealed class GovernancePreCommitSimulationControllerTests
             Mock.Of<IAuditService>(),
             runRepository ?? Mock.Of<IRunRepository>(),
             scope.Object,
-            tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
-                Scope.TenantId,
-                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })));
+            tenantRepository ?? TenantExistsRepository());
     }
 }

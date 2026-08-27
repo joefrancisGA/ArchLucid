@@ -58,6 +58,13 @@ public sealed class GovernanceCoverageController(
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
+
         CoveragePreviewInput input = CoveragePreviewMapper.ToInput(request);
         CoveragePreviewResult preview = await coveragePreviewService.PreviewAsync(scope, input, cancellationToken);
         CoveragePreviewResponse response = CoveragePreviewMapper.ToResponse(preview);
@@ -76,6 +83,13 @@ public sealed class GovernanceCoverageController(
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
+
         CoverageSummary summary = await coverageQueryService.GetByScopeAsync(scope, cancellationToken);
 
         Dictionary<Guid, PolicyPack> packById = summary.Assignments.Count == 0
@@ -90,5 +104,26 @@ public sealed class GovernanceCoverageController(
 
         CoverageSummaryResponse response = CoverageAssignmentMapper.ToSummaryResponse(summary, packById);
         return Ok(response);
+    }
+
+    private async Task<IActionResult?> EnsureWorkspaceExistsForTenantAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<TenantWorkspaceListItem> workspaces =
+            await _tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        TenantWorkspaceListItem? currentWorkspace =
+            workspaces.SingleOrDefault(workspace => workspace.WorkspaceId == workspaceId);
+
+        if (currentWorkspace is null)
+        {
+            return this.NotFoundProblem(
+                "Workspace was not found for this tenant.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return null;
     }
 }

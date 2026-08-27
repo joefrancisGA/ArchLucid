@@ -56,6 +56,27 @@ public sealed class GovernancePreCommitSimulationController(
 
         return null;
     }
+
+    private async Task<IActionResult?> EnsureWorkspaceExistsForTenantAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<TenantWorkspaceListItem> workspaces =
+            await _tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        TenantWorkspaceListItem? currentWorkspace =
+            workspaces.SingleOrDefault(workspace => workspace.WorkspaceId == workspaceId);
+
+        if (currentWorkspace is null)
+        {
+            return this.NotFoundProblem(
+                "Workspace was not found for this tenant.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return null;
+    }
     // idempotency-posture: dry-run-no-persist
     [HttpGet("checklist/{runId}")]
     [ProducesResponseType(typeof(PreFinalizeChecklistResult), StatusCodes.Status200OK)]
@@ -81,8 +102,15 @@ public sealed class GovernancePreCommitSimulationController(
         if (tenantProblem is not null)
             return tenantProblem;
 
-        Guid runGuid = Guid.Parse(runIdNormalized);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
+
+        Guid runGuid = Guid.Parse(runIdNormalized);
         RunRecord? run = await _runRepository
             .GetByIdAsync(scope, runGuid, cancellationToken)
             .ConfigureAwait(false);
@@ -141,8 +169,15 @@ public sealed class GovernancePreCommitSimulationController(
         if (tenantProblem is not null)
             return tenantProblem;
 
-        Guid runGuid = Guid.Parse(runIdNormalized);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
+
+        Guid runGuid = Guid.Parse(runIdNormalized);
         RunRecord? run = await _runRepository
             .GetByIdAsync(scope, runGuid, cancellationToken)
             .ConfigureAwait(false);
