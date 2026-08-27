@@ -62,6 +62,11 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? actorProblem = ValidateActorIdLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
+
         RecordFindingDispositionRequest normalized = new()
         {
             FindingId = normalizedFindingId,
@@ -148,6 +153,11 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? actorProblem = ValidateActorIdLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
+
         IActionResult? dispositionValidationProblem = ValidateBulkDispositionRequest(request);
 
         if (dispositionValidationProblem is not null)
@@ -221,6 +231,11 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? actorProblem = ValidateActorIdLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
 
         try
         {

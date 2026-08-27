@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 123
-- **bugs-found:** 309
+- **hunts:** 124
+- **bugs-found:** 313
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — trim-first max-length parity on compare/preview/workflow/policy-pack version; pilot checklist actor guard
+- **last-bug:** 2026-08-27 — workspace membership preflight on homepage/LLM-cost/digest-health; stickiness actor-id max-length guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2692,10 +2692,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController` submit/promote/activate — padded body `manifestVersion` with untrimmed length >128 returned HTTP 400 though trimmed version was in scope — **hit 2026-08-27:** `ExceedsManifestVersionMaxLength` trim-first (preview/manifest GET parity); regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (proven) `PolicyPacksController.Publish` / `Assign` / `PromoteCatalogEntry` — padded `version` with untrimmed length >50 failed FluentValidation/controller guard though trimmed SemVer was valid — **hit 2026-08-27:** `ExceedsPolicyPackVersionMaxLength` trim-first (catalog `GetVersion` parity); regression in `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `CorePilotTeamChecklistController.PutAsync` — actor id or display name >200 reached audit/SQL instead of HTTP 400 — **hit 2026-08-27:** `MaxActorIdentityLength` guard before upsert (baseline/cost-settings parity); regression in `CorePilotTeamChecklistControllerTests`.
-- [ ] (candidate) `TenantHomepageSettingsController` GET/PUT — missing workspace membership preflight when `scope.WorkspaceId` is foreign within tenant (CustomerSuccess parity gap).
-- [ ] (candidate) `TenantLlmCostReportingController.GetDashboard` — missing workspace membership preflight; foreign workspace returns HTTP 200 with fallback workspace name.
-- [ ] (candidate) `TenantWeeklyDigestHealthController.GetAsync` — missing workspace membership preflight; foreign workspace returns HTTP 200 zeroed snapshot.
-- [ ] (candidate) `GovernanceStickinessController` disposition/risk-exception mutations — `IActorContext.GetActorId()` >256 not guarded at controller while workflow display-name guard exists at 200 chars.
+- [x] (proven) `TenantHomepageSettingsController` GET/PUT/list-eligible — missing workspace membership preflight when `scope.WorkspaceId` is foreign within tenant returned HTTP 200 — **hit 2026-08-27:** `EnsureWorkspaceExistsForTenantAsync` via `ListWorkspacesAsync` (CustomerSuccess parity); regression in `TenantHomepageSettingsControllerTests`.
+- [x] (proven) `TenantLlmCostReportingController.GetDashboard` — missing workspace membership preflight; foreign workspace returned HTTP 200 with fallback workspace name — **hit 2026-08-27:** workspace preflight before `BuildDashboardAsync`; regression in `TenantLlmCostReportingControllerTests`.
+- [x] (proven) `TenantWeeklyDigestHealthController.GetAsync` — missing workspace membership preflight; foreign workspace returned HTTP 200 zeroed snapshot — **hit 2026-08-27:** workspace preflight before `GetSnapshotAsync`; regression in `TenantWeeklyDigestHealthControllerTests`.
+- [x] (proven) `GovernanceStickinessController` disposition/risk-exception mutations — `IActorContext.GetActorId()` >256 not guarded at controller while workflow display-name guard exists at 200 chars — **hit 2026-08-27:** `ValidateActorIdLength` on mutations (`MaxActorIdLength = 256`); regression in `GovernanceStickinessControllerTests`.
+
+2026-08-27 thorough hunt #207: proved workspace membership preflight on homepage settings, LLM cost reporting, and weekly digest health; proved stickiness mutation actor-id max-length guard.
 
 2026-08-27 seed hunt #206: reseeded zone from controller scan; proved trim-first max-length parity on compare/preview/workflow/policy-pack version and pilot-checklist actor guard; seeded workspace-preflight and stickiness actor-id candidates.
 

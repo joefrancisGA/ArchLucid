@@ -3,6 +3,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Application.Governance.FindingDisposition;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -26,7 +27,8 @@ namespace ArchLucid.Api.Controllers.Governance;
 public sealed partial class GovernanceStickinessController(
     IGovernanceStickinessFacade facade,
     IScopeContextProvider scopeContextProvider,
-    ITenantRepository tenantRepository) : ControllerBase
+    ITenantRepository tenantRepository,
+    IActorContext actorContext) : ControllerBase
 {
     private readonly IGovernanceStickinessFacade _facade =
         facade ?? throw new ArgumentNullException(nameof(facade));
@@ -37,8 +39,12 @@ public sealed partial class GovernanceStickinessController(
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
     private const int RegisterMaxRowsLimit = 500;
     private const int MaxFindingIdLength = 200;
+    private const int MaxActorIdLength = 256;
 
     private IActionResult? ValidateMergeConflictResolutionAction(
         ArchLucid.Contracts.Findings.FindingMergeConflictResolutionAction action)
@@ -144,6 +150,20 @@ public sealed partial class GovernanceStickinessController(
         {
             return this.BadRequestProblem(
                 "maxConfidence must be between 0 and 100.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    private IActionResult? ValidateActorIdLength()
+    {
+        string actorId = _actorContext.GetActorId();
+
+        if (actorId.Length > MaxActorIdLength)
+        {
+            return this.BadRequestProblem(
+                "Actor id must not exceed 256 characters.",
                 ProblemTypes.ValidationFailed);
         }
 

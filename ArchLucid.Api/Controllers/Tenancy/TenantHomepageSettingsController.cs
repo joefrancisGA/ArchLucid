@@ -54,6 +54,13 @@ public sealed class TenantHomepageSettingsController(
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
+
         FeaturedCompletedSampleSnapshot snapshot =
             await _featuredCompletedSampleService.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
 
@@ -71,6 +78,13 @@ public sealed class TenantHomepageSettingsController(
 
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
 
         IReadOnlyList<FeaturedCompletedSampleCandidate> candidates =
             await _featuredCompletedSampleService.ListEligibleCandidatesAsync(cancellationToken).ConfigureAwait(false);
@@ -108,6 +122,13 @@ public sealed class TenantHomepageSettingsController(
 
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
 
         if (body.SelectedRunId == Guid.Empty)
         {
@@ -180,6 +201,27 @@ public sealed class TenantHomepageSettingsController(
             cancellationToken).ConfigureAwait(false);
 
         return Ok(ProjectResponse(snapshot));
+    }
+
+    private async Task<IActionResult?> EnsureWorkspaceExistsForTenantAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<TenantWorkspaceListItem> workspaces =
+            await _tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        TenantWorkspaceListItem? currentWorkspace =
+            workspaces.SingleOrDefault(workspace => workspace.WorkspaceId == workspaceId);
+
+        if (currentWorkspace is null)
+        {
+            return this.NotFoundProblem(
+                "Workspace was not found for this tenant.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return null;
     }
 
     private static TenantHomepageSettingsGetResponse ProjectResponse(FeaturedCompletedSampleSnapshot snapshot)

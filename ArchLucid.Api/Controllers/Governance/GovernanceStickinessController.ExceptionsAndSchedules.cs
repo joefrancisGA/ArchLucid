@@ -81,6 +81,11 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? actorProblem = ValidateActorIdLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
+
         try
         {
             RiskExceptionRecord record = await _facade.CreateRiskExceptionAsync(request, cancellationToken);
@@ -145,6 +150,11 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? actorProblem = ValidateActorIdLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
+
         try
         {
             await _facade.RevokeRiskExceptionAsync(riskExceptionId, cancellationToken);
@@ -204,6 +214,11 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? actorProblem = ValidateActorIdLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
+
         try
         {
             RiskExceptionRecord record =
@@ -261,6 +276,11 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? actorProblem = ValidateActorIdLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
 
         try
         {
@@ -374,6 +394,11 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? actorProblem = ValidateActorIdLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
+
         RecurrenceScheduleUpdateResult result =
             await _facade.UpdateRecurrenceScheduleAsync(scheduleId, request, cancellationToken);
 
@@ -421,6 +446,11 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? actorProblem = ValidateActorIdLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
 
         try
         {

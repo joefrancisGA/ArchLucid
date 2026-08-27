@@ -61,6 +61,24 @@ public sealed class TenantLlmCostReportingControllerTests
     }
 
     [Fact]
+    public async Task GetDashboard_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<ITenantLlmCostReportingService> reporting = new(MockBehavior.Strict);
+
+        TenantLlmCostReportingController controller = CreateController(
+            reporting.Object,
+            workspaceIds: [foreignWorkspaceId]);
+
+        IActionResult action = await controller.GetDashboard(days: 30, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        reporting.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetDashboard_returns_service_dashboard()
     {
         LlmCostReportingDashboardResponse dashboard = new()
@@ -103,15 +121,31 @@ public sealed class TenantLlmCostReportingControllerTests
     private static TenantLlmCostReportingController CreateController(
         ITenantLlmCostReportingService reportingService,
         IScopeContextProvider? scopeProvider = null,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        IReadOnlyList<Guid>? workspaceIds = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        IReadOnlyList<Guid> resolvedWorkspaceIds = workspaceIds ?? [Scope.WorkspaceId];
 
         Mock<ITenantRepository> tenants = new();
         tenants
             .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                resolvedWorkspaceIds
+                    .Select(workspaceId => new TenantWorkspaceListItem
+                    {
+                        WorkspaceId = workspaceId,
+                        TenantId = Scope.TenantId,
+                        Name = workspaceId == Scope.WorkspaceId ? "workspace" : "foreign",
+                        DefaultProjectId = Scope.ProjectId,
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    })
+                    .ToArray());
 
         return new TenantLlmCostReportingController(
             reportingService,

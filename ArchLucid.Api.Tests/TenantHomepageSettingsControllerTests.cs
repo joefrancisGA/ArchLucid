@@ -173,17 +173,89 @@ public sealed class TenantHomepageSettingsControllerTests
         service.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task GetAsync_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(
+            service.Object,
+            workspaceIds: [foreignWorkspaceId]);
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        service.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ListEligibleSamplesAsync_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(
+            service.Object,
+            workspaceIds: [foreignWorkspaceId]);
+
+        IActionResult action = await controller.ListEligibleSamplesAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        service.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(
+            service.Object,
+            workspaceIds: [foreignWorkspaceId]);
+
+        IActionResult action = await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest { SelectedRunId = null },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        service.VerifyNoOtherCalls();
+    }
+
     private static TenantHomepageSettingsController CreateController(
         IFeaturedCompletedSampleService service,
-        bool tenantExists = true)
+        bool tenantExists = true,
+        IReadOnlyList<Guid>? workspaceIds = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        IReadOnlyList<Guid> resolvedWorkspaceIds = workspaceIds ?? [Scope.WorkspaceId];
 
         Mock<ITenantRepository> tenants = new();
         tenants
             .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(tenantExists ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" } : null);
+        tenants
+            .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                resolvedWorkspaceIds
+                    .Select(workspaceId => new TenantWorkspaceListItem
+                    {
+                        WorkspaceId = workspaceId,
+                        TenantId = Scope.TenantId,
+                        Name = workspaceId == Scope.WorkspaceId ? "workspace" : "foreign",
+                        DefaultProjectId = Scope.ProjectId,
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    })
+                    .ToArray());
 
         TenantHomepageSettingsController controller = new(
             service,

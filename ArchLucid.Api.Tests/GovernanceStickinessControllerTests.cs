@@ -54,13 +54,18 @@ public sealed class GovernanceStickinessControllerTests
         Mock<IFindingInspectReadRepository>? findingInspect = null,
         Mock<IRunRepository>? runRepository = null,
         IRealizedValueAttestationService? attestationService = null,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        Mock<IActorContext>? actorContext = null)
     {
         Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        Mock<IActorContext> actor = new();
-        actor.Setup(a => a.GetActorId()).Returns("reviewer@test");
+        Mock<IActorContext> actor = actorContext ?? new Mock<IActorContext>();
+
+        if (actorContext is null)
+        {
+            actor.Setup(a => a.GetActorId()).Returns("reviewer@test");
+        }
 
         Mock<IFindingDispositionService> dispositions = dispositionService ?? new Mock<IFindingDispositionService>();
         dispositions
@@ -163,7 +168,8 @@ public sealed class GovernanceStickinessControllerTests
                     audit.Object,
                     findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>()),
                 scope.Object,
-                tenantRepository ?? TenantExistsRepository())
+                tenantRepository ?? TenantExistsRepository(),
+                actor.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -195,7 +201,8 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<IAuditService>(),
                     Mock.Of<IFindingInspectReadRepository>()),
                 scopeProvider,
-                tenantRepository ?? TenantExistsRepository())
+                tenantRepository ?? TenantExistsRepository(),
+                actorContext)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -1483,6 +1490,32 @@ public sealed class GovernanceStickinessControllerTests
         };
 
         IActionResult action = await controller.RecordDisposition(new string('f', 201), request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_actor_id_exceeds_max_length()
+    {
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns(new string('a', 257));
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            actorContext: actor);
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "reviewed"
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
