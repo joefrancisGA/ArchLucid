@@ -211,8 +211,13 @@ export default function GovernanceFindingsQueueClient({
   const secondaryViewPresentation =
     displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
   const firstFindingTriageTarget = useMemo(
-    () => resolveFirstFindingTriageTarget(displayedRows, isAssignedToMe),
-    [displayedRows, isAssignedToMe],
+    () =>
+      resolveFirstFindingTriageTarget(
+        displayedRows,
+        isAssignedToMe,
+        scopedRunFilterActive ? scopedRunId : null,
+      ),
+    [displayedRows, isAssignedToMe, scopedRunFilterActive, scopedRunId],
   );
   const continueLastFinding = useMemo(
     () =>

@@ -26,6 +26,7 @@ import {
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
+import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-last-governance-finding";
 import {
   governanceFindingsQueueActiveFilterChips,
@@ -102,6 +103,7 @@ export type FirstFindingTriageTarget = {
 export function resolveFirstFindingTriageTarget(
   displayedRows: readonly GovernanceFindingQueueRow[],
   isAssignedToMe: boolean,
+  findingsQueueRunId?: string | null,
 ): FirstFindingTriageTarget | null {
   if (isAssignedToMe) {
     return null;
@@ -116,7 +118,7 @@ export function resolveFirstFindingTriageTarget(
   return {
     findingId: row.findingId,
     findingTitle: row.title,
-    href: governanceFindingInspectHref(row.runId, row.findingId),
+    href: getFindingDetailHref(row.runId, row.findingId, findingsQueueRunId),
   };
 }
 
