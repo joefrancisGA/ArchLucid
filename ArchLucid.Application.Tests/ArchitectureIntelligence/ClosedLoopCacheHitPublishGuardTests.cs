@@ -32,6 +32,38 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         cached.PublishedFindingsSnapshotId.Should().BeNull();
         cached.PublishedRecommendationCount.Should().Be(0);
         cached.PublishSkipReason.Should().Be(ClosedLoopCacheHitPublishGuard.SkipReason);
+        cached.ReviewCompleteBlocked.Should().BeFalse();
+        cached.IntegrityPassedFindingIds.Should().BeEmpty();
+        cached.MustNotFailViolations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyCacheHitPolicy_clears_review_complete_state()
+    {
+        ClosedLoopReasoningRequest request = new() { PublishToProduct = false };
+        ClosedLoopReasoningResult cached = new()
+        {
+            RunId = "cached-run",
+            Model = new ArchitectureKnowledgeModel { RunId = "cached-run", ModelId = "cached-model" },
+            ReviewCompleteBlocked = true,
+            IntegrityPassedFindingIds = ["finding-1"],
+            MustNotFailViolations =
+            [
+                new MustNotFailViolation
+                {
+                    Class = MustNotFailClass.FabricatedCitation,
+                    Message = "Blocked",
+                    Blocked = true,
+                    FindingId = "finding-1",
+                },
+            ],
+        };
+
+        ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(request, "current-run", cached);
+
+        cached.ReviewCompleteBlocked.Should().BeFalse();
+        cached.IntegrityPassedFindingIds.Should().BeEmpty();
+        cached.MustNotFailViolations.Should().BeEmpty();
     }
 
     [Fact]

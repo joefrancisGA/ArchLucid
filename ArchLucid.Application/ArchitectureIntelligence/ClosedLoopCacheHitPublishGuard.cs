@@ -13,7 +13,8 @@ public static class ClosedLoopCacheHitPublishGuard
     public static void ApplyCacheHitPolicy(
         ClosedLoopReasoningRequest request,
         string runId,
-        ClosedLoopReasoningResult cached)
+        ClosedLoopReasoningResult cached,
+        bool clearReviewCompleteState = true)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(runId);
@@ -31,6 +32,9 @@ public static class ClosedLoopCacheHitPublishGuard
         cached.PublishedToProduct = false;
         cached.PublishedFindingsSnapshotId = null;
         cached.PublishedRecommendationCount = 0;
+
+        if (clearReviewCompleteState)
+            ClearCoalescedFollowerReviewCompleteState(cached);
 
         if (request.PublishToProduct)
             cached.PublishSkipReason = SkipReason;
