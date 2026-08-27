@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 37
-- **bugs-found:** 102
+- **hunts:** 38
+- **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — policy-packs list ghost tenant 404
+- **last-bug:** 2026-08-27 — policy-packs read ghost tenant 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2374,6 +2374,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceResolutionController.Resolve` — ghost tenant returned HTTP 200 default resolution instead of 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` before resolver/audit (dashboard parity); regression in `GovernanceResolutionControllerTests.Resolve_returns_not_found_when_tenant_missing`.
 - [x] (proven) `GovernanceCoverageController.GetScopeCoverage` — ghost tenant returned HTTP 200 empty coverage instead of 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (dashboard/posture parity); regression in `GovernanceCoverageControllerScopeTests.GetScopeCoverage_returns_not_found_when_tenant_missing`.
 - [x] (proven) `PolicyPacksController.List` — ghost tenant returned HTTP 200 empty catalog instead of 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (posture/dashboard parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `PolicyPacksController.GetPageBundle` / `GetEffective` / `GetEffectiveContent` / `ListWorkspaceSelection` — ghost tenant returned HTTP 200 empty hub/effective reads while `List` already 404'd — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` preflight on read siblings (`PolicyPacksControllerListScopeTests`).
+- [x] (proven) `PolicyPacksController.Create` — ghost tenant insert surfaced HTTP 500 (FK) instead of 404 — **hit 2026-08-27:** tenant preflight before `CreatePackAsync` (list parity); regression in `PolicyPacksControllerListScopeTests.Create_returns_not_found_when_tenant_missing`.
+- [x] (proven) `GovernanceSetupController.GetSetupGuideBundle` — ghost tenant returned HTTP 200 empty bundle instead of 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (posture/resolution parity); regression in `GovernanceSetupControllerTests.GetSetupGuideBundle_returns_not_found_when_tenant_missing`.
+- [ ] (candidate) `GovernancePreviewController.CompareEnvironments` — ghost tenant returns HTTP 200 empty comparison instead of 404 while posture/resolution now preflight tenant row.
+- [ ] (candidate) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetDecisionsNeededSummary`, `ListRiskExceptions`) — ghost tenant returns HTTP 200 empty registers instead of 404 (project-scope filtering proven; tenant-row preflight not).
+
+2026-08-27 seed hunt #121: proved policy-packs read/create and setup-guide ghost-tenant 404 parity; seeded preview compare and stickiness register tenant-preflight candidates.
 
 2026-08-27 thorough hunt #120: proved governance-resolution ghost tenant 404.
 

@@ -1,12 +1,15 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Contracts.Alerts.Delivery;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
@@ -56,10 +59,16 @@ public sealed class GovernanceSetupControllerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([enabled]);
 
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+
         GovernanceSetupController controller = new(
             scopeProvider.Object,
             resolver.Object,
-            subscriptions.Object);
+            subscriptions.Object,
+            tenants.Object);
 
         IActionResult action = await controller.GetSetupGuideBundle(CancellationToken.None);
 
@@ -82,5 +91,36 @@ public sealed class GovernanceSetupControllerTests
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task GetSetupGuideBundle_returns_not_found_when_tenant_missing()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IPolicyPackResolver> resolver = new(MockBehavior.Strict);
+        Mock<IAlertRoutingSubscriptionRepository> subscriptions = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        GovernanceSetupController controller = new(
+            scopeProvider.Object,
+            resolver.Object,
+            subscriptions.Object,
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.GetSetupGuideBundle(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        resolver.VerifyNoOtherCalls();
+        subscriptions.VerifyNoOtherCalls();
     }
 }
