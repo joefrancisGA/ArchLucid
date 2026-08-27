@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Audit;
 
 using FluentAssertions;
@@ -17,17 +18,48 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class TenantPilotValueReportControllerTests
 {
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
+
     private static readonly IPilotValueReportMarkdownFormatter MarkdownFormatter =
         new PilotValueReportMarkdownFormatter(new ExportFormatterService());
 
     private static TenantPilotValueReportController CreateController(
         IPilotValueReportService service,
+        IScopeContextProvider? scopeProvider = null,
+        ITenantRepository? tenantRepository = null,
         HttpContext? httpContext = null)
     {
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "workspace",
+                    DefaultProjectId = Scope.ProjectId,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
         return new TenantPilotValueReportController(
             service,
             MarkdownFormatter,
-            Mock.Of<IScopeContextProvider>(),
+            scopeProvider ?? scope.Object,
+            tenantRepository ?? tenants.Object,
             Mock.Of<IAuditRepository>())
         {
             ControllerContext = new ControllerContext
@@ -79,13 +111,84 @@ public sealed class TenantPilotValueReportControllerTests
     }
 
     [SkippableFact]
+    public async Task GetPilotValueReport_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPilotValueReportService> svc = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = foreignWorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "foreign",
+                    DefaultProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
+        TenantPilotValueReportController sut = CreateController(svc.Object, tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetPilotValueReport(null, null, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        svc.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
+    public async Task GetRoiSummaryPageBundle_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPilotValueReportService> svc = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = foreignWorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "foreign",
+                    DefaultProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
+        TenantPilotValueReportController sut = CreateController(svc.Object, tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetRoiSummaryPageBundle(rollingDays: 30, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        svc.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
     public async Task GetPilotValueReport_returns_problem_details_when_tenant_missing()
     {
-        Mock<IPilotValueReportService> svc = new();
-        svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((PilotValueReport?)null);
+        Mock<IPilotValueReportService> svc = new(MockBehavior.Strict);
 
-        TenantPilotValueReportController sut = CreateController(svc.Object);
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        TenantPilotValueReportController sut = CreateController(svc.Object, tenantRepository: tenants.Object);
 
         IActionResult result = await sut.GetPilotValueReport(null, null, CancellationToken.None);
 
@@ -94,6 +197,7 @@ public sealed class TenantPilotValueReportControllerTests
         Microsoft.AspNetCore.Mvc.ProblemDetails? pd = problem.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
         pd.Should().NotBeNull();
         pd.Detail.Should().Be("Tenant was not found for the current scope.");
+        svc.VerifyNoOtherCalls();
     }
 
     [SkippableFact]
@@ -126,7 +230,7 @@ public sealed class TenantPilotValueReportControllerTests
         DefaultHttpContext http = new();
         http.Request.Headers.Accept = "text/markdown";
 
-        TenantPilotValueReportController sut = CreateController(svc.Object, http);
+        TenantPilotValueReportController sut = CreateController(svc.Object, httpContext: http);
 
         IActionResult result = await sut.GetPilotValueReport(null, null, CancellationToken.None);
 

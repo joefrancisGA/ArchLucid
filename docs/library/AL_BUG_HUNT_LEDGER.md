@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 128
-- **bugs-found:** 322
+- **hunts:** 129
+- **bugs-found:** 323
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — governance dashboard/drift, policy-packs, manifests, preview workspace preflight
+- **last-bug:** 2026-08-27 — pilot value report workspace membership preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2705,6 +2705,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` — missing workspace membership preflight; foreign workspace returned HTTP 200 dashboard/trend payload instead of HTTP 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` includes `ListWorkspacesAsync` membership check; regression in `GovernanceControllerDashboardTests`.
 - [x] (proven) `PolicyPacksController` read/simulate endpoints — missing workspace membership preflight; foreign workspace returned HTTP 200 instead of HTTP 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` workspace membership check (stickiness parity); regression in `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `ManifestsController` / `GovernancePreviewController` read paths — missing workspace membership preflight; foreign workspace returned HTTP 200 instead of HTTP 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` workspace membership check; regression in `ManifestsControllerTests` and `GovernancePreviewControllerUnitTests`.
+
+- [x] (proven) `TenantPilotValueReportController.GetPilotValueReport` / `GetRoiSummaryPageBundle` — missing workspace membership preflight; foreign workspace returned HTTP 200 pilot/ROI report while audit export uses ambient `scope.WorkspaceId` — **hit 2026-08-27:** `EnsureWorkspaceExistsForTenantAsync` via `ListWorkspacesAsync` (LLM cost reporting parity); regression in `TenantPilotValueReportControllerTests`.
+- [ ] (candidate) `TenantCostSettingsController` GET/PUT — tenant-level `dbo.Tenants` cost fields without workspace membership preflight; foreign workspace may return HTTP 200 tenant-wide settings (may be intentional tenant-admin surface — cheap-disproof before hunting).
+- [ ] (candidate) `TenantBaselineController` GET/PUT — deferred ROI baseline on `dbo.Tenants` without workspace membership preflight; foreign workspace may read/write tenant baseline (may be intentional tenant-admin surface).
+- [ ] (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant-wide migration banner without workspace membership preflight; foreign workspace returns HTTP 200 (may be intentional tenant-maintenance surface).
+
+2026-08-27 seed hunt #212: proved pilot value report workspace preflight; seeded tenant-level settings/baseline/migration workspace-preflight candidates.
 
 2026-08-27 thorough hunt #211: proved workspace membership preflight on governance dashboard/drift, policy-packs reads, manifests reads, and governance preview reads.
 

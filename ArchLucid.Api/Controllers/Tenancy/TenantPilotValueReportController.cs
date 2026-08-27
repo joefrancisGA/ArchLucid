@@ -4,6 +4,7 @@ using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Audit;
 
 using Asp.Versioning;
@@ -24,6 +25,7 @@ public sealed class TenantPilotValueReportController(
     IPilotValueReportService pilotValueReportService,
     IPilotValueReportMarkdownFormatter pilotValueReportMarkdownFormatter,
     IScopeContextProvider scopeContextProvider,
+    ITenantRepository tenantRepository,
     IAuditRepository auditRepository) : ControllerBase
 {
     private const int MaxRollingDays = 90;
@@ -36,6 +38,9 @@ public sealed class TenantPilotValueReportController(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     private readonly IAuditRepository _auditRepository =
         auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
@@ -65,6 +70,23 @@ public sealed class TenantPilotValueReportController(
                 "fromUtc and toUtc must be on or after 1970-01-01 when specified.",
                 ProblemTypes.ValidationFailed);
         }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+        {
+            return this.NotFoundProblem(
+                "Tenant was not found for the current scope.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
 
         PilotValueReport? report = await _pilotValueReportService.BuildAsync(fromUtc, toUtc, cancellationToken);
 
@@ -101,6 +123,23 @@ public sealed class TenantPilotValueReportController(
                 $"rollingDays must be between 1 and {MaxRollingDays}.",
                 ProblemTypes.ValidationFailed);
         }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+        {
+            return this.NotFoundProblem(
+                "Tenant was not found for the current scope.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
 
         DateTime rollingToUtc = TimeProvider.System.UtcNowDateTime();
         DateTime rollingFromUtc = rollingToUtc.AddDays(-rollingDays);
@@ -171,5 +210,26 @@ public sealed class TenantPilotValueReportController(
         return await _auditRepository
             .CountFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, cancellationToken)
             .ConfigureAwait(false);
+    }
+
+    private async Task<IActionResult?> EnsureWorkspaceExistsForTenantAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<TenantWorkspaceListItem> workspaces =
+            await _tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        TenantWorkspaceListItem? currentWorkspace =
+            workspaces.SingleOrDefault(workspace => workspace.WorkspaceId == workspaceId);
+
+        if (currentWorkspace is null)
+        {
+            return this.NotFoundProblem(
+                "Workspace was not found for this tenant.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return null;
     }
 }
