@@ -64,7 +64,7 @@ export function FirstPilotReadinessGroupTable(props: FirstPilotReadinessGroupTab
                 <InlineGuidanceText text={row.summary} />
               </EnterpriseTableCell>
               <EnterpriseTableCell>
-                <Button variant="outline" size="sm" className={cn("h-7 px-0", OPERATOR_TYPOGRAPHY.helper)} asChild>
+                <Button variant="outline" size="sm" className="h-7 px-0" asChild>
                   <Link href={row.href}>{row.cta}</Link>
                 </Button>
               </EnterpriseTableCell>

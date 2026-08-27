@@ -38,6 +38,17 @@ describe("buttonVariants", () => {
     expect(buttonVariants({ variant: "default" })).toContain("focus-visible:ring-[var(--al-accent-border-focus)]");
   });
 
+  it("keeps canonical button label scale across default, sm, and lg sizes (TB-2290)", () => {
+    for (const size of ["default", "sm", "lg"] as const) {
+      const classes = buttonVariants({ size });
+
+      expect(classes).toContain("text-[13px]");
+      expect(classes).toContain("font-semibold");
+      expect(classes).not.toContain("text-xs");
+      expect(classes).not.toContain("text-[15px]");
+    }
+  });
+
   it("does not require visible fill borders on primary or destructive variants (TB-2174)", () => {
     for (const variant of ["primary", "destructive"] as const) {
       const classes = buttonVariants({ variant });
