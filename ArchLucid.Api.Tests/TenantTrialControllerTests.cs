@@ -444,5 +444,41 @@ public sealed class TenantTrialControllerTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task LinkEntraAsync_returns_bad_request_when_entra_oid_exceeds_max_length()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+        };
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<ITrialIdentityUserRepository> trialUsers = new(MockBehavior.Strict);
+
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, Mock.Of<IAuditService>(), Mock.Of<IBillingTrialConversionGate>(),
+                trialUsers.Object, Mock.Of<IOptionsMonitor<TrialLifecycleSchedulerOptions>>())
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult result = await sut.LinkEntraAsync(
+            new TenantLinkEntraRequest
+            {
+                EntraTenantId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                LocalEmail = "trial@contoso.test",
+                EntraOid = new string('o', 129),
+            },
+            CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        trialUsers.VerifyNoOtherCalls();
+        tenants.VerifyNoOtherCalls();
+    }
+
     private static ITrialIdentityUserRepository NoopTrialIdentityUsers() => Mock.Of<ITrialIdentityUserRepository>();
 }

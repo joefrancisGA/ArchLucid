@@ -199,6 +199,34 @@ public sealed class TenantExecDigestPreferencesControllerTests
     }
 
     [Fact]
+    public async Task PostExecDigestPreferences_returns_bad_request_when_serialized_recipient_emails_exceed_max_length()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            Mock.Of<ITenantExecDigestPreferencesRepository>(MockBehavior.Strict),
+            Mock.Of<IAuditService>());
+
+        string longLocalPart = new('a', 50);
+        List<string> recipients = Enumerable.Range(0, 40)
+            .Select(i => $"{longLocalPart}{i}@example.com")
+            .ToList();
+
+        ExecDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = true,
+            RecipientEmails = recipients,
+        };
+
+        IActionResult action = await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PostExecDigestPreferences_returns_bad_request_when_recipient_email_duplicated()
     {
         Mock<IScopeContextProvider> scopeProvider = new();

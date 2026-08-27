@@ -355,6 +355,13 @@ public sealed partial class GovernanceController
         if (!approve && !reject)
             return this.BadRequestProblem("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
 
+        if (body.ReviewComment is not null && body.ReviewComment.Length > 4000)
+        {
+            return this.BadRequestProblem(
+                "ReviewComment must not exceed 4000 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

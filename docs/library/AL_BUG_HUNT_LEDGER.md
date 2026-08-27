@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 108
-- **bugs-found:** 256
+- **hunts:** 109
+- **bugs-found:** 259
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — Promote notes max-length and workflow env normalization
+- **last-bug:** 2026-08-27 — batch-review comment, link-entra OID, digest recipient length
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2607,6 +2607,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreviewController.Preview` — invalid/whitespace `environment` reached `PreviewActivationAsync` instead of HTTP 400 at controller (`CreateGovernancePreviewRequestValidator` not invoked; runId/manifestVersion already guarded) — **hit 2026-08-27:** `GovernanceEnvironmentValidation` guard before service call; regression in `GovernancePreviewControllerUnitTests`.
 - [x] (proven) `GovernanceController.Promote` — `notes` longer than 4000 characters reached `PromoteAsync` instead of HTTP 400 (`CreateGovernancePromotionRequestValidator.MaximumLength` not invoked) — **hit 2026-08-27:** controller max-length guard (Submit `requestComment` parity); regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_bad_request_when_notes_exceed_max_length`.
 - [x] (proven) `GovernanceWorkflowSubmitStage` / `GovernanceWorkflowPromoteStage` — `sourceEnvironment`/`targetEnvironment` persisted with caller casing (e.g. `DEV`/`TEST`) while Activate normalizes to lowercase — **hit 2026-08-27:** `GovernanceEnvironmentNames.NormalizeOrThrow` before persist; regression in `GovernanceWorkflowFacadeTests`.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — `reviewComment` longer than 4000 characters reached per-item `ApproveAsync`/`RejectAsync` instead of HTTP 400 (`Approve`/`Reject` already guarded) — **hit 2026-08-27:** controller max-length guard before batch loop; regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_bad_request_when_review_comment_exceeds_max_length`.
+- [x] (proven) `TenantTrialController.LinkEntraAsync` — `entraOid` longer than 128 characters reached `TryLinkLocalIdentityToEntraAsync` and surfaced unhandled `ArgumentException` (HTTP 500) instead of HTTP 400 — **hit 2026-08-27:** controller max-length guard before repository call; regression in `TenantTrialControllerTests.LinkEntraAsync_returns_bad_request_when_entra_oid_exceeds_max_length`.
+- [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController` — serialized `recipientEmails` longer than `NVARCHAR(2000)` reached SQL upsert (HTTP 500 / truncation risk) instead of HTTP 400 (`DigestRecipientEmailsValidator` checked format only) — **hit 2026-08-27:** `DigestRecipientEmailsValidator.MaxSerializedRecipientEmailsLength`; regression in `TenantExecDigestPreferencesControllerTests`.
+- [ ] (candidate) `GovernancePreviewController.CompareEnvironments` — missing controller-layer `sourceEnvironment`/`targetEnvironment` guards that `Preview` now has (service/FluentValidation already return 400).
+
+2026-08-27 seed hunt #192: proved batch-review comment max-length, link-entra OID max-length, and digest recipient serialized length; reseeded CompareEnvironments controller env parity candidate.
 
 2026-08-27 thorough hunt #191: proved Promote notes max-length guard and Submit/Promote workflow env normalization; zone candidate backlog cleared.
 

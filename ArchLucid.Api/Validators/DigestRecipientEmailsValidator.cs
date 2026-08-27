@@ -8,6 +8,8 @@ namespace ArchLucid.Api.Validators;
 /// </summary>
 public static partial class DigestRecipientEmailsValidator
 {
+    public const int MaxSerializedRecipientEmailsLength = 2000;
+
     private static readonly Regex UnsupportedGroupMailboxPattern = UnsupportedGroupMailboxRegex();
 
     /// <summary>
@@ -63,6 +65,15 @@ public static partial class DigestRecipientEmailsValidator
             }
 
             normalized.Add(mailbox);
+        }
+
+        string serialized = string.Join(';', normalized);
+
+        if (serialized.Length > MaxSerializedRecipientEmailsLength)
+        {
+            errorMessage =
+                $"RecipientEmails must not exceed {MaxSerializedRecipientEmailsLength} characters when serialized.";
+            return false;
         }
 
         normalizedRecipients = normalized;

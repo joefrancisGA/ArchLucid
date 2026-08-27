@@ -140,6 +140,13 @@ public sealed class TenantTrialController(
                 "LocalEmail and EntraOid must both be supplied together, or both omitted.",
                 ProblemTypes.ValidationFailed);
 
+        if (hasOid && body.EntraOid!.Trim().Length > 128)
+        {
+            return this.BadRequestProblem(
+                "EntraOid must not exceed 128 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 
