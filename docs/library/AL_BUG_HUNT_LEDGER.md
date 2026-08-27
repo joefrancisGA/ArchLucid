@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 44
-- **bugs-found:** 118
+- **hunts:** 45
+- **bugs-found:** 119
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — catalog promote/demote and stickiness sibling mutation ghost-tenant 404 parity
+- **last-bug:** 2026-08-27 — policy-pack simulate/validate ghost-tenant 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2394,10 +2394,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` / `DemoteCatalogEntry` — ghost tenant mutations lack `RequireTenantOrNotFoundAsync` while catalog reads already 404 — **hit 2026-08-27:** tenant preflight on catalog admin mutations; regression in `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `GovernanceStickinessController.RevokeRiskException` / `RenewRiskException` / `UpdateRecurrenceSchedule` / `RecordBulkDisposition` / `ResolveFindingMergeConflict` — ghost tenant POST paths lack tenant preflight while sibling reads/mutations already 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on remaining stickiness mutations; regression in `GovernanceStickinessControllerTests`.
-- [ ] (candidate) `PolicyPacksController.Simulate` / `SimulateBulk` / `Validate` — ghost tenant returns run/pack-not-found or HTTP 200 validation payload instead of tenant 404.
-- [ ] (invalid) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — dry-run cron preview with no persistence; tenant binding not required for stateless validation.
+- [x] (proven) `PolicyPacksController.Simulate` / `SimulateBulk` / `Validate` — ghost tenant returns run/pack-not-found or HTTP 200 validation payload instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on simulate/validate endpoints; regression in `PolicyPacksControllerSimulateTests`.
+- [x] (invalid) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — dry-run cron preview with no persistence; tenant binding not required for stateless validation — **cheap-disproof 2026-08-27:** `_facade.PreviewRecurrenceScheduleRuns` is read-only cron math with no tenant-scoped persistence (aligned with rule-templates invalid pattern).
 
-2026-08-27 seed hunt #132: proved catalog promote/demote and stickiness sibling mutation ghost-tenant 404 parity; seeded policy-pack simulate endpoints; retired recurrence preview as stateless dry-run.
+2026-08-27 thorough hunt #133: proved policy-pack simulate/validate ghost-tenant 404 parity; cheap-disproved recurrence preview as stateless dry-run.
 
 2026-08-27 thorough hunt #122: proved preview compare-environments and stickiness register ghost-tenant 404 parity.
 

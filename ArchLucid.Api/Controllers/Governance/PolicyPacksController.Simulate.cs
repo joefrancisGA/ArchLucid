@@ -40,6 +40,11 @@ public sealed partial class PolicyPacksController
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         PolicyPackGovernanceDryRunResult? result = await _workflow.SimulateAsync(
             request.Content,
             request.RunId,
@@ -77,6 +82,11 @@ public sealed partial class PolicyPacksController
         if (request.RunIds.Count > 50)
             return this.BadRequestProblem("At most 50 run ids are allowed per request.", ProblemTypes.ValidationFailed);
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         PolicyPackSimulateBulkSummary? summary = await _workflow.TrySimulateBulkAsync(
             policyPackId,
             request.RunIds,
@@ -98,6 +108,7 @@ public sealed partial class PolicyPacksController
     [Produces("application/json")]
     [ProducesResponseType(typeof(PolicyPackContentValidationResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Validate([FromBody] JsonElement? body, CancellationToken cancellationToken)
     {
         if (body is null || body.Value.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null)
@@ -123,6 +134,11 @@ public sealed partial class PolicyPacksController
 
         if (document is null)
             return this.BadRequestProblem("Deserialized document is null.", ProblemTypes.ValidationFailed);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PolicyPackContentValidationResponse response =
             await _workflow.ValidateContentAsync(document, cancellationToken);
