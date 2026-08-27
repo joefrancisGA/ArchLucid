@@ -62,6 +62,27 @@ public sealed class ClosedLoopReasoningRequestSnapshotTests
     }
 
     [Fact]
+    public void Capture_normalizes_whitespace_optional_ids_to_null()
+    {
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "  ",
+            WorkspaceId = "  ",
+            ProjectId = "  ",
+            RunId = "  ",
+            ModelAliasId = "  ",
+        };
+
+        ClosedLoopReasoningRequest snapshot = ClosedLoopReasoningRequestSnapshot.Capture(request);
+
+        snapshot.TenantId.Should().BeNull();
+        snapshot.WorkspaceId.Should().BeNull();
+        snapshot.ProjectId.Should().BeNull();
+        snapshot.RunId.Should().BeNull();
+        snapshot.ModelAliasId.Should().BeNull();
+    }
+
+    [Fact]
     public void Capture_normalizes_declared_priorities()
     {
         ClosedLoopReasoningRequest request = new()
