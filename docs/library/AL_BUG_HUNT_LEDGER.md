@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 75
-- **bugs-found:** 212
+- **hunts:** 76
+- **bugs-found:** 213
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — coverage preview null body returns 400
+- **last-bug:** 2026-08-27 — homepage empty selectedRunId returns 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2478,6 +2478,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceCoverageController.PreviewCoverage` — null request body threw `ArgumentNullException` (HTTP 500) instead of HTTP 400 (`GovernanceController`/`PolicyPacksController` parity) — **hit 2026-08-27:** `BadRequestProblem` with `RequestBodyRequired`; regression in `GovernanceCoverageControllerScopeTests`.
 
 2026-08-27 seed hunt #158: proved coverage preview null-body validation.
+
+- [x] (proven) `TenantHomepageSettingsController.PutAsync` — `selectedRunId = Guid.Empty` reached `SetSelectedRunIdAsync` and returned HTTP 404 `RunNotFound` instead of HTTP 400 (`null` clears selection; empty guid is invalid input) — **hit 2026-08-27:** reject `Guid.Empty` before service call; regression in `TenantHomepageSettingsControllerTests`.
+
+2026-08-27 seed hunt #159: proved homepage empty selectedRunId validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

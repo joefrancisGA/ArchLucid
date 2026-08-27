@@ -107,6 +107,11 @@ public sealed class TenantHomepageSettingsController(
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
+        if (body.SelectedRunId == Guid.Empty)
+        {
+            return this.BadRequestProblem("selectedRunId is required.", ProblemTypes.ValidationFailed);
+        }
+
         string actor = User?.Identity?.Name ?? "operator";
         FeaturedCompletedSampleSnapshot snapshot;
 
