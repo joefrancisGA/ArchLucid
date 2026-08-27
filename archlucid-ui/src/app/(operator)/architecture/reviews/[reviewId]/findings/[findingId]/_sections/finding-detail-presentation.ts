@@ -27,6 +27,7 @@ export type FindingDetailPresentation = {
   readonly policyProvenanceModel: FindingPolicyEvidenceCitationModel | null;
   readonly policyTraceExcerpt: string | null;
   readonly inspectHref: string;
+  readonly findingsQueueNavHref: string;
   readonly reviewFindingsHref: string;
   readonly reviewPackageHref: string;
   readonly linkedManifestHref: string | null;

@@ -11,7 +11,6 @@ import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPl
 import { FindingExplainabilityTracePanel } from "@/components/findings/FindingExplainabilityTracePanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
@@ -64,6 +63,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
     graphEvidenceHref,
     linkedManifestHref,
     inspectHref,
+    findingsQueueNavHref,
     reviewPackageHref,
     reviewFindingsHref,
     severityHeadline,
@@ -122,7 +122,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
           <section className={cn("overflow-hidden rounded-lg border p-5", DESIGN_TOKENS.surface.card)}>
             <div className="max-w-3xl space-y-3">
               <OperatorPageHeader
-                navHref={GOVERNANCE_FINDINGS_PATH}
+                navHref={findingsQueueNavHref}
                 title={pageTitle}
                 headingLevel="h1"
                 breadcrumb={

@@ -25,10 +25,10 @@ export default async function RunFindingExplainPage({
   searchParams,
 }: {
   params: Promise<{ reviewId: string; findingId: string }>;
-  searchParams: Promise<{ priorRunId?: string; laterRunId?: string }>;
+  searchParams: Promise<{ priorRunId?: string; laterRunId?: string; runId?: string }>;
 }) {
   const { reviewId: runId, findingId } = await params;
-  const { priorRunId, laterRunId } = await searchParams;
+  const { priorRunId, laterRunId, runId: findingsQueueRunId } = await searchParams;
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();
@@ -51,6 +51,7 @@ export default async function RunFindingExplainPage({
       model={result.model}
       crossReviewPriorRunId={priorRunId ?? null}
       crossReviewLaterRunId={laterRunId ?? null}
+      findingsQueueRunId={findingsQueueRunId ?? null}
     />
   );
 }

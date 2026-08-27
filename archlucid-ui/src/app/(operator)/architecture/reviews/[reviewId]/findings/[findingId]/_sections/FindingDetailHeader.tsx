@@ -7,7 +7,7 @@ import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeve
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveFindingsQueueNavHref } from "@/lib/findings/finding-evidence-navigation";
 import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -55,6 +55,7 @@ export type FindingDetailHeaderProps = {
   readonly findingJobView: FindingJobView | null;
   readonly graphEvidenceHref: string | null;
   readonly inspectHref: string;
+  readonly findingsQueueNavHref: string;
 };
 
 /** Finding detail header: wayfinding, buyer hero, or operator page header. */
@@ -81,6 +82,7 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
     findingJobView,
     graphEvidenceHref,
     inspectHref,
+    findingsQueueNavHref,
   } = props;
 
   return (
@@ -121,7 +123,7 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
       ) : null}
       {!buyerPolishedShell ? (
         <OperatorPageHeader
-          navHref={GOVERNANCE_FINDINGS_PATH}
+          navHref={findingsQueueNavHref}
           title={pageTitle}
           headingLevel="h1"
           breadcrumb={<p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>Finding detail</p>}

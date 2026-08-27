@@ -50,6 +50,8 @@ export type AskMainPanelProps = {
   askCitationActionFollowUps: readonly AskCitationActionFollowUp[];
   showPostAssistantFollowUps: boolean;
   retrievalDegraded?: boolean;
+  hideRunPicker?: boolean;
+  clearScopeHref?: string;
 };
 
 export function AskMainPanel(props: AskMainPanelProps) {

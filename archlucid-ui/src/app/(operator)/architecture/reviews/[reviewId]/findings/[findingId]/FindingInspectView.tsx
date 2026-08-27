@@ -10,7 +10,7 @@ import {
 } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveFindingsQueueNavHref } from "@/lib/findings/finding-evidence-navigation";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
@@ -77,6 +77,7 @@ export type FindingInspectViewProps = {
   runExecutionFootnote?: OperatorEvidenceLimitsExecutionProps | null;
   readonly approvedDecisionTitles?: readonly string[];
   readonly statedConstraintContext?: StatedConstraintContext | null;
+  readonly findingsQueueRunId?: string | null;
 };
 
 /**
@@ -91,15 +92,17 @@ export function FindingInspectView({
   runExecutionFootnote = null,
   approvedDecisionTitles = [],
   statedConstraintContext = null,
+  findingsQueueRunId = null,
 }: FindingInspectViewProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const findingsQueueNavHref = resolveFindingsQueueNavHref(findingsQueueRunId);
 
   if (failure || !payload) {
     if (buyerPolishedShell && failure) {
       return (
         <OperatorPageContainer variant="dashboard" className="space-y-4 p-6">
           <OperatorPageHeader
-            navHref={GOVERNANCE_FINDINGS_PATH}
+            navHref={findingsQueueNavHref}
             title="Evidence trace"
             headingLevel="h1"
             actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
@@ -117,7 +120,7 @@ export function FindingInspectView({
 
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-4 p-6">
-        <OperatorPageHeader navHref={GOVERNANCE_FINDINGS_PATH} title="Technical inspection" headingLevel="h1" />
+        <OperatorPageHeader navHref={findingsQueueNavHref} title="Technical inspection" headingLevel="h1" />
         <FindingOptionalArtifactUnavailable
           heading="Evidence trace unavailable"
           body={failure?.message ?? "Finding inspector unavailable."}
@@ -172,7 +175,7 @@ export function FindingInspectView({
   const findingTitle = findingDetailHeadingTitle(payload);
   // TB-1826: finding-first H1 so buyers can name the finding from the first viewport.
   const inspectHeroTitle = findingTitle;
-  const findingDetailHref = getFindingDetailHref(runId, decodedFindingId);
+  const findingDetailHref = getFindingDetailHref(runId, decodedFindingId, findingsQueueRunId);
   const evidenceTraceSecondaryViewPresentation = buildCanonicalObjectSecondaryView(
     "finding",
     "findingEvidenceTrace",
@@ -232,7 +235,7 @@ export function FindingInspectView({
           }
         >
           <OperatorPageHeader
-            navHref={GOVERNANCE_FINDINGS_PATH}
+            navHref={findingsQueueNavHref}
             title={inspectHeroTitle}
             headingLevel="h1"
             breadcrumb={

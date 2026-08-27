@@ -27,10 +27,13 @@ export async function generateMetadata({
  */
 export default async function FindingEvidenceTracePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ reviewId: string; findingId: string }>;
+  searchParams: Promise<{ runId?: string }>;
 }) {
   const { reviewId: runId, findingId } = await params;
+  const { runId: findingsQueueRunId } = await searchParams;
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();
@@ -67,6 +70,7 @@ export default async function FindingEvidenceTracePage({
       runExecutionFootnote={runExecutionFootnote}
       statedConstraintContext={statedConstraintContext}
       approvedDecisionTitles={approvedDecisionTitles}
+      findingsQueueRunId={findingsQueueRunId ?? null}
     />
   );
 }

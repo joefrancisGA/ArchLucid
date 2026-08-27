@@ -1,3 +1,6 @@
+import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+
 /** Canonical App Router segment for finding evidence trace pages. */
 export const FINDING_EVIDENCE_TRACE_SEGMENT = "evidence-trace";
 
@@ -27,9 +30,33 @@ export function getFindingDetailHref(
   return `${base}?runId=${encodeURIComponent(queueRunId)}`;
 }
 
+/** Back navigation from finding detail or evidence trace to the governance findings queue. */
+export function resolveFindingsQueueNavHref(findingsQueueRunId?: string | null): string {
+  const queueRunId = (findingsQueueRunId ?? "").trim();
+
+  if (queueRunId.length === 0) {
+    return GOVERNANCE_FINDINGS_PATH;
+  }
+
+  return buildGovernanceFindingsQueueHref({ runId: queueRunId, filter: "all" });
+}
+
 /** Buyer-facing drill-down into the provenance chain for a finding (#7). */
-export function getFindingEvidenceTraceHref(runId: string, findingId: string): string {
-  return `${getFindingDetailHref(runId, findingId)}/${FINDING_EVIDENCE_TRACE_SEGMENT}`;
+export function getFindingEvidenceTraceHref(
+  runId: string,
+  findingId: string,
+  findingsQueueRunId?: string | null,
+): string {
+  const encRun = encodeURIComponent(runId.trim());
+  const encFinding = encodeURIComponent(findingId.trim());
+  const base = `/architecture/reviews/${encRun}/findings/${encFinding}/${FINDING_EVIDENCE_TRACE_SEGMENT}`;
+  const queueRunId = (findingsQueueRunId ?? "").trim();
+
+  if (queueRunId.length === 0) {
+    return base;
+  }
+
+  return `${base}?runId=${encodeURIComponent(queueRunId)}`;
 }
 
 /** In-page anchor for the disposition workflow on the evidence trace surface. */

@@ -6,7 +6,7 @@ import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigatio
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
-import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref, resolveFindingsQueueNavHref } from "@/lib/findings/finding-evidence-navigation";
 import { graphEvidenceHrefFromInspect } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
   buildFindingPolicyEvidenceCitationsFromInspect,
@@ -33,6 +33,7 @@ type Props = {
   readonly model: FindingDetailPageModel;
   readonly crossReviewPriorRunId?: string | null;
   readonly crossReviewLaterRunId?: string | null;
+  readonly findingsQueueRunId?: string | null;
 };
 
 /** Finding detail layout: buyer-polished hero vs operator header, body, export, footer. */
@@ -40,6 +41,7 @@ export function FindingDetailPageView(props: Props) {
   const model = props.model;
   const crossReviewPriorRunId = props.crossReviewPriorRunId ?? null;
   const crossReviewLaterRunId = props.crossReviewLaterRunId ?? null;
+  const findingsQueueRunId = props.findingsQueueRunId ?? null;
   const {
     runId,
     findingIdRouteParam,
@@ -78,7 +80,8 @@ export function FindingDetailPageView(props: Props) {
   const policyTraceExcerpt =
     inspectPayload !== null ? resolvePolicyTraceExcerptFromInspect(inspectPayload) : null;
 
-  const inspectHref = getFindingEvidenceTraceHref(runId, decodedFindingId);
+  const inspectHref = getFindingEvidenceTraceHref(runId, decodedFindingId, findingsQueueRunId);
+  const findingsQueueNavHref = resolveFindingsQueueNavHref(findingsQueueRunId);
   const reviewFindingsHref = `/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=findings`;
   const reviewPackageHref = isDemoRunIdEligibleForStaticFallback(runId)
     ? getShowcaseManifestHref()
@@ -143,6 +146,7 @@ export function FindingDetailPageView(props: Props) {
     policyProvenanceModel,
     policyTraceExcerpt,
     inspectHref,
+    findingsQueueNavHref,
     reviewFindingsHref,
     reviewPackageHref,
     linkedManifestHref,
@@ -181,6 +185,7 @@ export function FindingDetailPageView(props: Props) {
         findingJobView={findingJobView}
         graphEvidenceHref={graphEvidenceHref}
         inspectHref={inspectHref}
+        findingsQueueNavHref={findingsQueueNavHref}
       />
       <FindingDetailInspectBody presentation={presentation} />
       <FindingDetailActions presentation={presentation} />

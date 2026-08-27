@@ -15,7 +15,6 @@ import {
   governanceWorkflowQueryCardDescriptionReader,
   governanceWorkflowRefreshRunDataButtonLabel,
 } from "@/lib/enterprise-controls-context-copy";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { governanceApprovalQueueHref } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_HELPER,
