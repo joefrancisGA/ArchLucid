@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
 
 html,
 body {
@@ -192,15 +191,15 @@ body {
 
   /* Legacy aliases — prefer named roles above */
   .text-title {
-    @apply text-page-title;
+    @apply text-xl font-semibold leading-7 tracking-tight text-al-text-primary;
   }
 
   .text-section {
-    @apply text-section-title;
+    @apply text-lg font-semibold leading-[26px] text-al-text-primary;
   }
 
   .text-meta {
-    @apply text-helper;
+    @apply text-xs font-normal leading-[18px] text-al-text-secondary;
   }
 }
 
