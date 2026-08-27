@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 44
-- **bugs-found:** 135
+- **hunts:** 45
+- **bugs-found:** 138
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — catalog promote/demote, version reads, attestation/list-dispositions ghost-tenant 404 parity
+- **last-bug:** 2026-08-27 — catalog/list/explain policy-pack read ghost-tenant 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2389,7 +2389,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController` remaining mutations (`RevokeRiskException`, `RenewRiskException`, `UpdateRecurrenceSchedule`, `UpsertRealizedValueAttestation`, `ResolveFindingMergeConflict`) — ghost tenant proceeded without tenant 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on sibling mutation endpoints; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `PolicyPacksController` catalog mutations (`PromoteCatalogEntry`, `DemoteCatalogEntry`) and version reads (`ListVersions`, `GetVersion`) — ghost tenant returned catalog/pack-not-found instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight (page-bundle/list parity); regression in `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `GovernanceStickinessController.GetRealizedValueAttestation` / `ListDispositions` — ghost tenant returned HTTP 200 empty/attestation payload — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` (register read parity); regression in `GovernanceStickinessControllerTests`.
-- [ ] (candidate) `PolicyPacksController` catalog/list reads (`ListCatalog`, `GetCatalogEntry`, `ListWorkspaceSelection`, `ExplainPack`) — ghost tenant may return HTTP 200 empty/catalog-not-found while page-bundle/effective already preflight.
+- [x] (proven) `PolicyPacksController` catalog/list reads (`ListCatalog`, `GetCatalogEntry`, `ExplainPack`) — ghost tenant returned HTTP 200 empty/catalog-not-found instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight (page-bundle/effective parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (invalid) `PolicyPacksController.ListWorkspaceSelection` — ghost tenant catalog/list read parity — **cheap-disproof 2026-08-27:** already calls `RequireTenantOrNotFoundAsync`; regression in `PolicyPacksControllerListScopeTests.ListWorkspaceSelection_returns_not_found_when_tenant_missing`.
+
+2026-08-27 thorough hunt #128: proved catalog/list/explain policy-pack read ghost-tenant 404 parity; cheap-disproved `ListWorkspaceSelection` (already preflighted).
 
 2026-08-27 thorough hunt #127: proved catalog promote/demote, version reads, and attestation/list-dispositions ghost-tenant 404 parity; seeded remaining catalog/read sibling candidates.
 

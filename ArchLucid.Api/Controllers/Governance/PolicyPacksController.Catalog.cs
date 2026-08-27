@@ -52,8 +52,13 @@ public sealed partial class PolicyPacksController
     /// <summary>Lists platform-promoted policy pack snapshots available to clone into the current tenant.</summary>
     [HttpGet("catalog")]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPackCatalogListItem>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<PolicyPackCatalogListItem>>> ListCatalog(CancellationToken ct = default)
+    public async Task<IActionResult> ListCatalog(CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IReadOnlyList<PolicyPackCatalogListItem> rows = await _workflow.ListCatalogAsync(ct);
         return Ok(rows);
     }
@@ -64,6 +69,11 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCatalogEntry(Guid policyPackCatalogEntryId, CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         PolicyPackCatalogEntryDetail? row = await _workflow.TryGetCatalogEntryAsync(policyPackCatalogEntryId, ct);
 
         if (row is null)
@@ -203,6 +213,11 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExplainPack(Guid policyPackId, CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         string? markdown = await _workflow.TryExplainPackMarkdownAsync(policyPackId, ct);
 
         if (markdown is null)
