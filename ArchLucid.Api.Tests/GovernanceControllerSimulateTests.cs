@@ -489,6 +489,48 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task Simulate_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(governanceDryRunService: dryRun.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = new string('r', 65),
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DryRunProposedPolicyPack_returns_bad_request_when_target_run_id_exceeds_max_length()
+    {
+        Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(governanceDryRunService: dryRun.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult action = await sut.DryRunProposedPolicyPack(
+            new PolicyPackGovernanceDryRunRequest
+            {
+                PolicyPackContentJson = "{}",
+                TargetRunId = new string('r', 65),
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GeneratePolicyPack_returns_bad_request_when_prompt_exceeds_max_length()
     {
         Mock<IPolicyPackGeneratorService> generator = new(MockBehavior.Strict);

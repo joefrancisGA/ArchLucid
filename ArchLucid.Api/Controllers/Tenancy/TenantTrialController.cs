@@ -147,6 +147,13 @@ public sealed class TenantTrialController(
                 ProblemTypes.ValidationFailed);
         }
 
+        if (hasEmail && body.LocalEmail!.Trim().Length > 256)
+        {
+            return this.BadRequestProblem(
+                "LocalEmail must not exceed 256 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 

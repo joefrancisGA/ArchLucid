@@ -1597,6 +1597,41 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRecurrenceSchedule_returns_bad_request_when_cron_expression_is_null()
+    {
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo);
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            CronExpression = null!,
+            IsEnabled = true,
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recurrenceRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public void PreviewRecurrenceScheduleRuns_returns_bad_request_when_cron_expression_exceeds_max_length()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        IActionResult action = controller.PreviewRecurrenceScheduleRuns(
+            new PreviewRecurrenceScheduleRunsRequest
+            {
+                CronExpression = new string('0', 101),
+            });
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task CreateRecurrenceSchedule_returns_bad_request_when_cron_expression_exceeds_max_length()
     {
         Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);

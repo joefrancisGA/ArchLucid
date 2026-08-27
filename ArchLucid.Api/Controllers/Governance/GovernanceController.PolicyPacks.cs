@@ -79,6 +79,13 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
         }
 
+        if (request.RunId.Length > 64)
+        {
+            return this.BadRequestProblem(
+                "RunId must not exceed 64 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (request.Content is null)
         {
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
@@ -156,6 +163,13 @@ public sealed partial class GovernanceController
             && targetRunGuid == Guid.Empty)
         {
             return this.BadRequestProblem("targetRunId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.TargetRunId) && request.TargetRunId.Trim().Length > 64)
+        {
+            return this.BadRequestProblem(
+                "TargetRunId must not exceed 64 characters.",
+                ProblemTypes.ValidationFailed);
         }
 
         if (request.TargetManifestId == Guid.Empty)

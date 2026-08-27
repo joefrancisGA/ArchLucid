@@ -108,6 +108,25 @@ public sealed class PolicyPacksControllerSimulateTests
         workflow.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+        PolicyPacksController sut = CreateController(workflow);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = new string('r', 65),
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
     private static PolicyPacksController CreateController(Mock<IPolicyPackWorkflowFacade>? workflow = null)
     {
         PolicyPacksController controller = new(

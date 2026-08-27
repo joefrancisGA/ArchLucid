@@ -238,6 +238,9 @@ public sealed partial class GovernanceStickinessController
         if (request.IsEnabled is null)
             return this.BadRequestProblem("isEnabled is required.", ProblemTypes.ValidationFailed);
 
+        if (string.IsNullOrWhiteSpace(request.CronExpression))
+            return this.BadRequestProblem("CronExpression is required.", ProblemTypes.ValidationFailed);
+
         if (request.CronExpression.Length > 100)
         {
             return this.BadRequestProblem(
@@ -293,6 +296,16 @@ public sealed partial class GovernanceStickinessController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(request.CronExpression))
+            return this.BadRequestProblem("CronExpression is required.", ProblemTypes.ValidationFailed);
+
+        if (request.CronExpression.Length > 100)
+        {
+            return this.BadRequestProblem(
+                "CronExpression must not exceed 100 characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         try
         {

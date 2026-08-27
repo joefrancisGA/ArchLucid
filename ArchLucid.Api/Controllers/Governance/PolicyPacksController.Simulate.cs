@@ -41,6 +41,13 @@ public sealed partial class PolicyPacksController
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
         }
 
+        if (request.RunId.Length > 64)
+        {
+            return this.BadRequestProblem(
+                "RunId must not exceed 64 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (request.Content is null)
         {
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
