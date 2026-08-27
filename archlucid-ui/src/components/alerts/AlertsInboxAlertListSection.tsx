@@ -3,10 +3,8 @@ import { AlertsInboxContinueLastViewedRow } from "@/components/alerts/AlertsInbo
 import { AlertsTriageFirstOpenAlertStrip } from "@/components/alerts/AlertsTriageFirstOpenAlertStrip";
 import { AlertsInboxListStates } from "@/components/alerts/AlertsInboxListStates";
 import { resolveAlertsInboxTriageFirstAlert } from "@/lib/resolve-alerts-inbox-triage-first-alert";
-import {
-  resolveContinueLastAlert,
-  writeAlertsInboxLastViewedId,
-} from "@/lib/resolve-continue-last-alert";
+import { resolveContinueLastAlert, writeAlertsInboxLastViewedId } from "@/lib/resolve-continue-last-alert";
+import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
 import { AlertsInboxPagination } from "@/components/alerts/AlertsInboxPagination";
 import { AlertsInboxVirtualizedAlertList } from "@/components/alerts/AlertsInboxVirtualizedAlertList";
 import { shouldVirtualizeAlertsInboxList } from "@/components/alerts/alerts-inbox-virtualization";
@@ -38,6 +36,8 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
     openRoutingDelivery,
     page,
     queuePendingAction,
+    scopedRunFilterActive,
+    scopedRunId,
     selectedAlertIds,
     toggleAlertSelected,
     visibleAlerts,
@@ -59,6 +59,18 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
     document
       .querySelector(`[data-alert-id="${alertId}"]`)
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    const alert = visibleAlerts.find((candidate) => candidate.alertId === alertId);
+
+    if (alert === undefined) {
+      return;
+    }
+
+    const findingDetailHref = alertPrimaryFindingDetailHref(
+      alert,
+      scopedRunFilterActive ? scopedRunId : null,
+    );
+    openRoutingDelivery(alertId, findingDetailHref);
   }
 
   return (

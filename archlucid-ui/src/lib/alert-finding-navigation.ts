@@ -1,7 +1,11 @@
+import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import type { AlertRecord } from "@/types/alerts";
 
 /** Deep-link to structured finding detail when the alert row carries {@link AlertRecord.primaryFindingId}. */
-export function alertPrimaryFindingDetailHref(alert: AlertRecord): string | null {
+export function alertPrimaryFindingDetailHref(
+  alert: AlertRecord,
+  findingsQueueRunId?: string | null,
+): string | null {
   const runId: string = alert.runId?.trim() ?? "";
   const findingId: string = alert.primaryFindingId?.trim() ?? "";
 
@@ -9,5 +13,5 @@ export function alertPrimaryFindingDetailHref(alert: AlertRecord): string | null
     return null;
   }
 
-  return `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
+  return getFindingDetailHref(runId, findingId, findingsQueueRunId);
 }
