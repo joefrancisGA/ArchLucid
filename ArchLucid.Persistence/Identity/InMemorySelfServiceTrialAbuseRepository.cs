@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Identity;
 
 public sealed class InMemorySelfServiceTrialAbuseRepository : ISelfServiceTrialAbuseRepository
 {
-    private readonly ConcurrentDictionary<string, SelfServiceTrialEmailClaimInsert> _emailClaims = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, SelfServiceTrialEmailClaimInsert> _emailClaims = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly ConcurrentBag<SelfServiceTrialDomainClaimRecord> _domainClaims = [];
 
