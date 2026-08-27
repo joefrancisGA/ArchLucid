@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 114
-- **bugs-found:** 278
+- **hunts:** 115
+- **bugs-found:** 281
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — manifest route read manifestVersion max-length
+- **last-bug:** 2026-08-27 — approvalRequestId and bulk dry-run runId max-length
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2638,7 +2638,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-27 thorough hunt #197: proved manifest route read and compare query manifestVersion max-length validation (preview/submit parity).
 
-- [ ] (candidate) `ManifestsController` export/download paths — oversize `manifestVersion` in filename sanitization edge cases (low risk; route guard now rejects before export).
+- [x] (invalid) `ManifestsController` export/download paths — oversize `manifestVersion` in filename sanitization edge cases — **cheap-disproof 2026-08-27:** `ValidateManifestVersionRoute` now rejects >128 before export; filename uses canonical stored version.
+
+- [x] (proven) `GovernanceController` Approve/Reject/lineage/rationale/batch — `approvalRequestId` >64 (`NVARCHAR(64)`) returned HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** `ValidateApprovalRequestIdRoute`/`ValidateApprovalRequestIdBody` and batch guard; strict-mock regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `PolicyPacksController.SimulateBulk` — `runId` >64 reached bulk dry-run and returned `notFoundRunCount` instead of HTTP 400 (single-run Simulate parity) — **hit 2026-08-27:** `PolicyPackRequestValidationRules.ExceedsRunIdMaxLength`; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
+- [x] (proven) `GovernanceController.DryRunPolicyPack` — `evaluateAgainstRunIds` entry >64 reached dry-run service instead of HTTP 400 — **hit 2026-08-27:** shared oversize runId guard; regression in `GovernanceControllerSimulateTests`.
+
+2026-08-27 thorough hunt #198: cheap-disproved manifest export filename candidate; proved approvalRequestId and bulk dry-run runId max-length validation.
+
+- [ ] (candidate) `GovernanceStickinessController` disposition/risk-exception routes — `findingId` >200 (`NVARCHAR(200)`) may return HTTP 404 or SQL 500 instead of HTTP 400.
+- [ ] (candidate) `TenantWorkspaceBaselineArtifactsController.GetAsync` — out-of-scope workspace id returns HTTP 200 empty payload instead of HTTP 404 (workspace list parity).
 
 2026-08-27 thorough hunt #195: proved recurrence cron max-length, risk-exception expiry guards, and submit/promote env-path validation; cheap-disproved draft freeTextIntent max-length candidate.
 
