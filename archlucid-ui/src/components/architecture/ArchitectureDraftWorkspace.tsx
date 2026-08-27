@@ -150,8 +150,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     setDraft(loaded);
   }, [setDraft]);
 
-  const { saveState, conflictMessage, saveDraft, reloadDraft, acceptServerBaseline, hasPersistedDraft } =
-    useArchitectureDraftAutosave({
+  const {
+    saveState,
+    conflictMessage,
+    saveDraft,
+    reloadDraft,
+    acceptServerBaseline,
+    syncServerUpdatedUtc,
+    hasPersistedDraft,
+  } = useArchitectureDraftAutosave({
       architectureId: props.architectureId,
       fields,
       actorSet,
@@ -205,6 +212,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     saveState,
     conflictMessage,
     saveDraft,
+    syncServerUpdatedUtc,
     scopeGateOpen,
     setScopeGateOpen,
     scopeBullets,

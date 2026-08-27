@@ -41,6 +41,7 @@ type UseArchitectureDraftStartReviewOptions = {
   readonly saveState: ArchitectureDraftSaveState;
   readonly conflictMessage: string | null;
   readonly saveDraft: () => Promise<boolean>;
+  readonly syncServerUpdatedUtc: (serverUpdatedUtc: string) => void;
   readonly scopeGateOpen: boolean;
   readonly setScopeGateOpen: Dispatch<SetStateAction<boolean>>;
   readonly scopeBullets: readonly ScopeUnderstandingBullet[];
@@ -74,9 +75,10 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
       }
 
       try {
-        await patchDraftRequest(options.effectiveArchitectureId, {
+        const patched = await patchDraftRequest(options.effectiveArchitectureId, {
           freeTextIntent: mergedIntent,
         });
+        options.syncServerUpdatedUtc(patched.updatedUtc);
 
         return true;
       } catch {
@@ -90,6 +92,7 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
       options.isNewDraft,
       options.setScopeBullets,
       options.setScopeGateOpen,
+      options.syncServerUpdatedUtc,
     ],
   );
 
@@ -172,9 +175,10 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
         ).trim();
 
         if (mergedIntent.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
-          await patchDraftRequest(options.effectiveArchitectureId, {
+          const patched = await patchDraftRequest(options.effectiveArchitectureId, {
             freeTextIntent: mergedIntent,
           });
+          options.syncServerUpdatedUtc(patched.updatedUtc);
         }
       }
 
@@ -200,6 +204,7 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
     options.linkedReviewId,
     options.saveDraft,
     options.scopeBullets,
+    options.syncServerUpdatedUtc,
     reviewStartProgress,
   ]);
 
