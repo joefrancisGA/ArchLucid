@@ -4,6 +4,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
@@ -192,7 +193,7 @@ public sealed partial class GovernanceController
                 "evaluateAgainstRunIds must contain at least one run id.",
                 ProblemTypes.ValidationFailed);
 
-        if (!request.EvaluateAgainstRunIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
+        if (!request.EvaluateAgainstRunIds.Any(PolicyPackRequestValidationRules.IsUsableRunId))
         {
             return this.BadRequestProblem(
                 "evaluateAgainstRunIds must contain at least one non-empty run id.",

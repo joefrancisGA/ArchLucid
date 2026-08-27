@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Authorization;
@@ -87,7 +88,7 @@ public sealed partial class PolicyPacksController
         if (request.RunIds.Count > 50)
             return this.BadRequestProblem("At most 50 run ids are allowed per request.", ProblemTypes.ValidationFailed);
 
-        if (!request.RunIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
+        if (!request.RunIds.Any(PolicyPackRequestValidationRules.IsUsableRunId))
         {
             return this.BadRequestProblem(
                 "RunIds must contain at least one non-empty id.",

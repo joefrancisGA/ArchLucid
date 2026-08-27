@@ -72,4 +72,20 @@ public static class PolicyPackRequestValidationRules
             return false;
         }
     }
+
+    /// <summary>
+    ///     Returns whether <paramref name="runId" /> is a non-whitespace run identifier that is not <see cref="Guid.Empty" />.
+    /// </summary>
+    public static bool IsUsableRunId(string? runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return false;
+
+        string trimmed = runId.Trim();
+
+        if (Guid.TryParse(trimmed, out Guid parsedRunId) && parsedRunId == Guid.Empty)
+            return false;
+
+        return true;
+    }
 }

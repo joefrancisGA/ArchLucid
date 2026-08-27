@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 80
-- **bugs-found:** 217
+- **hunts:** 81
+- **bugs-found:** 218
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — proposed policy-pack dry-run empty-guid targets return 400
+- **last-bug:** 2026-08-27 — bulk dry-run empty-guid run id arrays return 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2501,6 +2501,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.DryRunProposedPolicyPack` — body `targetRunId = 00000000-0000-0000-0000-000000000000` or `targetManifestId = Guid.Empty` passed XOR validation and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** reject empty guid targets before dry-run service call (simulate empty-run parity); regression in `GovernanceControllerSimulateTests`.
 
 2026-08-27 seed hunt #163: proved proposed policy-pack dry-run empty-guid target validation.
+
+- [x] (proven) `PolicyPacksController.SimulateBulk` / `GovernanceController.DryRunPolicyPack` — non-empty `runIds` / `evaluateAgainstRunIds` arrays containing only `00000000-0000-0000-0000-000000000000` passed whitespace guard and returned HTTP 200 batch summary instead of HTTP 400 — **hit 2026-08-27:** `PolicyPackRequestValidationRules.IsUsableRunId` rejects empty guid after trim (whitespace-only batch parity); regression in `PolicyPacksControllerSimulateBulkScopeTests` and `GovernanceControllerSimulateTests`.
+
+2026-08-27 seed hunt #164: proved bulk dry-run empty-guid run id array validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 
