@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -46,8 +47,12 @@ namespace ArchLucid.Api.Controllers.Governance;
 public sealed class GovernanceResolutionController(
     IScopeContextProvider scopeProvider,
     IEffectiveGovernanceResolver resolver,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    ITenantRepository tenantRepository) : ControllerBase
 {
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     /// <summary>
     ///     Runs hierarchical governance resolution for the caller’s scope and returns the full
     ///     <see cref="EffectiveGovernanceResolutionResult" /> JSON.
@@ -66,6 +71,10 @@ public sealed class GovernanceResolutionController(
     public async Task<IActionResult> Resolve(CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, ct).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(
             scope.TenantId,
