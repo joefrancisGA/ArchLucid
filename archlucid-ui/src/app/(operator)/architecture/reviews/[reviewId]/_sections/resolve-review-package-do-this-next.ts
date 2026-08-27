@@ -1,5 +1,6 @@
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import { resolveClarificationsFindingsLoopNext } from "@/lib/review-clarifications-findings-loop";
+import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import {
   reviewLifecycleNextActionInstance,
   reviewLifecycleNextActionLabel,
@@ -44,6 +45,8 @@ export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryAct
   readonly useCreateHomeWorkspaceTabs: boolean;
   /** Compare href when a prior package on the same request is already comparable. */
   readonly compareWithPriorHref?: string | null;
+  readonly legacyRunStatus?: string | null;
+  readonly isDeadLettered?: boolean | null;
 };
 
 function clarificationsHref(input: ResolveReviewPackageDoThisNextInput): string {
@@ -146,6 +149,20 @@ export function resolveReviewPackageDoThisNextFromRegistry(
 export function resolveReviewPackageDoThisNext(
   input: ResolveReviewPackageDoThisNextInput,
 ): ReviewPackageDoThisNext {
+  const pipelineTerminalFailure = isReviewPipelineTerminalFailure({
+    legacyRunStatus: input.legacyRunStatus,
+    isDeadLettered: input.isDeadLettered,
+  });
+
+  if (input.showProgressTracker && input.manifestId === null && pipelineTerminalFailure) {
+    return {
+      kind: "view-assessment-progress",
+      sentence: "Assessment failed — review the error details and re-run the review when ready.",
+      actionLabel: "View assessment details",
+      href: viewAssessmentHref(input.runId),
+    };
+  }
+
   if (input.showProgressTracker && input.manifestId === null) {
     return {
       kind: "view-assessment-progress",
