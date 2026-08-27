@@ -54,7 +54,7 @@ public sealed class PolicyPackAttributionSignalCalculatorPropertyTests
   {
     return Arb.From(
       Gen.Choose(0, 12).SelectMany(count =>
-        from findings in Gen.ListOf(count, FindingArb().Generator)
+        from findings in Gen.ListOf(FindingArb().Generator, count)
         select new FindingsSnapshot { Findings = findings.ToList() }));
   }
 
