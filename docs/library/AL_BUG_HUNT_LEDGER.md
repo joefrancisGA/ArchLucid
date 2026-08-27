@@ -1623,13 +1623,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — `DeclarationSecurityBaselineClassifier.HasOpenAdminIngressHeuristic` substring-matched port `22` inside `2200`, emitting false admin-ingress findings
+- **last-hunt:** 2026-08-27
+- **last-bug:** 2026-08-27 — `DeclarationPremiseConflictClassifier.IntentMatchesConflictKind` substring-matched negated intent (`"do not disable public"`) and emitted false premise-conflict signals
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1642,9 +1642,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `NewComplianceGapCount` alert counted security improvements as compliance gaps — **hit 2026-08-25:** `AlertEvaluator` and `AlertMetricSnapshotBuilder` used `SecurityChanges.Count` instead of `SecurityDeltaRegressionClassifier`; fixing controls raised false compliance alerts; regression in `Evaluate_NewComplianceGapCount_SecurityImprovements_NotCounted` and `Build_SecurityImprovements_NotCountedAsComplianceGaps`
 - [x] (proven) `DeclarationSecurityBaselineClassifier.HasOpenAdminIngressHeuristic` substring-matched port tokens — **hit 2026-08-26:** `Contains("22")` flagged `0.0.0.0/0:2200` as SSH admin ingress; fixed with digit-bounded port matching; regression in `Classify_does_not_flag_port_2200_as_admin_ingress`
 - [x] (proven) `DeclarationSecurityBaselineClassifier` / `DeclarationPremiseConflictClassifier.TryGetDeclarationProperty` with ARM-canonical `tf.*` keys from ingestion (`tf.publicnetworkaccess`, `tf.httpsonly`) — fixed 2026-08-26 via `DeclarationSecurityPropertyKeyResolver` and ARM alias dual-write in declaration parsers (`DeclarationSecurityPropertyKeyResolverTests`, `ArmJsonInfrastructureDeclarationParserTests.ParseAsync_PublicNetworkAccess_DualWritesTfAndArmAlias`).
-- [ ] (hunt-ready) `DeclarationPremiseConflictClassifier.IntentMatchesConflictKind` with negated intent phrases (`"do not disable public"`) — substring phrase list matches inside negated requirements and emits false premise-conflict signals.
-- [ ] (hunt-ready) `DeclarationPremiseConflictFindingEngine.ResolveApplicableIntentNodes` with PROTECTS/APPLIES_TO edge weight just below `GraphEdgeDecisioningThresholds.MinWeightForSemanticLink` — sub-threshold edges are dropped, graph-wide intent fallback downgrades severity from Error to Warning.
-- [ ] (hunt-ready) `PortfolioRecurrenceFindingEngine.ResolveCurrentScopeIdentities` when the current system's persisted findings snapshot is empty on first pass — recurrence scan only reads persisted snapshots, missing cross-system identities during in-flight generation.
+- [x] (proven) `DeclarationPremiseConflictClassifier.IntentMatchesConflictKind` with negated intent phrases (`"do not disable public"`) — **hit 2026-08-27:** substring phrase list matched inside negated requirements; fixed with negation-aware `ContainsAnyPhrase` / `IsPhraseNegated` (bias to false negatives); regression in `Classify_does_not_match_negated_disable_public_intent` and `Classify_still_matches_affirmative_disable_public_intent`.
+- [x] (invalid) `DeclarationPremiseConflictFindingEngine.ResolveApplicableIntentNodes` with PROTECTS/APPLIES_TO edge weight just below `GraphEdgeDecisioningThresholds.MinWeightForSemanticLink` — sub-threshold edges are intentionally ignored per `GraphEdgeDecisioningThresholds` (stored for visualization, excluded from decisioning); graph-wide fallback Warning is by design; documented in `AnalyzeAsync_emits_warning_when_protects_edge_below_semantic_weight_threshold`.
+- [x] (valid-no-repro) `PortfolioRecurrenceFindingEngine.ResolveCurrentScopeIdentities` when the current system's persisted findings snapshot is empty on first pass — ID-06 gates recurrence on persisted snapshot scope for the current run; empty/missing snapshot yields empty current identities by design; orchestrator runs effectful engines in parallel so in-flight findings are out of scope until a snapshot exists; documented in `AnalyzeAsync_returns_empty_when_current_system_snapshot_missing_even_if_peers_share_finding`.
+
+2026-08-27 thorough hunt #214: proved negated intent phrase matching; disproved sub-threshold PROTECTS severity downgrade; classified empty current snapshot as intentional ID-06 scope gate.
 
 ---
 
