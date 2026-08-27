@@ -171,4 +171,34 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
         secondParse.Should().ContainSingle();
         secondParse[0].ObjectId.Should().Be(firstParse[0].ObjectId);
     }
+
+    [Fact]
+    public async Task ParseAsync_TopLevelResourceArray_MapsMultipleKinds()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "cluster-array.json",
+            Format = "kubernetes-json",
+            Content = """
+                      [
+                        {
+                          "apiVersion": "apps/v1",
+                          "kind": "Deployment",
+                          "metadata": { "name": "api", "namespace": "prod" }
+                        },
+                        {
+                          "apiVersion": "v1",
+                          "kind": "Service",
+                          "metadata": { "name": "api", "namespace": "prod" }
+                        }
+                      ]
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().ContainSingle(o => o.Name == "prod/api" && o.Properties["k8s.kind"] == "deployment");
+        result.Should().ContainSingle(o => o.Name == "prod/api" && o.Properties["k8s.kind"] == "service");
+    }
 }

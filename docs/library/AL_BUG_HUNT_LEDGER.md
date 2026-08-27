@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 55
-- **bugs-found:** 110
+- **hunts:** 56
+- **bugs-found:** 111
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — ARM tf JSON array casing preserved exporter casing in infra deltas
+- **last-hunt:** 2026-08-27
+- **last-bug:** 2026-08-27 — kubernetes-json top-level resource array
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1970,6 +1970,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SimpleTerraformResourceBlockParser` preserved inline `#` comments in scalar values — **hit 2026-08-26:** `location = "eastus" # primary` false-modified infra declaration deltas; fixed with `StripTrailingHclComment` before unquoting (`SimpleTerraformDeclarationParserTests.ParseAsync_InlineHashComment_DoesNotChangeTfLocation`).
 - [x] (proven) `JsonInfrastructureDeclarationParser` accepted only `{ "resources": [...] }` shape — **hit 2026-08-26:** top-level resource array `[{ "type": "vnet", ... }]` returned zero resources; fixed by parsing root arrays (`JsonInfrastructureDeclarationParserTests.ParseAsync_TopLevelResourceArray_MapsVnet`).
 - [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryAddResource` early-return on `Microsoft.Resources/deployments` dropped child `resources[]` — **hit 2026-08-26:** nested VNet inside deployment wrapper returned zero resources; fixed by recursing into deployment children before return (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_DeploymentWrapperChildren_MapsNestedVnet`).
+- [x] (proven) `KubernetesJsonInfrastructureDeclarationParser.ParseAsync` accepted only single-object root documents — **hit 2026-08-27:** top-level manifest array `[{ "kind": "Deployment", ... }, { "kind": "Service", ... }]` returned zero resources (unlike `kind: List` wrapper and unlike proven `json` top-level array fix); fixed by expanding root arrays before `KubernetesManifestCanonicalObjectMapper.MapDocuments` (`KubernetesJsonInfrastructureDeclarationParserTests.ParseAsync_TopLevelResourceArray_MapsMultipleKinds`).
+
+- [ ] (candidate) `ArmJsonInfrastructureDeclarationParser.TryAddResource` — non-deployment parent `resources[]` (e.g. VNet nested subnets) silently dropped; only deployment-wrapper children are recursed today.
+- [ ] (candidate) `BicepResourceBodyParser.ParseBodyIntoProperties` — `/* */` block comments parsed as scalar assignments, emitting phantom `tf.*` properties from comment text.
+- [ ] (candidate) `BicepResourceBodyParser.UnquoteScalar` — inline `/* */` after scalar values pollutes `tf.*` canonical values (HCL `#` comment parity missing for Bicep).
+- [ ] (candidate) `CanonicalTfJsonSerializer.WriteValue` — array element order preserved verbatim, so semantically identical `tf.*` array reorderings false-modify infrastructure declaration deltas.
+
+2026-08-27 seed hunt #56: proved kubernetes-json top-level resource array; seeded ARM nested-child, Bicep block-comment, Bicep inline-block-comment, and tf-array-order candidates.
 
 2026-08-26 seed hunt #55: reseeded simple-terraform headers/nested blocks/comments / JSON top-level array / ARM deployment children; proved all five hunt-ready rows.
 

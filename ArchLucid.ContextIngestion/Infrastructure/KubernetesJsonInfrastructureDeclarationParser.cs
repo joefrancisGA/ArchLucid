@@ -29,8 +29,15 @@ public sealed class KubernetesJsonInfrastructureDeclarationParser(
         try
         {
             using JsonDocument document = JsonDocument.Parse(declaration.Content);
+            JsonElement root = document.RootElement;
+            IReadOnlyList<JsonElement> documents = root.ValueKind is JsonValueKind.Array
+                ? root.EnumerateArray()
+                    .Where(element => element.ValueKind is JsonValueKind.Object)
+                    .ToList()
+                : [root];
+
             IReadOnlyList<CanonicalObject> results = KubernetesManifestCanonicalObjectMapper.MapDocuments(
-                [document.RootElement],
+                documents,
                 declaration);
 
             return Task.FromResult(results);
