@@ -14,7 +14,7 @@ export const CONTINUE_DRAFT_LABEL = "Continue draft" as const;
 export const VIEW_ALL_DRAFTS_LABEL = "View all drafts" as const;
 
 /** Breadcrumb and inventory label for `/architectures` — matches page title and Architecture nav. */
-export const ARCHITECTURE_DRAFTS_LIST_LABEL = "Architecture drafts" as const;
+export const ARCHITECTURE_DRAFTS_LIST_LABEL = "Architectures" as const;
 
 /** Left-nav and review-intake entry for starting an architecture review. */
 export const START_REVIEW_LABEL = "Start review" as const;

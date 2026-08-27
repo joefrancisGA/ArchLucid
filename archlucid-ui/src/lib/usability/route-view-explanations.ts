@@ -132,7 +132,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
     // inventory next action is also already complete once a draft is open.
     matchExact: true,
     explanation: {
-      title: "Architecture drafts",
+      title: "Architectures",
       summary:
         "Inventory architecture drafts in this workspace — start a new draft or open one to prepare a review.",
       nextAction: "Open an architecture draft or create a new one when you are ready to start a review.",
