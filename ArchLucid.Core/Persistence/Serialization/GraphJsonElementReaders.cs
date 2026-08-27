@@ -29,9 +29,17 @@ internal static class GraphJsonElementReaders
         }
         catch (JsonException)
         {
-#pragma warning disable IDE0028 // Simplify collection initialization
-            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-#pragma warning restore IDE0028 // Simplify collection initialization
+            Dictionary<string, string> result = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (JsonProperty property in propsEl.EnumerateObject())
+            {
+                if (property.Value.ValueKind != JsonValueKind.String)
+                    continue;
+
+                result[property.Name] = property.Value.GetString() ?? "";
+            }
+
+            return result;
         }
     }
 

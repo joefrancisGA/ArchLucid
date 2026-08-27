@@ -118,6 +118,11 @@ public sealed partial class ManifestsController
                 Error = this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed)
             };
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return new LoadedManifestPair { Error = tenantProblem };
+
         GoldenManifest? left = await GetManifestInScopeAsync(leftVersion, cancellationToken);
 
         if (left is null)
