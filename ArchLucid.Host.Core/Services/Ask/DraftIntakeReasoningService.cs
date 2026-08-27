@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime.Planning;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Ask;
@@ -29,6 +30,7 @@ public sealed class DraftIntakeReasoningService(
     private const string IntakeSystemPrompt =
         "You are an enterprise architecture intake assistant helping an expert operator shape vague " +
         "business intent into a designable request before any architecture run exists. " +
+        DraftIntakeReasoningLlmPrompts.SimulatorRoutingMarker + " " +
         "Use ONLY the supplied draft context JSON and conversation history. " +
         "Do not invent committed manifests, findings, or topology that are not in the draft. " +
         "When you infer actors, outcomes, or constraints, say so plainly and suggest what the operator should confirm. " +
@@ -153,12 +155,7 @@ public sealed class DraftIntakeReasoningService(
                 maxTokens: null,
                 cancellationToken: cancellationToken);
 
-            IntakeAnswerShape? parsed = JsonSerializer.Deserialize<IntakeAnswerShape>(raw, JsonRead);
-
-            if (parsed is null || string.IsNullOrWhiteSpace(parsed.Answer))
-                return "I could not produce a structured intake answer. Please rephrase or add more design intent.";
-
-            return parsed.Answer.Trim();
+            return ParseAnswerOrFallback(threadId, raw);
         }
         catch (OperationCanceledException)
         {
@@ -173,6 +170,66 @@ public sealed class DraftIntakeReasoningService(
 
             return "Intake reasoning is temporarily unavailable. You can continue patching the draft manually.";
         }
+    }
+
+    private string ParseAnswerOrFallback(Guid threadId, string? raw)
+    {
+        string? normalized = UnwrapJsonFence(raw);
+        IntakeAnswerShape? parsed = TryDeserializeAnswer(normalized);
+
+        if (parsed is not null && !string.IsNullOrWhiteSpace(parsed.Answer))
+            return parsed.Answer.Trim();
+
+        if (!string.IsNullOrWhiteSpace(normalized))
+        {
+            _logger.LogWarning(
+                "Draft intake reasoning response was not JSON with an answer key (ThreadId={ThreadId}); using raw text.",
+                threadId);
+
+            return normalized.Trim();
+        }
+
+        return "I could not produce a structured intake answer. Please rephrase or add more design intent.";
+    }
+
+    private IntakeAnswerShape? TryDeserializeAnswer(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
+
+        try
+        {
+            return JsonSerializer.Deserialize<IntakeAnswerShape>(json, JsonRead);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Failed to deserialize draft intake reasoning JSON; falling back to raw text.");
+
+            return null;
+        }
+    }
+
+    private static string? UnwrapJsonFence(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return raw;
+
+        string text = raw.Trim();
+
+        if (!text.StartsWith("```", StringComparison.Ordinal))
+            return text;
+
+        int firstNewline = text.IndexOf('\n');
+
+        if (firstNewline > 0)
+            text = text[(firstNewline + 1)..].Trim();
+
+        int fenceEnd = text.LastIndexOf("```", StringComparison.Ordinal);
+
+        if (fenceEnd > 0)
+            text = text[..fenceEnd].Trim();
+
+        return text;
     }
 
     private static string BuildHistoryText(IReadOnlyList<ConversationMessage> history)
