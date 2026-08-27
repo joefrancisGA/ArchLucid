@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 55
-- **bugs-found:** 176
+- **hunts:** 57
+- **bugs-found:** 179
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — risk-exception manifest-only gate and manifest version trim
+- **last-bug:** 2026-08-27 — governance run-history reads pass trimmed run id to repositories
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2416,6 +2416,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ManifestsController.GetManifestInScopeAsync` — padded `manifestVersion` route values failed lookup and returned HTTP 404 though trimmed version was in scope — **hit 2026-08-27:** trim before `GetByVersionAsync` (scoped-run trim parity); regression in `ManifestsControllerEvidenceScopeTests.GetManifest_accepts_padded_manifest_version_when_manifest_is_in_scope`.
 - [x] (proven) `TenantPilotValueReportController.GetPilotValueReport` — `fromUtc` / `toUtc` before 1970 returned HTTP 200 report instead of 400 — **hit 2026-08-27:** reject pre-1970 query dates when specified (compliance-drift-trend parity); regression in `TenantPilotValueReportControllerTests.GetPilotValueReport_returns_bad_request_when_from_utc_before_1970`.
 - [x] (proven) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` / `TryParseArchitectureRunIdForAudit` — padded `runId` on submit dropped `RunId` from audit event though scoped-run preflight accepted trimmed id — **hit 2026-08-27:** trim before audit parse (scoped-run trim parity); regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_logs_trimmed_run_id_in_audit_when_run_id_is_padded`.
+- [x] (proven) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` / `SubmitApprovalRequest` / `Promote` / `Activate` — `RequireScopedRunAsync` trimmed internally but callers passed original padded `runId` to repositories/workflow, returning empty results despite scope preflight passing — **hit 2026-08-27:** return normalized run id from `RequireScopedRunAsync` and use downstream; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_items_when_route_run_id_is_padded`.
+
+2026-08-27 seed hunt #140: proved governance run-history reads pass trimmed run id to repositories.
 
 2026-08-27 seed hunt #139: proved pilot-value-report pre-1970 date guard and governance approval audit run-id trim.
 

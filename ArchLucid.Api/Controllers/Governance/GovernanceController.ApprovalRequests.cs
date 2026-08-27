@@ -54,7 +54,8 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeError, string? normalizedRunId) =
+            await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
             return scopeError;
@@ -65,7 +66,7 @@ public sealed partial class GovernanceController
         try
         {
             GovernanceApprovalRequest result = await workflowService.SubmitApprovalRequestAsync(
-                request.RunId,
+                normalizedRunId!,
                 request.ManifestVersion,
                 request.SourceEnvironment,
                 request.TargetEnvironment,
@@ -124,7 +125,8 @@ public sealed partial class GovernanceController
                 ProblemTypes.ResourceNotFound);
         }
 
-        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeError, _) =
+            await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
             return scopeError;
@@ -201,7 +203,8 @@ public sealed partial class GovernanceController
                 ProblemTypes.ResourceNotFound);
         }
 
-        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeError, _) =
+            await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
             return scopeError;
@@ -325,7 +328,8 @@ public sealed partial class GovernanceController
                     continue;
                 }
 
-                IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+                (IActionResult? scopeError, _) =
+                    await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
 
                 if (scopeError is not null)
                 {

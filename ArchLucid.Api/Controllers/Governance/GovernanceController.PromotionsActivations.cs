@@ -53,7 +53,8 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeError, string? normalizedRunId) =
+            await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
             return scopeError;
@@ -71,10 +72,8 @@ public sealed partial class GovernanceController
                     ProblemTypes.ResourceNotFound);
             }
 
-            IActionResult? approvalRunScopeError = await RequireScopedRunAsync(
-                    approval.RunId,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            (IActionResult? approvalRunScopeError, _) =
+                await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
 
             if (approvalRunScopeError is not null)
                 return approvalRunScopeError;
@@ -87,7 +86,7 @@ public sealed partial class GovernanceController
             bool verbosePromotionValidationErrors = User.IsInRole(ArchLucidRoles.Admin);
 
             GovernancePromotionRecord result = await workflowService.PromoteAsync(
-                request.RunId,
+                normalizedRunId!,
                 request.ManifestVersion,
                 request.SourceEnvironment,
                 request.TargetEnvironment,
@@ -142,7 +141,8 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        IActionResult? scopeError = await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeError, string? normalizedRunId) =
+            await RequireScopedRunAsync(request.RunId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
             return scopeError;
@@ -150,7 +150,7 @@ public sealed partial class GovernanceController
         try
         {
             GovernanceEnvironmentActivation result = await workflowService.ActivateAsync(
-                request.RunId,
+                normalizedRunId!,
                 request.ManifestVersion,
                 request.Environment,
                 actorContext.GetActor(),
@@ -181,12 +181,14 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        IActionResult? scopeError = await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeError, string? normalizedRunId) =
+            await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
             return scopeError;
 
-        IReadOnlyList<GovernanceApprovalRequest> items = await approvalRepo.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<GovernanceApprovalRequest> items =
+            await approvalRepo.GetByRunIdAsync(normalizedRunId!, cancellationToken);
         return Ok(items);
     }
 
@@ -202,12 +204,14 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        IActionResult? scopeError = await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeError, string? normalizedRunId) =
+            await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
             return scopeError;
 
-        IReadOnlyList<GovernancePromotionRecord> items = await promotionRepo.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<GovernancePromotionRecord> items =
+            await promotionRepo.GetByRunIdAsync(normalizedRunId!, cancellationToken);
         return Ok(items);
     }
 
@@ -223,32 +227,35 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        IActionResult? scopeError = await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeError, string? normalizedRunId) =
+            await RequireScopedRunAsync(runId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
             return scopeError;
 
         IReadOnlyList<GovernanceEnvironmentActivation> items =
-            await activationRepo.GetByRunIdAsync(runId, cancellationToken);
+            await activationRepo.GetByRunIdAsync(normalizedRunId!, cancellationToken);
         return Ok(items);
     }
 
-    private async Task<IActionResult?> RequireScopedRunAsync(string runId, CancellationToken cancellationToken)
+    private async Task<(IActionResult? Error, string? NormalizedRunId)> RequireScopedRunAsync(
+        string runId,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(runId))
         {
-            return this.NotFoundProblem(
+            return (this.NotFoundProblem(
                 "Run id is required.",
-                ProblemTypes.RunNotFound);
+                ProblemTypes.RunNotFound), null);
         }
 
         runId = runId.Trim();
 
         if (!Guid.TryParse(runId, out Guid runGuid))
         {
-            return this.NotFoundProblem(
+            return (this.NotFoundProblem(
                 $"Run '{runId}' was not found.",
-                ProblemTypes.RunNotFound);
+                ProblemTypes.RunNotFound), null);
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -258,11 +265,11 @@ public sealed partial class GovernanceController
 
         if (run is null)
         {
-            return this.NotFoundProblem(
+            return (this.NotFoundProblem(
                 $"Run '{runId}' was not found.",
-                ProblemTypes.RunNotFound);
+                ProblemTypes.RunNotFound), null);
         }
 
-        return null;
+        return (null, runId);
     }
 }

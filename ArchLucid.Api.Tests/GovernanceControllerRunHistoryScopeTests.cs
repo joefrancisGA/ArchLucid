@@ -72,6 +72,41 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task GetApprovalRequests_returns_items_when_route_run_id_is_padded()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string paddedRunId = $"  {runId:D}  ";
+        GovernanceApprovalRequest approval = new()
+        {
+            RunId = runId.ToString("D"),
+            ManifestVersion = "1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+        approvals
+            .Setup(a => a.GetByRunIdAsync(runId.ToString("D"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([approval]);
+
+        GovernanceController sut = CreateController(runRepository: runs.Object, approvalRepository: approvals.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetApprovalRequests(paddedRunId, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        IReadOnlyList<GovernanceApprovalRequest> items =
+            ok.Value.Should().BeAssignableTo<IReadOnlyList<GovernanceApprovalRequest>>().Subject;
+        items.Should().ContainSingle().Which.Should().BeEquivalentTo(approval);
+        approvals.VerifyAll();
+    }
+
+    [Fact]
     public async Task GetApprovalRequestLineage_returns_not_found_when_tenant_missing()
     {
         const string approvalRequestId = "apr-lineage-tenant-missing";
