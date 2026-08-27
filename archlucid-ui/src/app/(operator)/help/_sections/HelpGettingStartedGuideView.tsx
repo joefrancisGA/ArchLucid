@@ -11,7 +11,6 @@ import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   GETTING_STARTED_HELP_AUDIENCE_LINE,
   GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE,
@@ -37,7 +36,6 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -199,15 +197,16 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             <HelpSectionHeading id="what-to-do-next">What to do next</HelpSectionHeading>
             <div className="grid gap-3 sm:grid-cols-2" data-testid="getting-started-next-action-cards">
               {GETTING_STARTED_HELP_NEXT_ACTION_CARDS.map((action) => (
-                <Card key={action.title} className="h-full border-neutral-200 dark:border-neutral-800">
-                  <CardHeader className={OPERATOR_CARD.header}>
-                    <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>{action.title}</CardTitle>
-                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{action.description}</p>
-                  </CardHeader>
-                  <CardContent className={OPERATOR_CARD.content}>
+                <div
+                  key={action.title}
+                  className="flex h-full flex-col space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                >
+                  <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>{action.title}</p>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{action.description}</p>
+                  <div className="mt-auto">
                     <GettingStartedNextActionLink href={action.href} label={action.ctaLabel} />
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           </section>
