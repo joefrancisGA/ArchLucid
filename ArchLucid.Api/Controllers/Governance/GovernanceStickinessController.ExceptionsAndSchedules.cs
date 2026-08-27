@@ -136,8 +136,14 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("recurrence-schedules")]
     [ProducesResponseType(typeof(IReadOnlyList<ArchitectureReviewRecurrenceSchedule>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListRecurrenceSchedules(CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IReadOnlyList<ArchitectureReviewRecurrenceSchedule> schedules =
             await _facade.ListRecurrenceSchedulesAsync(cancellationToken);
 
