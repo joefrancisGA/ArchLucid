@@ -31,6 +31,54 @@ public sealed class PolicyPacksControllerListScopeTests
     };
 
     [Fact]
+    public async Task List_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: true,
+            workspaceId: foreignWorkspaceId);
+
+        IActionResult result = await sut.List(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetPageBundle_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: true,
+            workspaceId: foreignWorkspaceId);
+
+        IActionResult result = await sut.GetPageBundle(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetEffective_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: true,
+            workspaceId: foreignWorkspaceId);
+
+        IActionResult result = await sut.GetEffective(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
     public async Task List_returns_not_found_when_tenant_missing()
     {
         Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
@@ -82,6 +130,16 @@ public sealed class PolicyPacksControllerListScopeTests
         tenants
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
 
         PolicyPacksController sut = new(
             workflow.Object,
@@ -427,10 +485,18 @@ public sealed class PolicyPacksControllerListScopeTests
 
     private static PolicyPacksController CreateSut(
         Mock<IPolicyPackWorkflowFacade> workflow,
-        bool tenantExists)
+        bool tenantExists,
+        Guid? workspaceId = null)
     {
+        Guid effectiveWorkspaceId = workspaceId ?? Scope.WorkspaceId;
+
         Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = effectiveWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
 
         Mock<ITenantRepository> tenants = new();
         tenants
@@ -439,6 +505,20 @@ public sealed class PolicyPacksControllerListScopeTests
                 tenantExists
                     ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" }
                     : null);
+
+        if (tenantExists)
+        {
+            tenants
+                .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                [
+                    new TenantWorkspaceListItem
+                    {
+                        WorkspaceId = Scope.WorkspaceId,
+                        Name = "primary",
+                    },
+                ]);
+        }
 
         return new PolicyPacksController(
             workflow.Object,
