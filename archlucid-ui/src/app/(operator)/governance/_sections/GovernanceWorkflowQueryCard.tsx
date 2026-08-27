@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,12 +16,13 @@ import {
   governanceWorkflowRefreshRunDataButtonLabel,
 } from "@/lib/enterprise-controls-context-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
+import { governanceApprovalQueueHref } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_HELPER,
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_LABEL,
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_PLACEHOLDER,
 } from "@/lib/governance/governance-workflow-release-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type GovernanceWorkflowQueryCardProps = {
   hideGovernanceQueryLoadCard: boolean;
@@ -60,8 +62,23 @@ export function GovernanceWorkflowQueryCard(props: GovernanceWorkflowQueryCardPr
   return (
     <>
       {hideGovernanceQueryLoadCard && activeRunId !== null ? (
-        <p className={cn("mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Showing approval workflow for <strong>{buyerFacingReviewLinkLabelFromRunId(activeRunId)}</strong>.
+        <p
+          className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="governance-workflow-run-scope-banner"
+        >
+          {"Scoped to review "}
+          <span className="font-mono text-al-text-primary">{activeRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={governanceApprovalQueueHref(null)}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={`/architecture/reviews/${encodeURIComponent(activeRunId)}`}
+          >
+            Open review
+          </Link>
         </p>
       ) : null}
 
