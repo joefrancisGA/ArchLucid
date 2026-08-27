@@ -33,6 +33,11 @@ public sealed partial class GovernanceStickinessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         RecordFindingDispositionRequest normalized = new()
         {
             FindingId = findingId,
@@ -85,6 +90,11 @@ public sealed partial class GovernanceStickinessController
         if (request.FindingIds is null || request.FindingIds.Count == 0)
             return this.BadRequestProblem("At least one FindingId must be provided.", ProblemTypes.ValidationFailed);
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         RecordBulkFindingDispositionResponse response;
 
         try
@@ -103,6 +113,11 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(IReadOnlyList<FindingDispositionEventDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListDispositions(string findingId, CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IReadOnlyList<FindingDispositionEventDto> history =
             await _facade.ListDispositionsAsync(findingId, cancellationToken);
 
@@ -123,6 +138,11 @@ public sealed partial class GovernanceStickinessController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         try
         {

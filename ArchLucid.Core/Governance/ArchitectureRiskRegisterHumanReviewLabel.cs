@@ -23,8 +23,20 @@ public static class ArchitectureRiskRegisterHumanReviewLabel
         if (string.IsNullOrWhiteSpace(raw))
             return FindingHumanReviewStatus.NotRequired;
 
-        return Enum.TryParse(raw.Trim(), true, out FindingHumanReviewStatus status)
-            ? status
-            : FindingHumanReviewStatus.NotRequired;
+        string trimmed = raw.Trim();
+
+        if (int.TryParse(trimmed, out int numeric))
+        {
+            if (Enum.IsDefined(typeof(FindingHumanReviewStatus), numeric))
+                return (FindingHumanReviewStatus)numeric;
+
+            return FindingHumanReviewStatus.NotRequired;
+        }
+
+        if (Enum.TryParse(trimmed, true, out FindingHumanReviewStatus status) &&
+            Enum.IsDefined(typeof(FindingHumanReviewStatus), status))
+            return status;
+
+        return FindingHumanReviewStatus.NotRequired;
     }
 }

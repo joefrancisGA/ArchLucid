@@ -40,6 +40,11 @@ public sealed partial class PolicyPacksController
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         PolicyPackGovernanceDryRunResult? result = await _workflow.SimulateAsync(
             request.Content,
             request.RunId,
@@ -76,6 +81,11 @@ public sealed partial class PolicyPacksController
 
         if (request.RunIds.Count > 50)
             return this.BadRequestProblem("At most 50 run ids are allowed per request.", ProblemTypes.ValidationFailed);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PolicyPackSimulateBulkSummary? summary = await _workflow.TrySimulateBulkAsync(
             policyPackId,
@@ -123,6 +133,11 @@ public sealed partial class PolicyPacksController
 
         if (document is null)
             return this.BadRequestProblem("Deserialized document is null.", ProblemTypes.ValidationFailed);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PolicyPackContentValidationResponse response =
             await _workflow.ValidateContentAsync(document, cancellationToken);
