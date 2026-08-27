@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 43
-- **bugs-found:** 129
+- **hunts:** 44
+- **bugs-found:** 135
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — policy-pack mutations and stickiness sibling-mutation ghost-tenant 404 parity
+- **last-bug:** 2026-08-27 — catalog promote/demote, version reads, attestation/list-dispositions ghost-tenant 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2387,8 +2387,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController` disposition/risk-exception/recurrence mutations (`RecordDisposition`, `RecordBulkDisposition`, `CreateRiskException`, `CreateRecurrenceSchedule`) — ghost tenant returned finding/run-not-found or FK instead of tenant 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on mutation endpoints (register read parity); regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `PolicyPacksController.Publish` / `Assign` / `ArchiveAssignment` / `DeletePack` / `DuplicatePack` / `SetAssignmentEnabled` — ghost tenant returned pack-not-found or FK instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight on mutation endpoints (list/create/simulate parity); regression in `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `GovernanceStickinessController` remaining mutations (`RevokeRiskException`, `RenewRiskException`, `UpdateRecurrenceSchedule`, `UpsertRealizedValueAttestation`, `ResolveFindingMergeConflict`) — ghost tenant proceeded without tenant 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on sibling mutation endpoints; regression in `GovernanceStickinessControllerTests`.
-- [ ] (candidate) `PolicyPacksController` catalog mutations (`PromoteCatalogEntry`, `DemoteCatalogEntry`) and version reads without tenant preflight — ghost tenant may return catalog-not-found or HTTP 200 while page-bundle/list already guard.
-- [ ] (candidate) `GovernanceStickinessController.GetRealizedValueAttestation` / `ListDispositions` — ghost tenant may return HTTP 200 empty/attestation payload while sibling register reads already preflight.
+- [x] (proven) `PolicyPacksController` catalog mutations (`PromoteCatalogEntry`, `DemoteCatalogEntry`) and version reads (`ListVersions`, `GetVersion`) — ghost tenant returned catalog/pack-not-found instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight (page-bundle/list parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `GovernanceStickinessController.GetRealizedValueAttestation` / `ListDispositions` — ghost tenant returned HTTP 200 empty/attestation payload — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` (register read parity); regression in `GovernanceStickinessControllerTests`.
+- [ ] (candidate) `PolicyPacksController` catalog/list reads (`ListCatalog`, `GetCatalogEntry`, `ListWorkspaceSelection`, `ExplainPack`) — ghost tenant may return HTTP 200 empty/catalog-not-found while page-bundle/effective already preflight.
+
+2026-08-27 thorough hunt #127: proved catalog promote/demote, version reads, and attestation/list-dispositions ghost-tenant 404 parity; seeded remaining catalog/read sibling candidates.
 
 2026-08-27 thorough hunt #126: proved policy-pack publish/assign/archive/delete/duplicate/set-enabled and stickiness revoke/renew/update-recurrence/upsert-attestation/resolve-merge-conflict ghost-tenant 404 parity; seeded catalog-mutation and attestation/list-dispositions candidates.
 

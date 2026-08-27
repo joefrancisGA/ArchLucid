@@ -370,6 +370,28 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetRealizedValueAttestation_returns_not_found_when_tenant_missing()
+    {
+        GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.GetRealizedValueAttestation(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ListDispositions_returns_not_found_when_tenant_missing()
+    {
+        GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.ListDispositions("finding-1", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
     public async Task RevokeRiskException_returns_not_found_when_tenant_missing()
     {
         GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());

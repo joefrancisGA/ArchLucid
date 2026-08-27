@@ -236,6 +236,11 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(RealizedValueAttestationResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRealizedValueAttestation(CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         RealizedValueAttestationResponse response =
             await _facade.GetRealizedValueAttestationAsync(cancellationToken);
 
