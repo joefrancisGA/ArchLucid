@@ -69,6 +69,24 @@ public sealed class PolicyPacksControllerSimulateTests
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_proposed_policy_pack_id_is_empty_guid()
+    {
+        PolicyPacksController sut = CreateController();
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                Content = new(),
+                ProposedPolicyPackId = Guid.Empty,
+            },
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
     private static PolicyPacksController CreateController()
     {
         PolicyPacksController controller = new(

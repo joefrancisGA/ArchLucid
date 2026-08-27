@@ -84,6 +84,13 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
         }
 
+        if (!GovernanceQueryRequestValidationRules.IsUsableOptionalGuid(request.ProposedPolicyPackId))
+        {
+            return this.BadRequestProblem(
+                "proposedPolicyPackId must not be an empty GUID.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -140,6 +147,13 @@ public sealed partial class GovernanceController
 
         if (request.TargetManifestId == Guid.Empty)
             return this.BadRequestProblem("targetManifestId is required.", ProblemTypes.ValidationFailed);
+
+        if (!GovernanceQueryRequestValidationRules.IsUsableOptionalGuid(request.ProposedPolicyPackId))
+        {
+            return this.BadRequestProblem(
+                "proposedPolicyPackId must not be an empty GUID.",
+                ProblemTypes.ValidationFailed);
+        }
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

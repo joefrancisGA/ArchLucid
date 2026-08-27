@@ -65,6 +65,27 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task Simulate_returns_bad_request_when_proposed_policy_pack_id_is_empty_guid()
+    {
+        Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(governanceDryRunService: dryRun.Object);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                Content = new(),
+                ProposedPolicyPackId = Guid.Empty,
+            },
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Simulate_returns_not_found_when_tenant_missing()
     {
         Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
@@ -140,6 +161,27 @@ public sealed class GovernanceControllerSimulateTests
             {
                 PolicyPackContentJson = "{}",
                 TargetManifestId = Guid.Empty,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DryRunProposedPolicyPack_returns_bad_request_when_proposed_policy_pack_id_is_empty_guid()
+    {
+        Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(governanceDryRunService: dryRun.Object);
+
+        IActionResult action = await sut.DryRunProposedPolicyPack(
+            new PolicyPackGovernanceDryRunRequest
+            {
+                PolicyPackContentJson = "{}",
+                TargetRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                ProposedPolicyPackId = Guid.Empty,
             },
             CancellationToken.None);
 
