@@ -31,6 +31,7 @@ public sealed partial class GovernanceController
     [HttpGet("dashboard")]
     [ProducesResponseType(typeof(GovernanceDashboardSummary), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetDashboard(
         [FromQuery] int maxPending = 20,
@@ -38,6 +39,15 @@ public sealed partial class GovernanceController
         [FromQuery] int maxChanges = 20,
         CancellationToken cancellationToken = default)
     {
+        if (maxPending <= 0)
+            return this.BadRequestProblem("maxPending must be greater than 0.", ProblemTypes.ValidationFailed);
+
+        if (maxDecisions <= 0)
+            return this.BadRequestProblem("maxDecisions must be greater than 0.", ProblemTypes.ValidationFailed);
+
+        if (maxChanges <= 0)
+            return this.BadRequestProblem("maxChanges must be greater than 0.", ProblemTypes.ValidationFailed);
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 

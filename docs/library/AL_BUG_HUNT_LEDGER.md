@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 51
-- **bugs-found:** 169
+- **hunts:** 52
+- **bugs-found:** 171
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — create risk exception out-of-scope runId
+- **last-bug:** 2026-08-27 — governance dashboard query validation + batch-review whitespace ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2407,6 +2407,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantTrialController.LinkEntraAsync` / `ConvertTrialAsync` — ghost tenant trial mutations — **cheap-disproof 2026-08-27:** both POST paths preflight `GetByIdAsync` before mutation (`TenantTrialController.cs`).
 - [x] (invalid) `TenantBaselineController.PutAsync` / `TenantHomepageSettingsController.ListEligibleSamplesAsync` — ghost tenant PUT/list reads — **cheap-disproof 2026-08-27:** `GetByIdAsync` preflight on both endpoints (GET/PUT parity already proven for siblings).
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` / `GovernanceStickinessFacade.CreateRiskExceptionAsync` — in-scope `findingId` with foreign-workspace body `runId` persisted waiver without scoped run preflight — **hit 2026-08-27:** `EnsureRunInScopeWhenProvidedAsync` before create (record-disposition parity); controller maps `RunNotFoundException` to 404; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceController.GetDashboard` — `maxPending` / `maxDecisions` / `maxChanges` ≤ 0 forwarded to service and surfaced HTTP 500 (`ArgumentOutOfRangeException`) instead of 400 — **hit 2026-08-27:** controller validates query bounds before `GetDashboardAsync` (LLM cost reporting / drift-trend parity); regression in `GovernanceControllerDashboardTests.GetDashboard_returns_bad_request_when_max_pending_is_zero`.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — non-empty `approvalRequestIds` array of whitespace-only strings returned HTTP 200 `{ results: [] }` instead of 400 — **hit 2026-08-27:** reject when trimmed/distinct id list is empty after `Count > 0` guard; regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_bad_request_when_all_ids_are_whitespace`.
+
+2026-08-27 seed hunt #135: proved governance dashboard query validation and batch-review whitespace-id guards.
 
 2026-08-27 seed hunt #134: proved create-risk-exception out-of-scope `runId` scope gate; promoted from disposition parity gap.
 

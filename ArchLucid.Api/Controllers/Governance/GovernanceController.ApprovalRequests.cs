@@ -296,6 +296,13 @@ public sealed partial class GovernanceController
             .Distinct(StringComparer.Ordinal)
             .ToList();
 
+        if (distinctIds.Count == 0)
+        {
+            return this.BadRequestProblem(
+                "ApprovalRequestIds must contain at least one non-empty id.",
+                ProblemTypes.ValidationFailed);
+        }
+
         foreach (string approvalRequestId in distinctIds)
 
             try
