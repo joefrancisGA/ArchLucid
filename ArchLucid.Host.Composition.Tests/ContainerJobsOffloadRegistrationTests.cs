@@ -378,6 +378,54 @@ public sealed class ContainerJobsOffloadRegistrationTests
 
     [Fact]
     public void
+        AddArchLucidApplicationServices_Api_role_with_cosmos_audit_does_not_register_AuditEventChangeFeedHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+        data["CosmosDb:AuditEventsEnabled"] = "true";
+        data["CosmosDb:ConnectionString"] = "AccountEndpoint=https://unit-test.documents.azure.com:443/;AccountKey=dGVzdA==";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AuditEventChangeFeedHostedService));
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(AuditEventChangeFeedArchLucidJob));
+
+        hasHosted.Should().BeFalse(
+            "Api-only hosts must not run Cosmos audit change feed; Worker or Combined owns lease processing");
+        hasJob.Should().BeTrue(
+            "audit-change-feed job must still compose on Api for container-offload parity");
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_with_cosmos_audit_registers_AuditEventChangeFeedHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["CosmosDb:AuditEventsEnabled"] = "true";
+        data["CosmosDb:ConnectionString"] = "AccountEndpoint=https://unit-test.documents.azure.com:443/;AccountKey=dGVzdA==";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AuditEventChangeFeedHostedService));
+
+        hasHosted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void
         AddArchLucidApplicationServices_Api_durable_does_not_register_BackgroundJobQueueProcessorHostedService()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();

@@ -2126,11 +2126,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 8
-- **bugs-found:** 10
+- **hunts:** 9
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — Combined durable omitted BackgroundJobQueueProcessorHostedService
+- **last-hunt:** 2026-08-27
+- **last-bug:** 2026-08-27 — Api role registered AuditEventChangeFeedHostedService with Cosmos audit enabled
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2155,9 +2155,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `servicebus-integration-events` container offload drops `ServiceBusIntegrationEventsArchLucidJob` — `RegisterArchLucidJobRunners` always registers the job; only `AzureServiceBusIntegrationEventConsumer` is gated by offload (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Worker_offloads_servicebus_integration_events_registers_job_not_consumer`, 2026-08-26).
 - [x] (proven) Per-process `AddDistributedMemoryCache` broke async value report poll across Api replicas — **hit 2026-08-26:** `SponsorRoiCompositionRegistrar` registered per-process `IDistributedCache` when no shared Redis/hot-path cache was configured, so load-balanced replicas could not see enqueue state; fixed with `IValueReportJobPollStateCache` (registered `IDistributedCache` → dedicated Redis → process-shared fallback) and `ServiceCollectionExtensionsRegistrationTests.AddArchLucidApplicationServices_value_report_async_job_poll_works_across_separate_api_replica_roots`.
 - [x] (proven) Combined durable background jobs omit queue processor — **hit 2026-08-26:** `RegisterBackgroundJobs` registered `BackgroundJobQueueProcessorHostedService` only for `Worker` when `BackgroundJobs:Mode=Durable`; Combined hosts enqueued to SQL/queue but never drained; fixed with Combined branch + `BackgroundJobRepositoryCancellationWriter`; regression in `AddArchLucidApplicationServices_Combined_durable_registers_BackgroundJobQueueProcessorHostedService` and `AddArchLucidApplicationServices_Api_durable_does_not_register_BackgroundJobQueueProcessorHostedService`.
-- [ ] (candidate) `DraftIntakeCompositionRegistrar` registers `AdvisoryDraftOperationHostedService` without hosting-role gate — split Api/Worker deployments may both process advisory-draft async operations.
-- [ ] (candidate) `RunLifecycleOrchestrationCompositionRegistrar` registers `ArchitectureRunAsyncOperationHostedService` without hosting-role gate — Api-only host may compete with Worker for async run dequeue.
-- [ ] (candidate) `RegisterDurableBackgroundJobInfrastructure` registers `BackgroundJobStuckRunningWatchdogHostedService` for Api durable enqueue-only hosts — watchdog may alert without local processor to remediate.
+- [x] (proven) `AuditEventChangeFeedHostedService` registered on Api role with Cosmos audit — **hit 2026-08-27:** `RegisterCosmosPolyglotPersistence` lacked `ArchLucidHostingRole` gate; split Api+Worker deployments competed for Cosmos change-feed leases; fixed to Worker+Combined; regression in `AddArchLucidApplicationServices_Api_role_with_cosmos_audit_does_not_register_AuditEventChangeFeedHostedService` and `AddArchLucidApplicationServices_Worker_with_cosmos_audit_registers_AuditEventChangeFeedHostedService`.
+- [x] (invalid) `DraftIntakeCompositionRegistrar` registers `AdvisoryDraftOperationHostedService` without hosting-role gate — `AdvisoryDraftOperationQueue` is a per-process bounded channel; Api must drain work accepted on that host.
+- [x] (invalid) `RunLifecycleOrchestrationCompositionRegistrar` registers `ArchitectureRunAsyncOperationHostedService` without hosting-role gate — `ArchitectureRunAsyncOperationQueue` is per-process in-memory; Worker cannot dequeue work enqueued on Api replicas.
+- [x] (valid-no-repro) `RegisterDurableBackgroundJobInfrastructure` registers `BackgroundJobStuckRunningWatchdogHostedService` for Api durable enqueue-only hosts — watchdog uses `HostLeaderElectionCoordinator` and reclaims stale SQL rows cluster-wide; beneficial without local queue processor.
 
 ---
 

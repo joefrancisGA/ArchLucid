@@ -1,4 +1,5 @@
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.Audit;
@@ -15,7 +16,10 @@ public static partial class ServiceCollectionExtensions
     /// Optional Cosmos polyglot overrides (graph snapshots, agent traces, audit) — runs after SQL/InMemory defaults
     /// and coordinator agent trace registration so the last registration wins.
     /// </summary>
-    private static void RegisterCosmosPolyglotPersistence(IServiceCollection services, IConfiguration configuration)
+    private static void RegisterCosmosPolyglotPersistence(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
     {
         ArchLucidOptions archOpts = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
         CosmosDbOptions cosmosSnapshot =
@@ -57,7 +61,8 @@ public static partial class ServiceCollectionExtensions
 
         services.TryAddSingleton<IAuditEventChangeFeedHandler, NoOpAuditEventChangeFeedHandler>();
 
-        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.AuditChangeFeed))
+        if (hostingRole is ArchLucidHostingRole.Worker or ArchLucidHostingRole.Combined
+            && !ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.AuditChangeFeed))
 
             services.AddHostedService<AuditEventChangeFeedHostedService>();
 
