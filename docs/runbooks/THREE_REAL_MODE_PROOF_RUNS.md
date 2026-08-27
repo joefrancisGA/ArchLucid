@@ -7,6 +7,16 @@
 
 **Outcome:** Three documented real-mode committed runs with PASS/WARN/HOLD interpretation, redaction rules applied, and sponsor-send stop conditions satisfied before advancing to **Stage 1: Evidence-backed selling** per [`CLAIM_READINESS_STATUS.md`](../go-to-market/CLAIM_READINESS_STATUS.md).
 
+**One-command orchestrator (owner machine):**
+
+```powershell
+.\scripts\Run-GReal06ProofRuns.ps1 -Phase Interactive
+```
+
+Linux/macOS: `./scripts/run-g-real-06.sh Interactive`
+
+Phases: `Prerequisites` (no spend), `CollectRun1` / `CollectRun2` / `CollectRun3` (with `-RunId`), `Rollup`, `Interactive`, `All`.
+
 **Related:** [`OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md`](OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md) · [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) · [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) · [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)
 
 ---
