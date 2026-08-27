@@ -242,23 +242,63 @@ public static class DatabaseMigrator
     {
         // Caller passes a string that already has Encrypt=Mandatory; normalize defensively (public migrator enforces it).
         string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
-        using SqlConnection connection = new(secured);
+        SqlConnectionStringBuilder catalogBuilder = new(secured);
+        string? rawCatalogName = catalogBuilder.InitialCatalog;
+
+        if (string.IsNullOrWhiteSpace(rawCatalogName))
+            return;
+
+        string catalogName = rawCatalogName.Trim();
+
+        // DbUp returns connections to the ADO.NET pool; ALTER DATABASE needs exclusive access to the target catalog.
+        SqlConnection.ClearAllPools();
+
+        SqlConnectionStringBuilder masterBuilder = new(catalogBuilder.ConnectionString)
+        {
+            InitialCatalog = "master"
+        };
+
+        using SqlConnection connection = new(masterBuilder.ConnectionString);
         connection.Open();
 
-        const string sql = """
-                           IF NOT EXISTS (
-                               SELECT 1
-                               FROM sys.databases
-                               WHERE database_id = DB_ID()
-                                 AND is_read_committed_snapshot_on = 1)
-                           BEGIN
-                               ALTER DATABASE CURRENT SET READ_COMMITTED_SNAPSHOT ON;
-                           END
-                           """;
+        const string checkSql = """
+                                SELECT is_read_committed_snapshot_on
+                                FROM sys.databases
+                                WHERE name = @catalogName;
+                                """;
 
-        using SqlCommand command = new(sql, connection);
-        command.CommandTimeout = SqlCommandTimeouts.ExtendedSeconds;
-        command.ExecuteNonQuery();
+        using (SqlCommand checkCommand = new(checkSql, connection))
+        {
+            checkCommand.CommandTimeout = SqlCommandTimeouts.ExtendedSeconds;
+            checkCommand.Parameters.AddWithValue("@catalogName", catalogName);
+            object? scalar = checkCommand.ExecuteScalar();
+
+            if (scalar is bool isOn && isOn)
+            {
+                Console.WriteLine(
+                    $"Startup: READ_COMMITTED_SNAPSHOT already enabled on database [{catalogName}].");
+
+                return;
+            }
+        }
+
+        Console.WriteLine(
+            $"Startup: enabling READ_COMMITTED_SNAPSHOT on database [{catalogName}] "
+            + "(exclusive access; other connections to this catalog may delay startup).");
+
+        const string alterSql = """
+                                DECLARE @quoted sysname = QUOTENAME(@catalogName);
+                                DECLARE @sql nvarchar(max) =
+                                    N'ALTER DATABASE ' + @quoted + N' SET READ_COMMITTED_SNAPSHOT ON';
+                                EXEC sp_executesql @sql;
+                                """;
+
+        using SqlCommand alterCommand = new(alterSql, connection);
+        alterCommand.CommandTimeout = SqlCommandTimeouts.ExtendedSeconds;
+        alterCommand.Parameters.AddWithValue("@catalogName", catalogName);
+        alterCommand.ExecuteNonQuery();
+
+        Console.WriteLine($"Startup: READ_COMMITTED_SNAPSHOT enabled on database [{catalogName}].");
     }
 
     private static string ReadEmbeddedScript(Assembly assembly, string name)
