@@ -110,6 +110,11 @@ public sealed partial class GovernanceController
         [FromRoute] string approvalRequestId,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
             .ConfigureAwait(false);
@@ -147,6 +152,11 @@ public sealed partial class GovernanceController
         [FromRoute] string approvalRequestId,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
             .ConfigureAwait(false);

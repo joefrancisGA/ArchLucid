@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 45
-- **bugs-found:** 138
+- **hunts:** 46
+- **bugs-found:** 142
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — catalog/list/explain policy-pack read ghost-tenant 404 parity
+- **last-bug:** 2026-08-27 — approval lineage/rationale and pre-finalize checklist/simulate ghost-tenant 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2391,6 +2391,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.GetRealizedValueAttestation` / `ListDispositions` — ghost tenant returned HTTP 200 empty/attestation payload — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` (register read parity); regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `PolicyPacksController` catalog/list reads (`ListCatalog`, `GetCatalogEntry`, `ExplainPack`) — ghost tenant returned HTTP 200 empty/catalog-not-found instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight (page-bundle/effective parity); regression in `PolicyPacksControllerListScopeTests`.
 - [x] (invalid) `PolicyPacksController.ListWorkspaceSelection` — ghost tenant catalog/list read parity — **cheap-disproof 2026-08-27:** already calls `RequireTenantOrNotFoundAsync`; regression in `PolicyPacksControllerListScopeTests.ListWorkspaceSelection_returns_not_found_when_tenant_missing`.
+- [x] (proven) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — ghost tenant returned approval-not-found instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight before approval lookup (dashboard parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernancePreCommitSimulationController.GetChecklist` / `Simulate` — ghost tenant proceeded to checklist/simulation without tenant preflight — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight (run-scope checklist parity); regression in `GovernancePreCommitSimulationControllerTests`.
+- [ ] (candidate) `GovernanceController.Approve` / `Reject` / `SubmitApprovalRequest` / `BatchReviewApprovalRequests` — ghost tenant may reach approval workflow without tenant 404 (dashboard/lineage parity gap).
+
+2026-08-27 seed hunt #129: proved approval lineage/rationale and pre-finalize checklist/simulate ghost-tenant 404 parity; seeded governance approval-mutation ghost-tenant candidates.
 
 2026-08-27 thorough hunt #128: proved catalog/list/explain policy-pack read ghost-tenant 404 parity; cheap-disproved `ListWorkspaceSelection` (already preflighted).
 
