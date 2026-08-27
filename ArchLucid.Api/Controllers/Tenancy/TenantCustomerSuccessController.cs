@@ -230,6 +230,11 @@ public sealed class TenantCustomerSuccessController(
         if (tenantError is not null)
             return tenantError;
 
+        if (request.RunId == Guid.Empty)
+        {
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+        }
+
         if (request.RunId is Guid runId)
         {
             RunRecord? run = await _runRepository
