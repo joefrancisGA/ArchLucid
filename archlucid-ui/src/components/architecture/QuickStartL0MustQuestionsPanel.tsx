@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EvidenceExtractionAwaitingSkeleton } from "@/components/evidence/EvidenceExtractionAwaitingSkeleton";
@@ -15,7 +15,9 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { guidedIntakeClarificationsAnsweredCounter } from "@/lib/guided-intake-copy";
 import {
   UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER,
+  UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER,
   UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER,
+  UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER,
   UNIVERSAL_INTAKE_SUGGEST_FROM_EVIDENCE_HELPER,
   UNIVERSAL_INTAKE_SUGGEST_FROM_EVIDENCE_LABEL,
 } from "@/lib/universal-intake-answer-inference";
@@ -26,6 +28,8 @@ export type QuickStartL0MustQuestionsPanelProps = {
   readonly answers: Readonly<Record<string, string>>;
   readonly skippedQuestionKeys: ReadonlySet<string>;
   readonly inferredQuestionKeys?: ReadonlySet<string>;
+  readonly rephrasedQuestionKeys?: ReadonlySet<string>;
+  readonly isSimulator?: boolean;
   readonly clarificationSuggestionsUnavailable?: boolean;
   readonly canSuggestFromEvidence?: boolean;
   readonly isSuggestingFromEvidence?: boolean;
@@ -60,6 +64,15 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
     () => new Set(),
   );
   const [viewAllClarifications, setViewAllClarifications] = useState(false);
+
+  useEffect(() => {
+    if ((props.inferredQuestionKeys?.size ?? 0) > 0) {
+      setViewAllClarifications(true);
+    }
+  }, [props.inferredQuestionKeys]);
+
+  const suggestedDraftCount = props.inferredQuestionKeys?.size ?? 0;
+  const hasRephrasedSuggestions = (props.rephrasedQuestionKeys?.size ?? 0) > 0;
 
   const clarificationOrdinalByKey = useMemo(() => {
     const ordinals = new Map<string, number>();
@@ -184,6 +197,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
         showAllMode={viewAllClarifications}
         showRequirednessSuffix={false}
         isSuggested={props.inferredQuestionKeys?.has(questionKey) === true}
+        suggestionWasRephrased={props.rephrasedQuestionKeys?.has(questionKey) === true}
         clarificationStatus={getClarificationStatus(questionKey)}
         canSaveAndContinue={(props.answers[questionKey]?.trim() ?? "").length > 0}
         onAnswerChange={handleAnswerChange}
@@ -212,6 +226,14 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {UNIVERSAL_INTAKE_SUGGEST_FROM_EVIDENCE_HELPER}
             </p>
+            {props.isSimulator === true ? (
+              <p
+                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="first-pilot-l0-simulator-suggest-helper"
+              >
+                {UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER}
+              </p>
+            ) : null}
             <Button
               type="button"
               variant="outline"
@@ -234,7 +256,18 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
             className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="first-pilot-l0-inferred-helper"
           >
-            {UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER}
+            {hasRephrasedSuggestions
+              ? UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER
+              : UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER}
+          </p>
+        ) : null}
+
+        {suggestedDraftCount > 0 ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="first-pilot-l0-suggested-draft-count"
+          >
+            {suggestedDraftCount} suggested from evidence — review and save each.
           </p>
         ) : null}
 
