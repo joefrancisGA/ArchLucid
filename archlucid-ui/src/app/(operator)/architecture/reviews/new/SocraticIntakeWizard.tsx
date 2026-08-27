@@ -172,10 +172,7 @@ export function SocraticIntakeWizard() {
 
   if (sourceArchitectureAccessBlocked) {
     return (
-      <div
-        className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
-        data-testid="socratic-intake-wizard"
-      >
+      <div className="w-full" data-testid="socratic-intake-wizard">
         <div
           className={cn(
             "flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-3 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-300",
@@ -192,10 +189,7 @@ export function SocraticIntakeWizard() {
   }
 
   return (
-    <div
-      className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
-      data-testid="socratic-intake-wizard"
-    >
+    <div className="w-full" data-testid="socratic-intake-wizard">
       {/* Flex gap, not space-y: child `m-0` beats Tailwind v4 space-y (`:where()`, 0 specificity). */}
       <div className="flex min-w-0 flex-col gap-4">
       {wizardSession.pendingRestore !== null && !suppressWizardResumePrompt ? (
@@ -212,6 +206,24 @@ export function SocraticIntakeWizard() {
         currentStep={step}
         completedSteps={completedWizardSteps}
       />
+      {draftId !== null && step >= 1 ? (
+        <div data-testid="socratic-intake-advanced-options">
+          <SocraticIntakeWizardAdvancedRail
+            draftId={draftId}
+            draftStatus={draftStatus}
+            busy={busy}
+            blocksLlmExecution={blocksLlmExecution}
+            freeTextIntent={freeTextIntent}
+            businessOutcome={businessOutcome}
+            systemName={systemName}
+            allQuestions={allQuestions}
+            pendingQuestions={pendingQuestions}
+            onBranched={(response) => {
+              void applyBranchDraft(response);
+            }}
+          />
+        </div>
+      ) : null}
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
       {sourceArchitectureId.length > 0 ? (
@@ -449,29 +461,6 @@ export function SocraticIntakeWizard() {
 
       {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}
       </div>
-
-      <aside
-        className={cn(OPERATOR_LAYOUT.stickyAsideTop, "hidden min-w-0 lg:block")}
-        data-testid="socratic-intake-context-rail"
-        data-operator-side-rail-kind="working-object"
-      >
-        {draftId !== null && step >= 1 ? (
-          <SocraticIntakeWizardAdvancedRail
-            draftId={draftId}
-            draftStatus={draftStatus}
-            busy={busy}
-            blocksLlmExecution={blocksLlmExecution}
-            freeTextIntent={freeTextIntent}
-            businessOutcome={businessOutcome}
-            systemName={systemName}
-            allQuestions={allQuestions}
-            pendingQuestions={pendingQuestions}
-            onBranched={(response) => {
-              void applyBranchDraft(response);
-            }}
-          />
-        ) : null}
-      </aside>
     </div>
   );
 }

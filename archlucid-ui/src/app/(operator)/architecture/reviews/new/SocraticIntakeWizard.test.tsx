@@ -539,6 +539,18 @@ describe("SocraticIntakeWizard", () => {
     expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-advanced-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-what-if-stub")).toBeInTheDocument();
+
+    const wizardColumn = screen.getByTestId("socratic-intake-wizard").firstElementChild;
+    const stepperIndex = Array.from(wizardColumn?.children ?? []).findIndex(
+      (child) => child.getAttribute("data-testid") === WIZARD_STICKY_PROGRESS_TEST_ID,
+    );
+    const advancedOptionsIndex = Array.from(wizardColumn?.children ?? []).findIndex(
+      (child) => child.getAttribute("data-testid") === "socratic-intake-advanced-options",
+    );
+
+    expect(stepperIndex).toBeGreaterThanOrEqual(0);
+    expect(advancedOptionsIndex).toBeGreaterThan(stepperIndex);
+    expect(screen.queryByTestId("socratic-intake-context-rail")).toBeNull();
   });
 
   it("shows one required clarification at a time with progress copy", async () => {
