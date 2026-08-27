@@ -513,4 +513,5 @@
 {"at":"2026-08-27T21:20:30.0761414Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-27T21:27:48.6806558Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-27T21:37:37.454751Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-27T21:44:49.8479130Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-27T21:44:49.847913Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-27T21:47:19.0329120Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry"}

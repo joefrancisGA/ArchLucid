@@ -2242,9 +2242,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 129
+- **hunts:** 130
 - **bugs-found:** 323
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-27
 - **last-bug:** 2026-08-27 — pilot value report workspace membership preflight
 - **related-pd-tb:** none
@@ -2707,9 +2707,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ManifestsController` / `GovernancePreviewController` read paths — missing workspace membership preflight; foreign workspace returned HTTP 200 instead of HTTP 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` workspace membership check; regression in `ManifestsControllerTests` and `GovernancePreviewControllerUnitTests`.
 
 - [x] (proven) `TenantPilotValueReportController.GetPilotValueReport` / `GetRoiSummaryPageBundle` — missing workspace membership preflight; foreign workspace returned HTTP 200 pilot/ROI report while audit export uses ambient `scope.WorkspaceId` — **hit 2026-08-27:** `EnsureWorkspaceExistsForTenantAsync` via `ListWorkspacesAsync` (LLM cost reporting parity); regression in `TenantPilotValueReportControllerTests`.
-- [ ] (candidate) `TenantCostSettingsController` GET/PUT — tenant-level `dbo.Tenants` cost fields without workspace membership preflight; foreign workspace may return HTTP 200 tenant-wide settings (may be intentional tenant-admin surface — cheap-disproof before hunting).
-- [ ] (candidate) `TenantBaselineController` GET/PUT — deferred ROI baseline on `dbo.Tenants` without workspace membership preflight; foreign workspace may read/write tenant baseline (may be intentional tenant-admin surface).
-- [ ] (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant-wide migration banner without workspace membership preflight; foreign workspace returns HTTP 200 (may be intentional tenant-maintenance surface).
+- [x] (invalid) `TenantCostSettingsController` GET/PUT — foreign workspace returns HTTP 200 tenant-wide settings — **cheap-disproof 2026-08-27:** `ITenantCostSettingsRepository` keys `dbo.TenantCostSettings` by `TenantId` only; controller XML documents per-tenant ROI assumptions; audit tags workspace for attribution but rates are tenant-admin configuration (aligned with invalidated `TenantIntegrationsOperations` tenant-wide model).
+- [x] (invalid) `TenantBaselineController` GET/PUT — foreign workspace reads/writes tenant baseline — **cheap-disproof 2026-08-27:** controller XML documents deferred ROI baseline fields on `dbo.Tenants`; `UpdateBaselineAsync` / `PersistTrialSignupBaselineReviewCycleAsync` mutate tenant row by `scope.TenantId` only (intentional tenant-wide trial/ROI capture).
+- [x] (invalid) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — foreign workspace returns HTTP 200 migration banner — **cheap-disproof 2026-08-27:** `TenantMigrationStatusService.GetForTenantAsync` loads active migration by `tenantId` only; operator maintenance banner is tenant-wide (TB-2045), not workspace-scoped.
+
+2026-08-27 thorough hunt #213 (dry): cheap-disproved tenant-level cost settings, baseline, and catalog-migration workspace-preflight candidates.
 
 2026-08-27 seed hunt #212: proved pilot value report workspace preflight; seeded tenant-level settings/baseline/migration workspace-preflight candidates.
 
