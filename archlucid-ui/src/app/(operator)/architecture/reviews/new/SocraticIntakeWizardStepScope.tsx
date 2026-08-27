@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { CREATE_ARCHITECTURE_STARTING_LABEL } from "@/lib/review-start-progress-copy";
-import { SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT } from "@/lib/architecture/architecture-scope-understanding-check";
 import {
   OPERATOR_FORM_FIELD_HELPER_CLASS,
   OPERATOR_FORM_FIELD_STACK_CLASS,
@@ -232,7 +231,7 @@ export function SocraticIntakeWizardStepScope({
         <ArchitectureScopeUnderstandingCheckPanel
           input={scopeUnderstandingInput}
           contextSourceLabel={`${intentFieldLabel} above`}
-          readyHint={SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT}
+          showReadyHint={false}
           // Local editing only — an exhausted LLM budget must not lock the operator out of step 0.
           disabled={busy}
           onBulletsChange={setScopeBullets}

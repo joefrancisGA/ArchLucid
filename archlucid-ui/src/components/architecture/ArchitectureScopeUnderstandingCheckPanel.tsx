@@ -48,6 +48,8 @@ export type ArchitectureScopeUnderstandingCheckPanelProps = {
   readonly contextSourceLabel?: string;
   /** What confirmation unblocks on this surface — starting the review, or continuing the wizard. */
   readonly readyHint?: string;
+  /** When false, omit the ready line — use when a primary CTA below already signals the next step. */
+  readonly showReadyHint?: boolean;
   /** Draft persistence on architecture draft surfaces — suppresses the ready line while save is in flight. */
   readonly draftSaveState?: ArchitectureDraftSaveState;
   /** Fingerprint of scope lines already saved on the draft — restores confirmation when unchanged. */
@@ -435,11 +437,11 @@ export function ArchitectureScopeUnderstandingCheckPanel(
               >
                 {SCOPE_UNDERSTANDING_SAVING_HINT}
               </p>
-            ) : (
+            ) : props.showReadyHint !== false ? (
               <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
                 {props.readyHint ?? SCOPE_UNDERSTANDING_READY_HINT}
               </p>
-            )}
+            ) : null}
             {props.nextStepAnchorId !== undefined && props.nextStepAnchorId.trim().length > 0 ? (
               <a
                 href={`#${props.nextStepAnchorId}`}

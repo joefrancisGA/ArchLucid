@@ -405,6 +405,7 @@ return (
         disabled={handoffEditorLocked || exitPending || reviewStartProgress.isPending}
         draftSaveState={saveState}
         persistedScopeFingerprint={persistedScopeFingerprint}
+        showReadyHint={false}
         onConfirm={persistScopeConfirmation}
         onBulletsChange={setScopeBullets}
         onGateChange={setScopeGateOpen}
