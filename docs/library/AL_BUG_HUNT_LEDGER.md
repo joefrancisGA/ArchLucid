@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 54
-- **bugs-found:** 174
+- **hunts:** 55
+- **bugs-found:** 176
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — governance scoped-run trim and promote approval-run preflight
+- **last-bug:** 2026-08-27 — risk-exception manifest-only gate and manifest version trim
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2414,6 +2414,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Promote` — out-of-scope `approval.RunId` with in-scope body `runId` returned HTTP 400 linkage mismatch instead of 404 — **hit 2026-08-27:** `RequireScopedRunAsync(approval.RunId)` after approval lookup (approve/reject parity); regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_not_found_when_approval_run_is_out_of_scope`.
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` / `GovernanceStickinessFacade.CreateRiskExceptionAsync` — body `manifestId` without `runId` bypassed manifest-run binding gate — **hit 2026-08-27:** reject manifest-only requests (activate/submit binding parity); regression in `GovernanceStickinessFacadeScopeTests.CreateRiskExceptionAsync_throws_when_manifest_id_provided_without_run_id`.
 - [x] (proven) `ManifestsController.GetManifestInScopeAsync` — padded `manifestVersion` route values failed lookup and returned HTTP 404 though trimmed version was in scope — **hit 2026-08-27:** trim before `GetByVersionAsync` (scoped-run trim parity); regression in `ManifestsControllerEvidenceScopeTests.GetManifest_accepts_padded_manifest_version_when_manifest_is_in_scope`.
+- [x] (proven) `TenantPilotValueReportController.GetPilotValueReport` — `fromUtc` / `toUtc` before 1970 returned HTTP 200 report instead of 400 — **hit 2026-08-27:** reject pre-1970 query dates when specified (compliance-drift-trend parity); regression in `TenantPilotValueReportControllerTests.GetPilotValueReport_returns_bad_request_when_from_utc_before_1970`.
+- [x] (proven) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` / `TryParseArchitectureRunIdForAudit` — padded `runId` on submit dropped `RunId` from audit event though scoped-run preflight accepted trimmed id — **hit 2026-08-27:** trim before audit parse (scoped-run trim parity); regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_logs_trimmed_run_id_in_audit_when_run_id_is_padded`.
+
+2026-08-27 seed hunt #139: proved pilot-value-report pre-1970 date guard and governance approval audit run-id trim.
 
 2026-08-27 seed hunt #138: proved risk-exception manifest-only binding gate and manifest version trim parity.
 

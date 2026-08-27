@@ -59,6 +59,13 @@ public sealed class TenantPilotValueReportController(
         [FromQuery] DateTime? toUtc,
         CancellationToken cancellationToken)
     {
+        if (fromUtc is { Year: < 1970 } || toUtc is { Year: < 1970 })
+        {
+            return this.BadRequestProblem(
+                "fromUtc and toUtc must be on or after 1970-01-01 when specified.",
+                ProblemTypes.ValidationFailed);
+        }
+
         PilotValueReport? report = await _pilotValueReportService.BuildAsync(fromUtc, toUtc, cancellationToken);
 
         if (report is null)

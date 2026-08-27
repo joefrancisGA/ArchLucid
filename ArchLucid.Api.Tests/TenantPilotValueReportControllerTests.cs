@@ -38,6 +38,23 @@ public sealed class TenantPilotValueReportControllerTests
     }
 
     [SkippableFact]
+    public async Task GetPilotValueReport_returns_bad_request_when_from_utc_before_1970()
+    {
+        Mock<IPilotValueReportService> svc = new(MockBehavior.Strict);
+
+        TenantPilotValueReportController sut = CreateController(svc.Object);
+
+        DateTime fromUtc = new(1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        IActionResult result = await sut.GetPilotValueReport(fromUtc, toUtc, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        svc.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
     public async Task GetPilotValueReport_returns_json_by_default()
     {
         Mock<IPilotValueReportService> svc = new();

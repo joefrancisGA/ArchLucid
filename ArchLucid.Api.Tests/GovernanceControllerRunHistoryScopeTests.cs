@@ -3,6 +3,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Interfaces;
@@ -374,6 +375,72 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequest_logs_trimmed_run_id_in_audit_when_run_id_is_padded()
+    {
+        Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        string paddedRunId = $"  {runId:D}  ";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowService> workflow = new();
+        workflow
+            .Setup(w => w.SubmitApprovalRequestAsync(
+                runId.ToString("D"),
+                "1",
+                "dev",
+                "test",
+                "actor",
+                "actor-id",
+                null,
+                false,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("actor");
+        actor.Setup(a => a.GetActorId()).Returns("actor-id");
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowService: workflow.Object,
+            actorContext: actor.Object,
+            auditService: audit.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "submit-audit-trim-test";
+
+        IActionResult result = await sut.SubmitApprovalRequest(
+            new CreateGovernanceApprovalRequest
+            {
+                RunId = paddedRunId,
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            dryRun: false,
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        captured.Should().NotBeNull();
+        captured!.RunId.Should().Be(runId);
+    }
+
+    [Fact]
     public async Task SubmitApprovalRequest_accepts_padded_run_id_when_run_is_in_scope()
     {
         Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
@@ -738,7 +805,9 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IGovernanceLineageService? lineageService = null,
         IGovernanceRationaleService? rationaleService = null,
         IGovernanceWorkflowService? workflowService = null,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        IActorContext? actorContext = null,
+        IAuditService? auditService = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -753,7 +822,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             approvalRepository ?? Mock.Of<IGovernanceApprovalRequestRepository>(),
             promotionRepository ?? Mock.Of<IGovernancePromotionRecordRepository>(),
             activationRepository ?? Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
+            actorContext ?? Mock.Of<IActorContext>(),
             scope.Object,
             runRepository ?? runs.Object,
             Mock.Of<IGovernanceDashboardService>(),
@@ -763,7 +832,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             Mock.Of<IPolicyPackDryRunService>(),
             Mock.Of<IPolicyPackGovernanceDryRunService>(),
             Mock.Of<IPolicyPackSchemaKeysService>(),
-            Mock.Of<Core.Audit.IAuditService>(),
+            auditService ?? Mock.Of<IAuditService>(),
             Mock.Of<IPolicyPackDraftService>(),
             Mock.Of<IPolicyPackGeneratorService>(),
             tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
