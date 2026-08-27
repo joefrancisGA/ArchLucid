@@ -119,14 +119,14 @@ Read the file top-down; major comment banners include:
 
 ### 3.8 `ArchLucid.System.sql` (system / control-plane catalog)
 
-Used when **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`**. The system catalog holds tenant directory rows, database bindings, provisioning jobs, and warm-catalog standby — not product review data.
+Used when **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`**. The system catalog holds tenant directory rows, database bindings, and warm-catalog standby — not product review data.
 
 | Aspect | Detail |
 |--------|--------|
 | **Execution** | After **`DatabaseMigrator.RunSystem`**, **`ArchLucidPersistenceStartup`** runs **`SqlSchemaBootstrapper`** against **`Scripts/ArchLucid.System.sql`** (same **`GO`** batch splitter as tenant bootstrap). |
 | **Idempotency** | Same patterns as §3.3: `IF OBJECT_ID … IS NULL` + inline indexes; check constraints added with `IF NOT EXISTS` on `sys.check_constraints`. |
 | **Brownfield** | Forward changes ship under **`Migrations/System/NNN_*.sql`**; keep consolidated DDL aligned (CI: **`assert_forward_migration_touches_archlucid_system_sql.py`**). |
-| **Tables** | `dbo.Tenants`, `dbo.TenantDatabaseBindings`, `dbo.TenantDatabaseProvisioningJobs`, `dbo.WarmTenantCatalogStandby` (see §4.4). |
+| **Tables** | `dbo.Tenants`, `dbo.TenantDatabaseBindings`, `dbo.WarmTenantCatalogStandby` (see §4.4). **`dbo.TenantDatabaseProvisioningJobs`** dropped in **System/004** (unused). |
 
 ---
 
@@ -214,6 +214,7 @@ sequenceDiagram
 | **323_Architectures.sql** | Creates **`dbo.Architectures`** and adds **`ArchitectureId`** on the physical run table (**`dbo.Reviews`** after ADR 0064, else **`dbo.Runs`**). Do not `ALTER TABLE dbo.Runs` — that name is a synonym after 295 (SQL 4909). Rollback: **`Rollback/R323_*.sql`**. |
 | **324_ArchitectureRecurrenceAndImproveLoop.sql** | Adds **`ArchitectureId`** on **`dbo.ArchitectureReviewRecurrenceSchedules`** and **`ImproveLoopEvidenceJson`** on the physical run table (same Reviews/Runs resolution as 323). Rollback: **`Rollback/R324_*.sql`**. |
 | **325_Runs_KnowledgeModelId.sql** | Adds **`KnowledgeModelId`** on the physical run table (same Reviews/Runs resolution as 323). Rollback: **`Rollback/R325_*.sql`**. |
+| **326_DropUnusedFineTunedModelRegistryEntries.sql** | **`DROP TABLE dbo.FineTunedModelRegistryEntries`** (267 reserved shell; never written). **`FineTuningTrainingExportAudits`** stays. Rollback: **`Rollback/R326_*.sql`**. |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 
@@ -231,8 +232,9 @@ Applied only to the **control catalog** via **`DatabaseMigrator.RunSystem`**. Ke
 | Script | Purpose |
 |--------|---------|
 | **001_SystemTenantDirectory.sql** | **`dbo.Tenants`** directory + commercial/trial metadata and baseline check constraints. |
-| **002_TenantDatabaseBindings.sql** | **`dbo.TenantDatabaseBindings`** + **`dbo.TenantDatabaseProvisioningJobs`**. |
+| **002_TenantDatabaseBindings.sql** | **`dbo.TenantDatabaseBindings`** + **`dbo.TenantDatabaseProvisioningJobs`** (jobs dropped in **004**). |
 | **003_WarmTenantCatalogStandby.sql** | Warm catalog pool for signup latency (**TB-018**). |
+| **004_DropUnusedTenantDatabaseProvisioningJobs.sql** | **`DROP TABLE dbo.TenantDatabaseProvisioningJobs`** (unused; provisioning uses bindings + warm standby). |
 
 ### 4.5 Adding a new system-plane migration `System/0NN_…`
 

@@ -14,8 +14,9 @@
 
   CONTENT
     - dbo.Tenants (tenant directory + commercial metadata)
-    - dbo.TenantDatabaseBindings + dbo.TenantDatabaseProvisioningJobs
+    - dbo.TenantDatabaseBindings
     - dbo.WarmTenantCatalogStandby (warm catalog pool — TB-018)
+    - dbo.TenantDatabaseProvisioningJobs dropped — System/004 (unused; provisioning uses bindings + warm standby)
 
   SET ANSI_NULLS ON;
   SET QUOTED_IDENTIFIER ON;
@@ -127,25 +128,6 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_TenantDatabaseBindings_ProvisioningState
         ON dbo.TenantDatabaseBindings (ProvisioningState)
         INCLUDE (SqlLogicalDatabaseName, UpdatedUtc);
-END;
-GO
-
-IF OBJECT_ID(N'dbo.TenantDatabaseProvisioningJobs', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.TenantDatabaseProvisioningJobs
-    (
-        JobId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_TenantDatabaseProvisioningJobs_Job DEFAULT NEWSEQUENTIALID(),
-        TenantId       UNIQUEIDENTIFIER NOT NULL,
-        CONSTRAINT PK_TenantDatabaseProvisioningJobs PRIMARY KEY (JobId),
-        AttemptCount   INT              NOT NULL CONSTRAINT DF_TenantDatabaseProvisioningJobs_Attempts DEFAULT (0),
-        LastAttemptUtc DATETIMEOFFSET   NULL,
-        CorrelationId  NVARCHAR(200)    NULL,
-        CONSTRAINT FK_TenantDatabaseProvisioningJobs_Bindings FOREIGN KEY (TenantId) REFERENCES dbo.TenantDatabaseBindings (TenantId)
-    );
-
-    CREATE NONCLUSTERED INDEX IX_TenantDatabaseProvisioningJobs_TenantId
-        ON dbo.TenantDatabaseProvisioningJobs (TenantId);
 END;
 GO
 

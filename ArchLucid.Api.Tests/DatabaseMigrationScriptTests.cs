@@ -76,7 +76,7 @@ public sealed class DatabaseMigrationScriptTests
         string ddl = File.ReadAllText(path);
         ddl.Should().Contain("CREATE TABLE dbo.Tenants");
         ddl.Should().Contain("CREATE TABLE dbo.TenantDatabaseBindings");
-        ddl.Should().Contain("CREATE TABLE dbo.TenantDatabaseProvisioningJobs");
+        ddl.Should().NotContain("CREATE TABLE dbo.TenantDatabaseProvisioningJobs");
         ddl.Should().Contain("CREATE TABLE dbo.WarmTenantCatalogStandby");
         ddl.Should().NotContain("see ArchLucid.Persistence/Migrations/System");
     }

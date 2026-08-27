@@ -13,8 +13,11 @@ STARTUP = REPO_ROOT / "ArchLucid.Host.Core" / "Startup" / "ArchLucidPersistenceS
 REQUIRED_TABLES = (
     "dbo.Tenants",
     "dbo.TenantDatabaseBindings",
-    "dbo.TenantDatabaseProvisioningJobs",
     "dbo.WarmTenantCatalogStandby",
+)
+
+REMOVED_TABLES = (
+    "dbo.TenantDatabaseProvisioningJobs",
 )
 
 
@@ -31,6 +34,10 @@ class TestConsolidatedSystemDdlTb064(unittest.TestCase):
         for table in REQUIRED_TABLES:
             with self.subTest(table=table):
                 self.assertIn(f"CREATE TABLE {table}", ddl)
+
+        for table in REMOVED_TABLES:
+            with self.subTest(removed=table):
+                self.assertNotIn(f"CREATE TABLE {table}", ddl)
 
     def test_tb_064_startup_runs_system_bootstrap_after_run_system(self) -> None:
         text = STARTUP.read_text(encoding="utf-8")
