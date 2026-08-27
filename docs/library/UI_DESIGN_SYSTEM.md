@@ -274,6 +274,19 @@ Carbon and Fluent both enforce **one filled primary action** per viewport. This 
 
 **Out of scope here:** Marketing/auth/help CTAs; Vitest dual-primary guard (**TB-1544** — extend from `operator-primary-cta-inventory.ts`).
 
+**Home first-viewport composition (operator `/`):**
+
+Home is a **command center**, not a checklist hub. Multiple standards contracts (primary CTA **TB-1539**, visible buttons **TB-2168**, empty states **TB-1552**, inline links **TB-1671**, canonical next-action **TB-2232**) must **compose** — not each add their own chrome object in the first viewport.
+
+| Rule | Required behavior |
+|------|-------------------|
+| One primary | Exactly one filled primary in the hero/command-center slot — resume draft **or** start-first-review, never both as competing filled buttons. |
+| No shell strip on Home | Do not mount `PersistentWorkspaceNextActionStrip` or `RecentReviewsResumeStrip` on `/` — first-review progress belongs on onboarding/review surfaces, not Home. |
+| Lifecycle alternatives | When a draft primary owns the viewport, collapse `OperatorHomeDualPathCards` under `OperatorHomeLifecycleAlternativesDisclosure` (“Start something else”, default collapsed). |
+| Navigation demotion | Connect cloud, sample review, and view-record opens use `OPERATOR_LINK` — not outline `Button` — when a page primary exists elsewhere. |
+| Eval phases | `eval-empty` and `eval-with-drafts` use the hero spine only — hide stickiness cockpit, unfinished-work stack, and command-center density stacks. |
+| Vitest guards | `operator-home-primary-cta-composition.test.ts` and `operator-home-primary-guidance-inventory.test.ts` lock the above; extend when adding Home chrome. |
+
 ### Primary action color usage (**TB-2279** — done 2026-08-14)
 
 Extends the operator primary CTA contract (**TB-1539**) and inline link contract (**TB-1671**). Teal fill is for **forward workflow**, not navigation wallpaper.
