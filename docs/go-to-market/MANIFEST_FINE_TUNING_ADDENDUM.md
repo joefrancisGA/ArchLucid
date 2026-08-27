@@ -56,7 +56,7 @@ The feature is **optional**, **OFF by default**, and **separate** from core tena
 ## 5. Audit evidence
 
 - Each export batch writes a row to `dbo.FineTuningTrainingExportAudits` (tenant-scoped).
-- V1 runtime model registry is **`InMemoryFineTunedModelRegistry`** (process-local). Schema table `dbo.FineTunedModelRegistryEntries` is reserved for future SQL registry parity and is not written by application code yet.
+- V1 runtime model registry is **`InMemoryFineTunedModelRegistry`** (process-local). Reserved table `dbo.FineTunedModelRegistryEntries` was dropped in migration **326** (never written).
 
 ---
 

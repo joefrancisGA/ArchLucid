@@ -3,6 +3,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
@@ -30,7 +31,9 @@ public sealed class PolicyPacksControllerSetAssignmentEnabledScopeTests
             workflow.Object,
             new CreatePolicyPackRequestValidator(),
             new PublishPolicyPackVersionRequestValidator(),
-            new AssignPolicyPackRequestValidator())
+            new AssignPolicyPackRequestValidator(),
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<ITenantRepository>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

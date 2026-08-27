@@ -410,3 +410,8 @@
 {"at":"2026-08-26T22:13:07.991188Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-26T23:27:58.0115097Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-26T22:46:48.7285673Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-27T00:16:56.6427403Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-27T00:08:35.1974896Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-27T00:22:53.6533337Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-08-27T00:33:26.7696640Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-27T00:40:51.8743432Z","zoneId":"context-ingestion","outcome":"hit"}

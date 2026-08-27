@@ -103,6 +103,7 @@ GO
 /* ---- Manifest / evidence ---- */
 /* dbo.GoldenManifestVersions removed — ADR 0030 PR A4 (migration 111). Coordinator-shaped manifests persist via dbo.GoldenManifests. */
 /* dbo.DecisionTraces removed — migration 296; authority rule audits persist via dbo.DecisioningTraces. */
+/* dbo.FineTunedModelRegistryEntries removed — migration 326 (reserved, never written; V1 uses InMemoryFineTunedModelRegistry). */
 
 IF OBJECT_ID(N'dbo.EvidenceBundles', N'U') IS NULL
 BEGIN

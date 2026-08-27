@@ -23,7 +23,7 @@ Establish a clear **cut line** between **system-plane** and **tenant-plane** dat
 
 | Table family | Plane | Notes |
 |--------------|--------|--------|
-| `TenantDatabaseBindings`, `TenantDatabaseProvisioningJobs` | **System** | Routing, provisioning lifecycle, no tenant `TenantId` FK to product tables. |
+| `TenantDatabaseBindings` | **System** | Routing and provisioning state; no tenant `TenantId` FK to product tables. Unused `TenantDatabaseProvisioningJobs` dropped in **System/004**. |
 | `dbo.Tenants` (authoritative directory columns) | **System** | Slug uniqueness, suspension for routing, tier for commercial filter, list-all-tenants admin paths. |
 | `dbo.Tenants` (mirror row) | **Tenant** | Same `Id` as system; satisfies FKs for workspace, trial seats, lifecycle transitions, billing ledger, SCIM-local linkage. Synced at provisioning (insert mirror after migrate) and on key catalog mutations where required. |
 | `TenantWorkspaces` | **Tenant** | Product scope; RLS by `TenantId`. |

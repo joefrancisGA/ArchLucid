@@ -59,7 +59,6 @@
     "dbo.AiUsageEvents",
     "dbo.ArchitectureIntelligenceSources",
     "dbo.ArchitectureKnowledgeModels",
-    "dbo.FineTunedModelRegistryEntries",
     "dbo.IdempotencyRecords",
     "dbo.LlmDailyTenantTokenWindowState",
     "dbo.LlmJudgeDailyTenantTokenWindowState",

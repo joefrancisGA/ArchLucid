@@ -3,20 +3,15 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
-import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import { useGovernanceDashboardQuery } from "@/hooks/use-governance-dashboard-query";
-import { useGovernanceDecisionsNeededSummaryQuery } from "@/hooks/use-governance-decisions-needed-summary-query";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -36,10 +31,6 @@ import {
   GOVERNANCE_OVERVIEW_FINDINGS_ACTION,
   GOVERNANCE_OVERVIEW_IDLE_WORKSPACE_HINT,
   GOVERNANCE_OVERVIEW_LAST_REFRESHED_PREFIX,
-  GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION,
-  GOVERNANCE_OVERVIEW_LOAD_REVIEW_DISABLED_HINT,
-  GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_LEAD,
-  GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_TITLE,
   GOVERNANCE_OVERVIEW_METRIC_WINDOW_LABEL,
   GOVERNANCE_OVERVIEW_NO_PENDING_DESCRIPTION,
   GOVERNANCE_OVERVIEW_NO_PENDING_TITLE,
@@ -62,15 +53,12 @@ import {
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
-import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";
 import { whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
-import {
-  buildGovernanceOverviewSummaryMetrics,
-  type GovernanceOverviewBlockingFindingsBreakdown,
-  type GovernanceOverviewSummaryMetrics,
-} from "./governance-overview-summary";
+import type { GovernanceOverviewBlockingFindingsBreakdown } from "./governance-overview-summary";
 import { GovernanceOverviewWorkflowStrip } from "./GovernanceOverviewWorkflowStrip";
 import type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
+import { GovernanceOverviewLoadReviewSection } from "./GovernanceOverviewLoadReviewSection";
+import { useGovernanceOverviewLoadState } from "./use-governance-overview-load-state";
 
 export type GovernanceOverviewPanelProps = {
   readonly buyerPolishedShell: boolean;
@@ -83,15 +71,6 @@ export type GovernanceOverviewPanelProps = {
   readonly listsLoading: boolean;
   readonly hubScopedRunId?: string;
 };
-
-type OverviewLoadState =
-  | { readonly status: "loading" }
-  | {
-      readonly status: "ready";
-      readonly dashboard: GovernanceDashboardSummary;
-      readonly metrics: GovernanceOverviewSummaryMetrics;
-    }
-  | { readonly status: "error"; readonly failure: ApiLoadFailureState };
 
 function summaryMetricAccessibleName(label: string, value: number, destination: string): string {
   return `${label}: ${finiteIntegerCountDisplay(value)}. Go to ${destination}.`;
@@ -196,141 +175,31 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
   const overviewClearScopeHref = governanceApprovalQueueHref(null);
 
   const pendingSectionRef = useRef<HTMLElement | null>(null);
-  const dashboardQuery = useGovernanceDashboardQuery();
-  const decisionsQuery = useGovernanceDecisionsNeededSummaryQuery();
+  const { loadState, lastRefreshedAt, summaryRefreshing, retryOverview, workspaceIsIdle } =
+    useGovernanceOverviewLoadState();
+
   const submitDisabledReason =
     queryRunId.trim().length === 0 ? whyDisabledIncompleteInput(GOVERNANCE_OVERVIEW_SUBMIT_DISABLED_HINT) : null;
-
-  const loadState = useMemo((): OverviewLoadState => {
-    if (dashboardQuery.isPending || decisionsQuery.isPending) {
-      return { status: "loading" };
-    }
-
-    if (dashboardQuery.isError) {
-      return { status: "error", failure: toApiLoadFailure(dashboardQuery.error) };
-    }
-
-    if (decisionsQuery.isError) {
-      return { status: "error", failure: toApiLoadFailure(decisionsQuery.error) };
-    }
-
-    if (dashboardQuery.data === undefined || decisionsQuery.data === undefined) {
-      return { status: "loading" };
-    }
-
-    return {
-      status: "ready",
-      dashboard: dashboardQuery.data,
-      metrics: buildGovernanceOverviewSummaryMetrics(dashboardQuery.data, decisionsQuery.data),
-    };
-  }, [
-    dashboardQuery.data,
-    dashboardQuery.error,
-    dashboardQuery.isError,
-    dashboardQuery.isPending,
-    decisionsQuery.data,
-    decisionsQuery.error,
-    decisionsQuery.isError,
-    decisionsQuery.isPending,
-  ]);
-
-  const lastRefreshedAt = useMemo((): Date | null => {
-    const dashboardUpdatedAt = dashboardQuery.dataUpdatedAt;
-    const decisionsUpdatedAt = decisionsQuery.dataUpdatedAt;
-    const timestamps = [dashboardUpdatedAt, decisionsUpdatedAt].filter((value) => value > 0);
-
-    if (timestamps.length === 0) {
-      return null;
-    }
-
-    return new Date(Math.max(...timestamps));
-  }, [dashboardQuery.dataUpdatedAt, decisionsQuery.dataUpdatedAt]);
-
-  const summaryRefreshing = dashboardQuery.isFetching || decisionsQuery.isFetching;
-
-  const retryOverview = (): void => {
-    void dashboardQuery.refetch();
-    void decisionsQuery.refetch();
-  };
 
   const scrollToPending = (): void => {
     onFocusPending();
     pendingSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const loadReviewDisabled = listsLoading || queryRunId.trim().length === 0;
   const reviewSelected = queryRunId.trim().length > 0;
-  const workspaceIsIdle =
-    loadState.status === "ready" &&
-    loadState.metrics.pendingApprovalRequests === 0 &&
-    loadState.metrics.approvedReviewPackages === 0 &&
-    loadState.metrics.blockingFindingsTotal === 0 &&
-    loadState.metrics.recentDecisions === 0 &&
-    loadState.metrics.policyActivations === 0;
 
   return (
     <div className={cn("mb-8", OPERATOR_LAYOUT.sectionStack)} data-testid="governance-overview-panel">
-      <section
-        aria-labelledby="governance-overview-load-review-heading"
-        className="rounded-md border border-neutral-200 bg-white px-3 py-3 dark:border-neutral-800 dark:bg-neutral-950/40"
-        data-testid="governance-overview-load-review-section"
-      >
-        <h2 id="governance-overview-load-review-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_TITLE}
-        </h2>
-        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_LEAD}
-        </p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-          {hubScopedRunFilterActive ? (
-            <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="governance-overview-run-scope-banner"
-            >
-              {"Overview scoped to review "}
-              <span className="font-mono text-al-text-primary">{hubScopedRunIdTrimmed}</span>
-              {" · "}
-              <Link className={OPERATOR_LINK.inline} href={overviewClearScopeHref}>
-                Clear review scope
-              </Link>
-              {" · "}
-              <Link
-                className={OPERATOR_LINK.inline}
-                href={`/architecture/reviews/${encodeURIComponent(hubScopedRunIdTrimmed)}`}
-              >
-                Open review
-              </Link>
-            </p>
-          ) : (
-            <RunIdPicker
-              inputId="governance-overview-run"
-              label="Review"
-              placeholder="Select a review from the list"
-              value={queryRunId}
-              useBuyerFacingRunLabels={buyerPolishedShell}
-              onChange={setQueryRunId}
-              preferAutoPick={false}
-            />
-          )}
-          <div className="space-y-1">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              data-testid="governance-overview-load-review"
-              disabled={loadReviewDisabled}
-              onClick={onLoadReview}
-            >
-              {listsLoading ? "Loading…" : GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION}
-            </Button>
-            {loadReviewDisabled && !listsLoading ? (
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-overview-load-review-hint">
-                {GOVERNANCE_OVERVIEW_LOAD_REVIEW_DISABLED_HINT}
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </section>
+      <GovernanceOverviewLoadReviewSection
+        buyerPolishedShell={buyerPolishedShell}
+        queryRunId={queryRunId}
+        setQueryRunId={setQueryRunId}
+        onLoadReview={onLoadReview}
+        listsLoading={listsLoading}
+        hubScopedRunIdTrimmed={hubScopedRunIdTrimmed}
+        hubScopedRunFilterActive={hubScopedRunFilterActive}
+        overviewClearScopeHref={overviewClearScopeHref}
+      />
 
       {reviewSelected ? (
       <section aria-labelledby="governance-overview-summary-heading">
