@@ -25,6 +25,11 @@ public sealed partial class GovernanceStickinessController
         if (maxRowsProblem is not null)
             return maxRowsProblem;
 
+        IActionResult? projectIdProblem = ValidateQueryProjectId(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -46,6 +51,11 @@ public sealed partial class GovernanceStickinessController
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? projectIdProblem = ValidateQueryProjectId(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -85,6 +95,11 @@ public sealed partial class GovernanceStickinessController
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? projectIdProblem = ValidateQueryProjectId(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -116,6 +131,11 @@ public sealed partial class GovernanceStickinessController
 
         if (maxRowsProblem is not null)
             return maxRowsProblem;
+
+        IActionResult? projectIdProblem = ValidateQueryProjectId(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -158,6 +178,11 @@ public sealed partial class GovernanceStickinessController
 
         if (filterProblem is not null)
             return filterProblem;
+
+        IActionResult? projectIdProblem = ValidateQueryProjectId(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

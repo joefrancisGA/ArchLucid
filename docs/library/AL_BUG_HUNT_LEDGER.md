@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 81
-- **bugs-found:** 218
+- **hunts:** 82
+- **bugs-found:** 219
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — bulk dry-run empty-guid run id arrays return 400
+- **last-bug:** 2026-08-27 — governance register reads empty-guid projectId query returns 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2505,6 +2505,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.SimulateBulk` / `GovernanceController.DryRunPolicyPack` — non-empty `runIds` / `evaluateAgainstRunIds` arrays containing only `00000000-0000-0000-0000-000000000000` passed whitespace guard and returned HTTP 200 batch summary instead of HTTP 400 — **hit 2026-08-27:** `PolicyPackRequestValidationRules.IsUsableRunId` rejects empty guid after trim (whitespace-only batch parity); regression in `PolicyPacksControllerSimulateBulkScopeTests` and `GovernanceControllerSimulateTests`.
 
 2026-08-27 seed hunt #164: proved bulk dry-run empty-guid run id array validation.
+
+- [x] (proven) `GovernancePostureController.GetPosture` / `GovernanceStickinessController` register reads — explicit `projectId = 00000000-0000-0000-0000-000000000000` query passed `GovernanceQueryProjectScope.TryResolve` out-of-scope path and returned HTTP 200 empty payload instead of HTTP 400 — **hit 2026-08-27:** `GovernanceQueryRequestValidationRules.IsUsableProjectId` rejects empty guid before scope resolve (empty-run parity); regression in `GovernancePostureControllerTests` and `GovernanceStickinessControllerTests`.
+
+2026-08-27 seed hunt #165: proved governance register read empty-guid projectId query validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

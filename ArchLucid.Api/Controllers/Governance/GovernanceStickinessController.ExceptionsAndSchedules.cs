@@ -65,6 +65,11 @@ public sealed partial class GovernanceStickinessController
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? projectIdProblem = ValidateQueryProjectId(projectId);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

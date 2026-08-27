@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Governance.Posture;
@@ -45,6 +46,9 @@ public sealed class GovernancePostureController(
 
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        if (!GovernanceQueryRequestValidationRules.IsUsableProjectId(projectId))
+            return this.BadRequestProblem("projectId must not be an empty GUID.", ProblemTypes.ValidationFailed);
 
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return Ok(new ArchitecturePostureSummary());

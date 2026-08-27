@@ -213,6 +213,36 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetRiskRegister_returns_bad_request_when_project_id_is_empty_guid()
+    {
+        Mock<IArchitectureRiskRegisterService> riskRegister = new(MockBehavior.Strict);
+        GovernanceStickinessController sut = BuildSut(riskRegister: riskRegister);
+
+        IActionResult action = await sut.GetRiskRegister(
+            projectId: Guid.Empty,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskRegister.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ListRiskExceptions_returns_bad_request_when_project_id_is_empty_guid()
+    {
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+        GovernanceStickinessController sut = BuildSut(riskExceptions: riskExceptions);
+
+        IActionResult action = await sut.ListRiskExceptions(
+            projectId: Guid.Empty,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetRiskRegister_returns_bad_request_when_max_rows_is_zero()
     {
         Mock<IArchitectureRiskRegisterService> riskRegister = new(MockBehavior.Strict);
