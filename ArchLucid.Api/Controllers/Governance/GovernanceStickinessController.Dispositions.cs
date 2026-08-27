@@ -33,6 +33,8 @@ public sealed partial class GovernanceStickinessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        findingId = NormalizeFindingId(findingId);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -97,6 +99,13 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.FindingIds.Count > 50)
+        {
+            return this.BadRequestProblem(
+                "At most 50 finding ids are allowed per request.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -120,6 +129,8 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(IReadOnlyList<FindingDispositionEventDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListDispositions(string findingId, CancellationToken cancellationToken = default)
     {
+        findingId = NormalizeFindingId(findingId);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -146,6 +157,8 @@ public sealed partial class GovernanceStickinessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        findingId = NormalizeFindingId(findingId);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -169,4 +182,6 @@ public sealed partial class GovernanceStickinessController
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
     }
+
+    private static string NormalizeFindingId(string findingId) => findingId.Trim();
 }

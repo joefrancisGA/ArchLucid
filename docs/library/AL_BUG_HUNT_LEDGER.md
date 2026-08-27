@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 61
-- **bugs-found:** 187
+- **hunts:** 62
+- **bugs-found:** 189
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — bulk-disposition whitespace + dry-run 50-run cap parity
+- **last-bug:** 2026-08-27 — bulk-disposition 50-id cap + disposition route findingId trim parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2430,7 +2430,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — more than 50 `evaluateAgainstRunIds` silently truncated to service max instead of HTTP 400 — **hit 2026-08-27:** reject when count exceeds 50 (`PolicyPacksController.SimulateBulk` cap parity); regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_returns_bad_request_when_more_than_fifty_evaluate_against_run_ids`.
 - [x] (invalid) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — ghost tenant returns HTTP 200 preview payload while sibling mutations return tenant 404 — **cheap-disproof 2026-08-27:** re-verify confirms static cron preview with no tenant-scoped persistence (ledger hunt #133 row above).
 
-2026-08-27 thorough hunt #144: proved bulk-disposition whitespace upfront validation and dry-run 50-run cap parity; cheap-disproved pilot inverted-date and recurrence-preview ghost-tenant re-verify candidates.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — more than 50 `findingIds` accepted and iterated in facade instead of HTTP 400 — **hit 2026-08-27:** reject when count exceeds 50 (`BatchReviewApprovalRequests` cap parity); regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_more_than_fifty_finding_ids`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `ListDispositions` / `ResolveFindingMergeConflict` — padded route `findingId` values failed scope lookup and returned HTTP 404 though trimmed id was in scope — **hit 2026-08-27:** `NormalizeFindingId` trim before facade/repository (scoped-run trim parity); regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_ok_when_route_finding_id_is_padded`.
+- [ ] (candidate) `GovernanceController.GetDashboard` — `maxPending` / `maxDecisions` / `maxChanges` lack an upper bound and forward unbounded `Take` values to repositories (batch-cap parity with approval review / simulate-bulk).
+- [ ] (candidate) `GovernancePreCommitSimulationController.SimulateAsync` — whitespace-only `runId` returns HTTP 400 via parse failure instead of explicit empty-run guard (`GetChecklist` whitespace parity).
+
+2026-08-27 seed hunt #145: proved bulk-disposition 50-id cap and disposition route findingId trim parity; seeded dashboard max-query and pre-finalize simulate whitespace candidates.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 
