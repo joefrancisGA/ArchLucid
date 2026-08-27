@@ -152,6 +152,7 @@ describe("HelpApiContractsGuideView (HG)", () => {
     expect(screen.getByTestId("help-api-contracts-content")).toHaveAttribute("tabindex", "-1");
     expect(screen.getByTestId("help-technical-reference-toc")).toBeInTheDocument();
     expect(screen.getByTestId("help-api-contracts-major-sections")).toBeInTheDocument();
+    expect(screen.getByTestId("help-api-contracts-major-sections").innerHTML).not.toMatch(/bg-teal-|border-teal-/);
     expect(screen.getByTestId("help-api-contracts-job-matrix")).toBeInTheDocument();
     expect(screen.getByTestId("help-api-contracts-job-matrix-current")).toHaveTextContent(
       API_CONTRACTS_HELP_PAGE_TITLE,

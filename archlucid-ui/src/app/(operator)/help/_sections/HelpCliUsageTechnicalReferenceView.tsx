@@ -98,10 +98,7 @@ export function HelpCliUsageTechnicalReferenceView(
               <li key={section.id}>
                 <a
                   href={`#${section.id}`}
-                  className={cn(
-                    "inline-flex rounded-full border border-neutral-300 bg-white px-3 py-1 text-sm no-underline transition-colors hover:border-teal-600/40 hover:bg-teal-50/40 dark:border-neutral-700 dark:bg-neutral-950 dark:hover:border-teal-600/40 dark:hover:bg-teal-950/20",
-                    DESIGN_TOKENS.accent.link,
-                  )}
+                  className={cn(HELP_PAGE_LAYOUT.referenceTagPill, DESIGN_TOKENS.accent.link)}
                 >
                   {section.title}
                 </a>

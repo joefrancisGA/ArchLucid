@@ -87,6 +87,7 @@ describe("HelpCliUsageTechnicalReferenceView", () => {
     expect(screen.getByTestId("help-cli-usage-reference-content")).toHaveClass("lg:max-w-[52rem]");
     expect(screen.getByTestId("help-technical-reference-toc")).toBeInTheDocument();
     expect(screen.getByTestId("help-cli-usage-major-groups")).toBeInTheDocument();
+    expect(screen.getByTestId("help-cli-usage-major-groups").innerHTML).not.toMatch(/bg-teal-|border-teal-/);
   });
 
   it("does not use prohibited day-one developer audience positioning", () => {
