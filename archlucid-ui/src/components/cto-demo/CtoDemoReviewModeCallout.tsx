@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
 
 export type CtoDemoReviewExecutionMode = "simulator" | "live";
 
@@ -22,7 +22,7 @@ export function CtoDemoReviewModeCallout(props: CtoDemoReviewModeCalloutProps): 
           type="button"
           className={cn("rounded-full border px-3 py-1 font-medium", OPERATOR_TYPOGRAPHY.helper,
             !isLive
-              ? "border-teal-300 bg-teal-50 text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100"
+              ? OPERATOR_SELECTION.tile
               : "border-neutral-200 bg-white text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
           )}
           aria-pressed={!isLive}
@@ -36,7 +36,7 @@ export function CtoDemoReviewModeCallout(props: CtoDemoReviewModeCalloutProps): 
           type="button"
           className={cn("rounded-full border px-3 py-1 font-medium", OPERATOR_TYPOGRAPHY.helper,
             isLive
-              ? "border-teal-300 bg-teal-50 text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100"
+              ? OPERATOR_SELECTION.tile
               : "border-neutral-200 bg-white text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
           )}
           aria-pressed={isLive}

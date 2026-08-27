@@ -109,7 +109,7 @@ export function ScopeSwitcherPanelBody(props: ScopeSwitcherPanelBodyProps) {
             <p className={cn("m-0 min-w-0 flex-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {sampleFullTitle}
             </p>
-            <span className={cn("shrink-0 rounded border border-teal-200 bg-teal-50 px-1.5 py-0.5 font-semibold uppercase tracking-wide text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
+            <span className={cn("shrink-0 rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-semibold uppercase tracking-wide text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-100", OPERATOR_NAV_GROUP_LABEL)}>
               Sample
             </span>
           </div>

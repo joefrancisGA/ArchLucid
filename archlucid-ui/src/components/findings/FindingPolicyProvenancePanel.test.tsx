@@ -61,7 +61,7 @@ describe("FindingPolicyProvenancePanel", () => {
     );
 
     expect(screen.getByText(/Triggered by policy/)).toBeInTheDocument();
-    expect(screen.getByTestId("finding-policy-provenance-panel")).toHaveClass("border-teal-300/80");
+    expect(screen.getByTestId("finding-policy-provenance-panel")).toHaveClass("border-neutral-200");
   });
 
   it("returns null when no provenance is available", () => {

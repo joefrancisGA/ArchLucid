@@ -21,7 +21,7 @@ import {
   severityKindFromNumericValue,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureFindingsDualPaneProps = {
@@ -112,7 +112,7 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
       {selectionSync !== null ? (
         <p
           className={cn(
-            "m-0 rounded-md border border-teal-200 bg-teal-50/80 px-3 py-2 text-teal-900 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100",
+            "m-0 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-100",
             OPERATOR_TYPOGRAPHY.helper,
           )}
           role="status"
@@ -170,7 +170,7 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
                       className={cn(
                         "w-full rounded-md border px-3 py-2 text-left transition-colors",
                         active
-                          ? "border-teal-600 bg-teal-50 ring-2 ring-teal-600/30 dark:border-teal-400 dark:bg-teal-950/50"
+                          ? OPERATOR_SELECTION.tile
                           : "border-neutral-200 bg-white hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900",
                       )}
                       aria-pressed={active}
@@ -186,7 +186,7 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
                         />
                         {sync.matchedNodeLabel !== null ? (
                           <span
-                            className={cn("text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}
+                            className={cn("text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}
                             data-testid={`architecture-findings-dual-pane-finding-node-${finding.findingId}`}
                           >
                             {sync.matchedNodeLabel}

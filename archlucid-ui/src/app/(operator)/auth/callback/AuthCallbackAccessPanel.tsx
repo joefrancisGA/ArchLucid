@@ -221,7 +221,7 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
               name="note"
               rows={3}
               className={cn(
-                "min-h-[5rem] w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-al-text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:border-neutral-700 dark:bg-neutral-950",
+                "min-h-[5rem] w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-al-text-primary shadow-sm focus-visible:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950",
                 OPERATOR_TYPOGRAPHY.body,
               )}
               value={form.note}

@@ -119,7 +119,7 @@ export function CtoDemoFastCreatePanel(): ReactElement {
   const progressPercent = Math.min(100, Math.round((elapsedMs / CTO_DEMO_FAST_CREATE_TOTAL_MS) * 100));
 
   return (
-    <Card data-testid="cto-demo-fast-create-panel" className="border-teal-200/70 dark:border-teal-900/40">
+    <Card data-testid="cto-demo-fast-create-panel" className="border-neutral-200 dark:border-neutral-700">
       <CardHeader className="pb-2">
         <CardTitle className={OPERATOR_TYPOGRAPHY.body}>Live create (demo)</CardTitle>
         <CardDescription>

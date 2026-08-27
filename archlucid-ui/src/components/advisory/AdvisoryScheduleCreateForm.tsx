@@ -468,7 +468,7 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
             testId={mutationDisabledHintId}
           />
           {props.createSuccess ? (
-            <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)} role="status">
+            <p className={cn("m-0 text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} role="status">
               Schedule created.
             </p>
           ) : null}

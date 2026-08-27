@@ -190,7 +190,7 @@ export function SettingsRolesPrincipalTable({ rows, tableContext = "users", onRo
                     </span>
                   ) : null}
                   {saveState === "saved" ? (
-                    <span className={cn("text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)} data-testid={`settings-roles-save-status-${key}`}>
+                    <span className={cn("text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)} data-testid={`settings-roles-save-status-${key}`}>
                       Saved
                     </span>
                   ) : null}

@@ -6,7 +6,7 @@ import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 export const ACCESSIBILITY_PUBLIC_LAYOUT = {
   page: "accessibility-public-page w-full",
   skipLink:
-    "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-neutral-900 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-600 dark:focus:bg-neutral-950 dark:focus:text-neutral-50",
+    "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-neutral-900 focus:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:focus:bg-neutral-950 dark:focus:text-neutral-50",
   header: "border-b border-neutral-200 pb-8 dark:border-neutral-800 print:border-neutral-300",
   title: cn(MARKETING_TYPOGRAPHY.pageTitle, "text-balance text-al-text-primary"),
   lede: cn("mt-3 max-w-3xl text-balance text-al-text-secondary", MARKETING_TYPOGRAPHY.body),

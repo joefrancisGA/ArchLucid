@@ -29,8 +29,8 @@ export function CtoDemoSegregationCallout(): React.JSX.Element | null {
     <div
       role="note"
       data-testid="cto-demo-segregation-callout"
-      className={cn("mb-4 rounded-md border border-teal-200/70 bg-teal-50/80 px-4 py-3 text-teal-950 print:hidden", OPERATOR_TYPOGRAPHY.body,
-        "dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-teal-100",
+      className={cn("mb-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-3 text-al-text-primary print:hidden", OPERATOR_TYPOGRAPHY.body,
+        "dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-100",
       )}
     >
       <p className={cn("m-0 font-semibold", OPERATOR_TYPE_SCALE.cardTitle)}>{BUYER_CTO_DEMO_SEGREGATION_CALLOUT_HEADING}</p>

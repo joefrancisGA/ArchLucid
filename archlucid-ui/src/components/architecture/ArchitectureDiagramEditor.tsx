@@ -143,7 +143,7 @@ export function ArchitectureDiagramEditor(props: ArchitectureDiagramEditorProps)
                               "text-left underline underline-offset-2",
                               isActive
                                 ? "font-semibold text-neutral-900 dark:text-neutral-100"
-                                : "text-teal-800 dark:text-teal-300",
+                                : "text-al-text-secondary dark:text-neutral-300",
                             )}
                             onClick={() => props.onActivateVersion(version.versionId)}
                           >

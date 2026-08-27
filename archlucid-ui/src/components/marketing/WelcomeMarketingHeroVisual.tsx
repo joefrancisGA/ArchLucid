@@ -12,7 +12,7 @@ export function WelcomeMarketingHeroVisual(): React.JSX.Element {
       href={WELCOME_SEE_IT_HREF}
       className={cn(
         "group block rounded-lg border border-neutral-200 bg-al-surface-raised text-left shadow-sm transition-shadow hover:shadow-md",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]",
         "dark:border-neutral-700 dark:bg-neutral-900",
         MARKETING_MOTION.heroVisual,
       )}

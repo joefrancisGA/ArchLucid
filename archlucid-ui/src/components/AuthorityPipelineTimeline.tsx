@@ -19,7 +19,7 @@ function timelineStatusIcon(eventType: string): ReactNode {
   if (isTimelineMilestoneEvent(eventType)) {
     return (
       <CheckCircle2
-        className="size-4 shrink-0 text-teal-600 dark:text-teal-400"
+        className="size-4 shrink-0 text-neutral-600 dark:text-neutral-400"
         aria-hidden
       />
     );

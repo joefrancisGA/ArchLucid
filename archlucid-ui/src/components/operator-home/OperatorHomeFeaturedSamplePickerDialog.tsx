@@ -89,7 +89,7 @@ export function OperatorHomeFeaturedSamplePickerDialog(
                 <button
                   type="button"
                   className={cn(
-                    "w-full rounded-md border border-neutral-200 p-3 text-left transition hover:border-teal-700/40 dark:border-neutral-800",
+                    "w-full rounded-md border border-neutral-200 p-3 text-left transition hover:border-neutral-400 dark:border-neutral-800",
                     saveMutation.isPending && "pointer-events-none opacity-60",
                   )}
                   data-testid={`operator-home-featured-sample-option-${candidate.runId}`}

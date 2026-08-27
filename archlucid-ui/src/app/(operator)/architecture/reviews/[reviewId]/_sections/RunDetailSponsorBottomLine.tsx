@@ -18,7 +18,7 @@ export function RunDetailSponsorBottomLine(props: RunDetailSponsorBottomLineProp
 
   if (content.kind === "narrative") {
     return (
-      <Card className="border-l-4 border-l-teal-600 dark:border-l-teal-500">
+      <Card className="border-l-4 border-l-neutral-700 dark:border-l-neutral-400">
         <CardHeader className={OPERATOR_CARD.header}>
         <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Additional context
@@ -32,7 +32,7 @@ export function RunDetailSponsorBottomLine(props: RunDetailSponsorBottomLineProp
   }
 
   return (
-    <Card className="border-l-4 border-l-teal-600 dark:border-l-teal-500">
+    <Card className="border-l-4 border-l-neutral-700 dark:border-l-neutral-400">
       <CardHeader className={OPERATOR_CARD.header}>
         <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Key decision considerations

@@ -70,7 +70,7 @@ export function ArchitectureManifestUnifiedDiffView(props: ArchitectureManifestU
         <span className="font-medium text-neutral-800 dark:text-neutral-200">{props.updatedLabel}</span>
       </p>
       <div
-        className="max-h-[min(70vh,36rem)] overflow-auto overscroll-contain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+        className="max-h-[min(70vh,36rem)] overflow-auto overscroll-contain focus-visible:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:focus-visible:ring-offset-neutral-900"
         tabIndex={0}
         role="region"
         aria-label="Unified line diff of baseline and updated review record JSON"

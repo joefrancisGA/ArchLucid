@@ -64,7 +64,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   const operatorSummary =
     summary.operatorSummary ? (
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3">
-        <p className={cn("m-0 font-medium leading-relaxed text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 font-medium leading-relaxed text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
           {summary.operatorSummary}
         </p>
       </div>
@@ -335,7 +335,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           data-testid="manifest-buyer-bundle-download"
         >
           <summary className={cn(
-            "cursor-pointer select-none px-3 py-2 outline-none marker:text-neutral-500 focus-visible:ring-2 focus-visible:ring-teal-500/80 dark:text-neutral-100",
+            "cursor-pointer select-none px-3 py-2 outline-none marker:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:text-neutral-100",
             OPERATOR_DISCLOSURE_TRIGGER_CLASS,
           )}>
             {BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY}

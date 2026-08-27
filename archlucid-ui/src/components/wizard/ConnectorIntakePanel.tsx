@@ -175,7 +175,7 @@ export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
         </div>
       ) : null}
       {success !== null ? (
-        <p className={cn("mt-3 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)} data-testid="connector-intake-success">
+        <p className={cn("mt-3 text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="connector-intake-success">
           {success}
         </p>
       ) : null}

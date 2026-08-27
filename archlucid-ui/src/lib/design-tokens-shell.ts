@@ -73,11 +73,26 @@ export const OPERATOR_CARD = {
   /** Nested raised surface inside a card (metrics, run rows, empty states). */
   nested: "p-3",
   /** Lifecycle path card that matches the current workspace phase (left accent only). */
-  lifecycleEmphasized:
-    "border-l-4 border-l-teal-700 dark:border-l-teal-500",
+  lifecycleEmphasized: "border-l-4 border-l-neutral-700 dark:border-l-neutral-400",
   /** Grouped examples / learning resources below workspace activity. */
   learningResourcesSurface:
     "rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/50",
+} as const;
+
+/** Neutral resume / continue-last-viewed strips (TB-2092 operator sweep). */
+export const OPERATOR_RESUME = {
+  strip: "rounded-lg border border-neutral-200 bg-neutral-50/80 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40",
+  stripSpaced: "mb-4 rounded-lg border border-neutral-200 bg-neutral-50/80 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40",
+  stripCompact: "mb-1 rounded-lg border border-neutral-200 bg-neutral-50/80 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40",
+  stripCelebrate: "mb-3 rounded-lg border border-neutral-200 bg-neutral-50/80 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40",
+  stripPadded: "rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40",
+} as const;
+
+/** Neutral selected-tile emphasis for pickers and wizards (TB-2092 operator sweep). */
+export const OPERATOR_SELECTION = {
+  tile:
+    "border-neutral-500 bg-al-surface-raised ring-1 ring-neutral-400 dark:border-neutral-500 dark:ring-neutral-500",
+  row: "border-neutral-500 bg-al-surface-raised dark:border-neutral-500",
 } as const;
 
 /** Tailwind class bundles for layout and surfaces (operator shell). */

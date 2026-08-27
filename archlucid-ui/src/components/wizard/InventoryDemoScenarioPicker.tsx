@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
 
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import {
@@ -39,7 +39,7 @@ export function InventoryDemoScenarioPicker(props: InventoryDemoScenarioPickerPr
             className={cn(
               "rounded-md border p-3 text-left transition-colors",
               selected
-                ? "border-teal-700 bg-neutral-50 ring-1 ring-teal-700 dark:border-teal-500 dark:bg-neutral-900/60 dark:ring-teal-500"
+                ? OPERATOR_SELECTION.tile
                 : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700",
             )}
             data-testid={`${testIdPrefix}-scenario-${scenario.id}`}

@@ -30,7 +30,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
       className={
         buyerPolishedShell
           ? "rounded-lg border border-neutral-200 bg-white pl-3.5 pr-3 py-2 shadow-sm dark:border-neutral-700 dark:bg-neutral-950"
-          : "rounded-lg border border-neutral-200 border-l-4 border-l-teal-600 bg-white p-3 shadow-sm dark:border-neutral-700 dark:border-l-teal-500 dark:bg-neutral-950"
+          : "rounded-lg border border-neutral-200 border-l-4 border-l-neutral-700 bg-white p-3 shadow-sm dark:border-neutral-700 dark:border-l-neutral-400 dark:bg-neutral-950"
       }
       data-testid="audit-timeline-event-card"
     >

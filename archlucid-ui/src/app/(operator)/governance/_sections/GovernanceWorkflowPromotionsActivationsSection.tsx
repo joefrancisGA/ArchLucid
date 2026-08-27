@@ -213,7 +213,7 @@ export function GovernanceWorkflowPromotionsActivationsSection(
 
       <div className="grid gap-3">
         {activations.map((a) => (
-          <Card key={a.activationId} className="border-l-4 border-l-teal-500">
+          <Card key={a.activationId} className="border-l-4 border-l-neutral-600">
             <CardHeader className="pb-2">
               <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
                 Activation · {formatGovernanceBusinessInstant(a.activatedUtc)}

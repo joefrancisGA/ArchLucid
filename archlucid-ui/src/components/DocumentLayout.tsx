@@ -52,7 +52,7 @@ export function DocumentLayout({ children, tocItems, className }: DocumentLayout
               <li key={item.id}>
                 <a
                   href={`#${item.id}`}
-                  className="text-neutral-600 underline decoration-neutral-300 decoration-1 underline-offset-2 hover:text-teal-800 dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-teal-300"
+                  className="text-neutral-600 underline decoration-neutral-300 decoration-1 underline-offset-2 hover:text-al-text-primary dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-200"
                 >
                   {item.label}
                 </a>

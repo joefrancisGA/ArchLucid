@@ -15,7 +15,7 @@ type NewRunWizardModeToggleProps = {
   readonly onAdvancedOptIn: () => void;
 };
 
-const SELECTED_CLASS = "rounded-md bg-teal-600 px-3 py-1.5 text-white";
+const SELECTED_CLASS = "rounded-md bg-[var(--al-primary-action-bg)] px-3 py-1.5 text-white";
 const UNSELECTED_CLASS =
   "rounded-md px-3 py-1.5 text-neutral-700 ring-1 ring-neutral-300 hover:bg-neutral-100 dark:text-neutral-200 dark:ring-neutral-700 dark:hover:bg-neutral-800";
 
@@ -40,7 +40,7 @@ export function NewRunWizardModeToggle(props: NewRunWizardModeToggleProps): Reac
         <button
           type="button"
           className={cn(
-            "mt-2 rounded-md px-3 py-1.5 text-teal-900 underline decoration-teal-700/40 underline-offset-2 hover:bg-teal-50 dark:text-teal-200 dark:hover:bg-teal-950/40",
+            "mt-2 rounded-md px-3 py-1.5 text-al-text-primary underline decoration-neutral-400 underline-offset-2 hover:bg-neutral-50 dark:text-neutral-100 dark:hover:bg-neutral-900/60",
             OPERATOR_TYPOGRAPHY.button,
           )}
           onClick={props.onAdvancedOptIn}

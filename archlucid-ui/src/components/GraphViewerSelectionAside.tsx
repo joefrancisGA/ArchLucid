@@ -371,7 +371,7 @@ export function GraphViewerSelectionAside({
                   <>
                     {summaryLines.length > 0 ? (
                       <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
-                        <p className={cn("m-0 font-semibold text-teal-700 dark:text-teal-400", OPERATOR_NAV_GROUP_LABEL)}>
+                        <p className={cn("m-0 font-semibold text-al-text-secondary dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
                           At a glance
                         </p>
                         <dl

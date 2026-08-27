@@ -3,7 +3,7 @@
 import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SELECTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { WIZARD_STICKY_PROGRESS_CLASS } from "@/lib/wizard-sticky-progress";
 
 import { SSO_WIZARD_STEPS } from "./sso-wizard-state";
@@ -54,7 +54,7 @@ export function SsoWizardStepper(props: SsoWizardStepperProps): React.JSX.Elemen
                   aria-hidden="true"
                   className={cn(
                     "absolute right-1/2 top-[1.125rem] hidden h-0.5 w-full -translate-y-1/2 sm:block",
-                    isDone || isActive ? "bg-teal-700 dark:bg-teal-500" : "bg-neutral-300 dark:bg-neutral-600",
+                    isDone || isActive ? "bg-neutral-500 dark:bg-neutral-400" : "bg-neutral-300 dark:bg-neutral-600",
                   )}
                 />
               ) : null}
@@ -66,7 +66,7 @@ export function SsoWizardStepper(props: SsoWizardStepperProps): React.JSX.Elemen
                   className={cn(
                     "relative z-[1] flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 font-semibold transition-colors",
                     OPERATOR_TYPOGRAPHY.cardTitle,
-                    "border-teal-700 bg-teal-50 text-teal-900 hover:bg-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100",
+                    "border-neutral-500 bg-neutral-100 text-al-text-primary hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-100",
                   )}
                   aria-label={`${step.label}, completed. Go to step ${stepNumber}.`}
                   data-testid={`sso-wizard-step-button-${index}`}
@@ -80,10 +80,11 @@ export function SsoWizardStepper(props: SsoWizardStepperProps): React.JSX.Elemen
                   className={cn(
                     "relative z-[1] flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 font-semibold transition-colors",
                     OPERATOR_TYPOGRAPHY.cardTitle,
-                    isActive && "border-teal-700 bg-teal-700 text-white shadow-sm dark:border-teal-500 dark:bg-teal-600",
+                    isActive &&
+                      "border-[var(--al-primary-action-bg)] bg-[var(--al-primary-action-bg)] text-white shadow-sm dark:border-[var(--al-primary-action-bg)] dark:bg-[var(--al-primary-action-bg)]",
                     isDone &&
                       !isActive &&
-                      "border-teal-700 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100",
+                      cn(OPERATOR_SELECTION.tile, "border-2 bg-neutral-100 text-al-text-primary dark:bg-neutral-900"),
                     isFuture &&
                       "border-neutral-300 bg-white text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200",
                   )}

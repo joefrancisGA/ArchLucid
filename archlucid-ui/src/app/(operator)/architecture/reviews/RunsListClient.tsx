@@ -126,7 +126,7 @@ export function RunsListClient(props: RunsListClientProps) {
           setFilterText(event.target.value);
         }}
         className={cn(
-          "rounded-md border border-neutral-300 bg-white px-3 py-2 text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+          "rounded-md border border-neutral-300 bg-white px-3 py-2 text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
           OPERATOR_TYPOGRAPHY.body,
           buyerPolished && "w-full max-w-none",
         )}
@@ -165,7 +165,7 @@ export function RunsListClient(props: RunsListClientProps) {
       {listContextFilter === "orphan-candidates" ? (
         <div
           className={cn(
-            "rounded-lg border border-teal-200 bg-teal-50/80 px-4 py-3 text-teal-950 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100",
+            "rounded-lg border border-neutral-200 bg-neutral-50/80 px-4 py-3 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40",
             OPERATOR_TYPOGRAPHY.body,
           )}
           role="status"

@@ -33,7 +33,7 @@ export function MarketingPricingFitMatrix(): React.JSX.Element {
               <th scope="row" className={cn("px-4 py-3 text-left font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.body)}>
                 {row.teamType}
               </th>
-              <td className={cn("px-4 py-3 font-semibold text-teal-800 dark:text-teal-200", MARKETING_TYPOGRAPHY.body)}>
+              <td className={cn("px-4 py-3 font-semibold text-al-text-secondary dark:text-neutral-200", MARKETING_TYPOGRAPHY.body)}>
                 {row.recommendedPlan}
               </td>
             </tr>

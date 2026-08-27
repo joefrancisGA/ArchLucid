@@ -200,7 +200,7 @@ export function AuditPageView(props: AuditPageViewProps) {
           role="status"
           data-testid="cto-demo-audit-filter-banner"
           className={cn(
-            "flex flex-wrap items-center justify-between gap-2 rounded-md border border-teal-200/70 bg-teal-50/80 px-3 py-2 text-teal-950 dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-teal-100",
+            "flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40",
             OPERATOR_TYPOGRAPHY.body,
           )}
         >

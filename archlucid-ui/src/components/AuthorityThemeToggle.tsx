@@ -52,7 +52,7 @@ export function AuthorityThemeToggle() {
       type="button"
       data-testid="authority-theme-toggle"
       className={cn("auth-panel-focus flex h-8 w-8 items-center justify-center rounded-md border border-neutral-200 bg-white transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:bg-neutral-700", OPERATOR_TYPOGRAPHY.body,
-        theme === "charcoal" ? "text-neutral-100 dark:text-neutral-100" : "text-teal-800 dark:text-teal-300",
+        theme === "charcoal" ? "text-neutral-100 dark:text-neutral-100" : "text-al-text-secondary dark:text-neutral-300",
       )}
       aria-label={label}
       onClick={() => setAndPersist(nextTheme)}

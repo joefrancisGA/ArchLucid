@@ -200,7 +200,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
                       applyReviewTemplate(t.id);
                     }}
                     className={cn(
-                      "flex flex-col items-start gap-1 rounded-lg border border-neutral-200/80 bg-white p-3 text-left shadow-sm transition hover:border-teal-600/45 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950/40 dark:hover:border-teal-500/40 dark:hover:bg-neutral-900/60",
+                      "flex flex-col items-start gap-1 rounded-lg border border-neutral-200/80 bg-white p-3 text-left shadow-sm transition hover:border-neutral-400 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950/40 dark:hover:border-neutral-500 dark:hover:bg-neutral-900/60",
                       OPERATOR_TYPOGRAPHY.body,
                     )}
                   >

@@ -303,7 +303,7 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
       {acceptedFileLabel !== null ? (
         <div
           className={cn(
-            "rounded-md border border-teal-700/30 bg-neutral-50 px-3 py-2 text-neutral-800 dark:border-teal-800/40 dark:bg-neutral-900/60 dark:text-neutral-100",
+            "rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100",
             OPERATOR_TYPOGRAPHY.body,
           )}
           data-testid="wizard-azure-zip-ready"

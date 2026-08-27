@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
 import {
   MODEL_EXECUTION_PROFILES,
   modelExecutionProfileDescriptor,
@@ -97,7 +97,7 @@ function ProfileSegmentedControl(props: ProfileSegmentedControlProps) {
             className={cn(
               "rounded-md border p-3 text-left transition-colors",
               selected
-                ? "border-teal-600 bg-teal-50/80 ring-1 ring-teal-600 dark:border-teal-500 dark:bg-teal-950/30 dark:ring-teal-500"
+                ? OPERATOR_SELECTION.tile
                 : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700",
               saving && "cursor-not-allowed opacity-60",
             )}
@@ -192,7 +192,7 @@ export function ProfileControls(props: ProfileControlsProps) {
       ) : null}
 
       {successMessage ? (
-        <p className={cn("m-0 text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.body)} role="status">
+        <p className={cn("m-0 text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} role="status">
           {successMessage}
         </p>
       ) : null}

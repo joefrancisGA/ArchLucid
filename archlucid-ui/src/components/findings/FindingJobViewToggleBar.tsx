@@ -67,7 +67,7 @@ export function FindingJobViewToggleBar(props: FindingJobViewToggleBarProps): Re
             className={cn(
               "rounded-md px-2 py-1 text-sm",
               active
-                ? "bg-teal-800 font-semibold text-white dark:bg-teal-600"
+                ? "bg-neutral-800 font-semibold text-white dark:bg-neutral-600"
                 : "bg-white text-neutral-700 ring-1 ring-neutral-200 hover:bg-neutral-100 dark:bg-neutral-950 dark:text-neutral-200 dark:ring-neutral-700",
             )}
             aria-pressed={active}

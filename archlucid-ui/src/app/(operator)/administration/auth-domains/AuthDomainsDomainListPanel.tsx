@@ -22,7 +22,7 @@ import {
   labelForAuthDomainEnforcementMode,
   labelForAuthDomainVerificationStatus,
 } from "@/lib/auth-domains-enum-labels";
-import { DESIGN_TOKENS, OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { TenantAuthDomainRecord } from "@/lib/admin-auth-domains-api";
 import type { RefObject } from "react";
@@ -156,7 +156,7 @@ export function AuthDomainsDomainListPanel(props: AuthDomainsDomainListPanelProp
                   type="button"
                   className={cn(
                     "w-full rounded-md border px-3 py-2 text-left",
-                    props.selectedDomain === row.normalizedDomain ? "border-teal-700 bg-al-surface-raised" : "border-neutral-200",
+                    props.selectedDomain === row.normalizedDomain ? OPERATOR_SELECTION.row : "border-neutral-200",
                   )}
                   onClick={() => {
                     writeAuthDomainLastViewedId(row.normalizedDomain);

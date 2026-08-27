@@ -34,7 +34,7 @@ export function FindingPolicyCitationProminentStrip(
   return (
     <div
       className={cn(
-        "rounded-lg border border-teal-300/80 bg-teal-50/90 dark:border-teal-800 dark:bg-teal-950/30",
+        "rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40",
         props.compact ? "p-2.5 space-y-1.5" : "p-3 space-y-2",
         props.className,
       )}
@@ -42,7 +42,7 @@ export function FindingPolicyCitationProminentStrip(
     >
       <div className="flex flex-wrap items-center gap-2">
         <StatusTag kind="needs-attention" label={violationLabel} data-testid="finding-policy-violation-tag" />
-        <p className={cn("m-0 font-semibold uppercase tracking-wide text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 font-semibold uppercase tracking-wide text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
           Triggered by policy
         </p>
       </div>

@@ -116,7 +116,7 @@ export function Tier2ConnectionValidateStep({
             <p
               className={
                 validationSucceeded
-                  ? cn(OPERATOR_TYPOGRAPHY.body, "text-teal-800 dark:text-teal-200")
+                  ? cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary dark:text-neutral-200")
                   : cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")
               }
               role="status"

@@ -100,7 +100,7 @@ function lifecycleCardClassName(
     OPERATOR_SURFACE_CARD_CLASS,
     "flex min-h-full min-w-0 flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800",
     isEmphasized && OPERATOR_CARD.lifecycleEmphasized,
-    selectedPath === path && "ring-2 ring-teal-700/40 ring-offset-2",
+    selectedPath === path && "ring-2 ring-neutral-500/50 ring-offset-2",
     extraClassName,
   );
 }

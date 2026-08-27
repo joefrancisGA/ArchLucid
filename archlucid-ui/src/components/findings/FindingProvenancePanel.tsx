@@ -31,7 +31,7 @@ function stepKindLabel(kind: FindingProvenanceStepKind): string {
 
 function stepBorderClass(kind: FindingProvenanceStepKind): string {
   if (kind === "evidence") {
-    return "border-l-2 border-teal-500 pl-3";
+    return "border-l-2 border-neutral-500 pl-3";
   }
 
   if (kind === "policy-check") {

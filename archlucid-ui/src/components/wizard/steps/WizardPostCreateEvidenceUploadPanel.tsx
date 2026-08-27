@@ -41,7 +41,7 @@ export function WizardPostCreateEvidenceUploadPanel(props: WizardPostCreateEvide
   if (uploadState === "success") {
     return (
       <p
-        className={cn("rounded-md border border-teal-200 bg-teal-50 px-3 py-2 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}
+        className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.body)}
         data-testid="wizard-evidence-upload-success"
       >
         Evidence uploaded and linked to this review.

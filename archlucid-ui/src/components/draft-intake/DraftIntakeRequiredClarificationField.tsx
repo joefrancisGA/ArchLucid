@@ -81,7 +81,7 @@ export function DraftIntakeRequiredClarificationField(
       className={cn(
         "space-y-3 rounded-md border p-3",
         isFocused
-          ? "border-l-[3px] border-l-teal-700 border-neutral-300 bg-white shadow-sm dark:border-neutral-700 dark:border-l-teal-500 dark:bg-neutral-950"
+          ? "border-l-[3px] border-l-neutral-700 border-neutral-300 bg-white shadow-sm dark:border-neutral-700 dark:border-l-neutral-400 dark:bg-neutral-950"
           : "border-neutral-200 bg-neutral-50/60 dark:border-neutral-800 dark:bg-neutral-900/30",
       )}
       aria-labelledby={labelId}

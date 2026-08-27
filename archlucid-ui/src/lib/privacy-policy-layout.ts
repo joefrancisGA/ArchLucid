@@ -11,7 +11,7 @@ import {
 export const PRIVACY_POLICY_LAYOUT = {
   page: "privacy-policy-page w-full",
   skipLink:
-    "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-neutral-900 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-600 dark:focus:bg-neutral-950 dark:focus:text-neutral-50",
+    "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-neutral-900 focus:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:focus:bg-neutral-950 dark:focus:text-neutral-50",
   grid: "grid grid-cols-1 gap-12 xl:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)] xl:items-start xl:gap-x-16 xl:gap-y-12",
   article:
     "min-w-0 flex-1 text-neutral-800 dark:text-neutral-200 print:max-w-none print:text-black",
@@ -72,7 +72,7 @@ export const PRIVACY_POLICY_TOC = {
   mobileSummary: cn("cursor-pointer font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle),
   list: "m-0 mt-3 list-none space-y-2 p-0",
   link: cn("block rounded-sm py-1.5", MARKETING_SURFACES.inlineLink, MARKETING_TYPOGRAPHY.body),
-  linkActive: "font-semibold text-teal-900 dark:text-teal-200",
+  linkActive: "font-semibold text-al-text-primary dark:text-neutral-100",
   linkNested: "pl-3 text-[0.95em]",
 } as const;
 

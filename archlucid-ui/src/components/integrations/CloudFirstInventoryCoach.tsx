@@ -31,7 +31,7 @@ export function CloudFirstInventoryCoach(props: CloudFirstInventoryCoachProps): 
   return (
     <aside
       className={cn(
-        "rounded-md border border-teal-700/25 bg-teal-50/40 px-3 py-3 dark:border-teal-600/30 dark:bg-teal-950/20",
+        "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-3 dark:border-neutral-700 dark:bg-neutral-900/40",
         props.className,
       )}
       data-testid="cloud-first-inventory-coach"

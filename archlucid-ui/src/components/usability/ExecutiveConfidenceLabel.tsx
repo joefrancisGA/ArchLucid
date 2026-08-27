@@ -19,7 +19,7 @@ export function SponsorConfidenceLabel(props: SponsorConfidenceLabelProps) {
     <span
       className={cn("inline-flex items-center rounded-full border px-2 py-0.5 font-medium", OPERATOR_TYPOGRAPHY.helper,
         props.confidenceLevel === "high"
-          ? "border-teal-300 bg-teal-50 text-teal-900 dark:border-teal-800 dark:bg-teal-950 dark:text-teal-200"
+          ? "border-neutral-300 bg-neutral-50 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
           : props.confidenceLevel === "medium"
             ? "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
             : "border-neutral-300 bg-neutral-100 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200",

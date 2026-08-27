@@ -85,7 +85,7 @@ export function FirstReviewGuideWalkthrough({
           className={cn(
             OPERATOR_SURFACE_CARD_CLASS,
             "border border-neutral-200 p-4 dark:border-neutral-800",
-            step.isNextStep ? "border-l-4 border-l-teal-700 dark:border-l-teal-400" : null,
+            step.isNextStep ? "border-l-4 border-l-neutral-700 dark:border-l-neutral-400" : null,
           )}
           data-testid={step.isNextStep ? "first-review-guide-next-step" : `first-review-guide-step-${step.index + 1}`}
           aria-current={step.isNextStep ? "step" : undefined}
@@ -108,7 +108,7 @@ export function FirstReviewGuideWalkthrough({
                 <StatusTag kind={stepStatusTagKind(step.status)} label={step.statusLabel} />
               )}
               {step.isNextStep ? (
-                <span className={cn("font-medium text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}>
+                <span className={cn("font-medium text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
                   {FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL}
                 </span>
               ) : null}

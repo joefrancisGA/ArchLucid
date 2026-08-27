@@ -10,6 +10,8 @@ import {
   OPERATOR_KPI_CARD_TITLE,
   OPERATOR_LAYOUT,
   OPERATOR_PRIMARY_FILL_USAGE_CONTRACT,
+  OPERATOR_RESUME,
+  OPERATOR_SELECTION,
   OPERATOR_TYPE_SCALE,
   OPERATOR_TYPOGRAPHY,
   operatorConfidenceSurface,
@@ -166,5 +168,19 @@ describe("design-tokens TB-2276–TB-2280 color hierarchy", () => {
     expect(ready).toContain("border-l-emerald-600");
     expect(globalsCss).toMatch(/--al-status-approved-monitoring-bg:\s*#e6f4f3;/);
     expect(globalsCss).toMatch(/--al-status-approved-monitoring-fg:\s*#0f4c5c;/);
+  });
+
+  it("TB-2092 neutralizes operator resume strips and selection tiles without pastel teal", () => {
+    expect(OPERATOR_CARD.lifecycleEmphasized).toContain("border-l-neutral-700");
+    expect(OPERATOR_CARD.lifecycleEmphasized).not.toContain("teal");
+
+    expect(OPERATOR_RESUME.strip).toContain("border-neutral-200");
+    expect(OPERATOR_RESUME.strip).not.toMatch(/teal/);
+    expect(OPERATOR_RESUME.stripSpaced).toContain("mb-4");
+    expect(OPERATOR_RESUME.stripCelebrate).toContain("mb-3");
+
+    expect(OPERATOR_SELECTION.tile).toContain("border-neutral-500");
+    expect(OPERATOR_SELECTION.tile).not.toMatch(/teal/);
+    expect(OPERATOR_SELECTION.row).toContain("bg-al-surface-raised");
   });
 });

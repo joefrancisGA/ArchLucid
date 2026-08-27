@@ -83,7 +83,7 @@ export function GoldenSponsorPackageWalkthroughDestination(
   return (
     <aside
       className={cn(
-        "mb-3 rounded-md border border-teal-200 bg-teal-50/70 p-3 dark:border-teal-900 dark:bg-teal-950/30",
+        "mb-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40",
         OPERATOR_TYPOGRAPHY.body,
       )}
       data-testid="golden-sponsor-package-walkthrough-destination"

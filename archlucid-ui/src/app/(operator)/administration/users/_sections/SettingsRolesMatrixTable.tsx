@@ -47,7 +47,7 @@ function PermissionValue({
       <span
         className={cn(
           "inline-flex min-w-[2rem] items-center justify-center rounded-sm px-1 text-base font-semibold leading-none",
-          allowed ? "text-teal-700 dark:text-teal-300" : "text-neutral-400 dark:text-neutral-500",
+          allowed ? "text-al-text-secondary dark:text-neutral-300" : "text-neutral-400 dark:text-neutral-500",
         )}
         aria-label={`${permissionLabel} for ${roleName}: ${allowed ? "Allowed" : "Not allowed"}`}
       >

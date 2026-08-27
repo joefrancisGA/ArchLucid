@@ -38,7 +38,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       : null;
 
   const cardClass =
-    "flex flex-col gap-1 rounded-lg border border-neutral-200 bg-white p-4 no-underline shadow-sm transition hover:border-teal-600/40 hover:shadow dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-teal-400/40";
+    "flex flex-col gap-1 rounded-lg border border-neutral-200 bg-white p-4 no-underline shadow-sm transition hover:border-neutral-400 hover:shadow dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-500";
 
   const disabledCardClass = cn(
     cardClass,

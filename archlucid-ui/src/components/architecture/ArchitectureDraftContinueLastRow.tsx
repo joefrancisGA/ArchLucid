@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
 import { formatUpdatedAbsoluteWithRelative } from "@/lib/relative-time";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 
@@ -21,7 +21,7 @@ export function ArchitectureDraftContinueLastRow(props: ArchitectureDraftContinu
   return (
     <section
       aria-labelledby="architecture-draft-continue-last-heading"
-      className="mb-4 rounded-lg border border-teal-200 bg-teal-50/60 px-4 py-3 dark:border-teal-900/50 dark:bg-teal-950/20"
+      className={OPERATOR_RESUME.stripSpaced}
       data-testid="architecture-draft-continue-last-row"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">

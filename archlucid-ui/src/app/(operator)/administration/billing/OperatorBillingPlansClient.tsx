@@ -230,8 +230,8 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
                 key={pkg.id}
                 className={cn(
                   "flex flex-col",
-                  isRecommended ? "border-teal-600 ring-1 ring-teal-600/20 dark:border-teal-500" : null,
-                  isSelected ? "ring-2 ring-teal-700/40 dark:ring-teal-400/50" : null,
+                  isRecommended ? "border-neutral-500 ring-1 ring-neutral-400/20 dark:border-neutral-500" : null,
+                  isSelected ? "ring-2 ring-neutral-500/40 dark:ring-neutral-400/50" : null,
                 )}
                 data-testid={`billing-tier-${pkg.id}`}
               >
@@ -248,7 +248,7 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
                     {isRecommended ? (
                       <span
                         className={cn(
-                          "ms-2 align-middle font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200",
+                          "ms-2 align-middle font-semibold uppercase tracking-wide text-al-text-secondary dark:text-neutral-200",
                           OPERATOR_TYPOGRAPHY.helper,
                         )}
                       >

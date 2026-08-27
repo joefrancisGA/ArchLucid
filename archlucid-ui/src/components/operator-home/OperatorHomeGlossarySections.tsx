@@ -65,7 +65,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
 function PipelineConnectorBar() {
   return (
     <div className="flex w-5 shrink-0 items-center justify-center self-center" aria-hidden>
-      <div className="h-0.5 w-4 shrink-0 rounded-full bg-teal-300 dark:bg-teal-700" />
+      <div className="h-0.5 w-4 shrink-0 rounded-full bg-neutral-300 dark:bg-neutral-600" />
     </div>
   );
 }
@@ -139,7 +139,7 @@ function StepIndicator({ step, pipelineStatus }: { step: 1 | 2 | 3 | 4; pipeline
 
   return (
     <span
-      className={`${base} bg-teal-100 text-teal-800 dark:bg-teal-900/80 dark:text-teal-300`}
+      className={`${base} bg-neutral-100 text-al-text-primary dark:bg-neutral-900/80 dark:text-neutral-300`}
       aria-hidden
     >
       {step}
@@ -181,8 +181,8 @@ function ActionCard({
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Icon className="h-7 w-7 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
-        <span className={cn("font-bold text-neutral-900 group-hover:text-teal-800 dark:text-neutral-100 dark:group-hover:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
+    "h-7 w-7 shrink-0 text-neutral-700 dark:text-neutral-400",
+        <span className={cn("font-bold text-neutral-900 group-hover:text-al-text-primary dark:text-neutral-100 dark:group-hover:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           {label}
         </span>
         {shortcut ? (

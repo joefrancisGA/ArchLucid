@@ -129,7 +129,7 @@ export function DemoPreviewArtifactNav(props: { readonly showcaseTelemetry?: Sho
               key={item.id}
               type="button"
               className={cn(
-                "flex h-full flex-col gap-2 rounded-lg border bg-white p-4 text-left shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 dark:bg-neutral-950",
+                "flex h-full flex-col gap-2 rounded-lg border bg-white p-4 text-left shadow-sm transition focus-visible:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:bg-neutral-950",
                 isActive
                   ? "border-teal-600/50 ring-1 ring-teal-600/20 dark:border-teal-400/40"
                   : "border-neutral-200 hover:border-teal-600/30 dark:border-neutral-800 dark:hover:border-teal-400/30",
@@ -139,7 +139,7 @@ export function DemoPreviewArtifactNav(props: { readonly showcaseTelemetry?: Sho
               onClick={() => scrollToSection(item.id)}
             >
               <div className="flex items-center gap-2">
-                <Icon className="h-4 w-4 shrink-0 text-teal-800 dark:text-teal-300" aria-hidden />
+                <Icon className="h-4 w-4 shrink-0 text-al-text-secondary dark:text-neutral-300" aria-hidden />
                 <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.cardTitle)}>
                   {item.number} · {item.title}
                 </span>

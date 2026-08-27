@@ -20,11 +20,11 @@ export type FindingInspectContextDebugPanelProps = {
 
 function blockBorderClass(kind: ReturnType<typeof buildFindingRawContextBlocks>[number]["kind"]): string {
   if (kind === "cited-evidence") {
-    return "border-l-2 border-teal-500 pl-3";
+    return "border-l-2 border-neutral-500 pl-3";
   }
 
   if (kind === "provenance-evidence") {
-    return "border-l-2 border-teal-600 pl-3";
+    return "border-l-2 border-neutral-600 pl-3";
   }
 
   if (kind === "provenance-input") {

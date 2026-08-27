@@ -55,7 +55,7 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
           type="button"
           variant="outline"
           size="sm"
-          className={cn("font-medium text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.body)}
+          className={cn("font-medium text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
           onClick={() => setOpen(true)}
         >
           {openButtonLabel}

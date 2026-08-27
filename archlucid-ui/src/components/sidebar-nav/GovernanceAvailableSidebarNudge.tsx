@@ -22,13 +22,13 @@ export function GovernanceAvailableSidebarNudge(
 
   return (
     <div
-      className="mx-2 mb-2 mt-1 rounded-md border border-teal-700/30 bg-teal-50/80 px-3 py-2 dark:border-teal-800/50 dark:bg-teal-950/30"
+      className="mx-2 mb-2 mt-1 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="governance-available-nav-nudge"
     >
-      <p className={cn("m-0 font-medium text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 font-medium text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
         Governance available
       </p>
-      <p className={cn("m-0 mt-1 text-teal-900/90 dark:text-teal-200/90", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 mt-1 text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
         Your first review is finalized — open the approval queue to record decisions and audit trail entries.
       </p>
       <Link href="/governance/approval-queue" className={cn("mt-2 inline-block", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}>

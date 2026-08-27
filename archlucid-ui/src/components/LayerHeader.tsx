@@ -61,7 +61,7 @@ export function LayerHeader({
           "m-0 font-semibold uppercase tracking-wide",
           compact
             ? (cn("text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge))
-            : (cn("text-teal-900 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)),
+            : (cn("text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)),
         )}
       >
         {block.layerBadge}
@@ -118,7 +118,7 @@ export function LayerHeader({
         !className &&
           (compact
             ? cn("max-w-3xl rounded-md bg-neutral-100/70 py-2 pl-0 dark:bg-neutral-900/60", OPERATOR_TYPOGRAPHY.helper)
-            : "mb-4 max-w-3xl border-l-4 border-teal-700 py-1 pl-3 dark:border-teal-500"),
+            : "mb-4 max-w-3xl border-l-4 border-l-neutral-700 py-1 pl-3 dark:border-l-neutral-400"),
         collapsibleGuidance ? "mb-0" : null,
         className,
       )}

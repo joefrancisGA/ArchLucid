@@ -124,7 +124,7 @@ export function ChatIntakePanel(props: ChatIntakePanelProps) {
         </p>
       </div>
       {parseSuccess !== null ? (
-        <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)} data-testid="chat-intake-parse-success">
+        <p className={cn("m-0 text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="chat-intake-parse-success">
           {parseSuccess}
         </p>
       ) : null}

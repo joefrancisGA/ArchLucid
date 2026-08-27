@@ -53,7 +53,7 @@ export function EmptyState({
       <Card className="border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40">
         <CardContent className="flex flex-col items-center gap-4 px-6 py-8 text-center">
           {Icon ? (
-            <Icon className="h-12 w-12 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
+            <Icon className="h-12 w-12 shrink-0 text-neutral-700 dark:text-neutral-400" aria-hidden />
           ) : null}
           <h3 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{title}</h3>
           <p className={cn("max-w-md leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{description}</p>

@@ -82,7 +82,7 @@ export function AzureBoardsConnectionSettingsPanel({
       ) : null}
 
       {connectionSaveSuccess ? (
-        <p className="m-0 text-teal-800 dark:text-teal-200" role="status">
+        <p className="m-0 text-al-text-secondary dark:text-neutral-200" role="status">
           {connectionSaveSuccess}
         </p>
       ) : null}

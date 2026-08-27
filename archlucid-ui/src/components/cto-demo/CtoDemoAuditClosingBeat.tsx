@@ -83,7 +83,7 @@ export function CtoDemoAuditClosingBeat(): React.JSX.Element | null {
   return (
     <section
       aria-labelledby="cto-demo-audit-closing-heading"
-      className="mt-6 rounded-lg border border-teal-200/80 bg-teal-50/30 p-4 print:hidden dark:border-teal-900/40 dark:bg-teal-950/20"
+      className="mt-6 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 print:hidden dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="cto-demo-audit-closing-beat"
     >
       <h3 id="cto-demo-audit-closing-heading" className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>

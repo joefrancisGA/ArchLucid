@@ -153,14 +153,14 @@ export function OperatorCorePilotDiagnosticsChecklist() {
             return (
               <li key={step.title}>
                 <div className={cn("flex gap-2 leading-snug text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-                  <span className={doneDisplay ? "text-teal-600 dark:text-teal-400" : "text-neutral-400"} aria-hidden>
+                  <span className={doneDisplay ? "text-neutral-600 dark:text-neutral-400" : "text-neutral-400"} aria-hidden>
                     {doneDisplay ? "✓" : "○"}
                   </span>
                   <div className="min-w-0 flex-1">
                     <strong className="font-semibold">{index + 1}. {step.title}</strong>
                     <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{step.shortBody}</p>
                     {!storageDone && inferredFinalize ? (
-                      <p className={cn("m-0 mt-1 text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.badge)}>
+                      <p className={cn("m-0 mt-1 text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge)}>
                         Completed via finalize counter — update the sidebar checklist to match when you&apos;re ready.
                       </p>
                     ) : null}

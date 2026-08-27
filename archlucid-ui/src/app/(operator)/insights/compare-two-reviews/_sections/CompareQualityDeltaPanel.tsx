@@ -41,7 +41,7 @@ export function CompareQualityDeltaPanel(props: CompareQualityDeltaPanelProps): 
             <dd className={cn("m-0 mt-1 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               {row.before} → {row.after}
               {row.improved ? (
-                <span className="ml-2 text-teal-800 dark:text-teal-300">improved</span>
+                <span className="ml-2 text-al-text-secondary dark:text-neutral-300">improved</span>
               ) : null}
             </dd>
           </div>

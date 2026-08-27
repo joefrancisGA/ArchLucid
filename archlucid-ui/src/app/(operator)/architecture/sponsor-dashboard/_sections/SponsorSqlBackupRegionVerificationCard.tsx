@@ -18,7 +18,7 @@ function verificationStatusIcon(verified: boolean) {
   if (verified) {
     return (
       <CheckCircle2
-        className="size-8 shrink-0 text-teal-600 dark:text-teal-400"
+        className="size-8 shrink-0 text-neutral-600 dark:text-neutral-400"
         aria-hidden
         data-testid="sql-backup-verification-status-verified"
       />
@@ -130,7 +130,7 @@ export function SponsorSqlBackupRegionVerificationCard() {
             <p
               className={cn(
                 verification.verified
-                  ? "text-teal-800 dark:text-teal-200"
+                  ? "text-al-text-secondary dark:text-neutral-200"
                   : "text-amber-800 dark:text-amber-200",
                 OPERATOR_TYPOGRAPHY.helper,
               )}

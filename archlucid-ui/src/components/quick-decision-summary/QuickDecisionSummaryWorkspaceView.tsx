@@ -69,7 +69,7 @@ export function QuickDecisionSummaryWorkspaceView({
           >
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600"
+              className="h-4 w-4 rounded border-neutral-300 text-neutral-700 focus:ring-neutral-400"
               checked={interaction.showLowConfidence}
               onChange={(event) => {
                 interaction.setShowLowConfidence(event.target.checked);
@@ -86,7 +86,7 @@ export function QuickDecisionSummaryWorkspaceView({
           >
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600"
+              className="h-4 w-4 rounded border-neutral-300 text-neutral-700 focus:ring-neutral-400"
               checked={interaction.showMuted}
               onChange={(event) => {
                 interaction.setShowMuted(event.target.checked);

@@ -102,10 +102,10 @@ export function AfterCorePilotChecklistHint() {
       <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader className="space-y-1 sm:flex sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
           <div>
-            <h3 id="after-core-pilot-card-title" className={cn("m-0 font-semibold text-al-text-primary tracking-tight text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            <h3 id="after-core-pilot-card-title" className={cn("m-0 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Ready for more?
             </h3>
-            <p className={cn("m-0 mt-0.5 text-teal-800/90 dark:text-teal-200/90", OPERATOR_TYPOGRAPHY.helper)}>Expand your pilot — optional next steps</p>
+            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Expand your pilot — optional next steps</p>
           </div>
           <DismissControl
             data-testid="after-core-pilot-whats-next-dismiss"
@@ -120,20 +120,20 @@ export function AfterCorePilotChecklistHint() {
             the sidebar until sponsors or policy need the — ot part of first-pilot success criteria.
           </p>
 
-          <Collapsible defaultOpen className="rounded-md border border-teal-200/80 bg-white/70 dark:border-teal-900/60 dark:bg-teal-950/30">
+          <Collapsible defaultOpen className="rounded-md border border-neutral-200 bg-white/70 dark:border-neutral-700 dark:bg-neutral-900/40">
             <CollapsibleTrigger
-              className={cn("auth-panel-focus flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left font-semibold text-teal-950 dark:text-teal-100 [&[data-state=open]_svg]:rotate-180", OPERATOR_TYPOGRAPHY.cardTitle)}
+              className={cn("auth-panel-focus flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left font-semibold text-al-text-primary [&[data-state=open]_svg]:rotate-180", OPERATOR_TYPOGRAPHY.cardTitle)}
               data-testid="after-core-pilot-whats-next-collapsible-trigger"
             >
               Suggested next steps
               <ChevronDown className="size-4 shrink-0 transition-transform" aria-hidden />
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <ul className="m-0 list-none space-y-3 border-t border-teal-200/60 px-3 py-3 dark:border-teal-800/50">
+              <ul className="m-0 list-none space-y-3 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
                 {suggestions.map((s, index) => {
                   return (
                     <li key={s.href} className={cn("text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-                      <div className="font-medium text-teal-900 dark:text-teal-200">
+                      <div className="font-medium text-al-text-primary dark:text-neutral-100">
                         <Link href={s.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                           {s.title}
                         </Link>

@@ -171,10 +171,10 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       {featuredSampleRunId !== null && featuredSampleRunId !== undefined && featuredSampleRunId.length > 0 ? (
         <Card className="mb-6 border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader>
-            <CardTitle className={cn("text-teal-950 dark:text-teal-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            <CardTitle className={cn("text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Claims Intake Modernization (sample)
             </CardTitle>
-            <CardDescription className="text-teal-900/90 dark:text-teal-100/90">
+            <CardDescription className="text-al-text-primary dark:text-neutral-100">
               Open the governed sample review we provisioned for your workspace, or continue below to author a brand-new
               architecture request.
             </CardDescription>
@@ -219,7 +219,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           {heroVerticals.map((preset) => (
             <Card
               key={preset.id}
-              className="flex flex-col border-teal-300/80 shadow-sm dark:border-teal-800/80"
+              className="flex flex-col border-neutral-300 shadow-sm dark:border-neutral-700"
             >
               <CardHeader>
                 <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{preset.label}</CardTitle>

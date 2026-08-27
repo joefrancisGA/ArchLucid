@@ -55,7 +55,7 @@ export function SearchRetrievalHitCard(props: SearchRetrievalHitCardProps) {
                 "rounded-md border px-2 py-0.5 font-medium",
                 OPERATOR_TYPOGRAPHY.badge,
                 relevanceTier === "high"
-                  ? "border-teal-200 bg-teal-50 text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100"
+                  ? "border-neutral-200 bg-neutral-50 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-100"
                   : "border-neutral-200 bg-neutral-50 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-300",
               )}
             >

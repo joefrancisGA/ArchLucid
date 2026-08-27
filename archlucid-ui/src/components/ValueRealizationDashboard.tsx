@@ -90,7 +90,7 @@ export function ValueRealizationDashboard() {
           </div>
           <div className="rounded-lg border p-4 text-center">
             <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Time saved (tenant model)</p>
-            <p className="text-2xl font-bold text-teal-600">{formatHours(safeHours)}</p>
+            <p className="text-2xl font-bold text-al-text-primary">{formatHours(safeHours)}</p>
           </div>
           <div className="rounded-lg border p-4 text-center">
             <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Avg time to finalize</p>

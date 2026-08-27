@@ -54,7 +54,7 @@ export function AskCitationActionFollowUps(props: AskCitationActionFollowUpsProp
             href={chip.href}
             data-testid={`ask-citation-action-${chip.kind}`}
             className={cn(
-              "inline-flex h-auto max-w-full items-center rounded-md border border-teal-700/30 bg-white px-2.5 py-1.5 font-medium text-teal-900 no-underline hover:bg-teal-50 dark:border-teal-600/40 dark:bg-neutral-900 dark:text-teal-200 dark:hover:bg-neutral-800",
+              "inline-flex h-auto max-w-full items-center rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 font-medium text-al-text-primary no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
               OPERATOR_TYPOGRAPHY.helper,
             )}
           >

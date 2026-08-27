@@ -50,7 +50,7 @@ export function KeyboardShortcutsDiscoverabilityCoach(
   return (
     <aside
       className={cn(
-        "mb-3 space-y-2 rounded-md border border-teal-700/25 bg-teal-50/40 px-3 py-2 dark:border-teal-600/30 dark:bg-teal-950/20",
+        "mb-3 space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
         props.className,
       )}
       aria-labelledby="keyboard-shortcuts-discoverability-coach-heading"

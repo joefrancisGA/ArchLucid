@@ -21,7 +21,7 @@ export function RunDetailGovernanceCta(props: RunDetailGovernanceCtaProps): Reac
 
   return (
     <Card
-      className="rounded-lg border border-teal-200 bg-teal-50/70 shadow-sm dark:border-teal-900 dark:bg-teal-950/20"
+      className="rounded-lg border border-neutral-200 bg-neutral-50/80 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="run-detail-governance-cta"
     >
       <CardHeader className={OPERATOR_CARD.header}>

@@ -151,7 +151,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
       </p>
       {done ? (
         <p
-          className={cn("text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.body)}
+          className={cn("text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
           role="status"
           data-testid="pricing-quote-request-confirmation"
         >

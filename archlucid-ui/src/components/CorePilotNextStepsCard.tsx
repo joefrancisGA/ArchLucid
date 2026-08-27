@@ -189,7 +189,7 @@ function FirstReviewCheckpointStrip(props: {
 function StepBadge({ label }: { label: string }) {
   return (
     <span
-      className={cn("inline-block rounded-full bg-teal-100 px-2 py-0.5 font-semibold text-teal-800 dark:bg-teal-900/50 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
+      className={cn("inline-block rounded-full bg-neutral-100 px-2 py-0.5 font-semibold text-al-text-primary dark:bg-neutral-900/50 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="pilot-step-badge"
     >
       {label}
@@ -365,11 +365,11 @@ export function CorePilotNextStepsCard() {
 
         <ol className={cn("m-0 mt-3 list-none space-y-2 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           <li className="flex items-start gap-2 text-neutral-400 dark:text-neutral-500" aria-label="Step 1 complete">
-            <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-600 dark:text-teal-400", OPERATOR_TYPOGRAPHY.helper)}>✓</span>
+            <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>✓</span>
             <span className="line-through">{OPERATOR_START_REVIEW_QUICK_ACTION_LABEL}</span>
           </li>
           <li className="flex items-start gap-2" aria-label="Step 2 active">
-            <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
+            <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
             <Link
               href={latestRunId !== null ? `/insights/evidence-graph?runId=${encodeURIComponent(latestRunId)}` : "/insights/evidence-graph"}
               className={OPERATOR_LINK.nav}
@@ -379,7 +379,7 @@ export function CorePilotNextStepsCard() {
             </Link>
           </li>
           <li className="flex items-start gap-2" aria-label="Step 3 active">
-            <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
+            <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
             <Link
               href={latestRunId !== null ? `/architecture/reviews/${latestRunId}` : "/architecture/reviews"}
               className={OPERATOR_LINK.nav}
@@ -431,7 +431,7 @@ export function CorePilotNextStepsCard() {
 
       <ol className={cn("m-0 mt-0 list-none space-y-2 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         <li className="flex items-start gap-2" aria-label="Step 1 active">
-          <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
+          <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
           <Link
             href="/architecture/reviews/new"
             className={OPERATOR_LINK.nav}

@@ -335,7 +335,7 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
           className={cn(
             "m-0",
             OPERATOR_TYPOGRAPHY.body,
-            formTestFeedback.kind === "error" ? "text-red-700 dark:text-red-300" : "text-teal-800 dark:text-teal-200",
+            formTestFeedback.kind === "error" ? "text-red-700 dark:text-red-300" : "text-al-text-secondary dark:text-neutral-200",
           )}
           data-testid="slack-form-test-feedback"
         >

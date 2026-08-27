@@ -132,7 +132,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows }: WhyArchlucidMarketi
                 {point.label}
               </p>
               <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.body)}>
-                <span className="font-medium text-teal-800 dark:text-teal-300">ArchLucid:</span>
+                <span className="font-medium text-al-text-secondary dark:text-neutral-300">ArchLucid:</span>
                 {` ${point.archlucid}`}
               </p>
               <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}>
