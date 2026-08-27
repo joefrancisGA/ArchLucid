@@ -1,8 +1,11 @@
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Persistence.Queries;
@@ -30,6 +33,7 @@ public sealed class DecisionReceiptServiceTests
 
     private readonly Mock<IDraftRequestService> _drafts = new();
     private readonly Mock<IAuthorityQueryService> _authority = new();
+    private readonly Mock<IRunDetailQueryService> _runDetails = new();
     private readonly FeasibilityVerdictBuilder _verdictBuilder = new(new FeasibilityVerdictValidator());
 
     [Fact]
@@ -49,7 +53,7 @@ public sealed class DecisionReceiptServiceTests
                 },
             });
 
-        DecisionReceiptService sut = new(_drafts.Object, _authority.Object, _verdictBuilder);
+        DecisionReceiptService sut = CreateSut();
 
         DecisionReceiptDocument? receipt = await sut.BuildForDraftAsync(Scope, DraftId, CancellationToken.None);
 
@@ -70,7 +74,7 @@ public sealed class DecisionReceiptServiceTests
                 Document = new DraftRequestDocument(),
             });
 
-        DecisionReceiptService sut = new(_drafts.Object, _authority.Object, _verdictBuilder);
+        DecisionReceiptService sut = CreateSut();
 
         DecisionReceiptDocument? receipt = await sut.BuildForDraftAsync(Scope, DraftId, CancellationToken.None);
 
@@ -79,6 +83,123 @@ public sealed class DecisionReceiptServiceTests
 
     [Fact]
     public async Task BuildForRunAsync_InfeasibleManifest_ReturnsReceipt()
+    {
+        SetupCommittedRunDetail();
+        SetupInfeasibleManifestSummary();
+
+        DecisionReceiptService sut = CreateSut();
+
+        DecisionReceiptDocument? receipt = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
+
+        receipt.Should().NotBeNull();
+        receipt!.RunId.Should().Be(RunId);
+        receipt.Source.Should().Be(DecisionReceiptSource.CommittedRun);
+    }
+
+    [Fact]
+    public async Task BuildForRunAsync_UncommittedRunWithManifestPointer_ReturnsNull()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = RunId.ToString("N"),
+                Status = ArchitectureRunStatus.ReadyForCommit,
+            },
+            Manifest = null,
+        };
+
+        _runDetails
+            .Setup(static s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        _authority
+            .Setup(static s => s.GetRunSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunSummaryDto
+            {
+                RunId = RunId,
+                GoldenManifestId = ManifestId,
+            });
+
+        SetupInfeasibleManifestSummary();
+
+        DecisionReceiptService sut = CreateSut();
+
+        DecisionReceiptDocument? receipt = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
+
+        receipt.Should().BeNull();
+        _authority.Verify(
+            static s => s.GetManifestSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task BuildForRunAsync_BrokenManifestReference_ReturnsNull()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = RunId.ToString("N"),
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v-missing",
+            },
+            Manifest = null,
+            HasBrokenManifestReference = true,
+        };
+
+        _runDetails
+            .Setup(static s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        _authority
+            .Setup(static s => s.GetRunSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunSummaryDto
+            {
+                RunId = RunId,
+                GoldenManifestId = ManifestId,
+            });
+
+        SetupInfeasibleManifestSummary();
+
+        DecisionReceiptService sut = CreateSut();
+
+        DecisionReceiptDocument? receipt = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
+
+        receipt.Should().BeNull();
+        _authority.Verify(
+            static s => s.GetManifestSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    private void SetupCommittedRunDetail()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = RunId.ToString("N"),
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1",
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = RunId.ToString("N"),
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+            },
+        };
+
+        _runDetails
+            .Setup(static s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+    }
+
+    private void SetupInfeasibleManifestSummary()
     {
         _authority
             .Setup(static s => s.GetRunSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -109,13 +230,8 @@ public sealed class DecisionReceiptServiceTests
                     },
                 },
             });
-
-        DecisionReceiptService sut = new(_drafts.Object, _authority.Object, _verdictBuilder);
-
-        DecisionReceiptDocument? receipt = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
-
-        receipt.Should().NotBeNull();
-        receipt!.RunId.Should().Be(RunId);
-        receipt.Source.Should().Be(DecisionReceiptSource.CommittedRun);
     }
+
+    private DecisionReceiptService CreateSut() =>
+        new(_drafts.Object, _authority.Object, _runDetails.Object, _verdictBuilder);
 }
