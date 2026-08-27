@@ -374,6 +374,56 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequest_accepts_padded_run_id_when_run_is_in_scope()
+    {
+        Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        string paddedRunId = $"  {runId:D}  ";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowService> workflow = new();
+        workflow
+            .Setup(w => w.SubmitApprovalRequestAsync(
+                runId.ToString("D"),
+                "1",
+                "dev",
+                "test",
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                null,
+                true,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            });
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SubmitApprovalRequest(
+            new CreateGovernanceApprovalRequest
+            {
+                RunId = paddedRunId,
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
     public async Task SubmitApprovalRequest_returns_not_found_when_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("33333333-3333-3333-3333-333333333333");
@@ -465,6 +515,56 @@ public sealed class GovernanceControllerRunHistoryScopeTests
                 ManifestVersion = "1",
                 SourceEnvironment = "dev",
                 TargetEnvironment = "test",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Promote_returns_not_found_when_approval_run_is_out_of_scope()
+    {
+        const string approvalRequestId = "apr-promote-stale-run";
+        Guid foreignRunId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        Guid inScopeRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        string foreignRunIdText = foreignRunId.ToString("D");
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = approvalRequestId,
+                RunId = foreignRunIdText,
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, inScopeRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = inScopeRunId });
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            approvalRepository: approvals.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Promote(
+            new CreateGovernancePromotionRequest
+            {
+                RunId = inScopeRunId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "test",
+                TargetEnvironment = "prod",
+                ApprovalRequestId = approvalRequestId,
             },
             dryRun: true,
             CancellationToken.None);

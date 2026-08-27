@@ -70,6 +70,14 @@ public sealed partial class GovernanceController
                     $"Approval request '{request.ApprovalRequestId}' was not found.",
                     ProblemTypes.ResourceNotFound);
             }
+
+            IActionResult? approvalRunScopeError = await RequireScopedRunAsync(
+                    approval.RunId,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            if (approvalRunScopeError is not null)
+                return approvalRunScopeError;
         }
 
         string promotedBy = actorContext.GetActor();
@@ -227,6 +235,15 @@ public sealed partial class GovernanceController
 
     private async Task<IActionResult?> RequireScopedRunAsync(string runId, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(runId))
+        {
+            return this.NotFoundProblem(
+                "Run id is required.",
+                ProblemTypes.RunNotFound);
+        }
+
+        runId = runId.Trim();
+
         if (!Guid.TryParse(runId, out Guid runGuid))
         {
             return this.NotFoundProblem(

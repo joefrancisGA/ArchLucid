@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 53
-- **bugs-found:** 172
+- **hunts:** 54
+- **bugs-found:** 174
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — create risk exception manifest-run binding
+- **last-bug:** 2026-08-27 — governance scoped-run trim and promote approval-run preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2410,6 +2410,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.GetDashboard` — `maxPending` / `maxDecisions` / `maxChanges` ≤ 0 forwarded to service and surfaced HTTP 500 (`ArgumentOutOfRangeException`) instead of 400 — **hit 2026-08-27:** controller validates query bounds before `GetDashboardAsync` (LLM cost reporting / drift-trend parity); regression in `GovernanceControllerDashboardTests.GetDashboard_returns_bad_request_when_max_pending_is_zero`.
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — non-empty `approvalRequestIds` array of whitespace-only strings returned HTTP 200 `{ results: [] }` instead of 400 — **hit 2026-08-27:** reject when trimmed/distinct id list is empty after `Count > 0` guard; regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_bad_request_when_all_ids_are_whitespace`.
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` / `GovernanceStickinessFacade.CreateRiskExceptionAsync` — in-scope `runId` with body `manifestId` not bound to run `GoldenManifestId` persisted foreign manifest linkage — **hit 2026-08-27:** `EnsureManifestMatchesRunWhenProvidedAsync` before create (activate/submit manifest-binding parity); controller maps `GoldenManifestVersionNotFoundException` to 404; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceController.RequireScopedRunAsync` — padded `runId` strings (leading/trailing whitespace) failed `Guid.TryParse` and returned HTTP 404 though trimmed id was in scope — **hit 2026-08-27:** trim before parse (simulate/policy-pack dry-run parity); regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_accepts_padded_run_id_when_run_is_in_scope`.
+- [x] (proven) `GovernanceController.Promote` — out-of-scope `approval.RunId` with in-scope body `runId` returned HTTP 400 linkage mismatch instead of 404 — **hit 2026-08-27:** `RequireScopedRunAsync(approval.RunId)` after approval lookup (approve/reject parity); regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_not_found_when_approval_run_is_out_of_scope`.
+
+2026-08-27 seed hunt #137: proved governance scoped-run trim parity and promote approval-run scope preflight.
 
 2026-08-27 seed hunt #136: proved create-risk-exception manifest-run binding gate.
 
