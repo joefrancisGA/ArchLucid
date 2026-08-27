@@ -1,0 +1,36 @@
+{
+  "name": "Push corset + CodeQL (trunk gate)",
+  "target": "branch",
+  "enforcement": "evaluate",
+  "conditions": {
+    "ref_name": {
+      "include": ["refs/heads/master", "refs/heads/main"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": false,
+        "required_status_checks": [
+          {
+            "context": "Security: gitleaks (secret scan)"
+          },
+          {
+            "context": ".NET: push corset (build + fast core Core/Decisioning)"
+          },
+          {
+            "context": "Operator UI: typecheck (blocking)"
+          },
+          {
+            "context": "CodeQL (csharp)"
+          },
+          {
+            "context": "CodeQL (javascript)"
+          }
+        ]
+      }
+    }
+  ]
+}
