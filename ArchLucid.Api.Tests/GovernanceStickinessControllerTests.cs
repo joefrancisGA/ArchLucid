@@ -1188,6 +1188,28 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_owner_user_id_exceeds_max_length()
+    {
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(riskExceptions: riskExceptions);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            OwnerUserId = new string('o', 257),
+            Rationale = "accepted risk",
+            EvidenceRef = "evidence-1",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CreateRiskException_returns_bad_request_when_evidence_ref_exceeds_max_length()
     {
         Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
@@ -1513,7 +1535,8 @@ public sealed class GovernanceStickinessControllerTests
     [Fact]
     public async Task CreateRecurrenceSchedule_returns_bad_request_when_source_run_empty()
     {
-        GovernanceStickinessController controller = BuildSut();
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo);
 
         CreateArchitectureReviewRecurrenceScheduleRequest request = new()
         {
@@ -1525,12 +1548,14 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recurrenceRepo.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task CreateRecurrenceSchedule_returns_bad_request_when_is_enabled_omitted()
     {
-        GovernanceStickinessController controller = BuildSut();
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo);
 
         CreateArchitectureReviewRecurrenceScheduleRequest request = new()
         {
@@ -1542,6 +1567,7 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recurrenceRepo.VerifyNoOtherCalls();
     }
 
     [Fact]

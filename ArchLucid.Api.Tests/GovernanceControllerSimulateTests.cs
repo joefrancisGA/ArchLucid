@@ -489,6 +489,22 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task GeneratePolicyPack_returns_bad_request_when_prompt_exceeds_max_length()
+    {
+        Mock<IPolicyPackGeneratorService> generator = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(generatorService: generator.Object);
+
+        IActionResult action = await sut.GeneratePolicyPack(
+            new GeneratePolicyPackRequest { Prompt = new string('p', 8001) },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        generator.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GeneratePolicyPack_returns_not_found_when_tenant_missing()
     {
         Mock<IPolicyPackGeneratorService> generator = new(MockBehavior.Strict);

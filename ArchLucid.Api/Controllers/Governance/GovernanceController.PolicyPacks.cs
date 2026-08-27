@@ -323,6 +323,9 @@ public sealed partial class GovernanceController
         if (input.Prompt.Trim().Length < 20)
             return this.BadRequestProblem("Prompt must be at least 20 characters.", ProblemTypes.ValidationFailed);
 
+        if (input.Prompt.Length > 8000)
+            return this.BadRequestProblem("Prompt must not exceed 8000 characters.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

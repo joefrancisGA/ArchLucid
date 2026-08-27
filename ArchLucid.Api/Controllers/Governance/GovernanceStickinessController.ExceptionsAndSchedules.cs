@@ -43,6 +43,13 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.OwnerUserId is not null && request.OwnerUserId.Length > 256)
+        {
+            return this.BadRequestProblem(
+                "OwnerUserId must not exceed 256 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -191,6 +198,12 @@ public sealed partial class GovernanceStickinessController
                 "Name must not exceed 300 characters.",
                 ProblemTypes.ValidationFailed);
         }
+
+        if (request.SourceRunId == Guid.Empty)
+            return this.BadRequestProblem("sourceRunId must not be an empty GUID.", ProblemTypes.ValidationFailed);
+
+        if (request.IsEnabled is null)
+            return this.BadRequestProblem("isEnabled is required.", ProblemTypes.ValidationFailed);
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
