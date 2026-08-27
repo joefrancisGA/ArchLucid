@@ -76,6 +76,31 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     expect(metrics.evidenceSources).toBe(2);
     expect(metrics.hasReviews).toBe(true);
   });
+
+  it("excludes archived runs from workspace metrics aggregates", () => {
+    const items: RunSummary[] = [
+      makeRun({
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        hasGoldenManifest: false,
+      }),
+      makeRun({
+        runId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        isArchived: true,
+        hasGoldenManifest: true,
+        findingCount: 5,
+        hasGovernanceWarnings: true,
+        hasContextSnapshot: true,
+      }),
+    ];
+
+    const metrics = deriveOperatorHomeWorkspaceMetrics(items, 2);
+
+    expect(metrics.reviewPackagesCommitted).toBe(0);
+    expect(metrics.reviewPackagesActive).toBe(1);
+    expect(metrics.openFindings).toBe(0);
+    expect(metrics.governanceWarnings).toBe(0);
+    expect(metrics.evidenceSources).toBe(0);
+  });
 });
 
 describe("formatSetupReadinessLabel", () => {
