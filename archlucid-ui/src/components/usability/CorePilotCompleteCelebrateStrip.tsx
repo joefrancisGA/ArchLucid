@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Shown after Core Pilot completes — suggests analysis and sponsor handoff next steps. */
@@ -20,7 +20,7 @@ export function CorePilotCompleteCelebrateStrip(): React.JSX.Element | null {
   return (
     <section
       aria-labelledby="core-pilot-complete-heading"
-      className="mb-3 rounded-lg border border-teal-200 bg-teal-50/60 px-4 py-3 dark:border-teal-900/40 dark:bg-teal-950/20"
+      className={OPERATOR_RESUME.stripCelebrate}
       data-testid="core-pilot-complete-celebrate-strip"
     >
       <h2

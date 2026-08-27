@@ -144,8 +144,8 @@ export function RecurrenceScheduleExamplesSection(props: RecurrenceScheduleExamp
           );
 
           const itemClassName = isCompact
-            ? "sidebar-disclosure-trigger group flex w-full items-center justify-between gap-3 rounded-md border border-transparent px-2 py-2 text-left transition-colors hover:border-teal-600 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:border-teal-400 dark:hover:bg-neutral-900"
-            : "sidebar-disclosure-trigger w-full rounded-md border border-neutral-200 px-3 py-2 text-left transition-colors hover:border-teal-600 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-neutral-700 dark:hover:border-teal-400 dark:hover:bg-neutral-900";
+            ? "sidebar-disclosure-trigger group flex w-full items-center justify-between gap-3 rounded-md border border-transparent px-2 py-2 text-left transition-colors hover:border-neutral-400 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:border-neutral-500 dark:hover:bg-neutral-900"
+            : "sidebar-disclosure-trigger w-full rounded-md border border-neutral-200 px-3 py-2 text-left transition-colors hover:border-neutral-400 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-neutral-700 dark:hover:border-neutral-500 dark:hover:bg-neutral-900";
 
           return (
             <li key={example.title}>
@@ -163,7 +163,7 @@ export function RecurrenceScheduleExamplesSection(props: RecurrenceScheduleExamp
                       <span className="min-w-0 flex-1">{body}</span>
                       <span
                         className={cn(
-                          "flex shrink-0 items-center gap-1 text-teal-700 dark:text-teal-400",
+                          "flex shrink-0 items-center gap-1 text-al-text-secondary dark:text-neutral-400",
                           OPERATOR_TYPOGRAPHY.helper,
                         )}
                         aria-hidden="true"

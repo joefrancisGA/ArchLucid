@@ -320,7 +320,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
     >
       {hasAnyRun ? (
         <div className="mb-3 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2.5">
-          <h2 id="first-run-workflow-heading" className={cn("m-0 font-semibold text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          <h2 id="first-run-workflow-heading" className={cn("m-0 font-semibold text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING}
           </h2>
           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -424,7 +424,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 </p>
                 <ul className={cn("m-0 mt-1.5 list-disc space-y-1.5 pl-4 leading-snug text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
                   {CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.map((line) => (
-                    <li key={line} className="pl-0.5 marker:text-teal-700 dark:marker:text-teal-400">
+                    <li key={line} className="pl-0.5 marker:text-neutral-600 dark:marker:text-neutral-400">
                       {line}
                     </li>
                   ))}

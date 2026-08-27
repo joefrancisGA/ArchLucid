@@ -195,7 +195,7 @@ export function ArchitectureDraftOverviewRewritePanel(
 
   return (
     <div
-      className="space-y-3 rounded-md border border-teal-700/25 bg-al-surface-raised p-3"
+      className="space-y-3 rounded-md border border-neutral-200 bg-al-surface-raised p-3"
       data-testid="architecture-draft-overview-rewrite-panel"
     >
       <div className="space-y-1">

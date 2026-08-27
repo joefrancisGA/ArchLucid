@@ -81,7 +81,7 @@ function ProvenanceSectionLinks(props: {
                 "block rounded-md px-2 py-1 underline decoration-1 underline-offset-2",
                 active
                   ? "bg-[var(--al-layer-hover)] font-semibold text-al-text-primary decoration-[var(--al-accent-interactive)] decoration-2 dark:bg-neutral-800/80"
-                  : "text-neutral-600 decoration-neutral-300 hover:text-teal-800 dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-teal-300",
+                  : "text-neutral-600 decoration-neutral-300 hover:text-al-text-primary dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-200",
               )}
               aria-current={active ? "location" : undefined}
               onClick={(event) => {

@@ -211,7 +211,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
 
     return (
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800">
-        <h3 className={cn("m-0 font-semibold text-teal-900 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
+        <h3 className={cn("m-0 font-semibold text-al-text-primary dark:text-neutral-100", OPERATOR_NAV_GROUP_LABEL)}>
           {FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE} — suggested next step
         </h3>
         <p className={cn("m-0 mt-2 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
@@ -295,7 +295,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
                 id="help-guides-search"
                 type="search"
                 className={cn(
-                  "h-9 border-neutral-200 bg-white pl-8 font-normal text-neutral-900 shadow-none placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-teal-500 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+                  "h-9 border-neutral-200 bg-white pl-8 font-normal text-neutral-900 shadow-none placeholder:text-neutral-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
                   OPERATOR_TYPOGRAPHY.body,
                 )}
                 placeholder="Search help, docs, or shortcuts"
@@ -317,7 +317,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
             <TabsContent value="guides" className="space-y-4 pt-0" data-testid="help-panel-tabpanel-guides">
               {corePilotPinnedHelp}
               <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800">
-                <h3 className={cn("m-0 font-semibold text-teal-900 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
+                <h3 className={cn("m-0 font-semibold text-al-text-primary dark:text-neutral-100", OPERATOR_NAV_GROUP_LABEL)}>
                   Key concepts
                 </h3>
                 <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>

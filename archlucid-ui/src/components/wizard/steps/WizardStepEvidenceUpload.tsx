@@ -38,7 +38,7 @@ import {
   type WizardEvidenceSourceId,
   type WizardEvidenceSourceOption,
 } from "@/lib/wizard-evidence-source-options";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
 
 export type WizardStepEvidenceUploadProps = {
   pendingFile: File | null;
@@ -119,7 +119,7 @@ function EvidenceSourcePicker(props: {
             className={cn(
               "rounded-md border p-3 text-left transition-colors",
               selected
-                ? "border-teal-600 bg-teal-50/80 ring-1 ring-teal-600 dark:border-teal-500 dark:bg-teal-950/30 dark:ring-teal-500"
+                ? OPERATOR_SELECTION.tile
                 : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700",
               "text-neutral-800 dark:text-neutral-100",
             )}
@@ -130,7 +130,7 @@ function EvidenceSourcePicker(props: {
           >
             <div className="flex items-start justify-between gap-2">
               <div className="flex min-w-0 items-center gap-2">
-                <Icon className="h-4 w-4 shrink-0 text-teal-700 dark:text-teal-300" aria-hidden />
+                <Icon className="h-4 w-4 shrink-0 text-al-text-secondary dark:text-neutral-300" aria-hidden />
                 <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{option.label}</p>
               </div>
               <EvidenceSourceBadge availability={option.availability} />

@@ -317,7 +317,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
   return (
     <EnterpriseTableRow
       style={style}
-      className={isFocused ? "ring-2 ring-inset ring-teal-700/40 dark:ring-teal-400/40" : undefined}
+      className={isFocused ? "ring-2 ring-inset ring-neutral-500/40 dark:ring-neutral-400/40" : undefined}
       tabIndex={row.recordKind === "finding" ? 0 : undefined}
       data-finding-id={row.recordKind === "finding" ? row.findingId : undefined}
       aria-label={row.recordKind === "finding" ? `Finding: ${row.title}` : undefined}

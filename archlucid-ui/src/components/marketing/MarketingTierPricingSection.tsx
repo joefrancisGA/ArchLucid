@@ -222,7 +222,7 @@ function MarketingTierPricingSectionInner(props: MarketingTierPricingSectionProp
                           <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-800 dark:text-neutral-200", MARKETING_TYPOGRAPHY.meta)}>
                             {includedLines.map((line) => (
                               <li key={line} className="flex gap-2">
-                                <span aria-hidden className="text-teal-700 dark:text-teal-300">
+                                <span aria-hidden className="text-al-text-secondary dark:text-neutral-300">
                                   ✓
                                 </span>
                                 <span>{line}</span>
@@ -239,7 +239,7 @@ function MarketingTierPricingSectionInner(props: MarketingTierPricingSectionProp
                           <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.meta)}>
                             {highlights.map((line) => (
                               <li key={line} className="flex gap-2">
-                                <span aria-hidden className="text-teal-700 dark:text-teal-300">
+                                <span aria-hidden className="text-al-text-secondary dark:text-neutral-300">
                                   ✓
                                 </span>
                                 <span>{line}</span>

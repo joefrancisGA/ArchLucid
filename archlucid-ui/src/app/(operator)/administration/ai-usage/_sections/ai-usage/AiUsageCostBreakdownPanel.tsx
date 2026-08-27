@@ -16,7 +16,7 @@ import {
 import type { AiUsageBreakdownRow } from "@/lib/ai-usage-dashboard-model";
 import type { AiUsageBreakdownGroupBy } from "@/lib/ai-usage-dashboard-filters";
 import { formatCostReportingEstimatedUsd } from "@/app/(operator)/administration/ai-usage/_sections/cost-reporting-page-helpers";
-import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
 import { AiUsageSectionState } from "./AiUsageSectionState";
 
 type Props = {
@@ -57,7 +57,7 @@ export function AiUsageCostBreakdownPanel(props: Props) {
                 "rounded-md border px-2.5 py-1",
                 OPERATOR_TYPOGRAPHY.helper,
                 props.groupBy === option.id
-                  ? "border-teal-700 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-100"
+                  ? OPERATOR_SELECTION.tile
                   : "border-neutral-200 text-al-text-secondary hover:text-al-text-primary dark:border-neutral-700",
               )}
               aria-pressed={props.groupBy === option.id}

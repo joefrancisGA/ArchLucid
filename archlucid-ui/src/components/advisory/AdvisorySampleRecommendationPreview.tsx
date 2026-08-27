@@ -34,7 +34,7 @@ export function AdvisorySampleRecommendationPreview(): React.JSX.Element {
     <section
       id="advisory-sample-recommendation"
       data-testid="advisory-sample-recommendation"
-      className={cn(OPERATOR_SURFACE_CARD_CLASS, "border-teal-200/80 bg-teal-50/30 dark:border-teal-900/60 dark:bg-teal-950/20")}
+      className={cn(OPERATOR_SURFACE_CARD_CLASS, "border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40")}
       aria-label={ADVISORY_SCANS_SAMPLE_SECTION_TITLE}
       tabIndex={-1}
     >

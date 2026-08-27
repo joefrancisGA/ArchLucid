@@ -19,10 +19,10 @@ export function PersistentSponsorEmailStrip(props: PersistentSponsorEmailStripPr
 
   return (
     <div
-      className="sticky top-[calc(var(--app-shell-sticky,6rem)+0.5rem)] z-10 mb-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-teal-200 bg-teal-50/90 px-3 py-2 dark:border-teal-900 dark:bg-teal-950/40"
+      className="sticky top-[calc(var(--app-shell-sticky,6rem)+0.5rem)] z-10 mb-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="persistent-sponsor-email-strip"
     >
-      <p className={cn("m-0 text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         Review finalized — download sponsor exports below or open the full handoff package.
       </p>
       <Button type="button" variant="outline" size="sm" asChild>

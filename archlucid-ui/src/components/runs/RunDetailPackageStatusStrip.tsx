@@ -197,7 +197,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
           {props.hasGoldenManifest && hasManifest ? (
             <Link
               href={signedRecordDetailPath(trimmedManifestId)}
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:outline-offset-neutral-950", inlineLinkClass)}
               data-testid="run-detail-finalized-package-link"
             >
               {packageBody}
@@ -217,7 +217,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
           <div className="mt-1">
             <Link
               href={props.showcasePolicyPackStrip.href.trim()}
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:outline-offset-neutral-950", inlineLinkClass)}
             >
               <p className={valueClass}>{props.showcasePolicyPackStrip.label.trim()}</p>
               <p className={detailClass}>Read-only pack rules and version</p>
@@ -232,7 +232,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
           {hasManifest ? (
             <Link
               href="#run-explanation"
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:outline-offset-neutral-950", inlineLinkClass)}
             >
               {findingsBody}
             </Link>
@@ -248,7 +248,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
           {hasManifest ? (
             <Link
               href="#artifacts-exports"
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:outline-offset-neutral-950", inlineLinkClass)}
             >
               <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
               <p className={detailClass}>Export-ready deliverables</p>

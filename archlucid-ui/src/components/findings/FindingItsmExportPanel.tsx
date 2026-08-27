@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundCreateIssueDialog } from "@/components/itsm/ItsmOutboundCreateIssueDialog";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
 import { ITSM_NATIVE_CREATE_ADMIN_HREF } from "@/lib/itsm/itsm-native-create-readiness-alignment";
 import { useItsmNativeCreateReadiness } from "@/lib/use-itsm-native-create-enabled";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -23,7 +23,7 @@ export function FindingItsmExportPanel({ runId, findingId, payload }: FindingIts
   if (defaultPathReady) {
     return (
       <section
-        className="rounded-lg border border-teal-200 bg-teal-50/60 p-4 dark:border-teal-900 dark:bg-teal-950/30"
+        className={OPERATOR_RESUME.stripPadded}
         aria-labelledby="finding-itsm-native-default-heading"
         data-testid="finding-itsm-native-default-panel"
       >
@@ -40,7 +40,7 @@ export function FindingItsmExportPanel({ runId, findingId, payload }: FindingIts
         <div className="flex flex-wrap items-center gap-3 pt-3">
           <ItsmOutboundCreateIssueDialog findingId={findingId} prominent />
         </div>
-        <div className="mt-4 border-t border-teal-100 pt-3 dark:border-teal-900/60">
+        <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-700">
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Prefer clipboard export?
           </p>
@@ -54,7 +54,7 @@ export function FindingItsmExportPanel({ runId, findingId, payload }: FindingIts
 
   return (
     <section
-      className="rounded-lg border border-teal-200 bg-teal-50/60 p-4 dark:border-teal-900 dark:bg-teal-950/30"
+      className={OPERATOR_RESUME.stripPadded}
       aria-labelledby="finding-itsm-export-heading"
       data-testid="finding-itsm-export-panel"
     >

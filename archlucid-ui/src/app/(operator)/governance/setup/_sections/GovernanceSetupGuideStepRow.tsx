@@ -100,7 +100,7 @@ export function GovernanceSetupGuideStepRow({
                 Step {step.stepNumber}
               </span>
               {recommendedNext ? (
-                <span className={cn("font-medium text-teal-900 dark:text-teal-200", OPERATOR_TYPOGRAPHY.micro)}>
+                <span className={cn("font-medium text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.micro)}>
                   Recommended next
                 </span>
               ) : null}

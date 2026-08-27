@@ -208,7 +208,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
                 "border-b border-neutral-100 pb-4 last:border-b-0 last:pb-0 dark:border-neutral-800",
 
-                isHighlightedNext ? "rounded-md border-l-4 border-l-teal-600 bg-teal-50/40 pl-3 dark:border-l-teal-400 dark:bg-teal-950/20" : null,
+                isHighlightedNext ? "rounded-md border-l-4 border-l-neutral-700 bg-neutral-50/80 pl-3 dark:border-l-neutral-400 dark:bg-neutral-900/40" : null,
 
               )}
 
@@ -248,7 +248,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
               {isHighlightedNext ? (
 
-                <p className={cn("m-0 mt-2 font-medium text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}>
+                <p className={cn("m-0 mt-2 font-medium text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
 
                   Next: {stepPresentation.label}
 
@@ -300,7 +300,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
         >
 
-          <p className={cn("m-0 font-medium text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>
+          <p className={cn("m-0 font-medium text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
 
             Required first-review steps are complete — open your finalized architecture review to explore the full review.
 

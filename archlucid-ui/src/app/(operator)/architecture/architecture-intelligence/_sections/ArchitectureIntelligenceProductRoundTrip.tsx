@@ -29,7 +29,7 @@ export function ArchitectureIntelligenceProductRoundTrip(
 
   return (
     <div
-      className="space-y-2 rounded-md border border-teal-700/30 bg-al-surface-raised p-3"
+      className="space-y-2 rounded-md border border-neutral-200 bg-al-surface-raised p-3"
       data-testid="architecture-intelligence-product-round-trip"
     >
       {props.publishedToProduct ? (

@@ -122,7 +122,7 @@ export function ManifestDetailDeliverablesCard(props: ManifestDetailDeliverables
           <details className="group rounded-md border border-neutral-200/90 bg-neutral-50/40 p-3 dark:border-neutral-800 dark:bg-neutral-950/30">
             <summary
               className={cn(
-                "cursor-pointer select-none text-al-text-primary outline-none marker:text-al-text-secondary focus-visible:ring-2 focus-visible:ring-teal-500/80",
+                "cursor-pointer select-none text-al-text-primary outline-none marker:text-al-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]",
                 OPERATOR_DISCLOSURE_TRIGGER_CLASS,
               )}
             >

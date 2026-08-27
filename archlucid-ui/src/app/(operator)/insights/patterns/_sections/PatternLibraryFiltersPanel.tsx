@@ -42,7 +42,7 @@ export function PatternLibraryFiltersPanel(props: PatternLibraryFiltersPanelProp
           }}
           placeholder={PATTERN_LIBRARY_SEARCH_PLACEHOLDER}
           className={cn(
-            "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 dark:border-neutral-700 dark:bg-neutral-950",
+            "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950",
             OPERATOR_TYPOGRAPHY.body,
           )}
           autoComplete="off"
@@ -214,7 +214,7 @@ export function PatternLibraryDomainPlatformBadges(props: {
         <BadgeChip key={domain}>{domain}</BadgeChip>
       ))}
       {props.platforms.map((platform) => (
-        <BadgeChip key={platform} className="border-teal-300/70 dark:border-teal-800">
+        <BadgeChip key={platform} className="border-neutral-300 dark:border-neutral-700">
           {platform}
         </BadgeChip>
       ))}

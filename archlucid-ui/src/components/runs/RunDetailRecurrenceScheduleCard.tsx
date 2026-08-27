@@ -125,7 +125,7 @@ export function RunDetailRecurrenceScheduleCard({ runId }: RunDetailRecurrenceSc
       <p className={cn("m-0 mb-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Clone this committed review on a schedule so governance does not depend on operator memory.
       </p>
-      {statusMessage ? <p className={cn("m-0 mb-2 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>{statusMessage}</p> : null}
+      {statusMessage ? <p className={cn("m-0 mb-2 text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{statusMessage}</p> : null}
       {errorMessage ? <p className={cn("m-0 mb-2 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{errorMessage}</p> : null}
       {existing ? (
         <ul className={cn("m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>

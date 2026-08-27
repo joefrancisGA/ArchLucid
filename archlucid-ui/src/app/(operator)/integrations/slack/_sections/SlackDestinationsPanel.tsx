@@ -160,7 +160,7 @@ export function SlackDestinationsPanel(props: SlackDestinationsPanelProps): Reac
                         className={cn(
                           "m-0 mt-2",
                           OPERATOR_TYPOGRAPHY.helper,
-                          feedback.kind === "error" ? "text-red-700 dark:text-red-300" : "text-teal-800 dark:text-teal-200",
+                          feedback.kind === "error" ? "text-red-700 dark:text-red-300" : "text-al-text-secondary dark:text-neutral-200",
                         )}
                       >
                         {feedback.message}

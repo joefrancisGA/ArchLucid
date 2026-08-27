@@ -96,13 +96,13 @@ export function EmailRunToSponsorBanner({
       aria-label="Sponsor sponsor deliverables (downstream)"
       className="mb-6 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3"
     >
-      <p className={cn("m-0 flex flex-wrap items-center font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 flex flex-wrap items-center font-semibold uppercase tracking-wide text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         <span>{buyerPolishedShell ? "Downstream deliverable" : "Sponsor distribution"}</span>
         {badgeDayN !== null ? (
           <span
             data-testid="email-run-to-sponsor-first-commit-badge"
             aria-label={`Day ${badgeDayN} since your tenant's first finalized review record`}
-            className={cn("ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("ml-2 inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 font-medium text-al-text-primary dark:bg-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}
           >
             Day {badgeDayN} since first finalization
           </span>
@@ -110,7 +110,7 @@ export function EmailRunToSponsorBanner({
         {timeToFirstCommitHours !== null ? (
           <span
             data-testid="email-run-to-sponsor-time-to-first-commit"
-            className={cn("ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("ml-2 inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 font-medium text-al-text-primary dark:bg-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}
           >
             {timeToFirstCommitHours.toFixed(2)} h to first finalization
           </span>
@@ -120,7 +120,7 @@ export function EmailRunToSponsorBanner({
         && isProjectedUsdSponsorBadgeVisible(proofGate.payload) ? (
           <span
             data-testid="email-run-to-sponsor-estimated-usd-savings"
-            className={cn("ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("ml-2 inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 font-medium text-al-text-primary dark:bg-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}
           >
             {formatUsd(estimatedUsdSavings)} projected savings (estimate)
           </span>
@@ -317,7 +317,7 @@ export function EmailRunToSponsorBanner({
                 ? cn("mt-2 px-3 py-2", OPERATOR_CALLOUT_WARN_CLASS)
                 : readinessCopy.variant === "ready"
                   ? cn(
-                      "mt-2 rounded-md border border-teal-500 bg-white/90 px-3 py-2 text-teal-950 dark:border-teal-600 dark:bg-teal-950/30 dark:text-teal-50",
+                      "mt-2 rounded-md border border-neutral-300 bg-white/90 px-3 py-2 text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-100",
                       OPERATOR_TYPOGRAPHY.body,
                     )
                   : cn(

@@ -35,7 +35,7 @@ export function CtoDemoDataSourceBadge(props: CtoDemoDataSourceBadgeProps): Reac
   if (isLiveApi) {
     return (
       <span
-        className={cn("inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 font-medium text-teal-900 dark:border-teal-900/50 dark:bg-teal-950/40 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper,
+        className={cn("inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 font-medium text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper,
           OPERATOR_TYPOGRAPHY.badge,
           className,
         )}

@@ -65,7 +65,7 @@ type RunDetailOutcomeCardsProps = {
  * Top-of-run proof summary: reviewers see outcomes before scrolling to timeline and agent diagnostics.
  */
 const samePageJumpClass =
-  "block rounded-lg no-underline outline-none ring-offset-2 transition hover:ring-2 hover:ring-teal-500/40 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950";
+  "block rounded-lg no-underline outline-none ring-offset-2 transition hover:ring-2 hover:ring-neutral-400/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:outline-offset-neutral-950";
 
 export function RunDetailOutcomeCards({
   runId,

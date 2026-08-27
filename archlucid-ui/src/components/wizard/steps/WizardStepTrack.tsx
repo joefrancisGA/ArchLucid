@@ -160,7 +160,7 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
 
       {manifest ? (
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 p-4">
-          <p className={cn("m-0 font-semibold text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>{SIGNED_MANIFEST_LABEL} is available.</p>
+          <p className={cn("m-0 font-semibold text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{SIGNED_MANIFEST_LABEL} is available.</p>
           <nav className={cn("mt-3 flex flex-wrap gap-x-3 gap-y-2", OPERATOR_TYPOGRAPHY.body)}>
             <Link
               className={OPERATOR_LINK.nav}

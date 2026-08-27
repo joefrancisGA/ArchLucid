@@ -65,7 +65,7 @@ export function QuickReviewProofScopeField(props: QuickReviewProofScopeFieldProp
             >
               <input
                 type="checkbox"
-                className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600"
+                className="h-4 w-4 rounded border-neutral-300 text-neutral-700 focus:ring-neutral-400"
                 checked={checked}
                 onChange={() => {
                   toggle(option.id);

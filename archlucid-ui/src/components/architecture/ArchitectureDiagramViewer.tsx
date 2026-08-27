@@ -182,7 +182,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         role="img"
         aria-label="Architecture diagram"
         aria-describedby={`${renderId}-alt`}
-        className="max-h-[28rem] overflow-auto rounded-md border border-neutral-200 bg-white p-4 outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:border-neutral-700 dark:bg-neutral-950/80"
+        className="max-h-[28rem] overflow-auto rounded-md border border-neutral-200 bg-white p-4 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950/80"
         data-testid="architecture-diagram-viewport"
       >
         {diagramBody}

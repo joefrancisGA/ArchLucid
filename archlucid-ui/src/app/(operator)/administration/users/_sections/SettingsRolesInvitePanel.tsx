@@ -116,7 +116,7 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialM
     <>
       {inviteSentForReviewId !== null ? (
         <div
-          className="mb-4 rounded-md border border-teal-200 bg-teal-50 px-3 py-3 dark:border-teal-900 dark:bg-teal-950/40"
+          className="mb-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-3 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="settings-roles-invite-review-handoff"
           role="status"
         >

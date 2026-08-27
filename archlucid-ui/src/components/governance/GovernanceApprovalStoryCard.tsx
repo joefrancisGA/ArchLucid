@@ -71,7 +71,7 @@ export function GovernanceApprovalStoryCard(props: {
       className={cn(
         "mb-8 border-neutral-200 bg-al-surface-raised dark:border-neutral-800",
         emphasizeComplete && promoteReady
-          ? "mb-8 border-2 border-teal-600 shadow-xl ring-1 ring-teal-500/25 dark:border-teal-500"
+          ? "mb-8 border-2 border-neutral-400 shadow-xl ring-1 ring-neutral-400/25 dark:border-neutral-500"
           : null,
       )}
     >
@@ -126,7 +126,7 @@ export function GovernanceApprovalStoryCard(props: {
                 )}
               >
                 <p className="m-0 flex items-center gap-2 font-semibold text-neutral-900 dark:text-neutral-50">
-                  <span aria-hidden className={s.done ? "text-teal-700 dark:text-teal-300" : "text-neutral-400"}>
+                  <span aria-hidden className={s.done ? "text-al-text-secondary dark:text-neutral-300" : "text-neutral-400"}>
                     {s.done ? "✓" : "○"}
                   </span>
                   {s.label}
@@ -141,7 +141,7 @@ export function GovernanceApprovalStoryCard(props: {
         </p>
       </CardContent>
       {auditTrailHref.length > 0 ? (
-        <CardFooter className="flex flex-col items-start gap-2 border-t border-teal-200/70 pt-4 dark:border-teal-900/60">
+        <CardFooter className="flex flex-col items-start gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-700">
           <Button type="button" asChild variant="primary" size="lg" className={CTA_WIDTH.content}>
             <Link href={auditTrailHref}>Open audit trail</Link>
           </Button>

@@ -22,7 +22,7 @@ export function MarketingPricingEarlyAdopterBanner(props: MarketingPricingEarlyA
         <span className="font-semibold text-al-text-primary">Early adopter pricing:</span> {BUYER_EARLY_ADOPTER_PRICING_BANNER_SUMMARY}
       </p>
       <details className="mt-2">
-        <summary className={cn("cursor-pointer select-none font-medium text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>
+        <summary className={cn("cursor-pointer select-none font-medium text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           View full early-adopter terms
         </summary>
         <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_EARLY_ADOPTER_PRICING_NOTE}</p>

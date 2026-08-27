@@ -66,10 +66,10 @@ export function ThemePreferenceSelector(props: Props) {
                 htmlFor={inputId}
                 className={cn(
                   "relative block cursor-pointer rounded-lg border p-3 transition-colors",
-                  "focus-within:ring-2 focus-within:ring-teal-700 focus-within:ring-offset-2 dark:focus-within:ring-teal-500",
+                  "focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--al-accent-border-focus)]",
                   "forced-colors:border forced-colors:outline-offset-2",
                   selected
-                    ? "border-teal-700 bg-teal-50/70 ring-2 ring-teal-700/30 dark:border-teal-500 dark:bg-teal-950/30 dark:ring-teal-400/30 forced-colors:outline"
+                    ? "border-neutral-500 bg-neutral-50/80 ring-2 ring-neutral-400/30 dark:border-neutral-500 dark:bg-neutral-900/40 dark:ring-neutral-400/30 forced-colors:outline"
                     : "border-neutral-200 bg-al-surface-raised hover:border-neutral-300 dark:border-neutral-700 dark:hover:border-neutral-600",
                 )}
                 data-testid={`theme-preference-option-${option.value}`}
@@ -86,7 +86,7 @@ export function ThemePreferenceSelector(props: Props) {
                 />
                 {selected ? (
                   <span
-                    className="absolute right-3 top-3 inline-flex items-center gap-1 text-teal-800 dark:text-teal-300"
+                    className="absolute right-3 top-3 inline-flex items-center gap-1 text-al-text-secondary dark:text-neutral-300"
                     aria-hidden="true"
                   >
                     <Check className="h-4 w-4" />

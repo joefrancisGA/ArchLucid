@@ -423,7 +423,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             role="status"
             data-testid="compare-ask-narrative-banner"
           >
-            <p className={cn("m-0 mb-1 uppercase tracking-wide text-teal-800 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
+            <p className={cn("m-0 mb-1 uppercase tracking-wide text-al-text-secondary dark:text-neutral-200", OPERATOR_NAV_GROUP_LABEL)}>
               ✦ AI narrative
             </p>
             <p className="m-0 whitespace-pre-wrap">{comparisonNarrative}</p>
@@ -486,7 +486,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             id="compare-ai"
             className="group mt-6 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
           >
-            <summary className={cn("flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-al-text-primary outline-none ring-offset-2 marker:content-none focus-visible:ring-2 focus-visible:ring-teal-600 [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+            <summary className={cn("flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-al-text-primary outline-none ring-offset-2 marker:content-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               <DisclosureTriangleIndicator />
               <h2 className={cn("m-0 inline text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 {buyerPolished

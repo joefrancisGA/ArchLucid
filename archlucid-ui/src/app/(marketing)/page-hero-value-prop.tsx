@@ -33,10 +33,10 @@ const FLOW_PANELS: readonly ValuePropFlowPanel[] = [
 function FlowConnector(props: { readonly className?: string }): ReactNode {
   return (
     <>
-      <div className={cn("flex justify-center py-1 text-teal-700 dark:text-teal-300 md:hidden", props.className)} aria-hidden>
+      <div className={cn("flex justify-center py-1 text-al-text-secondary dark:text-neutral-300 md:hidden", props.className)} aria-hidden>
         <ArrowDown className="size-5 shrink-0" strokeWidth={2} />
       </div>
-      <div className={cn("hidden items-center justify-center px-1 text-teal-700 dark:text-teal-300 md:flex", props.className)} aria-hidden>
+      <div className={cn("hidden items-center justify-center px-1 text-al-text-secondary dark:text-neutral-300 md:flex", props.className)} aria-hidden>
         <ArrowRight className="size-5 shrink-0" strokeWidth={2} />
       </div>
     </>

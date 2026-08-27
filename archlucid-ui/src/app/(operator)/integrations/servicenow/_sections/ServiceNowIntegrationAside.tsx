@@ -86,7 +86,7 @@ export function ServiceNowIntegrationAside(props: Props): React.ReactElement {
                 OPERATOR_TYPOGRAPHY.helper,
                 props.lastTestSuccess === false
                   ? "border-red-200 text-red-800 dark:border-red-900 dark:text-red-200"
-                  : "border-teal-200 text-teal-900 dark:border-teal-900 dark:text-teal-100",
+                  : "border-neutral-200 text-al-text-primary dark:border-neutral-700 dark:text-neutral-100",
               )}
             >
               {props.lastTestSummary}

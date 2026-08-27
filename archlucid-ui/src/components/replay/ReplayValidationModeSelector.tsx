@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
 import {
   REPLAY_VALIDATION_MODES,
   type ReplayValidationModeDefinition,
@@ -54,7 +54,7 @@ function ReplayValidationModeCard(props: ReplayValidationModeCardProps) {
       className={cn(
         "rounded-md border p-3 text-left transition-colors",
         selected
-          ? "border-teal-600 bg-teal-50/80 ring-1 ring-teal-600 dark:border-teal-500 dark:bg-teal-950/30 dark:ring-teal-500"
+          ? OPERATOR_SELECTION.tile
           : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700",
         disabled && "cursor-not-allowed opacity-60",
       )}

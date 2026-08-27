@@ -311,7 +311,7 @@ export function SponsorWorkspaceHealthDashboard() {
         )}
         data-testid="sponsor-workspace-health-session-scope"
       >
-        <summary className="cursor-pointer font-semibold text-teal-900 dark:text-teal-100">
+        <summary className="cursor-pointer font-semibold text-al-text-primary dark:text-neutral-100">
           {SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY}
         </summary>
         <p className="m-0 mt-2 leading-snug" role="status">
@@ -327,7 +327,7 @@ export function SponsorWorkspaceHealthDashboard() {
         role="status"
         data-testid="sponsor-workspace-health-session-scope"
       >
-        <p className="m-0 font-semibold text-teal-900 dark:text-teal-100">
+        <p className="m-0 font-semibold text-al-text-primary dark:text-neutral-100">
           {SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY}
         </p>
         <p className="m-0 mt-1 leading-snug">{scopeBanner}</p>

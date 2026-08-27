@@ -83,7 +83,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
         data-testid={`first-week-route-guidance-${props.variant}`}
         className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2.5 leading-snug", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}
       >
-        <p className="m-0 font-semibold text-teal-900 dark:text-teal-200">{config.useWhen}</p>
+        <p className="m-0 font-semibold text-al-text-primary dark:text-neutral-100">{config.useWhen}</p>
         <GuidanceBody
           useWhen={config.useWhen}
           bridgeCopy={config.bridgeCopy}

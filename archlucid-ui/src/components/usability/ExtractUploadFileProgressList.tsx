@@ -20,7 +20,7 @@ export function ExtractUploadFileProgressList(props: ExtractUploadFileProgressLi
           <span
             className={
               file.status === "included"
-                ? "text-teal-800 dark:text-teal-300"
+                ? "text-al-text-secondary dark:text-neutral-300"
                 : file.status === "failed"
                   ? "text-rose-700 dark:text-rose-300"
                   : "text-neutral-500"

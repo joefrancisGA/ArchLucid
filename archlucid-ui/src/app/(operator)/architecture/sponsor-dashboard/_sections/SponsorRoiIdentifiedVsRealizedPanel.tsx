@@ -102,10 +102,10 @@ export function SponsorRoiIdentifiedVsRealizedPanel(
         </div>
 
         <div
-          className="rounded-md border border-teal-700/30 bg-al-surface-raised p-3 dark:border-teal-600/40"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-700"
           data-testid="exec-roi-realized-committed-card"
         >
-          <div className={cn("font-medium text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}>
+          <div className={cn("font-medium text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="inline-flex items-baseline gap-1.5">
               {SPONSOR_ROI_REALIZED_COMMITTED_LABEL}
               <RoiHeadlineMathTooltip />
@@ -118,9 +118,9 @@ export function SponsorRoiIdentifiedVsRealizedPanel(
             {realizedSavings.display}
           </div>
           {realizedSavings.footnote ? (
-            <p className={cn("mt-2 text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}>{realizedSavings.footnote}</p>
+            <p className={cn("mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>{realizedSavings.footnote}</p>
           ) : null}
-          <p className={cn("mt-2 text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}>
+          <p className={cn("mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
             {SPONSOR_ROI_REALIZED_COMMITTED_DESCRIPTION}
           </p>
           {buckets.hasBasisBreakdown && buckets.deferredWaivedAcceptedUsd > 0 ? (

@@ -82,7 +82,7 @@ export function DecisionRegisterTimeline(props: DecisionRegisterTimelineProps): 
             {group.items.map((row) => (
               <li key={row.decisionId ?? `${row.recordedAtUtc}-${row.title}`} className="relative">
                 <span
-                  className="absolute -left-[1.35rem] top-1.5 h-2.5 w-2.5 rounded-full border border-teal-700 bg-white dark:border-teal-400 dark:bg-neutral-950"
+                  className="absolute -left-[1.35rem] top-1.5 h-2.5 w-2.5 rounded-full border border-neutral-600 bg-white dark:border-neutral-400 dark:bg-neutral-950"
                   aria-hidden
                 />
                 <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{formatRecordedAt(row.recordedAtUtc)}</p>

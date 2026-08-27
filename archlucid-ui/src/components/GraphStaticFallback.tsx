@@ -7,14 +7,14 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 export function GraphStaticFallback() {
   return (
     <div
-      className="flex min-h-[320px] w-full flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-teal-300/80 bg-gradient-to-b from-teal-50/90 to-white px-4 py-6 dark:border-teal-800/60 dark:from-teal-950/35 dark:to-neutral-950/80"
+      className="flex min-h-[320px] w-full flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-neutral-300 bg-gradient-to-b from-neutral-50/90 to-white px-4 py-6 dark:border-neutral-700 dark:from-neutral-900/35 dark:to-neutral-950/80"
       data-testid="graph-static-fallback"
       role="img"
       aria-label="Evidence trail: context, primary finding, decisions, and finalized signed package"
     >
       <svg
         viewBox="0 0 440 200"
-        className="h-32 w-full max-w-md text-teal-800/90 dark:text-teal-200/90"
+        className="h-32 w-full max-w-md text-neutral-700/90 dark:text-neutral-300/90"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden
       >

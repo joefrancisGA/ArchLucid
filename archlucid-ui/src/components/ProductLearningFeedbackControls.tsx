@@ -103,7 +103,7 @@ export function ProductLearningFeedbackControls({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="m-0 font-semibold text-neutral-800 dark:text-neutral-100">{title}</p>
         {status === "saved" ? (
-          <span className="text-teal-700 dark:text-teal-300" role="status">
+          <span className="text-al-text-secondary dark:text-neutral-300" role="status">
             Feedback saved.
           </span>
         ) : null}

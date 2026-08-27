@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_SELECTION } from "@/lib/design-tokens";
 
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import {
@@ -44,7 +44,7 @@ export function CtoDemoStorySelector(props: CtoDemoStorySelectorProps): React.JS
                 data-testid={`cto-demo-story-option-${story.id}`}
                 className={cn("rounded-full border px-2 py-0.5 font-medium transition", OPERATOR_TYPOGRAPHY.helper,
                   selected
-                    ? "border-teal-700 bg-teal-50 text-teal-900 dark:border-teal-600 dark:bg-teal-950/50 dark:text-teal-100"
+                    ? OPERATOR_SELECTION.tile
                     : fullyBacked
                       ? "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
                       : "cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-500",

@@ -33,7 +33,7 @@ const ENVIRONMENT_OPTIONS = [
 
 /** Shared with Environment + Cloud selects so the wizard matches Input focus/border weight. */
 const wizardSelectTriggerClassName =
-  "w-full max-w-md border-neutral-200/90 bg-white text-left shadow-sm transition-colors hover:border-neutral-300 focus:ring-teal-600/35 dark:border-neutral-600 dark:bg-neutral-950/40 dark:hover:border-neutral-500";
+  "w-full max-w-md border-neutral-200/90 bg-white text-left shadow-sm transition-colors hover:border-neutral-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-600 dark:bg-neutral-950/40 dark:hover:border-neutral-500";
 
 /**
  * Step 2: system name, environment, cloud target (None, Azure, Aws, or Gcp).

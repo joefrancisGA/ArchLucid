@@ -138,7 +138,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
 
   return (
     <section
-      className="mb-6 rounded-lg border border-teal-200/80 bg-teal-50/40 p-4 dark:border-teal-900/50 dark:bg-teal-950/20"
+      className="mb-6 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
       aria-labelledby="policy-pack-impact-preview-heading"
       data-testid="policy-pack-impact-preview"
     >

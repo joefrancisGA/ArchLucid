@@ -123,7 +123,7 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
                 key={step.title}
                 className={cn("rounded-full px-2.5 py-0.5 font-medium", OPERATOR_TYPOGRAPHY.helper,
                   done
-                    ? "bg-teal-100 text-teal-900 dark:bg-teal-950 dark:text-teal-200"
+                    ? "bg-neutral-100 text-al-text-primary dark:bg-neutral-900 dark:text-neutral-100"
                     : "bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300",
                 )}
               >

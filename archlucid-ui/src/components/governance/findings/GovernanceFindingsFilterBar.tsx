@@ -157,7 +157,7 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
             >
               <button
                 type="button"
-                className="hover:text-teal-700 dark:hover:text-teal-300"
+                className="hover:text-al-text-primary dark:hover:text-neutral-200"
                 onClick={() => onRegisterFilterChange(preset.filter)}
               >
                 {preset.label}

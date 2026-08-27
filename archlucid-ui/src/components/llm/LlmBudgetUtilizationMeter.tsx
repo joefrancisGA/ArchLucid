@@ -82,7 +82,7 @@ export function LlmBudgetUtilizationMeter() {
               ? "text-rose-700 dark:text-rose-300"
               : tone === "warn"
                 ? "text-amber-800 dark:text-amber-200"
-                : "text-teal-800 dark:text-teal-300",
+                : "text-al-text-secondary dark:text-neutral-300",
           )}
           aria-live="polite"
         >

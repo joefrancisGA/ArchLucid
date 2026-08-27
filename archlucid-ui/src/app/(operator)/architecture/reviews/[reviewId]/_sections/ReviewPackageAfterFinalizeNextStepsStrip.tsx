@@ -26,7 +26,7 @@ export function ReviewPackageAfterFinalizeNextStepsStrip(
   return (
     <section
       className={cn(
-        "flex flex-wrap items-start justify-between gap-3 rounded-md border border-teal-200 bg-teal-50/60 px-4 py-3 dark:border-teal-900/50 dark:bg-teal-950/20",
+        "flex flex-wrap items-start justify-between gap-3 rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40",
         OPERATOR_TYPOGRAPHY.body,
       )}
       data-testid="review-package-after-finalize-next-steps-strip"

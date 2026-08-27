@@ -46,7 +46,7 @@ export function FindingInspectRecommendedActionSection({
         </p>
       )}
       {showOwnerCadence ? (
-        <dl className={cn("m-0 mt-3 grid gap-2 border-t border-teal-200/80 pt-3 sm:grid-cols-3 dark:border-teal-900/70", OPERATOR_TYPOGRAPHY.body)}>
+        <dl className={cn("m-0 mt-3 grid gap-2 border-t border-neutral-200 pt-3 sm:grid-cols-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}>
           <div>
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Risk owner

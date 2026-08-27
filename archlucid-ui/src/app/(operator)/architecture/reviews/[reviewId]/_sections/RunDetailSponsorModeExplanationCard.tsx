@@ -64,7 +64,7 @@ export function RunDetailSponsorModeExplanationCard(
       aria-labelledby="sponsor-mode-explanation-heading"
     >
       <header className="space-y-1">
-        <p className={cn("m-0 text-teal-700 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
+        <p className={cn("m-0 text-al-text-secondary dark:text-neutral-200", OPERATOR_NAV_GROUP_LABEL)}>
           Sponsor-mode explanation
         </p>
         <h3 id="sponsor-mode-explanation-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -72,7 +72,7 @@ export function RunDetailSponsorModeExplanationCard(
         </h3>
       </header>
 
-      <p className={cn("m-0 mt-3 text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0 mt-3 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         {firstNonEmptyLine(explanationSummary?.overallAssessment ?? explanationSummary?.explanation?.summary)}
       </p>
 
@@ -100,7 +100,7 @@ export function RunDetailSponsorModeExplanationCard(
 
       {top.length > 0 ? (
         <div className="mt-4">
-          <p className={cn("m-0 text-teal-700 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
+          <p className={cn("m-0 text-al-text-secondary dark:text-neutral-200", OPERATOR_NAV_GROUP_LABEL)}>
             Top sponsor talking points
           </p>
           <ul className="mt-2 space-y-2 pl-5">
@@ -114,7 +114,7 @@ export function RunDetailSponsorModeExplanationCard(
         </div>
       ) : null}
 
-      <p className={cn("m-0 mt-4 text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 mt-4 text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
         Next action: {buyerPolishedArtifactTable ? "send the sponsor briefing export" : "open the sponsor briefing"}
         {" "}after confirming the evidence and ROI basis labels. This is decision support, not a legal or compliance
         attestation.

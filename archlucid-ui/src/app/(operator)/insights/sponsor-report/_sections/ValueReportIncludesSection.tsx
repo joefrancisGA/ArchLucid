@@ -22,7 +22,7 @@ export function ValueReportIncludesSection(): React.JSX.Element {
       <ul className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         {BUYER_VALUE_REPORT_INCLUDES_ITEMS.map((item) => (
           <li key={item} className="flex items-start gap-2 text-al-text-secondary">
-            <span aria-hidden="true" className="mt-0.5 text-teal-700 dark:text-teal-300">
+            <span aria-hidden="true" className="mt-0.5 text-al-text-secondary dark:text-neutral-300">
               •
             </span>
             <span>{item}</span>

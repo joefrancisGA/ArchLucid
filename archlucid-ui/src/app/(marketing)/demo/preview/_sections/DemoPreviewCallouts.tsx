@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 export function DemoPreviewSignInCallout() {
   return (
     <section
-      className="rounded-xl border border-teal-700/20 bg-teal-50/60 p-5 dark:border-teal-500/20 dark:bg-teal-950/20"
+      className="rounded-xl border border-neutral-200 bg-neutral-50/80 p-5 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="demo-preview-signin-callout"
     >
       <h2 className={cn("m-0 text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}>

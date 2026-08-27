@@ -35,7 +35,7 @@ export function ScopeSwitcherProjectOptionButton(
       <Check
         className={cn(
           "h-3.5 w-3.5 shrink-0",
-          selected ? "text-teal-700 dark:text-teal-300" : "text-transparent",
+          selected ? "text-al-text-secondary dark:text-neutral-300" : "text-transparent",
         )}
         aria-hidden
       />

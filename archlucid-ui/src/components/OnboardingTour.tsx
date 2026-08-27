@@ -162,7 +162,7 @@ export function OnboardingTour() {
 
       {highlight !== null ? (
         <div
-          className="pointer-events-none fixed z-[10001] rounded-md ring-2 ring-teal-500 ring-offset-2 ring-offset-transparent dark:ring-teal-400"
+          className="pointer-events-none fixed z-[10001] rounded-md ring-2 ring-neutral-500 ring-offset-2 ring-offset-transparent dark:ring-neutral-400"
           style={{
             top: highlight.top,
             left: highlight.left,

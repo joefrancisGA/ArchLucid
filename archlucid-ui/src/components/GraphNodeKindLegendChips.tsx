@@ -19,8 +19,8 @@ const KINDS: ReadonlyArray<{ k: string; swatch: string; c: string }> = [
   },
   {
     k: "Review",
-    swatch: "bg-teal-600",
-    c: "bg-teal-100 text-teal-950 dark:bg-teal-950/40 dark:text-teal-100",
+    swatch: "bg-neutral-600",
+    c: "bg-neutral-100 text-al-text-primary dark:bg-neutral-900/40 dark:text-neutral-100",
   },
   {
     k: "Component",

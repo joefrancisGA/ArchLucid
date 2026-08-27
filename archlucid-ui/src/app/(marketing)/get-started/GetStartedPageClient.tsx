@@ -218,12 +218,12 @@ export function GetStartedPageClient(): ReactElement {
                     className={cn(
                       "group flex h-full flex-col gap-2 no-underline",
                       MARKETING_SURFACES.card,
-                      "transition hover:border-[var(--al-accent-interactive)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700",
+                      "transition hover:border-[var(--al-accent-interactive)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]",
                     )}
                   >
                     <div className="flex items-start gap-3">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
-                        <Icon className="h-5 w-5 text-teal-800 dark:text-teal-300" aria-hidden />
+                        <Icon className="h-5 w-5 text-al-text-secondary dark:text-neutral-300" aria-hidden />
                       </span>
                       <div>
                         <p className={cn("m-0 font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>

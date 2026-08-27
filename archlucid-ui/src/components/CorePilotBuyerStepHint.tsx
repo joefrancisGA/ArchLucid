@@ -22,7 +22,7 @@ function StepBadge({ label }: { label: string }) {
   return (
     <span
       className={cn(
-        "inline-block shrink-0 min-h-[20px] rounded-full bg-teal-100 px-2.5 py-0.5 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300",
+        "inline-block shrink-0 min-h-[20px] rounded-full bg-neutral-100 px-2.5 py-0.5 text-al-text-primary dark:bg-neutral-900/50 dark:text-neutral-300",
         OPERATOR_TYPOGRAPHY.badge,
         "font-semibold",
       )}

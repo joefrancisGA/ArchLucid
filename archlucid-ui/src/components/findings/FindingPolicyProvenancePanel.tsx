@@ -63,7 +63,7 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
     <section
       className={cn(
         prominent
-          ? "rounded-lg border border-teal-300/80 bg-teal-50/90 dark:border-teal-800 dark:bg-teal-950/30"
+          ? "rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40"
           : "rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40",
         compact ? "p-3 space-y-2" : "p-4 space-y-3",
         className,

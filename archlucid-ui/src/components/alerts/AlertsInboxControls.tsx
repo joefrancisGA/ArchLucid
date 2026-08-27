@@ -139,7 +139,7 @@ export function AlertsInboxControls(props: AlertsInboxControlsProps) {
           <input
             id="alerts-select-all-visible"
             type="checkbox"
-            className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+            className="h-4 w-4 rounded border-neutral-300 text-neutral-700 focus:ring-neutral-400 dark:border-neutral-600"
             checked={props.allVisibleSelected}
             aria-label={ALERTS_INBOX_LABELS.selectAllOnPage}
             onChange={(e) => {

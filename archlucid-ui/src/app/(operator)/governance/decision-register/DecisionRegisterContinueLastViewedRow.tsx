@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { signedRecordScopedHref } from "@/lib/signed-records-paths";
 import type { ArchitectureDecisionRegisterEntry } from "@/lib/api/governance-stickiness-api";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type DecisionRegisterContinueLastViewedRowProps = {
@@ -22,7 +22,7 @@ export function DecisionRegisterContinueLastViewedRow(
   return (
     <section
       aria-labelledby="decision-register-continue-last-viewed-heading"
-      className="mb-4 rounded-lg border border-teal-200 bg-teal-50/60 px-4 py-3 dark:border-teal-900/50 dark:bg-teal-950/20"
+      className={OPERATOR_RESUME.stripSpaced}
       data-testid="decision-register-continue-last-viewed-row"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">

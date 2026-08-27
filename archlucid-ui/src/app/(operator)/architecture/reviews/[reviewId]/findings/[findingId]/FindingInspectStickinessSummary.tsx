@@ -43,7 +43,7 @@ export function FindingInspectStickinessSummary(props: FindingInspectStickinessS
         sponsorHandoffHref={`/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=review-package`}
       />
       {statusMessage ? (
-        <p className="m-0 text-teal-800 dark:text-teal-300" role="status" aria-live="polite">
+        <p className="m-0 text-al-text-secondary dark:text-neutral-300" role="status" aria-live="polite">
           {statusMessage}
         </p>
       ) : null}

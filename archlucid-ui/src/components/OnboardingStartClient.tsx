@@ -212,7 +212,7 @@ export function OnboardingStartClient() {
                 deploy a live sample in Azure
               </InlineGuidance>
             </p>
-            <p className="m-0 mt-2 leading-relaxed text-teal-900/90 dark:text-teal-100/90">
+            <p className="m-0 mt-2 leading-relaxed text-al-text-primary dark:text-neutral-100">
               Deploy an isolated App Service + storage footprint in your subscription, then run the Azure extractor or hosted
               extractor against it. The template uses Reader-safe resources only — create a dedicated resource group first.
             </p>

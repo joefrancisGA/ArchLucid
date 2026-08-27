@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
 import type { RecurrenceSchedulesContinueLastTarget } from "@/lib/resolve-continue-last-recurrence-schedule";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +17,7 @@ export function RecurrenceSchedulesContinueLastViewedRow(
   return (
     <section
       aria-labelledby="recurrence-schedules-continue-last-viewed-heading"
-      className="mb-4 rounded-lg border border-teal-200 bg-teal-50/60 px-4 py-3 dark:border-teal-900/50 dark:bg-teal-950/20"
+      className={OPERATOR_RESUME.stripSpaced}
       data-testid="recurrence-schedules-continue-last-viewed-row"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">

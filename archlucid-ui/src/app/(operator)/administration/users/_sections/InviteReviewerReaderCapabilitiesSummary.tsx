@@ -26,7 +26,7 @@ export function InviteReviewerReaderCapabilitiesSummary(): React.JSX.Element {
         {INVITE_REVIEWER_READER_CAPABILITIES.map((item) => (
           <li key={item.label} className="flex items-start gap-2">
             {item.allowed ? (
-              <Check className="mt-0.5 size-4 shrink-0 text-teal-600 dark:text-teal-400" aria-hidden />
+              <Check className="mt-0.5 size-4 shrink-0 text-neutral-600 dark:text-neutral-400" aria-hidden />
             ) : (
               <X className="mt-0.5 size-4 shrink-0 text-rose-600 dark:text-rose-400" aria-hidden />
             )}

@@ -42,7 +42,7 @@ export function FrictionlessTrialBanner() {
       className={cn(
         // Put explicit fg after helper — helper includes text-al-text-secondary.
         OPERATOR_TYPOGRAPHY.helper,
-        "border-b border-teal-700/25 bg-teal-50 px-4 py-1 text-teal-950 dark:border-teal-800/60 dark:bg-teal-950 dark:text-teal-50",
+        "border-b border-neutral-200 bg-neutral-50/80 px-4 py-1 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-100",
       )}
       data-testid="frictionless-trial-banner"
       role="status"
@@ -61,7 +61,7 @@ export function FrictionlessTrialBanner() {
             size="sm"
             variant="outline"
             asChild
-            className="h-7 border-teal-800/30 bg-white px-2.5 text-teal-950 hover:bg-teal-100/80 dark:border-teal-200/40 dark:bg-transparent dark:text-teal-50 dark:hover:bg-teal-900"
+            className="h-7 border-neutral-300 bg-white px-2.5 text-al-text-primary hover:bg-neutral-50 dark:border-neutral-600 dark:bg-transparent dark:text-neutral-100 dark:hover:bg-neutral-900"
           >
             <Link href={appSiteHref("/auth/signin")}>Sign in</Link>
           </Button>

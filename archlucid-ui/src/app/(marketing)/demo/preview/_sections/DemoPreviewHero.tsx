@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 export function DemoPreviewHero() {
   return (
     <header className="space-y-4" data-testid="demo-preview-hero">
-      <p className={cn("m-0 font-medium uppercase tracking-wide text-teal-800 dark:text-teal-200", MARKETING_TYPOGRAPHY.eyebrow)}>
+      <p className={cn("m-0 font-medium uppercase tracking-wide text-al-text-secondary dark:text-neutral-200", MARKETING_TYPOGRAPHY.eyebrow)}>
         {DEMO_PREVIEW_EYEBROW}
       </p>
       <h1 className={cn("m-0 text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.heroTitle)}>

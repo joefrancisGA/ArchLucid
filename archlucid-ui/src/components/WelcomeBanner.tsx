@@ -240,7 +240,7 @@ export function WelcomeBanner() {
                 ] as const
               ).map(({ id, label, Icon }) => (
                 <li key={id} className={cn("flex items-center gap-2 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-                  <Icon className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400" aria-hidden />
+                  <Icon className="h-4 w-4 shrink-0 text-neutral-600 dark:text-neutral-400" aria-hidden />
                   {label}
                 </li>
               ))}

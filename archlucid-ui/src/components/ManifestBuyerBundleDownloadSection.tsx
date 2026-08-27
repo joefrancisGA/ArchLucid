@@ -61,7 +61,7 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
       className="scroll-mt-24 rounded-lg border border-neutral-200/90 bg-neutral-50/40 dark:border-neutral-800 dark:bg-neutral-950/30"
       data-testid="manifest-buyer-bundle-download"
     >
-      <summary className={cn("cursor-pointer select-none px-3 py-2 font-medium text-neutral-900 outline-none marker:text-neutral-500 focus-visible:ring-2 focus-visible:ring-teal-500/80 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+      <summary className={cn("cursor-pointer select-none px-3 py-2 font-medium text-neutral-900 outline-none marker:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         {BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY}
       </summary>
       <div className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">

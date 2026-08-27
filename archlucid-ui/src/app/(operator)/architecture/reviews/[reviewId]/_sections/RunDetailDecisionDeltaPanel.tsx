@@ -27,7 +27,7 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
   return (
     <aside
       aria-labelledby="run-detail-decision-delta-heading"
-      className="rounded-md border border-teal-700/30 bg-teal-50/40 p-4 dark:border-teal-900/40 dark:bg-teal-950/20"
+      className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid={RUN_DETAIL_DECISION_DELTA_PANEL_TEST_ID}
     >
       <h3

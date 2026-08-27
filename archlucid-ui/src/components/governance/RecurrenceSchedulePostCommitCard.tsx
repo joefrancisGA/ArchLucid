@@ -228,7 +228,7 @@ export function RecurrenceSchedulePostCommitCard({
               pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
             />
             {statusMessage ? (
-              <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>{statusMessage}</p>
+              <p className={cn("m-0 text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{statusMessage}</p>
             ) : null}
             {errorMessage ? (
               <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{errorMessage}</p>

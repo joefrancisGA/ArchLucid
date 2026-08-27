@@ -47,7 +47,7 @@ export function CtoDemoJourneyCaptionBar(): React.JSX.Element | null {
       data-testid="cto-demo-journey-caption-bar"
       className={cn(
         OPERATOR_TYPOGRAPHY.helper,
-        "border-b border-teal-200/70 bg-teal-50/80 px-4 py-1.5 text-teal-950 dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-teal-100",
+        "border-b border-neutral-200 bg-neutral-50/80 px-4 py-1.5 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-100",
         "transition-opacity duration-150",
         faded ? "opacity-100" : "opacity-0",
       )}

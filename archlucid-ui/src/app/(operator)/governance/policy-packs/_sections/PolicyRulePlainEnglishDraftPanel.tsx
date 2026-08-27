@@ -53,7 +53,7 @@ export function PolicyRulePlainEnglishDraftPanel(props: PolicyRulePlainEnglishDr
 
   return (
     <div
-      className="rounded-md border border-dashed border-teal-300 bg-teal-50/40 p-4 dark:border-teal-800 dark:bg-teal-950/20"
+      className="rounded-md border border-dashed border-neutral-300 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="policy-rule-plain-english-draft"
     >
       <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -182,7 +182,7 @@ export function PolicyRulePlainEnglishDraftPanel(props: PolicyRulePlainEnglishDr
                 Draft rule JSON
               </p>
               <pre
-                className={cn("mt-1 max-h-64 overflow-auto rounded-md border border-teal-600/40 bg-white p-3 dark:border-teal-700/50 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.micro)}
+                className={cn("mt-1 max-h-64 overflow-auto rounded-md border border-neutral-300 bg-white p-3 dark:border-neutral-600 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.micro)}
                 data-testid="policy-rule-plain-english-preview"
               >
                 {previewJson}

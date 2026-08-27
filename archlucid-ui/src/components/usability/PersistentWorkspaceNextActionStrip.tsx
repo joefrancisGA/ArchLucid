@@ -120,7 +120,7 @@ export function PersistentWorkspaceNextActionStrip(): React.JSX.Element | null {
                 key={step.title}
                 className={cn(
                   "flex flex-wrap items-start justify-between gap-2 rounded-md px-2 py-1",
-                  isNext ? "bg-teal-50/60 dark:bg-teal-950/20" : null,
+                  isNext ? "bg-neutral-50/80 dark:bg-neutral-900/40" : null,
                 )}
                 data-testid={`persistent-workspace-first-review-step-${index}`}
               >

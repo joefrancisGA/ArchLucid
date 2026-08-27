@@ -333,7 +333,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                     OPERATOR_TYPOGRAPHY.helper,
                     validationKind === "error"
                       ? "border-red-200 text-red-800 dark:border-red-900 dark:text-red-200"
-                      : "border-teal-200 text-teal-900 dark:border-teal-900 dark:text-teal-100",
+                      : "border-neutral-200 text-al-text-primary dark:border-neutral-700 dark:text-neutral-100",
                   )}
                   data-testid="teams-secret-validation-feedback"
                 >
@@ -347,7 +347,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                   className={cn(
                     "m-0",
                     OPERATOR_TYPOGRAPHY.body,
-                    m.testKind === "error" ? "text-red-700 dark:text-red-300" : "text-teal-800 dark:text-teal-200",
+                    m.testKind === "error" ? "text-red-700 dark:text-red-300" : "text-al-text-secondary dark:text-neutral-200",
                   )}
                   data-testid="teams-form-test-feedback"
                 >

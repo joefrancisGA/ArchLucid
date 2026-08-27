@@ -34,7 +34,7 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
       ) : null}
       {!buyerPolishedShell ? (
         <p
-          className={cn("mb-3 max-w-3xl rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-al-text-primary dark:border-teal-900/50 dark:bg-teal-950/30", OPERATOR_TYPOGRAPHY.body)}
+          className={cn("mb-3 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.body)}
           data-testid="policy-packs-delta-demo-banner"
         >
           {policyPacksDeltaDemoBannerLine}{" "}

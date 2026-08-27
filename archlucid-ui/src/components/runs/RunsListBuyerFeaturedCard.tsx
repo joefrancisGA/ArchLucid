@@ -45,7 +45,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
   return (
     <div data-testid={`runs-row-${run.runId}`}>
       <Card
-        className="border border-teal-600/50 shadow-sm dark:border-teal-500/40"
+        className="border border-neutral-300 shadow-sm dark:border-neutral-600"
         data-testid="runs-list-buyer-featured-card"
       >
         <CardHeader className="pb-2">

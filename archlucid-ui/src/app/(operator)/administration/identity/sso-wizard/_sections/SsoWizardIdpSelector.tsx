@@ -3,7 +3,7 @@
 import { Boxes, Building2, KeyRound, Shield } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SELECTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SSO_WIZARD_IDP_PRESETS,
   type SsoWizardIdpPresetId,
@@ -49,7 +49,7 @@ export function SsoWizardIdpSelector(props: SsoWizardIdpSelectorProps): React.JS
                   "flex h-full cursor-pointer flex-col rounded-lg border p-4 transition-colors",
                   "outline-none focus-within:ring-2 focus-within:ring-[var(--al-accent-border-focus)] focus-within:ring-offset-2",
                   selected
-                    ? "border-teal-700 bg-teal-50/70 ring-2 ring-teal-700/25 dark:border-teal-500 dark:bg-teal-950/30 dark:ring-teal-400/25"
+                    ? cn(OPERATOR_SELECTION.tile, "ring-2 ring-neutral-400/25 dark:ring-neutral-500/25")
                     : "border-neutral-200 bg-al-surface-raised hover:border-neutral-300 dark:border-neutral-700 dark:hover:border-neutral-600",
                   props.disabled && "pointer-events-none opacity-60",
                 )}
@@ -74,7 +74,7 @@ export function SsoWizardIdpSelector(props: SsoWizardIdpSelectorProps): React.JS
                     className={cn(
                       "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2",
                       selected
-                        ? "border-teal-700 bg-teal-700 dark:border-teal-500 dark:bg-teal-600"
+                        ? "border-[var(--al-primary-action-bg)] bg-[var(--al-primary-action-bg)] dark:border-[var(--al-primary-action-bg)] dark:bg-[var(--al-primary-action-bg)]"
                         : "border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-900",
                     )}
                   >
@@ -85,7 +85,7 @@ export function SsoWizardIdpSelector(props: SsoWizardIdpSelectorProps): React.JS
                     className={cn(
                       "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
                       selected
-                        ? "border-teal-700 bg-white text-teal-800 dark:border-teal-500 dark:bg-neutral-900 dark:text-teal-200"
+                        ? "border-neutral-500 bg-white text-al-text-primary dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-100"
                         : "border-neutral-200 bg-white text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
                     )}
                     aria-hidden

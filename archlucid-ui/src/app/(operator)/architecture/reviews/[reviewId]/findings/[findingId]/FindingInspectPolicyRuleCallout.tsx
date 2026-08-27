@@ -61,7 +61,7 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
   return (
     <div
       className={cn(
-        "rounded-md border border-teal-300/80 bg-teal-50/90 p-4 dark:border-teal-800 dark:bg-teal-950/30",
+        "rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40",
         className,
       )}
       data-testid="finding-inspect-policy-rule-callout"

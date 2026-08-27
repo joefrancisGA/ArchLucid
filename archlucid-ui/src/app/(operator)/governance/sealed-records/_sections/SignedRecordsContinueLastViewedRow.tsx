@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
 import { signedRecordScopedHref } from "@/lib/signed-records-paths";
 import { cn } from "@/lib/utils";
 import type { SignedRecordsListRow } from "@/app/(operator)/governance/sealed-records/_sections/signed-records-list-row";
@@ -33,7 +33,7 @@ export function SignedRecordsContinueLastViewedRow(
   return (
     <section
       aria-labelledby="signed-records-continue-last-viewed-heading"
-      className="mb-4 rounded-lg border border-teal-200 bg-teal-50/60 px-4 py-3 dark:border-teal-900/50 dark:bg-teal-950/20"
+      className={OPERATOR_RESUME.stripSpaced}
       data-testid="signed-records-continue-last-viewed-row"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">

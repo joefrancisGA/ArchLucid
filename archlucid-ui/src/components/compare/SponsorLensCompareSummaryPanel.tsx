@@ -33,7 +33,7 @@ export function SponsorLensCompareSummaryPanel(props: SponsorLensCompareSummaryP
         aria-label={SPONSOR_LENS_COMPARE_HEADING}
         data-testid="sponsor-lens-compare-summary"
       >
-        <p className={cn("m-0 uppercase tracking-wide text-teal-800 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
+        <p className={cn("m-0 uppercase tracking-wide text-al-text-secondary dark:text-neutral-200", OPERATOR_NAV_GROUP_LABEL)}>
           {SPONSOR_LENS_COMPARE_HEADING}
         </p>
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
@@ -49,7 +49,7 @@ export function SponsorLensCompareSummaryPanel(props: SponsorLensCompareSummaryP
       aria-label={SPONSOR_LENS_COMPARE_HEADING}
       data-testid="sponsor-lens-compare-summary"
     >
-      <p className={cn("m-0 uppercase tracking-wide text-teal-800 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
+      <p className={cn("m-0 uppercase tracking-wide text-al-text-secondary dark:text-neutral-200", OPERATOR_NAV_GROUP_LABEL)}>
         {SPONSOR_LENS_COMPARE_HEADING}
       </p>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{SPONSOR_LENS_COMPARE_DISCLAIMER}</p>

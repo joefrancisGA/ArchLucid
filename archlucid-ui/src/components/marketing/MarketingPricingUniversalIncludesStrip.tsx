@@ -14,7 +14,7 @@ export function MarketingPricingUniversalIncludesStrip(): React.JSX.Element {
       <ul className={cn("m-0 mt-3 flex flex-wrap gap-x-6 gap-y-2 p-0", MARKETING_TYPOGRAPHY.body)}>
         {MARKETING_PRICING_UNIVERSAL_INCLUDES.map((item) => (
           <li key={item} className="flex items-center gap-2">
-            <span aria-hidden className="text-teal-700 dark:text-teal-300">
+            <span aria-hidden className="text-al-text-secondary dark:text-neutral-300">
               ✓
             </span>
             <span className="text-al-text-secondary">{item}</span>
