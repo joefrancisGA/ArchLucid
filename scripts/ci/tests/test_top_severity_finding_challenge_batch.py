@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from ci_test_helpers import PYTHON
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 REPORT_SCRIPT = REPO_ROOT / "scripts" / "ci" / "report_top_severity_finding_challenge.py"
@@ -52,7 +53,7 @@ class TopSeverityFindingChallengeBatchTests(unittest.TestCase):
             appendix = root / "appendix.md"
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(REPORT_SCRIPT),
                     "--challenge-json",
                     str(challenge),
@@ -97,7 +98,7 @@ class TopSeverityFindingChallengeBatchTests(unittest.TestCase):
             out_json = root / "report.json"
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(REPORT_SCRIPT),
                     "--challenge-json",
                     str(challenge),

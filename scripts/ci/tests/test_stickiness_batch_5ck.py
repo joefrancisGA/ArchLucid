@@ -10,7 +10,13 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestStickinessBatch5CK(unittest.TestCase):
     def test_tb_263_reviews_awaiting_action_endpoint(self) -> None:
-        controller = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Governance" / "GovernanceStickinessController.cs"
+        controller = (
+            REPO_ROOT
+            / "ArchLucid.Api"
+            / "Controllers"
+            / "Governance"
+            / "GovernanceStickinessController.Registers.cs"
+        )
         self.assertIn("reviews-awaiting-action", controller.read_text(encoding="utf-8"))
 
     def test_tb_260_first_value_callout(self) -> None:

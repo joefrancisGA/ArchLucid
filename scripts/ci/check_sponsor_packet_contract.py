@@ -47,8 +47,14 @@ def main() -> int:
                 errors.append(f"SponsorPacketArtifactCatalog.cs: missing artifact {artifact}")
 
     program = root / "ArchLucid.Cli" / "Program.cs"
+    registry = root / "ArchLucid.Cli" / "CommandRegistry.cs"
 
-    if program.is_file():
+    if registry.is_file():
+        registry_text = registry.read_text(encoding="utf-8", errors="replace")
+
+        if 'new CommandDescriptor("sponsor-packet"' not in registry_text:
+            errors.append("CommandRegistry.cs: sponsor-packet command not registered")
+    elif program.is_file():
         program_text = program.read_text(encoding="utf-8", errors="replace")
 
         if 'case "sponsor-packet":' not in program_text:
