@@ -75,6 +75,8 @@ export const HELP_PAGE_LAYOUT = {
   selectedCardRing:
     "ring-2 ring-neutral-400/70 ring-offset-2 ring-offset-white dark:ring-neutral-500/50 dark:ring-offset-neutral-950",
   selectionFooterDivider: "border-t border-neutral-200 pt-3 dark:border-neutral-700",
+  /** Left-accent panel for recommended tier/path cards in help guides (TB-2092). */
+  tierEmphasisPanel: "border-l-4 border-l-neutral-700 dark:border-l-neutral-400",
 } as const;
 
 /** Minimum `##` / `###` headings before the sticky TOC rail renders. */

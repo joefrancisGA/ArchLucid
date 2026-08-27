@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { StatusTag } from "@/components/ui/status-tag";
+
 import {
   ENTERPRISE_ONBOARDING_HUB_STEPS,
   isEnterpriseOnboardingInPageAnchorHref,
@@ -118,12 +120,11 @@ export function EnterpriseOnboardingHubSteps(): React.JSX.Element {
               <div className="flex flex-wrap items-start gap-2">
                 <HubStepTitle index={index} title={step.title} primaryLink={step.primaryLink} />
                 {recommendedNext ? (
-                  <span
-                    className={cn("font-medium text-teal-900 dark:text-teal-200", OPERATOR_TYPOGRAPHY.micro)}
+                  <StatusTag
+                    kind="ready"
+                    label="Recommended next"
                     data-testid="enterprise-onboarding-hub-recommended-next"
-                  >
-                    Recommended next
-                  </span>
+                  />
                 ) : null}
               </div>
               <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>

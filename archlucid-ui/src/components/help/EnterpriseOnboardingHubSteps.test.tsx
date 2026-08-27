@@ -10,6 +10,7 @@ describe("EnterpriseOnboardingHubSteps", () => {
 
     expect(screen.queryByTestId("enterprise-onboarding-hub-progress")).toBeNull();
     expect(screen.getByTestId("enterprise-onboarding-hub-recommended-next")).toHaveTextContent("Recommended next");
+    expect(screen.getByTestId("enterprise-onboarding-hub-recommended-next").className).not.toMatch(/teal/);
 
     for (const [index, step] of ENTERPRISE_ONBOARDING_HUB_STEPS.entries()) {
       const row = screen.getByTestId(`enterprise-onboarding-hub-step-${index + 1}`);
