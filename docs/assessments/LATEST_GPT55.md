@@ -1,54 +1,128 @@
-﻿# ArchLucid Strategic Release and Market Readiness Assessment (v5.1)
+﻿# ArchLucid Strategic Release and Market Readiness Assessment (v6)
 
-**Pass date:** 2026-08-27 (01:30–01:40 UTC), **revised 02:00–02:15 UTC (v5.1)**. **Computed fresh** — no carry-forward, no score deltas, no rescore ratchet. The prior same-night pass is archived at [`../archive/assessments/LATEST_GPT55-2026-08-27-v4-superseded.md`](../archive/assessments/LATEST_GPT55-2026-08-27-v4-superseded.md) and is **not** canonical.
+**Pass date:** 2026-08-27, **14:35–15:05 UTC (v6)**. **Computed fresh** — no carry-forward, no score deltas, no rescore ratchet. The v5.1 pass (02:00–02:15 UTC) is superseded by this document and is **not** canonical. v5.1's own predecessor is archived at [`../archive/assessments/LATEST_GPT55-2026-08-27-v4-superseded.md`](../archive/assessments/LATEST_GPT55-2026-08-27-v4-superseded.md).
 
-## v5.1 revision note — Gate 5 remediated and re-measured
+## v6 pass note — branch protection landed; trunk is red anyway
 
-v5 diagnosed **Gate 5 FAIL** (7 `tsconfig.build.json` errors) and a `npm ci` peer conflict, then prescribed both as Tier 1 items **1** and **5**. Both are now **fixed, verified, and on `master`** at commit `15836970d4`. This revision re-measures only what those fixes changed; every other §7 quality and its evidence are untouched from the 01:30 pass.
+The owner applied branch protection (v5.1 Tier 1 item **1**, the standing weakness **#1**). **It works, and it is not enough.** This pass verifies exactly what it changed, then measures trunk and finds it has been **red for six hours** — through the protection going live.
 
-| v5 Tier 1 item | v5.1 status | Verified evidence |
+### What the owner actually shipped
+
+GitHub ruleset **`Golden cohort real-LLM gate`** (id `21654724`), created **13:42:08 UTC**, `enforcement: active`, targeting `refs/heads/master` and `refs/heads/main`, `current_user_can_bypass: "never"`. Alongside the pre-existing **`Code Review`** ruleset (`deletion`, `non_fast_forward`, `copilot_code_review` with `review_on_push: true`).
+
+Its `required_status_checks` list contains **exactly one entry: `cohort-real-llm-gate`.**
+
+### What that achieved — verified, and genuinely significant
+
+**Direct pushes to `master` are now impossible.** `golden-cohort-nightly.yml` triggers only on `pull_request`, `schedule`, and `workflow_dispatch` — **never on `push`** — so on a bare push the required check can never report, and the ref update is refused. This assessment hit it twice while trying to land a fix:
+
+```
+remote: - Required status check "cohort-real-llm-gate" is expected.
+! [remote rejected] master -> master (push declined due to repository rule violations)
+```
+
+**Measured delivery-path change.** The last **nine consecutive** `master` ref updates (13:56 → 14:34) are all two-parent merge commits, each attributable to a pull request — #554, #558, #561, #557, #556, #559, #560, #562, #564. In the equivalent window **before** 13:42, seven ref updates carry **no PR attribution at all** (`2971d19c70`, `7d57e8ba4c`, `abde22cb51`, `029657324d`, `5ed68f0d17`, `d9a4f89515`, `450ca598bc`) — bare direct pushes to trunk.
+
+**Weakness #1 as previously written is closed.** "Direct pushes outrun review" is no longer true. That is a real structural win and it should not be understated.
+
+### Why trunk is red anyway — the gate is pointed at the wrong signal
+
+`cohort-real-llm-gate` is **not** a no-op. Verified from the job log, `vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM` expands to `"true"`, the eligibility step sets `enabled=true`, and the budget probe runs. But **what it measures is LLM spend month-to-date and golden-fixture presence** — not build, not tests, not typecheck, not contract, not IaC, not docs.
+
+The three push-corset jobs — `Security: gitleaks (secret scan)`, `.NET: push corset (build + fast core Core/Decisioning)`, `Operator UI: typecheck (blocking)` — **are not required.** Consequence, measured on this assessment's own PR:
+
+**PR [#556](https://github.com/joefrancisGA/ArchLucid/pull/556) merged into `master` with 27 failing checks**, including two whose names literally say blocking:
+
+| Failing check merged anyway | Note |
+|---|---|
+| `Operator UI: typecheck (blocking)` | named blocking, not required |
+| `Docs: link integrity + scope-header ratchet (blocking)` | named blocking, not required |
+| `.NET: OpenAPI v1 contract snapshot (fail-fast)` | named fail-fast, not required |
+| `CI: guards pre-corset (text)` | — |
+| `CodeQL (javascript)` | v5.1 declared this discharged |
+| `Terraform: validate …` × **16 lanes** | whole IaC surface red |
+| `Stryker PR — Api / Application / ApplicationGovernance / ApplicationCommitCriticalPaths` | — |
+| `cohort-simulator-drift` | — |
+
+Only `cohort-real-llm-gate` gated the merge, and it passed.
+
+### Trunk state: 37 consecutive red corset runs
+
+| Measurement | Value |
+|---|---|
+| Consecutive `failure` runs of the push corset on `master` | **37** (08:27:48 → 14:16:43), **40** by 14:34:21 as three queued runs completed during this pass |
+| Last `success` | **08:26:45** (`0a0b0fadf3`) |
+| Tally over last 100 corset runs on `master` | **57 failure · 20 success · 20 cancelled · 3 running** — 74% failure among completed |
+
+v5.1's headline evidence was "first fully green push corset on trunk" (run 33031842736, ~02:00 UTC). **It held for roughly six and a half hours.**
+
+The counter incrementing three times *during a 30-minute assessment pass* is itself the finding: merges continued into a red trunk throughout, because nothing stops them.
+
+### Root cause: one Dependabot batch, ~20 PRs, ~75 seconds
+
+Between **08:26:45** (last green) and **08:27:48** (first red), roughly twenty Dependabot pull requests merged. Three independent breaks landed together:
+
+1. **`Asp.Versioning.Mvc` / `.ApiExplorer` 8.0.0 → 10.2.1** — a **two-major-version** jump. The new package ships analyzers `AV0029`/`AV0030`; `Directory.Build.props:6` sets `TreatWarningsAsErrors=true`; result is **3 Release build errors** in `ArchLucid.Api`. Reproduced locally this pass — `dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Release` → `3 Error(s)` at `MvcExtensions.cs(87,9)` (AV0029, ×2 including the generated `OpenApiXmlCommentSupport.generated.cs`) and `PipelineExtensions.cs(98,13)` (AV0030).
+2. **`@tanstack/react-query` → 5.102.2** (PR #508) while `@tanstack/react-query-persist-client` and `@tanstack/query-sync-storage-persister` remain **exact-pinned at 5.101.4**. npm nests a second copy: `package-lock.json` now contains **both** `node_modules/@tanstack/query-core` (line 5554) and `node_modules/@tanstack/react-query/node_modules/@tanstack/query-core` (line 5624). Two nominally distinct `QueryClient` types → `operator-query-persist-client.ts(23,5)` `TS2322`.
+3. **azurerm ceiling raised** to `>= 3.100.0, < 5.2.1` (PRs #500/#501/#502), admitting provider **5.2.0** — a major bump. Correlates exactly with the 16 red `Terraform: validate` lanes; the precise validate error was not captured this pass, so this one is **correlation, not proven cause**.
+
+### Gate 5 has regressed PASS → FAIL
+
+| Command | v5.1 | v6 |
 |---|---|---|
-| **1** — seven Gate 5 typecheck errors | **DONE** | `npx tsc --noEmit -p tsconfig.build.json` **exit 0**; `npm run typecheck` **exit 0**; `npm run build` **completes 195/195 static pages** |
-| **5** — `typescript@7` / `openapi-typescript@^5.x` peer conflict | **DONE** | `archlucid-ui/.npmrc` `legacy-peer-deps=true`; `npm ci` **exit 0** from clean `node_modules` |
-| **4** — CodeQL SARIF green | **DONE — confirmed** | All **8** CodeQL `failure` runs in the prior 25 were **`CodeQL (javascript)` → "Install and build UI" → the same `npm ci` ERESOLVE**; `CodeQL (csharp)` was already `success`. Item 5's fix removed that failure mode, and **three consecutive completed runs after the fix landed are `success` on both languages** — [33031768357](https://github.com/joefrancisGA/ArchLucid/actions/runs/33031768357), [33031836069](https://github.com/joefrancisGA/ArchLucid/actions/runs/33031836069), [33031884289](https://github.com/joefrancisGA/ArchLucid/actions/runs/33031884289). Cancellation-by-churn is unchanged. |
-| **2** — branch protection on corset jobs | **still owner-only** | Not a repo-editable change |
-| **3** — G-REAL-06/07, M-39 | **still owner-only** | Requires live Azure OpenAI + pilot participants |
+| `npx tsc --noEmit -p tsconfig.build.json` | exit 0 | **exit 1** |
+| `npm run typecheck` | exit 0 | **exit 1** |
 
-**Three of five v5 Tier 1 items are discharged.** Items 1, 4, and 5 are closed with runtime evidence. The two that remain (2 and 3) are the two that were never code.
+The local error is `ArchitectureDraftListClient.tsx(387,25)` `TS2322` — `"review-linked"` is not a member of `"archived" \| "draft" \| "ready-for-review" \| undefined`. CI reports **two** errors; the second is the duplicate-`query-core` conflict above.
 
-**First fully green push corset on trunk.** Run [33031842736](https://github.com/joefrancisGA/ArchLucid/actions/runs/33031842736) (`05f780eae0`, post-fix) reports all three jobs `success`: `Security: gitleaks (secret scan)`, `Operator UI: typecheck (blocking)`, `.NET: push corset (build + fast core Core/Decisioning)`. The immediately preceding pre-fix run [33031218850](https://github.com/joefrancisGA/ArchLucid/actions/runs/33031218850) (`4440b5e9f3`) was `failure`.
+**The headline consequence: the v5.1 uncapping is void.** Gate 5 is FAIL again, for the third assessment cycle running (v4: 4 errors, v5: 7 errors, v5.1: fixed, v6: 1 local + 1 CI-only).
 
-**A clean before/after on CodeQL.** The fix landed at `15836970d4` (01:55:58 UTC). Every completed run **before** it — `4440b5e9f3` (01:47), `6350d2db44` (01:42), `4da20d1adf` (01:35) — was `failure`. Every completed run **after** it — `be0c0c5e87` (01:57), `717bddb2b4` (01:59), `8516cf996d` (02:00) — is `success` on both `javascript` and `csharp`. This is the strongest single piece of evidence in either pass, because it is a controlled comparison rather than an inference.
+### Two verification blind spots that let all of this through
 
-**Headline: cap removed.** Gate 5 moves **FAIL → PASS**, so the ship-gate override no longer applies and the weighted average stands on its own. Recomputed **(A) = 78.20%** (§2). **What did not change:** trunk churn (**70** commits in the hour ending this revision), branch protection still unapplied, zero real-mode pilots, Gate 1 still UNKNOWN, insight density mechanism untouched. Weakness **#1** — churn outruns fix-and-verify — is **still the top weakness**, and this revision is itself an instance of the pattern working in the good direction only because the fix was verified locally before push.
+These matter more than the individual defects, because they explain why local verification kept reporting green while trunk was red.
+
+1. **Debug passes, Release fails.** Every local verification in the v5.1 and post-v5.1 work built **Debug**; the corset builds **Release**. `AV0029`/`AV0030` are invisible in Debug. A fix can be verified locally, land, and break trunk immediately.
+2. **Stale `node_modules` passes, clean `npm ci` fails.** The duplicate `query-core` does **not** exist in this VM's `node_modules` (installed before the lock change) and therefore does not reproduce locally at all — but it is in the committed lockfile and reproduces on every clean install. **This entire failure class is unreachable by the standard local loop.**
+
+### The `ci.yml` matrix is not merely unmeasured — it is skipped
+
+v5.1 named the full matrix "the largest unmeasured correctness surface." v6 confirms it is worse than unmeasured: path-lane gating marks it **`skipping`** on every recent PR — `Operator UI: lint, typecheck, production build`, `Operator UI: unit (Vitest)`, `Operator UI: Vitest axe`, `Operator UI: Playwright mock functional`, `Lighthouse CI`, `Security: OWASP ZAP baseline`, `Security: Schemathesis light fuzz`, `SaaS: Terraform roots validate`.
+
+### Correction to v5.1
+
+v5.1 asserted: *"The top four deficiencies are now entirely non-toolchain… the cheap remediation surface is exhausted."* **That was wrong.** Toolchain deficiency did not stay exhausted; it regenerated within six hours because nothing gated it. Correctness & Evidence Integrity moves 84 → **68**, and its weighted deficiency goes 192 → **384**, making it the **#2** deficiency overall. The lesson is not that the remediation surface is small — it is that **an ungated remediation surface refills at the rate of dependency churn.**
 
 **Prompt:** [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md#strategic-release-and-market-readiness-v3). **Reasoning engine:** Claude Opus 5, simulator-aware; **no live Azure OpenAI call was made during this pass**, so all agent-path judgments are about mechanism and default configuration, not observed real-mode output.
 
-**What is different about this pass.** v4 repaired dark automation and found regressions faster than humans could fix them. This pass **shipped the trunk-stability response** the owner approved: a thicker `master` push corset (dotnet build + Core/Decisioning fast-core + UI typecheck), repaired the declaration and governance fast-core suites that v4 flagged, and fixed the seven typecheck errors v4 named — then measured trunk again **after continued concurrent churn**. The pattern is now explicit: **the corset works when it runs to completion; churn lands new breaks before the previous fix is the only thing on `master`.**
+**Prompt:** [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md#strategic-release-and-market-readiness-v3). **Reasoning engine:** Claude Opus 5, simulator-aware; **no live Azure OpenAI call was made during this pass**, so all agent-path judgments are about mechanism and default configuration, not observed real-mode output.
 
-**v5.1 additionally inspected:** `archlucid-ui/.npmrc` (new), `finding-display-from-inspect.ts`, `SponsorStorySynopsisPanel.tsx`, `why-disabled-cta.ts`, `types/finding-inspect.ts`, plus `gh run view --json jobs` / `--log-failed` output for the CodeQL and push-corset workflows.
+**What is different about this pass.** v5.1 shipped and verified the toolchain fixes it prescribed, then asserted the cheap remediation surface was exhausted. v6 tests that assertion against trunk after the owner applied branch protection. **Result: the delivery-path defect is fixed and the correctness defect is worse than before.** This pass is therefore not a re-measurement of the same qualities — it is a measurement of what protection does and does not buy when the required-check list does not include the checks that detect breakage.
 
-**Source materials inspected this pass:** `ui-typecheck-on-push.yml`, `scripts/ci/run_push_corset_dotnet.sh`, `DeclarationSecurityBaselineFindingEngineTests`, `DeclarationPremiseConflictFindingEngineTests`, `GovernanceWorkflowTestComposition.CreateRunDetailWithManifest`, `FindingInspectGovernanceStickinessPanel.tsx` / `FindingInspectStickinessSummary.tsx` / `FindingInspectDispositionControls.tsx`, `SamlSpConfigurationForm.tsx` / `SamlSpMetadataLookupBlock.tsx`, `BuiltInFindingEngineTypeCatalog`, `GoldenCorpusHarness.CreateEngines()`, `DeterministicInsightDensityGate`, `DeclarationSignalPolicyGate`, `.gitleaks.toml`, `ci.yml`, `codeql.yml`, `CODEQL_TRIAGE.md`.
+**Source materials inspected this pass:** GitHub rulesets API (`/rules/branches/master`, `/rulesets/21654724`, `/rulesets/15216586`), `ui-typecheck-on-push.yml`, `golden-cohort-nightly.yml`, `ci.yml`, `Directory.Build.props`, `Directory.Packages.props`, `archlucid-ui/package.json`, `archlucid-ui/package-lock.json`, `archlucid-ui/.npmrc`, `infra/terraform/versions.tf`, `ArchLucid.Api/Startup/MvcExtensions.cs`, `ArchLucid.Api/Startup/PipelineExtensions.cs`, `ArchitectureDraftListClient.tsx`, `operator-query-persist-client.ts`, plus `gh run list` / `gh run view --log-failed` / `gh pr checks` output and `git log --first-parent` topology.
 
 ## Executed this pass (runtime evidence, not doc claims)
 
 | # | Command / observation | Result |
 |---|---|---|
-| 1 | `dotnet build ArchLucid.Active.slnf -c Release` | **PASS** — 0 errors (2 file-lock retries on a busy VM) |
-| 2 | `scripts/ci/run_push_corset_dotnet.sh` | **PASS** — Core **818** / 0 failed; Decisioning **319** / 0 failed |
-| 3 | `npm run typecheck` (`tsconfig.json`) | **v5: FAIL** — 7 errors in 5 files (new churn, not v4's four) → **v5.1: PASS** — exit 0 |
-| 4 | `npx tsc --noEmit -p tsconfig.build.json` (Gate 5) | **v5: FAIL** — same 7 errors → **v5.1: PASS** — exit 0 |
-| 5 | `npm run build` (Next 16.3 production) | **v5: FAIL** at typecheck step → **v5.1: PASS** — compiled in 1.2 s, **195/195** static pages generated |
-| 6 | `gitleaks 8.30.1 detect --source .` with repo config | **PASS** — 0 findings over full history |
-| 7 | `ui-typecheck-on-push.yml` on `master` | **v5: cancelled when superseded** → **v5.1: first all-green completion** — run [33031842736](https://github.com/joefrancisGA/ArchLucid/actions/runs/33031842736) `success` on gitleaks + UI typecheck + .NET push corset |
-| 8 | `codeql.yml` on `master` | **v5: never concluded** — of the then-latest 25 runs, **12 cancelled, 8 failure**; **all 8 failures** were `CodeQL (javascript)` dying in "Install and build UI" on the **same `npm ci` ERESOLVE**, with `CodeQL (csharp)` `success` throughout → **v5.1: PASS** — three consecutive completed post-fix runs `success` on **both** languages; last `failure` predates the fix commit |
-| 9 | `master` commit velocity | **106 commits** in ~70 minutes at the v5 pass; **70** in the hour ending the v5.1 revision |
-| 10 | `npm ci` from clean `node_modules` (v5.1) | **v5: FAIL** — ERESOLVE `openapi-typescript@7.13.0` peers `typescript@^5.x` vs repo `typescript@7.0.2` → **v5.1: PASS** — 1,158 packages, exit 0 |
-| 11 | `scripts/ci/run_push_corset_dotnet.sh` re-run after UI fixes (v5.1) | **PASS** — Core **818** / 0; Decisioning **319** / 0; no regression from the type changes |
+| 1 | `gh api repos/…/rules/branches/master` | **Protection ACTIVE** — `required_status_checks` = **one** entry, `cohort-real-llm-gate`; plus `deletion`, `non_fast_forward`, `copilot_code_review`; `current_user_can_bypass: never` |
+| 2 | `git push origin master:master` (×2, 13:55 and 14:07) | **REJECTED** both times — `GH013 … Required status check "cohort-real-llm-gate" is expected` → **direct push to trunk is closed** |
+| 3 | `git log --first-parent origin/master` + `/commits/{sha}/pulls` | **9 of 9** ref updates after 13:42 are PR-attributed merges; **7** of the 13 before it had **no PR** at all |
+| 4 | `npx tsc --noEmit -p tsconfig.build.json` (Gate 5) | **FAIL — exit 1** — `ArchitectureDraftListClient.tsx(387,25)` `TS2322` (`"review-linked"` outside the union). **Regression from v5.1 PASS** |
+| 5 | `npm run typecheck` (`tsconfig.json`) | **FAIL — exit 1**, same error |
+| 6 | `dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Release` | **FAIL — 3 Error(s)** — `AV0029` ×2 (`MvcExtensions.cs:87` + generated file), `AV0030` ×1 (`PipelineExtensions.cs:98`) |
+| 7 | Same project, **Debug** | **PASS** — the Release-only failure class local verification cannot see |
+| 8 | `ui-typecheck-on-push.yml` on `master` — last 100 runs | **57 failure · 20 success · 20 cancelled · 3 running**; **37 consecutive failures** 08:27:48 → 14:16:43; last success **08:26:45** |
+| 9 | `gh run view --log-failed` on the corset | UI typecheck: **2** `TS2322` errors (local one + duplicate `query-core`); .NET: the 3 `AV0029`/`AV0030` errors |
+| 10 | `grep 'query-core' archlucid-ui/package-lock.json` | **Two** resolutions committed — top-level (line 5554) **and** nested under `react-query` (line 5624) |
+| 11 | `ls node_modules/@tanstack/react-query/node_modules/@tanstack/query-core` | **absent locally** — confirms the second CI error is **clean-install-only** and unreachable from this VM |
+| 12 | `git diff 0a0b0fadf3 0d9b656317 -- Directory.Packages.props` | `Asp.Versioning.Mvc` + `.ApiExplorer` **8.0.0 → 10.2.1**, plus FsCheck, Google.Apis.Auth, AWSSDK, ServiceBus, Handlebars, ITfoxtec |
+| 13 | `gh pr checks 556` | **27 fail / 13+ pass**; merged anyway — only `cohort-real-llm-gate` was required |
+| 14 | `gh pr checks` on #559/#560/#564 | Heavy `ci.yml` lanes report **`skipping`** (Vitest, Playwright, axe, Lighthouse, ZAP, Schemathesis, Terraform script suite) |
+| 15 | `gh run view --job` on `cohort-real-llm-gate` | **Not a no-op** — `vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM` = `"true"`, `enabled=true`, budget probe executes |
 
-**Verified counts by direct inspection this pass:** **39** engines in `BuiltInFindingEngineTypeCatalog`; **8** engines in `GoldenCorpusHarness.CreateEngines()`; `typed-engine-protected` bypass unchanged at `DeterministicInsightDensityGate.cs:85`.
+**Verified counts carried forward by inspection (unchanged this pass):** **39** engines in `BuiltInFindingEngineTypeCatalog`; **14** engines in `GoldenCorpusHarness.CreateEngines()` (extended from 8 at commit `6e43a095e4`); `typed-engine-protected` bypass unchanged at `DeterministicInsightDensityGate.cs:85`.
 
-**Fixed and pushed to `master` before this pass** (scores assume them): extended push corset (`548fc47276` merge); prior seven typecheck fixes; declaration tests use `cost-opt-001` fail-open fixtures; governance workflow tests embed golden manifest via `CreateRunDetailWithManifest`; help resolver chain and gitleaks/CodeQL repairs from v4.
+**Landed on `master` between v5.1 and this pass** (scores assume them): Gate 5 typecheck fixes and `.npmrc` (`15836970d4`); workflow per-SHA concurrency, golden corpus 8→14 engines, trunk matrix probe (`6e43a095e4`); policy-pack explain DI registration, waiver scope parity, Api regression-test fixes (`386d0b4390`, PR #556); `FsCheck.Xunit` 3.3.2 → 3.4.0 to clear `NU1608` (`f14c1e7bd7`); **and the ~20-PR Dependabot batch at 08:26–08:27 that broke Release build, UI typecheck, and Terraform validate simultaneously.**
 
 ---
 
@@ -58,25 +132,30 @@ Sourced from open `GTM_BACKLOG.md` rows. Excludes GTM V1.1 items **#2/#3/#5/#6**
 
 | # | Task | Why ranked here | Engine-assistable? | Recommended engine |
 |---|------|-----------------|--------------------|--------------------|
-| 1 | **Branch protection on push corset jobs** | **Promoted to #1 in v5.1.** The corset now has a proven all-green completion on trunk ([33031842736](https://github.com/joefrancisGA/ArchLucid/actions/runs/33031842736)), so the required-check list is no longer aspirational — it is a known-passable gate. Until it blocks, weakness #1 (churn) stays unmitigated and every future Gate 5 repair decays the same way. Owner declined mandatory PRs; this is the alternative. | No — policy | **Owner** |
-| 2 | **G-REAL-06** — three real-mode pilot runs | Largest commercial uncertainty driver. **Unblocked in v5.1:** production build now completes 195 pages, so the demo surface pilots need is buildable. Script exists at `scripts/Run-GReal06ProofRuns.ps1`. | Partial | **Opus** |
-| 3 | **G-REAL-07** — proof packets + `PROOF_PACKET_RUN_LOG` | Depends on #2. | Partial | **Sonnet** |
-| 4 | **M-39** — apply proof-packet checklist, ≥3 G4 rows | Depends on #3. | Partial | **Sonnet** |
-| 5 | **M-07** — polished operator screenshots | **Unblocked in v5.1** — Gate 5 PASS and production build completes. | Partial | **Composer** |
-| 6 | **M-09** — landing owner sign-off + deploy | Gated on #5. | Partial | **Sonnet** |
-| 7 | **M-16** — demo video | Depends on #5; run **G-REAL-09** before recording. | Partial | **Sonnet** |
+| 1 | **Add the three corset job names to the existing ruleset's `required_status_checks`** | **New #1, and it is a two-minute edit to a ruleset that already exists.** Protection is active and unbypassable, but requires **1 of ~40** checks, and that one measures LLM budget rather than correctness. The measured consequence: **37 consecutive red corset runs** on trunk, five PRs merged into that red state *after* protection went live, and PR #556 merged with **27** failing checks including two named "(blocking)". Add exactly: `Security: gitleaks (secret scan)`, `.NET: push corset (build + fast core Core/Decisioning)`, `Operator UI: typecheck (blocking)`. **Do not add them until Tier 1 items 1–3 in §17 are fixed, or trunk deadlocks** — see the sequencing note there. | No — policy | **Owner** |
+| 2 | **Constrain Dependabot: group updates, and require review for major bumps** | The single mechanism that caused today's outage. ~20 PRs merged in ~75 seconds, including a **two-major** framework bump (`Asp.Versioning` 8→10) and a **provider major** (azurerm 4→5). No batching, no staging, and — because of #1 — no corset requirement on any of them. | Partial — config is agent-editable, policy is owner | **Owner + Composer** |
+| 3 | **G-REAL-06** — three real-mode pilot runs | Largest commercial uncertainty driver. **Re-blocked in v6:** production build fails at typecheck again, so the demo surface is not currently buildable. Unblocks once §17 Tier 1 item 2 lands. Script at `scripts/Run-GReal06ProofRuns.ps1`. | Partial | **Opus** |
+| 4 | **G-REAL-07** — proof packets + `PROOF_PACKET_RUN_LOG` | Depends on #3. | Partial | **Sonnet** |
+| 5 | **M-39** — apply proof-packet checklist, ≥3 G4 rows | Depends on #4. | Partial | **Sonnet** |
+| 6 | **M-07** — polished operator screenshots | **Re-blocked in v6** — Gate 5 FAIL, production build fails. | Partial | **Composer** |
+| 7 | **M-09** — landing owner sign-off + deploy | Gated on #6. | Partial | **Sonnet** |
+| 8 | **M-16** — demo video | Depends on #6; run **G-REAL-09** before recording. | Partial | **Sonnet** |
 
 ---
 
 ## 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 78.20% (v5.1 — uncapped)**
+**ArchLucid Assessment – (A) Headline Readiness: 73.97% (v6)**
 
-**Uncapped.** Gate 5 is **PASS**: `npx tsc --noEmit -p tsconfig.build.json` exits 0 and `npm run build` completes 195/195 pages. The v5 cap at **75.26%** existed solely because a ship-gate FAIL overrides the weighted average; with the gate green the weighted average stands on its own and recomputes to **78.20%**.
+**Down 4.23 points from v5.1's 78.20%, and the drop is entirely trunk-health regression.** No product capability was lost. Gate 5 is **FAIL** again (`npx tsc --noEmit -p tsconfig.build.json` exit 1), so the ship-gate override also reapplies — but the cap is **not binding this pass**, because the weighted average (73.97%) already sits below v5's 75.26% cap. The honest headline is the weighted average with a ship-blocker attached, not a capped number.
 
-**Read the +2.94 points narrowly.** They come from five re-measured qualities (§2 note) whose deficiencies were *specifically* the Gate 5, `npm ci`, and CodeQL failures — not from any new product capability. **Nothing about the moat, the engine depth, the insight-density mechanism, or the market evidence changed.** Insight Density stays at **66** and remains the single largest weighted deficiency (**442**) — larger than the next two combined.
+**What genuinely improved.** Governed Review Integrity rises **86 → 88**, the only upward move. Direct pushes to `master` are structurally impossible now, and `copilot_code_review` runs on push. That is the owner's #1 landing, and it is real.
 
-**The structural story is unchanged and still the top weakness.** v4's errors were in policy-packs and risk-exceptions; v5's were in the finding-inspect stickiness split (`FindingInspectGovernanceStickinessPanel` → `FindingInspectStickinessSummary` + `FindingInspectDispositionControls`) and the SAML SP refactor. Both sets are now fixed. **Neither fix prevents the third set.** Direct pushes to `master` continue at ~70–106 commits/hour and the corset — now proven all-green — still does not block anything. Gate 5 is PASS **as measured at `15836970d4`**, not PASS as a property of the trunk.
+**What regressed, and why the regression is the story.** Four qualities fall: Correctness & Evidence Integrity **84 → 68**, Time-to-Value **75 → 68**, Runtime & First-Review Reliability **79 → 66**, Adoption Friction **88 → 72**. Every point of that comes from the same six-hour window in which trunk went red and stayed red — 37 consecutive failed corset runs, a Release build that does not compile, a UI typecheck that fails on a clean install, and 16 red Terraform lanes. A fresh clone today cannot typecheck and cannot build the API in Release.
+
+**The structural finding.** v4's errors were in policy-packs and risk-exceptions. v5's were in the finding-inspect stickiness split and the SAML SP refactor. v5.1 fixed those and concluded the toolchain surface was exhausted. **v6's errors came from a dependency batch nobody reviewed**, and they are worse than either previous set because two of the three are **invisible to local verification** — one is Release-only, one is clean-install-only. The pattern has not been broken; it has changed shape. Protection closed the door that direct pushes came through, and the breakage walked in through Dependabot instead.
+
+**Insight Density stays at 66** and remains the single largest weighted deficiency (**442**) — but for the first time since v4 it is no longer more than double the next item, because Correctness has climbed to **384**.
 
 Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_1.mdc`: SOC 2 CPA attestation, third-party pen-test publication, signed design partner, owner-output GTM assets/cohorts, public extension SDK, MCP absence in V1, third-party plugin marketplace, assistive-technology participant testing, and sales-engineer-led LLM onboarding.
 
@@ -88,31 +167,32 @@ Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_
 |---|---------|------:|-------:|----------------------:|---------------------------:|
 | 1 | Decision-Changing Insight Density | 66 | 13 | 8.58 | **442** |
 | 2 | Differentiability / Defensibility vs Frontier AI | 81 | 13 | 10.53 | 247 |
-| 3 | Governed Review Integrity | 86 | 13 | 11.18 | 182 |
-| 4 | Correctness & Evidence Integrity | 84 | 12 | 10.08 | 192 |
-| 5 | AI / Agent Readiness | 74 | 10 | 7.40 | **260** |
-| 6 | Time-to-Value | 75 | 10 | 7.50 | **250** |
+| 3 | Governed Review Integrity | 88 | 13 | 11.44 | 156 |
+| 4 | Correctness & Evidence Integrity | 68 | 12 | 8.16 | **384** |
+| 5 | AI / Agent Readiness | 74 | 10 | 7.40 | 260 |
+| 6 | Time-to-Value | 68 | 10 | 6.80 | **320** |
 | 7 | Proof-of-ROI Readiness | 76 | 9 | 6.84 | 216 |
-| 8 | Sponsor / Operator Comprehension | 77 | 8 | 6.16 | 184 |
-| 9 | Runtime & First-Review Reliability | 79 | 7 | 5.53 | 147 |
-| 10 | Adoption Friction | 88 | 5 | 4.40 | 60 |
-| | **(A) Headline readiness** | | **100** | **78.20%** | |
+| 8 | Sponsor / Operator Comprehension | 75 | 8 | 6.00 | 200 |
+| 9 | Runtime & First-Review Reliability | 66 | 7 | 4.62 | **238** |
+| 10 | Adoption Friction | 72 | 5 | 3.60 | 140 |
+| | **(A) Headline readiness** | | **100** | **73.97%** | |
 
-**Ranked by weighted deficiency:** Insight Density (442) · AI/Agent Readiness (260) · Time-to-Value (250) · Differentiability (247) · Proof-of-ROI (216) · Correctness (192) · Comprehension (184) · Governed Review Integrity (182) · Runtime (147) · Adoption Friction (60).
+**Ranked by weighted deficiency:** Insight Density (442) · **Correctness (384)** · **Time-to-Value (320)** · AI/Agent Readiness (260) · Differentiability (247) · **Runtime (238)** · Proof-of-ROI (216) · Comprehension (200) · Governed Review Integrity (156) · Adoption Friction (140).
 
-**The top four deficiencies are now entirely non-toolchain.** Insight Density, AI/Agent Readiness, Time-to-Value, and Differentiability total **1,199** of the **2,180** total remaining deficiency signal — **55%** — and not one of them is fixable by a build or CI change. That is the structural meaning of v5.1: the cheap remediation surface is exhausted.
+**Total remaining deficiency signal: 2,603, up from 2,180 in v5.1 — a 423-point increase, all of it toolchain and trunk health.** Three of the four largest movers (Correctness +192, Time-to-Value +70, Runtime +91) are the same six-hour trunk outage counted three ways. This directly falsifies v5.1's claim that "the cheap remediation surface is exhausted": **the toolchain deficiency surface is not exhaustible while nothing gates it — it refills at the rate of dependency churn.**
 
-**Note on v5.1 movement (75.26% capped → 78.20% uncapped).** Five qualities are re-measured because the specific defects they were deducted for are now verified fixed:
+**Scoring rationale for every change.**
 
-| Quality | v5 | v5.1 | Why exactly this much |
+| Quality | v5.1 | v6 | Why exactly this much |
 |---|---:|---:|---|
-| Correctness & Evidence Integrity | 78 | **84** | Gate 5 exit 0; production build completes; **CodeQL green on both languages across three consecutive completed runs** with a clean pre/post-fix boundary. Held below 88 because the **full `ci.yml` matrix is still PR-only** and was unmeasured in v4, v5, and v5.1 — the largest remaining unmeasured correctness surface |
-| Time-to-Value | 72 | **75** | `npm run build` produces 195 pages again, so the demo surface is buildable. Gate 1 (first review create→commit→manifest) is **still UNKNOWN**, which caps this hard |
-| Sponsor / Operator Comprehension | 75 | **77** | The finding-inspect disposition surface — the sponsor-facing stickiness split — now compiles and ships. Sponsor narrative *content* is unchanged |
-| Runtime & First-Review Reliability | 71 | **79** | Largest single move, and the best-evidenced: first all-green corset completion on trunk **plus** CodeQL converging green on both languages after 8 straight deterministic failures. Held below 82 because **cancellation-by-churn is untouched** (12/25 runs cancelled; the fix commit's own runs were cancelled) and branch protection is still unapplied, so none of it blocks |
-| Adoption Friction | 84 | **88** | A fresh clone now runs `npm ci` **and** `npm run typecheck` clean — the two commands a new contributor hits first. Held below 90 because `legacy-peer-deps` is a workaround with an external unblock date |
+| Governed Review Integrity | 86 | **88** | **Only upward move.** Direct pushes to `master` are structurally impossible (verified twice by rejected push); 9/9 recent ref updates are PR-attributed; `copilot_code_review` runs on push. Held to +2 because review is now *mandatory* but *unqualified* — a PR with 27 red checks merged, so the gate proves process, not correctness |
+| Correctness & Evidence Integrity | 84 | **68** | **Largest fall (−16).** Release build does not compile (3 errors, reproduced locally); `.NET: OpenAPI v1 contract snapshot (fail-fast)` red; 16 Terraform validate lanes red; 4 Stryker lanes red; `CodeQL (javascript)` red again after v5.1 declared it discharged; heavy `ci.yml` lanes `skipping` on every PR. Not lower than 68 because the fast-core suites themselves are healthy where they run — Core 818/0 and Decisioning 319/0 held across this session's local runs, and the Api/AgentRuntime/Application/Host.Composition failures found earlier today were fixed and verified |
+| Time-to-Value | 75 | **68** | `npm run build` fails at the typecheck step, so the demo surface is unbuildable again — the exact condition v5.1 scored +3 for clearing. Gate 1 still **UNKNOWN**, which independently caps this |
+| Runtime & First-Review Reliability | 79 | **66** | **37 consecutive** red corset runs on trunk; 57 failure / 20 success over the last 100. v5.1 scored 79 largely on "first all-green corset completion," which held ~6.5 hours. Not lower than 66 because the cancellation-by-churn mechanism v5.1 flagged **was** fixed — per-SHA concurrency groups landed at `6e43a095e4`, and runs now complete instead of being evicted. The failures are honest signal, not lost signal |
+| Adoption Friction | 88 | **72** | A fresh clone fails the first two commands a contributor runs: `npm run typecheck` exits 1, and `dotnet build -c Release` fails. v5.1's +4 was awarded precisely for those being clean. Worse than the v5 baseline of 84 because the duplicate `query-core` is **committed in the lockfile**, so it reproduces on every clean install rather than depending on local state |
+| Sponsor / Operator Comprehension | 77 | **75** | `ArchitectureDraftListClient` — a sponsor-visible draft-status surface — has an unhandled `"review-linked"` status in its type union, which is both the Gate 5 error and a real modelling gap. Narrative *content* unchanged, hence only −2 |
 
-**Unchanged and deliberately so:** Insight Density (66), Differentiability (81), Governed Review Integrity (86), AI/Agent Readiness (74), Proof-of-ROI (76). No mechanism, corpus, engine, or pilot evidence moved.
+**Unchanged and deliberately so:** Insight Density (66), Differentiability (81), AI/Agent Readiness (74), Proof-of-ROI (76). No mechanism, corpus, engine, or pilot evidence moved this pass.
 
 ---
 
@@ -126,7 +206,7 @@ Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_
 
 **Sponsor Purchase Probability: 28–43%, low confidence.** Up ~2 points: the demo surface builds, which removes a disqualifying failure from any live walkthrough. **Zero G-REAL-06 pilots still dominates** — a buildable demo is not a proof packet, and no sponsor has seen real-mode output.
 
-**Reconciliation with §2.** Headline (**78.20%**) sits well above Decision Advantage (65) and far above the purchase band (28–43%). The gap **widened** in v5.1, and that widening is itself the diagnosis: the headline measures a governed container that is now cleanly buildable and cleanly analyzed, while decision advantage measures analytical depth and the purchase band measures market evidence — neither of which moved at all. Do not read 78.20% as being 78.20% of the way to a sale. The **13-point** spread between headline and Decision Advantage is the honest size of the "well-engineered container, unproven analysis" gap.
+**Reconciliation with §2.** Headline (**73.97%**) sits above Decision Advantage (65) and far above the purchase band (28–43%). The gap **narrowed** in v6, from 13 points to **9** — and unlike v5.1's widening, this narrowing is not good news. Decision Advantage did not rise; the headline fell to meet it, because the headline's toolchain component regressed while analytical depth stayed flat. Do not read 73.97% as being 73.97% of the way to a sale. The **9-point** spread is the current honest size of the "well-engineered container, unproven analysis" gap, and the right way to close it is to raise Decision Advantage rather than to let the container decay toward it.
 
 ---
 
@@ -138,12 +218,12 @@ Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_
 | 2 | No hallucinated or uncited policy/evidence citations | **PASS (mechanism)** | Emission gate + citation integrity evaluator unchanged. | Upgrade after gate 1 live. |
 | 3 | Sponsor summary / ROI coherent and not misleading | **PASS (mechanism)** | TB-603 Done; disposition-aware headline. | As above. |
 | 4 | Export / package generation works | **PASS (mechanism)** | Suite=Core coverage exists; live ZIP not run here. | Optional staging probe. |
-| 5 | Architect workspace does not break during first-review / demo path | **PASS** (v5.1; was FAIL in v5) | `npx tsc --noEmit -p tsconfig.build.json` **exit 0**; `npm run build` **completes 195/195** pages; CI `Operator UI: typecheck (blocking)` **success** on [33031842736](https://github.com/joefrancisGA/ArchLucid/actions/runs/33031842736). All 7 v5 errors fixed at `15836970d4`: `WhyDisabledCtaReason` aligned across the finding-inspect stickiness split and SAML SP blocks, `revokeWaiver()` wrapped in `Promise.resolve()` before `.finally()`, and a TS 7 `TS2871` always-nullish expression in `finding-display-from-inspect.ts` simplified to `.find()`. | **Resolved.** Keep it resolved via ship-gate item 1 (branch protection). |
+| 5 | Architect workspace does not break during first-review / demo path | **FAIL** (v6; was PASS in v5.1, FAIL in v5) | `npx tsc --noEmit -p tsconfig.build.json` **exit 1** — `ArchitectureDraftListClient.tsx(387,25)` `TS2322`, `"review-linked"` outside `"archived" \| "draft" \| "ready-for-review" \| undefined`. `npm run typecheck` **exit 1**. CI reports a **second** error, `operator-query-persist-client.ts(23,5)` `TS2322`, from the duplicate `@tanstack/query-core` committed in `package-lock.json` — **clean-install-only, does not reproduce locally**. CI `Operator UI: typecheck (blocking)` red on **37 consecutive** trunk runs. | Two fixes, both small: widen the `ArchitectureDraftCustomerStatus` handling at the call site, and dedupe `query-core` by aligning the `@tanstack/*` family to one constraint style. |
 | 6 | Auth + tenant isolation on pilot path | **PASS (mechanism)** | ADR 0037, scope guard, ship-gate negative probes. | As gate 1. |
 
-**No numbered gate is FAIL in v5.1; the headline is uncapped.** Gate 1 remains **UNKNOWN** — the only gate now standing between this assessment and a defensible V1 ship claim, and it needs a live staging run, not a code change. CodeQL SARIF is not a numbered gate; its `javascript` failure mode is fixed but no post-fix run has completed on trunk.
+**Gate 5 is FAIL, so the headline carries a ship-blocker.** The cap is not arithmetically binding — 73.97% is already below v5's 75.26% cap — but no V1 ship claim is defensible while the operator UI does not typecheck and the API does not build in Release. Gate 1 remains **UNKNOWN** and still needs a live staging run, not a code change.
 
-**Gate 5 PASS is a measurement, not a guarantee.** It was true at `15836970d4`. With ~70 commits/hour landing directly on `master` and no required status checks, the honest statement is that Gate 5 *can* be green and *was* green — not that it *stays* green.
+**The lesson v5.1 wrote and v6 proved.** v5.1 said: *"Gate 5 PASS is a measurement, not a guarantee… the honest statement is that Gate 5 can be green and was green — not that it stays green."* That was correct, and it took **six and a half hours** to be vindicated. The follow-on correction is that v5.1 attributed the fragility to *direct pushes*. Direct pushes are now impossible and **Gate 5 failed anyway** — because the required-check list does not include the check that measures Gate 5.
 
 ---
 
@@ -177,7 +257,7 @@ Unchanged from v4. `typed-engine-protected` still promotes every engine finding 
 
 **Classification:** V1 residual + validation. **Affects outcomes 1, 3, 5.**
 
-### 7.2 Correctness & Evidence Integrity — 84 · weight 12 · contribution 10.08 · deficiency 192
+### 7.2 Correctness & Evidence Integrity — 68 · weight 12 · contribution 8.16 · deficiency 384 *(v5.1: 84)*
 
 **Up from 78 (v5.1); 72 in v4.** Push corset: Core **818/0**, Decisioning **319/0** on `DOTNET_FAST_CORE_TEST_FILTER` — **re-run after the v5.1 UI type changes with no regression**. Declaration tests use `cost-opt-001` outside declaration prefix family; governance tests embed manifest via `CreateRunDetailWithManifest`. Gitleaks clean.
 
@@ -187,7 +267,7 @@ Unchanged from v4. `typed-engine-protected` still promotes every engine finding 
 
 **Classification:** V1. **Affects outcomes 1, 2, 4.**
 
-### 7.3 Time-to-Value — 75 · weight 10 · contribution 7.50 · deficiency 250
+### 7.3 Time-to-Value — 68 · weight 10 · contribution 6.80 · deficiency 320 *(v5.1: 75)*
 
 **Up from 72 (v5.1); 71 in v4.** Corset gives immediate signal on trunk for compile + core correctness, and the production build **completes again** — 195/195 static pages, compile in 1.2 s — so the operator demo surface a first review needs is reachable from a clean clone.
 
@@ -209,7 +289,7 @@ Unchanged. Simulator default; judge flags default false; eval corpus synthetic; 
 
 **Classification:** V1 mechanism complete; validation required. **Affects outcomes 1, 5.**
 
-### 7.6 Runtime & First-Review Reliability — 79 · weight 7 · contribution 5.53 · deficiency 147
+### 7.6 Runtime & First-Review Reliability — 66 · weight 7 · contribution 4.62 · deficiency 238 *(v5.1: 79)*
 
 **Up from 71 (v5.1); 66 in v4 — the largest single move in this revision.** Push corset shipped with dotnet + typecheck jobs and now has its **first all-green completion on trunk** ([33031842736](https://github.com/joefrancisGA/ArchLucid/actions/runs/33031842736), all three jobs `success`). Gitleaks green. **CodeQL converged**: three consecutive completed runs `success` on both languages, against three consecutive `failure` runs immediately before the fix.
 
@@ -225,13 +305,13 @@ Unchanged. Mechanism complete; zero real pilot deltas.
 
 **Classification:** V1 residual + validation. **Affects outcomes 3, 4.**
 
-### 7.8 Governed Review Integrity — 86 · weight 13 · contribution 11.18 · deficiency 182
+### 7.8 Governed Review Integrity — 88 · weight 13 · contribution 11.44 · deficiency 156 *(v5.1: 86)*
 
 **Up from 84.** Governance workflow segregation/promotion property tests and dry-run submission tests pass with embedded manifests. Golden harness still 8/39 without `IEffectiveGovernanceLoader` injection.
 
 **Classification:** V1. **Affects outcomes 2, 4, 5.**
 
-### 7.9 Sponsor / Operator Comprehension — 77 · weight 8 · contribution 6.16 · deficiency 184
+### 7.9 Sponsor / Operator Comprehension — 75 · weight 8 · contribution 6.00 · deficiency 200 *(v5.1: 77)*
 
 **Up from 75 (v5.1); 74 in v4.** v4 help-resolver repair holds. The v5 regressions in the finding-inspect stickiness split — the **sponsor-facing finding disposition surface**, including `SponsorStorySynopsisFromCounts` and the disabled-CTA explanation chain — are fixed, so the surface compiles and ships rather than blocking the build.
 
@@ -239,7 +319,7 @@ Unchanged. Mechanism complete; zero real pilot deltas.
 
 **Classification:** V1. **Affects outcomes 2, 4.**
 
-### 7.10 Adoption Friction — 88 · weight 5 · contribution 4.40 · deficiency 60
+### 7.10 Adoption Friction — 72 · weight 5 · contribution 3.60 · deficiency 140 *(v5.1: 88)*
 
 **Up from 84 (v5.1).** The two commands a new contributor runs first — `npm ci` and `npm run typecheck` — now both succeed from a clean clone. In v5 the first failed with ERESOLVE and the second reported 7 errors, which is a first-hour experience that reads as an abandoned repo.
 
@@ -251,20 +331,22 @@ Unchanged. Mechanism complete; zero real pilot deltas.
 
 ## 8. Top 10 Weaknesses
 
-**v5.1 re-ranked.** Three v5 weaknesses are **resolved and removed**: #2 (Gate 5 FAIL), #5 (production build FAIL), and #7 (CodeQL does not converge — now green on both languages). Nothing was promoted from outside the v5 list; the survivors moved up, and three items that v5 held implicitly are now named explicitly at #4, #5, and #10. **Note the shape of the new list: only one entry (#1) is a process defect and only one (#10) is toolchain debt. The rest are product depth and market evidence.**
+**v6 re-ranked, and the top of the list is new.** The standing #1 — "trunk churn outruns fix-and-verify" — is **resolved as written** and removed: direct pushes to `master` are structurally impossible, verified by two rejected pushes and 9-of-9 PR-attributed ref updates. It is replaced by a sharper defect that the fix exposed rather than created. Two entirely new entries entered at **#3** and **#5**. **Note the shape change: v5.1's list had one process defect and one toolchain item; v6 has four process/toolchain entries in the top five.** That is a regression in kind, not just in score.
 
-1. **Trunk churn outruns fix-and-verify cycles.** **Unchanged and now unambiguously #1.** 106 commits/hour at the v5 pass, **70** in the hour ending v5.1; push corset and CodeQL use latest-wins cancellation. The corset run for the v5.1 fix commit was itself **cancelled**. Owner declined mandatory PRs; corset is proven passable but **branch protection is still not wired**, so nothing blocks. This weakness is what makes every other fix perishable. Process uncertainty.
-2. **Insight density still subtractive.** Unchanged architectural ceiling — `typed-engine-protected` still discards the computed density score. **Largest weighted deficiency at 442**, nearly double the next item. Design uncertainty.
-3. **Zero completed real-mode pilots (G-REAL-06).** Unchanged. Market uncertainty. Now the top *unblocked* item — v5's build failure no longer stands in the way.
-4. **Gate 1 remains UNKNOWN — no observed end-to-end first review.** **Promoted in v5.1.** With Gate 5 green, this is the only numbered ship gate not in a PASS state, and it cannot be closed by code changes. Validation uncertainty.
-5. **Full `ci.yml` matrix is PR-only and went unmeasured in both v5 and v5.1.** Api/Application/Integration suites have no fresh evidence; the corset covers Core + Decisioning only. The green corset invites over-reading. Process uncertainty.
-6. **Declaration policy gate recognizes only `cis-az-*` and `sec-base-028`, so every other buyer-facing pack fail-opens.** **Restated in v5.1 after direct code inspection — v5 described this incorrectly** (see the correction note below). `DeclarationSignalPolicyKeyMap.TenantUsesDeclarationVocabulary` maps just those two vocabularies, so a tenant assigning **SOC 2, GDPR, HIPAA, ISO 27001, PCI-DSS, Zero Trust, CIS AWS, CIS GCP, or AKS/EKS/GKE** still receives **every** declaration signal. A buyer toggling SOC 2 versus CIS Azure sees compliance rows move and **declaration rows stay put** — this is the concrete mechanism behind "policy packs drive one of 39 engines," and it is a direct hit on Differentiability. A fully specified remediation already exists as **PP-01** in `docs/architecture/POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`. Design uncertainty.
-7. **Bundled packs lack expectation extras by default.** Design/content uncertainty.
-8. **Golden corpus 8/39 without governance loader injection.** Design uncertainty.
-9. **Actor-dependent engines silent on IaC-only reviews; dual finding model persists.** Unchanged in substance from v5. Design uncertainty.
-10. **Dependency posture rests on `legacy-peer-deps`.** The `npm ci` fix is a deliberate workaround pending upstream `openapi-typescript` TypeScript 7 support; it accepts a knowingly-inconsistent tree rather than resolving it. Lowest severity on this list, but it is debt whose unblock date is controlled by someone else. Design uncertainty.
+1. **The enforced gate is decoupled from the signal that detects breakage.** **New #1.** Branch protection is `active` and unbypassable, but its `required_status_checks` list has **one** entry — `cohort-real-llm-gate` — which measures LLM budget month-to-date and golden-fixture presence. It does not build, test, typecheck, or validate anything. The corset jobs that *do* are not required. Measured consequence: **37 consecutive** red corset runs on trunk (08:27:48 → 14:16:43), five PRs merged into that red state after protection went live, and PR #556 merged with **27** failing checks including `Operator UI: typecheck (blocking)`, `Docs: link integrity + scope-header ratchet (blocking)`, and `.NET: OpenAPI v1 contract snapshot (fail-fast)`. **A gate that admits every red check is a review requirement, not a quality gate.** Process uncertainty — and the cheapest fix on this entire document.
+2. **Insight density still subtractive.** Unchanged architectural ceiling — `typed-engine-protected` still discards the computed density score at `DeterministicInsightDensityGate.cs:85`. **Still the largest weighted deficiency at 442**, though no longer double the next item now that Correctness has risen to 384. Design uncertainty.
+3. **Unbatched Dependabot auto-merge lands major-version bumps without a passing build.** **New in v6, and it is the proximate cause of the current outage.** Roughly twenty PRs merged between 08:26:45 and 08:27:48 — including `Asp.Versioning.Mvc` **8.0.0 → 10.2.1** (two majors) and azurerm's ceiling raised to admit **5.2.0** (one major). Three independent breaks landed simultaneously: Release build (`AV0029`/`AV0030` under `TreatWarningsAsErrors`), UI typecheck (duplicate `@tanstack/query-core`), and 16 Terraform validate lanes. No grouping, no major-version review, and — because of #1 — no build requirement on any of them. Process uncertainty.
+4. **Zero completed real-mode pilots (G-REAL-06).** Unchanged in substance, but **re-blocked** in v6: the production build fails at typecheck, so the demo surface pilots need is not currently buildable. Market uncertainty.
+5. **Two failure classes are invisible to local verification.** **New in v6, and the reason this outage lasted six hours.** (a) **Release-only:** `AV0029`/`AV0030` do not appear in Debug builds; every local verification in this session and the v5.1 work built Debug, and the corset builds Release. (b) **Clean-install-only:** the duplicate `query-core` is committed in `package-lock.json` but absent from an already-populated `node_modules`, so it cannot be reproduced locally at all — this assessment confirmed its absence on this VM while CI reports it. **A verification loop that cannot see two of three break classes will keep certifying broken trunk as green.** Process uncertainty.
+6. **Gate 1 remains UNKNOWN — no observed end-to-end first review.** Unchanged; needs a live staging run. Validation uncertainty.
+7. **Heavy `ci.yml` lanes are `skipping` on nearly every PR.** v5.1 called this "unmeasured"; v6 confirms it is *actively skipped* by path-lane gating — `Operator UI: lint, typecheck, production build`, `Operator UI: unit (Vitest)`, `Vitest axe`, `Playwright mock functional`, `Lighthouse CI`, `OWASP ZAP baseline`, `Schemathesis light fuzz`, `SaaS: Terraform roots validate`. Largest remaining unmeasured correctness surface. Process uncertainty.
+8. **Declaration policy gate recognizes only `cis-az-*` and `sec-base-028`, so every other buyer-facing pack fail-opens.** **Partially remediated since v5.1** — `DeclarationSignalPolicyKeyMap` was expanded on `master`, so re-derive the current vocabulary list before quoting this. The structural point stands and is a direct hit on Differentiability: a buyer toggling SOC 2 versus CIS Azure should see declaration rows move, and historically did not. Remediation spec is **PP-01** in `docs/architecture/POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`. Design uncertainty.
+9. **`legacy-peer-deps=true` masks resolution conflicts instead of resolving them — and it is now implicated in an outage.** **Promoted from #10.** v5.1 introduced it to clear an `npm ci` ERESOLVE and rated it "lowest severity on this list." v6 shows the cost: with peer-dep enforcement disabled, `@tanstack/react-query: ^5.102.2` alongside exact-pinned `@tanstack/react-query-persist-client: 5.101.4` and `@tanstack/query-sync-storage-persister: 5.101.4` produces a **silently nested second `query-core`** rather than a loud install error. **The workaround converted a build-time failure into a type error discovered six hours later.** A targeted `overrides` entry for `openapi-typescript`'s `typescript` peer would fix the original problem without disabling enforcement globally. Design uncertainty.
+10. **Remaining engine-depth debt.** Bundled packs still lack expectation extras by default; golden corpus covers **14 of 39** engines after the `6e43a095e4` extension (up from 8, still no governance loader injection); actor-dependent engines stay silent on IaC-only reviews and the dual finding model persists. Grouped because none moved this pass and each is individually smaller than #1–#9. Design uncertainty.
 
-**Removed from the v5 list because fixed, not because deprioritized:** Gate 5 FAIL, production build FAIL, and CodeQL non-convergence. **A caution on the CodeQL entry specifically:** analysis now completes green, but **12 of the last 25 runs were still cancelled**, so most pushes receive no analysis at all. That residual belongs to weakness **#1** — see the concurrency correction below, which makes it a workflow-configuration problem with a known fix rather than an unavoidable consequence of churn.
+**Removed from the v5.1 list because genuinely fixed:** "trunk churn outruns fix-and-verify" (direct pushes now impossible — the owner's #1) and the CodeQL cancellation-by-churn residual (per-SHA concurrency groups landed at `6e43a095e4`; runs now complete rather than being evicted from the pending slot).
+
+**A caution on CodeQL specifically.** v5.1 declared it "fully discharged" on the strength of three consecutive green post-fix runs. `CodeQL (javascript)` is **red again** on PR #556. Three green runs is not a durability claim, and this pass treats it as such: CodeQL's status now rides on weakness **#1** like everything else, because it is not a required check either.
 
 ### Correction to v5 — weakness #6 was wrong as written
 
@@ -329,15 +411,19 @@ Blocker #1 updates: corset exists and has a **proven all-green completion**; **b
 
 ## 15. Most Important Truth
 
-**Every gate that can be closed by code is now closed. The ones that remain need a policy setting and a live run — and neither is something more code will fix.**
+**The owner did the thing this document asked for, and it did not work — because the gate was wired to the wrong check. A required-check list is only as good as its worst omission.**
 
-v4 revealed broken guards. v5 shipped the corset and found the churn pattern. v5.1 closed the last three code-shaped items on the list: Gate 5 is PASS, the production build generates 195 pages, `npm ci` resolves, **CodeQL completes green on both languages**, and the corset has an all-green run on trunk. **1,137 fast-core tests pass** and gitleaks is clean. **No numbered ship gate is FAIL.**
+v5.1 ended by arguing that the marginal value of another remediation pass was near zero and the marginal value of one repository setting was high. **The setting was applied at 13:42 UTC. It worked exactly as designed and trunk got worse anyway.** Direct pushes to `master` are now impossible — verified twice by rejected pushes, and by nine consecutive PR-attributed ref updates where seven of the previous thirteen had no PR at all. That is a genuine structural improvement, and it deserves to be said plainly before the rest.
 
-What is left is uncomfortable precisely because it is not engineering work. **Branch protection** is a checkbox in repository settings, and without it every fix in this document is a photograph of one commit. **Gate 1** needs somebody to run one review end-to-end and record the manifest hash. **G-REAL-06** needs three real pilots. The full `ci.yml` matrix needs one dispatch. None of these are hard; all of them are un-delegatable to a coding agent; all have been open across three passes.
+And yet: at the moment of this pass the operator UI does not typecheck, `ArchLucid.Api` does not compile in Release, sixteen Terraform lanes are red, and the push corset has failed **37 consecutive times** over six hours. Five pull requests merged into that state *after* protection went live. One of them — this assessment's own — merged with **27** failing checks, two of which have the word "blocking" in their names.
 
-The sharpest thing v5.1 learned is a warning about its own good news. A dependency peer conflict that read as dependabot noise had been quietly turning off JavaScript security analysis on **every CodeQL run that survived cancellation** — eight straight `failure` conclusions, an empty `js/*` alert list, and nothing that looked like an incident. **This repo's failures are not loud.** Three passes of typecheck regressions were the same story in a louder register: the corset reported `failure` and the push landed anyway.
+**The mechanism is a one-line omission.** The ruleset requires a single context, `cohort-real-llm-gate`, which measures LLM spend and fixture presence. The three checks that would have caught every defect above are not in the list. Protection converted "anyone can push anything" into "anyone can merge anything," which is better — reviewable, attributable, revertible — but it is not a quality gate.
 
-The conclusion is therefore not "keep fixing." It is that **the marginal value of another remediation pass is close to zero, and the marginal value of one repository setting is high**, because a blocking gate is the only mechanism that converts a silent failure into a stopped push. Everything above 78.20% from here is depth and evidence — engines that change decisions, and pilots that prove it — not build hygiene.
+**The deeper lesson is about where breakage now enters.** v4's regressions came from hand-written UI churn. v5's did too. v6's came from **twenty Dependabot pull requests that merged in seventy-five seconds**, including a two-major framework bump and a provider major. Closing the direct-push door did not reduce the rate at which trunk breaks; it changed which door the breakage uses. Any control that gates humans but not bots gates the smaller half of the problem.
+
+**And two of the three defects were unfindable locally.** `AV0029`/`AV0030` appear only in Release; every local verification in this session built Debug and passed. The duplicate `query-core` is committed in the lockfile but absent from an already-populated `node_modules`, so it cannot be reproduced on this machine at all — this pass confirmed its absence while CI reported it. **A verification loop blind to two of three break classes will keep certifying red trunk as green, and no amount of diligence inside that loop fixes it.**
+
+So the honest conclusion is narrower and more actionable than v5.1's. It is not "one setting fixes this" — that was tried. It is: **green the three broken jobs, then require them, then gate the bots, then make the local loop able to see Release and clean-install failures.** Items 1–6 in §17, in that order. Every one is small. The sequencing is the whole point: requiring the corset today would deadlock the repo, because the corset is red.
 
 ---
 
@@ -363,24 +449,38 @@ The conclusion is therefore not "keep fixing." It is that **the marginal value o
 
 ### Tier 1 — Must Fix / Must Validate
 
-**1. Add push corset jobs to branch protection required checks.**
-Tier 1 · **Promoted to #1 in v5.1.** · **Affected qualities:** Runtime (79), Correctness (84), Adoption Friction (88) — and indirectly every quality, because this is what makes fixes durable. · **Evidence:** every gate is now demonstrably passable — the corset has an all-green completion ([33031842736](https://github.com/joefrancisGA/ArchLucid/actions/runs/33031842736)) and CodeQL is green on both languages ([33031884289](https://github.com/joefrancisGA/ArchLucid/actions/runs/33031884289)) — so requiring them **cannot deadlock the repo**. That was the only defensible reason to wait, and it is gone. Meanwhile 12/25 recent CodeQL runs and both runs for the fix commit `15836970d4` were cancelled by churn. · **Jobs to require:** `Security: gitleaks (secret scan)`, `.NET: push corset (build + fast core Core/Decisioning)`, `Operator UI: typecheck (blocking)`, and `CodeQL`. · **Owner-only — GitHub repository settings, not a repo-editable change.** · **Classification: V1 (process).**
+> **Sequencing warning — read before doing anything here.** Items **1, 2, and 3** must land **before** item **4**. Trunk is currently red on all three corset jobs; requiring them first would block every merge, including the merges that fix them. Order: green the corset (1–3), confirm one all-green trunk run, then require it (4). Items 1–3 are all agent-closable and independent of each other.
 
-**2. Execute Gate 1 — one observed end-to-end first review.**
-Tier 1 · **Promoted in v5.1** — now the only numbered ship gate not PASS. · **Desired evidence:** a single staging run recording create → execute → commit → sealed manifest + ≥1 artifact, with run id and manifest hash captured. · Requires a live stack; not closable by code changes alone. · **Classification: validation.**
+**1. Fix the Release build — `AV0029` / `AV0030` in `ArchLucid.Api`.**
+Tier 1 · **New in v6, blocking, and it needs an API-design decision rather than a mechanical fix.** · **Evidence:** `dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Release` → `3 Error(s)`; Debug builds clean. `Asp.Versioning.Mvc` 8.0.0 → 10.2.1 added analyzers that `Directory.Build.props:6` (`TreatWarningsAsErrors=true`) promotes to errors. · **The decision:** `AV0029` wants `AddApiVersioning().AddOpenApi()` instead of a standalone `services.AddOpenApi(...)` at `MvcExtensions.cs:87`, and `AV0030` wants `MapOpenApi().WithDocumentPerVersion()` at `PipelineExtensions.cs:98`. **Adopting both changes the OpenAPI document layout to one document per API version**, which will invalidate `openapi-v1.contract.snapshot.json`, the APIM import, and client codegen. · **Two defensible paths:** (a) adopt the versioned-document model and regenerate every downstream contract — correct long-term, wide blast radius; (b) suppress `AV0029`/`AV0030` in `.editorconfig` with a comment recording that ArchLucid intentionally serves a single `/openapi/v1.json` — restores trunk in minutes, defers the design question. **Recommend (b) now, (a) as a tracked follow-up**, because trunk being red is currently costing more than the design debt. · **Classification: V1.**
 
-**3. Execute G-REAL-06 / G-REAL-07 / M-39.**
-Tier 1 · validation first · **Unblocked in v5.1** — production build completes, so the demo surface exists. Orchestrator: `scripts/Run-GReal06ProofRuns.ps1`. · **Classification: validation.**
+**2. Fix Gate 5 — two UI typecheck errors, one of which is clean-install-only.**
+Tier 1 · **New in v6, blocking.** · (a) `ArchitectureDraftListClient.tsx(387,25)`: `ArchitectureDraftCustomerStatus` includes `"review-linked"`, which the consuming prop union does not accept. Widen the consumer or map the status explicitly — this is a real modelling gap in a sponsor-visible surface, not just a cast. · (b) `operator-query-persist-client.ts(23,5)`: two `QueryClient` types from a **duplicate `@tanstack/query-core`**, committed in `package-lock.json` (top-level line 5554 **and** nested under `react-query` line 5624). Align the `@tanstack/*` family to one constraint style — bump `@tanstack/react-query-persist-client` and `@tanstack/query-sync-storage-persister` off exact `5.101.4`, or add an `overrides` entry pinning a single `query-core`. **Verify with a scratch `npm ci`, not the existing `node_modules`** — this error does not reproduce against a populated tree. · **Classification: V1.**
 
-**4. Re-measure the full `ci.yml` matrix at least once on a trunk commit.**
-Tier 1 · **New in v5.1** — it replaces the discharged CodeQL item and is now the largest unmeasured correctness surface. Api/Application/Integration suites are PR-only and were unmeasured in v4, v5, **and** v5.1; the green corset covers Core + Decisioning only and invites over-reading as "trunk is green." · **Desired outcome:** one `workflow_dispatch` (or scheduled) full-matrix run on `master` with results recorded, so the gap is quantified rather than assumed. · **Cheapest item on this list** — one dispatch. · **Classification: V1.**
+**3. Fix the 16 red `Terraform: validate` lanes.**
+Tier 1 · **New in v6.** `infra/terraform/versions.tf` now permits `azurerm >= 3.100.0, < 5.2.1`, admitting provider **5.2.0** — a major bump merged by Dependabot PRs #500/#501/#502. Correlation with the lane failures is exact; **the specific validate error was not captured this pass, so confirm it before choosing a fix.** Likely either pin below 5.0 pending a deliberate migration, or fix the resource schemas 5.x renamed. · **Classification: V1.**
 
-**5. Fix the concurrency configuration that evicts queued trunk runs.**
-Tier 1 · **New in v5.1, and the only Tier 1 item a coding agent can fully close.** CodeQL now *works* but **12 of the last 25 runs were cancelled before starting a single job**, so most pushes get no security analysis. · **Root cause (verified, not inferred):** a concurrency group holds **one running + one pending** run (`queue: single` default). `codeql.yml` already sets `cancel-in-progress: false`, which protects the *running* run only — **every newly queued run evicts the pending one.** With `group: codeql-${{ github.ref }}` on a trunk taking 70–106 pushes/hour, almost nothing survives the pending slot. Cancelled runs having **zero jobs** is the fingerprint. · **Fix, preferring the lower-risk option:** set `group: codeql-${{ github.sha }}` so each commit gets its own group and nothing coalesces; alternatively `queue: max` (documented, up to 100 pending) — note `queue: max` **cannot** be combined with `cancel-in-progress: true`, which matters for `ui-typecheck-on-push.yml`. · **Trade-off:** more Actions minutes, in exchange for every commit actually being analyzed. · **Independent of item 1** — worth doing even if branch protection is deferred, though item 1 also reduces push rate by construction. · **Classification: V1.**
+**4. Add the three corset jobs to the existing ruleset's `required_status_checks` — after 1–3 are green.**
+Tier 1 · **This is the single highest-leverage change in this document and it is a two-minute ruleset edit.** · **Evidence it is needed:** protection is `active` with **one** required check, `cohort-real-llm-gate`, which measures LLM budget rather than correctness; trunk has been red for **37 consecutive** corset runs; PR #556 merged with **27** failing checks including two named "(blocking)". · **Add exactly these contexts:** `Security: gitleaks (secret scan)`, `.NET: push corset (build + fast core Core/Decisioning)`, `Operator UI: typecheck (blocking)`. · **Consider also** `CodeQL (csharp)` and `CodeQL (javascript)` — but note `CodeQL (javascript)` is red on PR #556, so treat it as a second wave. · **Owner-only — GitHub ruleset settings.** · **Classification: V1 (process).**
+
+**5. Constrain Dependabot — group updates and gate major bumps.**
+Tier 1 · **New in v6.** ~20 PRs merged in ~75 seconds caused three simultaneous breaks. · **Concrete config:** in `.github/dependabot.yml` add `groups` per ecosystem so NuGet/npm/Terraform land as one reviewable PR each, and `ignore` with `update-types: ["version-update:semver-major"]` so majors require a deliberate human PR. · **Pairs with item 4** — grouping without a required build check just makes the batches bigger. · **Classification: V1 (process).**
+
+**6. Close the two verification blind spots.**
+Tier 1 · **New in v6, and it is what prevents the next six-hour outage rather than fixing this one.** · **(a) Release:** `scripts/ci/run_push_corset_dotnet.sh` already builds `-c Release`, but nothing makes a local pre-push loop do so; agents and contributors verify Debug and get a false green. Add a documented pre-push invocation and state in `AGENTS.md` that **Debug success is not evidence**. · **(b) Clean install:** add a CI-or-script assertion that fails on duplicate resolutions — e.g. `npm ls @tanstack/query-core` returning more than one version — so lockfile duplication is caught at the PR that introduces it rather than by a type error hours later. · **Classification: V1.**
+
+**7. Execute Gate 1 — one observed end-to-end first review.**
+Tier 1 · Unchanged from v5.1. · **Desired evidence:** a single staging run recording create → execute → commit → sealed manifest + ≥1 artifact, with run id and manifest hash captured. · Requires a live stack. · **Classification: validation.**
+
+**8. Execute G-REAL-06 / G-REAL-07 / M-39.**
+Tier 1 · validation · **Re-blocked in v6** — production build fails at typecheck, so the demo surface does not currently exist. Unblocks on item 2. Orchestrator: `scripts/Run-GReal06ProofRuns.ps1`. · **Classification: validation.**
+
+**9. Measure the full `ci.yml` matrix once on a trunk commit.**
+Tier 1 · Carried from v5.1, **with the finding sharpened**: the heavy lanes are not merely unmeasured, they report `skipping` on essentially every PR because path-lane gating excludes them. · **Desired outcome:** one `workflow_dispatch` full-matrix run on `master` with results recorded, plus a decision on whether path gating should be relaxed for trunk. · **Cheapest item on this list** — one dispatch. · **Classification: V1.**
 
 ### Tier 2 — High Leverage
 
-**6.** Triage pre-existing help Vitest failures (baseline from v4). **7.** Policy-toggle demo artifact. **8.** Seed overlay `advisoryDefaults`. **9.** Extend golden harness past 8 engines + inject loader. **10.** M-07 screenshots after item 1.
+**10.** Triage pre-existing help Vitest failures (baseline from v4). **11.** Policy-toggle demo artifact. **12.** Seed overlay `advisoryDefaults`. **13.** Extend golden harness past **14** engines + inject governance loader (8→14 landed at `6e43a095e4`). **14.** Replace `legacy-peer-deps=true` with a targeted `overrides` entry for `openapi-typescript`. **15.** M-07 screenshots after items 1–2.
 
 ### Tier 3 — Hold
 

@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application.Agents;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Hosting;
@@ -90,6 +91,8 @@ public sealed class AgentTierCompletionRouterRegistrationTests
         scope.ServiceProvider.GetRequiredService<IManifestChunkSummaryCompletionClient>().Should().NotBeNull();
         scope.ServiceProvider.GetRequiredService<IAgenticRetrievalCompletionClient>().Should().NotBeNull();
         scope.ServiceProvider.GetRequiredService<IGraphCommunitySummaryCompletionClient>().Should().NotBeNull();
+        scope.ServiceProvider.GetRequiredService<ISchemaRemediationAgentCompletionClient>().Should().NotBeNull();
+        scope.ServiceProvider.GetRequiredService<IRegisteredAgentHandlersInspector>().Should().NotBeNull();
     }
 }
 

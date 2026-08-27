@@ -18,6 +18,7 @@ import {
   architectureDraftDeleteConfirmDescription,
 } from "@/lib/architecture/architecture-draft-delete-copy";
 import { canDeleteArchitectureDraft } from "@/lib/architecture/architecture-draft-delete-eligibility";
+import type { ArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
 import { removeArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -26,7 +27,7 @@ export type ArchitectureDraftDeleteControlProps = {
   readonly architectureId: string;
   readonly displayName: string;
   readonly linkedReviewId: string | null;
-  readonly customerStatus?: "draft" | "ready-for-review" | "archived";
+  readonly customerStatus?: ArchitectureDraftCustomerStatus;
   readonly serverStatus?: string | null;
   readonly buttonLabel?: string;
   readonly testId?: string;
