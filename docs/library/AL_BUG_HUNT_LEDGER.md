@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 111
-- **bugs-found:** 268
+- **hunts:** 112
+- **bugs-found:** 272
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — risk-exception ownerUserId, recurrence schedule guards, generate prompt max-length
+- **last-bug:** 2026-08-27 — recurrence cron max-length, risk-exception expiry, submit/promote env path
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2620,11 +2620,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` — omitted/null `isEnabled` reached facade `ArgumentException` instead of controller 400 — **hit 2026-08-27:** controller required-field guard; strict-mock regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceController.GeneratePolicyPack` — `prompt` longer than 8000 characters reached `GenerateAsync` instead of HTTP 400 (`GeneratePolicyPackRequest.MaxLength` not invoked) — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceControllerSimulateTests`.
 
-2026-08-27 seed hunt #194: reseeded zone candidates; proved risk-exception ownerUserId max-length, recurrence schedule empty sourceRunId/isEnabled guards, and generate-policy-pack prompt max-length.
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` — `cronExpression` longer than `NVARCHAR(100)` reached facade persist (HTTP 500 risk) — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `RenewRiskException` — past or >365-day `expiresAtUtc` reached `RiskExceptionValidation` in service instead of controller 400 — **hit 2026-08-27:** controller expiry guards before facade; regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` — same `sourceEnvironment`/`targetEnvironment` or invalid promotion step reached workflow instead of controller 400 — **hit 2026-08-27:** `GovernanceEnvironmentOrder` guards (CompareEnvironments parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController.Promote` — invalid `sourceEnvironment`→`targetEnvironment` step reached workflow instead of controller 400 — **hit 2026-08-27:** `GovernanceEnvironmentOrder.IsValidPromotion` guard; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (invalid) `GovernanceController.DraftPolicyPackRule` — no upper bound on `freeTextIntent` at controller — **cheap-disproof 2026-08-27:** advisory dry-run endpoint with no DB persistence; LLM/token risk only.
 
-- [ ] (candidate) `GovernanceStickinessController.CreateRiskException` / `RenewRiskException` — `expiresAtUtc` past or >365 days validated only in `RiskExceptionValidation` service layer (controller parity gap; HTTP 400 today).
-- [ ] (candidate) `GovernanceController.SubmitApprovalRequest` / `Promote` — same `sourceEnvironment`/`targetEnvironment` or invalid promotion step rejected only by FluentValidation/workflow (controller parity gap; HTTP 400 today).
-- [ ] (candidate) `GovernanceController.DraftPolicyPackRule` — no upper bound on `freeTextIntent` at controller (LLM/token risk; no clear DB/500 path).
+2026-08-27 thorough hunt #195: proved recurrence cron max-length, risk-exception expiry guards, and submit/promote env-path validation; cheap-disproved draft freeTextIntent max-length candidate.
+
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `RenewRiskException` — `expiresAtUtc` past or >365 days validated only in `RiskExceptionValidation` service layer — **hit 2026-08-27:** see hunt #195 controller expiry guards.
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` / `Promote` — same/invalid env path rejected only by FluentValidation/workflow — **hit 2026-08-27:** see hunt #195 controller env-path guards.
+
+2026-08-27 seed hunt #194: reseeded zone candidates; proved risk-exception ownerUserId max-length, recurrence schedule empty sourceRunId/isEnabled guards, and generate-policy-pack prompt max-length.
 
 2026-08-27 thorough hunt #193: proved CompareEnvironments controller env guards, product-feedback score range, recurrence schedule name max-length, and risk-exception evidenceRef max-length.
 
