@@ -115,6 +115,9 @@ public sealed class GovernancePreCommitSimulationController(
                 $"Run ID '{body.RunId}' is not valid.",
                 ProblemTypes.BadRequest);
 
+        if (body.SyntheticCount < 0)
+            return this.BadRequestProblem("syntheticCount must be non-negative.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

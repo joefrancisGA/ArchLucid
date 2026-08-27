@@ -149,6 +149,28 @@ public sealed class GovernancePreCommitSimulationControllerTests
         gate.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_synthetic_count_is_negative()
+    {
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(gate: gate.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                SyntheticSeverity = FindingSeverity.Critical,
+                SyntheticCount = -1,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        gate.VerifyNoOtherCalls();
+    }
+
     private static ITenantRepository TenantMissingRepository() =>
         Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
             Scope.TenantId,

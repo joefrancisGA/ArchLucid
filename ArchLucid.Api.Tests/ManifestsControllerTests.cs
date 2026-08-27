@@ -287,4 +287,33 @@ public sealed class ManifestsControllerTests
         ManifestDiagramResponse body = ok.Value.Should().BeOfType<ManifestDiagramResponse>().Subject;
         body.Content.Should().Be("graph TB; S-->D");
     }
+
+    [Fact]
+    public async Task GetManifestDiagramV2_returns_trimmed_manifest_version_when_route_is_padded()
+    {
+        string paddedManifestVersion = $"  {ManifestVersion}  ";
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestDiagramV2(
+            paddedManifestVersion,
+            cancellationToken: CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ManifestDiagramResponse body = ok.Value.Should().BeOfType<ManifestDiagramResponse>().Subject;
+        body.ManifestVersion.Should().Be(ManifestVersion);
+    }
+
+    [Fact]
+    public async Task GetManifestExport_returns_trimmed_manifest_version_when_route_is_padded()
+    {
+        string paddedManifestVersion = $"  {ManifestVersion}  ";
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestExport(paddedManifestVersion, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ArchLucid.Api.Models.ManifestExportContentResponse body =
+            ok.Value.Should().BeOfType<ArchLucid.Api.Models.ManifestExportContentResponse>().Subject;
+        body.ManifestVersion.Should().Be(ManifestVersion);
+    }
 }
