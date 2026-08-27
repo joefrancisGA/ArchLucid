@@ -12,7 +12,9 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         {
             FileName = source.FileName?.Trim() ?? string.Empty,
             ContentType = source.ContentType?.Trim() ?? string.Empty,
-            Content = source.Content,
+            Content = string.IsNullOrWhiteSpace(source.Content)
+                ? string.Empty
+                : source.Content.Trim(),
         };
     }
 }
