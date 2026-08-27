@@ -99,7 +99,8 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     expect(within(providerScope).getByText(CLOUD_CONNECTIONS_HELP_TIER_2.title)).toBeInTheDocument();
     expect(within(providerScope).getByText(CLOUD_CONNECTIONS_HELP_TIER_1.eyebrow)).toBeInTheDocument();
     expect(within(providerScope).getByText(CLOUD_CONNECTIONS_HELP_TIER_2.eyebrow)).toBeInTheDocument();
-    expect(within(providerScope).getByTestId("help-cloud-connections-tier-1-card")).toHaveClass("border-l-teal-700");
+    expect(within(providerScope).getByTestId("help-cloud-connections-tier-1-card")).toHaveClass("border-l-neutral-700");
+    expect(within(providerScope).getByTestId("help-cloud-connections-tier-1-card").className).not.toMatch(/teal/);
     expect(
       within(providerScope).getAllByRole("link", {
         name: CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.label,

@@ -12,7 +12,6 @@ import {
 } from "@/lib/cloud-connections-help-guide-content";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -55,11 +54,7 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2" data-testid="help-cloud-connections-tier-decision">
         <div
-          className={cn(
-            DESIGN_TOKENS.surface.card,
-            OPERATOR_CARD.lifecycleEmphasized,
-            "space-y-3 p-4",
-          )}
+          className={cn(DESIGN_TOKENS.surface.card, HELP_PAGE_LAYOUT.tierEmphasisPanel, "space-y-3 p-4")}
           data-testid="help-cloud-connections-tier-1-card"
         >
           <TierCardEyebrow>{CLOUD_CONNECTIONS_HELP_TIER_1.eyebrow}</TierCardEyebrow>
