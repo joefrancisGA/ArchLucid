@@ -68,6 +68,9 @@ export const HELP_PAGE_LAYOUT = {
   workflowStepPanelCurrent: "border-l-[3px] border-l-neutral-700 dark:border-l-neutral-400",
   orientationLinkTile:
     "rounded-md border border-neutral-200 bg-white p-4 no-underline transition-colors hover:border-neutral-300 hover:bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-600 dark:hover:bg-neutral-900/60",
+  /** Neutral in-page anchor pills on technical reference landing strips (TB-2092). */
+  referenceTagPill:
+    "inline-flex rounded-full border border-neutral-300 bg-white px-3 py-1 text-sm no-underline transition-colors hover:border-neutral-400 hover:bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-950 dark:hover:border-neutral-600 dark:hover:bg-neutral-900/60",
 } as const;
 
 /** Minimum `##` / `###` headings before the sticky TOC rail renders. */
