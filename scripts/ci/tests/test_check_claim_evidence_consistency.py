@@ -6,6 +6,7 @@ import json
 import subprocess
 import unittest
 from pathlib import Path
+from ci_test_helpers import PYTHON
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CHECKER = REPO_ROOT / "scripts" / "ci" / "check_claim_evidence_consistency.py"
@@ -14,7 +15,7 @@ CHECKER = REPO_ROOT / "scripts" / "ci" / "check_claim_evidence_consistency.py"
 class ClaimEvidenceConsistencyTests(unittest.TestCase):
     def test_valid_fixture_passes(self) -> None:
         completed = subprocess.run(
-            ["python", str(CHECKER), "--fixture", "valid"],
+            [PYTHON, str(CHECKER), "--fixture", "valid"],
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
@@ -26,7 +27,7 @@ class ClaimEvidenceConsistencyTests(unittest.TestCase):
 
     def test_invalid_fixture_fails(self) -> None:
         completed = subprocess.run(
-            ["python", str(CHECKER), "--fixture", "invalid"],
+            [PYTHON, str(CHECKER), "--fixture", "invalid"],
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
@@ -40,7 +41,7 @@ class ClaimEvidenceConsistencyTests(unittest.TestCase):
         out = REPO_ROOT / "artifacts" / "ci-tmp" / "claim-evidence-consistency.json"
         completed = subprocess.run(
             [
-                "python",
+                PYTHON,
                 str(CHECKER),
                 "--json-out",
                 str(out),

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import unittest
 from pathlib import Path
@@ -13,12 +14,16 @@ SCRIPT = REPO_ROOT / "scripts" / "Invoke-ReleaseRealLlmEvidenceRequirement.ps1"
 
 class TestInvokeReleaseRealLlmEvidenceRequirement(unittest.TestCase):
     def test_skips_when_env_unset(self) -> None:
+        pwsh = shutil.which("pwsh")
+        if pwsh is None:
+            self.skipTest("pwsh not on PATH")
+
         env = os.environ.copy()
         env.pop("ARCHLUCID_REQUIRE_REAL_LLM_RELEASE_EVIDENCE", None)
         out = REPO_ROOT / "artifacts" / "release" / "test-real-llm-release-requirement-skip.md"
         result = subprocess.run(
             [
-                "pwsh",
+                pwsh,
                 "-NoProfile",
                 "-File",
                 str(SCRIPT),
