@@ -108,25 +108,34 @@ public sealed partial class GovernanceStickinessFacade
         Guid? manifestId,
         CancellationToken ct)
     {
-        if (runId is not Guid resolvedRunId || resolvedRunId == Guid.Empty)
-            return;
-
-        if (manifestId is not Guid resolvedManifestId || resolvedManifestId == Guid.Empty)
-            return;
-
-        Persistence.Models.RunRecord? run = await _runRepository
-            .GetByIdAsync(scope, resolvedRunId, ct)
-            .ConfigureAwait(false);
-
-        if (run is null)
-            throw new RunNotFoundException(resolvedRunId.ToString("D"));
-
-        if (run.GoldenManifestId is not Guid boundManifest || boundManifest != resolvedManifestId)
+        if (manifestId is Guid resolvedManifestId && resolvedManifestId != Guid.Empty)
         {
-            throw new GoldenManifestVersionNotFoundException(
-                resolvedManifestId.ToString("D"),
-                resolvedRunId.ToString("D"));
+            if (runId is not Guid resolvedRunId || resolvedRunId == Guid.Empty)
+            {
+                throw new ArgumentException(
+                    "Run id is required when manifest id is specified.",
+                    nameof(runId));
+            }
+
+            Persistence.Models.RunRecord? run = await _runRepository
+                .GetByIdAsync(scope, resolvedRunId, ct)
+                .ConfigureAwait(false);
+
+            if (run is null)
+                throw new RunNotFoundException(resolvedRunId.ToString("D"));
+
+            if (run.GoldenManifestId is not Guid boundManifest || boundManifest != resolvedManifestId)
+            {
+                throw new GoldenManifestVersionNotFoundException(
+                    resolvedManifestId.ToString("D"),
+                    resolvedRunId.ToString("D"));
+            }
+
+            return;
         }
+
+        if (runId is not Guid _ || runId == Guid.Empty)
+            return;
     }
 
     private async Task EnsureFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)

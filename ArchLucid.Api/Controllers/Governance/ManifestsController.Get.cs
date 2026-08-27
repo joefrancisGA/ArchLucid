@@ -242,6 +242,11 @@ public sealed partial class ManifestsController
         string manifestVersion,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+            return null;
+
+        manifestVersion = manifestVersion.Trim();
+
         GoldenManifest? manifest =
             await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
 
