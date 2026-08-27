@@ -150,6 +150,21 @@ public sealed class GovernancePreCommitSimulationControllerTests
     }
 
     [Fact]
+    public async Task GetChecklist_returns_bad_request_with_trimmed_run_id_when_route_is_padded_and_invalid()
+    {
+        GovernancePreCommitSimulationController sut = CreateController();
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetChecklistAsync("  not-a-guid  ", CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails? problem = badRequest.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
+        problem.Should().NotBeNull();
+        problem!.Detail.Should().Be("Run ID 'not-a-guid' is not valid.");
+    }
+
+    [Fact]
     public async Task Simulate_returns_bad_request_when_synthetic_count_is_negative()
     {
         Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
