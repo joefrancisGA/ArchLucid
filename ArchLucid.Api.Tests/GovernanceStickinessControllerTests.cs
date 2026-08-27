@@ -1340,12 +1340,27 @@ public sealed class GovernanceStickinessControllerTests
     [Fact]
     public async Task CreateRecurrenceSchedule_returns_bad_request_for_invalid_cron()
     {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = sourceRunId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ScopeProjectId = Scope.ProjectId,
+                ArchitectureId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            });
+
         GovernanceStickinessController controller = BuildSut(
-            recurrenceCalculator: BuildRealRecurrenceCalculator());
+            recurrenceCalculator: BuildRealRecurrenceCalculator(),
+            runRepository: runs);
 
         CreateArchitectureReviewRecurrenceScheduleRequest request = new()
         {
-            SourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            SourceRunId = sourceRunId,
             Name = "bad cron",
             CronExpression = "not-a-real-cron",
             IsEnabled = true,
