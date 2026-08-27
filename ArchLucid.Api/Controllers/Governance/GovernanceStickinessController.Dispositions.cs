@@ -113,6 +113,13 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.FindingIds.Any(static id => !string.IsNullOrWhiteSpace(id) && id.Trim().Length > MaxFindingIdLength))
+        {
+            return this.BadRequestProblem(
+                "FindingId must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

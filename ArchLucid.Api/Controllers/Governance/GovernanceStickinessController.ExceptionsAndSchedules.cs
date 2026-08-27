@@ -31,6 +31,15 @@ public sealed partial class GovernanceStickinessController
         if (string.IsNullOrWhiteSpace(request.FindingId))
             return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
 
+        string normalizedFindingId = request.FindingId.Trim();
+
+        if (normalizedFindingId.Length > MaxFindingIdLength)
+        {
+            return this.BadRequestProblem(
+                "FindingId must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (!GovernanceQueryRequestValidationRules.IsUsableOptionalGuid(request.RunId))
             return this.BadRequestProblem("runId must not be an empty GUID.", ProblemTypes.ValidationFailed);
 

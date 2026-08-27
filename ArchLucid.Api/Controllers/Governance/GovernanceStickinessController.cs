@@ -36,6 +36,7 @@ public sealed partial class GovernanceStickinessController(
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     private const int RegisterMaxRowsLimit = 500;
+    private const int MaxFindingIdLength = 200;
 
     private IActionResult? ValidateRegisterMaxRows(int maxRows)
     {
@@ -70,6 +71,13 @@ public sealed partial class GovernanceStickinessController(
 
         if (string.IsNullOrEmpty(normalizedFindingId))
             return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+
+        if (normalizedFindingId.Length > MaxFindingIdLength)
+        {
+            return this.BadRequestProblem(
+                "FindingId must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         return null;
     }

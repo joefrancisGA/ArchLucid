@@ -1397,6 +1397,48 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_route_finding_id_exceeds_max_length()
+    {
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "reviewed"
+        };
+
+        IActionResult action = await controller.RecordDisposition(new string('f', 201), request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_finding_id_exceeds_max_length()
+    {
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(riskExceptions: riskExceptions);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = new string('f', 201),
+            OwnerUserId = "owner",
+            Rationale = "accepted risk",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task RecordBulkDisposition_returns_bad_request_when_more_than_fifty_finding_ids()
     {
         GovernanceStickinessController controller = BuildSut();
