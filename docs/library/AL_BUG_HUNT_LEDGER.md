@@ -1830,11 +1830,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 55
-- **bugs-found:** 110
+- **hunts:** 56
+- **bugs-found:** 111
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — ARM tf JSON array casing preserved exporter casing in infra deltas
+- **last-hunt:** 2026-08-27
+- **last-bug:** 2026-08-27 — Bicep inline `//` comment in scalar values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1962,6 +1962,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SimpleTerraformResourceBlockParser` did not strip `/* */` block comments — **hit 2026-08-26:** HCL with block comments before or after assignments dropped/corrupted `location` attribute parsing; fixed with `TryConsumeBlockComment` (`SimpleTerraformDeclarationParserTests.ParseAsync_BlockCommentBeforeAssignment_StillParsesLocation`, `ParseAsync_InlineBlockCommentAfterValue_ParsesCleanLocation`).
 - [x] (proven) `KubernetesManifestCanonicalObjectMapper` / `InfrastructureDeclarationDeltaKey` / `CanonicalDeduplicator` with duplicate identical manifests — **hit 2026-08-26:** two Deployments with same kind/name shared `ObjectId`, collapsed connector delta keys, and deduped to one object; fixed with per-declaration `k8sOccurrence` suffix (`KubernetesYamlInfrastructureDeclarationParserTests.ParseAsync_DuplicateDeployments_EmitDistinctObjectIds`, `InfrastructureDeclarationConnectorTests.DeltaAsync_DuplicateKubernetesDeployments_CountsBothResources`, `CanonicalDeduplicatorTests.Deduplicate_KeepsDuplicateKubernetesManifestsWithOccurrence`).
 - [x] (proven) `CanonicalInfrastructurePropertyBag.MaxTfPropertyCount` dropped `ipSecurityRestrictions` before network expander — **hit 2026-08-26:** 24-property cap filled by scalar props before security JSON was copied; fixed by copying security-priority properties first and raising JSON length limit for those keys (`ArmJsonInfrastructureDeclarationParserTests.ParseAsync_ManyScalarProperties_StillPreservesIpSecurityRestrictions`).
+- [x] (proven) `BicepResourceBodyParser` preserved inline `//` comments in scalar values — **hit 2026-08-27:** `publicNetworkAccess: 'Enabled' // primary region` vs un-commented value false-modified infrastructure declaration deltas; fixed with `StripTrailingSlashSlashComment` before unquoting (HCL `#` parity); regression in `BicepInfrastructureDeclarationParserTests.ParseAsync_InlineSlashSlashComment_DoesNotChangeTfPublicNetworkAccess` and `InfrastructureDeclarationConnectorTests.DeltaAsync_BicepInlineSlashSlashCommentChange_ReportsUnchanged`.
+
+- [ ] (candidate) `BicepInfrastructureDeclarationParser` duplicate symbolic resource names share `ObjectId` / delta key — two `resource storage` blocks with different API versions collapse in `InfrastructureDeclarationStableObjectIds` (terraform `terraformOccurrence` / K8s `k8sOccurrence` parity gap).
+- [ ] (candidate) `PlainTextContextDocumentParser.CanonicalizeLineText` does not collapse internal whitespace on `REQ:`/`POL:`/`SEC:` lines — `REQ: Must  Encrypt` vs `REQ: Must Encrypt` churns document connector stable ids (`TOP:` path already uses `TopologyHintStableObjectIds.CanonicalizeHintName`).
+
+2026-08-27 seed hunt #121: reseeded Bicep duplicate-name and plain-text internal-whitespace candidates; proved Bicep inline `//` comment scalar normalization.
 
 2026-08-26 seed hunt #55: proved ARM tf JSON canonicalization, nested sensitive ARM blobs, HCL block comments, duplicate K8s occurrence, security-priority tf cap.
 
