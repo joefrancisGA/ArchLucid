@@ -87,10 +87,31 @@ public sealed class PolicyPacksControllerSimulateTests
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
-    private static PolicyPacksController CreateController()
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_block_commit_minimum_severity_out_of_range()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        PolicyPacksController sut = CreateController(workflow);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                Content = new(),
+                BlockCommitMinimumSeverity = 9,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    private static PolicyPacksController CreateController(Mock<IPolicyPackWorkflowFacade>? workflow = null)
     {
         PolicyPacksController controller = new(
-            Mock.Of<IPolicyPackWorkflowFacade>(),
+            workflow?.Object ?? Mock.Of<IPolicyPackWorkflowFacade>(),
             new CreatePolicyPackRequestValidator(),
             new PublishPolicyPackVersionRequestValidator(),
             new AssignPolicyPackRequestValidator(),

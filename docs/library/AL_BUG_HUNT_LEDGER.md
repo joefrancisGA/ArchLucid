@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 97
-- **bugs-found:** 234
+- **hunts:** 98
+- **bugs-found:** 235
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — simulate severity ordinal validation
+- **last-bug:** 2026-08-27 — policy-packs simulate severity ordinal validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2569,6 +2569,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Simulate` — out-of-range `blockCommitMinimumSeverity` reached `PolicyPackGovernanceDryRunService.EvaluateAsync` (HTTP 200 with invalid ordinal) instead of HTTP 400 (`PolicyPackSimulateRequestValidator` range rule not invoked on this action) — **hit 2026-08-27:** reject values outside 0–3 before service call; regression in `GovernanceControllerSimulateTests`.
 
 2026-08-27 seed hunt #180: proved governance simulate severity ordinal validation.
+
+- [x] (proven) `PolicyPacksController.Simulate` — out-of-range `blockCommitMinimumSeverity` reached `PolicyPackWorkflowFacade.SimulateAsync` (HTTP 200 with invalid ordinal) instead of HTTP 400 (`PolicyPackSimulateRequestValidator` range rule not invoked on this action) — **hit 2026-08-27:** reject values outside 0–3 before service call; regression in `PolicyPacksControllerSimulateTests`.
+
+2026-08-27 seed hunt #181: proved policy-packs simulate severity ordinal validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

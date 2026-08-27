@@ -53,6 +53,13 @@ public sealed partial class PolicyPacksController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.BlockCommitMinimumSeverity is < 0 or > 3)
+        {
+            return this.BadRequestProblem(
+                "blockCommitMinimumSeverity must be between 0 (Info) and 3 (Critical).",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
