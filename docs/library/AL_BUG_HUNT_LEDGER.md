@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 79
-- **bugs-found:** 216
+- **hunts:** 80
+- **bugs-found:** 217
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — policy-pack simulate empty-guid runId returns 400
+- **last-bug:** 2026-08-27 — proposed policy-pack dry-run empty-guid targets return 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2497,6 +2497,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` — route `runId = Guid.Empty` skipped scope preflight and returned HTTP 404 conflict-not-found instead of HTTP 400 — **hit 2026-08-27:** reject `Guid.Empty` before facade (`CreateRecurrenceSchedule` source-run parity); regression in `GovernanceStickinessControllerTests`.
 
 2026-08-27 seed hunt #162: proved simulate and merge-conflict empty-guid runId validation.
+
+- [x] (proven) `GovernanceController.DryRunProposedPolicyPack` — body `targetRunId = 00000000-0000-0000-0000-000000000000` or `targetManifestId = Guid.Empty` passed XOR validation and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** reject empty guid targets before dry-run service call (simulate empty-run parity); regression in `GovernanceControllerSimulateTests`.
+
+2026-08-27 seed hunt #163: proved proposed policy-pack dry-run empty-guid target validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

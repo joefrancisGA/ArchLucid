@@ -130,6 +130,16 @@ public sealed partial class GovernanceController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (!string.IsNullOrWhiteSpace(request.TargetRunId)
+            && Guid.TryParse(request.TargetRunId.Trim(), out Guid targetRunGuid)
+            && targetRunGuid == Guid.Empty)
+        {
+            return this.BadRequestProblem("targetRunId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (request.TargetManifestId == Guid.Empty)
+            return this.BadRequestProblem("targetManifestId is required.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
