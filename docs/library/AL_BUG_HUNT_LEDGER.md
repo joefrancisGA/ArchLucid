@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 103
-- **bugs-found:** 243
+- **hunts:** 104
+- **bugs-found:** 244
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — erasure legal-hold untilUtc validation
+- **last-bug:** 2026-08-27 — governance Promote manifestVersion max-length validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2590,9 +2590,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.GetVersion` — route `packVersion` longer than 50 characters reached `TryGetVersionAsync` and returned HTTP 404 `PolicyPackVersionNotFound` instead of HTTP 400 (`PublishPolicyPackVersionRequestValidator.MaximumLength` not invoked on route read) — **hit 2026-08-27:** reject oversize version before workflow lookup; regression in `PolicyPacksControllerListScopeTests.GetVersion_returns_bad_request_when_pack_version_exceeds_max_length`.
 - [x] (proven) `GovernanceController.SubmitApprovalRequest` — `manifestVersion` longer than 128 characters reached `SubmitApprovalRequestAsync` instead of HTTP 400 (`CreateGovernanceApprovalRequestValidator.MaximumLength` not invoked on this action) — **hit 2026-08-27:** reject oversize manifest version before workflow call (preview parity); regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_returns_bad_request_when_manifest_version_exceeds_max_length`.
 - [x] (proven) `GovernanceController.Activate` — `manifestVersion` longer than 128 characters reached `ActivateAsync` instead of HTTP 400 (`CreateGovernanceActivationRequestValidator.MaximumLength` not invoked on this action) — **hit 2026-08-27:** reject oversize manifest version before workflow call (preview/submit parity); regression in `GovernanceControllerRunHistoryScopeTests.Activate_returns_bad_request_when_manifest_version_exceeds_max_length`.
-- [ ] (candidate) `TenantErasureLegalHoldController.SetLegalHoldAsync` — past or present `untilUtc` returns HTTP 409 instead of HTTP 400 when tenant is in quarantine.
-- [ ] (candidate) `PolicyPacksController.PromoteCatalogEntry` — optional `version` bypasses publish/assign SemVer and max-length validation, surfacing HTTP 404 instead of HTTP 400.
-- [ ] (candidate) `TenantIntegrationsOperationsController.GetAsync` — tenant-wide Teams/Jira/AzureBoards/ServiceNow settings may inflate connector posture for foreign workspaces within the same tenant.
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — past or present `untilUtc` returned HTTP 409 instead of HTTP 400 — **hit 2026-08-27:** controller rejects `untilUtc <= UtcNow` before command; 409 reserved for not-in-quarantine; regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_until_utc_is_not_in_the_future`.
+- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — optional `version` bypassed publish/assign SemVer and max-length validation, surfacing HTTP 404 — **hit 2026-08-27:** validate explicit version with `PolicyPackRequestValidationRules` before `TryPromoteCatalogEntryAsync`; regression in `PolicyPacksControllerListScopeTests`.
+- [x] (invalid) `TenantIntegrationsOperationsController.GetAsync` — tenant-wide connector settings inflate posture for foreign workspaces — **cheap-disproof 2026-08-27:** `ConnectorOperationsSummaryReader` intentionally uses tenant-scoped `TenantItsmOutboundSettings` / Teams repos; digest/schedules/alerts remain workspace-scoped.
+- [x] (proven) `GovernanceController.Promote` — `manifestVersion` longer than 128 characters reached `PromoteAsync` instead of HTTP 400 (`CreateGovernancePromotionRequestValidator.MaximumLength` not invoked on this action) — **hit 2026-08-27:** reject oversize manifest version before workflow call (submit/activate parity); regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_bad_request_when_manifest_version_exceeds_max_length`.
+
+2026-08-27 thorough hunt #187: proved governance Promote manifest max-length validation; closed duplicate open candidate rows from hunt #186.
 
 2026-08-27 seed hunt #185: proved policy-pack version and governance submit/activate manifest max-length validation; reseeded legal-hold, catalog-promote version, and integrations-posture candidates.
 

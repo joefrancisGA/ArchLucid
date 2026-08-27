@@ -87,6 +87,12 @@ public sealed partial class GovernanceController
                 return approvalRunScopeError;
         }
 
+        if (string.IsNullOrWhiteSpace(request.ManifestVersion))
+            return this.BadRequestProblem("ManifestVersion is required.", ProblemTypes.ValidationFailed);
+
+        if (request.ManifestVersion.Length > 128)
+            return this.BadRequestProblem("ManifestVersion must not exceed 128 characters.", ProblemTypes.ValidationFailed);
+
         string promotedBy = actorContext.GetActor();
 
         try
