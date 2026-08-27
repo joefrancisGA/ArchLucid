@@ -77,14 +77,20 @@ describe("OperatorHomeReviewSummaryCard", () => {
     expect(screen.queryByText(/Decision:/)).toBeNull();
     expect(screen.getByTestId("runs-dashboard-buyer-proof-details")).toHaveTextContent(/Approver: Jordan Lee/);
     expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View record" })).toHaveAttribute(
+    const viewRecordLink = screen.getByRole("link", { name: "View record" });
+    expect(viewRecordLink).toHaveAttribute(
       "href",
       signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID),
     );
+    expect(viewRecordLink.className).toContain("underline");
+    expect(viewRecordLink.className).toContain("text-[var(--al-accent-link)]");
 
     const details = screen.getByTestId("runs-dashboard-buyer-proof-details");
     expect(details).toBeInTheDocument();
-    expect(details.querySelector("summary")).toHaveTextContent("Details");
+    const detailsSummary = details.querySelector("summary");
+    expect(detailsSummary).toHaveTextContent("Details");
+    expect(detailsSummary?.className).toContain("underline");
+    expect(detailsSummary?.className).toContain("text-[var(--al-accent-link)]");
 
     fireEvent.click(details.querySelector("summary")!);
     expect(screen.getByText(/monitored PHI risk is counted among findings but does not block approval/)).toBeInTheDocument();
@@ -120,7 +126,16 @@ describe("OperatorHomeReviewSummaryCard", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Open review" }).className).toContain("border-neutral-300");
+    const openReviewLink = screen.getByRole("link", { name: "Open review" });
+    const viewRecordLink = screen.getByRole("link", { name: "View record" });
+    const detailsSummary = screen.getByTestId("runs-dashboard-buyer-proof-details").querySelector("summary");
+
+    expect(openReviewLink.className).toContain("underline");
+    expect(viewRecordLink.className).toContain("underline");
+    expect(detailsSummary?.className).toContain("underline");
+    expect(openReviewLink.className).toContain("text-[var(--al-accent-link)]");
+    expect(viewRecordLink.className).toContain("text-[var(--al-accent-link)]");
+    expect(detailsSummary?.className).toContain("text-[var(--al-accent-link)]");
   });
 
   it("states the governance verdict once, on the status tag", () => {
