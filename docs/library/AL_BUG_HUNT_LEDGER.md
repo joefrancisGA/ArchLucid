@@ -2617,8 +2617,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-27 thorough hunt #193: proved CompareEnvironments controller env guards, product-feedback score range, recurrence schedule name max-length, and risk-exception evidenceRef max-length.
 
-- [x] (proven) `GovernancePreviewController.CompareEnvironments` — missing controller-layer `sourceEnvironment`/`targetEnvironment` guards that `Preview` now has (service/FluentValidation already return 400) — **hit 2026-08-27:** controller guards added (strict-mock regression replaces service-delegation test).
-
 2026-08-27 thorough hunt #191: proved Promote notes max-length guard and Submit/Promote workflow env normalization; zone candidate backlog cleared.
 
 2026-08-27 seed hunt #190: proved Submit/Preview env validation and approval comment max-length guards; reseeded Promote notes and workflow env-normalization candidates.
