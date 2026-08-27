@@ -66,6 +66,16 @@ paths = [
   '''(?:^|/)docs/archive/assessments/LATEST_.*_pre_rescore_backup\.md$''',
 ]
 
+# Assessment narrative names types like FileComplianceRulePackProvider and quotes policy/rule keys.
+# It is prose about the codebase and never carries credential values, but generic-api-key matches the
+# key-adjacent identifiers, which failed the push-gate secret scan and skipped the blocking typecheck.
+[[allowlists]]
+description = "Assessment and archived assessment narrative: type names and policy/rule key identifiers only, never credential values; generic-api-key false positives"
+paths = [
+  '''(?:^|/)docs/assessments/LATEST_.*\.md$''',
+  '''(?:^|/)docs/archive/assessments/LATEST_.*\.md$''',
+]
+
 [[allowlists]]
 description = "Universal L0 intake QuestionKey identifiers (domain keys, not API secrets); generic-api-key false positive on QuestionKey = assignments"
 paths = [
@@ -163,4 +173,7 @@ regexes = [
   "0123456789abcdef",
   # docs/runbooks/STRIPE_STAGING_E2E_VERIFICATION.md (historical blob before Bearer ${JWT}): curl-auth-header captures the placeholder token after `Bearer`.
   "YOUR_JWT",
+  # docs/CHANGELOG.md + tests/golden-cohort/README.md: repository tree SHA recorded at the Simulator
+  # baseline lock. A 40-char hex git SHA, not a credential; sourcegraph-access-token false positive.
+  "eda94855c62d5a1a91fd189bf2e4b8b4d0546397",
 ]
