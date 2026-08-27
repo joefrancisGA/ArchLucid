@@ -34,10 +34,55 @@ public sealed class GovernanceStickinessControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
 
-    private static ITenantRepository TenantExistsRepository() =>
-        Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
-            Scope.TenantId,
-            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" }));
+    private static ITenantRepository TenantExistsRepository()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(
+                Scope.TenantId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "workspace",
+                    DefaultProjectId = Scope.ProjectId,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
+        return tenants.Object;
+    }
+
+    private static ITenantRepository TenantWithForeignWorkspaceOnlyRepository()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = foreignWorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "foreign",
+                    DefaultProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
+        return tenants.Object;
+    }
 
     private static ITenantRepository TenantMissingRepository() =>
         Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
@@ -206,6 +251,21 @@ public sealed class GovernanceStickinessControllerTests
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
+    }
+
+    [Fact]
+    public async Task GetRiskRegister_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Mock<IArchitectureRiskRegisterService> riskRegister = new(MockBehavior.Strict);
+        GovernanceStickinessController sut = BuildSut(
+            riskRegister: riskRegister,
+            tenantRepository: TenantWithForeignWorkspaceOnlyRepository());
+
+        IActionResult action = await sut.GetRiskRegister(projectId: null, cancellationToken: CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        riskRegister.VerifyNoOtherCalls();
     }
 
     [Fact]
