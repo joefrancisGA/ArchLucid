@@ -208,7 +208,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
         {props.isSuggestingFromEvidence === true ? <EvidenceExtractionAwaitingSkeleton /> : null}
 
         {props.canSuggestFromEvidence === true ? (
-          <div className="space-y-2" data-testid="first-pilot-l0-suggest-from-evidence">
+          <div className="space-y-4" data-testid="first-pilot-l0-suggest-from-evidence">
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {UNIVERSAL_INTAKE_SUGGEST_FROM_EVIDENCE_HELPER}
             </p>
