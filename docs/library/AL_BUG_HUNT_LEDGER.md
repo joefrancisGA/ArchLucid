@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 116
-- **bugs-found:** 283
+- **hunts:** 117
+- **bugs-found:** 284
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — findingId max-length and workspace baseline scope
+- **last-bug:** 2026-08-27 — tenant cost settings actor identity max-length
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2651,8 +2651,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-27 thorough hunt #199: proved findingId max-length validation and workspace baseline artifacts scope preflight.
 
-- [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` — oversize finding id in batch may still reach facade when mixed with valid ids (partial batch 400 vs per-item not-found).
-- [ ] (candidate) `TenantCostSettingsController.PutAsync` — actor identity >256 may SQL-fail instead of HTTP 400.
+- [x] (invalid) `GovernanceStickinessController.RecordBulkDisposition` — oversize finding id mixed with valid ids reached facade — **cheap-disproof 2026-08-27:** batch guard rejects any oversize id before facade (`RecordBulkDisposition_returns_bad_request_when_one_finding_id_exceeds_max_length`).
+- [x] (proven) `TenantCostSettingsController.PutAsync` — `User.Identity.Name` >200 reached `UpsertAsync`/audit (`NVARCHAR(256)`/`NVARCHAR(200)`) instead of HTTP 400 — **hit 2026-08-27:** controller actor max-length guard before persist; strict-mock regression in `TenantCostSettingsControllerTests`.
+
+2026-08-27 thorough hunt #200: cheap-disproved bulk mixed oversize findingId candidate; proved cost-settings actor identity max-length guard.
 
 2026-08-27 thorough hunt #195: proved recurrence cron max-length, risk-exception expiry guards, and submit/promote env-path validation; cheap-disproved draft freeTextIntent max-length candidate.
 
