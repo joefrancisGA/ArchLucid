@@ -57,6 +57,12 @@ public sealed class GovernancePreviewController(
         if (Guid.TryParse(body.RunId.Trim(), out Guid runGuid) && runGuid == Guid.Empty)
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
+        if (string.IsNullOrWhiteSpace(body.ManifestVersion))
+            return this.BadRequestProblem("ManifestVersion is required.", ProblemTypes.ValidationFailed);
+
+        if (body.ManifestVersion.Length > 128)
+            return this.BadRequestProblem("ManifestVersion must not exceed 128 characters.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

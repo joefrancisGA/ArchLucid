@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 99
-- **bugs-found:** 236
+- **hunts:** 100
+- **bugs-found:** 237
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — simulate-bulk severity ordinal validation
+- **last-bug:** 2026-08-27 — preview manifest version max-length validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2577,6 +2577,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.SimulateBulk` — out-of-range `blockCommitMinimumSeverity` reached `PolicyPackWorkflowFacade.TrySimulateBulkAsync` (HTTP 200 with invalid ordinal) instead of HTTP 400 (no FluentValidation validator on bulk request; single-run simulate parity) — **hit 2026-08-27:** reject values outside 0–3 before service call; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
 
 2026-08-27 seed hunt #182: proved policy-packs simulate-bulk severity ordinal validation.
+
+- [x] (proven) `GovernancePreviewController.Preview` — `manifestVersion` longer than 128 characters reached `PreviewActivationAsync` and returned HTTP 404 `ManifestNotFound` instead of HTTP 400 (`CreateGovernancePreviewRequestValidator.MaximumLength` not invoked on this action) — **hit 2026-08-27:** reject oversize manifest version before service call; regression in `GovernancePreviewControllerUnitTests`.
+
+2026-08-27 seed hunt #183: proved governance preview manifest version max-length validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 
