@@ -161,6 +161,16 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        bool hasRunTarget = !string.IsNullOrWhiteSpace(request.TargetRunId);
+        bool hasManifestTarget = request.TargetManifestId is not null;
+
+        if (hasRunTarget == hasManifestTarget)
+        {
+            return this.BadRequestProblem(
+                "Specify exactly one of targetRunId or targetManifestId.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
