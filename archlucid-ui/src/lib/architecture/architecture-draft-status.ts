@@ -3,11 +3,15 @@ import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 
 /** Customer-facing architecture lifecycle — distinct from review or review states. */
-export type ArchitectureDraftCustomerStatus = "draft" | "ready-for-review" | "archived";
+export type ArchitectureDraftCustomerStatus =
+  | "draft"
+  | "ready-for-review"
+  | "review-linked"
+  | "archived";
 
 /**
  * Derives customer-facing draft lifecycle for list and workspace chrome.
- * Linked review or review-ready fields mean ready-for-review — not bare Draft.
+ * Review-ready fields mean ready-for-review; a spawned review means review-linked.
  */
 export function resolveArchitectureDraftCustomerStatus(input: {
   readonly linkedReviewId: string | null;
@@ -19,7 +23,7 @@ export function resolveArchitectureDraftCustomerStatus(input: {
   }
 
   if (input.linkedReviewId !== null) {
-    return "ready-for-review";
+    return "review-linked";
   }
 
   if (input.reviewReadinessValid) {
@@ -32,6 +36,7 @@ export function resolveArchitectureDraftCustomerStatus(input: {
 export const ARCHITECTURE_DRAFT_STATUS_LABELS: Record<ArchitectureDraftCustomerStatus, string> = {
   draft: "Draft",
   "ready-for-review": "Ready for review",
+  "review-linked": "Review linked",
   archived: "Archived",
 };
 
@@ -57,6 +62,9 @@ export function architectureDraftCustomerStatusTagKind(
 
     case "ready-for-review":
       return "in-progress";
+
+    case "review-linked":
+      return "ready";
 
     case "archived":
       return "neutral";

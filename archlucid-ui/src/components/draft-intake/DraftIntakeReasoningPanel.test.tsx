@@ -10,12 +10,10 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
 import { DraftIntakeReasoningPanel } from "./DraftIntakeReasoningPanel";
 
 describe("DraftIntakeReasoningPanel", () => {
-  it("shows a compact summary when collapsed and no turns exist", () => {
+  it("shows no summary line when collapsed and no turns exist", () => {
     render(<DraftIntakeReasoningPanel draftId="draft-1" />);
 
-    expect(screen.getByTestId("draft-intake-reasoning-summary")).toHaveTextContent(
-      /no suggestions right now/i,
-    );
+    expect(screen.queryByTestId("draft-intake-reasoning-summary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("draft-intake-reason-input")).not.toBeInTheDocument();
   });
 
@@ -51,10 +49,13 @@ describe("DraftIntakeReasoningPanel", () => {
     expect(screen.getByTestId("draft-intake-reason-follow-up-toggle")).toBeInTheDocument();
   });
 
-  it("shows the empty-state copy once in embedded mode", () => {
+  it("does not show empty-state copy in embedded mode", () => {
     render(<DraftIntakeReasoningPanel draftId="draft-1" embedded />);
 
-    expect(screen.getAllByText(/no suggestions right now/i)).toHaveLength(1);
+    expect(screen.queryByText(/no suggestions right now/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("draft-intake-reasoning-summary")).not.toBeInTheDocument();
+    expect(screen.getByTestId("draft-intake-reason-input")).toHaveValue(
+      "What gaps or risks do you see in my intent and outcome before I start the architecture review?",
+    );
   });
 });

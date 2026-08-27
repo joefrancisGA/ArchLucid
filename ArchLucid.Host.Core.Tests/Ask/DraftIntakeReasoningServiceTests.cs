@@ -380,4 +380,104 @@ public sealed class DraftIntakeReasoningServiceTests
         result.Should().NotBeNull();
         result!.Answer.Should().Contain("RTO/RPO");
     }
+
+    [Fact]
+    public async Task ReasonAsync_when_live_completion_unavailable_returns_actionable_message()
+    {
+        Guid draftId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid threadId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        DraftRequestResponse draft = new()
+        {
+            DraftId = draftId,
+            Status = DraftRequestStatus.Drafting,
+            Document = new DraftRequestDocument(),
+        };
+
+        Mock<IDraftRequestRepository> repository = new();
+        repository
+            .Setup(static r => r.GetAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(draft);
+        repository
+            .Setup(r => r.UpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                draftId,
+                DraftRequestStatus.Drafting,
+                It.IsAny<DraftRequestDocument>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, Guid _, Guid _, Guid _, DraftRequestStatus status, DraftRequestDocument document,
+                string? _, string? _, CancellationToken _) =>
+                new DraftRequestResponse
+                {
+                    DraftId = draftId,
+                    Status = status,
+                    Document = document,
+                });
+
+        Mock<IConversationService> conversation = new();
+        conversation
+            .Setup(static c => c.GetOrCreateThreadAsync(
+                null,
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                null,
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ConversationThread
+            {
+                ThreadId = threadId,
+                TenantId = _scope.TenantId,
+                WorkspaceId = _scope.WorkspaceId,
+                ProjectId = _scope.ProjectId,
+            });
+        conversation
+            .Setup(c => c.GetHistoryAsync(threadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        conversation
+            .Setup(c => c.AppendUserMessageAsync(threadId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        conversation
+            .Setup(c => c.AppendAssistantMessageAsync(
+                threadId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAgentCompletionClient> llm = new();
+        llm
+            .Setup(static c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(DevSwitchableAgentCompletionClient.LiveCompletionUnavailableMessage));
+
+        DraftIntakeReasoningService sut = new(
+            repository.Object,
+            conversation.Object,
+            llm.Object,
+            NullLogger<DraftIntakeReasoningService>.Instance);
+
+        DraftIntakeReasonResponse? result = await sut.ReasonAsync(
+            draftId,
+            new DraftIntakeReasonRequest { Message = "What gaps should I close?" },
+            _scope,
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.Answer.Should().Be(DevSwitchableAgentCompletionClient.LiveCompletionUnavailableMessage);
+    }
 }

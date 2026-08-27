@@ -12,6 +12,7 @@ import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-d
 import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
+import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { showSuccess } from "@/lib/toast";
 
@@ -46,6 +47,7 @@ export function useGuidedIntakeDraftSubmit(options: Options) {
       upsertArchitectureDraftRegistryEntry(
         buildArchitectureDraftRegistryEntry(submittedDraft, { linkedReviewId: result.runId }),
       );
+      await invalidateOperatorHomeRunsCaches();
       recordFirstTenantFunnelEvent("first_run_started");
       trackReviewPipelineInFlight(result.runId);
       clearSession();

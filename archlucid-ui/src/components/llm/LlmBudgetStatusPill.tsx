@@ -100,8 +100,7 @@ export function LlmBudgetStatusPill() {
           variant="outline"
           size="sm"
           className={cn(
-            "h-6 shrink-0 border px-1.5 font-normal tabular-nums text-neutral-600 dark:text-neutral-300",
-            OPERATOR_TYPOGRAPHY.micro,
+            "h-6 shrink-0 border px-1.5 tabular-nums text-neutral-600 dark:text-neutral-300",
             pillClassForBudgetLabel(label),
           )}
           data-testid="llm-budget-status-pill"

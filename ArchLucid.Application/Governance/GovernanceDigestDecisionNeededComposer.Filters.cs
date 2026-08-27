@@ -24,15 +24,4 @@ public sealed partial class GovernanceDigestDecisionNeededComposer
             .Where(reviewEvent => projectId is null || projectId == Guid.Empty || reviewEvent.ProjectId == projectId)
             .ToList();
     }
-
-    private static IReadOnlyList<RiskExceptionRecord> FilterWaiversToScope(
-        IReadOnlyList<RiskExceptionRecord> waivers,
-        Guid workspaceId,
-        Guid? projectId)
-    {
-        return waivers
-            .Where(waiver => waiver.WorkspaceId == workspaceId)
-            .Where(waiver => projectId is null || projectId == Guid.Empty || waiver.ProjectId == projectId)
-            .ToList();
-    }
 }

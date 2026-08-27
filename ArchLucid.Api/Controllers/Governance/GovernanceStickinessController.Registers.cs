@@ -12,6 +12,7 @@ public sealed partial class GovernanceStickinessController
 {
     [HttpGet("risk-register")]
     [ProducesResponseType(typeof(ArchitectureRiskRegisterResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRiskRegister(
         [FromQuery] Guid? projectId,
@@ -19,6 +20,11 @@ public sealed partial class GovernanceStickinessController
         [FromQuery] bool assignedToMe = false,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? maxRowsProblem = ValidateRegisterMaxRows(maxRows);
+
+        if (maxRowsProblem is not null)
+            return maxRowsProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -99,12 +105,18 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("findings-registers-bundle")]
     [ProducesResponseType(typeof(GovernanceFindingsRegistersBundleResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFindingsRegistersBundle(
         [FromQuery] Guid? projectId,
         [FromQuery] int maxRows = 200,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? maxRowsProblem = ValidateRegisterMaxRows(maxRows);
+
+        if (maxRowsProblem is not null)
+            return maxRowsProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -118,6 +130,7 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("decision-register")]
     [ProducesResponseType(typeof(ArchitectureDecisionRegisterResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetDecisionRegister(
         [FromQuery] Guid? projectId,
@@ -130,6 +143,11 @@ public sealed partial class GovernanceStickinessController
         [FromQuery] string? buyerConfidenceSource = null,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? maxRowsProblem = ValidateRegisterMaxRows(maxRows);
+
+        if (maxRowsProblem is not null)
+            return maxRowsProblem;
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

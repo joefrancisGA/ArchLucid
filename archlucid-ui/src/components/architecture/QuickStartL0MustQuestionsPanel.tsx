@@ -181,7 +181,6 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
         isFocused={options.isFocused}
         compactActions={viewAllClarifications}
         showAllMode={viewAllClarifications}
-        showBaselineLabel={false}
         showRequirednessSuffix={false}
         isSuggested={props.inferredQuestionKeys?.has(questionKey) === true}
         clarificationStatus={getClarificationStatus(questionKey)}

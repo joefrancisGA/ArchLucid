@@ -26,6 +26,7 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-9 px-4 py-2",
+        // Compact hit target only — label scale stays OPERATOR_TYPOGRAPHY.button (11px bold).
         sm: "h-7 rounded-md px-3",
         lg: "h-10 rounded-md px-6",
         icon: "h-9 w-9",

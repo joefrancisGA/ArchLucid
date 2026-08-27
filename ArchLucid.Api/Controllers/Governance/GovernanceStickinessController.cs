@@ -34,6 +34,19 @@ public sealed partial class GovernanceStickinessController(
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
+    private const int RegisterMaxRowsLimit = 500;
+
+    private IActionResult? ValidateRegisterMaxRows(int maxRows)
+    {
+        if (maxRows <= 0)
+            return this.BadRequestProblem("maxRows must be greater than 0.", ProblemTypes.ValidationFailed);
+
+        if (maxRows > RegisterMaxRowsLimit)
+            return this.BadRequestProblem("maxRows must be at most 500.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
     private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

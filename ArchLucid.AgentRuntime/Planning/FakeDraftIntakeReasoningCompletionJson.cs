@@ -50,11 +50,6 @@ public static class FakeDraftIntakeReasoningCompletionJson
         answer.AppendLine("- Validate actor trust boundaries and machine-to-machine auth before deep design.");
         answer.AppendLine("- Confirm whether pilot scope matches production non-functional targets (availability, RTO/RPO).");
 
-        answer.AppendLine();
-        answer.Append(
-            "(Simulator mode — deterministic intake notes from draft context. " +
-            "Connect a live LLM deployment for interactive Socratic follow-up.)");
-
         JsonObject root = new()
         {
             ["answer"] = answer.ToString().Trim(),

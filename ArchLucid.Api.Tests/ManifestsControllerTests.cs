@@ -182,6 +182,47 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
+    public async Task CompareManifestsSummary_returns_trimmed_manifest_versions_when_query_params_are_padded()
+    {
+        string paddedLeftVersion = $"  {LeftVersion}  ";
+        string paddedRightVersion = $"  {RightVersion}  ";
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.CompareManifestsSummary(
+            paddedLeftVersion,
+            paddedRightVersion,
+            CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ArchLucid.Api.Models.ManifestCompareSummaryResponse body =
+            ok.Value.Should().BeOfType<ArchLucid.Api.Models.ManifestCompareSummaryResponse>().Subject;
+        body.LeftManifestVersion.Should().Be(LeftVersion);
+        body.RightManifestVersion.Should().Be(RightVersion);
+        body.Diff.LeftManifestVersion.Should().Be(LeftVersion);
+        body.Diff.RightManifestVersion.Should().Be(RightVersion);
+    }
+
+    [Fact]
+    public async Task CompareManifestsExport_returns_trimmed_manifest_versions_when_query_params_are_padded()
+    {
+        string paddedLeftVersion = $"  {LeftVersion}  ";
+        string paddedRightVersion = $"  {RightVersion}  ";
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.CompareManifestsExport(
+            paddedLeftVersion,
+            paddedRightVersion,
+            CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ArchLucid.Api.Models.ManifestCompareExportResponse body =
+            ok.Value.Should().BeOfType<ArchLucid.Api.Models.ManifestCompareExportResponse>().Subject;
+        body.LeftManifestVersion.Should().Be(LeftVersion);
+        body.RightManifestVersion.Should().Be(RightVersion);
+        body.FileName.Should().Be($"compare_{LeftVersion}_to_{RightVersion}.md");
+    }
+
+    [Fact]
     public async Task GetManifest_returns_not_found_when_manifest_missing()
     {
         ManifestsController controller = CreateController();
@@ -245,5 +286,34 @@ public sealed class ManifestsControllerTests
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ManifestDiagramResponse body = ok.Value.Should().BeOfType<ManifestDiagramResponse>().Subject;
         body.Content.Should().Be("graph TB; S-->D");
+    }
+
+    [Fact]
+    public async Task GetManifestDiagramV2_returns_trimmed_manifest_version_when_route_is_padded()
+    {
+        string paddedManifestVersion = $"  {ManifestVersion}  ";
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestDiagramV2(
+            paddedManifestVersion,
+            cancellationToken: CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ManifestDiagramResponse body = ok.Value.Should().BeOfType<ManifestDiagramResponse>().Subject;
+        body.ManifestVersion.Should().Be(ManifestVersion);
+    }
+
+    [Fact]
+    public async Task GetManifestExport_returns_trimmed_manifest_version_when_route_is_padded()
+    {
+        string paddedManifestVersion = $"  {ManifestVersion}  ";
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestExport(paddedManifestVersion, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ArchLucid.Api.Models.ManifestExportContentResponse body =
+            ok.Value.Should().BeOfType<ArchLucid.Api.Models.ManifestExportContentResponse>().Subject;
+        body.ManifestVersion.Should().Be(ManifestVersion);
     }
 }

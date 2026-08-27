@@ -107,8 +107,8 @@ export function PolicyPacksActivePackSummaryCard(props: PolicyPacksActivePackSum
             <button
               type="button"
               className={cn(
-                "inline-flex min-h-7 items-center rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-[13px] font-medium text-al-text-primary shadow-sm hover:bg-al-surface-raised dark:border-neutral-600 dark:bg-neutral-900",
-                OPERATOR_TYPOGRAPHY.badge,
+                "inline-flex min-h-7 items-center rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-al-text-primary shadow-sm hover:bg-al-surface-raised dark:border-neutral-600 dark:bg-neutral-900",
+                OPERATOR_TYPOGRAPHY.button,
               )}
               onClick={onOpenCatalog}
             >

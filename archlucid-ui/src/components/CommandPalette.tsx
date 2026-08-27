@@ -269,11 +269,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           size="sm"
           className={
             buyerPolishedShell
-              ? (cn("h-8 gap-1.5 border-neutral-300 bg-white px-2.5 font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper))
-              : cn(
-                  "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800",
-                  OPERATOR_TYPOGRAPHY.tab,
-                )
+              ? "h-8 gap-1.5 border-neutral-300 bg-white px-2.5 text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+              : "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
           }
           aria-label={
             buyerPolishedShell

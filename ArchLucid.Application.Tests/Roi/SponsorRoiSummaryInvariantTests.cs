@@ -160,6 +160,7 @@ public sealed class SponsorRoiSummaryInvariantTests
         {
             RiskExceptionId = Guid.NewGuid(),
             TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
             ProjectId = ProjectId,
             ExpiresAtUtc = nowUtc.AddDays(10),
             Status = RiskExceptionStatus.Active,
@@ -169,6 +170,7 @@ public sealed class SponsorRoiSummaryInvariantTests
         {
             RiskExceptionId = Guid.NewGuid(),
             TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
             ProjectId = ProjectId,
             ExpiresAtUtc = nowUtc.AddDays(30),
             Status = RiskExceptionStatus.Active,
@@ -371,6 +373,7 @@ public sealed class SponsorRoiSummaryInvariantTests
                 {
                     RiskExceptionId = Guid.NewGuid(),
                     TenantId = TenantId,
+                    WorkspaceId = WorkspaceId,
                     ProjectId = ProjectId,
                     ExpiresAtUtc = nowUtc.AddDays(5),
                     Status = RiskExceptionStatus.Active,

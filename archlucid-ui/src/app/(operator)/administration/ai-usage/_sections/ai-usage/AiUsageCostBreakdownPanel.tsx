@@ -55,7 +55,7 @@ export function AiUsageCostBreakdownPanel(props: Props) {
               type="button"
               className={cn(
                 "rounded-md border px-2.5 py-1",
-                OPERATOR_TYPOGRAPHY.helper,
+                OPERATOR_TYPOGRAPHY.button,
                 props.groupBy === option.id
                   ? OPERATOR_SELECTION.tile
                   : "border-neutral-200 text-al-text-secondary hover:text-al-text-primary dark:border-neutral-700",

@@ -48,8 +48,12 @@ public sealed partial class ManifestsController
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
         string mermaid = diagramGenerator.GenerateMermaid(manifest);
+        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 
-        return Ok(new DiagramResponse { ManifestVersion = manifestVersion, Format = FormatMermaid, Diagram = mermaid });
+        return Ok(new DiagramResponse
+        {
+            ManifestVersion = canonicalManifestVersion, Format = FormatMermaid, Diagram = mermaid
+        });
     }
 
     [HttpGet("manifest/{manifestVersion}/diagram/v2")]
@@ -82,10 +86,11 @@ public sealed partial class ManifestsController
         };
 
         string mermaid = manifestDiagramService.GenerateMermaid(manifest, opts);
+        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 
         return Ok(new ManifestDiagramResponse
         {
-            ManifestVersion = manifestVersion, DiagramType = DiagramTypeMermaid, Content = mermaid
+            ManifestVersion = canonicalManifestVersion, DiagramType = DiagramTypeMermaid, Content = mermaid
         });
     }
 
@@ -115,10 +120,12 @@ public sealed partial class ManifestsController
             ? Math.Clamp(maxRelationships.Value, 1, ManifestSummaryLimits.MaxRelationships)
             : null;
 
+        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
+
         if (string.Equals(format, FormatJson, StringComparison.OrdinalIgnoreCase))
             return Ok(new ManifestSummaryJsonResponse
             {
-                ManifestVersion = manifestVersion,
+                ManifestVersion = canonicalManifestVersion,
                 SystemName = manifest.SystemName,
                 ServiceCount = manifest.Services.Count,
                 DatastoreCount = manifest.Datastores.Count,
@@ -184,7 +191,7 @@ public sealed partial class ManifestsController
 
         return Ok(new ManifestMarkdownDocumentResponse
         {
-            ManifestVersion = manifestVersion, Format = FormatMarkdown, Content = content, Summary = content
+            ManifestVersion = canonicalManifestVersion, Format = FormatMarkdown, Content = content, Summary = content
         });
     }
 
@@ -206,10 +213,11 @@ public sealed partial class ManifestsController
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
         string markdown = summaryGenerator.GenerateMarkdown(manifest, evidence);
+        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 
         return Ok(new ManifestMarkdownDocumentResponse
         {
-            ManifestVersion = manifestVersion, Format = FormatMarkdown, Content = markdown, Summary = markdown
+            ManifestVersion = canonicalManifestVersion, Format = FormatMarkdown, Content = markdown, Summary = markdown
         });
     }
 
@@ -232,10 +240,11 @@ public sealed partial class ManifestsController
 
         string diagram = diagramGenerator.GenerateMermaid(manifest);
         string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
+        string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 
         return Ok(new ManifestBundleResponse
         {
-            ManifestVersion = manifestVersion, Manifest = manifest, Diagram = diagram, Summary = summary
+            ManifestVersion = canonicalManifestVersion, Manifest = manifest, Diagram = diagram, Summary = summary
         });
     }
 
