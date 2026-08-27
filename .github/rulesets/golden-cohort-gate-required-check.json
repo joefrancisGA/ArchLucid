@@ -16,6 +16,15 @@
         "required_status_checks": [
           {
             "context": "cohort-real-llm-gate"
+          },
+          {
+            "context": "Security: gitleaks (secret scan)"
+          },
+          {
+            "context": ".NET: push corset (build + fast core Core/Decisioning)"
+          },
+          {
+            "context": "Operator UI: typecheck (blocking)"
           }
         ]
       }

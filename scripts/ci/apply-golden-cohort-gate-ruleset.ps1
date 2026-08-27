@@ -1,7 +1,8 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Creates or updates the GitHub ruleset that requires cohort-real-llm-gate on master/main.
+  Creates or updates the GitHub ruleset that requires cohort-real-llm-gate and the
+  master/main push corset (gitleaks, dotnet push corset, UI typecheck) on master/main.
 
 .DESCRIPTION
   TB-138 operator helper. Requires authenticated `gh` with admin on the repository.
