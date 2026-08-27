@@ -123,12 +123,32 @@ public sealed partial class GovernanceController(
     private static string NormalizeApprovalRequestId(string approvalRequestId) =>
         approvalRequestId.Trim();
 
+    private static bool IsUsableApprovalRequestId(string approvalRequestId)
+    {
+        if (string.IsNullOrWhiteSpace(approvalRequestId))
+            return false;
+
+        string trimmed = approvalRequestId.Trim();
+
+        if (Guid.TryParse(trimmed, out Guid parsedApprovalRequestId) && parsedApprovalRequestId == Guid.Empty)
+            return false;
+
+        return true;
+    }
+
     private IActionResult? ValidateApprovalRequestIdRoute(string approvalRequestId, out string normalizedApprovalRequestId)
     {
         normalizedApprovalRequestId = approvalRequestId.Trim();
 
         if (string.IsNullOrEmpty(normalizedApprovalRequestId))
             return this.BadRequestProblem("approvalRequestId is required.", ProblemTypes.ValidationFailed);
+
+        if (!IsUsableApprovalRequestId(normalizedApprovalRequestId))
+        {
+            return this.BadRequestProblem(
+                "approvalRequestId must not be an empty GUID.",
+                ProblemTypes.ValidationFailed);
+        }
 
         if (normalizedApprovalRequestId.Length > MaxApprovalRequestIdLength)
         {
@@ -152,6 +172,13 @@ public sealed partial class GovernanceController(
 
         if (string.IsNullOrEmpty(normalizedApprovalRequestId))
             return this.BadRequestProblem("approvalRequestId is required.", ProblemTypes.ValidationFailed);
+
+        if (!IsUsableApprovalRequestId(normalizedApprovalRequestId))
+        {
+            return this.BadRequestProblem(
+                "approvalRequestId must not be an empty GUID.",
+                ProblemTypes.ValidationFailed);
+        }
 
         if (normalizedApprovalRequestId.Length > MaxApprovalRequestIdLength)
         {

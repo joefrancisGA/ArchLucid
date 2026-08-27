@@ -406,6 +406,13 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (distinctIds.Any(static id => !IsUsableApprovalRequestId(id)))
+        {
+            return this.BadRequestProblem(
+                "approvalRequestId must not be an empty GUID.",
+                ProblemTypes.ValidationFailed);
+        }
+
         foreach (string approvalRequestId in distinctIds)
 
             try
