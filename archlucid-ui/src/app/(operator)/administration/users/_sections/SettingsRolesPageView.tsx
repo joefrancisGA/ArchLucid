@@ -7,7 +7,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { PageHeading } from "@/components/PageHeading";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ApiKeysUsersVocabularyRail } from "@/components/ApiKeysUsersVocabularyRail";
@@ -35,74 +34,34 @@ import {
 
 import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 
-import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
-import { PendingInvitationsPanel } from "./PendingInvitationsPanel";
-import { SettingsRolesPrincipalTable } from "./SettingsRolesPrincipalTable";
 import {
   SETTINGS_ROLES_API_KEYS_EMPTY_COMPACT,
-  SETTINGS_ROLES_USERS_EMPTY_COMPACT,
   settingsRolesEmptyStateDescription,
   settingsRolesEmptyStateTitle,
 } from "./settings-roles-page-empty-copy";
 import {
   SETTINGS_ROLES_KEYS_TAB_CARD_TITLE,
-  SETTINGS_ROLES_KEYS_TAB_LABEL,
   SETTINGS_ROLES_KEYS_TAB_LEAD,
   SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF,
   SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_LINK_LABEL,
   SETTINGS_ROLES_KEYS_TAB_OPEN_CTA_LABEL,
 } from "./settings-roles-page-keys-tab-copy";
 import { SettingsRolesMatrixSection } from "./SettingsRolesMatrixSection";
+import { SettingsRolesPrincipalTable } from "./SettingsRolesPrincipalTable";
 import { assignmentCountsByRoleName } from "./roles-matrix-assignment-counts";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
-import { SettingsRolesContinueLastViewedRow } from "./SettingsRolesContinueLastViewedRow";
 import {
   resolveContinueLastSettingsPrincipal,
   writeSettingsPrincipalLastViewedId,
 } from "@/lib/resolve-continue-last-settings-principal";
-
-const ALL_TABS: readonly { id: SettingsUsersTabId; label: string }[] = [
-  { id: "users", label: "Users and invitations" },
-  { id: "roles", label: "Roles and permissions" },
-  { id: "keys", label: SETTINGS_ROLES_KEYS_TAB_LABEL },
-] as const;
-
-const MEMBERS_HEADING_ID = "settings-roles-members-heading";
-const PENDING_INVITATIONS_HEADING_ID = "settings-roles-pending-invitations-heading";
-const INVITE_SECTION_SUMMARY_ID = "settings-roles-invite-section-summary";
-const INVITE_PRIMARY_HEADING_ID = "settings-roles-invite-primary-heading";
-
-function visibleTabs(canManageApiKeys: boolean): readonly { id: SettingsUsersTabId; label: string }[] {
-  if (canManageApiKeys) {
-    return ALL_TABS;
-  }
-
-  return ALL_TABS.filter((tab) => tab.id !== "keys");
-}
-
-function directoryNoteReliableForAssignmentCounts(note: SettingsRolesPageViewModel["usersNote"]): boolean {
-  return note === null || note === "empty_response";
-}
-
-/** Predicate, not a plain boolean, so callers can pass the narrowed note to the copy helpers. */
-function isUsersNoteLoadFailure(
-  note: SettingsRolesPageViewModel["usersNote"],
-): note is "api_unavailable" | "load_failed" {
-  return note === "api_unavailable" || note === "load_failed";
-}
-
-function isKeysNoteLoadFailure(
-  note: SettingsRolesPageViewModel["keysNote"],
-): note is "api_unavailable" | "load_failed" {
-  return note === "api_unavailable" || note === "load_failed";
-}
-
-function isKeysDirectoryCollectionEmpty(
-  keysNote: SettingsRolesPageViewModel["keysNote"],
-  apiKeyCount: number,
-): boolean {
-  return apiKeyCount === 0 && (keysNote === null || keysNote === "empty_response");
-}
+import {
+  directoryNoteReliableForAssignmentCounts,
+  isKeysDirectoryCollectionEmpty,
+  isKeysNoteLoadFailure,
+  isUsersNoteLoadFailure,
+  visibleTabs,
+} from "./settings-roles-page-helpers";
+import { SettingsRolesUsersTab } from "./SettingsRolesUsersTab";
 
 type Props = {
   readonly model: SettingsRolesPageViewModel;
@@ -214,6 +173,15 @@ export function SettingsRolesPageView(props: Props) {
     }, 0);
   }, []);
 
+  const onInviteSent = useCallback((invitation: AdminUserInvitationRow) => {
+    setSeededInvitations((current) => {
+      const without = current.filter((row) => row.id !== invitation.id);
+
+      return [invitation, ...without];
+    });
+    setInvitationsRefreshKey((key) => key + 1);
+  }, []);
+
   function openPrincipal(principalId: string): void {
     writeSettingsPrincipalLastViewedId("user", principalId);
     setActiveTab("users");
@@ -319,146 +287,24 @@ export function SettingsRolesPageView(props: Props) {
           ))}
         </TabsList>
 
-        <TabsContent value="users" data-testid="settings-roles-tabpanel-users">
-          <div className={OPERATOR_LAYOUT.sectionStack}>
-            {usersTabInviteFirstLayout ? (
-              <>
-                <Card
-                  aria-labelledby={INVITE_PRIMARY_HEADING_ID}
-                  data-testid="settings-roles-invite-primary-region"
-                >
-                  <CardHeader>
-                    <CardTitle id={INVITE_PRIMARY_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                      Invite user
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <SettingsRolesInvitePanel
-                      emailInputRef={inviteEmailInputRef}
-                      onInviteSent={(invitation) => {
-                        setSeededInvitations((current) => {
-                          const without = current.filter((row) => row.id !== invitation.id);
-
-                          return [invitation, ...without];
-                        });
-                        setInvitationsRefreshKey((key) => key + 1);
-                      }}
-                    />
-                  </CardContent>
-                </Card>
-                <div className="space-y-2" data-testid="settings-roles-users-empty-composition">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {membersDirectorySourceTag}
-                    {usersTabEmptyWorkspace ? (
-                      <StatusTag
-                        kind="draft"
-                        label="No users yet — members appear after the first invite is accepted."
-                        data-testid="settings-roles-users-empty-status"
-                      />
-                    ) : null}
-                  </div>
-                  <PendingInvitationsPanel
-                    refreshKey={invitationsRefreshKey}
-                    seededInvitations={seededInvitations}
-                    onCountChange={onPendingInvitationCountChange}
-                    suppressEmptyPresentation
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <Card aria-labelledby={MEMBERS_HEADING_ID}>
-                  <CardHeader>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <CardTitle id={MEMBERS_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                        {usersSectionTitle}
-                      </CardTitle>
-                      {membersDirectorySourceTag}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {m.loading ? (
-                      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
-                    ) : null}
-                    {!m.loading && isUsersNoteLoadFailure(m.usersNote) ? (
-                      <div data-testid="settings-roles-api-note">
-                        <EnterpriseCompactEmptyState
-                          testId="settings-roles-users-load-failed"
-                          title={settingsRolesEmptyStateTitle(m.usersNote, "users")}
-                          description={settingsRolesEmptyStateDescription(m.usersNote, "users")}
-                          footer={
-                            <div className="flex flex-wrap gap-2">
-                              <RefreshButton busy={m.loading} onClick={() => void m.load()} />
-                            </div>
-                          }
-                        />
-                      </div>
-                    ) : null}
-                    {!m.loading && m.usersNote === "empty_response" && userRows.length === 0 ? (
-                      <EnterpriseCompactEmptyState {...SETTINGS_ROLES_USERS_EMPTY_COMPACT} />
-                    ) : null}
-                    {!m.loading && userRows.length > 0 ? (
-                      <>
-                        {continueLastPrincipal !== null ? (
-                          <SettingsRolesContinueLastViewedRow
-                            target={continueLastPrincipal}
-                            onOpen={openPrincipal}
-                          />
-                        ) : null}
-                        <SettingsRolesPrincipalTable rows={userRows} onRoleChange={m.onRoleChange} />
-                      </>
-                    ) : null}
-                    {!m.loading && m.usersNote === null && userRows.length === 0 ? (
-                      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                        No members yet. People appear here after they accept an invitation.
-                      </p>
-                    ) : null}
-                  </CardContent>
-                </Card>
-
-                <Card aria-labelledby={PENDING_INVITATIONS_HEADING_ID}>
-                  <CardHeader>
-                    <CardTitle id={PENDING_INVITATIONS_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                      {pendingSectionTitle}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <PendingInvitationsPanel
-                      refreshKey={invitationsRefreshKey}
-                      seededInvitations={seededInvitations}
-                      onCountChange={onPendingInvitationCountChange}
-                    />
-                  </CardContent>
-                </Card>
-              </>
-            )}
-
-            {!usersTabInviteFirstLayout ? (
-              <CollapsibleSection
-                title="Invite user"
-                headingLevel={2}
-                summaryLine="Send a workspace invitation by email."
-                summaryId={INVITE_SECTION_SUMMARY_ID}
-                defaultOpen={false}
-                open={inviteSectionOpen}
-                onToggle={setInviteSectionOpen}
-                sectionTestId="settings-roles-invite-section"
-              >
-                <SettingsRolesInvitePanel
-                  emailInputRef={inviteEmailInputRef}
-                  onInviteSent={(invitation) => {
-                    setSeededInvitations((current) => {
-                      const without = current.filter((row) => row.id !== invitation.id);
-
-                      return [invitation, ...without];
-                    });
-                    setInvitationsRefreshKey((key) => key + 1);
-                  }}
-                />
-              </CollapsibleSection>
-            ) : null}
-          </div>
-        </TabsContent>
+        <SettingsRolesUsersTab
+          model={m}
+          userRows={userRows}
+          usersTabInviteFirstLayout={usersTabInviteFirstLayout}
+          usersTabEmptyWorkspace={usersTabEmptyWorkspace}
+          usersSectionTitle={usersSectionTitle}
+          membersDirectorySourceTag={membersDirectorySourceTag}
+          pendingSectionTitle={pendingSectionTitle}
+          continueLastPrincipal={continueLastPrincipal}
+          inviteEmailInputRef={inviteEmailInputRef}
+          inviteSectionOpen={inviteSectionOpen}
+          onInviteSectionOpenChange={setInviteSectionOpen}
+          invitationsRefreshKey={invitationsRefreshKey}
+          seededInvitations={seededInvitations}
+          onInviteSent={onInviteSent}
+          onPendingInvitationCountChange={onPendingInvitationCountChange}
+          onOpenPrincipal={openPrincipal}
+        />
 
         <TabsContent value="roles" data-testid="settings-roles-tabpanel-roles">
           <Card>
