@@ -40,6 +40,7 @@ import {
   resolveRiskExceptionCreateEmphasizedStepId,
   resolveRiskExceptionCreateSteps,
 } from "@/lib/risk-exception-create-checklist";
+import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "Accepted",
@@ -106,7 +107,7 @@ type FindingInspectDispositionControlsProps = {
   readonly revokeWaiver: () => void | Promise<void>;
   readonly currentDisposition: string;
   readonly mutationDisabledHintId: string;
-  readonly mutationDisabledReason: string | null;
+  readonly mutationDisabledReason: WhyDisabledCtaReason | null;
   readonly pendingDispositionKind: FindingDispositionKind;
   readonly pendingDispositionBlockedReason: string | null;
 };
@@ -544,7 +545,7 @@ export function FindingInspectDispositionControls(props: FindingInspectDispositi
         variant="destructive"
         busy={busyAction === "revoke-waiver"}
         onConfirm={() => {
-          void revokeWaiver().finally(() => {
+          void Promise.resolve(revokeWaiver()).finally(() => {
             setPendingRevokeWaiverConfirm(false);
           });
         }}

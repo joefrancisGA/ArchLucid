@@ -13,11 +13,12 @@ import {
   IDENTITY_PROVIDERS_SAML_METADATA_URL_LABEL,
 } from "@/lib/identity-providers-settings-copy";
 import type { SamlSpConfigurationFormValues } from "@/lib/saml-sp-configuration-form-state";
+import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 type SamlSpMetadataLookupBlockProps = {
   readonly values: SamlSpConfigurationFormValues;
   readonly busy: boolean;
-  readonly fetchMetadataDisabledReason: string | null;
+  readonly fetchMetadataDisabledReason: WhyDisabledCtaReason | null;
   readonly onMetadataUrlChange: (value: string) => void;
   readonly onFetchMetadata: () => void;
 };
