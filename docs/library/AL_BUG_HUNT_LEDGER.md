@@ -2596,11 +2596,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 5
-- **bugs-found:** 8
+- **hunts:** 6
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — Showcase `http_error`/`missing` served static demo for non-curated run ids
+- **last-hunt:** 2026-08-27
+- **last-bug:** 2026-08-27 — Quick Scan SampleOnly auto-sample overwrote real analysis
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2622,6 +2622,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (hunt-ready) Quick Scan `SampleOnly` auto-sample `useEffect` overwrites a real analysis when capacity status loads after submit — `isQuickScanAiSubmitAllowed(null)` is optimistic and effect lacks `result !== null` guard (`QuickScanClient.tsx`, `quick-scan-capacity-state.ts`).
 - [ ] (hunt-ready) Static-first showcase slugs skip API but pass `renderMode="api"` and `banner={null}` when API base is configured — conflates “API configured” with “served from API” (`showcase/[runId]/page.tsx` early branch).
 - [ ] (hunt-ready) Showcase `bad_json` hard-fails curated static-first run ids while `not_found`/`invalid` fall back to curated static payload — inconsistent resilience (`showcase/[runId]/page.tsx` switch).
+
+2026-08-27 thorough hunt #6: proved Quick Scan SampleOnly auto-sample overwrote real analysis after late status load.
 
 2026-08-26 seed hunt #5: reseeded four hunt-ready rows from marketing source read; proved showcase outage fallback asymmetry.
 

@@ -133,10 +133,10 @@ export function useQuickScanClient() {
       setCapacityMessage(message);
     }
 
-    if (status.capacityState === "SampleOnly" && status.sampleResultAvailable) {
+    if (status.capacityState === "SampleOnly" && status.sampleResultAvailable && result === null) {
       showSampleResult("SampleOnly");
     }
-  }, [showSampleResult, status]);
+  }, [result, showSampleResult, status]);
 
   const markFieldTouched = useCallback((fieldName: QuickScanFormFieldName) => {
     setTouchedFields((previous) => {
