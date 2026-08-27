@@ -36,7 +36,7 @@ export function AskCompareReviewsCollapsible(props: AskCompareReviewsCollapsible
           <Button
             type="button"
             variant="outline"
-            className="h-auto w-full justify-between gap-2 p-0 font-medium text-neutral-900 hover:bg-transparent dark:text-neutral-100"
+            className="h-auto w-full justify-between gap-2 p-0 text-neutral-900 hover:bg-transparent dark:text-neutral-100"
             aria-expanded={compareOpen}
           >
             <span>

@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS } from "@/lib/design-tokens";
 
 import { ChevronsUpDown } from "lucide-react";
 import {
@@ -292,8 +292,8 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
     density === "compact" ? "max-w-[min(16rem,38vw)]" : "max-w-[min(20rem,42vw)]";
   const scopeTriggerLabelClass =
     density === "compact"
-      ? cn("min-w-0 flex-1 truncate whitespace-nowrap text-left font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)
-      : cn("min-w-0 flex-1 truncate whitespace-nowrap text-left font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper);
+      ? "min-w-0 flex-1 truncate whitespace-nowrap text-left text-neutral-900 dark:text-neutral-100"
+      : "min-w-0 flex-1 truncate whitespace-nowrap text-left text-neutral-800 dark:text-neutral-200";
 
   const scopePanel =
     open && panelStyle != null ? (
@@ -341,7 +341,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             type="button"
             variant="outline"
             className={cn(
-              "inline-flex min-w-0 shrink cursor-pointer items-center gap-2 p-0 font-normal hover:bg-transparent",
+              "inline-flex min-w-0 shrink cursor-pointer items-center gap-2 p-0 hover:bg-transparent",
               OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS,
               polishedMaxWidthClass,
             )}
@@ -357,8 +357,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
           >
             <span
               className={cn(
-                "inline-flex h-full min-w-0 max-w-full items-center gap-1 rounded-md border border-neutral-200 bg-white px-2.5 font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
-                density === "compact" ? OPERATOR_TYPOGRAPHY.body : OPERATOR_TYPOGRAPHY.helper,
+                "inline-flex h-full min-w-0 max-w-full items-center gap-1 rounded-md border border-neutral-200 bg-white px-2.5 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
                 polishedTriggerMaxWidthClass,
               )}
             >

@@ -37,7 +37,7 @@ export function OptInTourLauncher({ className }: OptInTourLauncherProps) {
         variant="outline"
         size="sm"
         className={cn(
-          "inline-flex items-center gap-1.5 border-neutral-300 font-medium text-neutral-800 dark:border-neutral-600 dark:text-neutral-200",
+          "inline-flex items-center gap-1.5 border-neutral-300 text-neutral-800 dark:border-neutral-600 dark:text-neutral-200",
           className,
         )}
         onClick={handleOpen}
