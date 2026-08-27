@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -24,7 +26,8 @@ import { CompareResultsPanel } from "@/app/(operator)/insights/compare-two-revie
 import { CompareAdvancedDiagnosticsSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareAdvancedDiagnosticsSection";
 import { CompareRunPickersSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersSection";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { compareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
@@ -166,6 +169,29 @@ export function CompareForm() {
           testIdPrefix="compare-two-reviews"
         />
 
+        {urlPairComplete ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="compare-two-reviews-run-scope-banner"
+          >
+            {"Comparing reviews "}
+            <span className="font-mono text-al-text-primary">{leftTrim}</span>
+            {" and "}
+            <span className="font-mono text-al-text-primary">{rightTrim}</span>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={compareTwoReviewsHref()}>
+              Clear comparison scope
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={`/architecture/reviews/${encodeURIComponent(rightTrim)}`}
+            >
+              Open updated review
+            </Link>
+          </p>
+        ) : null}
+
         <CompareRunPickersSection
           leftPickerLabel={leftPickerLabel}
           rightPickerLabel={rightPickerLabel}
@@ -188,7 +214,7 @@ export function CompareForm() {
           useBuyerFacingRunLabels={buyerPolished}
           summarizeButtonLabel={buyerPolished ? "Summarize for leadership" : "Summarize for sponsor"}
           compareButtonLabel={buyerPolished ? buyerComparePrimaryActionLabel : "Compare two reviews"}
-          collapseBelowResults={compareInsightFirstLayout && buyerPolished}
+          collapseBelowResults={(compareInsightFirstLayout && buyerPolished) || urlPairComplete}
         />
 
         {!compareInsightFirstLayout && showEmptyComparisonOutput && !urlPairComplete ? (
