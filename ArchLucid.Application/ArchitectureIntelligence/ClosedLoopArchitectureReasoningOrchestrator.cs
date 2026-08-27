@@ -119,7 +119,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                 baselineKnowledgeModel,
                 baselineLedgerEntries);
 
-            using IDisposable pinScope = !string.IsNullOrWhiteSpace(effectiveRequest.RunId)
+            using IReviewResultCachePinScope pinScope = !string.IsNullOrWhiteSpace(effectiveRequest.RunId)
                 ? _reviewResultCache.PinScope(
                     cacheManifest,
                     ReviewCacheManifestBuilder.BuildWithResolvedRunId(
@@ -129,7 +129,8 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                         baselineLedgerEntries))
                 : _reviewResultCache.PinScope(cacheManifest);
 
-            if (!effectiveRequest.PublishToProduct
+            if (pinScope.IsPinned
+                && !effectiveRequest.PublishToProduct
                 && _reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
                 && cached is not null)
             {

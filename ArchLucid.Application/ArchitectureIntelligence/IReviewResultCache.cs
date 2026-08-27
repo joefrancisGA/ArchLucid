@@ -10,9 +10,9 @@ public interface IReviewResultCache
 
     void InvalidateForRun(string runId);
 
-    IDisposable PinScope(ReviewCacheDependencyManifest manifest);
+    IReviewResultCachePinScope PinScope(ReviewCacheDependencyManifest manifest);
 
-    IDisposable PinScope(
+    IReviewResultCachePinScope PinScope(
         ReviewCacheDependencyManifest primaryManifest,
         ReviewCacheDependencyManifest secondaryManifest);
 

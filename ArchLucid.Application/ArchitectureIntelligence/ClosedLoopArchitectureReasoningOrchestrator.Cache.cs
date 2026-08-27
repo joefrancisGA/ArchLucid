@@ -25,9 +25,10 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         ReviewCacheDependencyManifest contentManifest =
             ReviewCacheManifestBuilder.Build(effectiveRequest, existing, ledgerEntries);
 
-        using IDisposable pinScope = _reviewResultCache.PinScope(continueManifest, contentManifest);
+        using IReviewResultCachePinScope pinScope = _reviewResultCache.PinScope(continueManifest, contentManifest);
 
-        if (!effectiveRequest.PublishToProduct
+        if (pinScope.IsPinned
+            && !effectiveRequest.PublishToProduct
             && _reviewResultCache.TryGet(continueManifest, out ClosedLoopReasoningResult? cachedContinue)
             && cachedContinue is not null)
         {
@@ -129,6 +130,17 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         ClosedLoopReasoningResult isolated = ClosedLoopReasoningResultCloner.Clone(shared);
         ArchitectureIntelligenceBudgetResultApplier.Apply(isolated, budget);
 
+        string? normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeOptional(
+            string.IsNullOrWhiteSpace(effectiveRequest.RunId)
+                ? isolated.RunId ?? runId
+                : runId);
+
+        if (!string.IsNullOrWhiteSpace(normalizedRunId))
+        {
+            isolated.RunId = normalizedRunId;
+            isolated.Model.RunId = normalizedRunId;
+        }
+
         bool isReviewCacheHit = shared.CacheHit;
 
         if (isReviewCacheHit)
@@ -154,7 +166,11 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
                 policyRunId,
                 isolated))
         {
-            ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(effectiveRequest, policyRunId, isolated);
+            ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(
+                effectiveRequest,
+                policyRunId,
+                isolated,
+                clearReviewCompleteState: isReviewCacheHit);
         }
 
         return isolated;

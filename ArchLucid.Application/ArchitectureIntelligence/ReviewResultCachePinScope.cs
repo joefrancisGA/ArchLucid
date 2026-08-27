@@ -1,6 +1,6 @@
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
-internal sealed class ReviewResultCachePinScope : IDisposable
+internal sealed class ReviewResultCachePinScope : IReviewResultCachePinScope
 {
     private ReviewResultCache? _cache;
     private string? _storageKey;
@@ -13,6 +13,8 @@ internal sealed class ReviewResultCachePinScope : IDisposable
 
         _pinned = _cache.PinStorageKey(_storageKey);
     }
+
+    public bool IsPinned => _pinned;
 
     public void Dispose()
     {
