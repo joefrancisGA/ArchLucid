@@ -10,6 +10,14 @@ public static class GovernanceQueryRequestValidationRules
     /// </summary>
     public static bool IsUsableProjectId(Guid? projectId)
     {
-        return !projectId.HasValue || projectId.Value != Guid.Empty;
+        return IsUsableOptionalGuid(projectId);
+    }
+
+    /// <summary>
+    ///     Returns whether <paramref name="value" /> is omitted or a non-empty GUID.
+    /// </summary>
+    public static bool IsUsableOptionalGuid(Guid? value)
+    {
+        return !value.HasValue || value.Value != Guid.Empty;
     }
 }

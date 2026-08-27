@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -37,6 +38,9 @@ public sealed partial class GovernanceStickinessController
 
         if (findingIdProblem is not null)
             return findingIdProblem;
+
+        if (!GovernanceQueryRequestValidationRules.IsUsableOptionalGuid(request.RunId))
+            return this.BadRequestProblem("runId must not be an empty GUID.", ProblemTypes.ValidationFailed);
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
