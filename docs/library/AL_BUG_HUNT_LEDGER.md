@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 112
-- **bugs-found:** 272
+- **hunts:** 114
+- **bugs-found:** 278
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — recurrence cron max-length, risk-exception expiry, submit/promote env path
+- **last-bug:** 2026-08-27 — manifest route read manifestVersion max-length
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2625,6 +2625,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.SubmitApprovalRequest` — same `sourceEnvironment`/`targetEnvironment` or invalid promotion step reached workflow instead of controller 400 — **hit 2026-08-27:** `GovernanceEnvironmentOrder` guards (CompareEnvironments parity); regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (proven) `GovernanceController.Promote` — invalid `sourceEnvironment`→`targetEnvironment` step reached workflow instead of controller 400 — **hit 2026-08-27:** `GovernanceEnvironmentOrder.IsValidPromotion` guard; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `GovernanceController.DraftPolicyPackRule` — no upper bound on `freeTextIntent` at controller — **cheap-disproof 2026-08-27:** advisory dry-run endpoint with no DB persistence; LLM/token risk only.
+
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` — null `cronExpression` dereferenced on `.Length` check (HTTP 500) — **hit 2026-08-27:** required-field guard before max-length; regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — `cronExpression` >100 reached facade without controller 400 (create/update parity) — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `TenantTrialController.LinkEntraAsync` — `localEmail` >256 reached identity upsert (`NVARCHAR(256)`) — **hit 2026-08-27:** controller max-length guard (EntraOid parity); regression in `TenantTrialControllerTests`.
+- [x] (proven) `PolicyPacksController.Simulate` / `GovernanceController.Simulate` — `runId` >64 reached dry-run service and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** controller max-length guard (`PolicyPackSimulateRequestValidator` not invoked); regression in `PolicyPacksControllerSimulateTests` and `GovernanceControllerSimulateTests`.
+- [x] (proven) `GovernanceController.DryRunProposedPolicyPack` — `targetRunId` >64 reached dry-run service and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceControllerSimulateTests`.
+
+2026-08-27 seed hunt #196: reseeded zone from controller scan; proved null-cron NRE, link-entra email max-length, simulate/dry-run runId max-length, and recurrence preview cron parity.
+
+- [x] (proven) `ManifestsController` manifest route reads — `manifestVersion` >128 returned HTTP 404 instead of HTTP 400 (`CreateGovernancePreviewRequestValidator.MaximumLength` not invoked on read paths) — **hit 2026-08-27:** `ValidateManifestVersionRoute` and compare query guards before lookup; strict-mock regression in `ManifestsControllerTests`.
+
+2026-08-27 thorough hunt #197: proved manifest route read and compare query manifestVersion max-length validation (preview/submit parity).
+
+- [ ] (candidate) `ManifestsController` export/download paths — oversize `manifestVersion` in filename sanitization edge cases (low risk; route guard now rejects before export).
 
 2026-08-27 thorough hunt #195: proved recurrence cron max-length, risk-exception expiry guards, and submit/promote env-path validation; cheap-disproved draft freeTextIntent max-length candidate.
 
