@@ -31,4 +31,12 @@ public sealed class ArchitectureRiskRegisterHumanReviewLabelTests
             .Should()
             .Be(FindingHumanReviewStatus.Rejected);
     }
+
+    [Fact]
+    public void ParseOrDefault_returns_NotRequired_for_undefined_numeric_string()
+    {
+        ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault("99")
+            .Should()
+            .Be(FindingHumanReviewStatus.NotRequired);
+    }
 }

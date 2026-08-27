@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 9
-- **bugs-found:** 14
+- **hunts:** 10
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — `FindingJsonConverter` dropped numeric `treatment`/`classification` ordinals; `MarketplaceWebhookPayloadParser.ReadQuantity` and alert-fired Service Bus props missed PascalCase keys
+- **last-hunt:** 2026-08-27
+- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1778,9 +1778,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadInsightDensityFields` requires string `treatment` / `classification` tokens — numeric `1` (DemoteToChecklist / ChecklistCoverage) silently stays null on snapshot reload — **hit 2026-08-26:** same gap as pre-fix `humanReviewStatus`; fixed with `ReadTreatment` / `ReadClassification` (`Deserialize_numeric_treatment_maps_demote_to_checklist_ordinal`, `Deserialize_numeric_classification_maps_checklist_coverage_ordinal`).
 - [x] (proven) `MarketplaceWebhookPayloadParser.ReadQuantity` is case-sensitive on `quantity` — PascalCase `"Quantity":5` falls back to `1` while `TryGetPlanId` already uses case-insensitive lookup — **hit 2026-08-26:** fixed with `TryGetPropertyCaseInsensitive` (`ReadQuantity_reads_PascalCase_quantity`).
 - [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryResolveAlertFired` uses case-sensitive `TryGetProperty("severity")` — PascalCase `"Severity":"Critical"` omits the `severity` user property and breaks SQL subscription filters — **hit 2026-08-26:** fixed with `TryGetStringPropertyCaseInsensitive` (`TryResolveForPublish_alert_fired_maps_PascalCase_severity`).
-- [ ] (candidate) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals.
-- [ ] (candidate) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize.
-- [ ] (candidate) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined`.
+- [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
+- [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
+- [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
 
 ---
 
