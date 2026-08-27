@@ -56,6 +56,10 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("help-soc2-self-assessment", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-dpa-template", "not a package.")).toBeUndefined();
     expect(resolveClaimDisciplineForStrip("help-caiq-sig-response", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-configuration-reference", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-first-value-20-minutes", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-policy-pack-delta-demo", "not a package.")).toBeUndefined();
+    expect(resolveClaimDisciplineForStrip("help-sponsor-report", "not a package.")).toBeUndefined();
   });
 
   it("expectsVisibleClaimDisciplineBand mirrors omit policy", () => {
@@ -69,6 +73,10 @@ describe("claim-discipline-policy", () => {
     expect(expectsVisibleClaimDisciplineBand("help-soc2-self-assessment")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-dpa-template")).toBe(false);
     expect(expectsVisibleClaimDisciplineBand("help-caiq-sig-response")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-configuration-reference")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-first-value-20-minutes")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-policy-pack-delta-demo")).toBe(false);
+    expect(expectsVisibleClaimDisciplineBand("help-sponsor-report")).toBe(false);
   });
 
   it("has no duplicate omit slugs", () => {

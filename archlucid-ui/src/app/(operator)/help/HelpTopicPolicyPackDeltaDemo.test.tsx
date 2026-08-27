@@ -14,7 +14,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpPolicyPackDeltaDemoGuideView } from "@/app/(operator)/help/_sections/HelpPolicyPackDeltaDemoGuideView";
-import { POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS } from "@/lib/policy/policy-pack-delta-demo-help-guide-content";
+import {
+  POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE,
+  POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS,
+} from "@/lib/policy/policy-pack-delta-demo-help-guide-content";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -48,9 +52,23 @@ describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () =>
     expect(screen.getByTestId("help-policy-pack-delta-demo-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-policy-pack-delta-demo-narrative-arc")).toBeInTheDocument();
-    expect(screen.getByTestId("help-policy-pack-delta-demo-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-policy-pack-delta-demo-claim-discipline")).toBeNull();
+    expect(screen.getByTestId("help-policy-pack-delta-demo-claim-discipline-strip")).toHaveTextContent(
+      POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-policy-pack-delta-demo",
+      "help-policy-pack-delta-demo-claim-discipline",
+      POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
 
     const actionPanel = screen.getByTestId("help-policy-pack-delta-demo-action-panel");
+    const narrativeArc = screen.getByTestId("help-policy-pack-delta-demo-narrative-arc");
+
+    expect(narrativeArc.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(actionPanel.className).not.toMatch(/bg-teal-/);
+    expect(actionPanel.className).not.toMatch(/border-teal-/);
 
     expect(
       within(actionPanel).getByRole("link", {

@@ -15,10 +15,12 @@ vi.mock("next/navigation", () => ({
 
 import { HelpFirstValue20GuideView } from "@/app/(operator)/help/_sections/HelpFirstValue20GuideView";
 import {
+  FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE,
   FIRST_VALUE_20_HELP_PAGE_TITLE,
   FIRST_VALUE_20_HELP_PRIMARY_ACTIONS,
   FIRST_VALUE_20_HELP_SOURCES,
 } from "@/lib/first-value-20-help-guide-content";
+import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadFoldedInternalRunbook } from "@/lib/load-product-documentation";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
@@ -66,7 +68,16 @@ describe("HelpFirstValue20GuideView (folded into COR, Batch R)", () => {
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-first-value-20-admin-tag")).toHaveTextContent("Admin only");
-    expect(screen.getByTestId("help-first-value-20-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-first-value-20-claim-discipline")).toBeNull();
+    expect(screen.getByTestId("help-first-value-20-claim-discipline-strip")).toHaveTextContent(
+      FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-first-value-20-minutes",
+      "help-first-value-20-claim-discipline",
+      FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId("help-first-value-20-job-matrix")).toBeInTheDocument();
     expect(screen.getByTestId("help-first-value-20-orientation")).toBeInTheDocument();
     expect(screen.getByTestId("help-first-value-20-sources")).toBeInTheDocument();
@@ -76,6 +87,12 @@ describe("HelpFirstValue20GuideView (folded into COR, Batch R)", () => {
     );
 
     const actionPanel = screen.getByTestId("help-first-value-20-action-panel");
+    const orientation = screen.getByTestId("help-first-value-20-orientation");
+    const claimStrip = screen.getByTestId("help-first-value-20-claim-discipline-strip");
+
+    expect(claimStrip.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(actionPanel.className).not.toMatch(/bg-teal-/);
 
     expect(
       within(actionPanel).getByRole("link", {
