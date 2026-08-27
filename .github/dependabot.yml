@@ -15,42 +15,98 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 15
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      nuget:
+        patterns:
+          - "*"
 
   - package-ecosystem: nuget
     directory: "/templates/archlucid-finding-engine"
     schedule:
       interval: monthly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      nuget-finding-engine-template:
+        patterns:
+          - "*"
 
   - package-ecosystem: npm
     directory: "/archlucid-ui"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      npm:
+        patterns:
+          - "*"
 
   - package-ecosystem: terraform
     directory: "/infra/terraform-private"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      terraform:
+        patterns:
+          - "*"
 
   - package-ecosystem: terraform
     directory: "/infra/terraform-pilot"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      terraform:
+        patterns:
+          - "*"
 
   - package-ecosystem: terraform
     directory: "/infra/terraform"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      terraform:
+        patterns:
+          - "*"
 
   - package-ecosystem: terraform
     directory: "/infra/terraform-edge"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      terraform:
+        patterns:
+          - "*"
 
   - package-ecosystem: terraform
     directory: "/infra/terraform-entra"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      terraform:
+        patterns:
+          - "*"
 
   - package-ecosystem: docker
     directory: "/ArchLucid.Api"
