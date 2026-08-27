@@ -83,6 +83,7 @@ internal static class BicepResourceBodyParser
                 continue;
             }
 
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
             string scalarValue = UnquoteScalar(rawValue);
 
             InfrastructureDeclarationSecurityPropertyWriter.TryAddTfPropertyWithArmAlias(properties, key, scalarValue);

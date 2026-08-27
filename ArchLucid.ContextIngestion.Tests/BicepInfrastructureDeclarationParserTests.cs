@@ -99,6 +99,28 @@ public sealed class BicepInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_InlineSlashSlashComment_DoesNotChangeTfPublicNetworkAccess()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            Content = """
+                      resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                        properties: {
+                          publicNetworkAccess: 'Enabled' // primary region
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.publicnetworkaccess"].Should().Be("enabled");
+    }
+
+    [Fact]
     public async Task ParseAsync_PropertyChanges_DoNotChangeObjectId()
     {
         InfrastructureDeclarationReference enabled = new()
