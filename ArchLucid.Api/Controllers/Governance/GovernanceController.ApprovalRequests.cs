@@ -87,6 +87,20 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (string.Equals(request.SourceEnvironment.Trim(), request.TargetEnvironment.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            return this.BadRequestProblem(
+                "SourceEnvironment and TargetEnvironment must be different.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (!GovernanceEnvironmentOrder.IsValidPromotion(request.SourceEnvironment, request.TargetEnvironment))
+        {
+            return this.BadRequestProblem(
+                "Approval requests must follow environment ordering: dev → test → prod.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (request.RequestComment is not null && request.RequestComment.Length > 4000)
         {
             return this.BadRequestProblem(

@@ -1,6 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -47,6 +48,22 @@ public sealed partial class GovernanceStickinessController
         {
             return this.BadRequestProblem(
                 "OwnerUserId must not exceed 256 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        DateTimeOffset nowUtc = DateTimeOffset.UtcNow;
+
+        if (request.ExpiresAtUtc <= nowUtc)
+        {
+            return this.BadRequestProblem(
+                "Expiration must be in the future.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.ExpiresAtUtc > nowUtc.AddDays(RiskExceptionValidation.MaxDurationDays))
+        {
+            return this.BadRequestProblem(
+                $"Waiver duration cannot exceed {RiskExceptionValidation.MaxDurationDays} days.",
                 ProblemTypes.ValidationFailed);
         }
 
@@ -157,6 +174,22 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
+        DateTimeOffset nowUtc = DateTimeOffset.UtcNow;
+
+        if (request.ExpiresAtUtc <= nowUtc)
+        {
+            return this.BadRequestProblem(
+                "Expiration must be in the future.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.ExpiresAtUtc > nowUtc.AddDays(RiskExceptionValidation.MaxDurationDays))
+        {
+            return this.BadRequestProblem(
+                $"Waiver duration cannot exceed {RiskExceptionValidation.MaxDurationDays} days.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -204,6 +237,13 @@ public sealed partial class GovernanceStickinessController
 
         if (request.IsEnabled is null)
             return this.BadRequestProblem("isEnabled is required.", ProblemTypes.ValidationFailed);
+
+        if (request.CronExpression.Length > 100)
+        {
+            return this.BadRequestProblem(
+                "CronExpression must not exceed 100 characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -287,6 +327,13 @@ public sealed partial class GovernanceStickinessController
         {
             return this.BadRequestProblem(
                 "Name must not exceed 300 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.CronExpression is not null && request.CronExpression.Length > 100)
+        {
+            return this.BadRequestProblem(
+                "CronExpression must not exceed 100 characters.",
                 ProblemTypes.ValidationFailed);
         }
 
