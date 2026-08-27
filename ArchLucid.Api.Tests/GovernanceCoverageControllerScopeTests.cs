@@ -33,6 +33,23 @@ public sealed class GovernanceCoverageControllerScopeTests
             It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" }));
 
     [Fact]
+    public async Task PreviewCoverage_returns_bad_request_when_body_null()
+    {
+        GovernanceCoverageController controller = new(
+            Mock.Of<ICoverageQueryService>(),
+            Mock.Of<ICoveragePreviewService>(MockBehavior.Strict),
+            Mock.Of<IPolicyPackRepository>(MockBehavior.Strict),
+            Mock.Of<IScopeContextProvider>(MockBehavior.Strict),
+            TenantExistsRepository());
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult action = await controller.PreviewCoverage(null!, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PreviewCoverage_returns_not_found_when_tenant_missing()
     {
         Mock<ICoveragePreviewService> preview = new(MockBehavior.Strict);
