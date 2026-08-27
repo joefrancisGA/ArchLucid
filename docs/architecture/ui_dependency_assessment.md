@@ -148,7 +148,7 @@ Findings of substance:
 | `sharp` | `^0.34.5` | `scripts/generate-brand-raster.mjs` (build-time only; also has a native install script — expected) |
 | `tailwindcss` | `^3.4.17` | `tailwind.config.ts`, `postcss.config.mjs` |
 | `tsx` | `^4.19.0` | Node-script runner: `sync:glossary`, `build:docs-pdf`, and Playwright's live-server bootstrap |
-| `typescript` | `^5.9.3` | Type-checking (`tsc --noEmit`), build |
+| `typescript` | `^7.0.2` | Type-checking (`tsc --noEmit`), build. **Peer-conflict note:** `openapi-typescript@7.13.0` still declares `typescript@^5.x`, so `npm ci` needs `legacy-peer-deps=true` (see `archlucid-ui/.npmrc`) until openapi-ts ships TypeScript 7 peer support. Left unset, `npm ci` fails with ERESOLVE — which deterministically failed the `CodeQL (javascript)` job's "Install and build UI" step. Alternative, if the workaround becomes untenable: alias `typescript` to `@typescript/typescript6` and expose TS 7 as `@typescript/native`, per the TypeScript 7.0 side-by-side guidance |
 | `vitest` | `^4.1.2` | Unit/component test runner |
 
 ---
