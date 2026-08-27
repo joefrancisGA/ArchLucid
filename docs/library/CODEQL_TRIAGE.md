@@ -90,11 +90,24 @@ If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the exten
 
 ### Active suppressions (2026-08-26 WK-03 / WK-03b)
 
-A suppression only binds when the comment sits on the alert's **own** line or the line immediately
-above it. The first WK-03 pass annotated the enclosing method instead of the reported line, so
-`assert_codeql_sarif_clean.py` still reported 4 unresolved findings on run
-[33024730786](https://github.com/joefrancisGA/ArchLucid/actions/runs/33024730786). Always take the
-line number from the SARIF gate output rather than choosing the line that reads best.
+Two placement rules, both learned the hard way — each mistake cost a full CodeQL run to discover.
+
+1. **Anchor on the reported line.** The first WK-03 pass annotated the enclosing method, so
+   `assert_codeql_sarif_clean.py` reported 4 unresolved findings on run
+   [33024730786](https://github.com/joefrancisGA/ArchLucid/actions/runs/33024730786). Take the line
+   number from the SARIF gate output, not the line that reads best.
+2. **`// codeql[rule-id]` must be the line immediately above the alert, on its own.** A multi-line
+   justification comment does **not** work: the adjacent line becomes prose and the directive no
+   longer binds. Run [33026460733](https://github.com/joefrancisGA/ArchLucid/actions/runs/33026460733)
+   still reported all 4 findings, with line numbers shifted by exactly the number of comment lines
+   inserted — proof the alerts had not moved and the directive was simply too far away. Put the
+   prose first and the bare directive last.
+
+```csharp
+// Why this is a false positive, in as many lines as needed.
+// codeql[cs/insecure-sql-connection]
+SqlConnectionStringBuilder builder = new(connectionString);
+```
 
 | Rule | Anchor line | Why | Date |
 | ---- | ---- | --- | ---- |

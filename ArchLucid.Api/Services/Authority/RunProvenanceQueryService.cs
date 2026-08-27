@@ -124,8 +124,9 @@ public sealed class RunProvenanceQueryService(
         int pageSize,
         CancellationToken cancellationToken)
     {
-        // codeql[cs/user-controlled-bypass]: pagination input validation, not an authorization decision;
-        // tenant scoping and run authorization happen separately below.
+        // Pagination input validation, not an authorization decision; tenant scoping and run
+        // authorization happen separately below.
+        // codeql[cs/user-controlled-bypass]
         if (pageNumber < 1)
         {
             return new RunTracesQueryResult
