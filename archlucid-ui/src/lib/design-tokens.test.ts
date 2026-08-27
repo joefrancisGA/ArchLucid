@@ -129,6 +129,11 @@ describe("design-tokens TB-2276–TB-2280 color hierarchy", () => {
     expect(globalsCss).toMatch(/\.dark\s*\{[\s\S]*--al-primary-action-bg:\s*#115e59;/);
   });
 
+  it("keeps anchor inherit color in @layer base so primary Button asChild links stay white on teal", () => {
+    expect(globalsCss).toMatch(/@layer base\s*\{[\s\S]*a\s*\{[\s\S]*color:\s*inherit;/);
+    expect(globalsCss).not.toMatch(/\n\s*a\s*\{\s*\n\s*color:\s*inherit;\s*\n\s*\}\s*\n\s*\/\*/);
+  });
+
   it("TB-2277 registers dedicated neutral status CSS variables", () => {
     expect(AL_CSS_VAR_NAMES.statusNeutralBg).toBe("--al-status-neutral-bg");
     expect(AL_CSS_VAR_NAMES.statusNeutralFg).toBe("--al-status-neutral-fg");

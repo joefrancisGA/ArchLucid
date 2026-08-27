@@ -218,6 +218,13 @@ body {
   @apply bg-al-surface-base text-al-text-primary antialiased;
 }
 
+@layer base {
+  /* Keep link color inside @layer base so Tailwind v4 utilities (e.g. primary Button asChild) win. */
+  a {
+    color: inherit;
+  }
+}
+
 /* Operator type scale — keep in sync with OPERATOR_TYPE_SCALE in design-tokens.ts */
 @layer utilities {
   /* Skip offscreen paint/layout for dense EnterpriseTable rows (perf wave 8). */
@@ -338,10 +345,6 @@ body {
 .auth-panel-focus:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 2px;
-}
-
-a {
-  color: inherit;
 }
 
 /*
