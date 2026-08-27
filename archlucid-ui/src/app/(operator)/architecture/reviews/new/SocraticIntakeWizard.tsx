@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { DraftIntakeRequiredClarificationField, REQUIRED_CLARIFICATION_BASELINE_LABEL } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 import { Button } from "@/components/ui/button";
@@ -150,7 +150,6 @@ export function SocraticIntakeWizard() {
         isFocused={options.isFocused}
         compactActions={viewAllClarifications}
         showAllMode={viewAllClarifications}
-        showBaselineLabel={false}
         showRequirednessSuffix={false}
         clarificationStatus={getClarificationStatus(questionKey)}
         canSaveAndContinue={(answers[questionKey]?.trim() ?? "").length > 0}
@@ -327,12 +326,6 @@ export function SocraticIntakeWizard() {
                 ? "Your answers stay with the architecture draft until you choose to start a review."
                 : "Your answers will be included when you review and submit."}
             </CardDescription>
-            <p
-              className={cn("m-0 pt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="socratic-clarifications-baseline-label"
-            >
-              {REQUIRED_CLARIFICATION_BASELINE_LABEL}
-            </p>
           </CardHeader>
           <CardContent
             className={cn(
