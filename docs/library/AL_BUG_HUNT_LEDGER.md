@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 86
-- **bugs-found:** 216
+- **hunts:** 87
+- **bugs-found:** 217
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `TenantLlmCostReportingController.GetDashboard` ghost workspace returned HTTP 200 instead of workspace 404
+- **last-bug:** 2026-08-27 — `CorePilotTeamChecklistController` ghost workspace returned HTTP 200 instead of workspace 404
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2471,6 +2471,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController` (`GetChecklist`, `Simulate`) — ghost workspace → HTTP 200 checklist/simulation payload instead of workspace 404; inline `RequireTenantOrNotFoundAsync` tenant-only (`GovernancePreCommitSimulationController.cs` L49–52) — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` delegates to shared `TenantWorkspaceScopePreflight` (governance-workflow parity); regression in `GetChecklist_returns_not_found_when_workspace_missing` and `Simulate_returns_not_found_when_workspace_missing`.
 - [x] (proven) `TenantIntegrationsOperationsController.GetAsync` — ghost workspace → HTTP 200 connector posture summary instead of workspace 404; `GetSummaryAsync(scope, …)` uses ambient workspace but controller only calls `GetByIdAsync` (`TenantIntegrationsOperationsController.cs` L45–52) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight before `GetSummaryAsync` (pre-commit simulation parity); regression in `GetAsync_returns_not_found_when_workspace_missing`.
 - [x] (proven) `TenantLlmCostReportingController.GetDashboard` — ghost workspace → HTTP 200 empty LLM cost dashboard instead of workspace 404; `BuildDashboardAsync` composes workspace-scoped breakdown but controller only preflights tenant row (`TenantLlmCostReportingController.cs` L51–58) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight before `BuildDashboardAsync` (integrations-operations parity); regression in `GetDashboard_returns_not_found_when_workspace_missing`.
+- [x] (proven) `CorePilotTeamChecklistController` (`GetAsync`, `PutAsync`) — ghost workspace → HTTP 200 empty checklist / 204 mutation instead of workspace 404; `ListAsync`/`UpsertAsync` use ambient workspace but controller only calls `GetByIdAsync` (`CorePilotTeamChecklistController.cs` L53–57, L91–95) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight (LLM-cost parity); regression in `GetAsync_returns_not_found_when_workspace_missing` and `PutAsync_returns_not_found_when_workspace_missing`.
+- [ ] (hunt-ready) `TenantPilotValueReportController` (`GetPilotValueReport`, `GetRoiSummaryPageBundle`) — ghost workspace → HTTP 200 pilot/ROI report payload instead of workspace 404; `PilotValueReportService.BuildAsync` checks tenant row only while audit export and run aggregation use ambient workspace (`TenantPilotValueReportController.cs` L69–76; `PilotValueReportService.cs` L77–90).
+
+2026-08-27 seed hunt #168: proved core-pilot-checklist foreign-workspace preflight gap; reseeded pilot-value-report ghost-workspace candidate.
 
 2026-08-27 thorough hunt #166: proved LLM cost reporting foreign-workspace preflight gap; ghost-workspace hunt-ready backlog cleared.
 

@@ -37,6 +37,16 @@ public sealed class CorePilotTeamChecklistControllerTests
         tenants
             .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
 
         return new CorePilotTeamChecklistController(
             auditService,
@@ -47,6 +57,59 @@ public sealed class CorePilotTeamChecklistControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
+    }
+
+    [Fact]
+    public async Task GetAsync_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        ScopeContext foreignScope = new()
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        };
+
+        Mock<ICorePilotTeamChecklistRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(foreignScope);
+        Mock<IActorContext> actor = new();
+        Mock<IAuditService> audit = new();
+
+        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object, audit.Object);
+        IActionResult result = await sut.GetAsync(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        ScopeContext foreignScope = new()
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        };
+
+        Mock<ICorePilotTeamChecklistRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(foreignScope);
+        Mock<IActorContext> actor = new();
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object, audit.Object);
+        IActionResult result = await sut.PutAsync(
+            new CorePilotChecklistPutRequest { StepIndex = 1, IsCompleted = true },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.VerifyNoOtherCalls();
+        audit.VerifyNoOtherCalls();
     }
 
     [Fact]
