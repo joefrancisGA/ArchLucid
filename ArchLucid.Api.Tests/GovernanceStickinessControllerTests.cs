@@ -305,6 +305,76 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task UpsertRealizedValueAttestation_returns_not_found_when_tenant_missing()
+    {
+        GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.UpsertRealizedValueAttestation(
+            new UpsertRealizedValueAttestationRequest { AttestedIncidentsAvoided = 1 },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_not_found_when_tenant_missing()
+    {
+        GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.CreateRiskException(
+            new CreateRiskExceptionRequest
+            {
+                FindingId = "finding-1",
+                OwnerUserId = "owner@test",
+                Rationale = "temporary waiver",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_not_found_when_tenant_missing()
+    {
+        GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
+        SetIdempotencyKey(sut);
+
+        IActionResult action = await sut.RecordDisposition(
+            "finding-1",
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-1",
+                Disposition = FindingDisposition.Accepted,
+                Rationale = "ok",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceSchedule_returns_not_found_when_tenant_missing()
+    {
+        GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.CreateRecurrenceSchedule(
+            new CreateArchitectureReviewRecurrenceScheduleRequest
+            {
+                SourceRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                IsEnabled = true,
+                CronExpression = "0 8 * * 1",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
     public async Task GetRiskRegister_returns_service_payload()
     {
         ArchitectureRiskRegisterResponse expected = new();

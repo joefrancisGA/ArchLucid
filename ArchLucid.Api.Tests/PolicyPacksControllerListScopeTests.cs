@@ -218,6 +218,108 @@ public sealed class PolicyPacksControllerListScopeTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    [Fact]
+    public async Task Publish_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.Publish(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            new PublishPolicyPackVersionRequest
+            {
+                Version = "2.0.0",
+                ContentJson = """{"complianceRuleIds":[]}""",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task Assign_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.Assign(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            new AssignPolicyPackRequest
+            {
+                Version = "1.0.0",
+                ScopeLevel = "Project",
+                IsPinned = false,
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ArchiveAssignment_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.ArchiveAssignment(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task DeletePack_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.DeletePack(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task DuplicatePack_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.DuplicatePack(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task SetAssignmentEnabled_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.SetAssignmentEnabled(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            new SetPolicyPackAssignmentEnabledRequest { IsEnabled = true },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
     private static PolicyPacksController CreateSut(
         Mock<IPolicyPackWorkflowFacade> workflow,
         bool tenantExists)

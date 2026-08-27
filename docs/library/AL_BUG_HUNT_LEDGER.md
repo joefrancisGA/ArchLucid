@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 42
-- **bugs-found:** 114
+- **hunts:** 43
+- **bugs-found:** 116
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — policy-pack catalog/version reads and realized-value attestation GET ghost-tenant 404 parity
+- **last-bug:** 2026-08-27 — policy-pack mutations and stickiness POST ghost-tenant 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2386,11 +2386,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.ListCatalog` / `GetCatalogEntry` — ghost tenant returned HTTP 200 catalog rows or catalog-not-found instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight on catalog reads; regression in `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `PolicyPacksController.ListVersions` / `GetVersion` / `ExplainPack` — ghost tenant returned pack-not-found instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight on version/explain reads; regression in `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `GovernanceStickinessController.GetRealizedValueAttestation` — ghost tenant returned HTTP 200 attestation payload while register reads already 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight; regression in `GovernanceStickinessControllerTests.GetRealizedValueAttestation_returns_not_found_when_tenant_missing`.
-- [ ] (candidate) `PolicyPacksController.Publish` / `Assign` / `Duplicate` / `ArchiveAssignment` / `DeletePack` / `SetAssignmentEnabled` — ghost tenant mutations lack `RequireTenantOrNotFoundAsync` while `Create` already 404s.
-- [ ] (candidate) `GovernanceStickinessController.UpsertRealizedValueAttestation` / `CreateRiskException` / `RecordDisposition` / `CreateRecurrenceSchedule` — ghost tenant POST paths lack tenant preflight while GET siblings already 404.
-- [ ] (invalid) `PolicyPacksController.GetRuleTemplates` — platform-global static templates; not tenant-scoped.
+- [x] (proven) `PolicyPacksController.Publish` / `Assign` / `Duplicate` / `ArchiveAssignment` / `DeletePack` / `SetAssignmentEnabled` — ghost tenant mutations lack `RequireTenantOrNotFoundAsync` while `Create` already 404s — **hit 2026-08-27:** shared tenant preflight on all pack mutations; regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `GovernanceStickinessController.UpsertRealizedValueAttestation` / `CreateRiskException` / `RecordDisposition` / `CreateRecurrenceSchedule` — ghost tenant POST paths lack tenant preflight while GET siblings already 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on POST mutations; regression in `GovernanceStickinessControllerTests`.
+- [x] (invalid) `PolicyPacksController.GetRuleTemplates` — platform-global static templates; not tenant-scoped — **cheap-disproof 2026-08-27:** `_workflow.ListRuleTemplates()` returns static starter templates with no tenant binding.
 
-2026-08-27 seed hunt #130: proved catalog/version/explain and realized-value attestation GET ghost-tenant 404 parity; seeded pack mutation and stickiness POST ghost-tenant candidates; retired rule-templates as platform-global.
+2026-08-27 thorough hunt #131: proved policy-pack mutation and stickiness POST ghost-tenant 404 parity; cheap-disproved rule-templates as platform-global.
 
 2026-08-27 thorough hunt #122: proved preview compare-environments and stickiness register ghost-tenant 404 parity.
 
