@@ -182,9 +182,9 @@ public static class DecisionEngineArbitraries
     public static Arbitrary<DecisionEngineAnyValidInput> DecisionEngineAnyValidInputs()
     {
         Gen<DecisionEngineAnyValidInput> gen = Gen.Frequency(
-            Tuple.Create(5, TopologyPairGen().Select(t => new DecisionEngineAnyValidInput(t.RunId, t.Request, t.Tasks, t.Results, t.Evaluations))),
-            Tuple.Create(1, TopologyTaskOnlyGen()),
-            Tuple.Create(1, NoTopologyGen()));
+            (5, TopologyPairGen().Select(t => new DecisionEngineAnyValidInput(t.RunId, t.Request, t.Tasks, t.Results, t.Evaluations))),
+            (1, TopologyTaskOnlyGen()),
+            (1, NoTopologyGen()));
 
         return gen.ToArbitrary();
     }

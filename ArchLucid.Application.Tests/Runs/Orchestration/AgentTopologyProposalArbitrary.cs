@@ -30,7 +30,7 @@ public static class AgentTopologyProposalArbitrary
     internal static Gen<AgentResult[]> BatchGen()
     {
         return from count in Gen.Choose(0, MaxResultCount)
-               from results in Gen.ArrayOf(count, ResultGen())
+               from results in Gen.ArrayOf(ResultGen(), count)
                select StampResultIds(results);
     }
 
