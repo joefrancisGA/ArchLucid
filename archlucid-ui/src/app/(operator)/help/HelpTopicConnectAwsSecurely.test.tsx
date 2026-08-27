@@ -30,6 +30,8 @@ import {
   buildConnectAwsSecurelyVerifyHref,
 } from "@/lib/connect-aws-securely-help-content";
 import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpConnectAwsSecurelyGuideView", () => {
@@ -96,9 +98,22 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     expect(screen.getByTestId("connect-aws-securely-help-sources")).toBeInTheDocument();
 
     const sources = within(screen.getByTestId("connect-aws-securely-help-sources"));
+    const visibleSources = filterWhereToGoNextFollowUpLinks(CONNECT_AWS_SECURELY_SOURCES);
+
+    for (const source of visibleSources) {
+      expectFollowUpLink(sources, source);
+    }
 
     for (const source of CONNECT_AWS_SECURELY_SOURCES) {
-      expectFollowUpLink(sources, source);
+      if (visibleSources.includes(source)) {
+        continue;
+      }
+
+      expect(
+        sources.queryByRole("link", {
+          name: formatHelpFollowUpLinkAccessibleName(source.href, source.label),
+        }),
+      ).toBeNull();
     }
   });
 

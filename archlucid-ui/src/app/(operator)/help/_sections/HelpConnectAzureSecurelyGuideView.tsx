@@ -12,7 +12,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE,
@@ -148,20 +147,21 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
 
           <section aria-labelledby="security-model" className="space-y-3">
             <HelpSectionHeading id="security-model">{CONNECT_AZURE_SECURELY_SECURITY_HEADING}</HelpSectionHeading>
-            <Card className={DESIGN_TOKENS.surface.card} data-testid="connect-azure-securely-security-panel">
-              <CardContent className="space-y-3 pt-6">
-                <ul className="m-0 list-none space-y-3 p-0">
-                  {CONNECT_AZURE_SECURELY_SECURITY_ITEMS.map((item) => (
-                    <li key={item.id}>
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                        {item.title}
-                      </p>
-                      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.detail}</p>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            <div
+              className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+              data-testid="connect-azure-securely-security-panel"
+            >
+              <ul className="m-0 list-none space-y-3 p-0">
+                {CONNECT_AZURE_SECURELY_SECURITY_ITEMS.map((item) => (
+                  <li key={item.id}>
+                    <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                      {item.title}
+                    </p>
+                    <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.detail}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </section>
 
           <section

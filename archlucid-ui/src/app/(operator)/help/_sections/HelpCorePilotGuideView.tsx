@@ -13,7 +13,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpCorePilotWorkflowStepper } from "@/app/(operator)/help/_sections/HelpCorePilotWorkflowStepper";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   CORE_PILOT_HELP_DISCLOSURE,
@@ -24,7 +23,6 @@ import {
 } from "@/lib/core-pilot-help-guide-content";
 import { cn } from "@/lib/utils";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -103,21 +101,23 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           <div className="space-y-6" data-testid="core-pilot-first-viewport">
             <HelpCorePilotJobMatrix />
 
-            <Card
+            <section
               id="first-review-path"
+              aria-labelledby="core-pilot-summary-heading"
               className={cn(
                 OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-                "border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950",
+                "space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40",
               )}
               data-testid="core-pilot-summary-card"
             >
-              <CardHeader className={OPERATOR_CARD.header}>
-                <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                  {CORE_PILOT_HELP_SUMMARY_TITLE}
-                </CardTitle>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CORE_PILOT_HELP_SUMMARY_COPY}</p>
-              </CardHeader>
-              <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap gap-2")}>
+              <h2
+                id="core-pilot-summary-heading"
+                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+              >
+                {CORE_PILOT_HELP_SUMMARY_TITLE}
+              </h2>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CORE_PILOT_HELP_SUMMARY_COPY}</p>
+              <div className="flex flex-wrap gap-2">
                 <Button asChild size="sm" data-testid="core-pilot-primary-start-cta">
                   <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
                     {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
@@ -128,8 +128,8 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                     {CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.label}
                   </Link>
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </section>
 
             <HelpCorePilotFirstViewportJobChrome />
           </div>

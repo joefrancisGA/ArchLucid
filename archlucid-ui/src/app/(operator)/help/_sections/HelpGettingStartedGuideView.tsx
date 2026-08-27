@@ -160,21 +160,23 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
-          <Card
+          <section
             id="quick-start"
+            aria-labelledby="getting-started-quick-start-heading"
             className={cn(
               OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-              "border-neutral-200 bg-al-surface-raised dark:border-neutral-800",
+              "space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40",
             )}
             data-testid="getting-started-quick-start-card"
           >
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                {GETTING_STARTED_HELP_QUICK_START_TITLE}
-              </CardTitle>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_QUICK_START_COPY}</p>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap gap-2")}>
+            <h2
+              id="getting-started-quick-start-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {GETTING_STARTED_HELP_QUICK_START_TITLE}
+            </h2>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_QUICK_START_COPY}</p>
+            <div className="flex flex-wrap gap-2">
               <Button asChild size="sm" variant="primary">
                 <Link href={GETTING_STARTED_HELP_PRIMARY_ACTIONS.startReview.href}>
                   {GETTING_STARTED_HELP_PRIMARY_ACTIONS.startReview.label}
@@ -190,8 +192,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
                   {GETTING_STARTED_HELP_PRIMARY_ACTIONS.firstReviewGuide.label}
                 </Link>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </section>
 
           <section aria-labelledby="what-to-do-next" className="space-y-4">
             <HelpSectionHeading id="what-to-do-next">What to do next</HelpSectionHeading>

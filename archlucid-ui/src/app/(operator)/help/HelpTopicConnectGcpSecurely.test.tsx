@@ -38,6 +38,8 @@ import {
 } from "@/lib/gcp-cloud-connection-permissions-manifest";
 import { GCP_PERMISSIONS_TROUBLESHOOT_HEADING } from "@/lib/gcp-cloud-connection-permissions-copy";
 import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpConnectGcpSecurelyGuideView", () => {
@@ -62,9 +64,23 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
     );
 
     const sources = within(screen.getByTestId("connect-gcp-securely-help-sources"));
+    const visibleSources = filterWhereToGoNextFollowUpLinks(CONNECT_GCP_SECURELY_SOURCES);
+
+    for (const link of visibleSources) {
+      expectFollowUpLink(sources, link);
+      expect(link.href).not.toBe(CONNECT_GCP_SECURELY_CANONICAL_PATH);
+    }
 
     for (const link of CONNECT_GCP_SECURELY_SOURCES) {
-      expectFollowUpLink(sources, link);
+      if (visibleSources.includes(link)) {
+        continue;
+      }
+
+      expect(
+        sources.queryByRole("link", {
+          name: formatHelpFollowUpLinkAccessibleName(link.href, link.label),
+        }),
+      ).toBeNull();
       expect(link.href).not.toBe(CONNECT_GCP_SECURELY_CANONICAL_PATH);
     }
   });
@@ -106,9 +122,22 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
 
 
     const sources = within(screen.getByTestId("connect-gcp-securely-help-sources"));
+    const visibleSources = filterWhereToGoNextFollowUpLinks(CONNECT_GCP_SECURELY_SOURCES);
+
+    for (const link of visibleSources) {
+      expectFollowUpLink(sources, link);
+    }
 
     for (const link of CONNECT_GCP_SECURELY_SOURCES) {
-      expectFollowUpLink(sources, link);
+      if (visibleSources.includes(link)) {
+        continue;
+      }
+
+      expect(
+        sources.queryByRole("link", {
+          name: formatHelpFollowUpLinkAccessibleName(link.href, link.label),
+        }),
+      ).toBeNull();
     }
 
     expect(screen.getByTestId("connect-gcp-configure-action")).toHaveAttribute(

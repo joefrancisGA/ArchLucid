@@ -11,7 +11,6 @@ import { HelpConnectGcpSecurelyBreadcrumb } from "@/components/help/HelpConnectG
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   CONNECT_GCP_SECURELY_BACK_TO_CONNECTIONS,
@@ -218,20 +217,21 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
         <div className="min-w-0 space-y-8" data-testid="help-connect-gcp-securely-primary">
           <section aria-labelledby="security-model" className="space-y-3">
             <HelpSectionHeading id="security-model">{CONNECT_GCP_SECURELY_SECURITY_HEADING}</HelpSectionHeading>
-            <Card className={DESIGN_TOKENS.surface.card} data-testid="connect-gcp-securely-security-panel">
-              <CardContent className="space-y-3 pt-6">
-                <ul className="m-0 list-none space-y-3 p-0">
-                  {CONNECT_GCP_SECURELY_SECURITY_ITEMS.map((item) => (
-                    <li key={item.id}>
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                        {item.title}
-                      </p>
-                      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.detail}</p>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            <div
+              className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+              data-testid="connect-gcp-securely-security-panel"
+            >
+              <ul className="m-0 list-none space-y-3 p-0">
+                {CONNECT_GCP_SECURELY_SECURITY_ITEMS.map((item) => (
+                  <li key={item.id}>
+                    <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                      {item.title}
+                    </p>
+                    <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.detail}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </section>
 
           <section
