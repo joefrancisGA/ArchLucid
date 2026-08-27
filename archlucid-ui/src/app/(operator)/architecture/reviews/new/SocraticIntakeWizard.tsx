@@ -225,7 +225,7 @@ export function SocraticIntakeWizard() {
           <span className="font-medium text-neutral-900 dark:text-neutral-100">
             {GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD}
           </span>{" "}
-          This review evaluates a snapshot of{" "}
+          This review evaluates{" "}
           <Link
             href={architectureDraftPath(sourceArchitectureId)}
             className="font-medium underline"
