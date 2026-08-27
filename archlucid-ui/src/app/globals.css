@@ -366,10 +366,19 @@ html.dark a.marketing-public-nav-link {
 }
 
 input,
-select,
-button {
+select {
   padding: 8px;
-  font: inherit;
+  font-family: inherit;
+}
+
+/*
+ * Preserve Button typography utilities (`font-semibold`, `text-[13px]`, …).
+ * The old `font: inherit` shorthand overrode Tailwind classes on native `<button>` elements
+ * because unlayered CSS wins over `@layer utilities` — Refresh, Help, and page-header triggers
+ * rendered at inherited body weight while `Button asChild` links kept token weight.
+ */
+button {
+  font-family: inherit;
 }
 
 /* Keyboard shortcut hints in the help dialog — neutral for light UI; dark-friendly when `prefers-color-scheme: dark` or `.dark`. */
