@@ -50,11 +50,13 @@ Only `cohort-real-llm-gate` gated the merge, and it passed.
 
 | Measurement | Value |
 |---|---|
-| Consecutive `failure` runs of the push corset on `master` | **37** (08:27:48 → 14:16:43) |
+| Consecutive `failure` runs of the push corset on `master` | **37** (08:27:48 → 14:16:43), **40** by 14:34:21 as three queued runs completed during this pass |
 | Last `success` | **08:26:45** (`0a0b0fadf3`) |
 | Tally over last 100 corset runs on `master` | **57 failure · 20 success · 20 cancelled · 3 running** — 74% failure among completed |
 
 v5.1's headline evidence was "first fully green push corset on trunk" (run 33031842736, ~02:00 UTC). **It held for roughly six and a half hours.**
+
+The counter incrementing three times *during a 30-minute assessment pass* is itself the finding: merges continued into a red trunk throughout, because nothing stops them.
 
 ### Root cause: one Dependabot batch, ~20 PRs, ~75 seconds
 
