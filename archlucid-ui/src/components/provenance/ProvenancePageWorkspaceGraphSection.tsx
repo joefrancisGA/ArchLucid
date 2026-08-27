@@ -26,7 +26,7 @@ export type ProvenancePageWorkspaceGraphSectionProps = {
   readonly nodeById: Map<string, ProvenanceGraphNode>;
   readonly incomingEdges: ProvenanceGraphEdge[];
   readonly outgoingEdges: ProvenanceGraphEdge[];
-  readonly onSelectNode: (nodeId: string) => void;
+  readonly onSelectNode: (nodeId: string | null) => void;
   readonly setHighlightedEdgeId: (edgeId: string | null) => void;
   readonly onGraphRenderFailed: () => void;
   readonly retryGraphLayout: () => void;
