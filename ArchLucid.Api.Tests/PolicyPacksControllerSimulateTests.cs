@@ -3,6 +3,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -127,15 +128,59 @@ public sealed class PolicyPacksControllerSimulateTests
         workflow.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task Simulate_accepts_padded_run_id_when_trimmed_length_is_valid()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string paddedRunId = $"{new string(' ', 15)}{runId:D}{new string(' ', 15)}";
+
+        Mock<IPolicyPackWorkflowFacade> workflow = new();
+        workflow
+            .Setup(w => w.SimulateAsync(
+                It.IsAny<PolicyPackContentDocument>(),
+                paddedRunId,
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackGovernanceDryRunResult());
+
+        PolicyPacksController sut = CreateController(workflow);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = paddedRunId,
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        workflow.VerifyAll();
+    }
+
     private static PolicyPacksController CreateController(Mock<IPolicyPackWorkflowFacade>? workflow = null)
     {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") });
+
         PolicyPacksController controller = new(
             workflow?.Object ?? Mock.Of<IPolicyPackWorkflowFacade>(),
             new CreatePolicyPackRequestValidator(),
             new PublishPolicyPackVersionRequestValidator(),
             new AssignPolicyPackRequestValidator(),
-            Mock.Of<IScopeContextProvider>(),
-            Mock.Of<ITenantRepository>());
+            scopeProvider.Object,
+            tenants.Object);
 
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 

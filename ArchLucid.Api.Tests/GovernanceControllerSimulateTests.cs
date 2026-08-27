@@ -129,6 +129,38 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task Simulate_accepts_padded_run_id_when_trimmed_length_is_valid()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string paddedRunId = $"{new string(' ', 15)}{runId:D}{new string(' ', 15)}";
+
+        Mock<IPolicyPackGovernanceDryRunService> dryRun = new();
+        dryRun
+            .Setup(s => s.EvaluateAsync(
+                It.IsAny<string>(),
+                runId.ToString("D"),
+                null,
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackGovernanceDryRunResult());
+
+        GovernanceController sut = CreateController(governanceDryRunService: dryRun.Object);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = paddedRunId,
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        dryRun.VerifyAll();
+    }
+
+    [Fact]
     public async Task DryRunProposedPolicyPack_returns_bad_request_when_block_commit_minimum_severity_out_of_range()
     {
         Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);

@@ -85,7 +85,9 @@ public sealed partial class ManifestsController(
         if (string.IsNullOrWhiteSpace(manifestVersion))
             return this.BadRequestProblem("manifestVersion is required.", ProblemTypes.ValidationFailed);
 
-        if (manifestVersion.Length > 128)
+        string trimmedManifestVersion = manifestVersion.Trim();
+
+        if (trimmedManifestVersion.Length > 128)
             return this.BadRequestProblem("ManifestVersion must not exceed 128 characters.", ProblemTypes.ValidationFailed);
 
         return null;

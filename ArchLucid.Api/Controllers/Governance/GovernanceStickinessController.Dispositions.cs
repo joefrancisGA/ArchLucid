@@ -49,6 +49,13 @@ public sealed partial class GovernanceStickinessController
         if (!GovernanceQueryRequestValidationRules.IsUsableOptionalGuid(request.RunId))
             return this.BadRequestProblem("runId must not be an empty GUID.", ProblemTypes.ValidationFailed);
 
+        if ((int)request.Disposition is < 0 or > 4)
+        {
+            return this.BadRequestProblem(
+                "disposition must be a valid finding disposition.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -125,6 +132,13 @@ public sealed partial class GovernanceStickinessController
         {
             return this.BadRequestProblem(
                 "FindingId must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if ((int)request.Disposition is < 0 or > 4)
+        {
+            return this.BadRequestProblem(
+                "disposition must be a valid finding disposition.",
                 ProblemTypes.ValidationFailed);
         }
 

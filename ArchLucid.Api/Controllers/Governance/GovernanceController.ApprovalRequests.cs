@@ -108,6 +108,11 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? actorProblem = ValidateActorIdentityLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
+
         string requestedBy = actorContext.GetActor();
         string requestedByActorKey = actorContext.GetActorId();
 
@@ -203,6 +208,11 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? actorProblem = ValidateActorIdentityLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
+
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
@@ -295,6 +305,11 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? actorProblem = ValidateActorIdentityLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
+
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
@@ -380,6 +395,11 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? actorProblem = ValidateActorIdentityLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();

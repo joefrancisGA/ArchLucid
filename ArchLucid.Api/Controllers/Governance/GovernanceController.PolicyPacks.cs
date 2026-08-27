@@ -79,7 +79,7 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
         }
 
-        if (request.RunId.Length > 64)
+        if (PolicyPackRequestValidationRules.ExceedsRunIdMaxLength(request.RunId))
         {
             return this.BadRequestProblem(
                 "RunId must not exceed 64 characters.",

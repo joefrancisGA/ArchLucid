@@ -279,6 +279,13 @@ public sealed class TenantCustomerSuccessController(
         if (tenantError is not null)
             return tenantError;
 
+        IActionResult? workspaceError =
+            await EnsureWorkspaceExistsForTenantAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (workspaceError is not null)
+            return workspaceError;
+
         if (request.RunId == Guid.Empty)
         {
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);

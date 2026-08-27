@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 120
-- **bugs-found:** 294
+- **hunts:** 121
+- **bugs-found:** 300
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — disposition tradeOffAcknowledgment drop, recurrence PATCH whitespace name, customer-success health-score/next-actions workspace scope
+- **last-bug:** 2026-08-27 — governance workflow actor max-length, workspace scope parity, simulate/manifest trim-first, disposition enum guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2674,16 +2674,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-27 seed hunt #203: reseeded zone from controller scan; proved disposition tradeOffAcknowledgment forwarding, recurrence PATCH whitespace name, and customer-success health-score/next-actions workspace scope.
 
-- [ ] (candidate) `GovernanceController` workflow mutations (`SubmitApprovalRequest`, `Approve`, `Reject`, `Promote`, `Activate`) — actor display name >200 may reach workflow/audit (`NVARCHAR(200)`) instead of HTTP 400 (baseline/cost-settings parity).
-- [ ] (candidate) `GovernanceStickinessController.RecordDisposition` / `RecordBulkDisposition` — undefined `disposition` ordinal may persist as string `"99"` instead of HTTP 400.
+- [x] (proven) `GovernanceController` workflow mutations — actor display name >200 reached workflow/audit (`NVARCHAR(200)`) instead of HTTP 400 — **hit 2026-08-27:** `ValidateActorIdentityLength` on submit/approve/reject/batch-review/promote/activate; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `RecordBulkDisposition` — undefined `disposition` ordinal reached service instead of HTTP 400 — **hit 2026-08-27:** 0–4 disposition guard before facade; strict-mock regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `PolicyPacksController.Simulate` / `GovernanceController.Simulate` — padded `runId` length checked before trim rejected valid scoped GUID — **hit 2026-08-27:** `PolicyPackRequestValidationRules.ExceedsRunIdMaxLength` trim-first parity; regression in `PolicyPacksControllerSimulateTests` and `GovernanceControllerSimulateTests`.
+- [x] (proven) `ManifestsController` route reads — `manifestVersion` max-length checked before trim rejected valid in-scope version — **hit 2026-08-27:** trim-first max-length in `ValidateManifestVersionRoute`; regression in `ManifestsControllerEvidenceScopeTests`.
+- [x] (proven) `CorePilotTeamChecklistController` — out-of-scope workspace returned HTTP 200/204 instead of HTTP 404 — **hit 2026-08-27:** `ListWorkspacesAsync` membership check; regression in `CorePilotTeamChecklistControllerTests`.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — out-of-scope workspace persisted feedback row instead of HTTP 404 — **hit 2026-08-27:** workspace membership preflight before insert; regression in `TenantCustomerSuccessControllerTests`.
+
+2026-08-27 thorough hunt #204: proved governance workflow actor max-length, disposition enum guards, simulate/manifest trim-first length parity, pilot checklist workspace scope, and product-feedback workspace scope.
+
 - [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` — undefined `action` ordinal may return HTTP 204 without resolving members.
-- [ ] (candidate) `PolicyPacksController.Simulate` / `GovernanceController.Simulate` — padded `runId` length checked before trim (reject valid scoped GUID).
-- [ ] (candidate) `ManifestsController` route reads — `manifestVersion` max-length checked before trim (reject valid in-scope version).
 - [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` — validation failures surfaced as scope-miss HTTP 400 when findings are in scope.
-- [ ] (candidate) `CorePilotTeamChecklistController` — out-of-scope workspace returns HTTP 200/204 instead of HTTP 404.
 - [ ] (candidate) `TenantTrialController` / `TenantHomepageSettingsController` / digest preference controllers — actor identity >200 may audit-fail instead of HTTP 400.
 - [ ] (candidate) `TenantErasureLegalHoldController` — actor claims >200 may platform-audit-fail instead of HTTP 400.
-- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — out-of-scope workspace may persist feedback row instead of HTTP 404.
 
 2026-08-27 thorough hunt #195: proved recurrence cron max-length, risk-exception expiry guards, and submit/promote env-path validation; cheap-disproved draft freeTextIntent max-length candidate.
 

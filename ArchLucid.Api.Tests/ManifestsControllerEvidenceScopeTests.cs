@@ -255,6 +255,44 @@ public sealed class ManifestsControllerEvidenceScopeTests
     }
 
     [Fact]
+    public async Task GetManifest_accepts_padded_manifest_version_when_untrimmed_length_exceeds_max()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string paddedManifestVersion = $"{new string(' ', 125)}{ManifestVersion}";
+        GoldenManifest manifest = new()
+        {
+            RunId = runId.ToString("N"),
+            SystemName = "payments",
+            Metadata = new ManifestMetadata { ManifestVersion = ManifestVersion },
+            Governance = new ManifestGovernance(),
+        };
+
+        Mock<IUnifiedGoldenManifestReader> reader = new();
+        reader
+            .Setup(r => r.GetByVersionAsync(ManifestVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(manifest);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        ManifestsController controller = CreateController(
+            reader.Object,
+            scopeProvider.Object,
+            runs.Object,
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IManifestSummaryGenerator>());
+
+        IActionResult action = await controller.GetManifest(paddedManifestVersion, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
     public async Task GetManifestBundle_accepts_padded_manifest_version_when_manifest_is_in_scope()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

@@ -67,6 +67,7 @@ public sealed partial class GovernanceController(
     : ControllerBase
 {
     private const int MaxApprovalRequestIdLength = 64;
+    private const int MaxActorIdentityLength = 200;
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -116,6 +117,20 @@ public sealed partial class GovernanceController(
     {
         if (!GovernanceQueryRequestValidationRules.IsUsableRequiredGuid(value))
             return this.BadRequestProblem($"{fieldName} must not be an empty GUID.", ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
+    private IActionResult? ValidateActorIdentityLength()
+    {
+        string actor = actorContext.GetActor();
+
+        if (actor.Length > MaxActorIdentityLength)
+        {
+            return this.BadRequestProblem(
+                "Actor identity must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         return null;
     }

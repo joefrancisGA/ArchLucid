@@ -1525,6 +1525,48 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_disposition_is_out_of_range()
+    {
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = (FindingDisposition)99,
+            Rationale = "reviewed",
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_disposition_is_out_of_range()
+    {
+        Mock<IFindingDispositionService> dispositions = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(dispositionService: dispositions);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1"],
+            Disposition = (FindingDisposition)99,
+            Rationale = "bulk",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dispositions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CreateRiskException_returns_bad_request_when_finding_id_exceeds_max_length()
     {
         Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);

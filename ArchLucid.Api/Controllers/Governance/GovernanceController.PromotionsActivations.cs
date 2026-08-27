@@ -135,6 +135,11 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? actorProblem = ValidateActorIdentityLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
+
         string promotedBy = actorContext.GetActor();
 
         try
@@ -223,6 +228,11 @@ public sealed partial class GovernanceController
                 "Environment must be one of: dev, test, prod.",
                 ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? actorProblem = ValidateActorIdentityLength();
+
+        if (actorProblem is not null)
+            return actorProblem;
 
         try
         {
