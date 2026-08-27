@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 100
-- **bugs-found:** 237
+- **hunts:** 101
+- **bugs-found:** 238
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — preview manifest version max-length validation
+- **last-bug:** 2026-08-27 — preview runId max-length validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2581,6 +2581,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreviewController.Preview` — `manifestVersion` longer than 128 characters reached `PreviewActivationAsync` and returned HTTP 404 `ManifestNotFound` instead of HTTP 400 (`CreateGovernancePreviewRequestValidator.MaximumLength` not invoked on this action) — **hit 2026-08-27:** reject oversize manifest version before service call; regression in `GovernancePreviewControllerUnitTests`.
 
 2026-08-27 seed hunt #183: proved governance preview manifest version max-length validation.
+
+- [x] (proven) `GovernancePreviewController.Preview` — `runId` longer than 64 characters reached `PreviewActivationAsync` and returned HTTP 404 `RunNotFound` instead of HTTP 400 (`CreateGovernancePreviewRequestValidator.MaximumLength` not invoked on this action) — **hit 2026-08-27:** reject oversize run id before service call; regression in `GovernancePreviewControllerUnitTests`.
+
+2026-08-27 seed hunt #184: proved governance preview runId max-length validation.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

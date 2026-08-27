@@ -57,6 +57,9 @@ public sealed class GovernancePreviewController(
         if (Guid.TryParse(body.RunId.Trim(), out Guid runGuid) && runGuid == Guid.Empty)
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
+        if (body.RunId.Length > 64)
+            return this.BadRequestProblem("RunId must not exceed 64 characters.", ProblemTypes.ValidationFailed);
+
         if (string.IsNullOrWhiteSpace(body.ManifestVersion))
             return this.BadRequestProblem("ManifestVersion is required.", ProblemTypes.ValidationFailed);
 
