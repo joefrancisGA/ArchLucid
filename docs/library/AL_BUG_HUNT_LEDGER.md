@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 110
-- **bugs-found:** 264
+- **hunts:** 111
+- **bugs-found:** 268
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — compare-environments env guards, product-feedback score, recurrence name, risk-exception evidenceRef
+- **last-bug:** 2026-08-27 — risk-exception ownerUserId, recurrence schedule guards, generate prompt max-length
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2614,6 +2614,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `score` outside `[-1, 1]` reached `InsertProductFeedbackAsync` and risked SQL CHECK violation (HTTP 500) — **hit 2026-08-27:** controller range guard before scoped run lookup; regression in `TenantCustomerSuccessControllerTests`.
 - [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` — `name` longer than `NVARCHAR(300)` reached facade persist — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` / `RenewRiskException` — `evidenceRef` longer than `NVARCHAR(500)` reached facade persist — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceStickinessControllerTests`.
+
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` — `ownerUserId` longer than `NVARCHAR(256)` reached `CreateRiskExceptionAsync` and risked SQL truncation (HTTP 500) — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` — `sourceRunId = Guid.Empty` reached facade `ArgumentException` instead of controller 400 (empty-GUID parity) — **hit 2026-08-27:** controller guard before tenant preflight; strict-mock regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` — omitted/null `isEnabled` reached facade `ArgumentException` instead of controller 400 — **hit 2026-08-27:** controller required-field guard; strict-mock regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceController.GeneratePolicyPack` — `prompt` longer than 8000 characters reached `GenerateAsync` instead of HTTP 400 (`GeneratePolicyPackRequest.MaxLength` not invoked) — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceControllerSimulateTests`.
+
+2026-08-27 seed hunt #194: reseeded zone candidates; proved risk-exception ownerUserId max-length, recurrence schedule empty sourceRunId/isEnabled guards, and generate-policy-pack prompt max-length.
+
+- [ ] (candidate) `GovernanceStickinessController.CreateRiskException` / `RenewRiskException` — `expiresAtUtc` past or >365 days validated only in `RiskExceptionValidation` service layer (controller parity gap; HTTP 400 today).
+- [ ] (candidate) `GovernanceController.SubmitApprovalRequest` / `Promote` — same `sourceEnvironment`/`targetEnvironment` or invalid promotion step rejected only by FluentValidation/workflow (controller parity gap; HTTP 400 today).
+- [ ] (candidate) `GovernanceController.DraftPolicyPackRule` — no upper bound on `freeTextIntent` at controller (LLM/token risk; no clear DB/500 path).
 
 2026-08-27 thorough hunt #193: proved CompareEnvironments controller env guards, product-feedback score range, recurrence schedule name max-length, and risk-exception evidenceRef max-length.
 
