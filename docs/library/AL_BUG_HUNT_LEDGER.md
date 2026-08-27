@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 124
-- **bugs-found:** 313
+- **hunts:** 125
+- **bugs-found:** 314
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — workspace membership preflight on homepage/LLM-cost/digest-health; stickiness actor-id max-length guard
+- **last-bug:** 2026-08-27 — governance posture workspace membership preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2696,6 +2696,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantLlmCostReportingController.GetDashboard` — missing workspace membership preflight; foreign workspace returned HTTP 200 with fallback workspace name — **hit 2026-08-27:** workspace preflight before `BuildDashboardAsync`; regression in `TenantLlmCostReportingControllerTests`.
 - [x] (proven) `TenantWeeklyDigestHealthController.GetAsync` — missing workspace membership preflight; foreign workspace returned HTTP 200 zeroed snapshot — **hit 2026-08-27:** workspace preflight before `GetSnapshotAsync`; regression in `TenantWeeklyDigestHealthControllerTests`.
 - [x] (proven) `GovernanceStickinessController` disposition/risk-exception mutations — `IActorContext.GetActorId()` >256 not guarded at controller while workflow display-name guard exists at 200 chars — **hit 2026-08-27:** `ValidateActorIdLength` on mutations (`MaxActorIdLength = 256`); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernancePostureController.GetPosture` — missing workspace membership preflight; foreign workspace within tenant returned HTTP 200 (empty or queried posture) instead of HTTP 404 — **hit 2026-08-27:** `EnsureWorkspaceExistsForTenantAsync` via `ListWorkspacesAsync` (tenancy read parity); regression in `GovernancePostureControllerTests`.
+- [ ] (candidate) `GovernanceCoverageController.GetScopeCoverage` / `PreviewCoverage` — missing workspace membership preflight; foreign workspace returns HTTP 200 coverage payload instead of HTTP 404.
+- [ ] (candidate) `GovernanceSetupController.GetSetupGuideBundle` — missing workspace membership preflight; foreign workspace returns HTTP 200 empty/effective bundle instead of HTTP 404.
+- [ ] (candidate) `GovernanceResolutionController.Resolve` — missing workspace membership preflight; foreign workspace runs resolver and returns HTTP 200 instead of HTTP 404.
+- [ ] (candidate) `GovernancePreCommitSimulationController` checklist/simulate reads — missing workspace membership preflight; foreign workspace returns HTTP 200 instead of HTTP 404.
+
+2026-08-27 seed hunt #208: proved governance posture workspace preflight; seeded coverage/setup/resolution/pre-commit simulation workspace-preflight candidates.
 
 2026-08-27 thorough hunt #207: proved workspace membership preflight on homepage settings, LLM cost reporting, and weekly digest health; proved stickiness mutation actor-id max-length guard.
 
