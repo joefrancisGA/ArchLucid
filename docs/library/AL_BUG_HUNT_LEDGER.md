@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 77
-- **bugs-found:** 207
+- **hunts:** 78
+- **bugs-found:** 208
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `GovernancePreviewController` ghost workspace returned HTTP 200 preview/comparison instead of workspace 404
+- **last-bug:** 2026-08-27 — `GovernanceStickinessController` register reads returned HTTP 200 empty registers for ghost workspace instead of workspace 404
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2461,10 +2461,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `TenantHomepageSettingsController` (`GetAsync`, `ListEligibleSamplesAsync`, `PutAsync`) — ghost workspace in JWT → HTTP 200 unconfigured/empty/eligible list instead of workspace 404; `GetByIdAsync` tenant preflight only (`TenantHomepageSettingsController.cs` L47–108) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight (posture/customer-success parity); regression in `GetAsync_returns_not_found_when_workspace_missing`, `ListEligibleSamplesAsync_returns_not_found_when_workspace_missing`, and `PutAsync_returns_not_found_when_workspace_missing`.
 - [x] (proven) `GovernancePreviewController.Preview` / `CompareEnvironments` — ghost workspace → HTTP 200 preview/comparison payload instead of workspace 404; `RequireTenantOrNotFoundAsync` checks tenant row only (`GovernancePreviewController.cs` L54–57, L103–106) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight (homepage/posture parity); regression in `Preview_returns_not_found_when_workspace_missing` and `CompareEnvironments_returns_not_found_when_workspace_missing`.
-- [ ] (hunt-ready) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetDecisionsNeededSummary`, `GetFindingsRegistersBundle`, `GetDecisionRegister`, `ListRiskExceptions`, `ListRecurrenceSchedules`, etc.) — ghost workspace → HTTP 200 empty registers; tenant ghost fixed 2026-08-27 but `RequireTenantOrNotFoundAsync` still omits `ListWorkspacesAsync` workspace check (`GovernanceStickinessController.Registers.cs`, `GovernanceStickinessController.ExceptionsAndSchedules.cs`).
+- [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetDecisionsNeededSummary`, `GetFindingsRegistersBundle`, `GetDecisionRegister`, `ListRiskExceptions`, `ListRecurrenceSchedules`, etc.) — ghost workspace → HTTP 200 empty registers; tenant ghost fixed 2026-08-27 but `RequireTenantOrNotFoundAsync` still omits `ListWorkspacesAsync` workspace check (`GovernanceStickinessController.Registers.cs`, `GovernanceStickinessController.ExceptionsAndSchedules.cs`) — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` delegates to shared `TenantWorkspaceScopePreflight` (preview/homepage parity); regression in `GetRiskRegister_returns_not_found_when_workspace_missing`, `GetDecisionRegister_returns_not_found_when_workspace_missing`, and `ListRecurrenceSchedules_returns_not_found_when_workspace_missing`.
 - [ ] (hunt-ready) `PolicyPacksController` scope-bound reads (`List`, `GetPageBundle`, `GetEffective`, `GetEffectiveContent`, `ListWorkspaceSelection`, catalog reads) — ghost workspace → HTTP 200 empty catalog/hub instead of workspace 404; `RequireTenantOrNotFoundAsync` tenant-only (`PolicyPacksController.cs` L63–71).
 - [ ] (hunt-ready) `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` — ghost workspace → HTTP 200 empty dashboard/trend instead of workspace 404; inline `GetByIdAsync` tenant preflight only (`GovernanceController.Insights.cs` L60–64).
 - [ ] (hunt-ready) `TenantWorkspaceBaselineArtifactsController.GetAsync` — ghost workspace → HTTP 200 `{ hasBaselineArtifacts: false }` instead of workspace 404; tenant preflight only before `GetWorkspaceBaselineArtifactsAsync` (`TenantWorkspaceBaselineArtifactsController.cs` L42–46).
+
+2026-08-27 thorough hunt #158: proved governance-stickiness register-read foreign-workspace preflight gap via shared `RequireTenantOrNotFoundAsync` upgrade.
 
 2026-08-27 thorough hunt #157: proved governance-preview foreign-workspace preflight gap (homepage/posture parity).
 
