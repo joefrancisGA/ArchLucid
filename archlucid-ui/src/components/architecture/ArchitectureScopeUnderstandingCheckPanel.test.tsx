@@ -255,6 +255,21 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     expect(onGateChange).toHaveBeenCalledWith(true);
   });
 
+  it("omits the ready hint when showReadyHint is false", () => {
+    render(
+      <ArchitectureScopeUnderstandingCheckPanel
+        input={{ architectureName: "Vertex" }}
+        showReadyHint={false}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL }));
+
+    expect(screen.getByTestId("architecture-scope-understanding-ready")).toBeInTheDocument();
+    expect(screen.getByText(scopeConfirmedSummaryMessage(1))).toBeInTheDocument();
+    expect(screen.queryByText(SCOPE_UNDERSTANDING_READY_HINT)).not.toBeInTheDocument();
+  });
+
   it("shows a saving status while draft persistence is in flight after confirm", () => {
     render(
       <ArchitectureScopeUnderstandingCheckPanel

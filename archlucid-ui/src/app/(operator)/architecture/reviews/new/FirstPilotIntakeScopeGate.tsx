@@ -17,6 +17,7 @@ export function FirstPilotIntakeScopeGate(props: FirstPilotIntakeScopeGateProps)
       input={wizard.scopeUnderstandingInput}
       contextSourceLabel={`${GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL} above`}
       disabled={wizard.creationProgress.isActive || wizard.blocksLlmExecution}
+      showReadyHint={false}
       onBulletsChange={wizard.setScopeBullets}
       onGateChange={wizard.setScopeGateOpen}
     />
