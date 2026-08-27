@@ -2231,7 +2231,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 102
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — governance-resolution ghost tenant 404
+- **last-bug:** 2026-08-27 — governance coverage ghost tenant 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2358,10 +2358,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.GetComplianceDriftTrend` — ghost tenant returned HTTP 200 empty trend instead of 404 — **hit 2026-08-26:** tenant preflight via `ITenantRepository.GetByIdAsync` (dashboard parity); regression in `GovernanceControllerDashboardTests.GetComplianceDriftTrend_returns_not_found_when_tenant_missing`.
 
 - [x] (proven) `GovernanceResolutionController.Resolve` — ghost tenant returned HTTP 200 default resolution instead of 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` before resolver/audit (dashboard parity); regression in `GovernanceResolutionControllerTests.Resolve_returns_not_found_when_tenant_missing`.
-- [ ] (candidate) `GovernanceCoverageController.GetScopeCoverage` — ghost tenant returns HTTP 200 empty coverage instead of 404.
+- [x] (proven) `GovernanceCoverageController.GetScopeCoverage` — ghost tenant returned HTTP 200 empty coverage instead of 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (dashboard/posture parity); regression in `GovernanceCoverageControllerScopeTests.GetScopeCoverage_returns_not_found_when_tenant_missing`.
 - [ ] (candidate) `PolicyPacksController.List` — ghost tenant returns HTTP 200 empty catalog instead of 404.
 
 2026-08-27 thorough hunt #120: proved governance-resolution ghost tenant 404; coverage/list ghost-tenant candidates remain.
+
+2026-08-26 thorough hunt #119: proved governance coverage ghost tenant 404; resolution/list ghost-tenant candidates remain.
 
 2026-08-26 thorough hunt #112: proved compliance-drift-trend ghost tenant 404; cheap-disproved four stale seed candidates (dashboard tenant 404, dry-run batch semantics, simulate-bulk batch semantics, convert-trial tier validation); seeded posture/resolution/coverage/policy-packs list ghost-tenant parity candidates.
 
