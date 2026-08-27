@@ -13,6 +13,8 @@ public static class SqlConnectionStringMasterCatalog
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
+        // codeql[cs/insecure-sql-connection]: no connection is opened here; the returned string always
+        // passes through EnsureSqlClientEncryptMandatory below, which forces Encrypt=True.
         SqlConnectionStringBuilder builder = new(connectionString)
         {
             InitialCatalog = MasterCatalogName

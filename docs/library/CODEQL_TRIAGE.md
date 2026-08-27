@@ -90,11 +90,19 @@ If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the exten
 
 ### Active suppressions (2026-08-26 WK-03 / WK-03b)
 
-| Rule | File | Why | Date |
+A suppression only binds when the comment sits on the alert's **own** line or the line immediately
+above it. The first WK-03 pass annotated the enclosing method instead of the reported line, so
+`assert_codeql_sarif_clean.py` still reported 4 unresolved findings on run
+[33024730786](https://github.com/joefrancisGA/ArchLucid/actions/runs/33024730786). Always take the
+line number from the SARIF gate output rather than choosing the line that reads best.
+
+| Rule | Anchor line | Why | Date |
 | ---- | ---- | --- | ---- |
-| `cs/insecure-sql-connection` | `SqlConnectionStringMasterCatalog.ReadInitialCatalog` | Parses `InitialCatalog` only; no connection opened; returned strings from sibling helpers apply `SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory`. | 2026-08-26 |
-| `cs/user-controlled-bypass` | `RunProvenanceQueryService.GetRunEvidenceAsync` | `AuthorityRunExistsInScopeAsync` authorizes `runId`; tenant DB connection scopes evidence reads. | 2026-08-26 |
-| `cs/user-controlled-bypass` | `ClosedLoopArchitectureReasoningOrchestrator.LiveReview` | `PublishToProduct` gated by `publishDecision.PublishBlocked` and live re-review substantiation. | 2026-08-26 |
+| `cs/insecure-sql-connection` | `SqlConnectionStringCommandTimeout.Apply` — `SqlConnectionStringBuilder` construction | No connection is opened; the returned string always passes through `SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory`, which forces `Encrypt=True`. | 2026-08-26 |
+| `cs/insecure-sql-connection` | `SqlConnectionStringMasterCatalog.RedirectToMaster` — `SqlConnectionStringBuilder` construction | Same as above. | 2026-08-26 |
+| `cs/insecure-sql-connection` | `SqlConnectionStringMasterCatalog.ReadInitialCatalog` | Parses `InitialCatalog` only; no connection opened. | 2026-08-26 |
+| `cs/user-controlled-bypass` | `RunProvenanceQueryService.GetRunTracesAsync` — `if (pageNumber < 1)` | Pagination input validation, not an authorization decision; tenant scoping and run authorization are separate. | 2026-08-26 |
+| `cs/user-controlled-bypass` | `ClosedLoopArchitectureReasoningOrchestrator.LiveReview` — `&& effectiveRequest.PublishToProduct` | `PublishToProduct` is a publish **request** flag; the authorization decision is `publishDecision.PublishBlocked`, evaluated first. | 2026-08-26 |
 | `js/clear-text-storage-of-sensitive-data` | `resolve-continue-last-api-key-credential.ts` | `localStorage` stores credential **slot** enum (`Admin` / `ReadOnly`), not API key secrets. | 2026-08-26 |
 
 ---

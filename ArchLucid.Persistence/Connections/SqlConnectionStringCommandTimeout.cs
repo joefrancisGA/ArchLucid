@@ -14,6 +14,8 @@ public static class SqlConnectionStringCommandTimeout
         if (timeoutSeconds < 0)
             throw new ArgumentOutOfRangeException(nameof(timeoutSeconds), timeoutSeconds, "Timeout seconds must be zero or positive.");
 
+        // codeql[cs/insecure-sql-connection]: no connection is opened here; the returned string always
+        // passes through EnsureSqlClientEncryptMandatory below, which forces Encrypt=True.
         SqlConnectionStringBuilder builder = new(connectionString)
         {
             CommandTimeout = timeoutSeconds

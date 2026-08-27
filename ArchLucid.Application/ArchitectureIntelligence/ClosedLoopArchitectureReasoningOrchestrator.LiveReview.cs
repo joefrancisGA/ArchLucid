@@ -274,11 +274,13 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         }
 
         if (!publishDecision.PublishBlocked
+            // codeql[cs/user-controlled-bypass]: PublishToProduct is an explicit product-publish request flag,
+            // not a security control. The authorization decision is publishDecision.PublishBlocked, which is
+            // evaluated first, and the merge additionally requires live re-review substantiation.
             && effectiveRequest.PublishToProduct
             && reReviewSubstantiation is not null
             && reReview is not null)
         {
-            // codeql[cs/user-controlled-bypass]: PublishToProduct is an explicit product-publish flag gated by publishDecision.PublishBlocked and live re-review substantiation.
             await _postStageHooks.TryMergeAuthorityFindingsAsync(
                 runId,
                 reReviewSubstantiation,
