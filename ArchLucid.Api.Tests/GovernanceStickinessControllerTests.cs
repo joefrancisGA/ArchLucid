@@ -213,6 +213,66 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetRiskRegister_returns_bad_request_when_max_rows_is_zero()
+    {
+        Mock<IArchitectureRiskRegisterService> riskRegister = new(MockBehavior.Strict);
+        GovernanceStickinessController sut = BuildSut(riskRegister: riskRegister);
+
+        IActionResult action = await sut.GetRiskRegister(
+            projectId: null,
+            maxRows: 0,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskRegister.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetRiskRegister_returns_bad_request_when_max_rows_exceeds_five_hundred()
+    {
+        Mock<IArchitectureRiskRegisterService> riskRegister = new(MockBehavior.Strict);
+        GovernanceStickinessController sut = BuildSut(riskRegister: riskRegister);
+
+        IActionResult action = await sut.GetRiskRegister(
+            projectId: null,
+            maxRows: 501,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskRegister.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetDecisionRegister_returns_bad_request_when_max_rows_is_zero()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetDecisionRegister(
+            projectId: null,
+            maxRows: 0,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetFindingsRegistersBundle_returns_bad_request_when_max_rows_exceeds_five_hundred()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetFindingsRegistersBundle(
+            projectId: null,
+            maxRows: 501,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task GetDecisionsNeededSummary_returns_not_found_when_tenant_missing()
     {
         GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
