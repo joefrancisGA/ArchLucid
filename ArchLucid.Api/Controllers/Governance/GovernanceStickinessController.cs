@@ -47,6 +47,33 @@ public sealed partial class GovernanceStickinessController(
         return null;
     }
 
+    private IActionResult? ValidateDecisionRegisterFilters(
+        DateTimeOffset? recordedAfterUtc,
+        DateTimeOffset? recordedBeforeUtc,
+        double? minConfidence,
+        double? maxConfidence)
+    {
+        if (recordedAfterUtc is not null
+            && recordedBeforeUtc is not null
+            && recordedAfterUtc.Value > recordedBeforeUtc.Value)
+        {
+            return this.BadRequestProblem(
+                "recordedAfterUtc must be on or before recordedBeforeUtc.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (minConfidence is not null
+            && maxConfidence is not null
+            && minConfidence.Value > maxConfidence.Value)
+        {
+            return this.BadRequestProblem(
+                "minConfidence must be less than or equal to maxConfidence.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
     private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

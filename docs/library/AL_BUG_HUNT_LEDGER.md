@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 74
-- **bugs-found:** 204
+- **hunts:** 75
+- **bugs-found:** 205
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `TenantCustomerSuccessController` foreign `workspaceId` returned HTTP 200 instead of workspace 404
+- **last-bug:** 2026-08-27 — `GovernanceStickinessController.GetDecisionRegister` inverted date/confidence filters returned HTTP 200 instead of HTTP 400
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
