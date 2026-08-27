@@ -12,6 +12,6 @@ export function tabsPillTriggerClass(selected: boolean, disabled: boolean = fals
     DESIGN_TOKENS.interactive.chip,
     DESIGN_TOKENS.accent.focusRing,
     buyerFilterChipClass(selected, disabled),
-    "mb-0 -mb-px border-b-0 font-medium leading-none",
+    "mb-0 -mb-px border-b-0",
   );
 }

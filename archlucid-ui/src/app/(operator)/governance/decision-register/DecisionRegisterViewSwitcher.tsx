@@ -41,8 +41,7 @@ export function DecisionRegisterViewSwitcher(props: DecisionRegisterViewSwitcher
             data-testid={`decision-register-view-${tab.id}`}
             className={cn(
               "rounded px-3 py-1.5 transition-colors",
-              OPERATOR_TYPOGRAPHY.body,
-              "font-medium",
+              OPERATOR_TYPOGRAPHY.button,
               active
                 ? "bg-white text-al-text-primary shadow-sm dark:bg-neutral-950"
                 : "bg-transparent text-al-text-secondary hover:text-al-text-primary",

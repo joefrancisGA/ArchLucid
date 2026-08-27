@@ -42,7 +42,7 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
           type="button"
           className={cn(
             "rounded-md bg-primary px-3 py-1.5 text-primary-foreground hover:opacity-90",
-            OPERATOR_TYPOGRAPHY.tab,
+            OPERATOR_TYPOGRAPHY.button,
             (!props.canMutatePacks || !selected || props.loading) && "pointer-events-none opacity-50",
           )}
           onClick={() => {
@@ -99,14 +99,13 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
                 }
                 className={cn(
                   "flex w-full flex-col items-start gap-1 px-3 py-2 text-left hover:bg-accent",
-                  OPERATOR_TYPOGRAPHY.body,
                   active && "bg-accent",
                 )}
                 onClick={() => {
                   props.onSelectedCatalogEntryIdChange(id);
                 }}
               >
-                <span className="font-medium">{row.displayName}</span>
+                <span className={OPERATOR_TYPOGRAPHY.button}>{row.displayName}</span>
                 <span className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}>
                   {row.packType} · v{row.snapshotVersion}
                 </span>

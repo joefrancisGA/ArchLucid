@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   AL_CSS_VAR_NAMES,
+  DESIGN_TOKENS,
   enterpriseStatusTagClass,
   FINDINGS_ROW_METADATA_TAG_SIZE,
   METADATA_STATUS_TAG_SHELL,
@@ -104,6 +105,16 @@ describe("design-tokens TB-119 typography", () => {
   it("badge typography uses 11px medium scale for status chips", () => {
     expect(OPERATOR_TYPOGRAPHY.badge).toContain("text-[11px]");
     expect(OPERATOR_TYPOGRAPHY.badge).toContain("font-medium");
+  });
+
+  it("interactive filter chips use button label scale (TB-2290)", () => {
+    expect(DESIGN_TOKENS.interactive.chip).toContain("text-[13px]");
+    expect(DESIGN_TOKENS.interactive.chip).toContain("font-semibold");
+    expect(DESIGN_TOKENS.interactive.chip).not.toContain("text-[11px]");
+  });
+
+  it("native control label alias matches button scale", () => {
+    expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toBe(OPERATOR_TYPOGRAPHY.button);
   });
 });
 

@@ -285,7 +285,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         <div className="space-y-2">
           {reviewFieldLabel}
           <Select disabled={disabled} value={selectValue} onValueChange={onChange}>
-            <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
+            <SelectTrigger id={selectControlId} className="font-mono">
               <SelectValue placeholder="Choose demo review" />
             </SelectTrigger>
             <SelectContent>
@@ -308,7 +308,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       <div className="space-y-2">
         {reviewFieldLabel}
         <Select disabled value={trimmedValue.length > 0 ? trimmedValue : undefined}>
-          <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
+          <SelectTrigger id={selectControlId} className="font-mono">
             <SelectValue placeholder={reviewsUnavailablePlaceholder} />
           </SelectTrigger>
           {showOrphanDeepLink ? (
@@ -331,7 +331,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       <div className="space-y-2">
         {reviewFieldLabel}
         <Select disabled value={hasDeepLinkValue ? trimmedValue : undefined}>
-          <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
+          <SelectTrigger id={selectControlId} className="font-mono">
             <SelectValue placeholder="Loading reviews…" />
           </SelectTrigger>
           {hasDeepLinkValue ? (
@@ -360,7 +360,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         <div className="space-y-2">
           {reviewFieldLabel}
           <Select disabled={disabled} value={selectValue} onValueChange={onChange}>
-            <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
+            <SelectTrigger id={selectControlId} className="font-mono">
               <SelectValue placeholder="Choose demo review" />
             </SelectTrigger>
             <SelectContent>
@@ -383,7 +383,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       <div className="space-y-2">
         {reviewFieldLabel}
         <Select disabled value={trimmedValue.length > 0 ? trimmedValue : undefined}>
-          <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
+          <SelectTrigger id={selectControlId} className="font-mono">
             <SelectValue placeholder={emptyListPlaceholderText} />
           </SelectTrigger>
           {showOrphanDeepLink ? (
@@ -433,7 +433,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     <div className="space-y-2">
       {reviewFieldLabel}
       <Select disabled={disabled} value={selectValue} onValueChange={handleValueChange}>
-        <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
+        <SelectTrigger id={selectControlId} className="font-mono">
           <SelectValue placeholder="All reviews in workspace" />
         </SelectTrigger>
         <SelectContent>

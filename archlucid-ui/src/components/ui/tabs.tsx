@@ -17,6 +17,7 @@ import {
 
 import { isTabsKeyboardMove, resolveNextTabIndex, type TabsOrientation } from "@/components/ui/tabs-keyboard";
 import { TABS_PILL_LIST_CLASS, tabsPillTriggerClass } from "@/components/ui/tabs-pill-styles";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type TabsVariant = "line" | "pill";
 
@@ -303,12 +304,12 @@ export function TabsTrigger(props: TabsTriggerProps): ReactElement {
         variant === "pill"
           ? tabsPillTriggerClass(selected, props.disabled ?? false)
           : [
-              "px-4 py-2 text-[13px] font-normal leading-5",
-              "font-medium leading-none",
+              "px-4 py-2",
+              OPERATOR_TYPOGRAPHY.button,
               "-mb-px border-b-2",
               selected
-                ? "border-neutral-600 font-semibold text-al-text-primary dark:border-neutral-400 dark:text-neutral-100"
-                : "border-transparent font-medium text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100",
+                ? "border-neutral-600 text-al-text-primary dark:border-neutral-400 dark:text-neutral-100"
+                : "border-transparent text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100",
               "focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
             ],
         props.disabled && "cursor-not-allowed opacity-50",

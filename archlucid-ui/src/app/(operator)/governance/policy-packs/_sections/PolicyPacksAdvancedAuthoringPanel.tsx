@@ -44,7 +44,7 @@ export function PolicyPacksAdvancedAuthoringPanel(props: PolicyPacksAdvancedAuth
               type="button"
               className={cn(
                 "rounded-md px-3 py-1.5",
-                OPERATOR_TYPOGRAPHY.tab,
+                OPERATOR_TYPOGRAPHY.button,
                 authoringTab === "author"
                   ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:bg-accent/60",
@@ -61,7 +61,7 @@ export function PolicyPacksAdvancedAuthoringPanel(props: PolicyPacksAdvancedAuth
               type="button"
               className={cn(
                 "rounded-md px-3 py-1.5",
-                OPERATOR_TYPOGRAPHY.tab,
+                OPERATOR_TYPOGRAPHY.button,
                 authoringTab === "generator"
                   ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:bg-accent/60",

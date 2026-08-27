@@ -20,7 +20,7 @@ export function CtoDemoReviewModeCallout(props: CtoDemoReviewModeCalloutProps): 
       <div className="flex flex-wrap gap-2" role="group" aria-label="Review execution mode">
         <button
           type="button"
-          className={cn("rounded-full border px-3 py-1 font-medium", OPERATOR_TYPOGRAPHY.helper,
+          className={cn("rounded-full border px-3 py-1", OPERATOR_TYPOGRAPHY.button,
             !isLive
               ? OPERATOR_SELECTION.tile
               : "border-neutral-200 bg-white text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
@@ -34,7 +34,7 @@ export function CtoDemoReviewModeCallout(props: CtoDemoReviewModeCalloutProps): 
         </button>
         <button
           type="button"
-          className={cn("rounded-full border px-3 py-1 font-medium", OPERATOR_TYPOGRAPHY.helper,
+          className={cn("rounded-full border px-3 py-1", OPERATOR_TYPOGRAPHY.button,
             isLive
               ? OPERATOR_SELECTION.tile
               : "border-neutral-200 bg-white text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",

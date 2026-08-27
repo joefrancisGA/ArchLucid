@@ -42,7 +42,7 @@ export function CtoDemoStorySelector(props: CtoDemoStorySelectorProps): React.JS
               <button
                 type="button"
                 data-testid={`cto-demo-story-option-${story.id}`}
-                className={cn("rounded-full border px-2 py-0.5 font-medium transition", OPERATOR_TYPOGRAPHY.helper,
+                className={cn("rounded-full border px-2 py-0.5 transition", OPERATOR_TYPOGRAPHY.button,
                   selected
                     ? OPERATOR_SELECTION.tile
                     : fullyBacked

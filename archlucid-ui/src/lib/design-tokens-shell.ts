@@ -213,6 +213,10 @@ export const OPERATOR_TYPE_SCALE = {
   navHelper: "text-[11px] font-normal leading-[15px] text-al-text-secondary",
   /** Button label — 13/18, semibold. */
   button: "text-[13px] font-semibold leading-[18px]",
+  /**
+   * Native `<button>` segmented options and compact triggers — same scale as {@link OPERATOR_TYPOGRAPHY.button} (TB-2290).
+   */
+  nativeControlLabel: "text-[13px] font-semibold leading-[18px]",
   /** Tab / table header label — 12/16, semibold. */
   tab: "text-xs font-semibold leading-4 text-al-text-primary",
   /** Dense metadata / chips — 11/15, normal. */
@@ -342,6 +346,7 @@ export const OPERATOR_TYPOGRAPHY = {
   navLabel: OPERATOR_TYPE_SCALE.navLabel,
   navHelper: OPERATOR_TYPE_SCALE.navHelper,
   button: OPERATOR_TYPE_SCALE.button,
+  nativeControlLabel: OPERATOR_TYPE_SCALE.nativeControlLabel,
   tab: OPERATOR_TYPE_SCALE.tab,
   micro: OPERATOR_TYPE_SCALE.micro,
   /** Status chips (11px). Do not use arbitrary `text-[10px]` on operator surfaces. */
@@ -416,7 +421,7 @@ export const DESIGN_TOKENS = {
     rowHover:
       "transition-colors hover:border-neutral-300 hover:bg-[var(--al-layer-hover)] dark:hover:border-neutral-700 dark:hover:bg-neutral-800/80",
     chip:
-      `inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-1 ${OPERATOR_TYPOGRAPHY.badge} text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600`,
+      `inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-1 ${OPERATOR_TYPOGRAPHY.button} text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600`,
     asidePanel: "rounded-lg border border-neutral-200 bg-al-surface-raised p-4 shadow-sm dark:border-neutral-800",
     navActive:
       "border-l-2 border-l-[var(--al-accent-interactive)] bg-[var(--al-layer-hover)] font-semibold text-al-text-primary dark:bg-neutral-800/80",
