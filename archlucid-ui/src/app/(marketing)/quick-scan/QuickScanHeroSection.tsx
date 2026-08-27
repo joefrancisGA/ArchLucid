@@ -15,6 +15,7 @@ import { SeeItDeliverablePreview } from "@/app/(marketing)/see-it/SeeItDeliverab
 import type { QuickScanClientState } from "@/app/(marketing)/quick-scan/use-quick-scan-client";
 import { Button } from "@/components/ui/button";
 import { DESIGN_TOKENS, MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import { shouldOfferQuickScanSample } from "@/lib/quick-scan/quick-scan-capacity-state";
 import { QUICK_SCAN_RECEIVE_ITEMS } from "@/lib/quick-scan/quick-scan-constants";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
@@ -170,7 +171,7 @@ export function QuickScanHeroSection(props: QuickScanHeroSectionProps): ReactEle
                     View a sample result
                   </button>
                   <Link
-                    href="/auth/signin"
+                    href={buildAuthSignInHref({ returnPath: "/quick-scan" })}
                     className="font-medium underline"
                     onClick={() => {
                       client.onConversionClick("sign-in");

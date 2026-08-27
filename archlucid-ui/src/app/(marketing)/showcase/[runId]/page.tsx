@@ -331,6 +331,9 @@ async function fetchShowcasePayload(
     if (payload == null || typeof payload !== "object" || payload.run == null || payload.manifest == null)
       return { kind: "invalid" };
 
+    if (typeof payload.manifest.manifestId !== "string" || payload.manifest.manifestId.trim().length === 0)
+      return { kind: "invalid" };
+
     if (!Array.isArray(payload.artifacts) || !Array.isArray(payload.pipelineTimeline))
       return { kind: "invalid" };
 
@@ -353,8 +356,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
       <ShowcasePayloadView
         runId={runId}
         payload={payload}
-        banner={base ? null : "static"}
-        renderMode={base ? "api" : "static"}
+        banner="static"
+        renderMode="static"
       />
     );
   }
@@ -394,6 +397,19 @@ export default async function MarketingShowcasePage(props: PageProps) {
       );
 
     case "bad_json": {
+      if (hasCuratedShowcaseStaticPayload(decodedRunId)) {
+        const fallbackPayload = getShowcaseStaticDemoPayload(decodedRunId);
+
+        return (
+          <ShowcasePayloadView
+            runId={runId}
+            payload={fallbackPayload}
+            banner="api-fallback"
+            renderMode="api_fallback"
+          />
+        );
+      }
+
       return (
         <ShowcaseFailedShell runId={runId}>
           <ShowcaseLoadFailed />
