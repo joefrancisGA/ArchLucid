@@ -208,6 +208,9 @@ public sealed class ReviewResultCache : IReviewResultCache
 
         lock (_evictionLock)
         {
+            EvictExpiredEntries();
+            PruneOrphanPinRefcounts();
+
             if (!_pinnedStorageKeyRefcounts.ContainsKey(storageKey)
                 && _pinnedStorageKeyRefcounts.Count >= MaxDistinctPinnedStorageKeys)
                 return false;
@@ -350,14 +353,6 @@ public sealed class ReviewResultCache : IReviewResultCache
     private bool IsStorageKeyPinnedUnlocked(string storageKey)
     {
         return _pinnedStorageKeyRefcounts.TryGetValue(storageKey, out int count) && count > 0;
-    }
-
-    private bool IsStorageKeyPinned(string storageKey)
-    {
-        lock (_evictionLock)
-        {
-            return IsStorageKeyPinnedUnlocked(storageKey);
-        }
     }
 
     private void EvictExpiredEntries()
