@@ -2241,7 +2241,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 168
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
@@ -2397,6 +2397,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Promote` / `Activate` — ghost tenant reached promotion/activation workflow without tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight before scoped-run check (approval-mutation parity); regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (proven) `GovernanceController` policy-pack simulate/dry-run/draft/generate — ghost tenant proceeded without tenant preflight — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on `Simulate`, `DryRunProposedPolicyPack`, `DryRunPolicyPack`, `DraftPolicyPackRule`, and `GeneratePolicyPack` (`PolicyPacksController` parity); regression in `GovernanceControllerSimulateTests`.
 - [x] (proven) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — ghost tenant returned HTTP 200 `[]` with run-scope preflight only — **hit 2026-08-27:** tenant preflight before `RequireScopedRunAsync` (dashboard parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `ManifestsController` manifest read/export/compare paths (`GetManifest`, diagram/summary/bundle, export/download, compare/summary/export/file) — ghost tenant with in-scope run returned HTTP 200 manifest payloads — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight (governance read parity); regression in `ManifestsControllerEvidenceScopeTests`.
+- [x] (invalid) `TenantMeasuredRoiController.GetAsync` — ghost tenant returns HTTP 200 measured ROI — **cheap-disproof 2026-08-27:** endpoint intentionally composes replica-global counters and demo disclaimer per ledger hunt #92; integration test `TenantMeasuredRoiEndpointTests`.
+- [x] (invalid) `TenantPilotValueReportController.GetRoiSummaryPageBundle` — ghost tenant returns HTTP 200 ROI bundle — **cheap-disproof 2026-08-27:** `BuildAsync` null propagates to controller 404 (same as `GetPilotValueReport`); regression in `TenantPilotValueReportControllerTests.GetPilotValueReport_returns_problem_details_when_tenant_missing`.
+- [x] (invalid) `GovernanceController.GetPolicyPackSchemaKeys` / `GetPolicyPackContentDocumentJsonSchema` — ghost tenant schema reads — **cheap-disproof 2026-08-27:** static schema keys with no tenant-scoped data access.
+- [x] (invalid) `GovernanceStickinessController.PreviewRecurrenceScheduleRuns` — ghost tenant returns HTTP 200 cron preview — **cheap-disproof 2026-08-27:** dry-run cron math in `GovernanceStickinessFacade.PreviewRecurrenceScheduleRuns` with no tenant-scoped persistence or reads (aligned with static schema-key reads).
+- [x] (invalid) `PolicyPacksController.GetRuleTemplates` — ghost tenant returns HTTP 200 template list — **cheap-disproof 2026-08-27:** `_workflow.ListRuleTemplates()` serves static starter templates with no tenant-scoped data access (schema-key parity).
+- [x] (invalid) `TenantWorkspacesController` list/recycle-bin/delete/restore — ghost tenant workspace paths — **cheap-disproof 2026-08-27:** all four actions call `ITenantRepository.GetByIdAsync` before workspace/project work (`TenantWorkspacesController.cs`).
+- [x] (invalid) `TenantTrialController.LinkEntraAsync` / `ConvertTrialAsync` — ghost tenant trial mutations — **cheap-disproof 2026-08-27:** both POST paths preflight `GetByIdAsync` before mutation (`TenantTrialController.cs`).
+- [x] (invalid) `TenantBaselineController.PutAsync` / `TenantHomepageSettingsController.ListEligibleSamplesAsync` — ghost tenant PUT/list reads — **cheap-disproof 2026-08-27:** `GetByIdAsync` preflight on both endpoints (GET/PUT parity already proven for siblings).
+
+2026-08-27 seed hunt #133: seed-only — zone ghost-tenant parity exhausted; cheap-disproved dry-run recurrence preview, static rule templates, and remaining tenancy workspace/trial/baseline/homepage preflight siblings.
+
+2026-08-27 seed hunt #132: proved manifest read/export/compare ghost-tenant 404 parity; cheap-disproved measured ROI, ROI bundle, and static schema-key candidates.
 
 2026-08-27 thorough hunt #131: proved promote/activate, run-history reads, and governance policy-pack ghost-tenant 404 parity; zone candidate backlog cleared for this sweep.
 
