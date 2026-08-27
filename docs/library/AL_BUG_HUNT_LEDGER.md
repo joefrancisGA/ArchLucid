@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 66
-- **bugs-found:** 197
+- **hunts:** 67
+- **bugs-found:** 198
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — manifest read/export canonical version echo and pre-finalize simulate syntheticCount guard
+- **last-bug:** 2026-08-27 — stickiness register maxRows bounds return 400 instead of silent clamp
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2440,8 +2440,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessFacade.CreateRiskExceptionAsync` — padded body `findingId` failed scope lookup and returned HTTP 404 though trimmed id was in scope — **hit 2026-08-27:** normalize `findingId` before inspect scope gate and service create (route disposition trim parity); regression in `GovernanceStickinessControllerTests.CreateRiskException_returns_ok_when_finding_id_is_padded`.
 - [x] (proven) `ManifestsController` diagram/summary/bundle/export — response `ManifestVersion` and export filenames echoed padded route strings after `GetManifestInScopeAsync` trimmed lookup — **hit 2026-08-27:** use `manifest.Metadata.ManifestVersion` (compare-fix sibling); regression in `ManifestsControllerTests`.
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — negative `syntheticCount` reached `PreCommitGovernanceGate` and surfaced HTTP 500 — **hit 2026-08-27:** controller rejects `syntheticCount < 0` before gate call; regression in `GovernancePreCommitSimulationControllerTests`.
-- [ ] (candidate) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard`.
-- [ ] (candidate) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly).
+- [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard` — **hit 2026-08-27:** `ValidateRegisterMaxRows` on register GETs; regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
 
 2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 
