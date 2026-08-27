@@ -368,16 +368,16 @@ html.dark a.marketing-public-nav-link {
 input,
 select {
   padding: 8px;
-  font-family: inherit;
+  font: inherit;
 }
 
 /*
  * Preserve Button typography utilities (`font-semibold`, `text-[13px]`, …).
- * The old `font: inherit` shorthand overrode Tailwind classes on native `<button>` elements
- * because unlayered CSS wins over `@layer utilities` — Refresh, Help, and page-header triggers
- * rendered at inherited body weight while `Button asChild` links kept token weight.
+ * Do not use `font: inherit` on `<button>` — unlayered CSS wins over `@layer utilities` and
+ * stripped semibold weight from Refresh, Help, and page-header triggers.
  */
 button {
+  padding: 8px;
   font-family: inherit;
 }
 

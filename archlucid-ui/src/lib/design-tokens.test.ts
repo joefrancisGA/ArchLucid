@@ -108,13 +108,18 @@ describe("design-tokens TB-119 typography", () => {
     expect(OPERATOR_TYPOGRAPHY.badge).toContain("font-medium");
   });
 
-  it("interactive filter chips use button label scale (TB-2290)", () => {
-    expect(DESIGN_TOKENS.interactive.chip).toContain("text-[13px]");
-    expect(DESIGN_TOKENS.interactive.chip).toContain("font-semibold");
+  it("interactive filter chips use compact native control label scale (TB-2290)", () => {
+    expect(DESIGN_TOKENS.interactive.chip).toContain("text-[11px]");
+    expect(DESIGN_TOKENS.interactive.chip).toContain("font-bold");
+    expect(DESIGN_TOKENS.interactive.chip).not.toContain("text-[13px]");
   });
 
-  it("native control label alias matches button scale", () => {
-    expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toBe(OPERATOR_TYPOGRAPHY.button);
+  it("native control label stays compact while Button label stays 13px semibold", () => {
+    expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toContain("text-[11px]");
+    expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toContain("font-bold");
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("text-[13px]");
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("font-semibold");
+    expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).not.toBe(OPERATOR_TYPOGRAPHY.button);
   });
 });
 
