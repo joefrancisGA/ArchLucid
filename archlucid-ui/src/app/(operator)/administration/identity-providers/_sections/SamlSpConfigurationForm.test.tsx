@@ -455,10 +455,11 @@ describe("IdentityProvidersSamlPageClient", () => {
 
 describe("SamlSpConfigurationForm source guards (TB-1921–TB-1923)", () => {
   it("does not call window.confirm for SAML save", () => {
-    const source = readFileSync(
-      join(process.cwd(), "src/app/(operator)/administration/identity-providers/_sections/SamlSpConfigurationForm.tsx"),
-      "utf8",
-    );
+    const sectionsDir = join(process.cwd(), "src/app/(operator)/administration/identity-providers/_sections");
+    const formSource = readFileSync(join(sectionsDir, "SamlSpConfigurationForm.tsx"), "utf8");
+    const metadataLookupSource = readFileSync(join(sectionsDir, "SamlSpMetadataLookupBlock.tsx"), "utf8");
+    const hookSource = readFileSync(join(sectionsDir, "use-saml-sp-configuration-form.ts"), "utf8");
+    const source = `${formSource}\n${metadataLookupSource}\n${hookSource}`;
 
     expect(source).not.toContain("globalThis.confirm");
     expect(source).not.toContain("window.confirm");
