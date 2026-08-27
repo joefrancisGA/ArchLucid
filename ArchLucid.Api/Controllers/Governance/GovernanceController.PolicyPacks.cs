@@ -258,6 +258,13 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.EvaluateAgainstRunIds.Any(PolicyPackRequestValidationRules.ExceedsRunIdMaxLength))
+        {
+            return this.BadRequestProblem(
+                "RunId must not exceed 64 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (request.EvaluateAgainstRunIds.Count > 50)
         {
             return this.BadRequestProblem(

@@ -87,6 +87,25 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
     }
 
     [Fact]
+    public async Task SimulateBulk_returns_bad_request_when_run_id_exceeds_max_length()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        PolicyPacksController sut = CreateController(workflow);
+
+        PolicyPackSimulateBulkRequest request = new() { RunIds = [new string('r', 65)] };
+
+        IActionResult result = await sut.SimulateBulk(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task SimulateBulk_returns_bad_request_when_block_commit_minimum_severity_out_of_range()
     {
         Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);

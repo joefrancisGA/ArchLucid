@@ -489,6 +489,26 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task DryRunPolicyPack_returns_bad_request_when_evaluate_against_run_id_exceeds_max_length()
+    {
+        Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            new PolicyPackDryRunRequest { EvaluateAgainstRunIds = [new string('r', 65)] },
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Simulate_returns_bad_request_when_run_id_exceeds_max_length()
     {
         Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);

@@ -109,6 +109,13 @@ public sealed partial class PolicyPacksController
         if (request.RunIds.Count > 50)
             return this.BadRequestProblem("At most 50 run ids are allowed per request.", ProblemTypes.ValidationFailed);
 
+        if (request.RunIds.Any(PolicyPackRequestValidationRules.ExceedsRunIdMaxLength))
+        {
+            return this.BadRequestProblem(
+                "RunId must not exceed 64 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (!request.RunIds.Any(PolicyPackRequestValidationRules.IsUsableRunId))
         {
             return this.BadRequestProblem(

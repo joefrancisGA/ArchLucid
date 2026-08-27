@@ -88,4 +88,9 @@ public static class PolicyPackRequestValidationRules
 
         return true;
     }
+
+    public const int MaxRunIdLength = 64;
+
+    public static bool ExceedsRunIdMaxLength(string? runId) =>
+        !string.IsNullOrWhiteSpace(runId) && runId.Trim().Length > MaxRunIdLength;
 }
