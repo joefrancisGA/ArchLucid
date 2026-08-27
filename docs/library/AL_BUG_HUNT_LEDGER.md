@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 69
-- **bugs-found:** 200
+- **hunts:** 70
+- **bugs-found:** 201
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `GovernanceSetupController` / `GovernanceResolutionController` foreign `workspaceId` returned HTTP 200 instead of workspace 404
+- **last-bug:** 2026-08-27 — `TenantTrialController.LinkEntraAsync` cross-tenant local identity link via email-only lookup
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2445,13 +2445,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernanceDashboardService.GetDashboardAsync` / `GovernanceController.GetDashboard` — tenant-wide `GetByTenantAsync` `TOP (@MaxRows)` before in-memory workspace/project filter starved `recentChanges` when newer foreign-workspace rows filled the batch — **hit 2026-08-27:** `IPolicyPackChangeLogRepository.GetByScopeAsync` applies scope in SQL before `TOP`; regression in `GovernanceDashboardServiceTests.GetDashboard_UsesScopedChangeLogQuery_WhenTenantWideTopWouldStarveInScopeRows` and `PolicyPackChangeLogRepositoryContractTests.GetByScopeAsync_FiltersWorkspaceProjectBeforeTopLimit`.
 
-- [ ] (candidate) `TenantTrialController.LinkEntraAsync` — `GetByNormalizedEmailAsync` is email-only (no tenant binding) so another tenant's trial local identity can be linked during Entra directory bind.
+- [x] (proven) `TenantTrialController.LinkEntraAsync` — `GetByNormalizedEmailAsync` is email-only (no tenant binding) so another tenant's trial local identity can be linked during Entra directory bind — **hit 2026-08-27:** `ISelfServiceTrialAbuseRepository.HasEmailClaimForTenantAsync` rejects local link when email claim `TenantId` does not match caller scope; regression in `LinkEntraAsync_returns_bad_request_when_local_email_not_claimed_for_tenant` and `LinkEntraAsync_links_local_identity_when_email_claimed_for_tenant`.
 
 - [x] (invalid) `TenantTrialController.ConvertTrialAsync` — null/empty JSON body converts active trial with unspecified `tier` instead of HTTP 400 — **cheap-disproof 2026-08-27:** `docs/library/BILLING.md` documents optional tier on manual convert; `TryMapRequestTier` treats null/whitespace as unspecified tier by design; regression in `ConvertTrialAsync_accepts_null_body_with_unspecified_tier`.
 
 - [x] (proven) `GovernanceSetupController.GetSetupGuideBundle` — JWT with unknown `workspaceId` returned HTTP 200 empty/minimal bundle instead of workspace 404 — **hit 2026-08-27:** `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` (`ListWorkspacesAsync` parity with `TenantWorkspacesController`); regression in `GetSetupGuideBundle_returns_not_found_when_workspace_missing`.
 
 - [x] (proven) `GovernanceResolutionController.Resolve` — unknown `workspaceId` in scope proceeded to `IEffectiveGovernanceResolver.ResolveAsync` without workspace existence validation — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight; regression in `Resolve_returns_not_found_when_workspace_missing`.
+
+2026-08-27 thorough hunt #150: proved link-entra cross-tenant local identity bind via tenant-scoped email-claim check; zone candidate backlog cleared.
 
 2026-08-27 thorough hunt #149: proved setup-guide and governance-resolution foreign-workspace preflight gaps; cheap-disproved convert null-body; link-entra cross-tenant email remains candidate.
 
