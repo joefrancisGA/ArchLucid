@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 117
-- **bugs-found:** 284
+- **hunts:** 118
+- **bugs-found:** 285
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — tenant cost settings actor identity max-length
+- **last-bug:** 2026-08-27 — batch review empty-GUID approvalRequestId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2655,6 +2655,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantCostSettingsController.PutAsync` — `User.Identity.Name` >200 reached `UpsertAsync`/audit (`NVARCHAR(256)`/`NVARCHAR(200)`) instead of HTTP 400 — **hit 2026-08-27:** controller actor max-length guard before persist; strict-mock regression in `TenantCostSettingsControllerTests`.
 
 2026-08-27 thorough hunt #200: cheap-disproved bulk mixed oversize findingId candidate; proved cost-settings actor identity max-length guard.
+
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — `approvalRequestIds` containing `Guid.Empty` string returned HTTP 200 per-item not-found instead of HTTP 400 (`IsUsableRunId` parity for bulk run ids) — **hit 2026-08-27:** `IsUsableApprovalRequestId` guard before batch loop; strict-mock regression in `GovernanceControllerRunHistoryScopeTests`.
+
+2026-08-27 seed hunt #201: reseeded zone from controller scan; proved batch review empty-GUID approvalRequestId guard.
+
+- [ ] (candidate) `GovernanceStickinessController.UpdateRecurrenceSchedule` — whitespace-only PATCH `cronExpression` silently skips update instead of HTTP 400 (create/preview parity).
+- [ ] (candidate) `GovernancePreCommitSimulationController.SimulateAsync` — out-of-range `syntheticSeverity` ordinal reaches service without controller 400 (`blockCommitMinimumSeverity` parity).
+- [ ] (candidate) `TenantBaselineController.PutAsync` — actor identity >200 may audit/SQL-fail instead of HTTP 400 (cost-settings parity).
+- [ ] (candidate) `TenantCustomerSuccessController.GetFunnelSnapshotAsync` — out-of-scope workspace returns HTTP 200 empty payload instead of HTTP 404 (workspace list parity).
+- [ ] (candidate) `GovernanceStickinessController.RecordDisposition` — route/body `findingId` mismatch silently uses route id only.
 
 2026-08-27 thorough hunt #195: proved recurrence cron max-length, risk-exception expiry guards, and submit/promote env-path validation; cheap-disproved draft freeTextIntent max-length candidate.
 
