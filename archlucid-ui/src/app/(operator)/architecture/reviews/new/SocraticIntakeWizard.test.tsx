@@ -280,7 +280,11 @@ describe("SocraticIntakeWizard", () => {
       "href",
       `/architecture/architectures/${sourceArchitectureId}`,
     );
-    expect(screen.getByTestId("guided-intake-primary-panel")).toBeInTheDocument();
+    const primaryPanel = screen.getByTestId("guided-intake-primary-panel");
+
+    expect(primaryPanel).toBeInTheDocument();
+    expect(banner.parentElement).toHaveClass("flex", "flex-col", "gap-4");
+    expect(banner.parentElement).toContainElement(primaryPanel);
     expect(document.querySelector(".border-teal-200")).toBeNull();
     expect(document.querySelector(".border-sky-300")).toBeNull();
   });
