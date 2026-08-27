@@ -8,6 +8,7 @@ using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
@@ -24,6 +25,34 @@ public sealed class TenantMeasuredRoiControllerTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
+
+    [Fact]
+    public async Task GetAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantMeasuredRoiService> measuredRoi = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        TenantMeasuredRoiController controller = new(
+            measuredRoi.Object,
+            scopeProvider.Object,
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        measuredRoi.VerifyNoOtherCalls();
+    }
 
     [Fact]
     public async Task GetAsync_maps_service_summary_to_response()
@@ -54,12 +83,19 @@ public sealed class TenantMeasuredRoiControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantMeasuredRoiController controller = new(measuredRoi.Object, scopeProvider.Object);
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
 
-        ActionResult<TenantMeasuredRoiResponse> action =
-            await controller.GetAsync(CancellationToken.None);
+        TenantMeasuredRoiController controller = new(
+            measuredRoi.Object,
+            scopeProvider.Object,
+            tenants.Object);
 
-        OkObjectResult ok = action.Result.Should().BeOfType<OkObjectResult>().Subject;
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         TenantMeasuredRoiResponse body = ok.Value.Should().BeOfType<TenantMeasuredRoiResponse>().Subject;
 
         body.Snapshot.RunsCreatedTotal.Should().Be(3);
@@ -82,12 +118,19 @@ public sealed class TenantMeasuredRoiControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantMeasuredRoiController controller = new(measuredRoi.Object, scopeProvider.Object);
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
 
-        ActionResult<TenantMeasuredRoiResponse> action =
-            await controller.GetAsync(CancellationToken.None);
+        TenantMeasuredRoiController controller = new(
+            measuredRoi.Object,
+            scopeProvider.Object,
+            tenants.Object);
 
-        OkObjectResult ok = action.Result.Should().BeOfType<OkObjectResult>().Subject;
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         TenantMeasuredRoiResponse body = ok.Value.Should().BeOfType<TenantMeasuredRoiResponse>().Subject;
 
         body.MonthlyCostEstimate.Should().BeNull();

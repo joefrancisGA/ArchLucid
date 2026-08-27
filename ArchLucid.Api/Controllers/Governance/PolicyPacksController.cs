@@ -125,6 +125,11 @@ public sealed partial class PolicyPacksController(
         if (validationProblem is not null)
             return validationProblem;
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         PolicyPackVersion? version = await _workflow.TryPublishVersionAsync(
             policyPackId,
             request.Version.Trim(),
@@ -160,6 +165,11 @@ public sealed partial class PolicyPacksController(
         if (validationProblem is not null)
             return validationProblem;
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         string versionKey = request.Version.Trim();
         string scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
 
@@ -191,6 +201,11 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ArchiveAssignment(Guid assignmentId, CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         bool ok = await _workflow.TryArchiveAssignmentAsync(assignmentId, ct);
 
         if (!ok)
@@ -208,6 +223,11 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeletePack(Guid policyPackId, CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         bool ok = await _workflow.TrySoftDeletePackAsync(policyPackId, ct);
 
         if (!ok)
@@ -226,6 +246,11 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DuplicatePack(Guid policyPackId, CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         PolicyPack? duplicate = await _workflow.TryDuplicatePackAsync(policyPackId, ct);
 
         if (duplicate is null)
@@ -264,6 +289,11 @@ public sealed partial class PolicyPacksController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         bool ok = await _workflow.TrySetAssignmentEnabledAsync(assignmentId, request.IsEnabled, ct);
 

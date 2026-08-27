@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 41
-- **bugs-found:** 111
+- **hunts:** 42
+- **bugs-found:** 116
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — list-recurrence-schedules ghost tenant 404 parity
+- **last-bug:** 2026-08-27 — policy-pack mutation/catalog-read and realized-value attestation ghost-tenant 404 parity; measured-roi and approval lineage/rationale tenant preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2383,8 +2383,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController` sibling register reads (`GetAssignedToMeFindingsCount`, `GetReviewsAwaitingAction`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — ghost tenant returned HTTP 200 empty payloads instead of 404 while risk/decisions-needed/list-exceptions already preflighted — **hit 2026-08-27:** extended `RequireTenantOrNotFoundAsync` to remaining register reads; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceCoverageController.PreviewCoverage` — ghost tenant returned HTTP 200 preview payload while `GetScopeCoverage` already 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (GET parity); regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_not_found_when_tenant_missing`.
 - [x] (proven) `GovernanceStickinessController.ListRecurrenceSchedules` — ghost tenant returned HTTP 200 `[]` instead of 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` preflight; regression in `GovernanceStickinessControllerTests.ListRecurrenceSchedules_returns_not_found_when_tenant_missing`.
+- [x] (proven) `PolicyPacksController` mutation siblings (`Publish`, `Assign`, `ArchiveAssignment`, `DeletePack`, `DuplicatePack`, `SetAssignmentEnabled`) — ghost tenant returned pack/assignment 404 or FK instead of tenant 404 while `Create`/`List` already preflighted — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on all mutations; regression in `PolicyPacksControllerListScopeTests.Publish_returns_not_found_when_tenant_missing`.
+- [x] (proven) `PolicyPacksController.ListVersions` / `GetVersion` / `ExplainPack` — ghost tenant returned pack-not-found instead of tenant-not-found — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on catalog version reads; regression in `PolicyPacksControllerListScopeTests.ListVersions_returns_not_found_when_tenant_missing`, `GetVersion_returns_not_found_when_tenant_missing`, `ExplainPack_returns_not_found_when_tenant_missing`.
+- [x] (proven) `GovernanceStickinessController.GetRealizedValueAttestation` / `UpsertRealizedValueAttestation` — ghost tenant returned HTTP 200 empty attestation or PUT FK instead of tenant 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` preflight; regression in `GovernanceStickinessControllerTests.GetRealizedValueAttestation_returns_not_found_when_tenant_missing`, `UpsertRealizedValueAttestation_returns_not_found_when_tenant_missing`.
+- [x] (proven) `TenantMeasuredRoiController.GetAsync` — ghost tenant returned HTTP 200 measured-ROI bundle instead of tenant 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (LLM cost reporting parity); regression in `TenantMeasuredRoiControllerTests.GetAsync_returns_not_found_when_tenant_missing`.
+- [x] (proven) `GovernanceController.GetApprovalRequestLineage` / `GetApprovalRequestRationale` — ghost tenant returned approval-not-found instead of tenant-not-found — **hit 2026-08-27:** tenant preflight before scoped approval lookup (dashboard parity); regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequestLineage_returns_not_found_when_tenant_missing`, `GetApprovalRequestRationale_returns_not_found_when_tenant_missing`.
+- [ ] (candidate) `PolicyPacksController.ListCatalog` / `GetCatalogEntry` / `PromoteCatalogEntry` / `DemoteCatalogEntry` — ghost tenant may return catalog 404 or admin mutation FK instead of tenant 404 (catalog endpoints omit `RequireTenantOrNotFoundAsync`).
+- [ ] (candidate) `GovernanceStickinessController.ListDispositions` — ghost tenant returns HTTP 200 `[]` instead of tenant-not-found (same empty-hide path as out-of-scope finding; may be intentional parity with register reads).
 
-2026-08-27 thorough hunt #124: proved preview/compare-environments and list-recurrence-schedules ghost-tenant 404 parity; cheap-disproved setup-guide candidate (already fixed on master).
+2026-08-27 seed hunt #134: proved policy-pack mutation/version-read, realized-value attestation, measured-roi, and approval lineage/rationale ghost-tenant 404 parity; seeded catalog and list-dispositions ghost-tenant candidates.
 
 2026-08-27 thorough hunt #122: proved preview compare-environments and stickiness register ghost-tenant 404 parity.
 

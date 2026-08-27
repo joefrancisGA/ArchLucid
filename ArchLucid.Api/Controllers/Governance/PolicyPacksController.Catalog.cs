@@ -138,6 +138,11 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListVersions(Guid policyPackId, CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IReadOnlyList<PolicyPackVersion>? versions = await _workflow.TryListVersionsAsync(policyPackId, ct);
 
         if (versions is null)
@@ -159,6 +164,11 @@ public sealed partial class PolicyPacksController
     {
         if (string.IsNullOrWhiteSpace(packVersion))
             return this.BadRequestProblem("Version is required.", ProblemTypes.ValidationFailed);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PolicyPackVersionLookupResult lookup = await _workflow.TryGetVersionAsync(policyPackId, packVersion, ct);
 
@@ -183,6 +193,11 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExplainPack(Guid policyPackId, CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         string? markdown = await _workflow.TryExplainPackMarkdownAsync(policyPackId, ct);
 
         if (markdown is null)

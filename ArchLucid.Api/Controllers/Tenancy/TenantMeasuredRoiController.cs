@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -22,7 +23,8 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class TenantMeasuredRoiController(
     ITenantMeasuredRoiService measuredRoiService,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    ITenantRepository tenantRepository) : ControllerBase
 {
     private readonly ITenantMeasuredRoiService _measuredRoiService =
         measuredRoiService ?? throw new ArgumentNullException(nameof(measuredRoiService));
@@ -30,13 +32,21 @@ public sealed class TenantMeasuredRoiController(
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     /// <summary>Returns cumulative process counters and optional monthly cost band for the caller's tenant.</summary>
     [HttpGet]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(TenantMeasuredRoiResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<TenantMeasuredRoiResponse>> GetAsync(CancellationToken cancellationToken = default)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAsync(CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         TenantMeasuredRoiSummary summary =
             await _measuredRoiService.GetAsync(scope.TenantId, cancellationToken);

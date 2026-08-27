@@ -209,8 +209,14 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("realized-value/attestation")]
     [ProducesResponseType(typeof(RealizedValueAttestationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRealizedValueAttestation(CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         RealizedValueAttestationResponse response =
             await _facade.GetRealizedValueAttestationAsync(cancellationToken);
 
@@ -221,6 +227,7 @@ public sealed partial class GovernanceStickinessController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [MutatingAuditExcluded("Audit: attestation is stored in TenantSettings; no separate durable audit row in V1.")]
     public async Task<IActionResult> UpsertRealizedValueAttestation(
         [FromBody] UpsertRealizedValueAttestationRequest? request,
@@ -228,6 +235,11 @@ public sealed partial class GovernanceStickinessController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         try
         {

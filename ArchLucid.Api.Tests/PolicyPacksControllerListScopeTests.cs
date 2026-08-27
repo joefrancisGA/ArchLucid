@@ -144,6 +144,72 @@ public sealed class PolicyPacksControllerListScopeTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    [Fact]
+    public async Task Publish_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.Publish(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            new PublishPolicyPackVersionRequest
+            {
+                Version = "2.0.0",
+                ContentJson = """{"complianceRuleIds":[]}""",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ListVersions_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.ListVersions(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetVersion_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.GetVersion(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            "1.0.0",
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ExplainPack_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.ExplainPack(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
     private static PolicyPacksController CreateSut(
         Mock<IPolicyPackWorkflowFacade> workflow,
         bool tenantExists)
