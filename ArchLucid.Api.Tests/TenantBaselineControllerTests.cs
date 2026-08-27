@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using Moq;
 
+using System.Security.Claims;
+
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
@@ -292,6 +294,54 @@ public sealed class TenantBaselineControllerTests
 
         projected.ManualPrepHoursPerReview.Should().Be(5m);
 
+        tenants.Verify(
+            r => r.UpdateBaselineAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<decimal?>(),
+                It.IsAny<int?>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_bad_request_when_actor_identity_exceeds_max_length()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        ClaimsIdentity identity = new(
+            [new Claim(ClaimTypes.Name, new string('a', 201))],
+            authenticationType: "Test");
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) }
+        };
+
+        TenantBaselinePutRequest body = new() { ManualPrepHoursPerReview = 5m, PeoplePerReview = 2 };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         tenants.Verify(
             r => r.UpdateBaselineAsync(
                 It.IsAny<Guid>(),

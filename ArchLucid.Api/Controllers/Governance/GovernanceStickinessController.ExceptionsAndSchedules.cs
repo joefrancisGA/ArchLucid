@@ -352,6 +352,11 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.CronExpression is not null && string.IsNullOrWhiteSpace(request.CronExpression))
+        {
+            return this.BadRequestProblem("CronExpression is required.", ProblemTypes.ValidationFailed);
+        }
+
         if (request.CronExpression is not null && request.CronExpression.Length > 100)
         {
             return this.BadRequestProblem(

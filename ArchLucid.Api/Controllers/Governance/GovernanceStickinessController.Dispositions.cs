@@ -39,6 +39,13 @@ public sealed partial class GovernanceStickinessController
         if (findingIdProblem is not null)
             return findingIdProblem;
 
+        if (!string.Equals(request.FindingId.Trim(), normalizedFindingId, StringComparison.Ordinal))
+        {
+            return this.BadRequestProblem(
+                "findingId in the request body must match the route findingId.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (!GovernanceQueryRequestValidationRules.IsUsableOptionalGuid(request.RunId))
             return this.BadRequestProblem("runId must not be an empty GUID.", ProblemTypes.ValidationFailed);
 

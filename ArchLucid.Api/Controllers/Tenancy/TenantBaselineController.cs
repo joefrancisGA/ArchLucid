@@ -29,6 +29,8 @@ public sealed class TenantBaselineController(
     IScopeContextProvider scopeProvider,
     IAuditService auditService) : ControllerBase
 {
+    private const int MaxActorIdentityLength = 200;
+
     private readonly IAuditService
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -118,6 +120,13 @@ public sealed class TenantBaselineController(
             return Ok(ProjectBaselineResponse(existing));
 
         string actor = User.Identity?.Name ?? "operator";
+
+        if (actor.Length > MaxActorIdentityLength)
+        {
+            return this.BadRequestProblem(
+                "Actor identity must not exceed 200 characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         if (touchManual)
         {

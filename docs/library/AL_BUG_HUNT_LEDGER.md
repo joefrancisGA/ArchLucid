@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 118
-- **bugs-found:** 285
+- **hunts:** 119
+- **bugs-found:** 290
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — batch review empty-GUID approvalRequestId
+- **last-bug:** 2026-08-27 — recurrence PATCH whitespace cron, baseline actor max-length, pre-commit synthetic severity, funnel workspace scope, disposition findingId mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2660,11 +2660,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-27 seed hunt #201: reseeded zone from controller scan; proved batch review empty-GUID approvalRequestId guard.
 
-- [ ] (candidate) `GovernanceStickinessController.UpdateRecurrenceSchedule` — whitespace-only PATCH `cronExpression` silently skips update instead of HTTP 400 (create/preview parity).
-- [ ] (candidate) `GovernancePreCommitSimulationController.SimulateAsync` — out-of-range `syntheticSeverity` ordinal reaches service without controller 400 (`blockCommitMinimumSeverity` parity).
-- [ ] (candidate) `TenantBaselineController.PutAsync` — actor identity >200 may audit/SQL-fail instead of HTTP 400 (cost-settings parity).
-- [ ] (candidate) `TenantCustomerSuccessController.GetFunnelSnapshotAsync` — out-of-scope workspace returns HTTP 200 empty payload instead of HTTP 404 (workspace list parity).
-- [ ] (candidate) `GovernanceStickinessController.RecordDisposition` — route/body `findingId` mismatch silently uses route id only.
+- [x] (proven) `GovernanceStickinessController.UpdateRecurrenceSchedule` — whitespace-only PATCH `cronExpression` silently skipped update instead of HTTP 400 — **hit 2026-08-27:** `IsNullOrWhiteSpace` guard on PATCH cron (create/preview parity); strict-mock regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — out-of-range `syntheticSeverity` ordinal reached service without controller 400 — **hit 2026-08-27:** 0–3 severity guard (`blockCommitMinimumSeverity` parity); strict-mock regression in `GovernancePreCommitSimulationControllerTests`.
+- [x] (proven) `TenantBaselineController.PutAsync` — actor identity >200 reached audit/SQL instead of HTTP 400 — **hit 2026-08-27:** `MaxActorIdentityLength` guard before persist (cost-settings parity); regression in `TenantBaselineControllerTests`.
+- [x] (proven) `TenantCustomerSuccessController.GetFunnelSnapshotAsync` / `GetStickinessSnapshotAsync` — out-of-scope workspace returned HTTP 200 empty payload instead of HTTP 404 — **hit 2026-08-27:** `ListWorkspacesAsync` membership check (`TenantWorkspaceBaselineArtifactsController` parity); regression in `TenantCustomerSuccessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` — route/body `findingId` mismatch silently used route id only — **hit 2026-08-27:** body/route equality guard before facade; strict-mock regression in `GovernanceStickinessControllerTests`.
+
+2026-08-27 thorough hunt #202: proved recurrence PATCH whitespace cron, baseline actor max-length, pre-commit synthetic severity range, customer-success funnel workspace scope, and disposition findingId mismatch guards.
 
 2026-08-27 thorough hunt #195: proved recurrence cron max-length, risk-exception expiry guards, and submit/promote env-path validation; cheap-disproved draft freeTextIntent max-length candidate.
 
