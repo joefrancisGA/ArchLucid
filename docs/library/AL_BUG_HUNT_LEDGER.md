@@ -2241,8 +2241,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 43
-- **bugs-found:** 114
+- **hunts:** 44
+- **bugs-found:** 115
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
 - **last-bug:** 2026-08-27 — policy-packs read ghost tenant 404 parity
@@ -2387,8 +2387,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.GetRealizedValueAttestation` — ghost tenant returned HTTP 200 unconfigured attestation while register reads now preflight tenant row — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on GET; regression in `GovernanceStickinessControllerTests.GetRealizedValueAttestation_returns_not_found_when_tenant_missing`.
 - [x] (proven) `PolicyPacksController.ListCatalog` / `GetCatalogEntry` — ghost tenant returned HTTP 200 catalog rows instead of 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on catalog reads (list/page-bundle parity); regression in `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `GovernanceStickinessController.UpsertRealizedValueAttestation` — ghost tenant POST persisted settings while GET returned 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on PUT (GET parity); regression in `GovernanceStickinessControllerTests.UpsertRealizedValueAttestation_returns_not_found_when_tenant_missing`.
+- [x] (proven) `PolicyPacksController.ListVersions` / `GetVersion` / `ExplainPack` — ghost tenant reached pack workflow and returned pack-not-found instead of tenant 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on version/explain reads (list/catalog parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (invalid) `PolicyPacksController.GetRuleTemplates` — ghost tenant returns HTTP 200 — **cheap-disproof 2026-08-27:** synchronous platform-global starter templates via `ListRuleTemplates()`; not tenant-scoped data.
+- [ ] (candidate) `PolicyPacksController.Publish` / `Assign` / `Duplicate` / `ArchiveAssignment` — ghost tenant mutations return pack/assignment not-found instead of tenant 404 while list/create reads preflight tenant row.
+- [ ] (candidate) `GovernanceStickinessController` mutation endpoints (`CreateRiskException`, `RecordDisposition`, `CreateRecurrenceSchedule`) — ghost tenant POST may persist or return resource-not-found instead of tenant 404.
 
-2026-08-27 thorough hunt #128: proved policy-packs catalog read and attestation POST ghost-tenant 404 parity.
+2026-08-27 seed hunt #129: proved policy-packs version/explain read ghost-tenant 404 parity; cheap-disproved rule-templates; seeded pack mutation and stickiness POST candidates.
 
 2026-08-27 thorough hunt #120: proved governance-resolution ghost tenant 404.
 
