@@ -12,12 +12,18 @@ public sealed partial class GovernanceStickinessController
 {
     [HttpGet("risk-register")]
     [ProducesResponseType(typeof(ArchitectureRiskRegisterResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRiskRegister(
         [FromQuery] Guid? projectId,
         [FromQuery] int maxRows = 200,
         [FromQuery] bool assignedToMe = false,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         ArchitectureRiskRegisterResponse response = await _facade.GetRiskRegisterAsync(
             projectId,
             maxRows,
@@ -56,10 +62,16 @@ public sealed partial class GovernanceStickinessController
     [HttpGet("decisions-needed-summary")]
     [ProducesResponseType(typeof(GovernanceDecisionsNeededSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetDecisionsNeededSummary(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         GovernanceDecisionsNeededSummaryResponse response =
             await _facade.GetDecisionsNeededSummaryAsync(projectId, cancellationToken);

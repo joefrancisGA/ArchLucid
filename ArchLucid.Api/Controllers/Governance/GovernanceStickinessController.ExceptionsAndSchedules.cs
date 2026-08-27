@@ -44,10 +44,16 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("risk-exceptions")]
     [ProducesResponseType(typeof(IReadOnlyList<RiskExceptionRecord>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListRiskExceptions(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IReadOnlyList<RiskExceptionRecord> records =
             await _facade.ListRiskExceptionsAsync(projectId, cancellationToken);
 

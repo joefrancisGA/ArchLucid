@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
@@ -32,6 +33,16 @@ public sealed class GovernanceStickinessControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
 
+    private static ITenantRepository TenantExistsRepository() =>
+        Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+            Scope.TenantId,
+            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" }));
+
+    private static ITenantRepository TenantMissingRepository() =>
+        Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+            Scope.TenantId,
+            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(null));
+
     private static GovernanceStickinessController BuildSut(
         Mock<IScopeContextProvider>? scopeProvider = null,
         Mock<IFindingDispositionService>? dispositionService = null,
@@ -41,7 +52,8 @@ public sealed class GovernanceStickinessControllerTests
         Mock<IRiskExceptionService>? riskExceptions = null,
         Mock<IFindingInspectReadRepository>? findingInspect = null,
         Mock<IRunRepository>? runRepository = null,
-        IRealizedValueAttestationService? attestationService = null)
+        IRealizedValueAttestationService? attestationService = null,
+        ITenantRepository? tenantRepository = null)
     {
         Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -149,7 +161,8 @@ public sealed class GovernanceStickinessControllerTests
                     attestationService ?? Mock.Of<IRealizedValueAttestationService>(),
                     audit.Object,
                     findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>()),
-                scope.Object)
+                scope.Object,
+                tenantRepository ?? TenantExistsRepository())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -160,7 +173,8 @@ public sealed class GovernanceStickinessControllerTests
         IActorContext actorContext,
         IArchitectureRiskRegisterService riskRegister,
         IGovernanceDigestDecisionNeededComposer? digestComposer = null,
-        IReviewsAwaitingActionQueryService? reviewsAwaiting = null)
+        IReviewsAwaitingActionQueryService? reviewsAwaiting = null,
+        ITenantRepository? tenantRepository = null)
     {
         return new GovernanceStickinessController(
                 new GovernanceStickinessFacade(
@@ -179,10 +193,44 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<IRealizedValueAttestationService>(),
                     Mock.Of<IAuditService>(),
                     Mock.Of<IFindingInspectReadRepository>()),
-                scopeProvider)
+                scopeProvider,
+                tenantRepository ?? TenantExistsRepository())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
+    }
+
+    [Fact]
+    public async Task GetRiskRegister_returns_not_found_when_tenant_missing()
+    {
+        GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.GetRiskRegister(projectId: null, cancellationToken: CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetDecisionsNeededSummary_returns_not_found_when_tenant_missing()
+    {
+        GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.GetDecisionsNeededSummary(projectId: null, cancellationToken: CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ListRiskExceptions_returns_not_found_when_tenant_missing()
+    {
+        GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.ListRiskExceptions(projectId: null, cancellationToken: CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     [Fact]
