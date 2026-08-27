@@ -57,6 +57,8 @@ type UseArchitectureDraftAutosaveResult = {
     serverUpdatedUtc: string,
     actorSet: ActorSet,
   ) => void;
+  /** Align revision tracking after a PATCH from outside this hook (e.g. scope confirmation). */
+  readonly syncServerUpdatedUtc: (serverUpdatedUtc: string) => void;
   readonly hasPersistedDraft: boolean;
 };
 
@@ -158,6 +160,11 @@ export function useArchitectureDraftAutosave(
     },
     [writePersistedBaseline],
   );
+
+  const syncServerUpdatedUtc = useCallback((serverUpdatedUtc: string) => {
+    serverUpdatedUtcRef.current = serverUpdatedUtc;
+    setConflictMessage(null);
+  }, []);
 
   const persistDraft = useCallback(async (): Promise<boolean> => {
     if (!enabled) {
@@ -378,6 +385,7 @@ export function useArchitectureDraftAutosave(
     markDirty,
     reloadDraft,
     acceptServerBaseline,
+    syncServerUpdatedUtc,
     hasPersistedDraft,
   };
 }

@@ -42,6 +42,7 @@ vi.mock("@/hooks/use-architecture-draft-autosave", () => ({
     saveDraft,
     reloadDraft,
     acceptServerBaseline: vi.fn(),
+    syncServerUpdatedUtc: vi.fn(),
     hasPersistedDraft: true,
   })),
 }));
@@ -178,6 +179,7 @@ beforeEach(() => {
     saveDraft,
     reloadDraft,
     acceptServerBaseline: vi.fn(),
+    syncServerUpdatedUtc: vi.fn(),
     hasPersistedDraft: true,
   });
 });
@@ -221,6 +223,7 @@ describe("ArchitectureDraftWorkspace", () => {
       saveDraft,
       reloadDraft,
       acceptServerBaseline: vi.fn(),
+    syncServerUpdatedUtc: vi.fn(),
       hasPersistedDraft: false,
     });
 
@@ -657,6 +660,7 @@ describe("ArchitectureDraftWorkspace", () => {
       saveDraft,
       reloadDraft,
       acceptServerBaseline: vi.fn(),
+    syncServerUpdatedUtc: vi.fn(),
       hasPersistedDraft: true,
     });
 
@@ -688,6 +692,7 @@ describe("ArchitectureDraftWorkspace", () => {
       saveDraft,
       reloadDraft,
       acceptServerBaseline: vi.fn(),
+    syncServerUpdatedUtc: vi.fn(),
       hasPersistedDraft: true,
     });
 
@@ -716,6 +721,7 @@ describe("ArchitectureDraftWorkspace", () => {
       saveDraft,
       reloadDraft,
       acceptServerBaseline: vi.fn(),
+    syncServerUpdatedUtc: vi.fn(),
       hasPersistedDraft: true,
     });
 

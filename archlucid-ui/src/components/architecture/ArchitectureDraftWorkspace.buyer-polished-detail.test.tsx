@@ -122,6 +122,7 @@ beforeEach(() => {
     saveDraft: vi.fn(),
     reloadDraft: vi.fn(),
     acceptServerBaseline: vi.fn(),
+    syncServerUpdatedUtc: vi.fn(),
     hasPersistedDraft: true,
   });
 });

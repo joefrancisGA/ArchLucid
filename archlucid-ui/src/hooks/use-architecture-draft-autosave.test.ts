@@ -533,6 +533,39 @@ describe("useArchitectureDraftAutosave", () => {
     expect(patchBody.actorSet?.actors[1]?.label).toBe("External API consumer");
   });
 
+  it("syncServerUpdatedUtc prevents a false another-session conflict after an external PATCH", async () => {
+    const fields: ArchitectureDraftFieldState = {
+      freeTextIntent: longIntent(),
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    getDraftRequest.mockResolvedValue(draftResponse(fields, "2026-08-11T12:00:30.000Z"));
+    patchDraftRequest.mockResolvedValue(draftResponse(fields, "2026-08-11T12:01:00.000Z"));
+
+    const { result } = renderHook(() =>
+      useArchitectureDraftAutosave({
+        architectureId: "draft-001",
+        fields,
+        actorSet,
+      }),
+    );
+
+    act(() => {
+      result.current.acceptServerBaseline(fields, "2026-08-11T12:00:00.000Z", actorSet);
+      result.current.syncServerUpdatedUtc("2026-08-11T12:00:30.000Z");
+    });
+
+    await act(async () => {
+      const saved = await result.current.saveDraft();
+      expect(saved).toBe(true);
+    });
+
+    expect(result.current.conflictMessage).toBeNull();
+    expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+  });
+
   it("skips PATCH when the server draft is no longer Drafting", async () => {
     const fields: ArchitectureDraftFieldState = {
       freeTextIntent: longIntent(),
