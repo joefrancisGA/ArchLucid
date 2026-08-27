@@ -305,7 +305,7 @@ export function TabsTrigger(props: TabsTriggerProps): ReactElement {
           ? tabsPillTriggerClass(selected, props.disabled ?? false)
           : [
               "px-4 py-2",
-              OPERATOR_TYPOGRAPHY.button,
+              OPERATOR_TYPOGRAPHY.tab,
               "-mb-px border-b-2",
               selected
                 ? "border-neutral-600 text-al-text-primary dark:border-neutral-400 dark:text-neutral-100"

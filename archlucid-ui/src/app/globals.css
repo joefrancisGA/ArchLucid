@@ -366,10 +366,19 @@ html.dark a.marketing-public-nav-link {
 }
 
 input,
-select,
-button {
+select {
   padding: 8px;
   font: inherit;
+}
+
+/*
+ * Preserve Button typography utilities (`font-semibold`, `text-[13px]`, …).
+ * Do not use `font: inherit` on `<button>` — unlayered CSS wins over `@layer utilities` and
+ * stripped semibold weight from Refresh, Help, and page-header triggers.
+ */
+button {
+  padding: 8px;
+  font-family: inherit;
 }
 
 /* Keyboard shortcut hints in the help dialog — neutral for light UI; dark-friendly when `prefers-color-scheme: dark` or `.dark`. */

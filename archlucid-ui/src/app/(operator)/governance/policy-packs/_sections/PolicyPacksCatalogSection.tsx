@@ -105,7 +105,7 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
                   props.onSelectedCatalogEntryIdChange(id);
                 }}
               >
-                <span className={OPERATOR_TYPOGRAPHY.button}>{row.displayName}</span>
+                <span className={OPERATOR_TYPOGRAPHY.body}>{row.displayName}</span>
                 <span className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}>
                   {row.packType} · v{row.snapshotVersion}
                 </span>

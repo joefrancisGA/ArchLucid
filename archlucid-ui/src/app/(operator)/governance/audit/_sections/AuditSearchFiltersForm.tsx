@@ -108,7 +108,7 @@ export function AuditSearchFiltersForm(props: AuditSearchFiltersFormProps): Reac
           data-testid="audit-filters-collapsible-trigger"
           className={cn(
             "flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900",
-            OPERATOR_TYPOGRAPHY.button,
+            OPERATOR_TYPOGRAPHY.nativeControlLabel,
           )}
         >
           {AUDIT_TRAIL_FILTERS_COLLAPSIBLE_SUMMARY}
@@ -260,7 +260,7 @@ export function AuditSearchFiltersForm(props: AuditSearchFiltersFormProps): Reac
           type="button"
           className={cn(
             "flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900",
-            OPERATOR_TYPOGRAPHY.button,
+            OPERATOR_TYPOGRAPHY.nativeControlLabel,
           )}
         >
           More filters (correlation ID)

@@ -20,6 +20,8 @@ describe("RefreshButton", () => {
 
     expect(button).toBeInTheDocument();
     expect(button.querySelector("svg")).not.toBeNull();
+    expect(button.className).toContain("text-[13px]");
+    expect(button.className).toContain("font-semibold");
   });
 
   it("keeps the label static while busy and spins the icon instead", () => {
