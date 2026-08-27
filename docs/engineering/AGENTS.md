@@ -48,6 +48,27 @@ Use **[solution filters](https://learn.microsoft.com/visualstudio/ide/filtered-s
 
 After adding or renaming **`*.csproj`** files under the repo root, update the **`projects`** arrays in these **`*.slnf`** files.
 
+## Local verification vs CI push corset
+
+The **master/main push corset** (`.github/workflows/ui-typecheck-on-push.yml`) is what blocks merges once branch protection is configured. **A successful Debug `dotnet build` is not evidence** the corset will pass: `Directory.Build.props` sets `TreatWarningsAsErrors=true`, and the push corset builds **Release** (several analyzers only fail in Release).
+
+Before pushing .NET changes that touch API, Core, or Decisioning:
+
+```bash
+export DOTNET_FAST_CORE_TEST_FILTER='Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord&FullyQualifiedName!~OpenApiContractSnapshotTests&FullyQualifiedName!~OpenApiBuyerContractSnapshotTests'
+bash scripts/ci/run_push_corset_dotnet.sh
+```
+
+For UI changes, verify from a **clean install**, not a long-lived `node_modules` tree:
+
+```bash
+cd archlucid-ui && npm ci && npm run typecheck
+```
+
+Stale `node_modules` can hide duplicate nested resolutions (for example two `@tanstack/query-core` copies) that clean `npm ci` on CI surfaces as `TS2322`. After `npm ci`, CI runs `python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .` to fail PRs that introduce multiple resolved versions.
+
+Scoped compile check for agents: `.\scripts\ci\agent-compile-check.ps1` (see `.cursor/rules/shell-hygiene.mdc`).
+
 ## Canonical extension map
 
 Contributor decision tree and entry points: **`.cursor/rules/Architecture-Invariants.mdc`**, **`docs/library/V1_SCOPE.md`**, **`docs/library/API_CONTRACTS.md`**.
