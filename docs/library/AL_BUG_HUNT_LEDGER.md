@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 64
-- **bugs-found:** 194
+- **hunts:** 65
+- **bugs-found:** 195
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — bulk-disposition and create-risk-exception findingId trim parity
+- **last-bug:** 2026-08-27 — manifest compare summary/export echo trimmed versions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2438,8 +2438,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `GovernanceStickinessFacade.RecordBulkDispositionAsync` — padded `findingIds` values failed scope lookup and returned HTTP 400 after zero processed rows though trimmed ids were in scope — **hit 2026-08-27:** trim each id before scope check and disposition write (batch-review trim parity); regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_ok_when_finding_ids_are_padded`.
 - [x] (proven) `GovernanceStickinessFacade.CreateRiskExceptionAsync` — padded body `findingId` failed scope lookup and returned HTTP 404 though trimmed id was in scope — **hit 2026-08-27:** normalize `findingId` before inspect scope gate and service create (route disposition trim parity); regression in `GovernanceStickinessControllerTests.CreateRiskException_returns_ok_when_finding_id_is_padded`.
-- [ ] (candidate) `GovernanceController.GetDashboard` — `maxDecisions` / `maxChanges` upper-bound guards share the `maxPending` fix but lack dedicated regression tests beyond the pending cap case.
-- [ ] (candidate) `ManifestsController.CompareManifests` / summary/export — compare responses echo padded `leftVersion` / `rightVersion` query strings even when `GetManifestInScopeAsync` normalized lookup succeeded.
+- [x] (valid-no-repro) `GovernanceController.GetDashboard` — `maxDecisions` / `maxChanges` upper-bound guards share the `maxPending` fix but lack dedicated regression tests beyond the pending cap case — **cheap-disproof 2026-08-27:** identical guard pattern to tested `maxPending`; added sibling cap tests in `GovernanceControllerDashboardTests`.
+- [x] (proven) `ManifestsController.CompareManifests` / summary/export — compare responses echo padded `leftVersion` / `rightVersion` query strings even when `GetManifestInScopeAsync` normalized lookup succeeded — **hit 2026-08-27:** summary/export/download use `ManifestDiffResult` canonical versions; regression in `ManifestsControllerTests`.
 
 2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 

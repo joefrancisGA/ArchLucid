@@ -179,6 +179,98 @@ public sealed class GovernanceControllerDashboardTests
     }
 
     [SkippableFact]
+    public async Task GetDashboard_returns_bad_request_when_max_decisions_exceeds_fifty()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = tenantId, Name = "contoso" });
+
+        Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
+
+        GovernanceController sut = new(
+            Mock.Of<IGovernanceWorkflowService>(),
+            Mock.Of<IGovernanceApprovalRequestRepository>(),
+            Mock.Of<IGovernancePromotionRecordRepository>(),
+            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            Mock.Of<IActorContext>(),
+            scope.Object,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            dashboard.Object,
+            Mock.Of<IGovernanceLineageService>(),
+            Mock.Of<IGovernanceRationaleService>(),
+            Mock.Of<IComplianceDriftTrendService>(),
+            Mock.Of<IPolicyPackDryRunService>(),
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            Mock.Of<IPolicyPackSchemaKeysService>(),
+            Mock.Of<Core.Audit.IAuditService>(),
+            Mock.Of<IPolicyPackDraftService>(),
+            Mock.Of<IPolicyPackGeneratorService>(),
+            tenants.Object,
+            NullLogger<GovernanceController>.Instance)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.GetDashboard(maxPending: 20, maxDecisions: 51, maxChanges: 20, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dashboard.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
+    public async Task GetDashboard_returns_bad_request_when_max_changes_exceeds_fifty()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = tenantId, Name = "contoso" });
+
+        Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
+
+        GovernanceController sut = new(
+            Mock.Of<IGovernanceWorkflowService>(),
+            Mock.Of<IGovernanceApprovalRequestRepository>(),
+            Mock.Of<IGovernancePromotionRecordRepository>(),
+            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            Mock.Of<IActorContext>(),
+            scope.Object,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            dashboard.Object,
+            Mock.Of<IGovernanceLineageService>(),
+            Mock.Of<IGovernanceRationaleService>(),
+            Mock.Of<IComplianceDriftTrendService>(),
+            Mock.Of<IPolicyPackDryRunService>(),
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            Mock.Of<IPolicyPackSchemaKeysService>(),
+            Mock.Of<Core.Audit.IAuditService>(),
+            Mock.Of<IPolicyPackDraftService>(),
+            Mock.Of<IPolicyPackGeneratorService>(),
+            tenants.Object,
+            NullLogger<GovernanceController>.Instance)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.GetDashboard(maxPending: 20, maxDecisions: 20, maxChanges: 51, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        dashboard.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
     public async Task GetDashboard_returns_bad_request_when_max_pending_exceeds_fifty()
     {
         Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
