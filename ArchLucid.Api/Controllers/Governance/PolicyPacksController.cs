@@ -68,6 +68,19 @@ public sealed partial class PolicyPacksController(
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
+        IReadOnlyList<TenantWorkspaceListItem> workspaces =
+            await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        TenantWorkspaceListItem? currentWorkspace =
+            workspaces.SingleOrDefault(workspace => workspace.WorkspaceId == scope.WorkspaceId);
+
+        if (currentWorkspace is null)
+        {
+            return this.NotFoundProblem(
+                "Workspace was not found for this tenant.",
+                ProblemTypes.ResourceNotFound);
+        }
+
         return null;
     }
 

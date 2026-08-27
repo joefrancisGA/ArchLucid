@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 127
-- **bugs-found:** 319
+- **hunts:** 128
+- **bugs-found:** 322
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — stickiness shared tenant/workspace preflight on RequireTenantOrNotFoundAsync
+- **last-bug:** 2026-08-27 — governance dashboard/drift, policy-packs, manifests, preview workspace preflight
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2702,9 +2702,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceResolutionController.Resolve` — missing workspace membership preflight; foreign workspace ran resolver and returned HTTP 200 instead of HTTP 404 — **hit 2026-08-27:** workspace preflight before `ResolveAsync`; regression in `GovernanceResolutionControllerTests`.
 - [x] (proven) `GovernancePreCommitSimulationController` checklist/simulate reads — missing workspace membership preflight; foreign workspace returned HTTP 200 instead of HTTP 404 — **hit 2026-08-27:** workspace preflight before scoped run lookup; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register/exception/disposition reads and mutations — `RequireTenantOrNotFoundAsync` omitted workspace membership preflight; foreign workspace returned HTTP 200 (or proceeded to facade) instead of HTTP 404 — **hit 2026-08-27:** `ListWorkspacesAsync` membership check in shared preflight (posture parity); regression in `GovernanceStickinessControllerTests`.
-- [ ] (candidate) `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` — missing workspace membership preflight; foreign workspace returns HTTP 200 dashboard/trend payload instead of HTTP 404.
-- [ ] (candidate) `PolicyPacksController` read/simulate endpoints — missing workspace membership preflight; foreign workspace returns HTTP 200 instead of HTTP 404.
-- [ ] (candidate) `ManifestsController` / `GovernancePreviewController` read paths — missing workspace membership preflight; foreign workspace returns HTTP 200 instead of HTTP 404.
+- [x] (proven) `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` — missing workspace membership preflight; foreign workspace returned HTTP 200 dashboard/trend payload instead of HTTP 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` includes `ListWorkspacesAsync` membership check; regression in `GovernanceControllerDashboardTests`.
+- [x] (proven) `PolicyPacksController` read/simulate endpoints — missing workspace membership preflight; foreign workspace returned HTTP 200 instead of HTTP 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` workspace membership check (stickiness parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `ManifestsController` / `GovernancePreviewController` read paths — missing workspace membership preflight; foreign workspace returned HTTP 200 instead of HTTP 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` workspace membership check; regression in `ManifestsControllerTests` and `GovernancePreviewControllerUnitTests`.
+
+2026-08-27 thorough hunt #211: proved workspace membership preflight on governance dashboard/drift, policy-packs reads, manifests reads, and governance preview reads.
 
 2026-08-27 seed hunt #210: proved stickiness shared workspace preflight; seeded governance dashboard/drift, policy-pack, and manifest/preview workspace-preflight candidates.
 

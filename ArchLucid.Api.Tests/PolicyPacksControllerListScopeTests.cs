@@ -62,6 +62,52 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task List_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = foreignWorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "foreign",
+                    DefaultProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
+        PolicyPacksController sut = new(
+            workflow.Object,
+            new CreatePolicyPackRequestValidator(),
+            new PublishPolicyPackVersionRequestValidator(),
+            new AssignPolicyPackRequestValidator(),
+            scopeProvider.Object,
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.List(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task List_returns_packs_when_tenant_exists()
     {
         PolicyPack pack = new()
@@ -82,6 +128,19 @@ public sealed class PolicyPacksControllerListScopeTests
         tenants
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "workspace",
+                    DefaultProjectId = Scope.ProjectId,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
 
         PolicyPacksController sut = new(
             workflow.Object,
@@ -525,6 +584,23 @@ public sealed class PolicyPacksControllerListScopeTests
                 tenantExists
                     ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" }
                     : null);
+
+        if (tenantExists)
+        {
+            tenants
+                .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                [
+                    new TenantWorkspaceListItem
+                    {
+                        WorkspaceId = Scope.WorkspaceId,
+                        TenantId = Scope.TenantId,
+                        Name = "workspace",
+                        DefaultProjectId = Scope.ProjectId,
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    }
+                ]);
+        }
 
         return new PolicyPacksController(
             workflow.Object,

@@ -348,6 +348,107 @@ public sealed class GovernancePreviewControllerUnitTests
         preview.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task Preview_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = foreignWorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "foreign",
+                    DefaultProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
+        GovernancePreviewController controller = new(
+            preview.Object,
+            scopeProvider.Object,
+            tenants.Object,
+            NullLogger<GovernancePreviewController>.Instance)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.Preview(
+            new CreateGovernancePreviewRequest
+            {
+                RunId = "run-1",
+                ManifestVersion = "v1",
+                Environment = "dev",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task CompareEnvironments_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = foreignWorkspaceId,
+                    TenantId = Scope.TenantId,
+                    Name = "foreign",
+                    DefaultProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
+        GovernancePreviewController controller = new(
+            preview.Object,
+            scopeProvider.Object,
+            tenants.Object,
+            NullLogger<GovernancePreviewController>.Instance)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.CompareEnvironments(
+            new CreateGovernanceEnvironmentComparisonRequest
+            {
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        preview.VerifyNoOtherCalls();
+    }
+
     private static GovernancePreviewController CreateController(IGovernancePreviewService previewService, bool tenantExists)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -360,6 +461,23 @@ public sealed class GovernancePreviewControllerUnitTests
                 tenantExists
                     ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" }
                     : null);
+
+        if (tenantExists)
+        {
+            tenants
+                .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                [
+                    new TenantWorkspaceListItem
+                    {
+                        WorkspaceId = Scope.WorkspaceId,
+                        TenantId = Scope.TenantId,
+                        Name = "workspace",
+                        DefaultProjectId = Scope.ProjectId,
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    }
+                ]);
+        }
 
         return new GovernancePreviewController(
             previewService,

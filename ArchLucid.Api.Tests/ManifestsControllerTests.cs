@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -130,6 +131,28 @@ public sealed class ManifestsControllerTests
             .Setup(r => r.GetByIdAsync(CallerScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunRecord { RunId = runId });
 
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord
+            {
+                Id = CallerScope.TenantId,
+                Name = "contoso",
+            });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    TenantId = CallerScope.TenantId,
+                    Name = "workspace",
+                    DefaultProjectId = CallerScope.ProjectId,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
         return new ManifestsController(
                 manifestReader ?? reader.Object,
                 manifestDiffService ?? diffService.Object,
@@ -143,16 +166,67 @@ public sealed class ManifestsControllerTests
                 diagramService.Object,
                 scopeProvider.Object,
                 runs.Object,
-                Mock.Of<ArchLucid.Core.Tenancy.ITenantRepository>(repository => repository.GetByIdAsync(
-                    CallerScope.TenantId,
-                    It.IsAny<CancellationToken>()) == Task.FromResult<ArchLucid.Core.Tenancy.TenantRecord?>(new ArchLucid.Core.Tenancy.TenantRecord
-                    {
-                        Id = CallerScope.TenantId,
-                        Name = "contoso",
-                    })))
+                tenants.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
+    }
+
+    [Fact]
+    public async Task GetManifest_returns_not_found_when_workspace_is_out_of_scope()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IUnifiedGoldenManifestReader> reader = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord
+            {
+                Id = CallerScope.TenantId,
+                Name = "contoso",
+            });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = foreignWorkspaceId,
+                    TenantId = CallerScope.TenantId,
+                    Name = "foreign",
+                    DefaultProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                }
+            ]);
+
+        ManifestsController controller = new(
+            reader.Object,
+            Mock.Of<IManifestDiffService>(),
+            Mock.Of<IManifestDiffSummaryFormatter>(),
+            Mock.Of<IManifestDiffExportService>(),
+            Mock.Of<IDiagramGenerator>(),
+            Mock.Of<IManifestSummaryGenerator>(),
+            Mock.Of<IManifestSummaryService>(),
+            Mock.Of<IArchitectureExportService>(),
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IManifestDiagramService>(),
+            scopeProvider.Object,
+            Mock.Of<IRunRepository>(),
+            tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.GetManifest(ManifestVersion, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        reader.VerifyNoOtherCalls();
     }
 
     [Fact]
