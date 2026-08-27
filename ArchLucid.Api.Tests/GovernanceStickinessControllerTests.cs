@@ -1188,6 +1188,28 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_evidence_ref_exceeds_max_length()
+    {
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(riskExceptions: riskExceptions);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            OwnerUserId = "owner",
+            Rationale = "accepted risk",
+            EvidenceRef = new string('e', 501),
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CreateRiskException_returns_bad_request_when_run_id_is_empty_guid()
     {
         Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
@@ -1465,6 +1487,27 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task CreateRecurrenceSchedule_returns_bad_request_when_name_exceeds_max_length()
+    {
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new(MockBehavior.Strict);
+        GovernanceStickinessController controller = BuildSut(recurrenceRepo: recurrenceRepo);
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            Name = new string('n', 301),
+            CronExpression = "0 8 * * 1",
+            IsEnabled = true,
+        };
+
+        IActionResult action = await controller.CreateRecurrenceSchedule(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recurrenceRepo.VerifyNoOtherCalls();
     }
 
     [Fact]

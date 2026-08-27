@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 109
-- **bugs-found:** 259
+- **hunts:** 110
+- **bugs-found:** 264
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — batch-review comment, link-entra OID, digest recipient length
+- **last-bug:** 2026-08-27 — compare-environments env guards, product-feedback score, recurrence name, risk-exception evidenceRef
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2610,9 +2610,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — `reviewComment` longer than 4000 characters reached per-item `ApproveAsync`/`RejectAsync` instead of HTTP 400 (`Approve`/`Reject` already guarded) — **hit 2026-08-27:** controller max-length guard before batch loop; regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_bad_request_when_review_comment_exceeds_max_length`.
 - [x] (proven) `TenantTrialController.LinkEntraAsync` — `entraOid` longer than 128 characters reached `TryLinkLocalIdentityToEntraAsync` and surfaced unhandled `ArgumentException` (HTTP 500) instead of HTTP 400 — **hit 2026-08-27:** controller max-length guard before repository call; regression in `TenantTrialControllerTests.LinkEntraAsync_returns_bad_request_when_entra_oid_exceeds_max_length`.
 - [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` / `TenantSponsorDigestPreferencesController` — serialized `recipientEmails` longer than `NVARCHAR(2000)` reached SQL upsert (HTTP 500 / truncation risk) instead of HTTP 400 (`DigestRecipientEmailsValidator` checked format only) — **hit 2026-08-27:** `DigestRecipientEmailsValidator.MaxSerializedRecipientEmailsLength`; regression in `TenantExecDigestPreferencesControllerTests`.
-- [ ] (candidate) `GovernancePreviewController.CompareEnvironments` — missing controller-layer `sourceEnvironment`/`targetEnvironment` guards that `Preview` now has (service/FluentValidation already return 400).
+- [x] (proven) `GovernancePreviewController.CompareEnvironments` — invalid/whitespace/same `sourceEnvironment`/`targetEnvironment` reached `CompareEnvironmentsAsync` instead of controller 400 (Preview/Submit parity) — **hit 2026-08-27:** `GovernanceEnvironmentValidation` guards before tenant preflight; regression in `GovernancePreviewControllerUnitTests`.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `score` outside `[-1, 1]` reached `InsertProductFeedbackAsync` and risked SQL CHECK violation (HTTP 500) — **hit 2026-08-27:** controller range guard before scoped run lookup; regression in `TenantCustomerSuccessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.CreateRecurrenceSchedule` / `UpdateRecurrenceSchedule` — `name` longer than `NVARCHAR(300)` reached facade persist — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `RenewRiskException` — `evidenceRef` longer than `NVARCHAR(500)` reached facade persist — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceStickinessControllerTests`.
 
-2026-08-27 seed hunt #192: proved batch-review comment max-length, link-entra OID max-length, and digest recipient serialized length; reseeded CompareEnvironments controller env parity candidate.
+2026-08-27 thorough hunt #193: proved CompareEnvironments controller env guards, product-feedback score range, recurrence schedule name max-length, and risk-exception evidenceRef max-length.
+
+- [x] (proven) `GovernancePreviewController.CompareEnvironments` — missing controller-layer `sourceEnvironment`/`targetEnvironment` guards that `Preview` now has (service/FluentValidation already return 400) — **hit 2026-08-27:** controller guards added (strict-mock regression replaces service-delegation test).
 
 2026-08-27 thorough hunt #191: proved Promote notes max-length guard and Submit/Promote workflow env normalization; zone candidate backlog cleared.
 

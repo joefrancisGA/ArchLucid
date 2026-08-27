@@ -36,6 +36,13 @@ public sealed partial class GovernanceStickinessController
         if (!GovernanceQueryRequestValidationRules.IsUsableOptionalGuid(request.ManifestId))
             return this.BadRequestProblem("manifestId must not be an empty GUID.", ProblemTypes.ValidationFailed);
 
+        if (request.EvidenceRef is not null && request.EvidenceRef.Length > 500)
+        {
+            return this.BadRequestProblem(
+                "EvidenceRef must not exceed 500 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -136,6 +143,13 @@ public sealed partial class GovernanceStickinessController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
+        if (request.EvidenceRef is not null && request.EvidenceRef.Length > 500)
+        {
+            return this.BadRequestProblem(
+                "EvidenceRef must not exceed 500 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -170,6 +184,13 @@ public sealed partial class GovernanceStickinessController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (request.Name is not null && request.Name.Length > 300)
+        {
+            return this.BadRequestProblem(
+                "Name must not exceed 300 characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -248,6 +269,13 @@ public sealed partial class GovernanceStickinessController
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        if (request.Name is not null && request.Name.Length > 300)
+        {
+            return this.BadRequestProblem(
+                "Name must not exceed 300 characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

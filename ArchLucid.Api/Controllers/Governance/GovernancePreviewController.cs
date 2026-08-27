@@ -126,6 +126,33 @@ public sealed class GovernancePreviewController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (string.IsNullOrWhiteSpace(body.SourceEnvironment))
+            return this.BadRequestProblem("SourceEnvironment is required.", ProblemTypes.ValidationFailed);
+
+        if (!GovernanceEnvironmentValidation.IsValid(body.SourceEnvironment))
+        {
+            return this.BadRequestProblem(
+                "SourceEnvironment must be one of: dev, test, prod.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (string.IsNullOrWhiteSpace(body.TargetEnvironment))
+            return this.BadRequestProblem("TargetEnvironment is required.", ProblemTypes.ValidationFailed);
+
+        if (!GovernanceEnvironmentValidation.IsValid(body.TargetEnvironment))
+        {
+            return this.BadRequestProblem(
+                "TargetEnvironment must be one of: dev, test, prod.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (string.Equals(body.SourceEnvironment.Trim(), body.TargetEnvironment.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            return this.BadRequestProblem(
+                "SourceEnvironment and TargetEnvironment must be different.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

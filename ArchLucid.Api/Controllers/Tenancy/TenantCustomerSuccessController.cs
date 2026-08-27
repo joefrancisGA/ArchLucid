@@ -249,6 +249,13 @@ public sealed class TenantCustomerSuccessController(
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.Score is < -1 or > 1)
+        {
+            return this.BadRequestProblem(
+                "Score must be between -1 and 1.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (request.RunId is Guid runId)
         {
             RunRecord? run = await _runRepository
