@@ -859,6 +859,43 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task CreateRiskException_returns_not_found_when_run_id_is_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchLucid.Persistence.Models.RunRecord?)null);
+
+        GovernanceStickinessController controller = BuildSut(findingInspect: findingInspect, runRepository: runs);
+        SetIdempotencyKey(controller);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = foreignRunId,
+            OwnerUserId = "owner",
+            Rationale = "accepted risk",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
     public async Task RecordBulkDisposition_returns_bad_request_when_finding_ids_empty()
     {
         GovernanceStickinessController controller = BuildSut();

@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 50
-- **bugs-found:** 168
+- **hunts:** 51
+- **bugs-found:** 169
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — manifest read/export/compare ghost-tenant 404 parity
+- **last-bug:** 2026-08-27 — create risk exception out-of-scope runId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2406,6 +2406,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantWorkspacesController` list/recycle-bin/delete/restore — ghost tenant workspace paths — **cheap-disproof 2026-08-27:** all four actions call `ITenantRepository.GetByIdAsync` before workspace/project work (`TenantWorkspacesController.cs`).
 - [x] (invalid) `TenantTrialController.LinkEntraAsync` / `ConvertTrialAsync` — ghost tenant trial mutations — **cheap-disproof 2026-08-27:** both POST paths preflight `GetByIdAsync` before mutation (`TenantTrialController.cs`).
 - [x] (invalid) `TenantBaselineController.PutAsync` / `TenantHomepageSettingsController.ListEligibleSamplesAsync` — ghost tenant PUT/list reads — **cheap-disproof 2026-08-27:** `GetByIdAsync` preflight on both endpoints (GET/PUT parity already proven for siblings).
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` / `GovernanceStickinessFacade.CreateRiskExceptionAsync` — in-scope `findingId` with foreign-workspace body `runId` persisted waiver without scoped run preflight — **hit 2026-08-27:** `EnsureRunInScopeWhenProvidedAsync` before create (record-disposition parity); controller maps `RunNotFoundException` to 404; regression in `GovernanceStickinessFacadeScopeTests` and `GovernanceStickinessControllerTests`.
+
+2026-08-27 seed hunt #134: proved create-risk-exception out-of-scope `runId` scope gate; promoted from disposition parity gap.
 
 2026-08-27 seed hunt #133: seed-only — zone ghost-tenant parity exhausted; cheap-disproved dry-run recurrence preview, static rule templates, and remaining tenancy workspace/trial/baseline/homepage preflight siblings.
 

@@ -127,6 +127,7 @@ public sealed partial class GovernanceStickinessFacade
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         await EnsureFindingInScopeAsync(scope, request.FindingId, ct);
+        await EnsureRunInScopeWhenProvidedAsync(scope, request.RunId, ct);
 
         return await _riskExceptionService.CreateAsync(
             request,
