@@ -1,4 +1,4 @@
-# Thin master/main push corset — blocking UI typecheck only (WK-11).
+# Thin master/main push corset — gitleaks, dotnet build + Core/Decisioning fast-core tests, UI typecheck (WK-11).
 # Full CI matrix remains pull_request + workflow_dispatch in ci.yml.
 name: UI typecheck on push
 
@@ -12,6 +12,7 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  DOTNET_FAST_CORE_TEST_FILTER: Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord&FullyQualifiedName!~OpenApiContractSnapshotTests&FullyQualifiedName!~OpenApiBuyerContractSnapshotTests
 
 jobs:
   gitleaks:
@@ -24,6 +25,26 @@ jobs:
         with:
           version: "8.30.1"
           config-path: .gitleaks.toml
+
+  dotnet-push-corset:
+    name: ".NET: push corset (build + fast core Core/Decisioning)"
+    needs: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Build Active solution and run Core/Decisioning fast-core tests
+        run: bash scripts/ci/run_push_corset_dotnet.sh
 
   ui-typecheck:
     name: "Operator UI: typecheck (blocking)"

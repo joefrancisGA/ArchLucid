@@ -230,9 +230,10 @@ PRs must pass the **blocking** merge gates (Tier **0–3b**, **2b**, **3c**, **3
 | Job | Blocking? | Purpose |
 |-----|-----------|---------|
 | **`Security: gitleaks (secret scan)`** | Yes | Same secret scan as PR Tier **0** |
+| **`.NET: push corset (build + fast core Core/Decisioning)`** | Yes | `ArchLucid.Active.slnf` Release build + `DOTNET_FAST_CORE_TEST_FILTER` on **`ArchLucid.Core.Tests`** and **`ArchLucid.Decisioning.Tests`** (`scripts/ci/run_push_corset_dotnet.sh`) |
 | **`Operator UI: typecheck (blocking)`** | Yes | `archlucid-ui`: `npm ci` + `npm run typecheck` |
 
-**Tradeoff:** Direct pushes to the default branch get a **thin** UI typecheck corset so truncated Operate help JSX cannot land silently. The full **`ci.yml`** matrix (Suite=Core, SQL regression, Playwright, k6) still runs on **`pull_request`** and **`workflow_dispatch`** — not on every default-branch push. **`codeql.yml`** already runs on push separately.
+**Tradeoff:** Direct pushes to the default branch get a **thin** corset (gitleaks + Active-solution build + Core/Decisioning fast-core tests + UI typecheck) so compile, declaration-gating regressions, and truncated Operate help JSX cannot land silently. The full **`ci.yml`** matrix (all fast-core shards, SQL regression, Playwright, k6) still runs on **`pull_request`** and **`workflow_dispatch`** — not on every default-branch push. **`codeql.yml`** already runs on push separately. Add the new job names under branch protection **required status checks** if pushes should be blocked when they fail.
 
 ### Tier 4 — scheduled security testing (not per-PR)
 
