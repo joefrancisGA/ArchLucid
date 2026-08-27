@@ -1,3 +1,5 @@
+import { orderedStageIndex } from "@/lib/progress/ordered-stage-index";
+
 export type ReviewStartStageId =
   | "creating-workspace"
   | "applying-template"
@@ -50,7 +52,5 @@ export function reviewStartStageIndex(
   stages: readonly ReviewStartStageDefinition[],
   activeStageId: ReviewStartStageId,
 ): number {
-  const index = stages.findIndex((stage) => stage.id === activeStageId);
-
-  return index >= 0 ? index : 0;
+  return orderedStageIndex(stages, activeStageId);
 }

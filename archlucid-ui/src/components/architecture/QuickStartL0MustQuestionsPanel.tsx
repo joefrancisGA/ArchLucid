@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useMemo, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { EvidenceExtractionAwaitingSkeleton } from "@/components/evidence/EvidenceExtractionAwaitingSkeleton";
 import {
   DraftIntakeRequiredClarificationField,
   type ClarificationCardStatus,
@@ -203,6 +204,8 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Quick start collects the same baseline facts Guided questions requires before analysis begins.
         </p>
+
+        {props.isSuggestingFromEvidence === true ? <EvidenceExtractionAwaitingSkeleton /> : null}
 
         {props.canSuggestFromEvidence === true ? (
           <div className="space-y-2" data-testid="first-pilot-l0-suggest-from-evidence">

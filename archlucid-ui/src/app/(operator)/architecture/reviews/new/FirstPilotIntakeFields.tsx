@@ -1,8 +1,12 @@
 "use client";
 
+import { useRef } from "react";
+
 import { cn } from "@/lib/utils";
 
 import { QuickStartL0MustQuestionsPanel } from "@/components/architecture/QuickStartL0MustQuestionsPanel";
+import { EvidenceExtractionProgressCard } from "@/components/evidence/EvidenceExtractionProgressCard";
+import { EvidenceExtractionStickyIndicator } from "@/components/evidence/EvidenceExtractionStickyIndicator";
 import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -13,13 +17,11 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
 import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/WizardPolicyPackCloudMismatchCallout";
+import { useElementOutOfView } from "@/hooks/use-element-out-of-view";
 import { CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER,
-  ARCHITECTURE_DOCUMENT_TEXT_EXTRACTION_IN_PROGRESS_HELPER,
-} from "@/lib/evidence-readable-text";
+import { ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER } from "@/lib/evidence-readable-text";
 import { QUICK_START_EVIDENCE_UPLOAD_DESCRIPTION } from "@/lib/evidence-upload-accepted-formats";
 import { FIRST_PILOT_ARCHITECTURE_CONTEXT_MIN_HELPER, FIRST_PILOT_MIN_BRIEF_CHARS } from "@/lib/first-pilot-intake";
 import { GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL } from "@/lib/guided-intake-copy";
@@ -53,9 +55,18 @@ type FirstPilotIntakeFieldsProps = {
 
 export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): React.JSX.Element {
   const { wizard } = props;
+  const extractionCardRef = useRef<HTMLDivElement>(null);
+  const extractionProgress = wizard.evidenceExtractionProgress;
+  const showExtractionCard = extractionProgress.phase !== "idle";
+  const cardIsOutOfView = useElementOutOfView(extractionCardRef, showExtractionCard);
 
   return (
     <section className="space-y-4" data-testid="first-pilot-intake-panel">
+      <EvidenceExtractionStickyIndicator
+        visible={showExtractionCard && cardIsOutOfView}
+        phase={extractionProgress.phase === "complete" ? "complete" : "processing"}
+      />
+
       <div className="space-y-1">
         <h2
           className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
@@ -105,14 +116,21 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
           }}
         />
 
-        {wizard.showBinaryDocumentReadAfterUploadHelper ? (
+        {showExtractionCard ? (
+          <EvidenceExtractionProgressCard
+            cardRef={extractionCardRef}
+            phase={extractionProgress.phase === "complete" ? "complete" : "processing"}
+            documentNames={extractionProgress.documentNames}
+            stages={extractionProgress.stages}
+            activeStageIndex={extractionProgress.activeStageIndex}
+            completion={extractionProgress.completion}
+          />
+        ) : wizard.showBinaryDocumentReadAfterUploadHelper ? (
           <p
             className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="first-pilot-binary-document-read-after-upload"
           >
-            {wizard.isExtractingEvidenceText
-              ? ARCHITECTURE_DOCUMENT_TEXT_EXTRACTION_IN_PROGRESS_HELPER
-              : ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER}
+            {ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER}
           </p>
         ) : null}
 
