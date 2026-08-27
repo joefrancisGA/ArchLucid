@@ -619,7 +619,7 @@ describe("SocraticIntakeWizard", () => {
     const primaryPanel = screen.getByTestId("guided-intake-primary-panel");
 
     expect(clarificationsStep.className).not.toContain("pb-24");
-    expect(primaryPanel.className).toContain("pb-24");
+    expect(primaryPanel.className).not.toContain("pb-24");
 
     const wizard = screen.getByTestId("socratic-intake-wizard");
     const mainColumn = wizard.firstElementChild as HTMLElement;

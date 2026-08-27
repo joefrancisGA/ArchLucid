@@ -313,10 +313,7 @@ export function SocraticIntakeWizard() {
 
       {step === 1 ? (
         <div data-testid="socratic-clarifications-step">
-          <Card
-            className={WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS}
-            data-testid="guided-intake-primary-panel"
-          >
+          <Card data-testid="guided-intake-primary-panel">
             <CardHeader>
             <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
             <CardDescription>
@@ -336,7 +333,12 @@ export function SocraticIntakeWizard() {
               {REQUIRED_CLARIFICATION_BASELINE_LABEL}
             </p>
           </CardHeader>
-          <CardContent className={OPERATOR_LAYOUT.sectionStack}>
+          <CardContent
+            className={cn(
+              OPERATOR_LAYOUT.sectionStack,
+              viewAllClarifications ? WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS : undefined,
+            )}
+          >
             {primaryPendingQuestion !== null
               ? renderClarificationField(primaryPendingQuestion, {
                   isPrimary: true,
