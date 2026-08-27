@@ -15,7 +15,7 @@ describe("isPersistentWorkspaceNextActionStripPath", () => {
   });
 
   it("blocks other operator surfaces such as preferences and help", () => {
-    expect(isPersistentWorkspaceNextActionStripPath("/settings/preferences")).toBe(false);
+    expect(isPersistentWorkspaceNextActionStripPath("/account/preferences")).toBe(false);
     expect(isPersistentWorkspaceNextActionStripPath("/help/architecture-drafts")).toBe(false);
     expect(isPersistentWorkspaceNextActionStripPath("/governance")).toBe(false);
     expect(isPersistentWorkspaceNextActionStripPath("/architecture/reviews/new")).toBe(false);
