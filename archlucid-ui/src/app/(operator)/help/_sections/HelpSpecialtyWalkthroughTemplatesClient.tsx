@@ -15,7 +15,6 @@ import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStart
 import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +29,6 @@ import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation"
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
-  OPERATOR_CARD,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -156,7 +154,7 @@ function SpecialtyTemplateCardSelectionFooter(props: {
 }): React.ReactElement {
   return (
     <div
-      className="w-full space-y-2 border-t border-teal-200/80 pt-3 dark:border-teal-900/50"
+      className="w-full space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700"
       role="status"
       aria-busy={props.isContinuing}
       data-testid="specialty-template-card-selection-footer"
@@ -207,23 +205,23 @@ function SpecialtyTemplateCard(props: {
   const { template, selected, canExecute } = props;
 
   return (
-    <Card
+    <article
       className={cn(
-        "grid grid-rows-subgrid gap-0 border-neutral-200 dark:border-neutral-800",
+        "grid grid-rows-subgrid gap-0 rounded-md border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40",
         "row-span-6",
-        selected && "ring-2 ring-teal-700/50 ring-offset-2 ring-offset-white dark:ring-teal-500/40 dark:ring-offset-neutral-950",
+        selected && "ring-2 ring-neutral-400/80 ring-offset-2 ring-offset-white dark:ring-neutral-500/60 dark:ring-offset-neutral-950",
       )}
       data-testid={`specialty-template-card-${template.id}`}
       aria-current={selected ? "true" : undefined}
     >
-      <CardHeader className={cn(OPERATOR_CARD.header, "row-start-1")}>
+      <div className="row-start-1 space-y-2 p-4 pb-0">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>{template.title}</CardTitle>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{template.title}</h3>
           {selected ? <StatusTag kind="ready" label="Selected" /> : null}
         </div>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{template.purpose}</p>
-      </CardHeader>
-      <CardContent className={cn(OPERATOR_CARD.content, "row-start-2 grid grid-rows-subgrid gap-3 row-span-4")}>
+      </div>
+      <div className="row-start-2 row-span-4 grid grid-rows-subgrid gap-3 px-4">
         <div className="row-start-1">
           <p className={cn("m-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary")}>Best for</p>
           <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{template.bestFor}</p>
@@ -247,13 +245,8 @@ function SpecialtyTemplateCard(props: {
           </p>
           <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{template.expectedOutput}</p>
         </div>
-      </CardContent>
-      <CardFooter
-        className={cn(
-          OPERATOR_CARD.content,
-          "row-start-6 flex flex-col flex-wrap gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800",
-        )}
-      >
+      </div>
+      <div className="row-start-6 flex flex-col flex-wrap gap-2 border-t border-neutral-100 p-4 pt-4 dark:border-neutral-800">
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
@@ -294,8 +287,8 @@ function SpecialtyTemplateCard(props: {
             onRemove={props.onRemoveSelection}
           />
         ) : null}
-      </CardFooter>
-    </Card>
+      </div>
+    </article>
   );
 }
 

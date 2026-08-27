@@ -6,14 +6,13 @@ import { useSearchParams } from "next/navigation";
 import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
 
 import { HelpCopyableValue } from "@/components/help/HelpCopyableValue";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   AZURE_CLOUD_CONNECTION_IDENTITY_MODEL,
   AZURE_CLOUD_CONNECTION_ROLE_ROWS,
 } from "@/lib/azure-cloud-connection-permissions-manifest";
 import { isAzureGuid } from "@/lib/azure-identifier-validation";
 import { AZURE_PERMISSIONS_CONTEXT_MISSING } from "@/lib/azure-cloud-connection-permissions-copy";
-import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const SUGGESTED_PRINCIPAL_NAME = "archlucid-readonly-extractor";
@@ -47,47 +46,48 @@ export function HelpAzurePermissionsConnectionContext(): React.ReactElement {
     .join(", ");
 
   return (
-    <Card data-testid="azure-permissions-connection-context">
-      <CardContent className={cn(OPERATOR_CARD.content, "space-y-4 pt-6")}>
-        {!hasContext ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {AZURE_PERMISSIONS_CONTEXT_MISSING}{" "}
-            <Link href={returnHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-              Open Azure connection setup
-            </Link>
-            .
-          </p>
-        ) : null}
-        <HelpCopyableValue
-          label="Enterprise application name (suggested)"
-          value={SUGGESTED_PRINCIPAL_NAME}
-          testId="azure-permissions-copy-principal-name"
-        />
-        {hasContext ? (
-          <>
-            <HelpCopyableValue label="Tenant ID" value={tenantId} testId="azure-permissions-copy-tenant-id" />
-            <HelpCopyableValue
-              label="Application (client) ID"
-              value={clientId}
-              testId="azure-permissions-copy-client-id"
-            />
-            <HelpCopyableValue
-              label="Subscription ID"
-              value={subscriptionId}
-              testId="azure-permissions-copy-subscription-id"
-            />
-          </>
-        ) : null}
-        <HelpCopyableValue label="Required roles" value={requiredRoles} testId="azure-permissions-copy-required-roles" />
-        <HelpCopyableValue
-          label="Optional or conditional roles"
-          value={optionalRoles}
-          testId="azure-permissions-copy-optional-roles"
-        />
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {AZURE_CLOUD_CONNECTION_IDENTITY_MODEL.assignmentTarget}
+    <div
+      className="space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="azure-permissions-connection-context"
+    >
+      {!hasContext ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {AZURE_PERMISSIONS_CONTEXT_MISSING}{" "}
+          <Link href={returnHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+            Open Azure connection setup
+          </Link>
+          .
         </p>
-      </CardContent>
-    </Card>
+      ) : null}
+      <HelpCopyableValue
+        label="Enterprise application name (suggested)"
+        value={SUGGESTED_PRINCIPAL_NAME}
+        testId="azure-permissions-copy-principal-name"
+      />
+      {hasContext ? (
+        <>
+          <HelpCopyableValue label="Tenant ID" value={tenantId} testId="azure-permissions-copy-tenant-id" />
+          <HelpCopyableValue
+            label="Application (client) ID"
+            value={clientId}
+            testId="azure-permissions-copy-client-id"
+          />
+          <HelpCopyableValue
+            label="Subscription ID"
+            value={subscriptionId}
+            testId="azure-permissions-copy-subscription-id"
+          />
+        </>
+      ) : null}
+      <HelpCopyableValue label="Required roles" value={requiredRoles} testId="azure-permissions-copy-required-roles" />
+      <HelpCopyableValue
+        label="Optional or conditional roles"
+        value={optionalRoles}
+        testId="azure-permissions-copy-optional-roles"
+      />
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {AZURE_CLOUD_CONNECTION_IDENTITY_MODEL.assignmentTarget}
+      </p>
+    </div>
   );
 }
