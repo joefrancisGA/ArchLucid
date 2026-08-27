@@ -217,6 +217,49 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetRiskRegister_returns_not_found_when_tenant_missing()
+    {
+        Mock<IArchitectureRiskRegisterService> riskRegister = new(MockBehavior.Strict);
+
+        GovernanceStickinessController sut = BuildSut(
+            riskRegister: riskRegister,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.GetRiskRegister(projectId: null, cancellationToken: CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        riskRegister.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetDecisionsNeededSummary_returns_not_found_when_tenant_missing()
+    {
+        GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.GetDecisionsNeededSummary(projectId: null, cancellationToken: CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ListRiskExceptions_returns_not_found_when_tenant_missing()
+    {
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessController sut = BuildSut(
+            riskExceptions: riskExceptions,
+            tenantRepository: TenantMissingRepository());
+
+        IActionResult action = await sut.ListRiskExceptions(projectId: null, cancellationToken: CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetRiskRegister_returns_service_payload()
     {
         ArchitectureRiskRegisterResponse expected = new();
