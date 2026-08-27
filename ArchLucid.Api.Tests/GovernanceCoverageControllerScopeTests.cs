@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
@@ -30,6 +31,40 @@ public sealed class GovernanceCoverageControllerScopeTests
         Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
             Scope.TenantId,
             It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" }));
+
+    [Fact]
+    public async Task PreviewCoverage_returns_not_found_when_tenant_missing()
+    {
+        Mock<ICoveragePreviewService> preview = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        GovernanceCoverageController controller = new(
+            Mock.Of<ICoverageQueryService>(),
+            preview.Object,
+            Mock.Of<IPolicyPackRepository>(),
+            scopeProvider.Object,
+            tenants.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        CoveragePreviewRequest request = new()
+        {
+            CloudProvider = CloudProvider.Azure,
+            FocusedPilotModeEnabled = true,
+        };
+
+        IActionResult action = await controller.PreviewCoverage(request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        preview.VerifyNoOtherCalls();
+    }
 
     [Fact]
     public async Task GetScopeCoverage_returns_not_found_when_tenant_missing()
