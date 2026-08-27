@@ -10,8 +10,10 @@ import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
+  expectWhereToGoNextFollowUpLinks,
+  whereToGoNextFollowUpLinksForTests,
 } from "@/lib/claim-discipline-test-helpers";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE,
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -26,7 +28,6 @@ import {
   SYSTEM_HEALTH_HELP_TILE_ITEMS,
 } from "@/lib/system-health-help-guide-content";
 import { SYSTEM_HEALTH_HELP_TOPIC_LABEL } from "@/lib/system-health-evidence-copy";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpSystemHealthGuideView", () => {
@@ -84,11 +85,10 @@ describe("HelpSystemHealthGuideView", () => {
       }
     }
 
-    for (const source of SYSTEM_HEALTH_HELP_SOURCES) {
-      const sourcesRegion = within(screen.getByTestId("help-system-health-sources"));
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+    const sourcesRegion = within(screen.getByTestId("help-system-health-sources"));
+    expectWhereToGoNextFollowUpLinks(sourcesRegion, SYSTEM_HEALTH_HELP_SOURCES);
 
-      expect(sourcesRegion.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    for (const source of whereToGoNextFollowUpLinksForTests(SYSTEM_HEALTH_HELP_SOURCES)) {
       if (source.when !== undefined) {
         expect(sourcesRegion.getByText(source.when)).toBeInTheDocument();
       }
