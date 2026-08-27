@@ -37,23 +37,8 @@ public static class ReviewCacheManifestBuilder
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(resolvedRunId);
 
-        ClosedLoopReasoningRequest resolvedRequest = new()
-        {
-            TenantId = ClosedLoopTenantIdNormalizer.NormalizeOptional(request.TenantId),
-            RunId = ClosedLoopRunIdNormalizer.NormalizeRequired(resolvedRunId),
-            WorkspaceId = ClosedLoopWorkspaceIdNormalizer.NormalizeOptional(request.WorkspaceId),
-            ProjectId = ClosedLoopProjectIdNormalizer.NormalizeOptional(request.ProjectId),
-            SourceTexts = request.SourceTexts
-                .Select(ClosedLoopReasoningSourceTextNormalizer.Normalize)
-                .ToList(),
-            DeclaredPriorities = ClosedLoopDeclaredPrioritiesNormalizer.Normalize(request.DeclaredPriorities),
-            FramingAnswers = ClosedLoopFramingAnswersNormalizer.Normalize(request.FramingAnswers),
-            UseGoldenFixture = request.UseGoldenFixture,
-            ContinueFromExistingRun = request.ContinueFromExistingRun,
-            PublishToProduct = request.PublishToProduct,
-            ReviewTier = request.ReviewTier,
-            ModelAliasId = ClosedLoopModelAliasIdNormalizer.NormalizeOptional(request.ModelAliasId),
-        };
+        ClosedLoopReasoningRequest resolvedRequest = ClosedLoopReasoningRequestSnapshot.Capture(request);
+        resolvedRequest.RunId = ClosedLoopRunIdNormalizer.NormalizeRequired(resolvedRunId);
 
         return Build(resolvedRequest, baselineKnowledgeModel, technologyLedgerEntries);
     }
