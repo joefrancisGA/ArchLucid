@@ -12,6 +12,7 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -884,6 +885,50 @@ public sealed class GovernanceStickinessControllerTests
         {
             FindingId = "finding-1",
             RunId = foreignRunId,
+            OwnerUserId = "owner",
+            Rationale = "accepted risk",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_not_found_when_manifest_id_does_not_belong_to_run()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid boundManifestId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid foreignManifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId,
+                GoldenManifestId = boundManifestId,
+            });
+
+        GovernanceStickinessController controller = BuildSut(findingInspect: findingInspect, runRepository: runs);
+        SetIdempotencyKey(controller);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = runId,
+            ManifestId = foreignManifestId,
             OwnerUserId = "owner",
             Rationale = "accepted risk",
             ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),

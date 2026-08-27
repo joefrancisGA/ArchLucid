@@ -102,6 +102,33 @@ public sealed partial class GovernanceStickinessFacade
             throw new RunNotFoundException(resolvedRunId.ToString("D"));
     }
 
+    private async Task EnsureManifestMatchesRunWhenProvidedAsync(
+        ScopeContext scope,
+        Guid? runId,
+        Guid? manifestId,
+        CancellationToken ct)
+    {
+        if (runId is not Guid resolvedRunId || resolvedRunId == Guid.Empty)
+            return;
+
+        if (manifestId is not Guid resolvedManifestId || resolvedManifestId == Guid.Empty)
+            return;
+
+        Persistence.Models.RunRecord? run = await _runRepository
+            .GetByIdAsync(scope, resolvedRunId, ct)
+            .ConfigureAwait(false);
+
+        if (run is null)
+            throw new RunNotFoundException(resolvedRunId.ToString("D"));
+
+        if (run.GoldenManifestId is not Guid boundManifest || boundManifest != resolvedManifestId)
+        {
+            throw new GoldenManifestVersionNotFoundException(
+                resolvedManifestId.ToString("D"),
+                resolvedRunId.ToString("D"));
+        }
+    }
+
     private async Task EnsureFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)
     {
         if (!await IsFindingInScopeAsync(scope, findingId, ct))
@@ -128,6 +155,7 @@ public sealed partial class GovernanceStickinessFacade
 
         await EnsureFindingInScopeAsync(scope, request.FindingId, ct);
         await EnsureRunInScopeWhenProvidedAsync(scope, request.RunId, ct);
+        await EnsureManifestMatchesRunWhenProvidedAsync(scope, request.RunId, request.ManifestId, ct);
 
         return await _riskExceptionService.CreateAsync(
             request,

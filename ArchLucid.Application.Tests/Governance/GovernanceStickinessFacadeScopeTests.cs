@@ -406,6 +406,56 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task CreateRiskExceptionAsync_throws_when_manifest_id_does_not_belong_to_run()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid boundManifestId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid foreignManifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                "finding-1",
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord
+            {
+                RunId = runId,
+                GoldenManifestId = boundManifestId,
+            });
+
+        Mock<IRiskExceptionService> riskExceptions = new(MockBehavior.Strict);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: findings.Object,
+            runRepository: runs.Object,
+            riskExceptionService: riskExceptions.Object);
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "finding-1",
+            RunId = runId,
+            ManifestId = foreignManifestId,
+            OwnerUserId = "owner",
+            Rationale = "accepted risk",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        Func<Task> act = () => sut.CreateRiskExceptionAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<GoldenManifestVersionNotFoundException>()
+            .WithMessage($"*'{foreignManifestId:D}'*");
+
+        riskExceptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task RevokeRiskExceptionAsync_throws_when_exception_is_out_of_scope()
     {
         Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

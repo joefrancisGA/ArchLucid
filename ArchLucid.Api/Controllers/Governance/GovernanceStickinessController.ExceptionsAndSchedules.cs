@@ -45,6 +45,10 @@ public sealed partial class GovernanceStickinessController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (GoldenManifestVersionNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
+        }
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
