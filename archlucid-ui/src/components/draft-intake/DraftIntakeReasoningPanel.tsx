@@ -20,7 +20,6 @@ const DEFAULT_INTAKE_QUESTION =
   "What gaps or risks do you see in my intent and outcome before I start the architecture review?";
 
 const ASSISTANT_NOTES_TITLE = "Intake assistant notes";
-const NO_SUGGESTIONS_COPY = "No suggestions right now.";
 
 type DraftIntakeReasonTurn = {
   message: string;
@@ -35,9 +34,9 @@ export type DraftIntakeReasoningPanelProps = {
   readonly embedded?: boolean;
 };
 
-function summarizeLatestTurn(turns: DraftIntakeReasonTurn[], includeEmptySummary: boolean): string | null {
+function summarizeLatestTurn(turns: DraftIntakeReasonTurn[]): string | null {
   if (turns.length === 0) {
-    return includeEmptySummary ? NO_SUGGESTIONS_COPY : null;
+    return null;
   }
 
   const latest = turns[turns.length - 1];
@@ -65,12 +64,7 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
   } | null>(null);
 
   const panelDisabled = props.disabled === true || busy;
-  const showEmptyInSummary = props.embedded !== true && !panelOpen;
-  const showEmptyInBody = turns.length === 0 && (props.embedded === true || panelOpen);
-  const summaryStatus = useMemo(
-    () => summarizeLatestTurn(turns, showEmptyInSummary),
-    [turns, showEmptyInSummary],
-  );
+  const summaryStatus = useMemo(() => summarizeLatestTurn(turns), [turns]);
 
   async function submitMessage(): Promise<void> {
     const trimmed = message.trim();
@@ -130,8 +124,6 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
           ))}
         </ol>
         </>
-      ) : showEmptyInBody ? (
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{NO_SUGGESTIONS_COPY}</p>
       ) : null}
 
       <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
