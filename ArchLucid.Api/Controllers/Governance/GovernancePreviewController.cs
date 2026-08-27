@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Governance.Preview;
@@ -65,6 +66,16 @@ public sealed class GovernancePreviewController(
 
         if (body.ManifestVersion.Length > 128)
             return this.BadRequestProblem("ManifestVersion must not exceed 128 characters.", ProblemTypes.ValidationFailed);
+
+        if (string.IsNullOrWhiteSpace(body.Environment))
+            return this.BadRequestProblem("Environment is required.", ProblemTypes.ValidationFailed);
+
+        if (!GovernanceEnvironmentValidation.IsValid(body.Environment))
+        {
+            return this.BadRequestProblem(
+                "Environment must be one of: dev, test, prod.",
+                ProblemTypes.ValidationFailed);
+        }
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

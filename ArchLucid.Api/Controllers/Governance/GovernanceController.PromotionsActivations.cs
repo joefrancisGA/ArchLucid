@@ -4,6 +4,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
@@ -96,7 +97,7 @@ public sealed partial class GovernanceController
         if (string.IsNullOrWhiteSpace(request.SourceEnvironment))
             return this.BadRequestProblem("SourceEnvironment is required.", ProblemTypes.ValidationFailed);
 
-        if (!IsValidGovernanceEnvironment(request.SourceEnvironment))
+        if (!GovernanceEnvironmentValidation.IsValid(request.SourceEnvironment))
         {
             return this.BadRequestProblem(
                 "SourceEnvironment must be one of: dev, test, prod.",
@@ -106,7 +107,7 @@ public sealed partial class GovernanceController
         if (string.IsNullOrWhiteSpace(request.TargetEnvironment))
             return this.BadRequestProblem("TargetEnvironment is required.", ProblemTypes.ValidationFailed);
 
-        if (!IsValidGovernanceEnvironment(request.TargetEnvironment))
+        if (!GovernanceEnvironmentValidation.IsValid(request.TargetEnvironment))
         {
             return this.BadRequestProblem(
                 "TargetEnvironment must be one of: dev, test, prod.",
@@ -195,7 +196,7 @@ public sealed partial class GovernanceController
         if (string.IsNullOrWhiteSpace(request.Environment))
             return this.BadRequestProblem("Environment is required.", ProblemTypes.ValidationFailed);
 
-        if (!IsValidGovernanceEnvironment(request.Environment))
+        if (!GovernanceEnvironmentValidation.IsValid(request.Environment))
         {
             return this.BadRequestProblem(
                 "Environment must be one of: dev, test, prod.",
@@ -350,12 +351,5 @@ public sealed partial class GovernanceController
         }
 
         return (null, runId);
-    }
-
-    private static bool IsValidGovernanceEnvironment(string environment)
-    {
-        return string.Equals(environment, GovernanceEnvironment.Dev, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(environment, GovernanceEnvironment.Test, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(environment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase);
     }
 }

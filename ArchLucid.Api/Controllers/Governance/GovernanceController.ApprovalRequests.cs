@@ -5,6 +5,7 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
@@ -65,6 +66,33 @@ public sealed partial class GovernanceController
 
         if (request.ManifestVersion.Length > 128)
             return this.BadRequestProblem("ManifestVersion must not exceed 128 characters.", ProblemTypes.ValidationFailed);
+
+        if (string.IsNullOrWhiteSpace(request.SourceEnvironment))
+            return this.BadRequestProblem("SourceEnvironment is required.", ProblemTypes.ValidationFailed);
+
+        if (!GovernanceEnvironmentValidation.IsValid(request.SourceEnvironment))
+        {
+            return this.BadRequestProblem(
+                "SourceEnvironment must be one of: dev, test, prod.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.TargetEnvironment))
+            return this.BadRequestProblem("TargetEnvironment is required.", ProblemTypes.ValidationFailed);
+
+        if (!GovernanceEnvironmentValidation.IsValid(request.TargetEnvironment))
+        {
+            return this.BadRequestProblem(
+                "TargetEnvironment must be one of: dev, test, prod.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.RequestComment is not null && request.RequestComment.Length > 4000)
+        {
+            return this.BadRequestProblem(
+                "RequestComment must not exceed 4000 characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         string requestedBy = actorContext.GetActor();
         string requestedByActorKey = actorContext.GetActorId();
@@ -154,6 +182,13 @@ public sealed partial class GovernanceController
         if (scopeError is not null)
             return scopeError;
 
+        if (request.ReviewComment is not null && request.ReviewComment.Length > 4000)
+        {
+            return this.BadRequestProblem(
+                "ReviewComment must not exceed 4000 characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
@@ -238,6 +273,13 @@ public sealed partial class GovernanceController
 
         if (scopeError is not null)
             return scopeError;
+
+        if (request.ReviewComment is not null && request.ReviewComment.Length > 4000)
+        {
+            return this.BadRequestProblem(
+                "ReviewComment must not exceed 4000 characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();

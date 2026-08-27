@@ -2242,11 +2242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 106
-- **bugs-found:** 250
+- **hunts:** 107
+- **bugs-found:** 254
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — Promote env validation, Activate service env guard, product-feedback max-length
+- **last-bug:** 2026-08-27 — Submit/Preview env validation and approval comment max-length guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2601,6 +2601,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.Promote` — whitespace or invalid `sourceEnvironment`/`targetEnvironment` reached `PromoteAsync` and surfaced uncaught `ArgumentException` (HTTP 500) instead of HTTP 400 (`SubmitApprovalRequest` already caught `ArgumentException`; Activate already guarded env) — **hit 2026-08-27:** controller env guards + `ArgumentException` catch; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (proven) `GovernanceWorkflowActivateStage.ActivateAsync` — invalid `environment` (e.g. `"staging"`) persisted on activation row despite controller guard (service layer had no enum validation; preview/compare normalize to dev/test/prod) — **hit 2026-08-27:** `GovernanceEnvironmentNames.NormalizeOrThrow` before persist; regression in `GovernanceWorkflowFacadeTests.ActivateAsync_throws_when_environment_is_invalid`.
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — `comment`/`findingRef` longer than `NVARCHAR(2000)`/`NVARCHAR(512)` reached SQL insert (HTTP 500 risk) instead of HTTP 400 — **hit 2026-08-27:** controller max-length guards (legal-hold reason parity); regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_comment_exceeds_max_length`.
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` — invalid/whitespace `sourceEnvironment`/`targetEnvironment` reached `SubmitApprovalRequestAsync` instead of HTTP 400 at controller (`CreateGovernanceApprovalRequestValidator` not invoked; Promote/Activate parity) — **hit 2026-08-27:** `GovernanceEnvironmentValidation` guards before workflow; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` — `requestComment` longer than 4000 characters reached workflow instead of HTTP 400 (`CreateGovernanceApprovalRequestValidator.MaximumLength` not invoked) — **hit 2026-08-27:** controller max-length guard; regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_returns_bad_request_when_request_comment_exceeds_max_length`.
+- [x] (proven) `GovernanceController.Approve` / `Reject` — `reviewComment` longer than 4000 characters reached workflow instead of HTTP 400 (`ApproveGovernanceRequestValidator` / `RejectGovernanceRequestValidator` not invoked) — **hit 2026-08-27:** controller max-length guard on both review endpoints; regression in `GovernanceControllerRunHistoryScopeTests.Approve_returns_bad_request_when_review_comment_exceeds_max_length`.
+- [x] (proven) `GovernancePreviewController.Preview` — invalid/whitespace `environment` reached `PreviewActivationAsync` instead of HTTP 400 at controller (`CreateGovernancePreviewRequestValidator` not invoked; runId/manifestVersion already guarded) — **hit 2026-08-27:** `GovernanceEnvironmentValidation` guard before service call; regression in `GovernancePreviewControllerUnitTests`.
+- [ ] (candidate) `GovernanceController.Promote` — `notes` longer than 4000 characters may reach workflow without controller guard (`CreateGovernancePromotionRequestValidator.MaximumLength` not invoked on this action).
+- [ ] (candidate) `GovernanceWorkflowSubmitStage` / `GovernanceWorkflowPromoteStage` — persist `sourceEnvironment`/`targetEnvironment` without lower-case normalization (Activate stage now normalizes via `GovernanceEnvironmentNames`).
+
+2026-08-27 seed hunt #190: proved Submit/Preview env validation and approval comment max-length guards; reseeded Promote notes and workflow env-normalization candidates.
 
 2026-08-27 thorough hunt #189: proved Promote env validation, Activate service env guard, and product-feedback max-length; cheap-disproved CompareEnvironments validator parity candidate.
 
