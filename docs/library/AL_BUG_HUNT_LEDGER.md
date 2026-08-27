@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 82
-- **bugs-found:** 212
+- **hunts:** 83
+- **bugs-found:** 213
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `ManifestsController` manifest read/export/compare paths ghost workspace returned HTTP 200 instead of workspace 404
+- **last-bug:** 2026-08-27 — `GovernanceController` workflow reads/mutations ghost workspace returned HTTP 200 instead of workspace 404
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2467,10 +2467,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantWorkspaceBaselineArtifactsController.GetAsync` — ghost workspace → HTTP 200 `{ hasBaselineArtifacts: false }` instead of workspace 404; tenant preflight only before `GetWorkspaceBaselineArtifactsAsync` (`TenantWorkspaceBaselineArtifactsController.cs` L42–46) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight (dashboard/policy-packs parity); regression in `GetAsync_returns_not_found_when_workspace_missing`.
 
 - [x] (proven) `ManifestsController` manifest read/export/compare paths (`GetManifest`, diagram/summary/bundle, export/download, compare) — ghost workspace → HTTP 200 manifest payloads after tenant preflight only; `RequireTenantOrNotFoundAsync` omits `ListWorkspacesAsync` (`ManifestsController.cs` L67–75) — **hit 2026-08-27:** shared `TenantWorkspaceScopePreflight` preflight (policy-packs parity); regression in `GetManifest_returns_not_found_when_workspace_missing`.
-- [ ] (hunt-ready) `GovernanceController` workflow reads/mutations using shared `RequireTenantOrNotFoundAsync` (`GetApprovalRequests`, `Approve`/`Reject`/`Promote`/`Activate`, policy-pack simulate/dry-run, run-history lists) — ghost workspace → HTTP 200 empty/workflow responses instead of workspace 404; tenant ghost fixed 2026-08-27 but `GovernanceController.cs` L101–108 still tenant-only.
+- [x] (proven) `GovernanceController` workflow reads/mutations using shared `RequireTenantOrNotFoundAsync` (`GetApprovalRequests`, `Approve`/`Reject`/`Promote`/`Activate`, policy-pack simulate/dry-run, run-history lists) — ghost workspace → HTTP 200 empty/workflow responses instead of workspace 404; tenant ghost fixed 2026-08-27 but `GovernanceController.cs` L101–108 still tenant-only — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` delegates to shared `TenantWorkspaceScopePreflight` (manifests/policy-packs parity); regression in `GetApprovalRequests_returns_not_found_when_workspace_missing`, `Approve_returns_not_found_when_workspace_missing`, `Simulate_returns_not_found_when_workspace_missing`, and `DryRunPolicyPack_returns_not_found_when_workspace_missing`.
 - [ ] (hunt-ready) `GovernancePreCommitSimulationController` (`GetChecklist`, `Simulate`) — ghost workspace → HTTP 200 checklist/simulation payload instead of workspace 404; inline `RequireTenantOrNotFoundAsync` tenant-only (`GovernancePreCommitSimulationController.cs` L49–52).
 - [ ] (hunt-ready) `TenantIntegrationsOperationsController.GetAsync` — ghost workspace → HTTP 200 connector posture summary instead of workspace 404; `GetSummaryAsync(scope, …)` uses ambient workspace but controller only calls `GetByIdAsync` (`TenantIntegrationsOperationsController.cs` L45–52).
 - [ ] (hunt-ready) `TenantLlmCostReportingController.GetDashboard` — ghost workspace → HTTP 200 empty LLM cost dashboard instead of workspace 404; `BuildDashboardAsync` composes workspace-scoped breakdown but controller only preflights tenant row (`TenantLlmCostReportingController.cs` L51–58).
+
+2026-08-27 thorough hunt #163: proved governance-controller workflow foreign-workspace preflight gap via shared `RequireTenantOrNotFoundAsync` upgrade.
 
 2026-08-27 seed hunt #162: proved manifests-controller foreign-workspace preflight gap; reseeded governance-controller workflow, pre-commit simulation, integrations-ops, and LLM-cost-reporting ghost-workspace candidates.
 

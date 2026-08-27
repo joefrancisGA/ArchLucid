@@ -45,6 +45,54 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task Simulate_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            governanceDryRunService: dryRun.Object,
+            scope: ForeignWorkspaceScope(foreignWorkspaceId));
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DryRunPolicyPack_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(
+            dryRunService: dryRun.Object,
+            scope: ForeignWorkspaceScope(foreignWorkspaceId));
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            new PolicyPackDryRunRequest
+            {
+                EvaluateAgainstRunIds = [Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D")],
+            },
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Simulate_returns_not_found_when_tenant_missing()
     {
         Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
@@ -193,15 +241,46 @@ public sealed class GovernanceControllerSimulateTests
             Scope.TenantId,
             It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(null));
 
+    private static ScopeContext ForeignWorkspaceScope(Guid foreignWorkspaceId) =>
+        new()
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        };
+
+    private static ITenantRepository TenantWithPrimaryWorkspaceRepository()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        return tenants.Object;
+    }
+
     private static GovernanceController CreateController(
         IPolicyPackGovernanceDryRunService? governanceDryRunService = null,
         IPolicyPackDryRunService? dryRunService = null,
         IPolicyPackDraftService? draftService = null,
         IPolicyPackGeneratorService? generatorService = null,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        ScopeContext? scope = null)
     {
-        Mock<IScopeContextProvider> scope = new();
-        scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        ScopeContext effectiveScope = scope ?? Scope;
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(effectiveScope);
 
         GovernanceController controller = new(
             Mock.Of<IGovernanceWorkflowService>(),
@@ -209,7 +288,7 @@ public sealed class GovernanceControllerSimulateTests
             Mock.Of<IGovernancePromotionRecordRepository>(),
             Mock.Of<IGovernanceEnvironmentActivationRepository>(),
             Mock.Of<IActorContext>(),
-            scope.Object,
+            scopeProvider.Object,
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
             Mock.Of<IGovernanceDashboardService>(),
             Mock.Of<IGovernanceLineageService>(),
@@ -221,9 +300,7 @@ public sealed class GovernanceControllerSimulateTests
             Mock.Of<Core.Audit.IAuditService>(),
             draftService ?? Mock.Of<IPolicyPackDraftService>(),
             generatorService ?? Mock.Of<IPolicyPackGeneratorService>(),
-            tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
-                Scope.TenantId,
-                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })),
+            tenantRepository ?? TenantWithPrimaryWorkspaceRepository(),
             NullLogger<GovernanceController>.Instance);
 
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
