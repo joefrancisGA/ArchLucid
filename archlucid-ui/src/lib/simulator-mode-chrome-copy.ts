@@ -4,7 +4,7 @@ export const SIMULATOR_MODE_TOP_BAR_CHIP_LABEL = "SIMULATOR";
 export const SIMULATOR_MODE_TOP_BAR_CHIP_DETAIL =
   "AI operations use rule-based analysis, not a live model. Click to switch to Real mode.";
 
-/** Top-bar chip when dev override flips execution to live Azure OpenAI. */
+/** Top-bar chip when dev override flips execution to live Azure OpenAI — quieter than SIMULATOR. */
 export const REAL_MODE_TOP_BAR_CHIP_LABEL = "REAL";
 
 export const REAL_MODE_TOP_BAR_CHIP_DETAIL =

@@ -22,7 +22,7 @@ import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-regi
 
 describe("usability lib", () => {
   it("pageHelpTopicForPathname maps review routes", () => {
-    expect(pageHelpTopicForPathname("/")?.slug).toBeUndefined();
+    expect(pageHelpTopicForPathname("/")?.slug).toBe("first-architecture-review");
     expect(pageHelpTopicForPathname("/")?.label).toBe("Home");
     expect(pageHelpTopicForPathname("/architecture/reviews/new")?.slug).toBe("evidence-intake");
     expect(pageHelpTopicForPathname("/reviews/new")?.slug).toBe("evidence-intake");

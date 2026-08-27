@@ -74,7 +74,7 @@ describe("SimulatorModeTopBarChip", () => {
     expect(toggle).toHaveAttribute("aria-pressed", "false");
   });
 
-  it("renders a green chip when real mode is active after leaving simulator", () => {
+  it("renders a quiet ready-style chip when real mode is active after leaving simulator", () => {
     modeState.mode = "Real";
     modeState.isSimulator = false;
     modeState.isLoading = false;
@@ -86,7 +86,9 @@ describe("SimulatorModeTopBarChip", () => {
     const toggle = screen.getByTestId("simulator-mode-top-bar-chip-toggle");
 
     expect(toggle).toHaveTextContent(REAL_MODE_TOP_BAR_CHIP_LABEL);
-    expect(toggle.className).toContain("bg-emerald-500");
+    expect(toggle.className).toContain("var(--al-status-ready-bg)");
+    expect(toggle.className).not.toContain("animate-pulse");
+    expect(toggle.className).not.toContain("bg-emerald-500");
     expect(toggle).toHaveAttribute("aria-pressed", "true");
   });
 

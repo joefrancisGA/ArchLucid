@@ -72,12 +72,10 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
   const contentId = `sidebar-group-${group.id}-content`;
   const headingId = `sidebar-group-heading-${group.id}`;
-  const [moreOpen, setMoreOpen] = useState(false);
-
   const { daily, more } = splitSidebarLinksDailyVsMore(group.id, linksForRender, props.pathname ?? "/");
+  const [moreOpen, setMoreOpen] = useState(() => more.length > 0 && more.length <= 3);
 
   useEffect(() => {
-    // Keep secondary links open when the active route lives among them (after promotion it is empty).
     if (more.length === 0) {
       setMoreOpen(false);
     }

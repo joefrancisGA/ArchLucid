@@ -22,7 +22,8 @@ const LEGACY_COLLAPSED_PILOT_EXPANDED_KEY = "archlucid-nav-collapsed-pilot-expan
 
 export const SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION: SidebarNavGroupExpansionState = {
   pilot: true,
-  "operate-analysis": false,
+  // Insights is a daily destination cluster — keep expanded so operators are not hunting behind two disclosures.
+  "operate-analysis": true,
   "operate-governance": false,
   "operate-policy": false,
   "operate-integrations": false,
@@ -92,13 +93,13 @@ function migrateLegacySidebarExpansion(): SidebarNavGroupExpansionState {
   const governanceExpanded = showAdvanced || expandAll || governancePhase;
 
   return {
-    pilot: true,
-    "operate-analysis": analysisExpanded || reportsExpanded,
-    "operate-governance": governanceExpanded,
-    "operate-policy": governanceExpanded,
-    "operate-integrations": integrationsExpanded,
-    "operator-admin": showAdministration,
-    "operator-system-admin": false,
+    ...SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION,
+    ...(analysisExpanded || reportsExpanded ? { "operate-analysis": true } : {}),
+    ...(governanceExpanded
+      ? { "operate-governance": true, "operate-policy": true }
+      : {}),
+    ...(integrationsExpanded ? { "operate-integrations": true } : {}),
+    ...(showAdministration ? { "operator-admin": true } : {}),
   };
 }
 

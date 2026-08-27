@@ -162,7 +162,7 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR: readonly { prefix: string; topic: Pa
   // Overview hero help — same topic the former "Learn / View workflow" links opened.
   {
     prefix: "/",
-    topic: { label: OPERATOR_NAV_LINK_LABELS.home },
+    topic: { slug: "first-architecture-review", label: OPERATOR_NAV_LINK_LABELS.home },
   },
   { prefix: "/architecture/first-review-guide", topic: { label: BUYER_ONBOARDING_PAGE_TITLE } },
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: GETTING_STARTED_HELP_TOPIC_LABEL } },
