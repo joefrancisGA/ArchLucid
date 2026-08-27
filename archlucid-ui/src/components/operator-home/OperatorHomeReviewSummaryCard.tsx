@@ -131,19 +131,14 @@ function FeaturedShowcaseReviewSummary(props: FeaturedShowcaseSummaryProps): Rea
           ) : null}
           <Link
             href={recordHref}
-            className={cn("font-medium", OPERATOR_LINK.optional)}
+            className={OPERATOR_LINK.nav}
             data-testid="runs-dashboard-buyer-proof-view-record-link"
           >
             View record
           </Link>
         </div>
         <details className="group" data-testid="runs-dashboard-buyer-proof-details">
-          <summary
-            className={cn(
-              "cursor-pointer list-none text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
-              OPERATOR_LINK.optional,
-            )}
-          >
+          <summary className={cn("cursor-pointer list-none", OPERATOR_LINK.nav)}>
             <span className="group-open:hidden">Details</span>
             <span className="hidden group-open:inline">Hide details</span>
           </summary>
