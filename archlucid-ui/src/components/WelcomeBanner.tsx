@@ -210,7 +210,7 @@ export function WelcomeBanner() {
               <Button
                 asChild
                 variant="outline"
-                className={cn("h-10 px-5 font-semibold", OPERATOR_TYPOGRAPHY.button)}
+                className={cn("h-10 px-5", OPERATOR_TYPOGRAPHY.button)}
               >
                 <Link href={CANONICAL_ANONYMOUS_PROOF_HREF}>See completed sample</Link>
               </Button>
