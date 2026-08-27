@@ -8,6 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { StatusTag } from "@/components/ui/status-tag";
 import { SpecialtyTemplatePolicyPackProvenance } from "@/components/help/SpecialtyTemplatePolicyPackProvenance";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { SpecialtyReviewTemplateDefinition, SpecialtyReviewTemplateId } from "@/lib/specialty-review-templates";
 
 export const SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID = "specialty-template-permission-hint";
@@ -35,7 +36,7 @@ function SpecialtyTemplateCardSelectionFooter(props: {
 }): React.ReactElement {
   return (
     <div
-      className="w-full space-y-2 border-t border-teal-200/80 pt-3 dark:border-teal-900/50"
+      className={cn("w-full space-y-2", HELP_PAGE_LAYOUT.selectionFooterDivider)}
       role="status"
       aria-busy={props.isContinuing}
       data-testid="specialty-template-card-selection-footer"
@@ -92,7 +93,7 @@ export function SpecialtyTemplateCard(props: SpecialtyTemplateCardProps): React.
       className={cn(
         "grid grid-rows-subgrid gap-0 border-neutral-200 dark:border-neutral-800",
         "row-span-6",
-        selected && "ring-2 ring-teal-700/50 ring-offset-2 ring-offset-white dark:ring-teal-500/40 dark:ring-offset-neutral-950",
+        selected && HELP_PAGE_LAYOUT.selectedCardRing,
       )}
       data-testid={`specialty-template-card-${template.id}`}
       aria-current={selected ? "true" : undefined}

@@ -71,6 +71,10 @@ export const HELP_PAGE_LAYOUT = {
   /** Neutral in-page anchor pills on technical reference landing strips (TB-2092). */
   referenceTagPill:
     "inline-flex rounded-full border border-neutral-300 bg-white px-3 py-1 text-sm no-underline transition-colors hover:border-neutral-400 hover:bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-950 dark:hover:border-neutral-600 dark:hover:bg-neutral-900/60",
+  /** Selected specialty template card emphasis without teal tint (TB-2092). */
+  selectedCardRing:
+    "ring-2 ring-neutral-400/70 ring-offset-2 ring-offset-white dark:ring-neutral-500/50 dark:ring-offset-neutral-950",
+  selectionFooterDivider: "border-t border-neutral-200 pt-3 dark:border-neutral-700",
 } as const;
 
 /** Minimum `##` / `###` headings before the sticky TOC rail renders. */
@@ -95,7 +99,7 @@ export const HELP_PAGE_TOC = {
     "m-0 text-xs font-semibold uppercase tracking-[0.08em] text-al-text-primary dark:text-neutral-200",
   list: "m-0 mt-3 list-none space-y-1.5 p-0",
   link: cn("block rounded-sm py-1", OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body),
-  linkActive: "font-semibold text-teal-900 dark:text-teal-200",
+  linkActive: "font-semibold text-al-text-primary dark:text-neutral-100",
   linkNested: "pl-3",
   referenceSearchInput: cn(
     "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-al-text-primary shadow-sm placeholder:text-al-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950",

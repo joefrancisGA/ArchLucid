@@ -38,7 +38,7 @@ function TroubleshootingIssueCard(props: { readonly issue: TroubleshootingIssue 
     >
       <summary
         className={cn(
-          "flex cursor-pointer list-none flex-wrap items-center gap-2 rounded-md px-1 py-1 marker:content-none hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/40 dark:hover:bg-neutral-900 [&::-webkit-details-marker]:hidden",
+          "flex cursor-pointer list-none flex-wrap items-center gap-2 rounded-md px-1 py-1 marker:content-none hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:hover:bg-neutral-900 [&::-webkit-details-marker]:hidden",
           OPERATOR_TYPOGRAPHY.cardTitle,
         )}
       >
