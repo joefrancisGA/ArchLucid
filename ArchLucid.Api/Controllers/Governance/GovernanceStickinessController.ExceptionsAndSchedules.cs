@@ -227,6 +227,7 @@ public sealed partial class GovernanceStickinessController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [MutatingAuditExcluded("Audit: attestation is stored in TenantSettings; no separate durable audit row in V1.")]
     public async Task<IActionResult> UpsertRealizedValueAttestation(
         [FromBody] UpsertRealizedValueAttestationRequest? request,
@@ -234,6 +235,11 @@ public sealed partial class GovernanceStickinessController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         try
         {

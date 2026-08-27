@@ -2241,8 +2241,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 42
-- **bugs-found:** 112
+- **hunts:** 43
+- **bugs-found:** 114
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-27
 - **last-bug:** 2026-08-27 — policy-packs read ghost tenant 404 parity
@@ -2385,10 +2385,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController` sibling register reads (`GetAssignedToMeFindingsCount`, `GetReviewsAwaitingAction`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — ghost tenant returned HTTP 200 empty payloads while risk/decisions-needed/list-exceptions already preflighted — **hit 2026-08-27:** extended `RequireTenantOrNotFoundAsync` to remaining register reads; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceCoverageController.PreviewCoverage` — ghost tenant returned HTTP 200 preview payload while `GetScopeCoverage` already 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (GET parity); regression in `GovernanceCoverageControllerScopeTests.PreviewCoverage_returns_not_found_when_tenant_missing`.
 - [x] (proven) `GovernanceStickinessController.GetRealizedValueAttestation` — ghost tenant returned HTTP 200 unconfigured attestation while register reads now preflight tenant row — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on GET; regression in `GovernanceStickinessControllerTests.GetRealizedValueAttestation_returns_not_found_when_tenant_missing`.
-- [ ] (candidate) `PolicyPacksController.ListCatalog` / `GetCatalogEntry` — ghost tenant returns HTTP 200 catalog rows instead of 404 (sibling list/page-bundle reads already preflight tenant row).
-- [ ] (candidate) `GovernanceStickinessController.UpsertRealizedValueAttestation` — ghost tenant POST may persist settings or surface HTTP 500 while GET now returns 404.
+- [x] (proven) `PolicyPacksController.ListCatalog` / `GetCatalogEntry` — ghost tenant returned HTTP 200 catalog rows instead of 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on catalog reads (list/page-bundle parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `GovernanceStickinessController.UpsertRealizedValueAttestation` — ghost tenant POST persisted settings while GET returned 404 — **hit 2026-08-27:** `RequireTenantOrNotFoundAsync` on PUT (GET parity); regression in `GovernanceStickinessControllerTests.UpsertRealizedValueAttestation_returns_not_found_when_tenant_missing`.
 
-2026-08-27 seed hunt #127: proved coverage preview and realized-value attestation GET ghost-tenant 404 parity; seeded policy-packs catalog read and attestation POST candidates.
+2026-08-27 thorough hunt #128: proved policy-packs catalog read and attestation POST ghost-tenant 404 parity.
 
 2026-08-27 thorough hunt #120: proved governance-resolution ghost tenant 404.
 

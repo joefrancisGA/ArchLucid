@@ -144,6 +144,34 @@ public sealed class PolicyPacksControllerListScopeTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    [Fact]
+    public async Task ListCatalog_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.ListCatalog(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetCatalogEntry_returns_not_found_when_tenant_missing()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: false);
+
+        IActionResult result = await sut.GetCatalogEntry(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
     private static PolicyPacksController CreateSut(
         Mock<IPolicyPackWorkflowFacade> workflow,
         bool tenantExists)

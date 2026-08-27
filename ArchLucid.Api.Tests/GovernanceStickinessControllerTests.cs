@@ -981,6 +981,25 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task UpsertRealizedValueAttestation_returns_not_found_when_tenant_missing()
+    {
+        RealizedValueAttestationService attestationService = new(Mock.Of<ArchLucid.Persistence.Tenancy.ITenantSettingsRepository>(MockBehavior.Strict));
+        GovernanceStickinessController controller = BuildSut(
+            attestationService: attestationService,
+            tenantRepository: TenantMissingRepository());
+
+        UpsertRealizedValueAttestationRequest request = new()
+        {
+            AttestedIncidentsAvoided = 2,
+        };
+
+        IActionResult action = await controller.UpsertRealizedValueAttestation(request, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
     public async Task UpsertRealizedValueAttestation_returns_bad_request_when_attested_incidents_negative()
     {
         RealizedValueAttestationService attestationService = new(Mock.Of<ArchLucid.Persistence.Tenancy.ITenantSettingsRepository>());
