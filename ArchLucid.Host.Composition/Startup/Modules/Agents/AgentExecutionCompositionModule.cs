@@ -193,7 +193,15 @@ public static class AgentExecutionCompositionModule
 
                         if (!useAzureOpenAi && !useEchoClient)
                         {
+<<<<<<< HEAD
+                            // Echo/Azure registrars register IAgentTierCompletionRouter; dev-only Real without keys must too.
+                            services.AddScoped<ScopedInnerAgentCompletionClient>(_ => new ScopedInnerAgentCompletionClient(
+                                new FakeAgentCompletionClient(FakeAgentCompletionResolver.Resolve)));
+                            AgentModelTierCompositionModule.RegisterPassThroughTierCompletionRouter(services);
+                            SchemaRemediationCompletionRegistrar.RegisterSchemaRemediationAgentCompletionClient(
+=======
                             AgentCompletionPipelineCompositionModule.RegisterSchemaRemediationClient(
+>>>>>>> origin/master
                                 services,
                                 useAzureOpenAi: false);
                         }

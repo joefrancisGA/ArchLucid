@@ -98,3 +98,10 @@ csharp_style_var_elsewhere = false:suggestion
 
 # Project-wide suppressions / preferences
 dotnet_diagnostic.IDE0305.severity = none
+
+# ArchLucid serves a single canonical OpenAPI document at /openapi/v1.json (not per-version documents).
+# Asp.Versioning.Mvc 10.x analyzers AV0029/AV0030 want AddApiVersioning().AddOpenApi() and
+# MapOpenApi().WithDocumentPerVersion(), which would change contract layout and break APIM/codegen.
+# Track deliberate migration to per-version OpenAPI as follow-up; suppress until then.
+dotnet_diagnostic.AV0029.severity = none
+dotnet_diagnostic.AV0030.severity = none
