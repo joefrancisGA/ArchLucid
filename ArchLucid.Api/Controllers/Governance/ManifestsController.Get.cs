@@ -116,9 +116,14 @@ public sealed partial class ManifestsController
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
-        int? clampedMaxRelationships = maxRelationships.HasValue
-            ? Math.Clamp(maxRelationships.Value, 1, ManifestSummaryLimits.MaxRelationships)
-            : null;
+        if (maxRelationships is < 1 or > ManifestSummaryLimits.MaxRelationships)
+        {
+            return this.BadRequestProblem(
+                $"maxRelationships must be between 1 and {ManifestSummaryLimits.MaxRelationships}.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        int? clampedMaxRelationships = maxRelationships;
 
         string canonicalManifestVersion = manifest.Metadata.ManifestVersion;
 
