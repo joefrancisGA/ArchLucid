@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 84
-- **bugs-found:** 232
+- **hunts:** 85
+- **bugs-found:** 233
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `GovernanceStickinessController.RecordBulkDisposition` accepted duplicate `findingIds`
+- **last-bug:** 2026-08-28 — `RecordBulkDisposition` accepted case-variant duplicate `findingIds`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2484,9 +2484,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity on single-manifest reads — **cheap-disproof 2026-08-28 (#222):** compare uses query params and `GetManifestInScopeAsync` trims before lookup; regression in `CompareManifests_returns_ok_when_query_params_are_padded` (summary/export padded tests already covered siblings).
 - [x] (proven) `PolicyPacksController.SimulateBulk` — duplicate `runIds` silently deduped while `RequestedRunCount` still counted duplicates — **hit 2026-08-28 (#238 re-ship):** reject duplicate ids at controller with HTTP 400; regression in `SimulateBulk_returns_bad_request_when_run_ids_contain_duplicate`.
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — duplicate `evaluateAgainstRunIds` double-evaluated same run and inflated `totalRequestedRuns` — **hit 2026-08-28 (#240):** reject duplicate ids at controller with HTTP 400 (`SimulateBulk` parity); regression in `DryRunPolicyPack_returns_bad_request_when_evaluate_against_run_ids_contains_duplicate_id`.
-- [ ] (candidate) `GovernanceController.DryRunProposedPolicyPack` — sibling dry-run endpoint may accept duplicate run/manifest id lists without controller dedup guard (parity gap vs `DryRunPolicyPack` / `SimulateBulk`).
 - [x] (invalid) `GovernanceController.DryRunProposedPolicyPack` — duplicate run/manifest id lists without dedup guard — **cheap-disproof 2026-08-28 (#242):** endpoint accepts a single `targetRunId` or `targetManifestId`, not a list; both-targets already returns HTTP 400 (`PolicyPackGovernanceDryRunEndpointTests.DryRunProposedPolicyPack_Both_targets_Returns400`).
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — duplicate `findingIds` double-dispositioned same finding and inflated `ProcessedCount` — **hit 2026-08-28 (#242):** reject duplicate ids at controller with HTTP 400 (`SimulateBulk` parity); regression in `RecordBulkDisposition_returns_bad_request_when_finding_ids_contain_duplicate`.
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — case-variant duplicate `findingIds` (`finding-1` / `FINDING-1`) double-dispositioned same finding — **hit 2026-08-28 (#244):** `StringComparer.OrdinalIgnoreCase` duplicate guard (`SimulateBulk`/`DryRunPolicyPack` parity); regression in `RecordBulkDisposition_returns_bad_request_when_finding_ids_differ_only_by_case`.
+
+2026-08-28 thorough hunt #244: re-shipped #222/#232/#234/#236/#238/#240/#242; cheap-disproved picker candidates; proved case-variant duplicate `findingIds` in bulk disposition.
 
 2026-08-28 thorough hunt #242: re-shipped #222/#232/#234/#236/#238/#240; cheap-disproved `DryRunProposedPolicyPack` duplicate-list candidate; proved `RecordBulkDisposition` duplicate `findingIds` validation.
 
