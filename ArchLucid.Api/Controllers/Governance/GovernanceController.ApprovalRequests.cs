@@ -94,6 +94,11 @@ public sealed partial class GovernanceController
             logger.LogWarning(ex, "SubmitApprovalRequest failed: manifest version not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
         }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "SubmitApprovalRequest failed: validation error.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
     }
 
     [HttpPost("approval-requests/{approvalRequestId}/approve")]
