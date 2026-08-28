@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 12
-- **bugs-found:** 25
+- **hunts:** 13
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `FindingJsonConverter.ReadStringDict` threw on numeric `properties` tokens via `GetString()` on number elements
+- **last-bug:** 2026-08-28 — `QualityGateWarnOnlyProductionLikeConfigurationLint` suppressed production-like advisory for undefined `AgentOutputQualityGateMode` numeric-string ordinals
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1789,9 +1789,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentModelExecutionProfileParser.TryParse` rejects `"High Assurance"` display label while accepting `"high-assurance"` — **hit 2026-08-28 (#223):** operator tenant-setting labels failed profile parse; fixed with display-label alias (`TryParse_accepts_high_assurance_display_labels`).
 - [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` accepts undefined severity numeric-strings via bare `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-28 (#225):** numeric-string `"99"` hydrated as breach severity label; fixed with `Enum.IsDefined` guard (`Parse_breach_severity_numeric_string_out_of_range_returns_null`).
 - [x] (proven) `FindingJsonConverter.ReadStringDict` calls `GetString()` on numeric `properties` tokens and aborts full finding deserialize — **hit 2026-08-28 (#225):** coerce number tokens to invariant strings and preserve sibling string entries (`Deserialize_properties_numeric_values_preserve_string_entries`).
-- [ ] (candidate) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — undefined `AgentOutputQualityGateMode` numeric-strings may parse via bare `Enum.TryParse` (verify after hunt #223 quality-gate lint fix scope).
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` accepts undefined `AgentOutputQualityGateMode` numeric-strings via bare `Enum.TryParse` — **hit 2026-08-28 (#227):** numeric-string `"99"` parsed as non-`WarnOnly` and suppressed the production-like advisory; treat undefined ordinals like missing mode (`TryDescribeAdvisoryFinding_production_real_undefined_quality_gate_mode_emits_rule`).
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseLegacyRunStatus` accepts undefined legacy status strings via bare `Enum.TryParse` without `Enum.IsDefined` — numeric-string ordinals may hydrate cast statuses.
 
-2026-08-28 seed hunt #225: proved policy-pack breach-severity undefined ordinal and finding properties-bag numeric token handling; includes hunt #223 enum-guard and Service Bus fixes; seeded quality-gate undefined-mode sibling candidate.
+2026-08-28 seed hunt #227: proved quality-gate undefined-ordinal lint suppression; includes hunts #223–#225 enum-guard, Service Bus, properties-bag, and policy-pack fixes; seeded legacy run-status enum sibling candidate.
 
 2026-08-28 seed hunt #223: proved top-level finding enum-string guards, classifier property-tier guard, Service Bus correlation casing/number, numeric dedupe key, and agent profile display label; seeded properties-bag numeric and policy-pack severity sibling candidates.
 
