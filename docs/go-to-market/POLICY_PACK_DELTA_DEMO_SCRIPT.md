@@ -83,13 +83,31 @@ X-Project-Id: {projectId}
 
 Use a **`P1` arm** for the SOC 2 vs CIS Azure comparison, or compare **Security Architecture Baseline vs an AKS baseline** at shipped defaults. Do **not** narrate SOC 2 or CIS Azure as emitting declaration rows at the `P0` default, and do not claim HIPAA/ISO 27001/Zero Trust declaration coverage.
 
-Optional: `.\scripts\demo-policy-pack-delta.ps1 -RunId … -ShowFindingDelta` dry-runs bundled SOC 2 vs CIS Azure sample packs and prints compliance rule-key deltas for the same review. Declaration and topology-extra finding proof remains the golden tests below unless the API exposes a finding diff without persist.
+Optional: `.\scripts\demo-policy-pack-delta.ps1 -RunId … -ShowFindingDelta` dry-runs bundled SOC 2 vs CIS Azure sample packs, prints the PP-01 declaration-theme pilot table, writes compliance rule-key deltas, and runs `BundledPolicyPackDeclarationThemeTests` offline. Declaration and topology-extra finding proof beyond the pilot table remains the golden tests below unless the API exposes a finding diff without persist.
+
+**At shipped `P0` (default):** the script warns that SOC 2 vs CIS Azure declaration rows need `P1`; compare **Security Architecture Baseline vs AKS baseline** in narration instead.
 
 ```powershell
+# P0 pilot default — gate delta + offline declaration proof (SOC 2/CIS keys at P0 floor)
 .\scripts\demo-policy-pack-delta.ps1 `
   -RunId eb81dd4972ad429e8d4e214f9934bfc0 `
   -ShowFindingDelta `
   -OutputDirectory artifacts/policy-pack-delta-demo
+```
+
+```powershell
+# P1 arm — honest SOC 2 vs CIS Azure declaration comparison (soc2-003/004 vs cis-az-006)
+.\scripts\demo-policy-pack-delta.ps1 `
+  -RunId eb81dd4972ad429e8d4e214f9934bfc0 `
+  -ShowFindingDelta `
+  -DeclarationPriorityFloor P1 `
+  -OutputDirectory artifacts/policy-pack-delta-demo
+```
+
+**Offline-only (no API):** run the declaration guard directly:
+
+```powershell
+dotnet test ArchLucid.Decisioning.Tests --filter "FullyQualifiedName~BundledPolicyPackDeclarationThemeTests"
 ```
 
 ---
@@ -233,6 +251,8 @@ From repo root (Development API @ `http://127.0.0.1:5128`, DevelopmentBypass or 
 ```
 
 Outputs: JSON artifacts for baseline dry-run, strict dry-run, pre-commit simulation, audit CSV slice metadata, **`policy-pack-before-after-diff.json`**, and **`policy-pack-before-after-diff.md`** under a timestamped folder.
+
+With **`-ShowFindingDelta`**, also writes `finding-delta-rule-key-sets.json`, prints the PP-01 declaration-theme pilot table, and runs `BundledPolicyPackDeclarationThemeTests`. Use **`-DeclarationPriorityFloor P1`** when narrating SOC 2 vs CIS Azure declaration rows (see [Finding-set toggle](#finding-set-toggle-compliance--declaration--extras)).
 
 **Canonical structured diff (CI):** `dotnet test ArchLucid.Application.Tests --filter FullyQualifiedName~PolicyPackBeforeAfterDiffDemoTests` produces a Verify snapshot of the full finding / rule-priority / sponsor-summary delta using the synthetic fixture (`tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json`).
 
