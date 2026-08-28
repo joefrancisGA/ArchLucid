@@ -323,7 +323,7 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
-        HashSet<string> processedApprovalRequestIds = new(StringComparer.Ordinal);
+        HashSet<string> processedApprovalRequestIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
         {
@@ -351,7 +351,7 @@ public sealed partial class GovernanceController
                         ApprovalRequestId = approvalRequestId,
                         Succeeded = false,
                         ErrorCode = ProblemTypes.ValidationFailed,
-                        Message = "duplicate approvalRequestId in batch.",
+                        Message = "approvalRequestId is duplicated.",
                     });
 
                 continue;
