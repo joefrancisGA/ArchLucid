@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 16
-- **bugs-found:** 30
+- **hunts:** 17
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `FindingJsonConverter.ReadOptionalString` ignored PascalCase `RunIdRef` / `ReviewedByUserId` / `RequestInputRef` property names
+- **last-bug:** 2026-08-28 — `FindingJsonConverter.ReadStringList` / `ReadStringDict` / insight-density fields ignored PascalCase property names
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1796,6 +1796,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `FindingJsonConverter.Read` case-sensitive on `humanReviewStatus` and `evaluationConfidenceLevel` — **cheap-disproof 2026-08-28 (#243):** already fixed in #241 with `TryGetPropertyCaseInsensitive`; regression in `Deserialize_pascal_case_humanReviewStatus_maps_approved`.
 - [x] (proven) `FindingJsonConverter.ReadOptionalDateTimeOffset` case-sensitive on `reviewedAtUtc` property name — PascalCase `"ReviewedAtUtc"` dropped review timestamp on reload — **hit 2026-08-28 (#243):** `TryGetPropertyCaseInsensitive` in `ReadOptionalDateTimeOffset` (`Deserialize_pascal_case_reviewedAtUtc_maps_timestamp`).
 - [x] (proven) `FindingJsonConverter.ReadOptionalString` case-sensitive on optional metadata fields (`reviewedByUserId`, `runIdRef`, `requestInputRef`) — PascalCase exporter labels silently dropped review linkage fields — **hit 2026-08-28 (#245):** `TryGetPropertyCaseInsensitive` in `ReadOptionalString` (`Deserialize_pascal_case_optional_string_metadata_fields_map_values`).
+- [x] (proven) `FindingJsonConverter.ReadStringList` case-sensitive on `relatedNodeIds` / `recommendedActions` — PascalCase `"RelatedNodeIds"` dropped graph linkage on snapshot reload — **hit 2026-08-28 (#247):** `TryGetPropertyCaseInsensitive` in `ReadStringList` (`Deserialize_pascal_case_relatedNodeIds_maps_list`).
+- [x] (proven) `FindingJsonConverter.ReadStringDict` case-sensitive on `properties` — PascalCase `"Properties"` dropped the entire properties bag on reload — **hit 2026-08-28 (#247):** `TryGetPropertyCaseInsensitive` in `ReadStringDict` (`Deserialize_pascal_case_properties_bag_maps_entries`).
+- [x] (proven) `FindingJsonConverter.ReadInsightDensityFields` case-sensitive on `treatment` / `classification` — PascalCase `"Treatment"` left insight-density routing null — **hit 2026-08-28 (#247):** `TryGetPropertyCaseInsensitive` for treatment/classification (`Deserialize_pascal_case_treatment_maps_demote_to_checklist`).
+- [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `payloadType` — PascalCase exporter label may skip typed payload rehydration while leaving raw payload orphaned.
+- [ ] (candidate) `FindingJsonConverter.ReadTrace` case-sensitive on `trace` — PascalCase `"Trace"` drops explainability trace on snapshot reload.
+
+2026-08-28 seed hunt #247: cherry-picked #223–#245 Core fixes; proved PascalCase `RelatedNodeIds`, `Properties`, and `Treatment` property lookup; seeded `payloadType` and `trace` PascalCase candidates.
 
 2026-08-28 seed hunt #245: cherry-picked #223–#243 Core fixes; proved PascalCase `RunIdRef` / `ReviewedByUserId` / `RequestInputRef` optional-string property lookup.
 
