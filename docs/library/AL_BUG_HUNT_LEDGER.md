@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 82
-- **bugs-found:** 230
+- **hunts:** 83
+- **bugs-found:** 232
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — batch-review duplicate approvalRequestIds silently deduped with no per-item result row
+- **last-bug:** 2026-08-28 — `CreateRiskException` whitespace `findingId` returned 404; `RecordBulkDisposition` silently dropped whitespace ids in mixed lists
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2482,6 +2482,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `PolicyPacksController.SimulateBulk` — more than 50 `runIds` where trailing entries are malformed may return HTTP 400 for count cap before per-id validation surfaces the malformed id — **cheap-disproof 2026-08-28:** intentional validation ordering (count cap before per-id GUID parse), aligned with `DryRunPolicyPack`; both return HTTP 400; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` are silently deduped with no per-item result row (batch client cannot distinguish omitted duplicate from never-sent id) — **hit 2026-08-28 (#222):** emit per-item `ValidationFailed` for duplicate ids while processing first occurrence; regression in `BatchReviewApprovalRequests_returns_validation_failed_per_item_when_list_contains_duplicate_id`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity on single-manifest reads — **cheap-disproof 2026-08-28 (#222):** compare uses query params and `GetManifestInScopeAsync` trims before lookup; regression in `CompareManifests_returns_ok_when_query_params_are_padded` (summary/export padded tests already covered siblings).
+- [x] (proven) `GovernanceStickinessController.CreateRiskException` — whitespace-only body `findingId` returned HTTP 404 instead of HTTP 400 — **hit 2026-08-28 (#232):** controller `findingId` guard before facade (`CreateRiskException_returns_bad_request_when_finding_id_is_whitespace`).
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — mixed `findingIds` with whitespace-only entries silently skipped instead of HTTP 400 — **hit 2026-08-28 (#232):** reject lists containing whitespace ids (`RecordBulkDisposition_returns_bad_request_when_mixed_finding_ids_include_whitespace`).
+
+2026-08-28 thorough hunt #232: re-shipped batch-review duplicate-id fix (#230 carry); proved risk-exception and bulk-disposition whitespace `findingId` guards; cheap-disproved manifest-compare padded-version (carry #222).
 
 2026-08-28 thorough hunt #222: proved batch-review duplicate-id per-item validation; cheap-disproved manifest-compare padded-version candidate; zone candidate backlog cleared.
 
