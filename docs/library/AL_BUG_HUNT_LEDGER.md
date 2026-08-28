@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 88
-- **bugs-found:** 239
+- **hunts:** 89
+- **bugs-found:** 240
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — preview/compare padded environment trim parity
+- **last-bug:** 2026-08-28 — pre-commit malformed run id error detail trim parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2483,12 +2483,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **hit 2026-08-28:** emit per-item `ValidationFailed` for duplicate ids while processing first occurrence (whitespace per-item parity); regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_validation_failed_per_item_when_approval_request_id_is_duplicated`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` query params may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-28:** `LoadAndCompareManifestPairAsync` delegates to `GetManifestInScopeAsync` which trims before lookup; added `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 
+2026-08-28 thorough hunt #202 (hit): cheap-disproved compare-same-env BadRequest candidate (already ValidationFailed); cheap-disproved padded-valid-guid not-found candidate; proved pre-commit malformed run id error detail trim parity; seeded governance insights BadRequest vs ValidationFailed and preview InvalidOperationException problem-type candidates.
+
+- [x] (invalid) `GovernancePreviewController.CompareEnvironments` — `ArgumentException` for identical source/target after normalization surfaces `ProblemTypes.BadRequest` while sibling validation inputs use `ValidationFailed` — **cheap-disproof 2026-08-28:** controller catch block already maps `ArgumentException` to `ValidationFailed`; regression in `GovernancePreviewControllerUnitTests.CompareEnvironments_returns_validation_failed_when_source_equals_target`.
+- [x] (invalid) `GovernancePreCommitSimulationController.GetChecklistAsync` — padded valid guid route value may echo untrimmed `runId` in error detail while parse path trims before lookup — **cheap-disproof 2026-08-28:** out-of-scope not-found uses `runIdNormalized` in detail; regression in `GovernancePreCommitSimulationControllerTests.GetChecklist_returns_not_found_with_trimmed_run_id_when_padded_valid_guid_out_of_scope`.
+- [x] (proven) `GovernancePreCommitSimulationController.GetChecklistAsync` / `SimulateAsync` — padded malformed run id echoed whitespace in validation error detail while parse path trims before lookup (`RequireScopedRunAsync` trim parity gap) — **hit 2026-08-28:** trim run id in malformed-parse error detail; regression in `GovernancePreCommitSimulationControllerTests`.
+- [ ] (candidate) `GovernanceController.GetGovernanceInsightsTrend` — range validation errors (`fromUtc`/`toUtc`/`bucketMinutes`) return `ProblemTypes.BadRequest` while sibling governance query caps use `ValidationFailed` (governance client-input problem-type parity gap).
+- [ ] (candidate) `GovernancePreviewController.Preview` — `InvalidOperationException` from preview service surfaces `ProblemTypes.BadRequest` while `ArgumentException` validation errors use `ValidationFailed` (governance preview error-family parity gap).
+
 2026-08-28 thorough hunt #201 (hit): proved pre-commit malformed run id `ValidationFailed` parity and preview/compare padded environment trim in `NormalizeAndValidateEnvironment`; seeded preview compare-same-env problem-type and pre-commit padded-guid route parity candidates.
 
 - [x] (proven) `GovernancePreCommitSimulationController.GetChecklistAsync` / `SimulateAsync` — malformed run id returned `ProblemTypes.BadRequest` while sibling governance routes use `ValidationFailed` — **hit 2026-08-28:** align parse-failure problem type on checklist and simulate endpoints; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernancePreviewController.CompareEnvironments` / `GovernancePreviewService.NormalizeAndValidateEnvironment` — padded `sourceEnvironment`/`targetEnvironment` failed known-environment validation before trim (submit/promote/activate trim parity gap) — **hit 2026-08-28:** trim environment before `IsKnownEnvironment` in shared preview service normalizer; regression in `GovernancePreviewServiceTests`.
-- [ ] (candidate) `GovernancePreviewController.CompareEnvironments` — `ArgumentException` for identical source/target after normalization surfaces `ProblemTypes.BadRequest` while sibling validation inputs use `ValidationFailed` (governance client-input problem-type parity gap).
-- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — padded valid guid route value may echo untrimmed `runId` in error detail while parse path trims before lookup (run-id audit/detail trim parity gap).
 
 2026-08-28 thorough hunt #200 (hit): proved activate padded environment trim parity; cheap-disproved preview controller DTO forwarding candidate (service trims); seeded compare-environments trim and pre-commit checklist problem-type parity candidates.
 
