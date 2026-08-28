@@ -1792,10 +1792,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` returns empty for scalar `severities` / `findingTypes` / `tags` — `"severities":"Critical"` disables routing filter — **hit 2026-08-28 (#239):** wrap scalar tokens as single-item lists (`AlertRoutingCriteriaMetadata_Parse_scalar_severity_coerces_to_single_item_list`).
 - [ ] (candidate) `FindingJsonConverter.Read` still case-sensitive on `enforcementTier`, `category`, `evaluationConfidenceScore`, and `projectedImpactUsd` — PascalCase exporter labels may silently skip or default (same class as fixed `severity`).
 - [ ] (candidate) `FindingJsonConverter.Read` ignores string-form `evaluationConfidenceScore` and `projectedImpactUsd` — quoted numerics stay null (same class as fixed `confidenceScore`).
+- [x] (proven) `FindingJsonConverter.Read` case-sensitive on `enforcementTier` and `category` — PascalCase `"EnforcementTier":"Advisory"` stayed `PolicyViolation` and `"Category":"Security"` stayed empty — **hit 2026-08-28 (#241):** `TryGetPropertyCaseInsensitive` for tier/category (`Deserialize_pascal_case_enforcement_tier_maps_advisory`, `Deserialize_pascal_case_category_maps_value`).
+- [x] (proven) `FindingJsonConverter.Read` ignores string-form `evaluationConfidenceScore` and `projectedImpactUsd` — quoted numerics stayed null on snapshot reload — **hit 2026-08-28 (#241):** `ReadOptionalInt32` / `ReadOptionalDecimal` (`Deserialize_string_numeric_evaluationConfidenceScore_coerces_to_int`, `Deserialize_string_numeric_projectedImpactUsd_coerces_to_decimal`).
+- [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `humanReviewStatus`, `evaluationConfidenceLevel`, and `reviewedAtUtc` property names — PascalCase exporter labels may silently skip review metadata (same class as fixed `severity`).
 
-2026-08-28 seed hunt #235: cherry-picked #223–#233 Core fixes; proved numeric `reviewedAtUtc` epoch coercion.
-
-2026-08-28 seed hunt #237: cherry-picked #223–#235 Core fixes; proved numeric `planId` and graph `id` coercion.
+2026-08-28 seed hunt #241: cherry-picked #223–#239 Core fixes; proved PascalCase `EnforcementTier`/`Category` and string-form `evaluationConfidenceScore`/`projectedImpactUsd` coercion.
 
 2026-08-28 seed hunt #239: cherry-picked #223–#237 Core fixes; proved PascalCase `Severity`, string-form density/confidence scores, and scalar alert-routing criteria.
 
