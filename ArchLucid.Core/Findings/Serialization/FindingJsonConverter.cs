@@ -33,7 +33,9 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
             RelatedNodeIds = ReadStringList(root, "relatedNodeIds"),
             RecommendedActions = ReadStringList(root, "recommendedActions"),
             Properties = ReadStringDict(root, "properties"),
-            PayloadType = root.TryGetProperty("payloadType", out JsonElement pt) ? pt.GetString() : null
+            PayloadType = TryGetPropertyCaseInsensitive(root, "payloadType", out JsonElement pt)
+                ? pt.GetString()
+                : null
         };
 
         finding.Trace = ReadTrace(root, options, finding);
@@ -78,7 +80,8 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
 
         ReadInsightDensityFields(root, finding);
 
-        if (!root.TryGetProperty("payload", out JsonElement payloadEl) || payloadEl.ValueKind == JsonValueKind.Null)
+        if (!TryGetPropertyCaseInsensitive(root, "payload", out JsonElement payloadEl) ||
+            payloadEl.ValueKind == JsonValueKind.Null)
             return finding;
 
         string? typeName = finding.PayloadType;

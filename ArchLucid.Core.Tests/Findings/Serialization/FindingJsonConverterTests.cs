@@ -940,6 +940,81 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_pascal_case_payloadType_and_payload_map_typed_payload()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "PayloadType": "TopologyGapFindingPayload",
+                              "Payload": {
+                                "gapCode": "missing-subnet",
+                                "description": "Worker subnet absent",
+                                "impact": "Isolation gap"
+                              },
+                              "trace": {},
+                              "humanReviewStatus": "Pending"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.PayloadType.Should().Be("TopologyGapFindingPayload");
+        finding.Payload.Should().BeOfType<ArchLucid.Contracts.Findings.Payloads.TopologyGapFindingPayload>();
+        ArchLucid.Contracts.Findings.Payloads.TopologyGapFindingPayload payload =
+            (ArchLucid.Contracts.Findings.Payloads.TopologyGapFindingPayload)finding.Payload!;
+        payload.GapCode.Should().Be("missing-subnet");
+    }
+
+    [Fact]
+    public void Deserialize_pascal_case_trace_maps_source_agent_execution_trace_id()
+    {
+        const string traceId = "a1b2c3d4e5f6789012345678abcdef01";
+
+        string json = $$"""
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "Trace": {
+                                "sourceAgentExecutionTraceId": "{{traceId}}"
+                              },
+                              "humanReviewStatus": "Pending"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.Trace.SourceAgentExecutionTraceId.Should().Be(traceId);
+        finding.AgentExecutionTraceId.Should().Be(traceId);
+    }
+
+    [Fact]
     public void Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws()
     {
         const string json = """

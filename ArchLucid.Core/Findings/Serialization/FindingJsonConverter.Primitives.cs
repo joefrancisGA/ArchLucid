@@ -16,7 +16,7 @@ public sealed partial class FindingJsonConverter
     /// </summary>
     private static ExplainabilityTrace ReadTrace(JsonElement root, JsonSerializerOptions options, Finding finding)
     {
-        if (!root.TryGetProperty("trace", out JsonElement tr))
+        if (!TryGetPropertyCaseInsensitive(root, "trace", out JsonElement tr))
             return new ExplainabilityTrace();
         try
         {
