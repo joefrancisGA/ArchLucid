@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Findings;
-
 using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Findings;
@@ -95,5 +94,28 @@ public sealed class FindingEnforcementTierClassifierTests
         FindingEnforcementTierClassifier.ClassifyFinding(finding)
             .Should()
             .Be(FindingEnforcementTier.Advisory);
+    }
+
+    [Fact]
+    public void ClassifyFinding_ignores_undefined_enforcement_tier_property_value()
+    {
+        Finding finding = new()
+        {
+            FindingId = "f-2",
+            FindingType = "TopologyGap",
+            Category = "Topology",
+            EngineType = "TopologyCoverage",
+            Severity = FindingSeverity.Warning,
+            Title = "Gap",
+            Rationale = "Gap",
+            Properties = new Dictionary<string, string>
+            {
+                [FindingPropertyKeys.EnforcementTier] = "99",
+            },
+        };
+
+        FindingEnforcementTierClassifier.ClassifyFinding(finding)
+            .Should()
+            .Be(FindingEnforcementTier.PolicyViolation);
     }
 }
