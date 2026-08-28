@@ -4,7 +4,7 @@
 
 **Audience:** Founder / principal architect deciding whether to fund full framework rule coverage in the merged file catalog.
 
-**Status:** decision packet (2026-08-28). PP-01 theme enablement at shipped `P0` is in `master`; this gap is **orthogonal**.
+**Status:** Option **B** pilot slice **shipped** (2026-08-28) — twelve previously unbacked declaration-mapped ids added to `ga-starter-compliance.rules.json` (`soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021`). Full Option A (~144 rules) remains deferred.
 
 ## Problem statement
 

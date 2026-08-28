@@ -37,21 +37,7 @@ public sealed class BundledPolicyPackDeclarationThemeTests
     ///     assertion is a subset check so adding catalog rules never breaks the build, while mapping a brand-new
     ///     phantom id does.
     /// </summary>
-    private static readonly string[] KnownUnbackedMappedRuleIds =
-    [
-        "aks-015",
-        "aks-021",
-        "cis-az-012",
-        "cis-az-018",
-        "cis-az-019",
-        "cis-az-025",
-        "cis-az-027",
-        "hipaa-017",
-        "hipaa-022",
-        "hipaa-024",
-        "iso27001-025",
-        "soc2-018",
-    ];
+    private static readonly string[] KnownUnbackedMappedRuleIds = [];
 
     [Fact]
     public async Task Theme_map_never_cites_a_rule_id_outside_the_documented_unbacked_set()
@@ -139,12 +125,18 @@ public sealed class BundledPolicyPackDeclarationThemeTests
         IReadOnlyList<string> soc2Themes = EnabledThemes(soc2);
         IReadOnlyList<string> cisThemes = EnabledThemes(cisAzure);
 
-        soc2Themes.Should().BeEquivalentTo([Encryption, TransportSecurity]);
-        cisThemes.Should().BeEquivalentTo([DataProtection]);
+        // Option B catalog extension (soc2-018, cis-az-012/018/025/027) widens P1 themes beyond the PP-01 pilot pair.
+        soc2Themes.Should().BeEquivalentTo(
+            [DataProtection, Encryption, NetworkIsolation, TransportSecurity]);
+        cisThemes.Should().BeEquivalentTo(
+            [DataProtection, Encryption, NetworkIsolation, TransportSecurity, WorkloadIsolation]);
+
+        cisThemes.Should().NotBeEquivalentTo(soc2Themes, "buyer-visible delta must differ at P1");
 
         // The buyer-visible delta: same architecture, different assigned pack, different declaration rows + citations.
         DeclarationSignalPolicyGate.TryGetPolicyRuleId(TransportSecurity, soc2).Should().Be("soc2-004");
         DeclarationSignalPolicyGate.TryGetPolicyRuleId(DataProtection, cisAzure).Should().Be("cis-az-006");
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(WorkloadIsolation, cisAzure).Should().Be("cis-az-027");
     }
 
     [Fact]
