@@ -204,6 +204,25 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task Simulate_returns_bad_request_when_run_id_is_empty_guid()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: true);
+
+        IActionResult result = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = Guid.Empty.ToString("D"),
+                Content = new PolicyPackContentDocument(),
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task Simulate_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
@@ -213,7 +232,7 @@ public sealed class PolicyPacksControllerListScopeTests
         IActionResult result = await sut.Simulate(
             new PolicyPackSimulateRequest
             {
-                RunId = "run-1",
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
                 Content = new PolicyPackContentDocument(),
             },
             CancellationToken.None);
