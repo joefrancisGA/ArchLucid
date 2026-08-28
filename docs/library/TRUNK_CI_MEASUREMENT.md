@@ -12,7 +12,20 @@
 Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord
 ```
 
-## Latest measurement — 2026-08-28 (cloud agent VM, commit pre-push)
+## Latest measurement — 2026-08-28 (post-ruleset corset + PP-01, cloud agent VM)
+
+| Assembly | Fast-core result | Notes |
+|----------|------------------|-------|
+| `ArchLucid.Application.Tests` | **1967 / 0** | Green |
+| `ArchLucid.Api.Tests` | **1123 / 0** | Green (fast-core slice) |
+| `ArchLucid.AgentRuntime.Tests` | **743 / 0** | Green |
+| `ArchLucid.Host.Composition.Tests` | **274 / 0** | Green |
+| `ArchLucid.Decisioning.Tests` | **8 / 0** | `BundledPolicyPackDeclarationThemeTests` (PP-01 guard, corset-covered) |
+| `ArchLucid.Api.Tests` (integration) | **55 passed, 457 failed** | `ArchLucidApiFactory` — no SQL host fixture on this VM; run via `workflow_dispatch` CI or local SQL tier |
+
+**Interpretation:** Push corset + fast-core slices outside Core/Decisioning are green on trunk after ruleset required-checks update. Integration tier still requires hosted SQL fixtures — not a regression signal from this pass.
+
+## Prior measurement — 2026-08-28 (pre-push, cloud agent VM)
 
 | Assembly | Fast-core result | Notes |
 |----------|------------------|-------|
