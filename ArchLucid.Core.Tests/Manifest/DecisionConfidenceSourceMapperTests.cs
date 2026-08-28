@@ -19,6 +19,13 @@ public sealed class DecisionConfidenceSourceMapperTests
     }
 
     [Fact]
+    public void ToBuyerLabel_returns_unknown_for_numeric_string_ordinals()
+    {
+        DecisionConfidenceSourceMapper.ToBuyerLabel("5").Should().Be(BuyerDecisionConfidenceSource.Unknown);
+        DecisionConfidenceSourceMapper.ToBuyerLabel("99").Should().Be(BuyerDecisionConfidenceSource.Unknown);
+    }
+
+    [Fact]
     public void ToBuyerLabel_parses_persisted_enum_name()
     {
         DecisionConfidenceSourceMapper.ToBuyerLabel("LlmAgent").Should().Be(BuyerDecisionConfidenceSource.ModelAssisted);
