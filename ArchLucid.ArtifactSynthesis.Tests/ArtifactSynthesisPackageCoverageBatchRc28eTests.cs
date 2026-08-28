@@ -266,4 +266,43 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
         artifact.Content.Should().Contain("- Pattern: Hub-spoke");
         artifact.Content.Should().Contain("- Resource: orders-api");
     }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_decisions_not_before_unresolved_issues()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            Decisions =
+            [
+                new ResolvedArchitectureDecision
+                {
+                    DecisionId = "d1",
+                    Category = "Security",
+                    Title = "Use TLS",
+                    SelectedOption = "TLS1.3",
+                },
+            ],
+            UnresolvedIssues = new UnresolvedIssuesSection
+            {
+                Items =
+                [
+                    new ManifestIssue { Title = "CDN gap", Severity = "Medium", Description = "Missing edge cache." },
+                ],
+            },
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        int decisionsIndex = artifact.Content.IndexOf("## Decisions", StringComparison.Ordinal);
+        int unresolvedIndex = artifact.Content.IndexOf("## Unresolved Issues", StringComparison.Ordinal);
+        decisionsIndex.Should().BeGreaterThan(-1);
+        unresolvedIndex.Should().BeGreaterThan(decisionsIndex);
+        artifact.Content.Should().Contain("- Security: Use TLS -> TLS1.3");
+        artifact.Content.Should().Contain("[Medium] CDN gap");
+    }
 }

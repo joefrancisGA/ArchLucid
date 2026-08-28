@@ -258,4 +258,159 @@ public sealed class DocxExportServiceGoldenTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [SkippableFact]
+    public async Task ExportAsync_emits_assumptions_and_constraints_sections()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            CreatedUtc = new DateTime(2026, 3, 27, 12, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "golden-hash",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ManifestMetadata
+            {
+                Name = "Golden manifest",
+                Summary = "Summary",
+                Version = "1.0.0",
+                Status = "Resolved",
+            },
+            Assumptions = ["Existing SQL database will be reused for orders."],
+            Constraints = new ConstraintSection
+            {
+                MandatoryConstraints = ["Must stay in Canada Central"],
+                Preferences = ["Prefer Azure-native services"],
+            },
+        };
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(x => x.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan { RunId = runId, Recommendations = [], SummaryNotes = [] });
+
+        DocxExportService sut = new(advisor.Object, new NullDiagramImageRenderer());
+
+        DocxExportRequest request = new()
+        {
+            RunId = runId,
+            ManifestId = manifestId,
+            DocumentTitle = "Golden Architecture Export",
+            Subtitle = "Snapshot subtitle",
+            IncludeArchitectureDiagram = false,
+            IncludeArtifactsAppendix = false,
+            IncludeComplianceSection = false,
+            IncludeCoverageSection = false,
+            IncludeIssuesSection = false,
+        };
+
+        DocxExportResult result = await sut.ExportAsync(request, manifest, [], CancellationToken.None);
+
+        using MemoryStream wordStream = new(result.Content);
+        using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
+        MainDocumentPart? main = wordDoc.MainDocumentPart;
+        main.Should().NotBeNull();
+        string xml = main.Document.OuterXml;
+
+        xml.Should().Contain("Assumptions");
+        xml.Should().Contain("Existing SQL database will be reused for orders.");
+        xml.Should().Contain("Constraints");
+        xml.Should().Contain("Must stay in Canada Central");
+        xml.Should().Contain("Prefer Azure-native services");
+    }
+
+    [SkippableFact]
+    public async Task ExportAsync_strips_control_chars_from_topology_and_posture_gaps()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        const char bidiOverride = '\u202E';
+        string gapWithControl = $"Missing edge cache{bidiOverride}";
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            CreatedUtc = new DateTime(2026, 3, 27, 12, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "golden-hash",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ManifestMetadata
+            {
+                Name = "Golden manifest",
+                Summary = "Summary",
+                Version = "1.0.0",
+                Status = "Resolved",
+            },
+            Topology = new TopologySection
+            {
+                Gaps = [gapWithControl],
+            },
+            Security = new SecuritySection
+            {
+                Gaps = [gapWithControl],
+            },
+            Compliance = new ComplianceSection
+            {
+                Gaps = [gapWithControl],
+            },
+        };
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(x => x.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan { RunId = runId, Recommendations = [], SummaryNotes = [] });
+
+        DocxExportService sut = new(advisor.Object, new NullDiagramImageRenderer());
+
+        DocxExportRequest request = new()
+        {
+            RunId = runId,
+            ManifestId = manifestId,
+            DocumentTitle = "Golden Architecture Export",
+            Subtitle = "Snapshot subtitle",
+            IncludeArchitectureDiagram = false,
+            IncludeArtifactsAppendix = false,
+            IncludeComplianceSection = true,
+            IncludeCoverageSection = false,
+            IncludeIssuesSection = false,
+        };
+
+        DocxExportResult result = await sut.ExportAsync(request, manifest, [], CancellationToken.None);
+
+        using MemoryStream wordStream = new(result.Content);
+        using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
+        MainDocumentPart? main = wordDoc.MainDocumentPart;
+        main.Should().NotBeNull();
+        string xml = main.Document.OuterXml;
+
+        xml.Should().Contain("Missing edge cache");
+        xml.Should().NotContain(bidiOverride.ToString());
+    }
 }
