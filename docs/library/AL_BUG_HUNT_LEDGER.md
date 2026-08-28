@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 11
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — `FindingJsonConverter.ReadStringList` / `ReadOptionalString` threw on numeric JSON tokens; `DecisionConfidenceSourceMapper` accepted enum ordinal strings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1781,6 +1781,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
 - [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
+- [x] (proven) `FindingJsonConverter` top-level enum-string guards, classifier property-tier guard, Service Bus correlation casing/number, numeric dedupe key, and agent profile display label — **hit 2026-08-28 (#231 carry #223):** cherry-picked onto master.
+- [x] (proven) `FindingJsonConverter.ReadStringDict` dropped numeric `properties` tokens and `PolicyPackExpectationFacetParser.ParseBreachSeverity` accepted undefined severity ordinals — **hit 2026-08-28 (#231 carry #225).**
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` accepted undefined `AgentOutputQualityGateMode` numeric-strings — **hit 2026-08-28 (#231 carry #227).**
+- [x] (proven) `FindingJsonConverter.ReadStringDictValue` coerced boolean `properties` tokens to empty strings — **hit 2026-08-28 (#231 carry #229):** `Deserialize_properties_boolean_values_preserve_invariant_string`.
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` accepts undefined legacy status strings — **2026-08-28 (#231 carry #229):** already guarded with `Enum.IsDefined`.
+- [x] (proven) `FindingJsonConverter.ReadStringList` throws on numeric/boolean `relatedNodeIds` / `recommendedActions` elements — **hit 2026-08-28 (#231):** reuse `ReadStringDictValue` coercion (`Deserialize_relatedNodeIds_numeric_elements_coerce_to_strings`).
+- [x] (proven) `FindingJsonConverter.ReadOptionalString` throws on numeric optional refs such as `agentExecutionTraceId` — **hit 2026-08-28 (#231):** coerce scalars via `ReadStringDictValue` (`Deserialize_numeric_agentExecutionTraceId_coerces_to_string`).
+- [x] (proven) `DecisionConfidenceSourceMapper.ToBuyerLabel(string?)` accepts defined enum ordinal strings (`"5"` → Model-assisted) — **hit 2026-08-28 (#231):** reject numeric strings; require `Enum.IsDefined` for names (`ToBuyerLabel_returns_unknown_for_numeric_string_ordinals`).
+
+2026-08-28 seed hunt #231: cherry-picked #223–#229 Core fixes; proved finding list/optional-string JSON coercion and decision-confidence ordinal-string guard.
 
 ---
 
