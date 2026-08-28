@@ -52,7 +52,7 @@ public sealed partial class FindingJsonConverter
 
     private static string? ReadOptionalString(JsonElement root, string name)
     {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind is JsonValueKind.Null)
+        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind is JsonValueKind.Null)
             return null;
 
         if (el.ValueKind == JsonValueKind.String)
