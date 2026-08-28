@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 70
-- **bugs-found:** 207
+- **hunts:** 71
+- **bugs-found:** 209
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — invalid runId 400, homepage empty selectedRunId 400, disposition whitespace findingId 400
+- **last-bug:** 2026-08-28 — policy-pack route empty guid 400, product feedback empty runId 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2452,8 +2452,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.RequireScopedRunAsync` — malformed `runId` on approval-history routes returned HTTP 404 `RunNotFound` instead of HTTP 400 — **hit 2026-08-28:** return `ValidationFailed` when `Guid.TryParse` fails (pre-commit checklist parity); regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_bad_request_when_run_id_is_not_valid`.
 - [x] (proven) `TenantHomepageSettingsController.PutAsync` — body `selectedRunId = Guid.Empty` returned HTTP 404 `RunNotFound` because empty is treated as a provided id — **hit 2026-08-28:** reject empty guid before featured-sample service lookup (stickiness empty body runId parity); regression in `TenantHomepageSettingsControllerTests.PutAsync_returns_bad_request_when_selected_run_id_is_empty`.
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` — whitespace-only route `findingId` returned HTTP 404 after trim to empty — **hit 2026-08-28:** reject blank finding id after `NormalizeFindingId` (bulk-disposition whitespace parity); regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_bad_request_when_finding_id_is_whitespace`.
-- [ ] (candidate) `PolicyPacksController` route `policyPackId` / `assignmentId` / `policyPackCatalogEntryId` = `Guid.Empty` — scoped repository lookup returns HTTP 404 instead of HTTP 400 validation (DryRunPolicyPack empty-id guard exists; pack CRUD routes do not).
-- [ ] (candidate) `TenantCustomerSuccessController` product feedback — body `runId = Guid.Empty` may return HTTP 404 instead of HTTP 400 when optional run binding is explicitly sent as empty guid.
+- [x] (proven) `PolicyPacksController` route `policyPackId` / `assignmentId` / `policyPackCatalogEntryId` = `Guid.Empty` — scoped repository lookup returned HTTP 404 instead of HTTP 400 validation — **hit 2026-08-28:** shared `BadRequestWhenRouteIdEmpty` on pack/assignment/catalog route reads and mutations plus promote/demote body guards (DryRunPolicyPack parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `runId = Guid.Empty` returned HTTP 404 `RunNotFound` because empty is treated as a provided id — **hit 2026-08-28:** reject empty guid before scoped run lookup (homepage/stickiness empty runId parity); regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_run_id_is_empty`.
+
+2026-08-28 thorough hunt #180: proved policy-pack route empty-guid guards and product-feedback empty runId 400; zone candidate backlog cleared.
 
 2026-08-28 seed hunt #179: proved invalid runId 400, homepage empty selectedRunId 400, and disposition whitespace findingId 400; seeded policy-pack route empty-guid and customer-success empty runId candidates.
 

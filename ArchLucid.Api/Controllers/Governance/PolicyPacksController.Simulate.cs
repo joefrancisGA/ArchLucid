@@ -94,6 +94,11 @@ public sealed partial class PolicyPacksController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         PolicyPackSimulateBulkSummary? summary = await _workflow.TrySimulateBulkAsync(
             policyPackId,
             request.RunIds,

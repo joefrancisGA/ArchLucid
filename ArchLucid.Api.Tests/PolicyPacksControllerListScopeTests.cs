@@ -358,6 +358,82 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task ListVersions_returns_bad_request_when_policy_pack_id_is_empty()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: true);
+
+        IActionResult result = await sut.ListVersions(Guid.Empty, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetCatalogEntry_returns_bad_request_when_policy_pack_catalog_entry_id_is_empty()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: true);
+
+        IActionResult result = await sut.GetCatalogEntry(Guid.Empty, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task ArchiveAssignment_returns_bad_request_when_assignment_id_is_empty()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: true);
+
+        IActionResult result = await sut.ArchiveAssignment(Guid.Empty, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task PromoteCatalogEntry_returns_bad_request_when_source_policy_pack_id_is_empty()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: true);
+
+        IActionResult result = await sut.PromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = Guid.Empty,
+                Version = "1.0.0",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task DemoteCatalogEntry_returns_bad_request_when_policy_pack_catalog_entry_id_is_empty()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: true);
+
+        IActionResult result = await sut.DemoteCatalogEntry(
+            new DemotePolicyPackCatalogEntryRequest
+            {
+                PolicyPackCatalogEntryId = Guid.Empty,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PromoteCatalogEntry_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
