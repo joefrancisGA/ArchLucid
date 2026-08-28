@@ -321,6 +321,50 @@ public sealed class GovernanceControllerDashboardTests
     }
 
     [SkippableFact]
+    public async Task GetComplianceDriftTrend_returns_bad_request_when_bucket_count_exceeds_five_hundred()
+    {
+        DateTime fromUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = fromUtc.AddDays(22);
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid() });
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        Mock<IComplianceDriftTrendService> drift = new(MockBehavior.Strict);
+
+        GovernanceController sut = new(
+            Mock.Of<IGovernanceWorkflowService>(),
+            Mock.Of<IGovernanceApprovalRequestRepository>(),
+            Mock.Of<IGovernancePromotionRecordRepository>(),
+            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            Mock.Of<IActorContext>(),
+            scope.Object,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<IGovernanceDashboardService>(),
+            Mock.Of<IGovernanceLineageService>(),
+            Mock.Of<IGovernanceRationaleService>(),
+            drift.Object,
+            Mock.Of<IPolicyPackDryRunService>(),
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            Mock.Of<IPolicyPackSchemaKeysService>(),
+            Mock.Of<Core.Audit.IAuditService>(),
+            Mock.Of<IPolicyPackDraftService>(),
+            Mock.Of<IPolicyPackGeneratorService>(),
+            tenants.Object,
+            NullLogger<GovernanceController>.Instance)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.GetComplianceDriftTrend(fromUtc, toUtc, 60, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        tenants.VerifyNoOtherCalls();
+        drift.VerifyNoOtherCalls();
+    }
+
+    [SkippableFact]
     public async Task GetComplianceDriftTrend_returns_not_found_when_tenant_missing()
     {
         Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
