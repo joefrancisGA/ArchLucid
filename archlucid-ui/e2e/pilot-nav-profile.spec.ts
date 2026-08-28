@@ -1,6 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { OPERATE_NAV_UNLOCK_STORAGE_KEY } from "@/lib/usability/operate-nav-progressive-unlock";
+import { ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY } from "@/lib/role-shaped-nav-density";
+import { SHOW_ALL_DESTINATIONS } from "@/lib/nav-disclosure-copy";
 
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
@@ -40,9 +42,11 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
         onboardingTourCompletedKey: string;
         sidebarGroupExpansionKey: string;
         operateNavUnlockStorageKey: string;
+        roleNavDensityShowFullNavKey: string;
       }) => {
         localStorage.removeItem(keys.sidebarGroupExpansionKey);
-        localStorage.setItem(keys.operateNavUnlockStorageKey, "0");
+        localStorage.removeItem(keys.operateNavUnlockStorageKey);
+        localStorage.setItem(keys.roleNavDensityShowFullNavKey, "false");
         localStorage.setItem("archlucid-nav-expanded", "false");
         localStorage.setItem("archlucid_nav_show_extended", "false");
         localStorage.setItem("archlucid_nav_show_advanced", "false");
@@ -57,6 +61,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
         onboardingTourCompletedKey: ONBOARDING_TOUR_COMPLETED_KEY,
         sidebarGroupExpansionKey: SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
         operateNavUnlockStorageKey: OPERATE_NAV_UNLOCK_STORAGE_KEY,
+        roleNavDensityShowFullNavKey: ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY,
       },
     );
     await page.addInitScript(
@@ -87,7 +92,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Approval queue" })).toHaveCount(0);
     await expect(page.getByRole("group", { name: "Insights" })).toHaveCount(0);
-    await expect(page.getByRole("group", { name: "Governance", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("group", { name: "Approval", exact: true })).toHaveCount(0);
 
     const analysisToggle = page.getByTestId("sidebar-group-toggle-operate-analysis");
 
@@ -101,25 +106,26 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(analysisNav).toBeVisible({ timeout: 15_000 });
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
     await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/insights/compare-two-reviews");
-    await expect(page.getByRole("group", { name: "Governance", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("group", { name: "Approval", exact: true })).toHaveCount(0);
 
-    await page.evaluate((storageKey) => {
-      localStorage.setItem(storageKey, "2");
-      window.dispatchEvent(new Event("archlucid-operate-nav-unlock-changed"));
-    }, OPERATE_NAV_UNLOCK_STORAGE_KEY);
+    const showAllDestinations = page.getByTestId("role-nav-density-expand-toggle");
+
+    await expect(showAllDestinations).toBeVisible({ timeout: 15_000 });
+    await expect(showAllDestinations).toHaveText(new RegExp(SHOW_ALL_DESTINATIONS.show, "i"));
+    await showAllDestinations.click();
 
     await expect(page.getByTestId("sidebar-group-toggle-operate-governance")).toBeVisible({ timeout: 15_000 });
     await page.getByTestId("sidebar-group-toggle-operate-governance").click();
 
-    const governanceNav = page.getByRole("group", { name: "Governance", exact: true });
-    const riskRegisterLink = governanceNav.getByTestId("nav-operate-governance-findings");
-    const governanceWorkflowLink = governanceNav.getByTestId("nav-operate-governance-workflow");
+    const approvalNav = page.getByRole("group", { name: "Approval", exact: true });
+    const riskRegisterLink = approvalNav.getByTestId("nav-operate-governance-findings");
+    const governanceWorkflowLink = approvalNav.getByTestId("nav-operate-governance-workflow");
 
-    await expect(governanceNav).toBeVisible({ timeout: 15_000 });
+    await expect(approvalNav).toBeVisible({ timeout: 15_000 });
     // Pilot profile keeps advanced-tier workflow routes hidden until extended+advanced disclosure is on.
     await expect(riskRegisterLink).toBeVisible();
     await expect(riskRegisterLink).toHaveAttribute("href", "/governance/findings");
-    // Authority-only nav (owner 2026-08-03): unlock phase no longer hides workflow.
+    // Authority-only nav (owner 2026-08-03): governance workflow stays visible once the group is expanded.
     await expect(governanceWorkflowLink).toBeVisible();
     await expect(governanceWorkflowLink).toHaveAttribute("href", "/governance/approval-queue");
   });
