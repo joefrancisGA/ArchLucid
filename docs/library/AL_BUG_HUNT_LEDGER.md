@@ -2247,9 +2247,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 94
+- **hunts:** 95
 - **bugs-found:** 246
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-08-28
 - **last-bug:** 2026-08-28 — batch-review ValidationFailed parity and activate environment validation
 - **related-pd-tb:** none
@@ -2493,8 +2493,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (invalid) `GovernanceController.Promote` — prod-approval linkage `InvalidOperationException` messages still returned `ProblemTypes.BadRequest` while environment-ordering failures use `ValidationFailed` — **cheap-disproof 2026-08-28:** promote catch already maps all workflow `InvalidOperationException` to `ValidationFailed` (hunt #204); regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_validation_failed_when_prod_promotion_requires_approval`.
 - [x] (invalid) `GovernanceWorkflowActivateStage` — padded unknown environment (e.g. `"  staging  "`) may pass trim and fail only at repository lookup instead of deterministic validation — **cheap-disproof 2026-08-28:** trim-then-`IsKnownEnvironment` guard throws `ArgumentException` before run/manifest/repository work (hunt #206); regression in `GovernanceWorkflowFacadeTests.ActivateAsync_throws_when_padded_environment_is_unknown_before_repository_lookup`.
-- [ ] (candidate) `GovernancePreviewController.Preview` — defensive `InvalidOperationException` catch still returns `ProblemTypes.BadRequest` while `ArgumentException` validation uses `ValidationFailed` (preview error-family parity gap; likely unreachable).
-- [ ] (candidate) `GovernanceStickinessController.RecordDisposition` — facade `InvalidOperationException` for missing finding maps to HTTP 404 `ResourceNotFound` while malformed inputs use `ValidationFailed` (disposition not-found vs validation problem-type parity gap).
+
+2026-08-28 thorough hunt #209 (dry): cheap-disproved preview InvalidOperationException parity candidate (unreachable defensive catch) and stickiness disposition not-found mapping candidate (intentional 404 vs 400 split).
+
+- [x] (invalid) `GovernancePreviewController.Preview` — defensive `InvalidOperationException` catch still returns `ProblemTypes.BadRequest` while `ArgumentException` validation uses `ValidationFailed` — **cheap-disproof 2026-08-28:** `GovernancePreviewService.PreviewActivationAsync` throws `ArgumentException`/`RunNotFoundException`/`GoldenManifestVersionNotFoundException` only; `InvalidOperationException` catch is defensive (also classified invalid hunt #203); regression in `GovernancePreviewControllerUnitTests.Preview_returns_validation_failed_when_preview_service_throws_argument_exception`.
+- [x] (invalid) `GovernanceStickinessController.RecordDisposition` — facade `InvalidOperationException` for missing finding maps to HTTP 404 `ResourceNotFound` while malformed inputs use `ValidationFailed` — **cheap-disproof 2026-08-28:** intentional REST semantics — validation → 400 `ValidationFailed`, scope miss → 404 `ResourceNotFound` (proven hit 2026-08-26); regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_not_found_when_finding_is_out_of_scope`.
+- [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` — returns 404 via `TryResolve` false while `RecordDisposition` maps facade `InvalidOperationException` to 404 (different not-found signaling shapes for missing findings).
+- [ ] (candidate) `GovernancePreviewController.CompareEnvironments` — omits defensive `InvalidOperationException` catch present on `Preview` (harmless asymmetry; compare path throws `ArgumentException` only).
 
 2026-08-28 thorough hunt #206 (hit): proved batch-review workflow `ValidationFailed` parity and activate-stage unknown environment validation; seeded promote prod-approval problem-type and activate padded-unknown-environment candidates.
 
