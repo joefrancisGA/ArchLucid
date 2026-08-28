@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 82
-- **bugs-found:** 230
+- **hunts:** 83
+- **bugs-found:** 232
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — batch-review duplicate approvalRequestId per-item validation
+- **last-bug:** 2026-08-28 — bulk-disposition duplicate findingId guard and dry-run duplicate run-id dedupe
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2483,10 +2483,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **hit 2026-08-28:** emit per-item `ValidationFailed` for duplicate ids while processing first occurrence (whitespace per-item parity); regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_validation_failed_per_item_when_approval_request_id_is_duplicated`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` query params may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-28:** `LoadAndCompareManifestPairAsync` delegates to `GetManifestInScopeAsync` which trims before lookup; added `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 
-2026-08-28 thorough hunt #195 (hit): proved batch-review duplicate-id per-item validation; cheap-disproved compare-manifest padded-query candidate; seeded bulk-disposition duplicate findingIds and dry-run duplicate evaluateAgainstRunIds candidates.
+2026-08-28 thorough hunt #196 (hit): proved bulk-disposition duplicate findingId HTTP 400 guard and dry-run duplicate evaluateAgainstRunIds dedupe (SimulateBulk parity); zone candidate backlog cleared.
 
-- [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` — duplicate non-whitespace `findingIds` may be processed twice with inflated `processedCount` (no per-id dedupe; batch-review duplicate parity gap).
-- [ ] (candidate) `GovernanceController.DryRunPolicyPack` — duplicate non-whitespace `evaluateAgainstRunIds` may inflate `deltaCounts.evaluated` and duplicate per-run items (`PolicyPackDryRunService` trims but does not dedupe; SimulateBulk uses `Distinct`).
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — duplicate non-whitespace `findingIds` may be processed twice with inflated `processedCount` (no per-id dedupe; batch-review duplicate parity gap) — **hit 2026-08-28:** reject duplicate trimmed finding ids with HTTP 400 before facade; regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceController.DryRunPolicyPack` — duplicate non-whitespace `evaluateAgainstRunIds` may inflate `deltaCounts.evaluated` and duplicate per-run items (`PolicyPackDryRunService` trims but does not dedupe; SimulateBulk uses `Distinct`) — **hit 2026-08-28:** dedupe trimmed run ids in `PolicyPackDryRunService` (SimulateBulk parity); regression in `PolicyPackDryRunServiceTests`.
+
+2026-08-28 thorough hunt #195 (hit): proved batch-review duplicate-id per-item validation; cheap-disproved compare-manifest padded-query candidate; seeded bulk-disposition duplicate findingIds and dry-run duplicate evaluateAgainstRunIds candidates.
 
 2026-08-28 thorough hunt #194 (hit): proved batch-review duplicate-id per-item validation; cheap-disproved compare-manifest padded-query candidate; zone candidate backlog cleared.
 
