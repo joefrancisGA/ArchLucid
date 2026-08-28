@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 82
-- **bugs-found:** 230
+- **hunts:** 84
+- **bugs-found:** 232
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — batch-review duplicate approvalRequestIds silently deduped with no per-item result row
+- **last-bug:** 2026-08-28 — `GovernanceStickinessController.RecordBulkDisposition` accepted duplicate `findingIds`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2482,6 +2482,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `PolicyPacksController.SimulateBulk` — more than 50 `runIds` where trailing entries are malformed may return HTTP 400 for count cap before per-id validation surfaces the malformed id — **cheap-disproof 2026-08-28:** intentional validation ordering (count cap before per-id GUID parse), aligned with `DryRunPolicyPack`; both return HTTP 400; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` are silently deduped with no per-item result row (batch client cannot distinguish omitted duplicate from never-sent id) — **hit 2026-08-28 (#222):** emit per-item `ValidationFailed` for duplicate ids while processing first occurrence; regression in `BatchReviewApprovalRequests_returns_validation_failed_per_item_when_list_contains_duplicate_id`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity on single-manifest reads — **cheap-disproof 2026-08-28 (#222):** compare uses query params and `GetManifestInScopeAsync` trims before lookup; regression in `CompareManifests_returns_ok_when_query_params_are_padded` (summary/export padded tests already covered siblings).
+- [x] (proven) `PolicyPacksController.SimulateBulk` — duplicate `runIds` silently deduped while `RequestedRunCount` still counted duplicates — **hit 2026-08-28 (#238 re-ship):** reject duplicate ids at controller with HTTP 400; regression in `SimulateBulk_returns_bad_request_when_run_ids_contain_duplicate`.
+- [x] (proven) `GovernanceController.DryRunPolicyPack` — duplicate `evaluateAgainstRunIds` double-evaluated same run and inflated `totalRequestedRuns` — **hit 2026-08-28 (#240):** reject duplicate ids at controller with HTTP 400 (`SimulateBulk` parity); regression in `DryRunPolicyPack_returns_bad_request_when_evaluate_against_run_ids_contains_duplicate_id`.
+- [ ] (candidate) `GovernanceController.DryRunProposedPolicyPack` — sibling dry-run endpoint may accept duplicate run/manifest id lists without controller dedup guard (parity gap vs `DryRunPolicyPack` / `SimulateBulk`).
+- [x] (invalid) `GovernanceController.DryRunProposedPolicyPack` — duplicate run/manifest id lists without dedup guard — **cheap-disproof 2026-08-28 (#242):** endpoint accepts a single `targetRunId` or `targetManifestId`, not a list; both-targets already returns HTTP 400 (`PolicyPackGovernanceDryRunEndpointTests.DryRunProposedPolicyPack_Both_targets_Returns400`).
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — duplicate `findingIds` double-dispositioned same finding and inflated `ProcessedCount` — **hit 2026-08-28 (#242):** reject duplicate ids at controller with HTTP 400 (`SimulateBulk` parity); regression in `RecordBulkDisposition_returns_bad_request_when_finding_ids_contain_duplicate`.
+
+2026-08-28 thorough hunt #242: re-shipped #222/#232/#234/#236/#238/#240; cheap-disproved `DryRunProposedPolicyPack` duplicate-list candidate; proved `RecordBulkDisposition` duplicate `findingIds` validation.
+
+2026-08-28 thorough hunt #240: re-shipped #222/#232/#234/#236/#238; cheap-disproved manifest-compare padded-version candidate; proved `DryRunPolicyPack` duplicate `evaluateAgainstRunIds` validation.
 
 2026-08-28 thorough hunt #222: proved batch-review duplicate-id per-item validation; cheap-disproved manifest-compare padded-version candidate; zone candidate backlog cleared.
 
