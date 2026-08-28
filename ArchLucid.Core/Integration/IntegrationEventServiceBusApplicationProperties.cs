@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 namespace ArchLucid.Core.Integration;
@@ -134,7 +135,26 @@ public static class IntegrationEventServiceBusApplicationProperties
             if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            value = property.Value.GetString();
+            return TryReadStringOrNumberToken(property.Value, out value);
+        }
+
+        value = null;
+
+        return false;
+    }
+
+    private static bool TryReadStringOrNumberToken(JsonElement element, out string? value)
+    {
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            value = element.GetString();
+
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numeric))
+        {
+            value = numeric.ToString(CultureInfo.InvariantCulture);
 
             return true;
         }
