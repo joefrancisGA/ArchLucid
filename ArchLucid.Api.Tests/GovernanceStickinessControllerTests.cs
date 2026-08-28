@@ -731,6 +731,17 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RevokeRiskException_returns_bad_request_when_risk_exception_id_is_empty()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        IActionResult action = await controller.RevokeRiskException(Guid.Empty, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task RenewRiskException_returns_not_found_when_exception_is_out_of_scope()
     {
         Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

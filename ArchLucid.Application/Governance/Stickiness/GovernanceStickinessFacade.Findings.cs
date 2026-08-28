@@ -243,6 +243,9 @@ public sealed partial class GovernanceStickinessFacade
 
     private async Task EnsureRiskExceptionInScopeAsync(ScopeContext scope, Guid riskExceptionId, CancellationToken ct)
     {
+        if (riskExceptionId == Guid.Empty)
+            throw new ArgumentException("Risk exception id is required.", nameof(riskExceptionId));
+
         RiskExceptionRecord? record = await _riskExceptionService.GetByIdAsync(scope.TenantId, riskExceptionId, ct);
 
         if (!RiskExceptionScope.IsVisibleInScope(record, scope))

@@ -69,6 +69,29 @@ public sealed class TenantErasureLegalHoldControllerTests
     }
 
     [Fact]
+    public async Task SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantErasureLegalHoldController controller = CreateController(
+            Mock.Of<ITenantErasureCommandService>(),
+            TenantExists(),
+            scopeProvider.Object);
+
+        TenantErasureLegalHoldRequest body = new()
+        {
+            UntilUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            Reason = "hold",
+        };
+
+        IActionResult action = await controller.SetLegalHoldAsync(body, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task SetLegalHoldAsync_returns_conflict_when_command_fails()
     {
         Mock<ITenantErasureCommandService> commands = new();
