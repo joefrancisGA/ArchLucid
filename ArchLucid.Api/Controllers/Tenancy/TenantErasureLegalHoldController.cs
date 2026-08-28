@@ -40,6 +40,7 @@ public sealed class TenantErasureLegalHoldController(
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [EnableRateLimiting("expensive")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SetLegalHoldAsync(
@@ -57,6 +58,13 @@ public sealed class TenantErasureLegalHoldController(
             return this.NotFoundProblem(
                 "Tenant was not found for the current scope.",
                 ProblemTypes.ResourceNotFound);
+        }
+
+        if (body.UntilUtc <= TimeProvider.System.GetUtcNow())
+        {
+            return this.BadRequestProblem(
+                "untilUtc must be in the future.",
+                ProblemTypes.ValidationFailed);
         }
 
         ClaimsPrincipal user = User;
