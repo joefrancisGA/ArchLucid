@@ -142,6 +142,35 @@ internal static class RunRepositoryCore
             StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    ///     Returns whether a non-archived run occupies a workspace system name for duplicate checks.
+    ///     Terminal <see cref="ArchitectureRunStatus.Failed" /> and
+    ///     <see cref="ArchitectureRunStatus.ExecutionCompletedQualityRejected" /> runs do not occupy.
+    /// </summary>
+    public static bool OccupiesWorkspaceSystemName(RunRecord run, Guid? excludeRunId = null)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        if (run.ArchivedUtc.HasValue)
+            return false;
+
+        if (excludeRunId.HasValue && run.RunId == excludeRunId.Value)
+            return false;
+
+        if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Failed), StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (string.Equals(
+                run.LegacyRunStatus,
+                nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public static ArchivedRunScopeRow ToArchivedRunScopeRow(RunRecord run)
     {
         ArgumentNullException.ThrowIfNull(run);
