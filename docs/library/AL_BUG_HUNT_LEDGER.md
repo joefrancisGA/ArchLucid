@@ -2483,7 +2483,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **hit 2026-08-28:** emit per-item `ValidationFailed` for duplicate ids (whitespace-id parity); regression in `BatchReviewApprovalRequests_returns_validation_failed_per_item_when_list_contains_duplicate_ids`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` query params may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-28:** `GetManifestInScopeAsync` trims before lookup; compare/summary/export paths share `LoadAndCompareManifestPairAsync`; regression in `CompareManifests_returns_ok_when_query_params_are_padded`.
 
-2026-08-28 thorough hunt #213 (hit): proved batch-review duplicate-id per-item silence; cheap-disproved padded compare-manifest 404 candidate.
+2026-08-28 thorough hunt #215 (hit): proved batch-review duplicate-id per-item silence; cheap-disproved padded compare-manifest 404 candidate.
 
 2026-08-28 thorough hunt #186: proved batch-review mixed whitespace per-item validation; cheap-disproved activate idempotency test-gap candidate; zone candidate backlog cleared.
 
