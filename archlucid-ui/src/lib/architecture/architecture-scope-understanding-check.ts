@@ -140,68 +140,6 @@ export function isScopeBulletRemovable(kind: ScopeUnderstandingBulletKind): bool
   return scopeBulletBehavior(kind).removable;
 }
 
-/** Labels each actor for scope mirroring — falls back to kind/trust when the label field is empty. */
-export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
-  const trimmedLabel = actor.label?.trim() ?? "";
-
-  if (trimmedLabel.length > 0) {
-    return trimmedLabel;
-  }
-
-  const kind = actor.kind.trim();
-
-  if (kind.length === 0) {
-    return "";
-  }
-
-  const trustOrigin = actor.trustOrigin?.trim() ?? "";
-
-  if (trustOrigin.length > 0 && trustOrigin !== "Internal") {
-    return `${kind} (${trustOrigin})`;
-  }
-
-  return kind;
-}
-
-function uniqueScopeLabels(labels: readonly string[]): string[] {
-  const seen = new Set<string>();
-  const uniqueLabels: string[] = [];
-
-  for (const label of labels) {
-    const trimmed = label.trim();
-
-    if (trimmed.length === 0) {
-      continue;
-    }
-
-    const key = trimmed.toLowerCase();
-
-    if (seen.has(key)) {
-      continue;
-    }
-
-    seen.add(key);
-    uniqueLabels.push(trimmed);
-  }
-
-  return uniqueLabels;
-}
-
-function isScopeMirroredFromActorsRow(kind: ScopeUnderstandingBulletKind): boolean {
-  return kind === "people" || kind === "systems" || kind === "context";
-}
-
-/** Flattens a typed row back to the `Label: value` line used in the brief and in assertions. */
-export function scopeBulletText(bullet: ScopeUnderstandingBullet): string {
-  const value = bullet.value.trim();
-
-  if (bullet.label.length === 0) {
-    return value;
-  }
-
-  return `${bullet.label}: ${value}`;
-}
-
 /**
  * Removes a previously merged scope block from a brief field. Without this, a brief that already
  * carries the confirmed-scope section would feed that section back in as new bullet text.
@@ -220,156 +158,6 @@ export function stripScopeUnderstandingSection(text: string | null | undefined):
   return text.slice(0, sectionIndex).trimEnd();
 }
 
-/** Reads operator-confirmed scope lines already stored on a brief field. */
-export function extractScopeUnderstandingLinesFromBrief(
-  text: string | null | undefined,
-): string[] {
-  if (text === null || text === undefined) {
-    return [];
-  }
-
-  const sectionIndex = text.indexOf(SCOPE_UNDERSTANDING_SECTION_HEADER);
-
-  if (sectionIndex < 0) {
-    return [];
-  }
-
-  const lines: string[] = [];
-
-  for (const line of text.slice(sectionIndex).split("\n")) {
-    const trimmed = line.trim();
-
-    if (!trimmed.startsWith("- ")) {
-      continue;
-    }
-
-    const scopeLine = trimmed.slice(2).trim();
-
-    if (scopeLine.length > 0) {
-      lines.push(scopeLine);
-    }
-  }
-
-  return lines;
-}
-
-/** Stable comparison key so reloads and re-derivation can detect real scope changes only. */
-export function scopeUnderstandingFingerprint(lines: readonly string[]): string {
-  return lines
-    .map((line) => line.trim().toLowerCase())
-    .filter((line) => line.length > 0)
-    .sort((left, right) => left.localeCompare(right))
-    .join("\n");
-}
-
-export function scopeBulletsFingerprint(bullets: readonly ScopeUnderstandingBullet[]): string {
-  return scopeUnderstandingFingerprint(scopeBriefLines(bullets));
-}
-
-export function persistedScopeMatchesBullets(
-  persistedText: string | null | undefined,
-  bullets: readonly ScopeUnderstandingBullet[],
-): boolean {
-  const persistedLines = extractScopeUnderstandingLinesFromBrief(persistedText);
-
-  if (persistedLines.length === 0) {
-    return false;
-  }
-
-  return scopeUnderstandingFingerprint(persistedLines) === scopeBulletsFingerprint(bullets);
-}
-
-function pushUniqueBullet(
-  bullets: ScopeUnderstandingBullet[],
-  kind: ScopeUnderstandingBulletKind,
-  id: string,
-  value: string,
-): void {
-  const trimmed = value.trim();
-
-  if (trimmed.length === 0) {
-    return;
-  }
-
-  const candidate: ScopeUnderstandingBullet = {
-    id,
-    kind,
-    label: scopeBulletBehavior(kind).label,
-    value: trimmed,
-    source: "inferred",
-  };
-  const duplicate = bullets.some(
-    (bullet) => scopeBulletText(bullet).toLowerCase() === scopeBulletText(candidate).toLowerCase(),
-  );
-
-  if (duplicate) {
-    return;
-  }
-
-  bullets.push(candidate);
-}
-
-/** Stable per-row id so operator edits survive re-derivation when the form above changes. */
-function gapBulletId(label: string): string {
-  return `gap-${label.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-}
-
-/** Derives typed in-scope rows from intake / create-home context (TB-2176). */
-export function deriveScopeUnderstandingBullets(
-  input: DeriveScopeUnderstandingBulletsInput,
-): ScopeUnderstandingBullet[] {
-  const bullets: ScopeUnderstandingBullet[] = [];
-  const architectureName = input.architectureName?.trim() ?? input.systemName?.trim() ?? "";
-
-  pushUniqueBullet(bullets, "system", "system", architectureName);
-
-  const outcome = stripScopeUnderstandingSection(input.businessOutcome).trim();
-
-  pushUniqueBullet(bullets, "outcome", "outcome", outcome);
-
-  const overview = stripScopeUnderstandingSection(
-    input.architectureOverview ?? input.intentText,
-  ).trim();
-
-  if (overview.length > 0) {
-    const excerpt =
-      overview.length > SCOPE_CONTEXT_PREVIEW_MAX_LENGTH
-        ? `${overview.slice(0, SCOPE_CONTEXT_PREVIEW_MAX_LENGTH - 1).trimEnd()}…`
-        : overview;
-
-    pushUniqueBullet(bullets, "context", "context", excerpt);
-  }
-
-  const people = uniqueScopeLabels(
-    (input.peopleAndSystems ?? [])
-      .filter((entry) => entry.kind === "Human" || entry.kind === "Both")
-      .map((entry) => actorScopeDisplayLabel(entry)),
-  );
-  const systems = uniqueScopeLabels(
-    (input.peopleAndSystems ?? [])
-      .filter((entry) => entry.kind === "Machine" || entry.kind === "Both")
-      .map((entry) => actorScopeDisplayLabel(entry)),
-  );
-
-  pushUniqueBullet(bullets, "people", "people", people.slice(0, 4).join(", "));
-  pushUniqueBullet(bullets, "systems", "systems", systems.slice(0, 4).join(", "));
-
-  for (const label of input.missingItemLabels ?? []) {
-    pushUniqueBullet(bullets, "gap", gapBulletId(label), label);
-  }
-
-  if (bullets.length === 0) {
-    pushUniqueBullet(
-      bullets,
-      "fallback",
-      "fallback",
-      "ArchLucid will infer scope from the brief and evidence you provide in this intake.",
-    );
-  }
-
-  return bullets;
-}
-
 export type ReconcileScopeUnderstandingBulletsInput = {
   readonly inferred: readonly ScopeUnderstandingBullet[];
   readonly previous: readonly ScopeUnderstandingBullet[];
@@ -377,154 +165,27 @@ export type ReconcileScopeUnderstandingBulletsInput = {
   readonly dismissedIds: readonly string[];
 };
 
-/**
- * Re-derivation must not silently discard operator work: a row the operator edited keeps its value,
- * operator-added rows are preserved, and removed rows stay removed.
- */
-export function reconcileScopeUnderstandingBullets(
-  input: ReconcileScopeUnderstandingBulletsInput,
-): ScopeUnderstandingBullet[] {
-  const previousById = new Map(input.previous.map((bullet) => [bullet.id, bullet]));
-  const dismissedIds = new Set(input.dismissedIds);
-  const derivedRows = input.inferred
-    .filter((bullet) => !dismissedIds.has(bullet.id))
-    .map((bullet) => {
-      const prior = previousById.get(bullet.id);
-
-      if (isScopeMirroredFromActorsRow(bullet.kind)) {
-        return bullet;
-      }
-
-      if (prior === undefined || prior.source !== "user") {
-        return bullet;
-      }
-
-      return { ...bullet, value: prior.value, source: "user" as const };
-    });
-  const operatorRows = input.previous.filter(
-    (bullet) => bullet.kind === "custom" && !dismissedIds.has(bullet.id),
-  );
-
-  return [...derivedRows, ...operatorRows];
-}
-
 export type ScopeItemValidation =
   | { readonly status: "empty" }
   | { readonly status: "valid" }
   | { readonly status: "invalid"; readonly message: string };
 
-/** Hard client validation for the add field — the Add button stays disabled unless this returns `valid`. */
-export function validateScopeUnderstandingItem(
-  candidate: string,
-  existingBullets: readonly ScopeUnderstandingBullet[],
-): ScopeItemValidation {
-  const trimmed = candidate.trim();
-
-  if (trimmed.length === 0) {
-    return { status: "empty" };
-  }
-
-  if (trimmed.length < SCOPE_ITEM_MIN_LENGTH) {
-    return { status: "invalid", message: SCOPE_ITEM_TOO_SHORT_MESSAGE };
-  }
-
-  if (trimmed.length > SCOPE_ITEM_MAX_LENGTH) {
-    return { status: "invalid", message: SCOPE_ITEM_TOO_LONG_MESSAGE };
-  }
-
-  // Rejects punctuation/digit-only entries such as "1234" or "!!!" that carry no reviewable meaning.
-  // `\p{L}` matches a letter in any script, so non-Latin scope items still pass.
-  if (!/\p{L}/u.test(trimmed)) {
-    return { status: "invalid", message: SCOPE_ITEM_NO_LETTER_MESSAGE };
-  }
-
-  const duplicate = existingBullets.some(
-    (bullet) => bullet.value.trim().toLowerCase() === trimmed.toLowerCase(),
-  );
-
-  if (duplicate) {
-    return { status: "invalid", message: SCOPE_ITEM_DUPLICATE_MESSAGE };
-  }
-
-  return { status: "valid" };
-}
-
-/**
- * The confirmed scope lines a reviewer will actually read. Single source of truth so a summary
- * rendered before submit cannot disagree with what the brief carries.
- */
-export function scopeBriefLines(bullets: readonly ScopeUnderstandingBullet[]): string[] {
-  return bullets
-    .filter((bullet) => scopeBulletBehavior(bullet.kind).includeInBrief)
-    .filter((bullet) => bullet.value.trim().length > 0)
-    .map((bullet) => scopeBulletText(bullet));
-}
-
-/** True when confirming scope would add at least one reviewer-facing line to the brief. */
-export function canConfirmScopeUnderstanding(
-  bullets: readonly ScopeUnderstandingBullet[],
-  input?: DeriveScopeUnderstandingBulletsInput,
-): boolean {
-  const briefLines = scopeBriefLines(bullets);
-
-  if (briefLines.length === 0) {
-    return false;
-  }
-
-  if (bullets.some((bullet) => bullet.kind === "custom" && bullet.value.trim().length > 0)) {
-    return true;
-  }
-
-  if (input !== undefined && !hasScopeSourceBriefContent(input)) {
-    return false;
-  }
-
-  return true;
-}
-
-function hasScopeSourceBriefContent(input: DeriveScopeUnderstandingBulletsInput): boolean {
-  const architectureName = input.architectureName?.trim() ?? input.systemName?.trim() ?? "";
-  const outcome = stripScopeUnderstandingSection(input.businessOutcome).trim();
-  const overview = stripScopeUnderstandingSection(input.architectureOverview ?? input.intentText).trim();
-
-  return architectureName.length > 0 || outcome.length > 0 || overview.length > 0;
-}
-
-export function mergeScopeBulletsIntoBrief(
-  bullets: readonly ScopeUnderstandingBullet[],
-  baseBrief: string,
-): string {
-  const trimmedBrief = baseBrief.trim();
-  const bulletLines = scopeBriefLines(bullets).map((line) => `- ${line}`);
-
-  if (bulletLines.length === 0) {
-    return trimmedBrief;
-  }
-
-  const section = `${SCOPE_UNDERSTANDING_SECTION_HEADER}:\n${bulletLines.join("\n")}`;
-
-  if (trimmedBrief.length === 0) {
-    return section;
-  }
-
-  if (trimmedBrief.includes(SCOPE_UNDERSTANDING_SECTION_HEADER)) {
-    return trimmedBrief;
-  }
-
-  return `${trimmedBrief}\n\n${section}`;
-}
-
-/**
- * Trims and drops empty rows. Applied at confirm time only — trimming on every keystroke would stop
- * the operator typing a space between words.
- */
-export function normalizeScopeUnderstandingBullets(
-  bullets: readonly ScopeUnderstandingBullet[],
-): ScopeUnderstandingBullet[] {
-  return bullets
-    .map((bullet) => ({
-      ...bullet,
-      value: bullet.value.trim(),
-    }))
-    .filter((bullet) => bullet.value.length > 0);
-}
+export {
+  actorScopeDisplayLabel,
+  deriveScopeUnderstandingBullets,
+  reconcileScopeUnderstandingBullets,
+  scopeBulletText,
+} from "./architecture-scope-understanding-derive";
+export {
+  canConfirmScopeUnderstanding,
+  scopeBriefLines,
+  validateScopeUnderstandingItem,
+} from "./architecture-scope-understanding-validate";
+export {
+  extractScopeUnderstandingLinesFromBrief,
+  mergeScopeBulletsIntoBrief,
+  normalizeScopeUnderstandingBullets,
+  persistedScopeMatchesBullets,
+  scopeBulletsFingerprint,
+  scopeUnderstandingFingerprint,
+} from "./architecture-scope-understanding-persist";
