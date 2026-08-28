@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import {
   requestDesktopNotificationPermission,
 } from "@/lib/browser-desktop-notification";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatStageDurationMs } from "@/lib/format-stage-duration";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
@@ -378,6 +380,14 @@ export function RunProgressTracker({
       <div aria-live="polite" aria-atomic="true" className={cn("mt-3 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         {liveStatus}
       </div>
+
+      {pipelineTerminalFailure ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="run-progress-terminal-failure-actions">
+          <Button type="button" variant="primary" size="sm" asChild>
+            <Link href={buildArchitectureCorrectionHref(runId, null)}>Re-run review</Link>
+          </Button>
+        </div>
+      ) : null}
 
       {showNotificationOptIn ? (
         <div className="mt-3">
