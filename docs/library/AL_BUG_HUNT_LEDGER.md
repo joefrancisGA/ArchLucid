@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 77
-- **bugs-found:** 224
+- **hunts:** 78
+- **bugs-found:** 227
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — batch-review mixed whitespace id per-item validation
+- **last-bug:** 2026-08-28 — dry-run proposed pack invalid/empty target ids 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2472,6 +2472,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — JSON `approvalRequestIds: null` caused HTTP 500 on `.Count` — **hit 2026-08-28:** null list guard before count check; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — mixed list with whitespace-only ids silently dropped instead of per-item validation failure — **hit 2026-08-28:** emit per-item `ValidationFailed` for whitespace ids while processing valid ids (all-whitespace list still returns HTTP 400); regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `GovernanceController.Activate` — missing `Idempotency-Key` returns HTTP 400 but lacks dedicated regression beside promote/submit siblings — **cheap-disproof 2026-08-28:** `ReadGovernanceIdempotencyKey(true)` already rejects missing header before tenant/run preflight; test gap only, not wrong behavior.
+
+- [x] (proven) `GovernanceController.DryRunProposedPolicyPack` — invalid, empty-GUID `targetRunId`, or `targetManifestId = Guid.Empty` reached dry-run service and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-28:** controller validates target run/manifest ids before `EvaluateAsync` (Simulate parity); regression in `GovernanceControllerSimulateTests`.
+- [ ] (candidate) `GovernanceController.DryRunPolicyPack` — `evaluateAgainstRunIds` containing malformed or empty-GUID strings may surface not-found deltas instead of HTTP 400 validation.
+- [ ] (candidate) `GovernanceController.Approve` / `Reject` — whitespace-only route `approvalRequestId` returns HTTP 400 via shared guard but lacks dedicated approve/reject regression tests.
+
+2026-08-28 seed hunt #187: proved dry-run proposed pack target id validation; seeded dry-run policy pack run-id list and approve/reject whitespace test-gap candidates.
 
 2026-08-28 thorough hunt #186: proved batch-review mixed whitespace per-item validation; cheap-disproved activate idempotency test-gap candidate; zone candidate backlog cleared.
 

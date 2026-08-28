@@ -135,6 +135,19 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        if (!string.IsNullOrWhiteSpace(request.TargetRunId))
+        {
+            if (!Guid.TryParse(request.TargetRunId.Trim(), out Guid targetRunGuid) || targetRunGuid == Guid.Empty)
+            {
+                return this.BadRequestProblem("targetRunId is not valid.", ProblemTypes.ValidationFailed);
+            }
+        }
+
+        if (request.TargetManifestId == Guid.Empty)
+        {
+            return this.BadRequestProblem("targetManifestId is not valid.", ProblemTypes.ValidationFailed);
+        }
+
         PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
             request.PolicyPackContentJson,
             string.IsNullOrWhiteSpace(request.TargetRunId) ? null : request.TargetRunId.Trim(),
