@@ -103,10 +103,16 @@ public static class AlertRoutingCriteriaMetadata
 
     private static IReadOnlyList<string> ReadStringArray(JsonElement parent, string propertyName)
     {
-        if (!TryGetPropertyCaseInsensitive(parent, propertyName, out JsonElement arrayElement) ||
-            arrayElement.ValueKind != JsonValueKind.Array)
+        if (!TryGetPropertyCaseInsensitive(parent, propertyName, out JsonElement arrayElement))
         {
             return [];
+        }
+
+        if (arrayElement.ValueKind != JsonValueKind.Array)
+        {
+            string scalar = ReadMetadataArrayItem(arrayElement);
+
+            return scalar.Length > 0 ? [scalar] : [];
         }
 
         List<string> values = [];
