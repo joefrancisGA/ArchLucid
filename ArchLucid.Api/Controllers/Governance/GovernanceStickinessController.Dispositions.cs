@@ -105,6 +105,13 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.FindingIds.Any(static id => string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "Each FindingId must be a non-empty string.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (request.FindingIds.Count > 50)
         {
             return this.BadRequestProblem(
