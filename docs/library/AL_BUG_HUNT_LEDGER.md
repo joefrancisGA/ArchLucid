@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 84
-- **bugs-found:** 234
+- **hunts:** 85
+- **bugs-found:** 235
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — simulate-bulk and dry-run null list guards
+- **last-bug:** 2026-08-28 — approval-request audit manifestVersion trim parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2483,12 +2483,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **hit 2026-08-28:** emit per-item `ValidationFailed` for duplicate ids while processing first occurrence (whitespace per-item parity); regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_validation_failed_per_item_when_approval_request_id_is_duplicated`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` query params may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-28:** `LoadAndCompareManifestPairAsync` delegates to `GetManifestInScopeAsync` which trims before lookup; added `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 
+2026-08-28 thorough hunt #198 (hit): proved approval-request audit manifestVersion trim parity; cheap-disproved dry-run pageSize clamp candidate (Q38 documented server-clamp); zone candidate backlog cleared.
+
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` / `LogGovernanceApprovalRequestedAuditAsync` — padded `manifestVersion` may echo into `GovernanceApprovalRequested` audit `DataJson` while workflow trims for processing (run-id audit trim parity gap) — **hit 2026-08-28:** trim manifest/environment fields in audit payload (run-id trim parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (invalid) `GovernanceController.DryRunPolicyPack` — out-of-range `pageSize`/`page` query params silently clamped in service instead of HTTP 400 (`GetDashboard` rejects invalid caps explicitly) — **cheap-disproof 2026-08-28:** intentional Q38 server-clamp documented on `IPolicyPackDryRunService`; controller delegates to service; regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_delegates_page_size_to_service_for_documented_server_side_clamp` and `PolicyPackDryRunServiceTests.EvaluateAsync_ClampsPageSizeToServerMaximum`.
+
 2026-08-28 seed hunt #197 (hit): proved simulate-bulk null `runIds` and dry-run null `evaluateAgainstRunIds` HTTP 400 guards (batch-review list-null parity); seeded approval audit manifestVersion trim and dry-run pageSize clamp candidates.
 
 - [x] (proven) `PolicyPacksController.SimulateBulk` — explicit JSON `null` `runIds` caused NRE on `.Count` → HTTP 500 — **hit 2026-08-28:** null-or-empty guard before count cap (batch-review parity); regression in `PolicyPacksControllerSimulateBulkScopeTests`.
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — explicit JSON `null` `evaluateAgainstRunIds` caused NRE on `.Count` → HTTP 500 — **hit 2026-08-28:** null-or-empty guard before validation loop (batch-review parity); regression in `GovernanceControllerSimulateTests`.
-- [ ] (candidate) `GovernanceController.SubmitApprovalRequest` / `LogGovernanceApprovalRequestedAuditAsync` — padded `manifestVersion` may echo into `GovernanceApprovalRequested` audit `DataJson` while workflow trims for processing (run-id audit trim parity gap).
-- [ ] (candidate) `GovernanceController.DryRunPolicyPack` — out-of-range `pageSize`/`page` query params silently clamped in service instead of HTTP 400 (`GetDashboard` rejects invalid caps explicitly).
 
 2026-08-28 thorough hunt #196 (hit): proved bulk-disposition duplicate findingId HTTP 400 guard and dry-run duplicate evaluateAgainstRunIds dedupe (SimulateBulk parity); zone candidate backlog cleared.
 
