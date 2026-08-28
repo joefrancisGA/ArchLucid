@@ -248,9 +248,9 @@ public sealed partial class GovernanceController
     {
         if (string.IsNullOrWhiteSpace(runId))
         {
-            return (this.NotFoundProblem(
+            return (this.BadRequestProblem(
                 "Run id is required.",
-                ProblemTypes.RunNotFound), null);
+                ProblemTypes.ValidationFailed), null);
         }
 
         runId = runId.Trim();

@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 68
-- **bugs-found:** 202
+- **hunts:** 69
+- **bugs-found:** 204
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — dry-run empty pack id 400, disposition/risk-exception empty runId 400, update recurrence empty scheduleId 400
+- **last-bug:** 2026-08-28 — RequireScopedRunAsync empty runId 400, tenant workspace delete/restore empty route guid 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2446,8 +2446,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.UpdateRecurrenceSchedule` — route `scheduleId = Guid.Empty` returned HTTP 404 schedule-not-found instead of HTTP 400 — **hit 2026-08-28:** reject empty guid before repository lookup (create recurrence empty source-run parity); regression in `GovernanceStickinessControllerTests.UpdateRecurrenceSchedule_returns_bad_request_when_schedule_id_is_empty`.
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` — body `runId = Guid.Empty` bypassed `EnsureRunInScopeWhenProvidedAsync` and persisted disposition — **hit 2026-08-28:** controller rejects empty runId before facade (merge-conflict route empty-run parity); regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_bad_request_when_run_id_is_empty`.
 - [x] (proven) `GovernanceStickinessController.CreateRiskException` — body `runId = Guid.Empty` bypassed scoped-run preflight — **hit 2026-08-28:** controller rejects empty runId before facade; regression in `GovernanceStickinessControllerTests.CreateRiskException_returns_bad_request_when_run_id_is_empty`.
-- [ ] (candidate) `GovernanceController.RequireScopedRunAsync` — empty/whitespace `runId` on submit/promote/activate/approval-history routes returns HTTP 404 `RunNotFound` instead of HTTP 400 (pre-commit checklist/simulate parity).
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `workspaceId` or `projectId = Guid.Empty` returns HTTP 404 instead of HTTP 400 validation.
+- [x] (proven) `GovernanceController.RequireScopedRunAsync` — empty/whitespace `runId` on submit/promote/activate/approval-history routes returned HTTP 404 `RunNotFound` instead of HTTP 400 — **hit 2026-08-28:** return `ValidationFailed` for missing run id (pre-commit checklist/simulate parity); regression in `GovernanceControllerRunHistoryScopeTests.SubmitApprovalRequest_returns_bad_request_when_run_id_is_empty`.
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `workspaceId` or `projectId = Guid.Empty` returned HTTP 404 instead of HTTP 400 validation — **hit 2026-08-28:** reject empty route guids before workspace/project lookup (policy-packs route parity); regression in `TenantWorkspacesControllerTests`.
+
+2026-08-28 thorough hunt #178: proved RequireScopedRunAsync empty-run 400 parity and tenant workspace delete/restore empty route-id guards; zone candidate backlog cleared.
 
 2026-08-28 seed hunt #177: proved dry-run empty pack id, update-recurrence empty schedule id, and disposition/risk-exception empty body runId guards; seeded RequireScopedRunAsync empty-run 404-vs-400 and tenant workspace empty route-id candidates.
 
