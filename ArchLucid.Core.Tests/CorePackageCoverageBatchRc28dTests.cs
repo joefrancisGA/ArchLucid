@@ -40,12 +40,31 @@ public sealed class CorePackageCoverageBatchRc28dTests
             }
             """);
 
-        parsed.Severities.Should().Equal("High", "high");
+        parsed.Severities.Should().Equal("High", "high", "1");
         parsed.FindingTypes.Should().ContainSingle("Cost");
         parsed.Tags.Should().ContainSingle("sponsor");
 
         AlertRoutingCriteriaMetadata.Parse("{ not-json").Severities.Should().BeEmpty();
         AlertRoutingCriteriaMetadata.Parse("""{"routingCriteria":"nope"}""").Severities.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_numeric_severity_tokens_coerce_to_strings()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "severities": [1, "Critical"],
+                "findingTypes": [2, "Cost"],
+                "tags": [true, "ops"]
+              }
+            }
+            """);
+
+        parsed.Severities.Should().Equal("1", "Critical");
+        parsed.FindingTypes.Should().Equal("2", "Cost");
+        parsed.Tags.Should().Equal("True", "ops");
     }
 
     [Fact]
