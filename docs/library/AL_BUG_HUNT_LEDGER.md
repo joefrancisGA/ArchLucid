@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 11
-- **bugs-found:** 22
+- **hunts:** 12
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` missed PascalCase `FaithfulnessSupportRatio`, letting low-ratio aggregates resolve as PASS
+- **last-bug:** 2026-08-28 — `QualityGateWarnOnlyProductionLikeConfigurationLint` treated undefined `AgentOutputQualityGateMode` ordinals as non-WarnOnly and suppressed the production-like advisory
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1787,7 +1787,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantItsmConnectorConnectionUpsertValidation.TryParseProvider` rejects `"Azure Boards"` display label while `ToProviderLabel` emits it — **hit 2026-08-28 (#217):** operator upsert with human-readable provider label failed validation; fixed with display-label alias (`TryParseProvider_accepts_jira_and_servicenow`).
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` uses case-sensitive `TryGetProperty` for faithfulness signals — PascalCase `"FaithfulnessSupportRatio"` / `"DeterministicFallbackUsed"` missed so low-ratio aggregates resolve as PASS — **hit 2026-08-28 (#217):** fixed with case-insensitive property lookup (`RunExplanationConfidenceCalloutBuilder_FromAggregateJson_and_limitations`).
 - [x] (valid-no-repro) `DecisionConfidenceSourceMapper.ToBuyerLabel` accepts undefined enum ordinals via bare `Enum.TryParse` — numeric-string `"99"` parses to cast ordinal but `ToBuyerLabel(parsed)` falls through to `Unknown`; buyer label stays safe.
-- [x] (invalid) `QualityGateWarnOnlyProductionLikeConfigurationLint` accepts undefined `AgentOutputQualityGateMode` ordinals — lint only flags `WarnOnly` mode in production-like config; undefined ordinal `99` does not match `WarnOnly` and does not suppress the lint.
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` uses case-sensitive `TryGetProperty("correlationId")` — PascalCase `"CorrelationId"` omitted so Service Bus publish loses payload correlation fallback when activity tag unset — **hit 2026-08-28 (#219):** fixed with case-insensitive property lookup (`TryResolveForPublish_reads_PascalCase_CorrelationId_from_payload_when_activity_unset`).
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` accepts undefined `AgentOutputQualityGateMode` ordinals via bare `Enum.TryParse` — numeric-string `"99"` parsed as non-`WarnOnly` and suppressed the production-like advisory — **hit 2026-08-28 (#219):** treat undefined modes like empty/unknown and emit advisory (`TryDescribeAdvisoryFinding_production_real_undefined_quality_gate_mode_emits_rule`).
+
+2026-08-28 seed hunt #219: proved Service Bus correlation-id casing and quality-gate undefined-ordinal lint suppression; includes enum-guard and ITSM label fixes from seed #217.
 
 ---
 

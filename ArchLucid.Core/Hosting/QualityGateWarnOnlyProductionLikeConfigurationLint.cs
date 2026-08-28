@@ -52,9 +52,12 @@ public static class QualityGateWarnOnlyProductionLikeConfigurationLint
         if (modeRaw.Length == 0)
             return true;
 
-        if (Enum.TryParse(modeRaw, ignoreCase: true, out AgentOutputQualityGateMode parsed))
-            return parsed == AgentOutputQualityGateMode.WarnOnly;
+        if (!Enum.TryParse(modeRaw, ignoreCase: true, out AgentOutputQualityGateMode parsed)
+            || !Enum.IsDefined(parsed))
+        {
+            return true;
+        }
 
-        return string.Equals(modeRaw, "WarnOnly", StringComparison.OrdinalIgnoreCase);
+        return parsed == AgentOutputQualityGateMode.WarnOnly;
     }
 }
