@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 72
-- **bugs-found:** 215
+- **hunts:** 73
+- **bugs-found:** 216
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — core governance controllers ghost workspace 404 parity
+- **last-bug:** 2026-08-28 — customer-success ghost workspace 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2459,6 +2459,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ManifestsController` manifest read/export/compare paths — ghost workspace returned HTTP 200 manifest payloads — **hit 2026-08-28:** `RequireTenantOrNotFoundAsync` delegates to `TenantWorkspaceScopePreflight`; regression in `ManifestsControllerEvidenceScopeTests.GetManifest_returns_not_found_when_workspace_missing`.
 - [x] (proven) `GovernancePreviewController.Preview` / `CompareEnvironments` — ghost workspace reached preview/compare services without workspace preflight — **hit 2026-08-28:** `RequireTenantOrNotFoundAsync` delegates to `TenantWorkspaceScopePreflight`; regression in `GovernancePreviewControllerUnitTests.Preview_returns_not_found_when_workspace_missing`.
 - [x] (proven) `GovernanceResolutionController.Resolve` — ghost workspace returned HTTP 200 default resolution instead of workspace 404; resolver uses ambient workspace but controller only preflighted tenant row — **hit 2026-08-28:** `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` before resolve; regression in `GovernanceResolutionControllerTests.Resolve_returns_not_found_when_workspace_missing`.
+- [x] (proven) `TenantCustomerSuccessController` reads and `PostProductFeedbackAsync` — ghost workspace returned HTTP 200 empty/`isCalculated: false` funnel/stickiness payloads instead of workspace 404; repository and stickiness readers query by ambient workspace but controller only called `GetByIdAsync` — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantCustomerSuccessControllerTests` workspace-missing tests.
+- [ ] (hunt-ready) `TenantCostSettingsController` (`GetAsync`, `PutAsync`) — ghost workspace returns HTTP 200 tenant cost defaults while sibling workspace-scoped controllers 404 — **cheap-disproof pending:** `ITenantCostSettingsRepository.TryGetAsync` is tenant-scoped (no workspace key); verify intentional tenant-wide ROI assumptions before promoting to invalid.
+- [ ] (hunt-ready) `TenantBaselineController` (`GetAsync`, `PutAsync`) — ghost workspace returns HTTP 200 baseline fields from `dbo.Tenants` — **cheap-disproof pending:** baseline columns are tenant-scoped on `TenantRecord`; confirm audit-only workspace id usage before invalid.
+
+2026-08-28 seed hunt #155: proved customer-success ghost-workspace 404 parity; reseeded tenant-wide cost-settings and baseline workspace-preflight candidates for cheap-disproof.
 
 2026-08-28 seed hunt #154: proved five core governance controller ghost-workspace 404 parity (dashboard, policy packs, manifests, preview, resolution).
 

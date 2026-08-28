@@ -27,6 +27,33 @@ public sealed class TenantCustomerSuccessControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
 
+    private static readonly Guid ForeignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+    private static ScopeContext ScopeWithWorkspace(Guid workspaceId) =>
+        new()
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = Scope.ProjectId,
+        };
+
+    private static void SetupTenantExists(Mock<ITenantRepository> tenants)
+    {
+        tenants
+            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId });
+        tenants
+            .Setup(t => t.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+    }
+
     private static TenantCustomerSuccessController BuildSut(
         ITenantCustomerSuccessRepository repo,
         IScopeContextProvider scopeProvider,
@@ -51,9 +78,7 @@ public sealed class TenantCustomerSuccessControllerTests
             .ReturnsAsync((RunRecord?)null);
 
         Mock<ITenantRepository> tenantMock = new();
-        tenantMock
-            .Setup(t => t.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId });
+        SetupTenantExists(tenantMock);
 
         return new TenantCustomerSuccessController(
                 repo,
@@ -378,5 +403,120 @@ public sealed class TenantCustomerSuccessControllerTests
         stickiness.Verify(
             s => s.GetOperatorSignalsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task GetHealthScoreAsync_returns_not_found_when_workspace_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(ScopeWithWorkspace(ForeignWorkspaceId));
+
+        Mock<ITenantRepository> tenants = new();
+        SetupTenantExists(tenants);
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object, tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetHealthScoreAsync(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetNextBestActionsAsync_returns_not_found_when_workspace_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(ScopeWithWorkspace(ForeignWorkspaceId));
+
+        Mock<ITenantRepository> tenants = new();
+        SetupTenantExists(tenants);
+
+        Mock<IOperatorNextBestActionService> next = new(MockBehavior.Strict);
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            next: next.Object,
+            tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetNextBestActionsAsync(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        next.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetFunnelSnapshotAsync_returns_not_found_when_workspace_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(ScopeWithWorkspace(ForeignWorkspaceId));
+
+        Mock<ITenantRepository> tenants = new();
+        SetupTenantExists(tenants);
+
+        Mock<IOperatorStickinessSnapshotReader> stickiness = new(MockBehavior.Strict);
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            stickiness: stickiness.Object,
+            tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetFunnelSnapshotAsync(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        stickiness.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetStickinessSnapshotAsync_returns_not_found_when_workspace_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(ScopeWithWorkspace(ForeignWorkspaceId));
+
+        Mock<ITenantRepository> tenants = new();
+        SetupTenantExists(tenants);
+
+        Mock<IOperatorStickinessSnapshotReader> stickiness = new(MockBehavior.Strict);
+
+        TenantCustomerSuccessController sut = BuildSut(
+            repo.Object,
+            scopeProvider.Object,
+            stickiness: stickiness.Object,
+            tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.GetStickinessSnapshotAsync(CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        stickiness.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task PostProductFeedbackAsync_returns_not_found_when_workspace_missing()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(ScopeWithWorkspace(ForeignWorkspaceId));
+
+        Mock<ITenantRepository> tenants = new();
+        SetupTenantExists(tenants);
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object, tenantRepository: tenants.Object);
+
+        IActionResult result = await sut.PostProductFeedbackAsync(
+            new ProductFeedbackRequest { Score = 1 },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repo.VerifyNoOtherCalls();
     }
 }
