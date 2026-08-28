@@ -2834,11 +2834,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 8
-- **bugs-found:** 12
+- **hunts:** 9
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — archived runs in workspace metrics
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — stale frictionless flag hid paid tier
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2857,12 +2857,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `recentViewLabelFromPathname` mapped canonical `/governance/audit` to generic `"governance · audit"` instead of `"Audit trail"` — only legacy `/audit` was handled; Home recent-views chip showed wrong label after governance route migration (`operator-recent-views.test.ts`).
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` treated a paginated runs dashboard slice as workspace-wide aggregates — **hit 2026-08-26:** partial page now returns zeroed KPI aggregates while preserving workspace `totalCount` (`operator-home-workspace-metrics.test.ts`).
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` included archived runs in committed/active/findings totals — **hit 2026-08-27:** skip `isArchived` rows in aggregate loop (`operator-home-workspace-metrics.test.ts`).
-- [ ] (candidate) `resolveOperatorBillingCurrentPlan` — stale frictionless-trial session flag may hide paid tier after checkout.
-- [ ] (candidate) `readHasSeenWelcomeOnboarding` — welcome dismissal may survive tenant switch (`hasSeenOnboarding` key not cleared in `notifyOperatorScopeChanged`).
-- [ ] (candidate) `readOperatorHomeDisclosureExpanded` — home disclosure prefs may survive tenant switch (global keys not cleared on scope change).
-- [ ] (candidate) `fetchOperatorAiQualitySnapshot` — unvalidated disposition string may crash badge helpers.
+- [x] (proven) `resolveOperatorBillingCurrentPlan` — stale frictionless-trial session flag hid paid tier after checkout when usage reported commercial tier off trial — **hit 2026-08-28:** resolve paid plan before frictionless session branch (stale Active trial parity); regression in `operator-billing-current-plan.test.ts`.
+- [x] (invalid) `readHasSeenWelcomeOnboarding` — welcome dismissal may survive tenant switch (`hasSeenOnboarding` key not cleared in `notifyOperatorScopeChanged`) — **cheap-disproof 2026-08-28:** intentional browser-level user preference (not tenant-scoped data); scope change clears tenant caches only; regression in `operator-scope-storage.test.ts`.
+- [x] (invalid) `readOperatorHomeDisclosureExpanded` — home disclosure prefs may survive tenant switch (global keys not cleared on scope change) — **cheap-disproof 2026-08-28:** intentional device-level collapse preference; not cleared on scope change by design; regression in `operator-scope-storage.test.ts`.
+- [x] (invalid) `fetchOperatorAiQualitySnapshot` — unvalidated disposition string may crash badge helpers — **cheap-disproof 2026-08-28:** `dispositionLabel` / `dispositionClass` return unknown values without throwing; regression in `operator-ai-quality-snapshot.test.ts`.
+- [ ] (candidate) `writeFrictionlessTrialSessionEnabled(false)` — frictionless session flag may remain set after sign-in or checkout, leaving marketing banner visible for paid workspaces until manual clear.
+- [ ] (candidate) `fetchLlmMonthlyDollarBudgetStatusCached` — AI budget percent on billing summary may not refresh after operator scope switch without full page reload.
 
----
+2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: quick-scan-distributed-concurrency
 
