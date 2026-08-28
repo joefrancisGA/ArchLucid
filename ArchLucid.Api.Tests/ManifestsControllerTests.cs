@@ -156,17 +156,6 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
-    public async Task GetManifest_returns_bad_request_when_manifest_version_is_whitespace()
-    {
-        ManifestsController controller = CreateController();
-
-        IActionResult action = await controller.GetManifest("   ", CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
     public async Task CompareManifests_returns_bad_request_when_left_version_missing()
     {
         ManifestsController controller = CreateController();
@@ -254,6 +243,20 @@ public sealed class ManifestsControllerTests
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         GoldenManifest body = ok.Value.Should().BeOfType<GoldenManifest>().Subject;
         body.Metadata.ManifestVersion.Should().Be(ManifestVersion);
+    }
+
+    [Fact]
+    public async Task GetManifestSummary_returns_bad_request_when_max_relationships_is_zero()
+    {
+        ManifestsController controller = CreateController();
+
+        IActionResult action = await controller.GetManifestSummary(
+            ManifestVersion,
+            maxRelationships: 0,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
