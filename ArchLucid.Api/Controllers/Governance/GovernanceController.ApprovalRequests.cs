@@ -470,7 +470,7 @@ public sealed partial class GovernanceController
                     {
                         ApprovalRequestId = approvalRequestId,
                         Succeeded = false,
-                        ErrorCode = ProblemTypes.BadRequest,
+                        ErrorCode = ProblemTypes.ValidationFailed,
                         Message = ex.Message
                     });
             }
