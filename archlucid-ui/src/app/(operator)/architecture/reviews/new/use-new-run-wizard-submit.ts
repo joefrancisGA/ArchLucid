@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import type { UseFormGetValues, UseFormTrigger } from "react-hook-form";
 
 import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
-import { isApiRequestError } from "@/lib/api-request-error";
 import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import {
   evaluateWizardFormCreateRunGates,
@@ -24,8 +23,6 @@ import type { WizardFormValues } from "@/lib/wizard-schema";
 
 import { REVIEW_STEP_INDEX, TRACK_STEP_INDEX } from "./new-run-wizard-steps";
 
-type ShowToast = (kind: "ok" | "err", message: string) => void;
-
 type UseNewRunWizardSubmitOptions = {
   readonly trigger: UseFormTrigger<WizardFormValues>;
   readonly getValues: UseFormGetValues<WizardFormValues>;
@@ -36,7 +33,8 @@ type UseNewRunWizardSubmitOptions = {
   readonly stepIndex: number;
   readonly goToStep: (index: number) => void;
   readonly setRunId: (runId: string) => void;
-  readonly showToast: ShowToast;
+  readonly setStepValidationMessage: (message: string | null) => void;
+  readonly showSuccessToast: (message: string) => void;
   readonly clearWizardSession: () => void;
   readonly hasPendingEvidence: boolean;
   readonly uploadPendingEvidence: (runId: string) => Promise<void>;
@@ -51,7 +49,9 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
     if (options.stepIndex !== REVIEW_STEP_INDEX) {
       setSubmitError(null);
     }
-  }, [options.stepIndex]);
+
+    options.setStepValidationMessage(null);
+  }, [options.stepIndex, options.setStepValidationMessage]);
 
   const isCreating = submitting || creationProgress.isActive;
   const canProceed = !isCreating;
@@ -67,21 +67,20 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
     });
 
     if (gateFailure === "validation") {
-      options.showToast("err", REVIEW_START_SUBMIT_VALIDATION_MESSAGE);
+      options.setStepValidationMessage(REVIEW_START_SUBMIT_VALIDATION_MESSAGE);
 
       return;
     }
 
     if (gateFailure === "llm-budget") {
-      options.showToast("err", REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
+      options.setStepValidationMessage(REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
 
       return;
     }
 
     if (gateFailure === "policy-cloud-mismatch") {
       const mismatch = deriveWizardPolicyPackCloudMismatch(options.getValues(), options.payloadOptions);
-      options.showToast(
-        "err",
+      options.setStepValidationMessage(
         mismatch !== null
           ? `${REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE} ${mismatch}`
           : REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
@@ -92,6 +91,7 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
 
     setSubmitting(true);
     setSubmitError(null);
+    options.setStepValidationMessage(null);
     creationProgress.begin({ hasTemplate: options.presetDeeplinkToken !== null });
 
     try {
@@ -105,7 +105,7 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
       if (!result.ok) {
         if (result.reason === "no-run-id") {
           creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
-          options.showToast("err", REVIEW_START_CREATION_FAILED_MESSAGE);
+          setSubmitError(new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
 
           return;
         }
@@ -117,15 +117,7 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
         }
 
         creationProgress.fail(resolveCreateRunFailureMessage(result.error));
-        setSubmitError(result.error);
-
-        if (!isApiRequestError(result.error)) {
-          const message =
-            result.error && typeof result.error === "object" && "message" in result.error
-              ? String((result.error as { message?: string }).message)
-              : "Request failed.";
-          options.showToast("err", message);
-        }
+        setSubmitError(result.error ?? new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
 
         return;
       }
@@ -136,7 +128,7 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
       options.setRunId(id);
       options.goToStep(TRACK_STEP_INDEX);
       options.clearWizardSession();
-      options.showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
+      options.showSuccessToast(`Architecture review ${id} created — tracking pipeline below.`);
 
       if (options.hasPendingEvidence) {
         await options.uploadPendingEvidence(id);
@@ -167,7 +159,6 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
         creationProgress.fail(result.message);
         creationProgress.endRecheck();
         setSubmitError(new Error(result.message));
-        options.showToast("err", result.message);
 
         return;
       }
@@ -177,7 +168,7 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
       options.setRunId(id);
       options.goToStep(TRACK_STEP_INDEX);
       options.clearWizardSession();
-      options.showToast("ok", `Architecture review ${id} found — tracking pipeline below.`);
+      options.showSuccessToast(`Architecture review ${id} found — tracking pipeline below.`);
 
       if (options.hasPendingEvidence) {
         await options.uploadPendingEvidence(id);
@@ -185,7 +176,7 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
     } catch {
       creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
       creationProgress.endRecheck();
-      options.showToast("err", REVIEW_START_CREATION_FAILED_MESSAGE);
+      setSubmitError(new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
     }
   }, [creationProgress, options]);
 
