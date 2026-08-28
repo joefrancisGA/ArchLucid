@@ -79,6 +79,9 @@ public sealed partial class FindingJsonConverter
         if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numeric))
             return numeric.ToString(CultureInfo.InvariantCulture);
 
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return element.GetBoolean().ToString(CultureInfo.InvariantCulture);
+
         return "";
     }
 }
