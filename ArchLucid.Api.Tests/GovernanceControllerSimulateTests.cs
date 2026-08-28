@@ -298,6 +298,41 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task DryRunPolicyPack_delegates_page_size_to_service_for_documented_server_side_clamp()
+    {
+        Guid policyPackId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        string runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D");
+
+        Mock<IPolicyPackDryRunService> dryRun = new();
+        dryRun
+            .Setup(s => s.EvaluateAsync(
+                policyPackId,
+                It.IsAny<IReadOnlyDictionary<string, string>>(),
+                It.IsAny<IReadOnlyList<string>>(),
+                500,
+                1,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackDryRunResponse
+            {
+                PolicyPackId = policyPackId,
+                PageSize = IPolicyPackDryRunService.MaxPageSize,
+                Page = 1,
+            });
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            policyPackId,
+            new PolicyPackDryRunRequest { EvaluateAgainstRunIds = [runId] },
+            pageSize: 500,
+            page: 1,
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        dryRun.VerifyAll();
+    }
+
+    [Fact]
     public async Task DryRunPolicyPack_returns_not_found_when_tenant_missing()
     {
         Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
