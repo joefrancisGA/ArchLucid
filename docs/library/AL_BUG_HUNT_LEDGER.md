@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 15
-- **bugs-found:** 29
+- **hunts:** 16
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `FindingJsonConverter.ReadOptionalDateTimeOffset` ignored PascalCase `ReviewedAtUtc` property name
+- **last-bug:** 2026-08-28 — `FindingJsonConverter.ReadOptionalString` ignored PascalCase `RunIdRef` / `ReviewedByUserId` / `RequestInputRef` property names
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1792,10 +1792,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` returns empty for scalar `severities` / `findingTypes` / `tags` — `"severities":"Critical"` disables routing filter — **hit 2026-08-28 (#239):** wrap scalar tokens as single-item lists (`AlertRoutingCriteriaMetadata_Parse_scalar_severity_coerces_to_single_item_list`).
 - [x] (invalid) `FindingJsonConverter.Read` still case-sensitive on `enforcementTier`, `category`, `evaluationConfidenceScore`, and `projectedImpactUsd` — **superseded #241:** proven in hunt #241.
 - [x] (invalid) `FindingJsonConverter.Read` ignores string-form `evaluationConfidenceScore` and `projectedImpactUsd` — **superseded #241:** proven in hunt #241.
-- [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `humanReviewStatus`, `evaluationConfidenceLevel`, and `reviewedAtUtc` property names — PascalCase exporter labels may silently skip review metadata (same class as fixed `severity`).
+- [x] (invalid) `FindingJsonConverter.Read` case-sensitive on `humanReviewStatus`, `evaluationConfidenceLevel`, and `reviewedAtUtc` property names — **superseded #243:** `humanReviewStatus`/`evaluationConfidenceLevel` fixed #241; `reviewedAtUtc` fixed #243.
 - [x] (invalid) `FindingJsonConverter.Read` case-sensitive on `humanReviewStatus` and `evaluationConfidenceLevel` — **cheap-disproof 2026-08-28 (#243):** already fixed in #241 with `TryGetPropertyCaseInsensitive`; regression in `Deserialize_pascal_case_humanReviewStatus_maps_approved`.
 - [x] (proven) `FindingJsonConverter.ReadOptionalDateTimeOffset` case-sensitive on `reviewedAtUtc` property name — PascalCase `"ReviewedAtUtc"` dropped review timestamp on reload — **hit 2026-08-28 (#243):** `TryGetPropertyCaseInsensitive` in `ReadOptionalDateTimeOffset` (`Deserialize_pascal_case_reviewedAtUtc_maps_timestamp`).
-- [ ] (candidate) `FindingJsonConverter.ReadOptionalString` case-sensitive on optional metadata fields (`reviewedByUserId`, `runIdRef`, `requestInputRef`) — PascalCase exporter labels may silently drop review linkage fields.
+- [x] (proven) `FindingJsonConverter.ReadOptionalString` case-sensitive on optional metadata fields (`reviewedByUserId`, `runIdRef`, `requestInputRef`) — PascalCase exporter labels silently dropped review linkage fields — **hit 2026-08-28 (#245):** `TryGetPropertyCaseInsensitive` in `ReadOptionalString` (`Deserialize_pascal_case_optional_string_metadata_fields_map_values`).
+
+2026-08-28 seed hunt #245: cherry-picked #223–#243 Core fixes; proved PascalCase `RunIdRef` / `ReviewedByUserId` / `RequestInputRef` optional-string property lookup.
 
 2026-08-28 seed hunt #243: cherry-picked #223–#241 Core fixes; cheap-disproved `humanReviewStatus`/`evaluationConfidenceLevel` PascalCase gap (fixed #241); proved PascalCase `ReviewedAtUtc` property lookup.
 
