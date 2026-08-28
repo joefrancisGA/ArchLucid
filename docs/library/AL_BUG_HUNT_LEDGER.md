@@ -2241,10 +2241,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 67
+- **hunts:** 68
 - **bugs-found:** 198
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-28
 - **last-bug:** 2026-08-27 — stickiness register maxRows bounds return 400 instead of silent clamp
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2442,6 +2442,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — negative `syntheticCount` reached `PreCommitGovernanceGate` and surfaced HTTP 500 — **hit 2026-08-27:** controller rejects `syntheticCount < 0` before gate call; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard` — **hit 2026-08-27:** `ValidateRegisterMaxRows` on register GETs; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (invalid) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `findingRef` for a foreign-workspace finding may persist without inspect-scope gate — **cheap-disproof 2026-08-28:** `FindingRef` is an optional opaque fingerprint/graph-node label; submissions are stamped with caller scope and the shipped UI does not send governance finding ids (`TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_accepts_opaque_finding_ref_without_inspect_scope_gate`).
+- [x] (invalid) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `projectId` for a sibling project in the same workspace may mutate without `scope.ProjectId` guard — **cheap-disproof 2026-08-28:** workspace-level recycle-bin API intentionally lists and mutates all projects in `scope.WorkspaceId` under `ExecuteAuthority` (foreign-workspace guard already proven); regression in `TenantWorkspacesControllerTests.DeleteProjectAsync_soft_deletes_sibling_project_in_same_workspace`.
+- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` / `UsabilityFeedbackWidget` — operator feedback UI sends score 1–5 while API model and `dbo.ProductFeedback` accept only -1..1.
+
+2026-08-28 thorough hunt #160: cheap-disproved product-feedback `findingRef` inspect gate and workspace sibling-project delete guards; seeded usability score scale mismatch candidate.
 
 2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 

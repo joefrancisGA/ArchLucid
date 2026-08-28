@@ -241,6 +241,35 @@ public sealed class TenantCustomerSuccessControllerTests
     }
 
     [Fact]
+    public async Task PostProductFeedbackAsync_accepts_opaque_finding_ref_without_inspect_scope_gate()
+    {
+        ProductFeedbackSubmission? captured = null;
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        repo.Setup(r =>
+                r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()))
+            .Callback<ProductFeedbackSubmission, CancellationToken>((s, _) => captured = s)
+            .Returns(Task.CompletedTask);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object);
+        ProductFeedbackRequest request = new()
+        {
+            FindingRef = "foreign-workspace-finding-fingerprint",
+            Score = 1,
+            Comment = "helpful",
+        };
+
+        IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        captured.Should().NotBeNull();
+        captured!.FindingRef.Should().Be("foreign-workspace-finding-fingerprint");
+        captured.WorkspaceId.Should().Be(Scope.WorkspaceId);
+        captured.ProjectId.Should().Be(Scope.ProjectId);
+    }
+
+    [SkippableFact]
     public async Task GetStickinessSnapshotAsync_merges_funnel_and_signals()
     {
         Mock<ITenantCustomerSuccessRepository> repo = new();
