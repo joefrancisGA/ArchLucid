@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 11
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — `FindingJsonConverter.Read` ignored numeric `reviewedAtUtc` Unix epoch tokens
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1781,6 +1781,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
 - [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
+- [x] (proven) Core enum guards, Service Bus tokens, properties-bag coercion, quality-gate lint, boolean properties, list/optional JSON coercion, confidence ordinal guard — **hit 2026-08-28 (#235 carry #223–#231):** cherry-picked onto master.
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` undefined legacy status strings — **2026-08-28 (#235 carry #229):** already guarded with `Enum.IsDefined`.
+- [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` silently drops numeric/boolean `severities` / `findingTypes` / `tags` tokens — **hit 2026-08-28 (#235 carry #233):** coerce mixed-type metadata array entries to invariant strings (`AlertRoutingCriteriaMetadata_Parse_numeric_severity_tokens_coerce_to_strings`).
+- [x] (proven) `FindingJsonConverter.Read` ignores numeric `reviewedAtUtc` JSON tokens — only `JsonValueKind.String` parsed; numeric Unix epoch reload dropped review timestamp — **hit 2026-08-28 (#235):** fixed with `ReadOptionalDateTimeOffset` accepting millisecond/second epochs (`Deserialize_numeric_reviewedAtUtc_unix_milliseconds_maps_timestamp`).
+
+2026-08-28 seed hunt #235: cherry-picked #223–#233 Core fixes; proved numeric `reviewedAtUtc` epoch coercion.
 
 ---
 
