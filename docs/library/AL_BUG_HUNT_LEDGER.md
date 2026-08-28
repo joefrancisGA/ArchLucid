@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 75
-- **bugs-found:** 220
+- **hunts:** 76
+- **bugs-found:** 223
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — preview empty runId 400, promote whitespace approvalRequestId 400
+- **last-bug:** 2026-08-28 — batch-review null body fields 400, scoped-run error code parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2466,6 +2466,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController` checklist/simulate — route/body `runId = "00000000-0000-0000-0000-000000000000"` returned HTTP 404 `RunNotFound` instead of HTTP 400 — **hit 2026-08-28:** reject empty guid after parse before scoped run preflight (Simulate parity); regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernancePreviewController.Preview` — body `runId = "00000000-0000-0000-0000-000000000000"` passed validator `NotEmpty` and service lookup returned HTTP 404 instead of HTTP 400 — **hit 2026-08-28:** reject empty guid after trim/parse before preview service lookup (Simulate parity); regression in `GovernancePreviewControllerUnitTests`.
 - [x] (proven) `GovernanceController.Promote` — body whitespace-only `approvalRequestId` bypassed optional approval preflight and reached `PromoteAsync` with padded id — **hit 2026-08-28:** reject blank approval id when provided and pass normalized id to workflow (approval route whitespace parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — stored approval with malformed `RunId` surfaced per-item `RunNotFound` instead of `ValidationFailed` from `RequireScopedRunAsync` — **hit 2026-08-28:** propagate scoped-run problem type/detail into batch item results (approve/reject parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — JSON `decision: null` caused HTTP 500 on `Decision.Trim()` — **hit 2026-08-28:** null decision guard before trim; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — JSON `approvalRequestIds: null` caused HTTP 500 on `.Count` — **hit 2026-08-28:** null list guard before count check; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` — mixed list with whitespace-only ids silently dropped instead of per-item validation failure.
+- [ ] (candidate) `GovernanceController.Activate` — missing `Idempotency-Key` returns HTTP 400 but lacks dedicated regression beside promote/submit siblings.
+
+2026-08-28 seed hunt #185: proved batch-review scoped-run error parity and null decision/ids guards; seeded batch mixed-whitespace and activate idempotency candidates.
 
 2026-08-28 thorough hunt #184: proved preview empty runId 400 and promote whitespace approvalRequestId 400; zone candidate backlog cleared.
 
