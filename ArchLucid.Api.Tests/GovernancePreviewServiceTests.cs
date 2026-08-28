@@ -169,6 +169,32 @@ public sealed class GovernancePreviewServiceTests
     }
 
     [SkippableFact]
+    public async Task CompareEnvironmentsAsync_accepts_padded_environment_names_when_in_scope()
+    {
+        GovernanceEnvironmentActivation act1 = new()
+        {
+            RunId = "r1", ManifestVersion = "m1", Environment = "dev", IsActive = true
+        };
+        GovernanceEnvironmentActivation act2 = new()
+        {
+            RunId = "r2", ManifestVersion = "m2", Environment = "test", IsActive = true
+        };
+
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>())).ReturnsAsync([act1]);
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>())).ReturnsAsync([act2]);
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("m1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("r1", "m1", g => g.CostClassification = "Low"));
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("m2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("r2", "m2", g => g.CostClassification = "High"));
+
+        GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(
+            new GovernanceEnvironmentComparisonRequest { SourceEnvironment = "  dev  ", TargetEnvironment = "  test  " });
+
+        result.SourceEnvironment.Should().Be("dev");
+        result.TargetEnvironment.Should().Be("test");
+    }
+
+    [SkippableFact]
     public async Task CompareEnvironmentsAsync_WhenStatesAreEquivalent_ReturnsNoMeaningfulDiffs()
     {
         ManifestGovernance gov = new() { RiskClassification = "Moderate", CostClassification = "Moderate" };
@@ -343,6 +369,26 @@ public sealed class GovernancePreviewServiceTests
         result.PreviewRunId.Should().Be("run-a");
         result.PreviewManifestVersion.Should().Be("v1");
         _unifiedManifestReader.VerifyAll();
+    }
+
+    [SkippableFact]
+    public async Task PreviewActivationAsync_accepts_padded_environment_when_in_scope()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-a", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail("run-a"));
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("run-a", "v1", g => g.RequiredControls.Add("PEP")));
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GovernanceEnvironmentActivation>());
+
+        GovernancePreviewResult result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = "run-a",
+            ManifestVersion = "v1",
+            Environment = "  dev  ",
+        });
+
+        result.Environment.Should().Be("dev");
     }
 
     [SkippableFact]
