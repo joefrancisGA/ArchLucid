@@ -29,3 +29,15 @@ Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord
 1. Branch protection on push corset + CodeQL + UI typecheck (makes regressions blocking).
 2. Triage Api / Host.Composition / AgentRuntime failures surfaced above.
 3. Full `ci.yml` `workflow_dispatch` for integration + SQL tiers when preparing a release.
+
+## Path gating decision (assessment Tier 1 #6 — 2026-08-28)
+
+| Trigger | Path gating | Rationale |
+|---------|-------------|-----------|
+| **`pull_request`** | **On** (`ci-path-lanes` skips unchanged lanes) | Keeps contributor feedback fast; full matrix still runs when shared paths change. |
+| **`push` to `master` / `main`** | **Thin corset only** (`ui-typecheck-on-push.yml`) | Direct trunk pushes get compile + Core/Decisioning fast-core + UI typecheck without paying full SQL/Playwright/k6 on every merge. |
+| **`workflow_dispatch` on `ci.yml`** | **Off** (full matrix) | Release prep and trunk health audits run every lane intentionally. |
+
+**Decision:** Do **not** relax PR path gating or expand default-branch push to the full matrix. Use **`workflow_dispatch`** on `ci.yml` (Actions → CI → Run workflow, branch `master`) before release cuts, and rely on **`trunk-matrix-measurement.yml`** for weekly fast-core slices outside the corset.
+
+**Recorded measurement:** Trigger `Trunk matrix measurement` or `CI` workflow_dispatch after material trunk changes; append results to the table above with date and commit SHA.
