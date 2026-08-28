@@ -5,6 +5,7 @@ import {
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import { buildDefaultActorSet } from "@/lib/api/draft-intake-api";
+import { createEmptyActorDescriptor } from "@/lib/draft-intake-actor-suggestions";
 import {
   extractGeneratedIntakeBriefTitle,
   isGeneratedIntakeBrief,
@@ -27,10 +28,19 @@ export type PriorPackageGuidedIntakePrefill = {
   readonly scopeGateOpen: boolean;
 };
 
+type PriorPackageDraftActorInput = {
+  readonly label?: string | null;
+  readonly kind?: ActorDescriptor["kind"];
+  readonly trustOrigin?: ActorDescriptor["trustOrigin"];
+  readonly contract?: ActorDescriptor["contract"];
+  readonly origin?: ActorDescriptor["origin"];
+  readonly confidence?: number;
+};
+
 export type PriorPackageArchitectureRequestLike = {
   readonly systemName?: string | null;
   readonly description?: string | null;
-  readonly draftActors?: readonly ActorDescriptor[] | null;
+  readonly draftActors?: readonly PriorPackageDraftActorInput[] | null;
   readonly inlineRequirements?: readonly string[] | null;
 };
 
@@ -71,7 +81,7 @@ function splitDraftIntakeDescription(description: string): {
 
 function resolveBusinessOutcome(
   parsedOutcome: string,
-  inlineRequirements: readonly string[] | undefined,
+  inlineRequirements: readonly string[] | null | undefined,
   generatedBrief: boolean,
 ): string {
   const trimmedOutcome = parsedOutcome.trim();
@@ -93,8 +103,20 @@ function resolveBusinessOutcome(
   return "";
 }
 
-function actorSetFromDraftActors(draftActors: readonly ActorDescriptor[] | null | undefined): ActorSet {
-  const actors = (draftActors ?? []).filter((actor) => (actor.label?.trim() ?? actor.kind).length > 0);
+function actorSetFromDraftActors(draftActors: readonly PriorPackageDraftActorInput[] | null | undefined): ActorSet {
+  const emptyActor = createEmptyActorDescriptor();
+  const actors = (draftActors ?? [])
+    .map(
+      (actor): ActorDescriptor => ({
+        label: actor.label ?? undefined,
+        kind: actor.kind ?? emptyActor.kind,
+        trustOrigin: actor.trustOrigin ?? emptyActor.trustOrigin,
+        contract: actor.contract ?? emptyActor.contract,
+        origin: actor.origin ?? emptyActor.origin,
+        confidence: actor.confidence ?? emptyActor.confidence,
+      }),
+    )
+    .filter((actor) => (actor.label?.trim() ?? actor.kind).length > 0);
 
   if (actors.length === 0) {
     return buildDefaultActorSet();
