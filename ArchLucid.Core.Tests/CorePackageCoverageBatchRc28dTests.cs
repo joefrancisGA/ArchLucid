@@ -225,6 +225,27 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void RunExplanationConfidenceCalloutBuilder_FromAggregateJson_reads_PascalCase_property_names()
+    {
+        RunExplanationConfidenceSignals? parsed = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "FaithfulnessSupportRatio": 0.55,
+              "UsedDeterministicFallback": true,
+              "FaithfulnessWarning": " weak citations ",
+              "Citations": [{"id":"c1"},{"id":"c2"}]
+            }
+            """);
+
+        parsed.Should().NotBeNull();
+        parsed!.FaithfulnessSupportRatio.Should().Be(0.55);
+        parsed.DeterministicFallbackUsed.Should().BeTrue();
+        parsed.FaithfulnessWarning.Should().Be("weak citations");
+        parsed.CitationCount.Should().Be(2);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(parsed).Should().Be("HOLD");
+    }
+
+    [Fact]
     public void ArtifactBlobTenantPaths_guards_and_prefix_paths()
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");

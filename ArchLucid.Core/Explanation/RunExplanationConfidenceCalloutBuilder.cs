@@ -29,7 +29,7 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         double? ratio = null;
 
-        if (root.TryGetProperty("faithfulnessSupportRatio", out JsonElement ratioEl)
+        if (TryGetPropertyCaseInsensitive(root, "faithfulnessSupportRatio", out JsonElement ratioEl)
             && ratioEl.ValueKind == JsonValueKind.Number
             && ratioEl.TryGetDouble(out double parsedRatio)
             && double.IsFinite(parsedRatio))
@@ -38,22 +38,40 @@ public static class RunExplanationConfidenceCalloutBuilder
         }
 
         bool fallback =
-            (root.TryGetProperty("deterministicFallbackUsed", out JsonElement direct)
+            (TryGetPropertyCaseInsensitive(root, "deterministicFallbackUsed", out JsonElement direct)
              && direct.ValueKind == JsonValueKind.True)
-            || (root.TryGetProperty("usedDeterministicFallback", out JsonElement legacy)
+            || (TryGetPropertyCaseInsensitive(root, "usedDeterministicFallback", out JsonElement legacy)
                 && legacy.ValueKind == JsonValueKind.True);
 
-        string? warning = root.TryGetProperty("faithfulnessWarning", out JsonElement warningEl)
-                          && warningEl.ValueKind == JsonValueKind.String
+        string? warning = TryGetPropertyCaseInsensitive(root, "faithfulnessWarning", out JsonElement warningEl)
+                            && warningEl.ValueKind == JsonValueKind.String
             ? warningEl.GetString()?.Trim()
             : null;
 
         int? citationCount = null;
 
-        if (root.TryGetProperty("citations", out JsonElement citationsEl) && citationsEl.ValueKind == JsonValueKind.Array)
+        if (TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl)
+            && citationsEl.ValueKind == JsonValueKind.Array)
             citationCount = citationsEl.GetArrayLength();
 
         return new RunExplanationConfidenceSignals(ratio, fallback, warning, citationCount);
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+
+                return true;
+            }
+        }
+
+        value = default;
+
+        return false;
     }
 
     public static string ResolveDisposition(RunExplanationConfidenceSignals? signals)

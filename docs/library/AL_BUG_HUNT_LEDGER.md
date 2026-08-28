@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 20
-- **bugs-found:** 43
+- **hunts:** 21
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `FindingJsonConverter` ignored PascalCase `PayloadType` / `Payload` / `Trace` property names
+- **last-bug:** 2026-08-28 — `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` case-sensitive on faithfulness aggregate fields dropped PascalCase exporter labels and returned PASS instead of HOLD/WARN
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1811,7 +1811,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadInsightDensityFields` case-sensitive on `treatment` / `classification` — PascalCase `"Treatment"` left insight-density routing null — **hit 2026-08-28 (#247):** `TryGetPropertyCaseInsensitive` for treatment/classification (`Deserialize_pascal_case_treatment_maps_demote_to_checklist`).
 - [x] (proven) `FindingJsonConverter.Read` case-sensitive on `payloadType` and `payload` — PascalCase `"PayloadType"` / `"Payload"` skipped typed payload rehydration on snapshot reload — **hit 2026-08-28 (#249):** `TryGetPropertyCaseInsensitive` for payload type and body (`Deserialize_pascal_case_payloadType_and_payload_map_typed_payload`).
 - [x] (proven) `FindingJsonConverter.ReadTrace` case-sensitive on `trace` — PascalCase `"Trace"` dropped explainability trace and `agentExecutionTraceId` fallback — **hit 2026-08-28 (#249):** `TryGetPropertyCaseInsensitive` in `ReadTrace` (`Deserialize_pascal_case_trace_maps_source_agent_execution_trace_id`).
+- [x] (invalid) `FindingJsonConverter.Read` case-sensitive on `findingSchemaVersion`, `relatedNodeIds`, `properties`, `treatment`, `payloadType`, `payload`, and `trace` — **superseded #241–#249:** proven across hunts #241–#249 on core rebase stack.
+- [x] (invalid) `FindingJsonConverter.Read` case-sensitive on `enforcementTier`, `humanReviewStatus`, and sibling scalar tokens — **superseded #241–#249:** proven across hunts #241–#249 on core rebase stack.
+- [x] (invalid) `FindingJsonConverter.ReadOptionalString` numeric coercion gap for `agentExecutionTraceId` — **superseded #225:** `ReadStringDictValue` numeric coercion already on core rebase stack.
+- [x] (invalid) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` case-sensitive on `correlationId` — **superseded #223:** case-insensitive lookup and numeric coercion already on core rebase stack.
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` case-sensitive on `faithfulnessSupportRatio`, fallback flags, `faithfulnessWarning`, and `citations` — PascalCase exporter labels silently default to PASS disposition on proof-packet reload — **hit 2026-08-28 (#257):** `TryGetPropertyCaseInsensitive` (`RunExplanationConfidenceCalloutBuilder_FromAggregateJson_reads_PascalCase_property_names`).
 - [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `findingSchemaVersion` — PascalCase exporter label may default schema version to `0` on reload.
+- [ ] (candidate) `RealLlmOutputStructuralValidator` case-sensitive on `agentType`, `findings`, and nested `trace` fields — PascalCase LLM output envelopes may bypass structural validation gates.
+- [ ] (candidate) `GoldenCorpus` aggregate JSON readers outside `FindingJsonConverter` — additional case-sensitive property lookups may drop exporter PascalCase labels on reload paths not covered by finding serialization.
+
+2026-08-28 seed hunt #257: cherry-picked onto #249 rebase; #255 `FindingJsonConverter` / `IntegrationEventServiceBusCorrelationId` fixes already on stack; proved `RunExplanationConfidenceCalloutBuilder` PascalCase aggregate parse; seeded golden-corpus structural-validator candidates.
 
 2026-08-28 seed hunt #249: cherry-picked #247 onto #243 rebase; proved PascalCase `PayloadType`/`Payload` and `Trace` property lookup from hunt #247 seed rows.
 
