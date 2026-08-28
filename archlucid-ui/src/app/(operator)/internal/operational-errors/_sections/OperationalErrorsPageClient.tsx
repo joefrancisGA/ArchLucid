@@ -87,7 +87,7 @@ export function OperationalErrorsPageClient() {
         actions={<RefreshButton onClick={() => void load()} />}
       />
 
-      <Card className={DESIGN_TOKENS.card.neutral}>
+      <Card className={DESIGN_TOKENS.surface.card}>
         <CardHeader className="space-y-1 pb-3">
           <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>Filters</CardTitle>
           <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
