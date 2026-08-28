@@ -9,7 +9,7 @@ public sealed partial class FindingJsonConverter
 {
     private static FindingSeverity ReadSeverity(JsonElement root, string propertyName)
     {
-        if (!root.TryGetProperty(propertyName, out JsonElement severityElement))
+        if (!TryGetPropertyCaseInsensitive(root, propertyName, out JsonElement severityElement))
             return FindingSeverity.Info;
 
         if (severityElement.ValueKind == JsonValueKind.Number && severityElement.TryGetInt32(out int numeric))
