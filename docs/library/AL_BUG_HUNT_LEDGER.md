@@ -2242,10 +2242,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
 - **hunts:** 81
-- **bugs-found:** 229
+- **bugs-found:** 235
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — simulate-bulk invalid runIds 400
+- **last-bug:** 2026-08-28 — decision-register filter validation, manifest summary maxRelationships bounds, drift-trend bucket cap, deferred revisit future guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2442,6 +2442,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — negative `syntheticCount` reached `PreCommitGovernanceGate` and surfaced HTTP 500 — **hit 2026-08-27:** controller rejects `syntheticCount < 0` before gate call; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard` — **hit 2026-08-27:** `ValidateRegisterMaxRows` on register GETs; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — inverted `recordedAfterUtc`/`recordedBeforeUtc` returned HTTP 200 empty register — **hit 2026-08-28:** `ValidateDecisionRegisterFilters` rejects unsatisfiable date window (compliance-drift-trend parity); regression in `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_recorded_after_is_after_recorded_before`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — inverted `minConfidence`/`maxConfidence` returned HTTP 200 empty register — **hit 2026-08-28:** same filter validator; regression in `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_min_confidence_exceeds_max_confidence`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — unknown `buyerConfidenceSource` mapped to `Unknown`/`NotComputed` SQL filter — **hit 2026-08-28:** `ValidateBuyerConfidenceSource`; regression in `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_buyer_confidence_source_is_unknown`.
+- [x] (proven) `ManifestsController.GetManifestSummary` — non-positive `maxRelationships` silently clamped to 1 — **hit 2026-08-28:** reject out-of-range values with HTTP 400 (register maxRows parity); regression in `ManifestsControllerTests.GetManifestSummary_returns_bad_request_when_max_relationships_is_zero`.
+- [x] (proven) `GovernanceController.GetComplianceDriftTrend` — wide window with minimum `bucketMinutes` iterated unbounded buckets — **hit 2026-08-28:** reject when computed bucket count exceeds 500 before service call; regression in `GovernanceControllerDashboardTests.GetComplianceDriftTrend_returns_bad_request_when_bucket_count_exceeds_five_hundred`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `FindingDispositionValidation` — `Deferred` disposition accepted past `revisitDueUtc` — **hit 2026-08-28:** require future revisit date (risk-exception expiry parity); regression in `FindingDispositionValidationTests.Validate_deferred_disposition_rejects_past_revisit_due_date`.
+- [x] (invalid) `GovernanceController.DryRunPolicyPack` — `pageSize`/`page` silently clamped instead of HTTP 400 — **cheap-disproof 2026-08-28:** intentional owner Q38 server clamp in `IPolicyPackDryRunService` / `PolicyPackDryRunService` and UI tests.
+- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — non-GUID `runId` returns HTTP 400 while governance run-history endpoints return 404 for parse failures — may be intentional API-shape difference; needs product confirmation before promotion.
+
+2026-08-28 seed hunt #170: reseeded decision-register/manifest-summary/drift-trend/deferred-revisit candidates; proved six hunt-ready rows; cheap-disproved dry-run page clamp (Q38); seeded pre-finalize checklist run-id status-code parity candidate.
+
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — route `id = Guid.Empty` returned HTTP 404 policy-pack-not-found instead of HTTP 400 — **hit 2026-08-28:** reject empty guid before dry-run service lookup (policy-packs route parity); regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_returns_bad_request_when_policy_pack_id_is_empty`.
 - [x] (proven) `GovernanceStickinessController.UpdateRecurrenceSchedule` — route `scheduleId = Guid.Empty` returned HTTP 404 schedule-not-found instead of HTTP 400 — **hit 2026-08-28:** reject empty guid before repository lookup (create recurrence empty source-run parity); regression in `GovernanceStickinessControllerTests.UpdateRecurrenceSchedule_returns_bad_request_when_schedule_id_is_empty`.
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` — body `runId = Guid.Empty` bypassed `EnsureRunInScopeWhenProvidedAsync` and persisted disposition — **hit 2026-08-28:** controller rejects empty runId before facade (merge-conflict route empty-run parity); regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_bad_request_when_run_id_is_empty`.
@@ -2504,8 +2515,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #178: proved RequireScopedRunAsync empty-run 400 parity and tenant workspace delete/restore empty route-id guards; zone candidate backlog cleared.
 
 2026-08-28 seed hunt #177: proved dry-run empty pack id, update-recurrence empty schedule id, and disposition/risk-exception empty body runId guards; seeded RequireScopedRunAsync empty-run 404-vs-400 and tenant workspace empty route-id candidates.
-
-2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 
