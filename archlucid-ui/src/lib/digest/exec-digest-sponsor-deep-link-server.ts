@@ -94,5 +94,5 @@ function normalizeSignInUrl(url: string | undefined): string {
   if (!url?.trim())
     return AUTH_SIGNIN_PATH;
 
-  return url.replace(/\/auth\/sign-in(?=[?#]|$)/i, AUTH_SIGNIN_PATH);
+  return url.replace(/\/auth\/sign-in\/?(?=[?#]|$)/i, AUTH_SIGNIN_PATH);
 }
