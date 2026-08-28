@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 67
-- **bugs-found:** 198
+- **hunts:** 68
+- **bugs-found:** 199
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — stickiness register maxRows bounds return 400 instead of silent clamp
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — reviews-awaiting-action echoed out-of-scope sourceRunId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2442,6 +2442,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — negative `syntheticCount` reached `PreCommitGovernanceGate` and surfaced HTTP 500 — **hit 2026-08-27:** controller rejects `syntheticCount < 0` before gate call; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard` — **hit 2026-08-27:** `ValidateRegisterMaxRows` on register GETs; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.GetReviewsAwaitingAction` / `ReviewsAwaitingActionQueryService.ListAsync` — parsed `sourceRunId` from recurrence request id echoed foreign-workspace run GUID without scoped `IRunRepository.GetByIdAsync` preflight — **hit 2026-08-28:** clear `SourceRunId` and skip diff when scoped lookup fails (create-recurrence parity); regression in `ReviewsAwaitingActionQueryServiceTests.ListAsync_clears_source_run_id_when_parsed_source_run_is_out_of_scope`.
+- [x] (invalid) `TenantIntegrationsOperationsController.GetAsync` / `ConnectorOperationsSummaryReader.EvaluateConfluence` — host `ConfluencePublishingOptions` surfaces configured on tenant route without per-tenant row — **cheap-disproof 2026-08-28:** deployment-level publish connector posture (aligned with Teams tenant row vs host ITSM options split); not a scope leak.
+- [x] (invalid) `TenantIntegrationsOperationsController.GetAsync` / `ConnectorOperationsSummaryReader.BuildBusSummary` — `integrationEventBus` fields from shared `IntegrationEventsOptions` — **cheap-disproof 2026-08-28:** intentional deployment wiring visibility on operator connector summary; no tenant-scoped bus store.
+- [x] (invalid) `TenantTrialController.GetTrialStatusAsync` — `trialWelcomeRunId` / `trialSampleRunId` tenant-row fields visible from any workspace scope — **cheap-disproof 2026-08-28:** trial bootstrap ids are tenant-level metadata (contrast workspace-scoped featured sample); no workspace filter locus on tenant record.
+- [ ] (candidate) `TenantWeeklyDigestHealthController.GetAsync` / `WeeklyDigestHealthReader` — disabled-only digest subscriptions report `digestSubscriptionCount > 0` while setup gap says "No digest subscriptions" — misleading operator health copy when rows exist but `IsEnabled` is false.
+
+2026-08-28 seed hunt #162: proved reviews-awaiting-action sourceRunId scope gate; cheap-disproved confluence/event-bus deployment posture and tenant-level trial run id candidates; seeded weekly digest disabled-subscription gap wording.
 
 2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 
