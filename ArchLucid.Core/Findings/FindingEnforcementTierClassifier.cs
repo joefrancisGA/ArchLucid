@@ -98,6 +98,9 @@ public static class FindingEnforcementTierClassifier
             return false;
         }
 
-        return Enum.TryParse(raw, ignoreCase: true, out tier);
+        if (!Enum.TryParse(raw, ignoreCase: true, out tier))
+            return false;
+
+        return Enum.IsDefined(tier);
     }
 }
