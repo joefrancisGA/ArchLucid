@@ -108,6 +108,75 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task GetPromotions_returns_items_when_route_run_id_is_padded()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string paddedRunId = $"  {runId:D}  ";
+        GovernancePromotionRecord promotion = new()
+        {
+            RunId = runId.ToString("D"),
+            ManifestVersion = "1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernancePromotionRecordRepository> promotions = new(MockBehavior.Strict);
+        promotions
+            .Setup(p => p.GetByRunIdAsync(runId.ToString("D"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([promotion]);
+
+        GovernanceController sut = CreateController(runRepository: runs.Object, promotionRepository: promotions.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetPromotions(paddedRunId, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        IReadOnlyList<GovernancePromotionRecord> items =
+            ok.Value.Should().BeAssignableTo<IReadOnlyList<GovernancePromotionRecord>>().Subject;
+        items.Should().ContainSingle().Which.Should().BeEquivalentTo(promotion);
+        promotions.VerifyAll();
+    }
+
+    [Fact]
+    public async Task GetActivations_returns_items_when_route_run_id_is_padded()
+    {
+        Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string paddedRunId = $"  {runId:D}  ";
+        GovernanceEnvironmentActivation activation = new()
+        {
+            RunId = runId.ToString("D"),
+            ManifestVersion = "1",
+            Environment = "test",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceEnvironmentActivationRepository> activations = new(MockBehavior.Strict);
+        activations
+            .Setup(a => a.GetByRunIdAsync(runId.ToString("D"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([activation]);
+
+        GovernanceController sut = CreateController(runRepository: runs.Object, activationRepository: activations.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetActivations(paddedRunId, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        IReadOnlyList<GovernanceEnvironmentActivation> items =
+            ok.Value.Should().BeAssignableTo<IReadOnlyList<GovernanceEnvironmentActivation>>().Subject;
+        items.Should().ContainSingle().Which.Should().BeEquivalentTo(activation);
+        activations.VerifyAll();
+    }
+
+    [Fact]
     public async Task GetApprovalRequestLineage_returns_bad_request_when_approval_request_id_is_whitespace()
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);

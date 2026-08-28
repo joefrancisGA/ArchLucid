@@ -94,6 +94,59 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
     }
 
     [Fact]
+    public async Task SimulateBulk_returns_bad_request_for_count_cap_when_fifty_one_ids_include_malformed_trailer()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        PolicyPacksController sut = CreateController(workflow);
+
+        List<string> runIds = Enumerable
+            .Range(0, 50)
+            .Select(static i => Guid.Parse($"aaaaaaaa-aaaa-aaaa-aaaa-{i:x12}").ToString("D"))
+            .Append("not-a-guid")
+            .ToList();
+
+        PolicyPackSimulateBulkRequest request = new() { RunIds = runIds };
+
+        IActionResult result = await sut.SimulateBulk(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("At most 50 run ids");
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task SimulateBulk_returns_bad_request_when_more_than_fifty_run_ids()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        PolicyPacksController sut = CreateController(workflow);
+
+        List<string> runIds = Enumerable
+            .Range(0, 51)
+            .Select(static i => Guid.Parse($"bbbbbbbb-bbbb-bbbb-bbbb-{i:x12}").ToString("D"))
+            .ToList();
+
+        PolicyPackSimulateBulkRequest request = new() { RunIds = runIds };
+
+        IActionResult result = await sut.SimulateBulk(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("At most 50 run ids");
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task SimulateBulk_returns_not_found_when_pack_belongs_to_another_tenant()
     {
         Guid foreignPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
