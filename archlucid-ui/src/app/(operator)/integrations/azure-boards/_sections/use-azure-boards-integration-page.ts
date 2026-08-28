@@ -1,61 +1,37 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useAzureBoardsWorkItemTypesQuery } from "@/hooks/use-azure-boards-work-item-types-query";
 import {
-  fetchAzureBoardsSettings,
-  listAzureBoardsProjects,
-  testAzureBoardsConnection,
-  upsertAzureBoardsSettings,
-  type AzureBoardsIntegrationHealthResponse,
-  type AzureBoardsOutboundSettingsResponse,
-} from "@/lib/api/azure-boards-api";
-import {
-  fetchItsmIntegrationHealth,
-  fetchTenantItsmConnectorConnection,
-  upsertTenantItsmConnectorConnection,
-  type TenantItsmConnectorConnectionResponse,
-} from "@/lib/api/itsm-outbound-api";
-import { buildAzureBoardsPageLoadResult } from "@/lib/azure-boards-page-load";
-import {
-  mapAzureBoardsHealthFromConnectionTest,
-  mapAzureBoardsHealthFromSettings,
-} from "@/lib/azure-boards-stored-health";
-import {
   formatAzureBoardsOrganizationUrl,
-  isAzureBoardsConnectionSaveSuccessful,
-  isAzureBoardsCredentialsReady,
   resolveAzureBoardsConnectionProvenance,
   resolveAzureBoardsConnectionSaveGate,
   resolveAzureBoardsConnectionStatus,
-  resolveAzureBoardsConnectionTestGate,
   resolveAzureBoardsCredentialStatusKind,
   resolveAzureBoardsCredentialStatusLabel,
   resolveAzureBoardsPageComposition,
   resolveAzureBoardsSetupSteps,
-  sanitizeCustomerFacingProbeSummary,
 } from "@/lib/azure-boards-integration-present";
 import {
-  AZURE_BOARDS_CONNECTION_SAVE_SUCCESS,
   AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_CREDENTIALS_SUMMARY,
   AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_SUMMARY,
-  AZURE_BOARDS_SAVE_SUCCESS,
 } from "@/lib/azure-boards-page-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
-import {
-  buildIntegrationZoneRecoveries,
-  type IntegrationZoneLoadSlice,
-} from "@/lib/integration-zone-recovery";
+import { buildIntegrationZoneRecoveries } from "@/lib/integration-zone-recovery";
+
+import { useAzureBoardsConnectionMutations } from "./use-azure-boards-connection-mutations";
+import { useAzureBoardsConnectionTest } from "./use-azure-boards-connection-test";
+import { useAzureBoardsPageLoad } from "./use-azure-boards-page-load";
 
 export type UseAzureBoardsIntegrationPageResult = {
   readonly canMutate: boolean;
   readonly showOperatorNotes: boolean;
-  readonly health: AzureBoardsIntegrationHealthResponse | null;
-  readonly itsmHealth: { nativeEnabled?: boolean } | null;
-  readonly settings: AzureBoardsOutboundSettingsResponse | null;
-  readonly connection: TenantItsmConnectorConnectionResponse | null;
+  readonly health: ReturnType<typeof useAzureBoardsPageLoad>["health"];
+  readonly itsmHealth: ReturnType<typeof useAzureBoardsPageLoad>["itsmHealth"];
+  readonly settings: ReturnType<typeof useAzureBoardsPageLoad>["settings"];
+  readonly connection: ReturnType<typeof useAzureBoardsPageLoad>["connection"];
   readonly loadError: string | null;
   readonly saveError: string | null;
   readonly connectionSaveError: string | null;
@@ -94,7 +70,7 @@ export type UseAzureBoardsIntegrationPageResult = {
   readonly hasUnsavedConnectionEdits: boolean;
   readonly settingsReady: boolean;
   readonly connectionStatus: ReturnType<typeof resolveAzureBoardsConnectionStatus>;
-  readonly testGate: ReturnType<typeof resolveAzureBoardsConnectionTestGate>;
+  readonly testGate: ReturnType<typeof useAzureBoardsConnectionTest>["testGate"];
   readonly connectionSaveGate: ReturnType<typeof resolveAzureBoardsConnectionSaveGate>;
   readonly pageComposition: ReturnType<typeof resolveAzureBoardsPageComposition>;
   readonly integrationZoneRecoveries: ReturnType<typeof buildIntegrationZoneRecoveries>;
@@ -113,20 +89,6 @@ export type UseAzureBoardsIntegrationPageResult = {
 export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageResult {
   const canMutate = useOperateCapability();
   const showOperatorNotes = isShowSystemAdministrationNavEnabled();
-  const [health, setHealth] = useState<AzureBoardsIntegrationHealthResponse | null>(null);
-  const [itsmHealth, setItsmHealth] = useState<{ nativeEnabled?: boolean } | null>(null);
-  const [settings, setSettings] = useState<AzureBoardsOutboundSettingsResponse | null>(null);
-  const [connection, setConnection] = useState<TenantItsmConnectorConnectionResponse | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [connectionSaveError, setConnectionSaveError] = useState<string | null>(null);
-  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
-  const [connectionSaveSuccess, setConnectionSaveSuccess] = useState<string | null>(null);
-  const [testError, setTestError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isSavingConnection, setIsSavingConnection] = useState(false);
-  const [isTesting, setIsTesting] = useState(false);
   const [organizationUrl, setOrganizationUrl] = useState("");
   const [tokenReference, setTokenReference] = useState("");
   const [projectName, setProjectName] = useState("");
@@ -134,116 +96,65 @@ export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageRe
   const [areaPath, setAreaPath] = useState("");
   const [iterationPath, setIterationPath] = useState("");
   const [defaultTags, setDefaultTags] = useState("");
-  const [projects, setProjects] = useState<string[]>([]);
-  const [discoveryError, setDiscoveryError] = useState<string | null>(null);
   const [lastTestAt, setLastTestAt] = useState<string | null>(null);
   const [lastTestSummary, setLastTestSummary] = useState<string | null>(null);
   const [lastTestSuccess, setLastTestSuccess] = useState<boolean | null>(null);
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
-  const [failedSliceLabels, setFailedSliceLabels] = useState<readonly string[]>([]);
-  const [zoneLoadSlices, setZoneLoadSlices] = useState<readonly IntegrationZoneLoadSlice[]>([]);
 
-  const applySettings = useCallback((loaded: AzureBoardsOutboundSettingsResponse | null) => {
-    setSettings(loaded);
-    setProjectName(loaded?.projectName ?? "");
-    setWorkItemType(loaded?.defaultWorkItemType ?? "");
-    setAreaPath(loaded?.areaPath ?? "");
-    setIterationPath(loaded?.iterationPath ?? "");
-    setDefaultTags(loaded?.defaultTags ?? "");
-    setLastTestAt(loaded?.lastConnectionTestUtc ?? null);
-    setLastTestSummary(loaded?.lastConnectionTestSummary ?? null);
-    setLastTestSuccess(
-      loaded?.lastConnectionTestUtc ? loaded.lastConnectionTestSummary?.toLowerCase().includes("succeed") ?? null : null,
-    );
-  }, []);
+  const pageLoad = useAzureBoardsPageLoad({
+    setProjectName,
+    setWorkItemType,
+    setAreaPath,
+    setIterationPath,
+    setDefaultTags,
+    setOrganizationUrl,
+    setTokenReference,
+    setLastTestAt,
+    setLastTestSummary,
+    setLastTestSuccess,
+  });
 
-  const applyConnection = useCallback(
-    (loaded: TenantItsmConnectorConnectionResponse | null, preserveUserEdits = false) => {
-      setConnection(loaded);
-
-      if (!preserveUserEdits) {
-        setOrganizationUrl(loaded?.instanceBaseUrl ?? "");
-        setTokenReference("");
-      }
-    },
-    [],
-  );
-
-  const refresh = useCallback(
-    async (options?: { preserveConnectionEdits?: boolean }) => {
-    setIsLoading(true);
-    setLoadError(null);
-
-    // Isolate slice failures so one 500 cannot wipe successful connection/settings (TB-1152).
-    // Health is derived from settings last-test + connection — GET /health is not a live probe.
-    const [itsmHealthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
-      fetchItsmIntegrationHealth(),
-      fetchAzureBoardsSettings(),
-      fetchTenantItsmConnectorConnection("azureboards"),
-    ]);
-
-    const loaded = buildAzureBoardsPageLoadResult({
-      itsmHealth: itsmHealthOutcome,
-      settings: settingsOutcome,
-      connection: connectionOutcome,
-    });
-
-    if (!loaded.itsmHealth.failed) {
-      setItsmHealth(loaded.itsmHealth.value);
-    }
-
-    if (!loaded.settings.failed) {
-      applySettings(loaded.settings.value);
-      setHealth(
-        mapAzureBoardsHealthFromSettings(
-          !loaded.connection.failed && isAzureBoardsCredentialsReady(loaded.connection.value, null),
-          loaded.settings.value,
-        ),
-      );
-    }
-
-    if (!loaded.connection.failed) {
-      applyConnection(loaded.connection.value, options?.preserveConnectionEdits === true);
-    }
-
-    setLoadError(loaded.loadError);
-    setFailedSliceLabels(loaded.failedSliceLabels);
-    setZoneLoadSlices([
-      {
-        id: "itsm-health",
-        label: "Work management health",
-        failed: loaded.itsmHealth.failed,
-        errorMessage: loaded.itsmHealth.errorMessage,
-      },
-      {
-        id: "settings",
-        label: "Azure Boards settings",
-        failed: loaded.settings.failed,
-        errorMessage: loaded.settings.errorMessage,
-      },
-      {
-        id: "connection",
-        label: "Azure Boards connection",
-        failed: loaded.connection.failed,
-        errorMessage: loaded.connection.errorMessage,
-      },
-    ]);
-    setLastRefreshedAt(new Date());
-    setHasLoadedOnce(true);
-    setIsLoading(false);
-  }, [applyConnection, applySettings]);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  const {
+    health,
+    setHealth,
+    itsmHealth,
+    settings,
+    connection,
+    loadError,
+    isLoading,
+    projects,
+    discoveryError,
+    lastRefreshedAt,
+    hasLoadedOnce,
+    failedSliceLabels,
+    zoneLoadSlices,
+    credentialsReady,
+    applySettings,
+    applyConnection,
+    refresh,
+    loadDiscovery,
+  } = pageLoad;
 
   const nativeEnabled = itsmHealth?.nativeEnabled ?? false;
-  const credentialsReady = isAzureBoardsCredentialsReady(connection, health);
   const hasUnsavedConnectionEdits =
     organizationUrl.trim() !== (connection?.instanceBaseUrl?.trim() ?? "") || tokenReference.trim().length > 0;
   const settingsReady =
     (settings?.projectName?.trim().length ?? 0) > 0 && (settings?.defaultWorkItemType?.trim().length ?? 0) > 0;
+
+  const mutations = useAzureBoardsConnectionMutations({
+    canMutate,
+    organizationUrl,
+    tokenReference,
+    projectName,
+    workItemType,
+    areaPath,
+    iterationPath,
+    defaultTags,
+    connection,
+    applySettings,
+    applyConnection,
+    setHealth,
+    loadDiscovery,
+  });
 
   const workItemTypesQuery = useAzureBoardsWorkItemTypesQuery(projectName, {
     enabled: credentialsReady && projectName.trim().length > 0,
@@ -256,30 +167,29 @@ export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageRe
     return workItemTypesQuery.data ?? [];
   }, [credentialsReady, projectName, workItemTypesQuery.data]);
 
+  const connectionTest = useAzureBoardsConnectionTest({
+    nativeEnabled,
+    credentialsReady,
+    settingsReady: projectName.trim().length > 0 && workItemType.trim().length > 0,
+    isSaving: mutations.isSaving,
+    setHealth,
+    setLastTestAt,
+    setLastTestSummary,
+    setLastTestSuccess,
+  });
+
   const connectionStatus = useMemo(
     () =>
       resolveAzureBoardsConnectionStatus({
         isLoading,
         loadError,
-        isTesting,
+        isTesting: connectionTest.isTesting,
         nativeEnabled,
         credentialsReady,
         settingsReady,
         health,
       }),
-    [credentialsReady, health, isLoading, isTesting, loadError, nativeEnabled, settingsReady],
-  );
-
-  const testGate = useMemo(
-    () =>
-      resolveAzureBoardsConnectionTestGate({
-        nativeEnabled,
-        credentialsReady,
-        settingsReady: projectName.trim().length > 0 && workItemType.trim().length > 0,
-        isTesting,
-        isSaving,
-      }),
-    [credentialsReady, isSaving, isTesting, nativeEnabled, projectName, workItemType],
+    [connectionTest.isTesting, credentialsReady, health, isLoading, loadError, nativeEnabled, settingsReady],
   );
 
   const connectionSaveGate = useMemo(
@@ -289,9 +199,9 @@ export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageRe
         organizationUrl,
         tokenReference,
         connection,
-        isSaving: isSavingConnection,
+        isSaving: mutations.isSavingConnection,
       }),
-    [canMutate, connection, isSavingConnection, organizationUrl, tokenReference],
+    [canMutate, connection, mutations.isSavingConnection, organizationUrl, tokenReference],
   );
 
   const pageComposition = useMemo(
@@ -301,11 +211,11 @@ export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageRe
         itsmHealthLoadFailed: failedSliceLabels.includes("work management health"),
         credentialsReady,
         settingsReady,
-        testGateAllowed: testGate.allowed,
+        testGateAllowed: connectionTest.testGate.allowed,
         connectionSliceFailed: failedSliceLabels.includes("Azure Boards connection"),
         hasConnectionPayload: connection !== null,
       }),
-    [connection, credentialsReady, failedSliceLabels, nativeEnabled, settingsReady, testGate.allowed],
+    [connection, credentialsReady, failedSliceLabels, nativeEnabled, settingsReady, connectionTest.testGate.allowed],
   );
 
   const integrationZoneRecoveries = useMemo(
@@ -323,123 +233,6 @@ export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageRe
       }),
     [credentialsReady, health, nativeEnabled, settingsReady],
   );
-
-  const loadDiscovery = useCallback(async () => {
-    if (!credentialsReady) {
-      return;
-    }
-
-    setDiscoveryError(null);
-
-    try {
-      const projectList = await listAzureBoardsProjects();
-      setProjects(projectList);
-    } catch (error: unknown) {
-      setDiscoveryError(error instanceof Error ? error.message : "Could not load projects.");
-    }
-  }, [credentialsReady]);
-
-  useEffect(() => {
-    void loadDiscovery();
-  }, [loadDiscovery]);
-
-  const saveConnection = useCallback(async () => {
-    if (!canMutate) {
-      return;
-    }
-
-    setIsSavingConnection(true);
-    setConnectionSaveError(null);
-    setConnectionSaveSuccess(null);
-
-    try {
-      const saved = await upsertTenantItsmConnectorConnection("azureboards", {
-        instanceBaseUrl: organizationUrl.trim(),
-        authMode: "BasicApiToken",
-        authUserName: "",
-        credentialKeyVaultSecretName: tokenReference.trim() || connection?.credentialKeyVaultSecretName || "",
-        isEnabled: true,
-      });
-      applyConnection(saved);
-      if (isAzureBoardsConnectionSaveSuccessful(saved)) {
-        setConnectionSaveSuccess(AZURE_BOARDS_CONNECTION_SAVE_SUCCESS);
-      }
-
-      // New credentials are unvalidated until the operator runs Test connection.
-      setHealth(
-        mapAzureBoardsHealthFromSettings(isAzureBoardsConnectionSaveSuccessful(saved), {
-          lastConnectionTestUtc: null,
-          lastConnectionTestSummary: null,
-        }),
-      );
-      await loadDiscovery();
-    } catch (error: unknown) {
-      setConnectionSaveError(error instanceof Error ? error.message : "Could not save connection.");
-    } finally {
-      setIsSavingConnection(false);
-    }
-  }, [applyConnection, canMutate, connection?.credentialKeyVaultSecretName, loadDiscovery, organizationUrl, tokenReference]);
-
-  const saveSettings = useCallback(async () => {
-    if (!canMutate) {
-      return;
-    }
-
-    setIsSaving(true);
-    setSaveError(null);
-    setSaveSuccess(null);
-
-    try {
-      const saved = await upsertAzureBoardsSettings({
-        projectName: projectName.trim(),
-        defaultWorkItemType: workItemType.trim(),
-        areaPath: areaPath.trim() || null,
-        iterationPath: iterationPath.trim() || null,
-        defaultTags: defaultTags.trim() || null,
-      });
-      applySettings(saved);
-      setSaveSuccess(AZURE_BOARDS_SAVE_SUCCESS);
-    } catch (error: unknown) {
-      setSaveError(error instanceof Error ? error.message : "Could not save work item settings.");
-    } finally {
-      setIsSaving(false);
-    }
-  }, [applySettings, areaPath, canMutate, defaultTags, iterationPath, projectName, workItemType]);
-
-  const runConnectionTest = useCallback(async () => {
-    if (!testGate.allowed) {
-      return;
-    }
-
-    setIsTesting(true);
-    setTestError(null);
-
-    try {
-      const result = await testAzureBoardsConnection();
-      const summary = sanitizeCustomerFacingProbeSummary(result.summary);
-      const success = result.ok === true;
-      setLastTestAt(new Date().toISOString());
-      setLastTestSummary(
-        success
-          ? summary.length > 0
-            ? summary
-            : "Connection check succeeded."
-          : summary.length > 0
-            ? summary
-            : "Connection check failed. Verify the organization URL and token permissions.",
-      );
-      setLastTestSuccess(success);
-      setHealth(mapAzureBoardsHealthFromConnectionTest(result));
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Connection test failed.";
-      setTestError(message);
-      setLastTestAt(new Date().toISOString());
-      setLastTestSummary(message);
-      setLastTestSuccess(false);
-    } finally {
-      setIsTesting(false);
-    }
-  }, [testGate.allowed]);
 
   const credentialStatus = resolveAzureBoardsCredentialStatusLabel(connection, credentialsReady);
   const credentialStatusKind = resolveAzureBoardsCredentialStatusKind(credentialsReady);
@@ -463,15 +256,15 @@ export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageRe
     settings,
     connection,
     loadError,
-    saveError,
-    connectionSaveError,
-    saveSuccess,
-    connectionSaveSuccess,
-    testError,
+    saveError: mutations.saveError,
+    connectionSaveError: mutations.connectionSaveError,
+    saveSuccess: mutations.saveSuccess,
+    connectionSaveSuccess: mutations.connectionSaveSuccess,
+    testError: connectionTest.testError,
     isLoading,
-    isSaving,
-    isSavingConnection,
-    isTesting,
+    isSaving: mutations.isSaving,
+    isSavingConnection: mutations.isSavingConnection,
+    isTesting: connectionTest.isTesting,
     organizationUrl,
     setOrganizationUrl,
     tokenReference,
@@ -500,7 +293,7 @@ export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageRe
     hasUnsavedConnectionEdits,
     settingsReady,
     connectionStatus,
-    testGate,
+    testGate: connectionTest.testGate,
     connectionSaveGate,
     pageComposition,
     integrationZoneRecoveries,
@@ -511,8 +304,8 @@ export function useAzureBoardsIntegrationPage(): UseAzureBoardsIntegrationPageRe
     organizationDisplay,
     connectionTestCollapsedSummary,
     handleRefresh,
-    saveConnection,
-    saveSettings,
-    runConnectionTest,
+    saveConnection: mutations.saveConnection,
+    saveSettings: mutations.saveSettings,
+    runConnectionTest: connectionTest.runConnectionTest,
   };
 }
