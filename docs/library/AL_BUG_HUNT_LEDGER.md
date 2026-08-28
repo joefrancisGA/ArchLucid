@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 68
-- **bugs-found:** 204
+- **hunts:** 69
+- **bugs-found:** 205
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — decision-register filter validation, manifest summary maxRelationships bounds, drift-trend bucket cap, deferred revisit future guard
+- **last-bug:** 2026-08-28 — pre-finalize simulate syntheticCount upper bound enforced at controller
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2449,11 +2449,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.GetComplianceDriftTrend` — wide window with minimum `bucketMinutes` iterated unbounded buckets — **hit 2026-08-28:** reject when computed bucket count exceeds 500 before service call; regression in `GovernanceControllerDashboardTests.GetComplianceDriftTrend_returns_bad_request_when_bucket_count_exceeds_five_hundred`.
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` / `FindingDispositionValidation` — `Deferred` disposition accepted past `revisitDueUtc` — **hit 2026-08-28:** require future revisit date (risk-exception expiry parity); regression in `FindingDispositionValidationTests.Validate_deferred_disposition_rejects_past_revisit_due_date`.
 - [x] (invalid) `GovernanceController.DryRunPolicyPack` — `pageSize`/`page` silently clamped instead of HTTP 400 — **cheap-disproof 2026-08-28:** intentional owner Q38 server clamp in `IPolicyPackDryRunService` / `PolicyPackDryRunService` and UI tests.
-- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — non-GUID `runId` returns HTTP 400 while governance run-history endpoints return 404 for parse failures — may be intentional API-shape difference; needs product confirmation before promotion.
+- [x] (invalid) `GovernancePreCommitSimulationController.GetChecklistAsync` / `SimulateAsync` — non-GUID `runId` returns HTTP 400 while governance run-history endpoints return 404 for parse failures — **cheap-disproof 2026-08-28:** pre-finalize endpoints intentionally return explicit `BadRequest` for malformed run ids (paired with `Simulate`); governance run-history uses `RequireScopedRunAsync` hide-not-found pattern; regression documents intentional 400 in `GovernancePreCommitSimulationControllerTests.GetChecklist_returns_bad_request_when_run_id_is_not_a_guid` and `Simulate_returns_bad_request_when_run_id_is_not_a_guid`.
+- [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — `syntheticCount > 500` reached `PreCommitGovernanceGate` in-memory injection loop despite `[Range(0, 500)]` on request model — **hit 2026-08-28:** explicit controller upper-bound guard (batch-cap parity); regression in `GovernancePreCommitSimulationControllerTests.Simulate_returns_bad_request_when_synthetic_count_exceeds_five_hundred`.
+
+2026-08-28 thorough hunt #171: proved pre-finalize simulate syntheticCount upper bound; cheap-disproved checklist non-GUID 404 parity (intentional explicit validation).
 
 2026-08-28 seed hunt #170: reseeded decision-register/manifest-summary/drift-trend/deferred-revisit candidates; proved six hunt-ready rows; cheap-disproved dry-run page clamp (Q38); seeded pre-finalize checklist run-id status-code parity candidate.
-
-2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 
 2026-08-27 seed hunt #141: proved governance workflow manifest-version trim parity; seeded preview/approval-id/whitespace-batch candidates.
 
