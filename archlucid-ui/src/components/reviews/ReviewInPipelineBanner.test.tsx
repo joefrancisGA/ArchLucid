@@ -38,7 +38,7 @@ describe("ReviewInPipelineBanner (TB-2385)", () => {
     render(<ReviewInPipelineBanner runId="run-abc" initialSummary={inPipelineSummary} />);
 
     expect(screen.getByTestId("review-in-pipeline-banner")).toBeInTheDocument();
-    expect(screen.getByText(/in progress/i)).toBeInTheDocument();
+    expect(screen.getByText(/in progress:/i)).toHaveClass("font-semibold");
     expect(screen.getByTestId("review-in-pipeline-banner-activity-cta")).toHaveTextContent("View activity");
   });
 
