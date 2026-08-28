@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 91
-- **bugs-found:** 242
+- **hunts:** 92
+- **bugs-found:** 244
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — submit/promote workflow ValidationFailed parity
+- **last-bug:** 2026-08-28 — approve/reject and activate workflow exception mapping
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2483,12 +2483,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **hit 2026-08-28:** emit per-item `ValidationFailed` for duplicate ids while processing first occurrence (whitespace per-item parity); regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_validation_failed_per_item_when_approval_request_id_is_duplicated`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` query params may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-28:** `LoadAndCompareManifestPairAsync` delegates to `GetManifestInScopeAsync` which trims before lookup; added `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 
+2026-08-28 thorough hunt #205 (hit): proved approve/reject workflow `ValidationFailed` parity and activate `ArgumentException` mapping; cheap-disproved activate `InvalidOperationException` path; seeded batch-review workflow problem-type and activate unknown-environment validation candidates.
+
+- [x] (proven) `GovernanceController.Approve` / `Reject` — workflow `InvalidOperationException` returned `ProblemTypes.BadRequest` while submit/promote use `ValidationFailed` — **hit 2026-08-28:** map workflow `InvalidOperationException` to `ValidationFailed` on approve and reject; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernanceController.Activate` — workflow `ArgumentException` validation failures were uncaught (HTTP 500) while promote/submit map workflow validation exceptions to HTTP 400 — **hit 2026-08-28:** catch workflow `ArgumentException` and return `ValidationFailed`; regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (invalid) `GovernanceController.Activate` — workflow `InvalidOperationException` catch missing — **cheap-disproof 2026-08-28:** `GovernanceWorkflowActivateStage` throws `RunNotFoundException`, `GoldenManifestVersionNotFoundException`, and `ArgumentException` only; no `InvalidOperationException` path.
+- [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` — per-item workflow `InvalidOperationException` returns `ProblemTypes.BadRequest` while approve/reject now use `ValidationFailed` (batch-review workflow problem-type parity gap).
+- [ ] (candidate) `GovernanceController.Activate` / `GovernanceWorkflowActivateStage` — unknown environment strings persist because activate stage trims but does not validate dev/test/prod (submit/promote `IsValidPromotion` parity gap).
+
 2026-08-28 thorough hunt #204 (hit): proved submit missing workflow `InvalidOperationException` handler and promote `ValidationFailed` parity; cheap-disproved dashboard cap test-contract candidate; seeded approve/reject workflow problem-type and activate workflow exception-mapping candidates.
 
 - [x] (proven) `GovernanceController.SubmitApprovalRequest` / `Promote` — workflow `InvalidOperationException` for invalid environment ordering returned `ProblemTypes.BadRequest` on promote while submit omitted the catch (uncaught → HTTP 500) despite controller run-id validation using `ValidationFailed` — **hit 2026-08-28:** map workflow `InvalidOperationException` to `ValidationFailed` on submit and promote; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `GovernanceController.GetDashboard` — cap validation tests assert HTTP 400 only and omit `ProblemTypes.ValidationFailed` problem-type regression — **cheap-disproof 2026-08-28:** controller already returns `ValidationFailed`; strengthened `GovernanceControllerDashboardTests.GetDashboard_returns_bad_request_when_max_pending_exceeds_fifty` to assert problem type.
-- [ ] (candidate) `GovernanceController.Approve` / `Reject` — workflow `InvalidOperationException` returns `ProblemTypes.BadRequest` while submit/promote now use `ValidationFailed` (governance approval mutation problem-type parity gap).
-- [ ] (candidate) `GovernanceController.Activate` — workflow validation failures have no `InvalidOperationException`/`ArgumentException` catch while promote/submit map workflow exceptions to HTTP 400 (activate workflow error-mapping parity gap).
 
 2026-08-28 thorough hunt #203 (hit): proved compliance drift trend range validation `ValidationFailed` parity; cheap-disproved preview `InvalidOperationException` problem-type candidate (unreachable from preview service); seeded promote workflow `InvalidOperationException` problem-type and dashboard ValidationFailed test-contract candidates.
 
