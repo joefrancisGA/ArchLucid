@@ -20,10 +20,12 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         Finding finding = new()
         {
             FindingSchemaVersion =
-                root.TryGetProperty("findingSchemaVersion", out JsonElement fsv) && fsv.TryGetInt32(out int v) ? v : 0,
+                TryGetPropertyCaseInsensitive(root, "findingSchemaVersion", out JsonElement fsv) && fsv.TryGetInt32(out int v)
+                    ? v
+                    : 0,
             FindingId = root.GetProperty("findingId").GetString() ?? Guid.NewGuid().ToString("N"),
             FindingType = root.GetProperty("findingType").GetString() ?? "",
-            Category = root.TryGetProperty("category", out JsonElement cat) ? cat.GetString() ?? "" : "",
+            Category = TryGetPropertyCaseInsensitive(root, "category", out JsonElement cat) ? cat.GetString() ?? "" : "",
             EngineType = root.GetProperty("engineType").GetString() ?? "",
             Severity = ReadSeverity(root, "severity"),
             Title = root.GetProperty("title").GetString() ?? "",
@@ -31,7 +33,9 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
             RelatedNodeIds = ReadStringList(root, "relatedNodeIds"),
             RecommendedActions = ReadStringList(root, "recommendedActions"),
             Properties = ReadStringDict(root, "properties"),
-            PayloadType = root.TryGetProperty("payloadType", out JsonElement pt) ? pt.GetString() : null
+            PayloadType = TryGetPropertyCaseInsensitive(root, "payloadType", out JsonElement pt)
+                ? pt.GetString()
+                : null
         };
 
         finding.Trace = ReadTrace(root, options, finding);
@@ -48,7 +52,7 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         finding.ReviewedByUserId = ReadOptionalString(root, "reviewedByUserId");
         finding.ReviewNotes = ReadOptionalString(root, "reviewNotes");
 
-        if (root.TryGetProperty("enforcementTier", out JsonElement tierEl))
+        if (TryGetPropertyCaseInsensitive(root, "enforcementTier", out JsonElement tierEl))
         {
             finding.EnforcementTier = ReadEnforcementTier(tierEl);
         }
@@ -57,35 +61,36 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
             finding.EnforcementTier = ReadEnforcementTierFromString(tierFromProps);
         }
 
-        if (root.TryGetProperty("confidenceScore", out JsonElement confEl) &&
+        if (TryGetPropertyCaseInsensitive(root, "confidenceScore", out JsonElement confEl) &&
             confEl.ValueKind == JsonValueKind.Number &&
             confEl.TryGetDouble(out double conf))
             finding.ConfidenceScore = conf;
 
-        if (root.TryGetProperty("evaluationConfidenceScore", out JsonElement ecsEl) &&
+        if (TryGetPropertyCaseInsensitive(root, "evaluationConfidenceScore", out JsonElement ecsEl) &&
             ecsEl.ValueKind == JsonValueKind.Number &&
             ecsEl.TryGetInt32(out int ecs))
             finding.EvaluationConfidenceScore = ecs;
 
-        if (root.TryGetProperty("evaluationConfidenceLevel", out JsonElement eclEl))
+        if (TryGetPropertyCaseInsensitive(root, "evaluationConfidenceLevel", out JsonElement eclEl))
             finding.ConfidenceLevel = ReadConfidenceLevel(eclEl);
 
-        if (root.TryGetProperty("humanReviewStatus", out JsonElement hrsEl))
+        if (TryGetPropertyCaseInsensitive(root, "humanReviewStatus", out JsonElement hrsEl))
             finding.HumanReviewStatus = ReadHumanReviewStatus(hrsEl);
 
-        if (root.TryGetProperty("projectedImpactUsd", out JsonElement impactEl) &&
+        if (TryGetPropertyCaseInsensitive(root, "projectedImpactUsd", out JsonElement impactEl) &&
             impactEl.ValueKind == JsonValueKind.Number &&
             impactEl.TryGetDecimal(out decimal projectedImpactUsd))
             finding.ProjectedImpactUsd = projectedImpactUsd;
 
-        if (root.TryGetProperty("reviewedAtUtc", out JsonElement raEl) && raEl.ValueKind == JsonValueKind.String &&
+        if (TryGetPropertyCaseInsensitive(root, "reviewedAtUtc", out JsonElement raEl) && raEl.ValueKind == JsonValueKind.String &&
             DateTimeOffset.TryParse(raEl.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind,
                 out DateTimeOffset ra))
             finding.ReviewedAtUtc = ra;
 
         ReadInsightDensityFields(root, finding);
 
-        if (!root.TryGetProperty("payload", out JsonElement payloadEl) || payloadEl.ValueKind == JsonValueKind.Null)
+        if (!TryGetPropertyCaseInsensitive(root, "payload", out JsonElement payloadEl) ||
+            payloadEl.ValueKind == JsonValueKind.Null)
             return finding;
 
         string? typeName = finding.PayloadType;
