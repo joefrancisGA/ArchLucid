@@ -8,6 +8,7 @@ using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Diagnostics;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Retrieval;
@@ -63,6 +64,7 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(SqlGraphSnapshotRepository),
         typeof(SqlFindingsSnapshotRepository),
         typeof(SqlCommittedArchitectureReviewFlagReader),
+        typeof(DapperDraftRequestRepository),
     ];
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =
