@@ -102,11 +102,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       - name: Fetch PR base for path lanes
         if: github.event_name == 'pull_request'
-        run: git fetch origin "${{ github.event.pull_request.base.ref }}" --no-tags
+        run: git fetch origin "${{ github.event.pull_request.base.ref }}" --no-tags --depth=1
 
       - uses: actions/setup-python@v7
         with:
