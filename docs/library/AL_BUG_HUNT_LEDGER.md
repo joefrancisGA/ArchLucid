@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 79
-- **bugs-found:** 228
+- **hunts:** 80
+- **bugs-found:** 229
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — dry-run policy pack invalid evaluateAgainstRunIds 400
+- **last-bug:** 2026-08-28 — simulate-bulk invalid runIds 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2476,10 +2476,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.DryRunProposedPolicyPack` — invalid, empty-GUID `targetRunId`, or `targetManifestId = Guid.Empty` reached dry-run service and returned HTTP 404 instead of HTTP 400 — **hit 2026-08-28:** controller validates target run/manifest ids before `EvaluateAsync` (Simulate parity); regression in `GovernanceControllerSimulateTests`.
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — `evaluateAgainstRunIds` containing malformed or empty-GUID strings returned HTTP 200 with `runMissing` deltas instead of HTTP 400 — **hit 2026-08-28:** validate each non-whitespace run id before `EvaluateAsync` (Simulate/DryRunProposedPolicyPack parity); regression in `GovernanceControllerSimulateTests`.
 - [x] (invalid) `GovernanceController.Approve` / `Reject` — whitespace-only route `approvalRequestId` returns HTTP 400 via shared guard but lacks dedicated approve/reject regression tests — **cheap-disproof 2026-08-28:** `BadRequestWhenApprovalRequestIdEmpty` already guards both routes; added dedicated regression tests in `GovernanceControllerRunHistoryScopeTests`.
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` — `runIds` containing malformed or empty-GUID strings may surface not-found counts instead of HTTP 400 validation.
-- [ ] (candidate) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — padded `runId` accepted by `RequireScopedRunAsync` but repository query may not match when padding differs from stored normalization.
+- [x] (proven) `PolicyPacksController.SimulateBulk` — `runIds` containing malformed or empty-GUID strings returned HTTP 200 with `notFoundRunCount` instead of HTTP 400 — **hit 2026-08-28:** validate each non-whitespace run id before `TrySimulateBulkAsync` (DryRunPolicyPack parity); regression in `PolicyPacksControllerSimulateBulkScopeTests`.
+- [x] (invalid) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — padded `runId` accepted by `RequireScopedRunAsync` but repository query may not match when padding differs from stored normalization — **cheap-disproof 2026-08-28:** `RequireScopedRunAsync` trims and returns normalized id for downstream queries; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_items_when_route_run_id_is_padded` (hunt #142).
+- [ ] (candidate) `GovernanceController.GetPromotions` / `GetActivations` — padded `runId` handled by shared `RequireScopedRunAsync` but lack dedicated padded-route regression tests.
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` — more than 50 `runIds` where trailing entries are malformed may return HTTP 400 for count cap before per-id validation surfaces the malformed id (ordering ambiguity for clients).
 
-2026-08-28 thorough hunt #188: proved dry-run policy pack evaluateAgainstRunIds GUID validation; cheap-disproved approve/reject whitespace test-gap candidate; seeded simulate-bulk run-id validation and approval-history padded-run query candidates.
+2026-08-28 thorough hunt #189: proved simulate-bulk runIds GUID validation; cheap-disproved approval-history padded-run query mismatch; seeded promotions/activations padded test-gap and simulate-bulk validation-order candidates.
 
 2026-08-28 thorough hunt #186: proved batch-review mixed whitespace per-item validation; cheap-disproved activate idempotency test-gap candidate; zone candidate backlog cleared.
 

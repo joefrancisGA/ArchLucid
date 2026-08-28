@@ -94,6 +94,19 @@ public sealed partial class PolicyPacksController
                 ProblemTypes.ValidationFailed);
         }
 
+        foreach (string runId in request.RunIds)
+        {
+            if (string.IsNullOrWhiteSpace(runId))
+                continue;
+
+            if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+            {
+                return this.BadRequestProblem(
+                    "RunIds contains an invalid id.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
