@@ -1752,16 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-<<<<<<< HEAD
-- **hunts:** 18
-- **bugs-found:** 38
-=======
-- **hunts:** 17
-- **bugs-found:** 33
->>>>>>> 49418c406a (Fix PascalCase list/properties/treatment lookup in FindingJsonConverter (hunt #247).)
+- **hunts:** 20
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `FindingJsonConverter.ReadStringList` / `ReadStringDict` / insight-density fields ignored PascalCase property names
+- **last-bug:** 2026-08-28 — `FindingJsonConverter` ignored PascalCase `PayloadType` / `Payload` / `Trace` property names
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1814,10 +1809,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadStringList` case-sensitive on `relatedNodeIds` / `recommendedActions` — PascalCase `"RelatedNodeIds"` dropped graph linkage on snapshot reload — **hit 2026-08-28 (#247):** `TryGetPropertyCaseInsensitive` in `ReadStringList` (`Deserialize_pascal_case_relatedNodeIds_maps_list`).
 - [x] (proven) `FindingJsonConverter.ReadStringDict` case-sensitive on `properties` — PascalCase `"Properties"` dropped the entire properties bag on reload — **hit 2026-08-28 (#247):** `TryGetPropertyCaseInsensitive` in `ReadStringDict` (`Deserialize_pascal_case_properties_bag_maps_entries`).
 - [x] (proven) `FindingJsonConverter.ReadInsightDensityFields` case-sensitive on `treatment` / `classification` — PascalCase `"Treatment"` left insight-density routing null — **hit 2026-08-28 (#247):** `TryGetPropertyCaseInsensitive` for treatment/classification (`Deserialize_pascal_case_treatment_maps_demote_to_checklist`).
-- [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `payloadType` — PascalCase exporter label may skip typed payload rehydration while leaving raw payload orphaned.
-- [ ] (candidate) `FindingJsonConverter.ReadTrace` case-sensitive on `trace` — PascalCase `"Trace"` drops explainability trace on snapshot reload.
+- [x] (proven) `FindingJsonConverter.Read` case-sensitive on `payloadType` and `payload` — PascalCase `"PayloadType"` / `"Payload"` skipped typed payload rehydration on snapshot reload — **hit 2026-08-28 (#249):** `TryGetPropertyCaseInsensitive` for payload type and body (`Deserialize_pascal_case_payloadType_and_payload_map_typed_payload`).
+- [x] (proven) `FindingJsonConverter.ReadTrace` case-sensitive on `trace` — PascalCase `"Trace"` dropped explainability trace and `agentExecutionTraceId` fallback — **hit 2026-08-28 (#249):** `TryGetPropertyCaseInsensitive` in `ReadTrace` (`Deserialize_pascal_case_trace_maps_source_agent_execution_trace_id`).
+- [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `findingSchemaVersion` — PascalCase exporter label may default schema version to `0` on reload.
 
-2026-08-28 seed hunt #247: cherry-picked #223–#245 Core fixes; proved PascalCase `RelatedNodeIds`, `Properties`, and `Treatment` property lookup; seeded `payloadType` and `trace` PascalCase candidates.
+2026-08-28 seed hunt #249: cherry-picked #247 onto #243 rebase; proved PascalCase `PayloadType`/`Payload` and `Trace` property lookup from hunt #247 seed rows.
+
+2026-08-28 seed hunt #247: cherry-picked #245 onto #243 rebase; proved PascalCase `RelatedNodeIds`, `Properties`, and `Treatment` property lookup; seeded `payloadType` and `trace` PascalCase candidates.
 
 2026-08-28 seed hunt #245: cherry-picked #227–#243 Core fixes onto #243 rebase; proved PascalCase `RunIdRef` / `ReviewedByUserId` / `RequestInputRef` optional-string property lookup.
 
