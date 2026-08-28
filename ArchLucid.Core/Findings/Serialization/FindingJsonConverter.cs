@@ -23,7 +23,9 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
                 root.TryGetProperty("findingSchemaVersion", out JsonElement fsv) && fsv.TryGetInt32(out int v) ? v : 0,
             FindingId = root.GetProperty("findingId").GetString() ?? Guid.NewGuid().ToString("N"),
             FindingType = root.GetProperty("findingType").GetString() ?? "",
-            Category = root.TryGetProperty("category", out JsonElement cat) ? cat.GetString() ?? "" : "",
+            Category = TryGetPropertyCaseInsensitive(root, "category", out JsonElement cat)
+                ? cat.GetString() ?? ""
+                : "",
             EngineType = root.GetProperty("engineType").GetString() ?? "",
             Severity = ReadSeverity(root, "severity"),
             Title = root.GetProperty("title").GetString() ?? "",
@@ -48,7 +50,7 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         finding.ReviewedByUserId = ReadOptionalString(root, "reviewedByUserId");
         finding.ReviewNotes = ReadOptionalString(root, "reviewNotes");
 
-        if (root.TryGetProperty("enforcementTier", out JsonElement tierEl))
+        if (TryGetPropertyCaseInsensitive(root, "enforcementTier", out JsonElement tierEl))
         {
             finding.EnforcementTier = ReadEnforcementTier(tierEl);
         }
@@ -60,20 +62,16 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
         if (ReadOptionalDouble(root, "confidenceScore") is { } confidenceScore)
             finding.ConfidenceScore = confidenceScore;
 
-        if (root.TryGetProperty("evaluationConfidenceScore", out JsonElement ecsEl) &&
-            ecsEl.ValueKind == JsonValueKind.Number &&
-            ecsEl.TryGetInt32(out int ecs))
-            finding.EvaluationConfidenceScore = ecs;
+        if (ReadOptionalInt32(root, "evaluationConfidenceScore") is { } evaluationConfidenceScore)
+            finding.EvaluationConfidenceScore = evaluationConfidenceScore;
 
-        if (root.TryGetProperty("evaluationConfidenceLevel", out JsonElement eclEl))
+        if (TryGetPropertyCaseInsensitive(root, "evaluationConfidenceLevel", out JsonElement eclEl))
             finding.ConfidenceLevel = ReadConfidenceLevel(eclEl);
 
-        if (root.TryGetProperty("humanReviewStatus", out JsonElement hrsEl))
+        if (TryGetPropertyCaseInsensitive(root, "humanReviewStatus", out JsonElement hrsEl))
             finding.HumanReviewStatus = ReadHumanReviewStatus(hrsEl);
 
-        if (root.TryGetProperty("projectedImpactUsd", out JsonElement impactEl) &&
-            impactEl.ValueKind == JsonValueKind.Number &&
-            impactEl.TryGetDecimal(out decimal projectedImpactUsd))
+        if (ReadOptionalDecimal(root, "projectedImpactUsd") is { } projectedImpactUsd)
             finding.ProjectedImpactUsd = projectedImpactUsd;
 
         finding.ReviewedAtUtc = ReadOptionalDateTimeOffset(root, "reviewedAtUtc");
