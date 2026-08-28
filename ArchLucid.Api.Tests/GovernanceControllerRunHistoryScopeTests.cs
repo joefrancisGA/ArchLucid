@@ -1026,6 +1026,54 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequest_returns_validation_failed_when_environment_step_is_invalid()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowService> workflow = new();
+        workflow
+            .Setup(w => w.SubmitApprovalRequestAsync(
+                runId.ToString("D"),
+                "1",
+                "dev",
+                "prod",
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                true,
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(
+                "Governance approval requests must follow environment ordering (dev → test → prod). 'dev' → 'prod' is not a valid step."));
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SubmitApprovalRequest(
+            new CreateGovernanceApprovalRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "prod",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
     public async Task SubmitApprovalRequest_returns_bad_request_when_run_id_is_empty()
     {
         Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
@@ -1114,6 +1162,55 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Promote_returns_validation_failed_when_environment_step_is_invalid()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowService> workflow = new();
+        workflow
+            .Setup(w => w.PromoteAsync(
+                runId.ToString("D"),
+                "1",
+                "dev",
+                "prod",
+                It.IsAny<string>(),
+                null,
+                null,
+                true,
+                false,
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(
+                "Promotion must follow environment ordering (dev → test → prod). 'dev' → 'prod' is not a valid promotion step."));
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Promote(
+            new CreateGovernancePromotionRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "prod",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
     [Fact]
