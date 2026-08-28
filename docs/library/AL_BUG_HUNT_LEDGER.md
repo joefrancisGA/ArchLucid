@@ -1752,13 +1752,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 11
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — `FindingEnforcementTierClassifier` accepted undefined `properties.enforcementTier` ordinals; `TryParseProvider` rejected display label `Azure Boards` while error text lists it as valid
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1781,6 +1781,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
 - [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
+- [x] (proven) `FindingEnforcementTierClassifier.TryReadTierFromProperties` accepts undefined `properties.enforcementTier` via bare `Enum.TryParse` while `FindingJsonConverter.ReadEnforcementTierFromString` guards with `Enum.IsDefined` — **hit 2026-08-28:** numeric-string `"99"` short-circuited classification; fixed with `Enum.IsDefined` guard (`ClassifyFinding_ignores_undefined_enforcement_tier_property_value`).
+- [x] (proven) `TenantItsmConnectorConnectionUpsertValidation.TryParseProvider` rejects display label `Azure Boards` while `ProviderRequiredMessage` and `ToProviderLabel` advertise it — **hit 2026-08-28:** only `AzureBoards` persistence token parsed; fixed by accepting display label alias (`TryParseProvider_accepts_jira_and_servicenow`).
+- [x] (valid-no-repro) `InMemoryOperationalErrorCaptureQueue.TryReturnToQueueAfterFailedDrain` drops rows when channel is full — mirrors `InMemoryAuditRetryQueue` bounded-channel semantics; decrement-on-failed-requeue is intentional backpressure, not silent corruption.
+- [x] (valid-no-repro) `TryValidateVendorBaseUrl` rejects `http://127.0.0.1` while error text mentions loopback — HTTP allowed only for `localhost` hostname by design; numeric loopback is not treated as a test double.
 
 ---
 
