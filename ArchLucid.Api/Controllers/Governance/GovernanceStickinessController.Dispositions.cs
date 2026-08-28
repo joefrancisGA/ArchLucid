@@ -40,6 +40,9 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        if (request.RunId == Guid.Empty)
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+
         RecordFindingDispositionRequest normalized = new()
         {
             FindingId = findingId,

@@ -31,6 +31,9 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        if (request.RunId == Guid.Empty)
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+
         try
         {
             RiskExceptionRecord record = await _facade.CreateRiskExceptionAsync(request, cancellationToken);
@@ -223,6 +226,9 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        if (scheduleId == Guid.Empty)
+            return this.BadRequestProblem("scheduleId is required.", ProblemTypes.ValidationFailed);
 
         RecurrenceScheduleUpdateResult result =
             await _facade.UpdateRecurrenceScheduleAsync(scheduleId, request, cancellationToken);

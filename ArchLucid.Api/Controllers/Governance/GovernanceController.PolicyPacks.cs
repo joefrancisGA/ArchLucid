@@ -196,6 +196,9 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        if (id == Guid.Empty)
+            return this.BadRequestProblem("id is required.", ProblemTypes.ValidationFailed);
+
         IReadOnlyDictionary<string, string> proposedThresholds =
             request.ProposedThresholds;
 
