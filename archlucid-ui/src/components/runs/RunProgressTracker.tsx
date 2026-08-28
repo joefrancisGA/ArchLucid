@@ -48,7 +48,10 @@ import {
   shouldShowReviewPipelineBackgroundSafety,
 } from "@/lib/review-execution-background-safety-copy";
 import { isReviewPipelineDebugEnabled } from "@/lib/review-pipeline-debug-policy";
-import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
+import {
+  deriveReviewPipelineTerminalFailureDiagnosis,
+  type ReviewPipelineDiagnosticContext,
+} from "@/lib/review-pipeline-stall-diagnosis";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
@@ -57,6 +60,10 @@ import type { RunSummary } from "@/types/authority";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 
 import { ReviewPipelineDevTelemetryPanel } from "./ReviewPipelineDevTelemetryPanel";
+import {
+  OperatorErrorCallout,
+  OperatorWarningCallout,
+} from "@/components/operator/OperatorShellMessage";
 
 export type RunProgressTrackerProps = {
   runId: string;
@@ -273,9 +280,24 @@ export function RunProgressTracker({
     [activeSummary, buyerAssessmentCopy],
   );
 
+  const terminalFailureDiagnosis = useMemo(
+    () =>
+      pipelineTerminalFailure
+        ? deriveReviewPipelineTerminalFailureDiagnosis({
+            diagnosticContext,
+            summary: activeSummary,
+          })
+        : null,
+    [activeSummary, diagnosticContext, pipelineTerminalFailure],
+  );
+
   const liveStatus = useMemo(() => {
     if (preFinalizeTerminal) {
       return "Ready to finalize — use Finalize review to create the finalized review record for this architecture review.";
+    }
+
+    if (pipelineTerminalFailure) {
+      return "Assessment failed — review the error details below and re-run the review when ready.";
     }
 
     if (buyerAssessmentCopy) {
@@ -288,10 +310,6 @@ export function RunProgressTracker({
       }
 
       return `${completedAssessmentStages} of ${assessmentStageCount} assessment stages complete.`;
-    }
-
-    if (pipelineTerminalFailure) {
-      return "Assessment failed — review the error details below and re-run the review when ready.";
     }
 
     if (clientPhase === "complete") {
@@ -380,6 +398,20 @@ export function RunProgressTracker({
       <div aria-live="polite" aria-atomic="true" className={cn("mt-3 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         {liveStatus}
       </div>
+
+      {terminalFailureDiagnosis !== null ? (
+        terminalFailureDiagnosis.severity === "warning" ? (
+          <OperatorWarningCallout>
+            <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{terminalFailureDiagnosis.headline}</p>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{terminalFailureDiagnosis.detail}</p>
+          </OperatorWarningCallout>
+        ) : (
+          <OperatorErrorCallout>
+            <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{terminalFailureDiagnosis.headline}</p>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{terminalFailureDiagnosis.detail}</p>
+          </OperatorErrorCallout>
+        )
+      ) : null}
 
       {pipelineTerminalFailure ? (
         <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="run-progress-terminal-failure-actions">
