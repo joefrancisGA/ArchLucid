@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 67
-- **bugs-found:** 198
+- **hunts:** 68
+- **bugs-found:** 202
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — stickiness register maxRows bounds return 400 instead of silent clamp
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — revoke risk-exception empty id validation, legal-hold past untilUtc 400, deferred revisit future guard, catalog promote empty pack id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2442,6 +2442,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — negative `syntheticCount` reached `PreCommitGovernanceGate` and surfaced HTTP 500 — **hit 2026-08-27:** controller rejects `syntheticCount < 0` before gate call; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard` — **hit 2026-08-27:** `ValidateRegisterMaxRows` on register GETs; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.RevokeRiskException` — route `riskExceptionId = Guid.Empty` surfaced HTTP 404 (mock) or unhandled `ArgumentException` (live service) instead of HTTP 400 — **hit 2026-08-28:** facade empty-id guard + controller `ArgumentException` mapping (renew parity); regression in `GovernanceStickinessControllerTests.RevokeRiskException_returns_bad_request_when_risk_exception_id_is_empty`.
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — past `untilUtc` returned HTTP 409 conflict instead of HTTP 400 validation — **hit 2026-08-28:** controller rejects non-future `untilUtc` before command service (risk-exception expiry parity); regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `FindingDispositionValidation` — deferred disposition accepted past `revisitDueUtc` — **hit 2026-08-28:** require future revisit date when deferring; regression in `FindingDispositionValidationTests.Validate_deferred_rejects_past_revisit_due_utc`.
+- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — `sourcePolicyPackId = Guid.Empty` returned HTTP 404 pack-not-found instead of HTTP 400 — **hit 2026-08-28:** reject empty guid before workflow lookup; regression in `PolicyPacksControllerListScopeTests.PromoteCatalogEntry_returns_bad_request_when_source_policy_pack_id_is_empty`.
+- [ ] (candidate) `PolicyPacksController` route `policyPackId` / `assignmentId` / `policyPackCatalogEntryId` = `Guid.Empty` — scoped repository lookup returns HTTP 404 instead of HTTP 400 validation.
+- [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` — route `runId = Guid.Empty` returns HTTP 404 merge-conflict-not-found because `EnsureRunInScopeWhenProvidedAsync` treats empty as omitted (recurrence schedule rejects empty source run).
+- [ ] (candidate) `PolicyPacksController.DemoteCatalogEntry` — `policyPackCatalogEntryId = Guid.Empty` may return HTTP 404 when FluentValidation auto-validation is bypassed (body validator exists; controller lacks explicit guard like promote).
+
+2026-08-28 seed hunt #175: reseeded route-empty-guid, merge-conflict empty-run, and demote-empty-guid candidates; proved revoke empty risk-exception id, legal-hold date validation, deferred revisit future guard, and catalog promote empty pack id guard.
 
 2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 
