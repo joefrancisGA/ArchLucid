@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 67
-- **bugs-found:** 198
+- **hunts:** 68
+- **bugs-found:** 201
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — stickiness register maxRows bounds return 400 instead of silent clamp
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — decision-register buyerConfidenceSource validation, deferred revisit future guard, compliance-drift-trend bucket cap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2442,8 +2442,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — negative `syntheticCount` reached `PreCommitGovernanceGate` and surfaced HTTP 500 — **hit 2026-08-27:** controller rejects `syntheticCount < 0` before gate call; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard` — **hit 2026-08-27:** `ValidateRegisterMaxRows` on register GETs; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceController.GetComplianceDriftTrend` — wide date window with minimum `bucketMinutes` iterated unbounded buckets server-side (DoS) — **hit 2026-08-28:** reject when computed bucket count exceeds 500 before tenant/service call; regression in `GovernanceControllerDashboardTests.GetComplianceDriftTrend_returns_bad_request_when_bucket_count_exceeds_five_hundred`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — unknown `buyerConfidenceSource` query mapped to `Unknown`/`NotComputed` SQL filter instead of HTTP 400 — **hit 2026-08-28:** `ValidateBuyerConfidenceSource` on register GET; regression in `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_buyer_confidence_source_is_unknown`.
+- [x] (proven) `GovernanceStickinessController.RecordDisposition` / `FindingDispositionValidation` — `Deferred` disposition accepted past `revisitDueUtc` — **hit 2026-08-28:** require future revisit date (risk-exception expiry parity); regression in `FindingDispositionValidationTests.Validate_deferred_disposition_rejects_past_revisit_due_date`.
+- [x] (invalid) `GovernanceController.DryRunPolicyPack` — `pageSize`/`page` silently clamped instead of HTTP 400 — **cheap-disproof 2026-08-28:** intentional owner Q38 server clamp documented in `IPolicyPackDryRunService`, `PolicyPackDryRunService.ClampPageSize`, UI tests, and API contracts.
 
-2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
+2026-08-28 thorough hunt #169: proved compliance-drift-trend bucket cap, decision-register buyerConfidenceSource validation, and deferred disposition past-revisit guard; cheap-disproved dry-run page clamp (Q38 intentional).
 
 2026-08-27 thorough hunt #142: proved preview/approval trim parity and simulate-bulk/dry-run whitespace validation; zone hunt-ready backlog cleared.
 

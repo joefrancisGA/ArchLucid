@@ -2,6 +2,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -46,6 +47,33 @@ public sealed partial class GovernanceStickinessController(
 
         return null;
     }
+
+    private IActionResult? ValidateBuyerConfidenceSource(string? buyerConfidenceSource)
+    {
+        if (buyerConfidenceSource is null)
+            return null;
+
+        if (string.IsNullOrWhiteSpace(buyerConfidenceSource))
+        {
+            return this.BadRequestProblem(
+                "buyerConfidenceSource cannot be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (!IsKnownBuyerConfidenceSource(buyerConfidenceSource))
+        {
+            return this.BadRequestProblem(
+                $"buyerConfidenceSource must be one of: {BuyerDecisionConfidenceSource.EvidenceBacked}, {BuyerDecisionConfidenceSource.ModelAssisted}, or {BuyerDecisionConfidenceSource.Unknown}.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    private static bool IsKnownBuyerConfidenceSource(string buyerConfidenceSource) =>
+        string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.EvidenceBacked, StringComparison.OrdinalIgnoreCase)
+        || string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.ModelAssisted, StringComparison.OrdinalIgnoreCase)
+        || string.Equals(buyerConfidenceSource, BuyerDecisionConfidenceSource.Unknown, StringComparison.OrdinalIgnoreCase);
 
     private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
     {

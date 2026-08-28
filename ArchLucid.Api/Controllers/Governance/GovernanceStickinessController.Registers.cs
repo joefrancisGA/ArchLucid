@@ -1,7 +1,9 @@
 using ArchLucid.Api.Http;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Mvc;
@@ -147,6 +149,11 @@ public sealed partial class GovernanceStickinessController
 
         if (maxRowsProblem is not null)
             return maxRowsProblem;
+
+        IActionResult? buyerConfidenceSourceProblem = ValidateBuyerConfidenceSource(buyerConfidenceSource);
+
+        if (buyerConfidenceSourceProblem is not null)
+            return buyerConfidenceSourceProblem;
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

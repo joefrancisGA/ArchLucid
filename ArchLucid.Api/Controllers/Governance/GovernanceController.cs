@@ -65,6 +65,8 @@ public sealed partial class GovernanceController(
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
+    private const int ComplianceDriftTrendMaxBuckets = 500;
+
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 

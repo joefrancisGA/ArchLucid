@@ -245,6 +245,20 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetDecisionRegister_returns_bad_request_when_buyer_confidence_source_is_unknown()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetDecisionRegister(
+            projectId: null,
+            buyerConfidenceSource: "Not-a-real-label",
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task GetDecisionRegister_returns_bad_request_when_max_rows_is_zero()
     {
         GovernanceStickinessController sut = BuildSut();
