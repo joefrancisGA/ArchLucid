@@ -245,6 +245,50 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetDecisionRegister_returns_bad_request_when_recorded_after_is_after_recorded_before()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetDecisionRegister(
+            projectId: null,
+            recordedAfterUtc: new DateTimeOffset(2026, 8, 1, 0, 0, 0, TimeSpan.Zero),
+            recordedBeforeUtc: new DateTimeOffset(2026, 7, 1, 0, 0, 0, TimeSpan.Zero),
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetDecisionRegister_returns_bad_request_when_min_confidence_exceeds_max_confidence()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetDecisionRegister(
+            projectId: null,
+            minConfidence: 0.9,
+            maxConfidence: 0.1,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetDecisionRegister_returns_bad_request_when_buyer_confidence_source_is_unknown()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetDecisionRegister(
+            projectId: null,
+            buyerConfidenceSource: "Not-a-real-label",
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task GetDecisionRegister_returns_bad_request_when_max_rows_is_zero()
     {
         GovernanceStickinessController sut = BuildSut();
@@ -442,17 +486,6 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
-    public async Task ListDispositions_returns_bad_request_when_finding_id_is_whitespace()
-    {
-        GovernanceStickinessController controller = BuildSut();
-
-        IActionResult action = await controller.ListDispositions("   ", CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
     public async Task ListDispositions_returns_not_found_when_tenant_missing()
     {
         GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
@@ -461,31 +494,6 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-    }
-
-    [Fact]
-    public async Task RevokeRiskException_returns_bad_request_when_risk_exception_id_is_empty()
-    {
-        GovernanceStickinessController controller = BuildSut();
-
-        IActionResult action = await controller.RevokeRiskException(Guid.Empty, CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
-    public async Task RenewRiskException_returns_bad_request_when_risk_exception_id_is_empty()
-    {
-        GovernanceStickinessController controller = BuildSut();
-
-        IActionResult action = await controller.RenewRiskException(
-            Guid.Empty,
-            new RenewRiskExceptionRequest { ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30) },
-            CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -544,42 +552,6 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-    }
-
-    [Fact]
-    public async Task ResolveFindingMergeConflict_returns_bad_request_when_run_id_empty()
-    {
-        GovernanceStickinessController sut = BuildSut();
-
-        IActionResult action = await sut.ResolveFindingMergeConflict(
-            Guid.Empty,
-            "finding-1",
-            new ResolveFindingMergeConflictRequest
-            {
-                Action = FindingMergeConflictResolutionAction.AcceptPrimary,
-            },
-            CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
-    public async Task ResolveFindingMergeConflict_returns_bad_request_when_finding_id_is_whitespace()
-    {
-        GovernanceStickinessController sut = BuildSut();
-
-        IActionResult action = await sut.ResolveFindingMergeConflict(
-            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-            "   ",
-            new ResolveFindingMergeConflictRequest
-            {
-                Action = FindingMergeConflictResolutionAction.AcceptPrimary,
-            },
-            CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -889,45 +861,6 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
-    public async Task RecordDisposition_returns_bad_request_when_finding_id_is_whitespace()
-    {
-        GovernanceStickinessController controller = BuildSut();
-        SetIdempotencyKey(controller);
-
-        RecordFindingDispositionRequest request = new()
-        {
-            FindingId = "finding-1",
-            Disposition = FindingDisposition.Accepted,
-            Rationale = "ok",
-        };
-
-        IActionResult action = await controller.RecordDisposition("   ", request, CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
-    public async Task RecordDisposition_returns_bad_request_when_run_id_is_empty()
-    {
-        GovernanceStickinessController controller = BuildSut();
-        SetIdempotencyKey(controller);
-
-        RecordFindingDispositionRequest request = new()
-        {
-            FindingId = "finding-1",
-            RunId = Guid.Empty,
-            Disposition = FindingDisposition.Accepted,
-            Rationale = "ok",
-        };
-
-        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
     public async Task RecordDisposition_returns_bad_request_when_service_throws_argument_exception()
     {
         Mock<IFindingInspectReadRepository> findingInspect = new();
@@ -1028,26 +961,6 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-    }
-
-    [Fact]
-    public async Task CreateRiskException_returns_bad_request_when_run_id_is_empty()
-    {
-        GovernanceStickinessController controller = BuildSut();
-
-        CreateRiskExceptionRequest request = new()
-        {
-            FindingId = "finding-1",
-            RunId = Guid.Empty,
-            OwnerUserId = "owner@contoso.com",
-            Rationale = "accepted risk",
-            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
-        };
-
-        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -1445,22 +1358,6 @@ public sealed class GovernanceStickinessControllerTests
         body.Name.Should().Be("weekly review");
         captured.Should().NotBeNull();
         captured!.TenantId.Should().Be(Scope.TenantId);
-    }
-
-    [Fact]
-    public async Task UpdateRecurrenceSchedule_returns_bad_request_when_schedule_id_is_empty()
-    {
-        GovernanceStickinessController controller = BuildSut();
-
-        UpdateArchitectureReviewRecurrenceScheduleRequest request = new() { Name = "updated" };
-
-        IActionResult action = await controller.UpdateRecurrenceSchedule(
-            Guid.Empty,
-            request,
-            CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]

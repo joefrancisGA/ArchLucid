@@ -101,6 +101,18 @@ public sealed partial class GovernanceController
         if (bucketMinutes is < 60 or > 43_200)
             return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
 
+        DateTime fromUtcNormalized = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
+        DateTime toUtcNormalized = DateTime.SpecifyKind(toUtc, DateTimeKind.Utc);
+
+        int bucketCount = (int)Math.Ceiling((toUtcNormalized - fromUtcNormalized).TotalMinutes / bucketMinutes);
+
+        if (bucketCount > ComplianceDriftTrendMaxBuckets)
+        {
+            return this.BadRequestProblem(
+                $"The requested window produces {bucketCount} trend buckets; at most {ComplianceDriftTrendMaxBuckets} are allowed. Narrow the date range or increase bucketMinutes.",
+                ProblemTypes.ValidationFailed);
+        }
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
@@ -108,9 +120,6 @@ public sealed partial class GovernanceController
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
-
-        DateTime fromUtcNormalized = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
-        DateTime toUtcNormalized = DateTime.SpecifyKind(toUtc, DateTimeKind.Utc);
 
         IReadOnlyList<ComplianceDriftTrendPoint> points = await _complianceDriftTrendService.GetTrendAsync(
             scope.TenantId,
@@ -135,11 +144,6 @@ public sealed partial class GovernanceController
             return tenantProblem;
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
-
-        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
-
-        if (approvalRequestIdProblem is not null)
-            return approvalRequestIdProblem;
 
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
@@ -185,11 +189,6 @@ public sealed partial class GovernanceController
             return tenantProblem;
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
-
-        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
-
-        if (approvalRequestIdProblem is not null)
-            return approvalRequestIdProblem;
 
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
