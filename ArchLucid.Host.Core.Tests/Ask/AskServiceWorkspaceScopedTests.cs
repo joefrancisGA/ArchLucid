@@ -58,7 +58,7 @@ public sealed class AskServiceWorkspaceScopedTests
 
         Mock<IRetrievalQueryService> retrieval = new();
         retrieval
-            .Setup(query => query.SearchAsync(It.Is<RetrievalQuery>(q => q.RunId is null), It.IsAny<CancellationToken>()))
+            .Setup(query => query.SearchAsync(It.Is<RetrievalQuery>(q => HasNullRunId(q)), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new RetrievalHit
@@ -95,9 +95,11 @@ public sealed class AskServiceWorkspaceScopedTests
         response.ThreadId.Should().Be(thread.ThreadId);
         response.Answer.Should().Be("Use private endpoints across reviews.");
         retrieval.Verify(
-            query => query.SearchAsync(It.Is<RetrievalQuery>(q => q.RunId is null), It.IsAny<CancellationToken>()),
+            query => query.SearchAsync(It.Is<RetrievalQuery>(q => HasNullRunId(q)), It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    private static bool HasNullRunId(RetrievalQuery query) => query.RunId is null;
 
     [Fact]
     public async Task AskAsync_without_run_and_with_comparison_ids_throws()

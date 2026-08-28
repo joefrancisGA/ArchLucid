@@ -138,7 +138,7 @@ public sealed class IdentityProviderDiscoveryServiceTests
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
-            await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
 
             return new HttpResponseMessage(HttpStatusCode.OK);
         }
