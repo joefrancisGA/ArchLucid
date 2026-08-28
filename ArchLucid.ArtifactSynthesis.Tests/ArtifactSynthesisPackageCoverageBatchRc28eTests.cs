@@ -266,4 +266,33 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
         artifact.Content.Should().Contain("- Pattern: Hub-spoke");
         artifact.Content.Should().Contain("- Resource: orders-api");
     }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_decisions()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            Decisions =
+            [
+                new ResolvedArchitectureDecision
+                {
+                    DecisionId = "dec-1",
+                    Category = "Security",
+                    Title = "Use TLS",
+                    SelectedOption = "TLS1.3",
+                    Rationale = "Strong crypto",
+                },
+            ],
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("## Decisions");
+        artifact.Content.Should().Contain("Security: Use TLS -> TLS1.3");
+    }
 }
