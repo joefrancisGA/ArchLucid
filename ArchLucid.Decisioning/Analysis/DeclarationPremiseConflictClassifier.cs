@@ -316,10 +316,33 @@ public static class DeclarationPremiseConflictClassifier
     {
         foreach (string phrase in phrases)
         {
-            if (normalizedIntentText.Contains(phrase, StringComparison.Ordinal))
-                return true;
+            int searchStart = 0;
+
+            while (searchStart <= normalizedIntentText.Length - phrase.Length)
+            {
+                int index = normalizedIntentText.IndexOf(phrase, searchStart, StringComparison.Ordinal);
+
+                if (index < 0)
+                    break;
+
+                if (!IsNegatedPhraseMatch(normalizedIntentText, index))
+                    return true;
+
+                searchStart = index + 1;
+            }
         }
 
         return false;
+    }
+
+    private static bool IsNegatedPhraseMatch(string normalizedIntentText, int phraseStartIndex)
+    {
+        const int lookback = 32;
+        int prefixStart = Math.Max(0, phraseStartIndex - lookback);
+        string prefix = normalizedIntentText[prefixStart..phraseStartIndex].TrimEnd();
+
+        return prefix.EndsWith("do not", StringComparison.Ordinal)
+            || prefix.EndsWith("don't", StringComparison.Ordinal)
+            || prefix.EndsWith("never", StringComparison.Ordinal);
     }
 }
