@@ -490,6 +490,40 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_numeric_reviewedAtUtc_unix_milliseconds_maps_timestamp()
+    {
+        DateTimeOffset expected = new(2024, 8, 28, 12, 0, 0, TimeSpan.Zero);
+        long unixMilliseconds = expected.ToUnixTimeMilliseconds();
+        string json = $$"""
+                        {
+                          "findingSchemaVersion": 2,
+                          "findingId": "abc123",
+                          "findingType": "TopologyGap",
+                          "category": "Topology",
+                          "engineType": "TopologyCoverage",
+                          "severity": "Warning",
+                          "title": "Missing worker subnet",
+                          "rationale": "No subnet is defined for worker pool isolation.",
+                          "relatedNodeIds": [],
+                          "recommendedActions": [],
+                          "properties": {},
+                          "payloadType": null,
+                          "payload": null,
+                          "trace": {},
+                          "humanReviewStatus": "Approved",
+                          "reviewedAtUtc": {{unixMilliseconds}}
+                        }
+                        """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.ReviewedAtUtc.Should().Be(expected);
+    }
+
+    [Fact]
     public void Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws()
     {
         const string json = """
