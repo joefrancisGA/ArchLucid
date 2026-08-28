@@ -181,7 +181,7 @@ public sealed partial class GovernanceController
                 ex,
                 "Approve failed for approval request '{ApprovalRequestId}'.",
                 approvalRequestId);
-            return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
     }
 
@@ -266,7 +266,7 @@ public sealed partial class GovernanceController
                 ex,
                 "Reject failed for approval request '{ApprovalRequestId}'.",
                 approvalRequestId);
-            return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
     }
 
