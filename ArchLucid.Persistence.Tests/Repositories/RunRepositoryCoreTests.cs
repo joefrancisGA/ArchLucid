@@ -64,6 +64,46 @@ public sealed class RunRepositoryCoreTests
     }
 
     [Fact]
+    public void OccupiesWorkspaceSystemName_failed_and_quality_rejected_do_not_occupy()
+    {
+        RunRepositoryCore.OccupiesWorkspaceSystemName(new RunRecord
+        {
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+        }).Should().BeFalse();
+
+        RunRepositoryCore.OccupiesWorkspaceSystemName(new RunRecord
+        {
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        }).Should().BeFalse();
+    }
+
+    [Fact]
+    public void OccupiesWorkspaceSystemName_committed_and_created_occupy_unless_excluded()
+    {
+        Guid runId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        RunRepositoryCore.OccupiesWorkspaceSystemName(new RunRecord
+        {
+            RunId = runId,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+        }).Should().BeTrue();
+
+        RunRepositoryCore.OccupiesWorkspaceSystemName(new RunRecord
+        {
+            RunId = runId,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+        }).Should().BeTrue();
+
+        RunRepositoryCore.OccupiesWorkspaceSystemName(
+            new RunRecord
+            {
+                RunId = runId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            },
+            excludeRunId: runId).Should().BeFalse();
+    }
+
+    [Fact]
     public void SelectLatestWithGraphAtOrBefore_picks_latest_graph_before_cutoff()
     {
         ScopeContext scope = Scope(TenantId, WorkspaceId, ProjectId);
