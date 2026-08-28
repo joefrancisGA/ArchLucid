@@ -44,8 +44,14 @@ public static class FindingDispositionValidation
                     nameof(request));
         }
 
-        if (request.Disposition == Disposition.Deferred && request.RevisitDueUtc is null)
-            throw new ArgumentException("Revisit due date is required when deferring.", nameof(request));
+        if (request.Disposition == Disposition.Deferred)
+        {
+            if (request.RevisitDueUtc is null)
+                throw new ArgumentException("Revisit due date is required when deferring.", nameof(request));
+
+            if (request.RevisitDueUtc.Value.Year < 1970)
+                throw new ArgumentException("Revisit due date is not valid.", nameof(request));
+        }
 
         if (request.Disposition == Disposition.NeedsEvidence && string.IsNullOrWhiteSpace(request.EvidenceRequestText))
             throw new ArgumentException("Evidence request text is required.", nameof(request));
