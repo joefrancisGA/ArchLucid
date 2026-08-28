@@ -119,7 +119,7 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
-        HashSet<string> seenFindingIds = new(StringComparer.Ordinal);
+        HashSet<string> seenFindingIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string findingId in request.FindingIds)
         {
