@@ -411,6 +411,61 @@ public sealed class GovernanceWorkflowFacadeTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task ActivateAsync_deactivates_existing_active_records_when_environment_is_padded()
+    {
+        GovernanceEnvironmentActivation existing = new()
+        {
+            ActivationId = "act-existing",
+            RunId = "run-old",
+            ManifestVersion = "v0",
+            Environment = "test",
+            IsActive = true,
+        };
+
+        Mock<IGovernanceEnvironmentActivationRepository> activationRepo = new();
+        activationRepo
+            .Setup(r => r.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([existing]);
+        activationRepo
+            .Setup(r => r.UpdateAsync(
+                It.IsAny<GovernanceEnvironmentActivation>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>()))
+            .Returns(Task.CompletedTask)
+            .Callback<GovernanceEnvironmentActivation, CancellationToken, IDbConnection?, IDbTransaction?>(
+                (activation, _, _, _) =>
+                {
+                    if (activation.ActivationId == existing.ActivationId)
+                        activation.IsActive = false;
+                });
+        activationRepo
+            .Setup(r => r.CreateAsync(
+                It.Is<GovernanceEnvironmentActivation>(activation => activation.Environment == "test"),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            activationRepo: activationRepo.Object,
+            runDetail: runDetail.Object);
+
+        GovernanceEnvironmentActivation activation = await sut.ActivateAsync("run-1", "v1", " test ", "operator");
+
+        activation.Environment.Should().Be("test");
+        existing.IsActive.Should().BeFalse();
+        activationRepo.Verify(
+            r => r.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static GovernanceWorkflowFacade CreateFacade(
         IGovernanceApprovalRequestRepository? approvalRepo = null,
         IGovernancePromotionRecordRepository? promotionRepo = null,
