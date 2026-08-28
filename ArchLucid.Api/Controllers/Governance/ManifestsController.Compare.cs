@@ -43,8 +43,8 @@ public sealed partial class ManifestsController
 
         return Ok(new ManifestCompareSummaryResponse
         {
-            LeftManifestVersion = leftVersion,
-            RightManifestVersion = rightVersion,
+            LeftManifestVersion = loaded.Diff!.LeftManifestVersion,
+            RightManifestVersion = loaded.Diff!.RightManifestVersion,
             Format = FormatMarkdown,
             Summary = summary,
             Diff = loaded.Diff!
@@ -67,12 +67,15 @@ public sealed partial class ManifestsController
         string content =
             manifestDiffExportService.GenerateMarkdownExport(loaded.Left!, loaded.Right!, loaded.Diff!, summary);
 
+        string normalizedLeftVersion = loaded.Diff!.LeftManifestVersion;
+        string normalizedRightVersion = loaded.Diff!.RightManifestVersion;
+
         return Ok(new ManifestCompareExportResponse
         {
-            LeftManifestVersion = leftVersion,
-            RightManifestVersion = rightVersion,
+            LeftManifestVersion = normalizedLeftVersion,
+            RightManifestVersion = normalizedRightVersion,
             Format = FormatMarkdown,
-            FileName = $"compare_{leftVersion}_to_{rightVersion}.md",
+            FileName = $"compare_{normalizedLeftVersion}_to_{normalizedRightVersion}.md",
             Content = content
         });
     }
@@ -93,7 +96,9 @@ public sealed partial class ManifestsController
         string content =
             manifestDiffExportService.GenerateMarkdownExport(loaded.Left!, loaded.Right!, loaded.Diff!, summary);
 
-        string fileName = $"compare_{leftVersion}_to_{rightVersion}.md";
+        string normalizedLeftVersion = loaded.Diff!.LeftManifestVersion;
+        string normalizedRightVersion = loaded.Diff!.RightManifestVersion;
+        string fileName = $"compare_{normalizedLeftVersion}_to_{normalizedRightVersion}.md";
         return ApiFileResults.RangeText(Request, content, "text/markdown", fileName);
     }
 

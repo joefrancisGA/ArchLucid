@@ -8,6 +8,9 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Security;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Application.OperationalErrors;
+using ArchLucid.Core.OperationalErrors;
+using ArchLucid.Host.Core.OperationalErrors;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosting;
@@ -62,6 +65,21 @@ internal static class PipelineExtensions
                             context.Request.Method,
                             context.Request.Path
                                 .Value); // codeql[cs/log-forging]: user-derived method/path are normalized in LogErrorUnhandledWorkerHttpRequest (CWE-117, LogSanitizer; see SanitizedLoggerErrorExtensions and docs/library/CODEQL_TRIAGE.md).
+                    }
+
+                    IOperationalErrorCaptureService? captureService =
+                        context.RequestServices.GetService<IOperationalErrorCaptureService>();
+
+                    if (captureService is not null)
+                    {
+                        OperationalErrorHttpCapture.TryCaptureFromException(
+                            captureService,
+                            context,
+                            ex,
+                            StatusCodes.Status500InternalServerError,
+                            ProblemTypes.InternalError,
+                            OperationalErrorSource.Api,
+                            OperationalErrorCategory.UnhandledException);
                     }
                 }
 
@@ -131,7 +149,10 @@ internal static class PipelineExtensions
         app.UseResponseCompression();
         app.UseRouting();
         app.UseCors("ArchLucid");
-        app.UseOutputCache();
+
+        if (app.Configuration.GetValue<bool>("OutputCache:Enabled", true))
+            app.UseOutputCache();
+
         return app;
     }
 

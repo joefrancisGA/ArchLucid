@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — `/al-bug` evidence-guided reseed report (generated artifact). Not a buyer or operator document.
+
 # `/al-bug` evidence-guided reseed report
 
 Generated UTC: `2026-08-24T21:13:19.013564+00:00`

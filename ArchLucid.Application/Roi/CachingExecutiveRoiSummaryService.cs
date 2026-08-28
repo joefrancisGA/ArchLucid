@@ -68,9 +68,12 @@ public sealed class CachingSponsorRoiSummaryService(
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        IReadOnlyList<RiskExceptionRecord> activeWaivers = await _riskExceptionService
+        IReadOnlyList<RiskExceptionRecord> activeWaivers = GovernanceWaiverExpiryWindow.FilterToScope(
+            await _riskExceptionService
             .ListActiveAsync(scope.TenantId, scope.ProjectId, cancellationToken)
-            .ConfigureAwait(false);
+            .ConfigureAwait(false),
+            scope.WorkspaceId,
+            scope.ProjectId);
 
         response.ExpiringWaiversCount14Days = GovernanceWaiverExpiryWindow.CountExpiringWithinDays(
             activeWaivers,

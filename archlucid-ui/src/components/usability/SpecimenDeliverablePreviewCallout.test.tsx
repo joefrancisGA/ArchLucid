@@ -27,6 +27,9 @@ describe("SpecimenDeliverablePreviewCallout", () => {
     expect(primaryCta).toHaveAttribute("href", showcaseSpecimenSignedReviewRecordHref());
     expect(primaryCta.className).toContain("border-neutral-300");
     expect(primaryCta.className).not.toContain("bg-[var(--al-primary-action-bg)]");
+    expect(primaryCta.className).toContain("font-semibold");
+    expect(primaryCta.className).toContain("text-[13px]");
+    expect(primaryCta.className).not.toContain("text-xs");
     expect(screen.getByRole("link", { name: REVIEWS_NEW_SPECIMEN_PREVIEW_FINDINGS_LINK })).toHaveAttribute(
       "href",
       showcaseSpecimenFindingsHref(),

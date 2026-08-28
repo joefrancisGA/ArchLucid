@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from ci_test_helpers import PYTHON
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 REPORT_SCRIPT = REPO_ROOT / "scripts" / "ci" / "report_first_non_obvious_moment.py"
@@ -52,7 +53,7 @@ class FirstNonObviousMomentBatchTests(unittest.TestCase):
             out_md = root / "report.md"
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(REPORT_SCRIPT),
                     "--moment-json",
                     str(moment),
@@ -95,7 +96,7 @@ class FirstNonObviousMomentBatchTests(unittest.TestCase):
             out_json = root / "report.json"
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(REPORT_SCRIPT),
                     "--moment-json",
                     str(moment),
@@ -118,7 +119,7 @@ class FirstNonObviousMomentBatchTests(unittest.TestCase):
             out_json = root / "cohort.json"
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(AGGREGATE_SCRIPT),
                     "--moments-root",
                     str(root),

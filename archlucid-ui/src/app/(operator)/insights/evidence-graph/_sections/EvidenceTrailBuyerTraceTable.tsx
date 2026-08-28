@@ -85,7 +85,7 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
               <div className={cn("break-words leading-snug text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
                 {titleFull}
               </div>
-              <Button type="button" variant="outline" size="sm" className={cn("mt-1 h-7 px-2", OPERATOR_TYPOGRAPHY.helper)} asChild>
+              <Button type="button" variant="outline" size="sm" className="mt-1 h-7 px-2" asChild>
                 <Link href={getFindingEvidenceTraceHref(runTrim, row.findingId)}>
                   Open finding
                 </Link>

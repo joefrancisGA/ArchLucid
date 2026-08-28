@@ -18201,6 +18201,121 @@
         ],
         "type": "string"
       },
+      "OperationalErrorRecord": {
+        "properties": {
+          "actorUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "category": {
+            "type": "string"
+          },
+          "correlationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "detailJson": {
+            "type": "string"
+          },
+          "exceptionType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "httpMethod": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "httpStatusCode": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "occurredUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "otelTraceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "problemType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requestPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "sqlErrorNumber": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "sqlErrorState": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "stackTrace": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "OperatorDemoReviewFindingSummary": {
         "properties": {
           "policyRuleKey": {
@@ -38763,6 +38878,9 @@
     },
     {
       "name": "MeteringAdmin"
+    },
+    {
+      "name": "OperationalErrorsAdmin"
     },
     {
       "name": "Operations"

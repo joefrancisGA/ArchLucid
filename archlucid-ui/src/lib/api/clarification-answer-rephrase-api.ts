@@ -1,6 +1,12 @@
 import { apiPostJson } from "./http";
 import { CLOUD_TARGET_QUESTION_KEY } from "@/lib/architecture/architecture-creation-question-definition";
+import {
+  filterQualityGatedInferredAnswers,
+  isReadableInferredClarificationAnswer,
+} from "@/lib/inferred-clarification-answer-quality";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
+
+const EVIDENCE_EXCERPT_MAX_CHARS = 6000;
 
 /** One clarification answer to humanize via POST /v1/architecture/request/draft/clarification-answers/rephrase. */
 export type ClarificationAnswerRephraseItem = {
@@ -35,8 +41,9 @@ export function buildClarificationRephraseItems(input: {
 }): ClarificationAnswerRephraseItem[] {
   const questionByKey = new Map(input.questions.map((question) => [question.questionKey, question]));
   const items: ClarificationAnswerRephraseItem[] = [];
+  const gatedAnswers = filterQualityGatedInferredAnswers(input.inferredAnswers);
 
-  for (const [questionKey, extractedAnswer] of Object.entries(input.inferredAnswers)) {
+  for (const [questionKey, extractedAnswer] of Object.entries(gatedAnswers)) {
     if (questionKey === CLOUD_TARGET_QUESTION_KEY) {
       continue;
     }
@@ -63,15 +70,68 @@ export function buildClarificationRephraseItems(input: {
   return items;
 }
 
+export function buildClarificationRephraseItemsForEmptyKeys(input: {
+  readonly corpus: string;
+  readonly inferredAnswers: Readonly<Record<string, string>>;
+  readonly questions: readonly DraftElicitationQuestion[];
+  readonly currentAnswers: Readonly<Record<string, string>>;
+  readonly lockedQuestionKeys: ReadonlySet<string>;
+}): ClarificationAnswerRephraseItem[] {
+  const trimmedCorpus = input.corpus.trim();
+
+  if (trimmedCorpus.length === 0) {
+    return [];
+  }
+
+  const excerpt =
+    trimmedCorpus.length > EVIDENCE_EXCERPT_MAX_CHARS
+      ? trimmedCorpus.slice(0, EVIDENCE_EXCERPT_MAX_CHARS)
+      : trimmedCorpus;
+  const items: ClarificationAnswerRephraseItem[] = [];
+
+  for (const question of input.questions) {
+    if (input.lockedQuestionKeys.has(question.questionKey)) {
+      continue;
+    }
+
+    const existingAnswer = input.currentAnswers[question.questionKey]?.trim() ?? "";
+
+    if (existingAnswer.length > 0) {
+      continue;
+    }
+
+    if (input.inferredAnswers[question.questionKey] !== undefined) {
+      continue;
+    }
+
+    if (question.questionKey === CLOUD_TARGET_QUESTION_KEY) {
+      continue;
+    }
+
+    items.push({
+      questionKey: question.questionKey,
+      questionPrompt: question.prompt,
+      extractedAnswer: `Evidence excerpt (answer only from this text):\n${excerpt}`,
+    });
+  }
+
+  return items;
+}
+
 export function mergeRephrasedClarificationAnswers(input: {
   readonly currentAnswers: Readonly<Record<string, string>>;
   readonly inferredAnswers: Readonly<Record<string, string>>;
   readonly rephrasedAnswers: Readonly<Record<string, string>>;
   readonly lockedQuestionKeys: ReadonlySet<string>;
-}): Readonly<Record<string, string>> {
+}): {
+  readonly mergedAnswers: Readonly<Record<string, string>>;
+  readonly rephrasedQuestionKeys: readonly string[];
+} {
+  const gatedInferred = filterQualityGatedInferredAnswers(input.inferredAnswers);
   const mergedAnswers: Record<string, string> = { ...input.currentAnswers };
+  const rephrasedQuestionKeys: string[] = [];
 
-  for (const [questionKey, inferredAnswer] of Object.entries(input.inferredAnswers)) {
+  for (const [questionKey, inferredAnswer] of Object.entries(gatedInferred)) {
     if (input.lockedQuestionKeys.has(questionKey)) {
       continue;
     }
@@ -83,8 +143,49 @@ export function mergeRephrasedClarificationAnswers(input: {
     }
 
     const rephrasedAnswer = input.rephrasedAnswers[questionKey]?.trim() ?? "";
-    mergedAnswers[questionKey] = rephrasedAnswer.length > 0 ? rephrasedAnswer : inferredAnswer;
+    const candidate =
+      rephrasedAnswer.length > 0 && isReadableInferredClarificationAnswer(rephrasedAnswer)
+        ? rephrasedAnswer
+        : inferredAnswer;
+
+    if (!isReadableInferredClarificationAnswer(candidate)) {
+      continue;
+    }
+
+    mergedAnswers[questionKey] = candidate;
+
+    if (rephrasedAnswer.length > 0 && rephrasedAnswer !== inferredAnswer) {
+      rephrasedQuestionKeys.push(questionKey);
+    }
   }
 
-  return mergedAnswers;
+  for (const [questionKey, rephrasedAnswer] of Object.entries(input.rephrasedAnswers)) {
+    if (input.lockedQuestionKeys.has(questionKey)) {
+      continue;
+    }
+
+    if (gatedInferred[questionKey] !== undefined) {
+      continue;
+    }
+
+    const existingAnswer = input.currentAnswers[questionKey]?.trim() ?? "";
+
+    if (existingAnswer.length > 0) {
+      continue;
+    }
+
+    const trimmed = rephrasedAnswer.trim();
+
+    if (!isReadableInferredClarificationAnswer(trimmed)) {
+      continue;
+    }
+
+    mergedAnswers[questionKey] = trimmed;
+    rephrasedQuestionKeys.push(questionKey);
+  }
+
+  return {
+    mergedAnswers,
+    rephrasedQuestionKeys,
+  };
 }

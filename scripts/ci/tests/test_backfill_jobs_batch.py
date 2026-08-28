@@ -36,14 +36,20 @@ class TestBackfillJobsBatch(unittest.TestCase):
         self.assertIn("FailureCount", text)
 
     def test_digest_dispatchers_reserve_ledger_before_send(self) -> None:
+        dispatch = (
+            REPO_ROOT / "ArchLucid.Application" / "Notifications" / "Email" / "MultiRecipientEmailDispatch.cs"
+        )
+        dispatch_text = dispatch.read_text(encoding="utf-8")
+        ledger_index = dispatch_text.index("IsRecordedAsync")
+        send_index = dispatch_text.index("SendAsync")
+        self.assertLess(ledger_index, send_index, dispatch)
+
         for relative in (
             "ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs",
             "ArchLucid.Application/Notifications/Email/WeeklySponsorSummaryEmailDispatcher.cs",
         ):
             text = (REPO_ROOT / relative).read_text(encoding="utf-8")
-            ledger_index = text.index("TryRecordSentAsync")
-            send_index = text.index("SendAsync")
-            self.assertLess(ledger_index, send_index, relative)
+            self.assertIn("MultiRecipientEmailDispatch.TrySendToMailboxesAsync", text, relative)
 
 
 if __name__ == "__main__":

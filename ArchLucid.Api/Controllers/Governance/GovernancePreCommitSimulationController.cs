@@ -71,6 +71,9 @@ public sealed class GovernancePreCommitSimulationController(
         if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem($"Run ID '{runId}' is not valid.", ProblemTypes.BadRequest);
 
+        if (Guid.Parse(runIdNormalized) == Guid.Empty)
+            return this.BadRequestProblem("Run ID is not valid.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
@@ -107,15 +110,37 @@ public sealed class GovernancePreCommitSimulationController(
 
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (string.IsNullOrWhiteSpace(body.RunId))
+            return this.BadRequestProblem("Run ID is required.", ProblemTypes.ValidationFailed);
+
         if (!TryParseRunId(body.RunId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem(
                 $"Run ID '{body.RunId}' is not valid.",
                 ProblemTypes.BadRequest);
 
+        if (Guid.Parse(runIdNormalized) == Guid.Empty)
+            return this.BadRequestProblem("Run ID is not valid.", ProblemTypes.ValidationFailed);
+
+        if (body.SyntheticCount < 0)
+            return this.BadRequestProblem("syntheticCount must be non-negative.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        Guid runGuid = Guid.Parse(runIdNormalized);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? run = await _runRepository
+            .GetByIdAsync(scope, runGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (run is null)
+        {
+            return this.NotFoundProblem(
+                $"Run '{runIdNormalized}' was not found.",
+                ProblemTypes.RunNotFound);
+        }
 
         PreCommitGateResult outcome = await gate.SimulateSyntheticFindingsAsync(
             runIdNormalized,
@@ -123,7 +148,7 @@ public sealed class GovernancePreCommitSimulationController(
             body.SyntheticCount,
             cancellationToken);
 
-        Guid? auditRunId = Guid.TryParse(runIdNormalized, out Guid runGuid) ? runGuid : null;
+        Guid? auditRunId = runGuid;
 
         await auditService.LogAsync(
             new AuditEvent

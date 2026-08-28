@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from "vitest";
 import {
   CLOUD_TARGET_QUESTION_KEY,
   DraftIntakeRequiredClarificationField,
-  REQUIRED_CLARIFICATION_BASELINE_LABEL,
 } from "./DraftIntakeRequiredClarificationField";
 import {
   GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL,
@@ -21,7 +20,7 @@ const sampleQuestion = {
 };
 
 describe("DraftIntakeRequiredClarificationField", () => {
-  it("shows baseline label when enabled, save-and-continue outline action, and skip link", () => {
+  it("shows save-and-continue outline action and skip link", () => {
     render(
       <DraftIntakeRequiredClarificationField
         question={sampleQuestion}
@@ -38,29 +37,8 @@ describe("DraftIntakeRequiredClarificationField", () => {
     expect(screen.getByTestId("socratic-question-progress")).toHaveTextContent(
       /required clarification 1 of 3/i,
     );
-    expect(screen.getByTestId("socratic-question-baseline-label")).toHaveTextContent(
-      REQUIRED_CLARIFICATION_BASELINE_LABEL,
-    );
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Skip this clarification" })).toBeEnabled();
-  });
-
-  it("hides baseline label when showBaselineLabel is false", () => {
-    render(
-      <DraftIntakeRequiredClarificationField
-        question={sampleQuestion}
-        answer=""
-        busy={false}
-        clarificationIndex={1}
-        clarificationTotal={3}
-        showBaselineLabel={false}
-        onAnswerChange={vi.fn()}
-        onSaveAndContinue={vi.fn()}
-        onSkip={vi.fn()}
-      />,
-    );
-
-    expect(screen.queryByTestId("socratic-question-baseline-label")).not.toBeInTheDocument();
   });
 
   it("uses Save answer label in show-all mode", () => {

@@ -90,13 +90,13 @@ describe("stripLeadingMarkdownHeading", () => {
 });
 
 describe("resolveArchitectureDraftCustomerStatus", () => {
-  it("returns ready-for-review when a linked review exists", () => {
+  it("returns review-linked when a linked review exists", () => {
     expect(
       resolveArchitectureDraftCustomerStatus({
         linkedReviewId: "run-001",
         reviewReadinessValid: false,
       }),
-    ).toBe("ready-for-review");
+    ).toBe("review-linked");
   });
 
   it("returns ready-for-review when fields pass review readiness without a linked review", () => {
@@ -119,9 +119,10 @@ describe("resolveArchitectureDraftCustomerStatus", () => {
 });
 
 describe("architectureDraftCustomerStatusTagKind", () => {
-  it("maps draft to gray draft, ready-for-review to blue in-progress, archived to neutral", () => {
+  it("maps draft to gray draft, ready-for-review to blue in-progress, review-linked to ready, archived to neutral", () => {
     expect(architectureDraftCustomerStatusTagKind("draft")).toBe("draft");
     expect(architectureDraftCustomerStatusTagKind("ready-for-review")).toBe("in-progress");
+    expect(architectureDraftCustomerStatusTagKind("review-linked")).toBe("ready");
     expect(architectureDraftCustomerStatusTagKind("archived")).toBe("neutral");
   });
 });

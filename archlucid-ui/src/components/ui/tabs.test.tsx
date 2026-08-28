@@ -96,6 +96,17 @@ describe("Tabs primitive (TB-665)", () => {
     expect(String(lastCall?.[2])).toContain("tab=b");
   });
 
+  it("renders line variant triggers with tab label scale (TB-2290)", () => {
+    renderThreeTabFixture();
+
+    const tabA = screen.getByRole("tab", { name: "Tab A" });
+
+    expect(tabA.className).toContain("font-semibold");
+    expect(tabA.className).toContain("text-xs");
+    expect(tabA.className).not.toContain("font-normal");
+    expect(tabA.className).not.toContain("text-[13px]");
+  });
+
   it("renders line variant triggers with underline styling by default (TB-1665)", () => {
     renderThreeTabFixture();
 

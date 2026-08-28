@@ -3946,6 +3946,7 @@ jobs:
         # packages/api-types generated module that tsconfig references.
         run: |
           npm ci
+          python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .
           npm run typecheck
 
   ui-static-quality:

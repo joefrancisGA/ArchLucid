@@ -27,6 +27,10 @@ import {
   type RunsDashboardClientLoadMode,
 } from "@/lib/operator/operator-home-runs-dashboard-client-fetch";
 import {
+  consumeOperatorHomeRunsSnapshotStale,
+  subscribeOperatorHomeLifecycleRefresh,
+} from "@/lib/operator/operator-home-lifecycle-notify";
+import {
   homeGovernanceWarningsQueryEnabled,
   resolveRunsDashboardOpenAllReviewsHref,
   resolveRunsDashboardRecentListTab,
@@ -204,14 +208,24 @@ export function useRunsDashboardPanel({
   const skipClientFetchOnMount = shouldSkipRunsDashboardClientFetchOnMount(initialModel, projectId);
 
   useEffect(() => {
-    if (skipClientFetchOnMount) {
+    const runsSnapshotStale = consumeOperatorHomeRunsSnapshotStale();
+
+    if (skipClientFetchOnMount && !runsSnapshotStale) {
       return;
     }
 
-    const mode = resolveRunsDashboardClientLoadMode(initialModel?.items.length ?? 0);
+    const mode = runsSnapshotStale
+      ? "background"
+      : resolveRunsDashboardClientLoadMode(initialModel?.items.length ?? 0);
 
     void load({ mode });
   }, [initialModel, load, skipClientFetchOnMount]);
+
+  useEffect(() => {
+    return subscribeOperatorHomeLifecycleRefresh(() => {
+      void load({ mode: "background" });
+    });
+  }, [load]);
 
   useEffect(() => {
     if (homeRefresh === null) {

@@ -48,6 +48,15 @@ public sealed partial class GovernanceController
         if (maxChanges <= 0)
             return this.BadRequestProblem("maxChanges must be greater than 0.", ProblemTypes.ValidationFailed);
 
+        if (maxPending > 50)
+            return this.BadRequestProblem("maxPending must be at most 50.", ProblemTypes.ValidationFailed);
+
+        if (maxDecisions > 50)
+            return this.BadRequestProblem("maxDecisions must be at most 50.", ProblemTypes.ValidationFailed);
+
+        if (maxChanges > 50)
+            return this.BadRequestProblem("maxChanges must be at most 50.", ProblemTypes.ValidationFailed);
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
@@ -127,6 +136,11 @@ public sealed partial class GovernanceController
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
 
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
+
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
             .ConfigureAwait(false);
@@ -171,6 +185,11 @@ public sealed partial class GovernanceController
             return tenantProblem;
 
         approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
 
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)

@@ -185,7 +185,6 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
       if (options.draft !== null) {
         upsertArchitectureDraftRegistryEntry(
           buildArchitectureDraftRegistryEntry(options.draft, {
-            customerStatus: "ready-for-review",
             linkedReviewId: options.linkedReviewId,
           }),
         );

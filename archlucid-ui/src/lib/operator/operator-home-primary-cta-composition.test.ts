@@ -19,15 +19,15 @@ describe("operator home primary CTA composition (TB-1539)", () => {
     expect(isPersistentWorkspaceNextActionStripPath("/")).toBe(false);
   });
 
-  it("collapses lifecycle alternatives when a draft primary owns the viewport", () => {
+  it("keeps lifecycle alternatives visible when a draft primary owns the viewport", () => {
     const source = readFileSync(
       join(UI_ROOT, "src/components/operator-home/OperatorHomeLifecycleAlternativesDisclosure.tsx"),
       "utf8",
     );
 
     expect(source).toContain("pagePrimaryOwnedElsewhere");
-    expect(source).toContain("defaultExpanded={false}");
-    expect(source).toContain("OperatorHomeDisclosureSection");
+    expect(source).toContain("OperatorHomeDualPathCards");
+    expect(source).not.toContain("OperatorHomeDisclosureSection");
   });
 
   it("demotes lifecycle card primaries before emphasized-path promotion in dual-path cards", () => {

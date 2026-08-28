@@ -36,4 +36,20 @@ describe("buildArchitectureIntakeInferenceCorpus", () => {
     expect(corpus).toContain("Microsoft Azure");
     expect(corpus).toContain("architecture handbook pdf");
   });
+
+  it("reuses cached binary document text on a second corpus build for the same File", async () => {
+    mockedExtract.mockResolvedValue({
+      ok: true,
+      text: "Cached Azure architecture context.",
+      truncated: false,
+    });
+
+    const file = new File(["binary"], "architecture-handbook.pdf", { type: "application/pdf" });
+    const input = { briefText: "", evidenceFiles: [file] };
+
+    await buildArchitectureIntakeInferenceCorpus(input);
+    await buildArchitectureIntakeInferenceCorpus(input);
+
+    expect(mockedExtract).toHaveBeenCalledTimes(1);
+  });
 });

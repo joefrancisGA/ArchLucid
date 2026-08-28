@@ -102,7 +102,7 @@ export function PlanningBridgePanel(props: Props) {
           type="button"
           className={cn(
             "rounded-md bg-neutral-900 px-3 py-2 text-white hover:bg-neutral-800 disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white",
-            OPERATOR_TYPOGRAPHY.button,
+            OPERATOR_TYPOGRAPHY.nativeControlLabel,
           )}
           disabled={blocked}
           onClick={() => void materialize()}

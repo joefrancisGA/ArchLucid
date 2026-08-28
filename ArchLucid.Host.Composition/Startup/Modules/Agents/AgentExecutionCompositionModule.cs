@@ -106,7 +106,7 @@ public static class AgentExecutionCompositionModule
         ContentSafetyCompositionModule.Register(services, configuration);
         AgentLlmSupportCompositionModule.Register(services, configuration);
         LlmBatchCompositionModule.Register(services, configuration);
-        AgentModelTierCompositionModule.Register(services, configuration);
+        AgentRuntimeCompositionModule.Register(services, configuration);
 
                 bool allowDevAgentExecutionModeHeaderOverride = configuration.GetValue(
                     $"{DeveloperExperienceOptions.SectionName}:{nameof(DeveloperExperienceOptions.AllowAgentExecutionModeHeaderOverride)}",
@@ -166,6 +166,11 @@ public static class AgentExecutionCompositionModule
                     services.AddScoped<IInsightDensityLlmJudge, PremiumInsightDensityLlmJudge>();
                     services.AddScoped<IAgentResultParser, AgentResultParser>();
 
+                    if (allowDevAgentExecutionModeHeaderOverride)
+                    {
+                        DevAgentCompletionPipelineRegistrar.RegisterDevSimulatorCompletionClient(services);
+                    }
+
                     if (useEchoClient)
                     {
                         AgentEchoExecutorRegistrar.Register(services);
@@ -174,9 +179,25 @@ public static class AgentExecutionCompositionModule
                     {
                         AgentAzureOpenAiExecutorRegistrar.Register(services, configuration);
                     }
-                    else
-
+                    else if (!allowDevAgentExecutionModeHeaderOverride)
+                    {
                         AgentCompletionPipelineCompositionModule.RegisterFakeClient(services);
+                    }
+
+                    if (allowDevAgentExecutionModeHeaderOverride)
+                    {
+                        DevAgentCompletionPipelineRegistrar.RegisterDevSwitchableCompletionClient(
+                            services,
+                            useAzureOpenAi,
+                            useEchoClient);
+
+                        if (!useAzureOpenAi && !useEchoClient)
+                        {
+                            AgentCompletionPipelineCompositionModule.RegisterSchemaRemediationClient(
+                                services,
+                                useAzureOpenAi: false);
+                        }
+                    }
 
                 }
 
