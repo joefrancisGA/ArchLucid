@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 67
-- **bugs-found:** 198
+- **hunts:** 69
+- **bugs-found:** 204
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — stickiness register maxRows bounds return 400 instead of silent clamp
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — decision-register filter validation, manifest summary maxRelationships bounds, pre-commit syntheticCount cap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2442,6 +2442,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — negative `syntheticCount` reached `PreCommitGovernanceGate` and surfaced HTTP 500 — **hit 2026-08-27:** controller rejects `syntheticCount < 0` before gate call; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard` — **hit 2026-08-27:** `ValidateRegisterMaxRows` on register GETs; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — inverted `recordedAfterUtc`/`recordedBeforeUtc` returned HTTP 200 empty register instead of HTTP 400 — **hit 2026-08-28:** controller validates date ordering before facade call (compliance-drift-trend parity); regression in `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_recorded_after_is_after_recorded_before`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionRegister` — inverted `minConfidence`/`maxConfidence` returned HTTP 200 empty register instead of HTTP 400 — **hit 2026-08-28:** controller rejects min > max before SQL filter construction; regression in `GovernanceStickinessControllerTests.GetDecisionRegister_returns_bad_request_when_min_confidence_exceeds_max_confidence`.
+- [x] (proven) `ManifestsController.GetManifestSummary` — `maxRelationships <= 0` or above `ManifestSummaryLimits.MaxRelationships` silently clamped via `Math.Clamp` instead of HTTP 400 — **hit 2026-08-28:** explicit query bounds (stickiness `maxRows` parity); regression in `ManifestsControllerTests`.
+- [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — `syntheticCount > 500` reached `PreCommitGovernanceGate` O(n) loop despite DTO `[Range(0,500)]` because controller only guarded negatives — **hit 2026-08-28:** explicit upper-bound check before scoped-run preflight; regression in `GovernancePreCommitSimulationControllerTests.Simulate_returns_bad_request_when_synthetic_count_exceeds_five_hundred`.
+- [ ] (candidate) `GovernanceController.DryRunPolicyPack` — `pageSize`/`page` silently clamped in `PolicyPackDryRunService` instead of HTTP 400 (may be intentional Q38 server-clamp contract).
+- [ ] (candidate) `GovernanceStickinessController.GetDecisionRegister` — unknown `buyerConfidenceSource` label filters to `Unknown`/`NotComputed` only instead of HTTP 400.
+- [ ] (candidate) `GovernanceStickinessController.RecordDisposition` — `Deferred` disposition with past `revisitDueUtc` persists without future-date validation (risk-exception renew enforces future expiry).
+- [ ] (candidate) `GovernanceController.GetComplianceDriftTrend` — wide date window with minimum `bucketMinutes` can request unbounded bucket iteration before service call.
+
+2026-08-28 seed hunt #168: proved decision-register inverted filters, manifest summary `maxRelationships` bounds, and pre-commit `syntheticCount` upper cap; seeded dry-run pagination, buyer-confidence label, disposition revisit, and drift-trend bucket candidates.
 
 2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 
