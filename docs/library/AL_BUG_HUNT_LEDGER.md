@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 67
-- **bugs-found:** 198
+- **hunts:** 69
+- **bugs-found:** 200
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — stickiness register maxRows bounds return 400 instead of silent clamp
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — pilot value report Accept q-value negotiation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2442,6 +2442,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — negative `syntheticCount` reached `PreCommitGovernanceGate` and surfaced HTTP 500 — **hit 2026-08-27:** controller rejects `syntheticCount < 0` before gate call; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard` — **hit 2026-08-27:** `ValidateRegisterMaxRows` on register GETs; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `TenantPilotValueReportController.GetPilotValueReport` — mixed `Accept` header with higher JSON quality still returned `text/markdown` because controller used substring match — **hit 2026-08-28:** `PilotValueReportAcceptFormat.PrefersMarkdown` resolves q-values and order; regression in `PilotValueReportAcceptFormatTests` and `TenantPilotValueReportControllerTests`.
+- [ ] (candidate) `GovernanceStickinessController.GetReviewsAwaitingAction` / `ReviewsAwaitingActionQueryService.ListAsync` — parsed recurrence `sourceRunId` echoed without scoped `IRunRepository.GetByIdAsync` preflight (create-recurrence parity gap).
+- [ ] (candidate) `ConnectorOperationsSummaryReader.BuildDigestAdvisorySurface` — summary labels `enabledSubs` count as "digest subscription row(s)" while total disabled rows are omitted from wording.
+- [x] (invalid) `TenantMeasuredRoiController.GetAsync` — audit snapshot uses default-scope rows for non-demo tenants — **cheap-disproof 2026-08-28:** re-verify intentional demo/commercial composition per ledger hunt #92 / `TenantMeasuredRoiEndpointTests`.
+- [x] (invalid) `TenantPilotValueReportController.GetPilotValueReport` — inverted `fromUtc`/`toUtc` should return HTTP 400 — **cheap-disproof 2026-08-28:** re-verify intentional `EmptyReport` for `to <= from` per `PilotValueReportServiceTests`.
+
+2026-08-28 seed hunt #164: proved pilot value report Accept q-value negotiation; reseeded reviews-awaiting-action sourceRunId and connector digest-advisory summary candidates; cheap-disproved measured ROI and inverted date-window retries.
 
 2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 
