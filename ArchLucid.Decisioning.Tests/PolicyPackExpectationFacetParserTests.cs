@@ -74,6 +74,17 @@ public sealed class PolicyPackExpectationFacetParserTests
     }
 
     [Fact]
+    public void Parse_breach_severity_numeric_string_out_of_range_returns_null()
+    {
+        PolicyPackContentDocument invalid = new()
+        {
+            AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostBreachSeverity] = "99" },
+        };
+
+        PolicyPackExpectationFacetParser.Parse(invalid).BreachSeverity.Should().BeNull();
+    }
+
+    [Fact]
     public void Parse_bundled_finops_cost_optimization_requires_budget_cap()
     {
         string? repoRoot = TryFindRepoRoot();
