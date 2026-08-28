@@ -252,7 +252,10 @@ public sealed class PolicyPacksControllerListScopeTests
 
         IActionResult result = await sut.SimulateBulk(
             packId,
-            new PolicyPackSimulateBulkRequest { RunIds = ["run-1"] },
+            new PolicyPackSimulateBulkRequest
+            {
+                RunIds = [Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee").ToString("D")],
+            },
             CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
