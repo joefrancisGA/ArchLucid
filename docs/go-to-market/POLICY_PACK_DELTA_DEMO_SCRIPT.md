@@ -79,6 +79,10 @@ X-Project-Id: {projectId}
 
 **Honesty:** SOC 2 assignment alone does **not** add topology `identity` unless that pack's `advisoryDefaults` includes `expectation.topologyCategories.add=identity`. See [`docs/quality/policy-filter-golden-delta.md`](../quality/policy-filter-golden-delta.md).
 
+**Priority-floor caveat (PP-01, measured 2026-08-28).** Bundled packs ship **`priorityFloor: P0`**, and floor `P0` evaluates **only** `P0` rules. At that pilot default the packs that move declaration rows are **Security Architecture Baseline** (`data-protection` via `sec-base-006`), the **AKS/EKS/GKE** baselines (`workload-isolation`), **GDPR** (`encryption`, `transport-security`), and **PCI DSS** (`data-protection`, `network-isolation`). **SOC 2 and CIS Azure move declaration rows only when the assignment is widened to `P1`** — SOC 2 to `encryption` + `transport-security` (`soc2-003`, `soc2-004`), CIS Azure to `data-protection` (`cis-az-006`). **HIPAA, ISO 27001, and Zero Trust move none at any floor** until the curated rule catalog is extended.
+
+Use a **`P1` arm** for the SOC 2 vs CIS Azure comparison, or compare **Security Architecture Baseline vs an AKS baseline** at shipped defaults. Do **not** narrate SOC 2 or CIS Azure as emitting declaration rows at the `P0` default, and do not claim HIPAA/ISO 27001/Zero Trust declaration coverage.
+
 Optional: `.\scripts\demo-policy-pack-delta.ps1 -RunId … -ShowFindingDelta` dry-runs bundled SOC 2 vs CIS Azure sample packs and prints compliance rule-key deltas for the same review. Declaration and topology-extra finding proof remains the golden tests below unless the API exposes a finding diff without persist.
 
 ```powershell

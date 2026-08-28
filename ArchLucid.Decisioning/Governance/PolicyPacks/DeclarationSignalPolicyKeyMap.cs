@@ -7,6 +7,29 @@ namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 ///     SOC 2, GDPR, HIPAA, ISO 27001, PCI-DSS, Zero Trust, security baseline, and AKS/EKS/GKE packs.
 ///     Used when the tenant's filtered compliance pack opts into this vocabulary.
 /// </summary>
+/// <remarks>
+///     <para>
+///         A mapped id only enables a theme when it survives the tenant's <c>priorityFloor</c>. Bundled packs ship
+///         <c>priorityFloor: P0</c> and floor <c>P0</c> evaluates <em>only</em> P0 rules
+///         (<c>POLICY_PACK_RULE_PRIORITY_MODEL.md</c> §Inclusion rule), so a theme mapped exclusively to P1/P2 ids
+///         stays silent on a pilot posture even though the framework is assigned. Include a framework's P0-tier
+///         control whenever one genuinely governs the theme.
+///     </para>
+///     <para>
+///         Never map a control that does not govern what
+///         <see cref="ArchLucid.Decisioning.Analysis.DeclarationSecurityBaselineClassifier" /> actually detects.
+///         Findings cite the mapped id as <c>PolicyRuleId</c>, so a loose mapping is a false attribution on buyer
+///         exports — worse than emitting nothing. Identity, workload-identity, and data-labeling controls are
+///         deliberately excluded for that reason.
+///     </para>
+///     <para>
+///         Some ids here are not yet present in the merged file catalog
+///         (<c>default-compliance.rules.json</c> + <c>ga-starter-compliance.rules.json</c>), so they cannot enable a
+///         theme at runtime until that catalog carries the rule. See
+///         <c>BundledPolicyPackDeclarationThemeTests</c> for the enumerated set and
+///         <c>docs/quality/policy-filter-golden-delta.md</c> for the measured per-pack outcome.
+///     </para>
+/// </remarks>
 public static class DeclarationSignalPolicyKeyMap
 {
     private static readonly IReadOnlyDictionary<string, HashSet<string>> ThemeToRuleIds =
@@ -17,6 +40,7 @@ public static class DeclarationSignalPolicyKeyMap
                 "cis-az-006", // Storage account public access disabled
                 "cis-az-009", // Storage network rules restrict public endpoints
                 "cis-az-012", // SQL public network access restricted
+                "sec-base-006", // Data stores avoid public internet exposure (P0 — survives the pilot floor)
                 "sec-base-028", // Private endpoints mandatory for regulated-class datastores
                 // CIS AWS peers
                 "cis-aws-006", // Storage account public access disabled
@@ -71,19 +95,26 @@ public static class DeclarationSignalPolicyKeyMap
                 "zta-007", // Micro-segmentation for workloads
                 "pci-002",
                 "pci-003",
-                "iso27001-025"),
+                "iso27001-025",
+                // Pod network policy for east-west segmentation; hostNetwork=true bypasses it.
+                "aks-003",
+                "eks-003",
+                "gke-003"),
             ["workload-isolation"] = CreateThemeSet(
                 "cis-az-027", // Kubernetes API server access restricted
                 "sec-base-028",
                 "cis-aws-027", // Kubernetes API server access restricted (EKS)
                 "cis-gcp-027", // Kubernetes API server access restricted (GKE)
                 "aks-001", // Private AKS API server endpoint
+                "aks-002", // Authorized API-server IP ranges when not fully private (P0)
                 "aks-009", // Pod security standards enforced
                 "aks-021", // Disallow hostPath and privileged mounts
                 "eks-001",
+                "eks-002",
                 "eks-009",
                 "eks-021",
                 "gke-001",
+                "gke-002",
                 "gke-009",
                 "gke-021"),
         };
