@@ -363,4 +363,41 @@ public sealed class GovernanceControllerDashboardTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         drift.VerifyNoOtherCalls();
     }
+
+    [Fact]
+    public async Task GetComplianceDriftTrend_returns_bad_request_when_bucket_count_exceeds_five_hundred()
+    {
+        DateTime fromUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = fromUtc.AddDays(21);
+        const int bucketMinutes = 60;
+
+        GovernanceController sut = new(
+            Mock.Of<IGovernanceWorkflowService>(),
+            Mock.Of<IGovernanceApprovalRequestRepository>(),
+            Mock.Of<IGovernancePromotionRecordRepository>(),
+            Mock.Of<IGovernanceEnvironmentActivationRepository>(),
+            Mock.Of<IActorContext>(),
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<IGovernanceDashboardService>(),
+            Mock.Of<IGovernanceLineageService>(),
+            Mock.Of<IGovernanceRationaleService>(),
+            Mock.Of<IComplianceDriftTrendService>(),
+            Mock.Of<IPolicyPackDryRunService>(),
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
+            Mock.Of<IPolicyPackSchemaKeysService>(),
+            Mock.Of<Core.Audit.IAuditService>(),
+            Mock.Of<IPolicyPackDraftService>(),
+            Mock.Of<IPolicyPackGeneratorService>(),
+            Mock.Of<ITenantRepository>(),
+            NullLogger<GovernanceController>.Instance)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await sut.GetComplianceDriftTrend(fromUtc, toUtc, bucketMinutes, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
 }
