@@ -35,10 +35,16 @@ public sealed partial class GovernanceStickinessController
 
         findingId = NormalizeFindingId(findingId);
 
+        if (string.IsNullOrWhiteSpace(findingId))
+            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        if (request.RunId == Guid.Empty)
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
         RecordFindingDispositionRequest normalized = new()
         {
@@ -127,9 +133,13 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("findings/{findingId}/dispositions")]
     [ProducesResponseType(typeof(IReadOnlyList<FindingDispositionEventDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ListDispositions(string findingId, CancellationToken cancellationToken = default)
     {
         findingId = NormalizeFindingId(findingId);
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
@@ -146,6 +156,7 @@ public sealed partial class GovernanceStickinessController
     [HttpPost("runs/{runId:guid}/finding-merge-conflicts/{findingId}/resolve")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [MutatingAuditExcluded("Audit: IGovernanceStickinessFacade.TryResolveFindingMergeConflictAsync logs FindingMergeConflictResolved.")]
     public async Task<IActionResult> ResolveFindingMergeConflict(
@@ -159,10 +170,16 @@ public sealed partial class GovernanceStickinessController
 
         findingId = NormalizeFindingId(findingId);
 
+        if (string.IsNullOrWhiteSpace(findingId))
+            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        if (runId == Guid.Empty)
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
         try
         {
