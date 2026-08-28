@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 69
-- **bugs-found:** 203
+- **hunts:** 71
+- **bugs-found:** 210
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — governance coverage, posture, and setup-guide ghost workspace 404 parity
+- **last-bug:** 2026-08-28 — governance stickiness and pre-commit simulation ghost workspace 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2447,6 +2447,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceCoverageController` (`GetScopeCoverage`, `PreviewCoverage`) — ghost workspace returned HTTP 200 empty coverage instead of workspace 404; `GetByScopeAsync` / `PreviewAsync` use ambient workspace but controller only called `GetByIdAsync` — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `GovernanceCoverageControllerScopeTests` workspace-missing tests.
 - [x] (proven) `GovernancePostureController.GetPosture` — ghost workspace returned HTTP 200 empty posture summary instead of workspace 404; `GetSummaryAsync` passes `scope.WorkspaceId` but controller only preflighted tenant row — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `GovernancePostureControllerTests.GetPosture_returns_not_found_when_workspace_missing`.
 - [x] (proven) `GovernanceSetupController.GetSetupGuideBundle` — ghost workspace returned HTTP 200 setup bundle instead of workspace 404; resolver and alert routing list by workspace scope but controller only called `GetByIdAsync` — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `GovernanceSetupControllerTests.GetSetupGuideBundle_returns_not_found_when_workspace_missing`.
+- [x] (proven) `TenantPilotValueReportController` (`GetPilotValueReport`, `GetRoiSummaryPageBundle`) — ghost workspace returned HTTP 200 pilot/ROI payload instead of workspace 404; service checked tenant row only — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantPilotValueReportControllerTests` workspace-missing tests.
+- [x] (proven) `TenantLlmCostReportingController.GetDashboard` — ghost workspace returned HTTP 200 empty LLM cost dashboard instead of workspace 404; `BuildDashboardAsync` is workspace-scoped but controller only preflighted tenant row — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantLlmCostReportingControllerTests.GetDashboard_returns_not_found_when_workspace_missing`.
+- [x] (proven) `TenantIntegrationsOperationsController.GetAsync` — ghost workspace returned HTTP 200 connector posture instead of workspace 404; `GetSummaryAsync(scope, …)` uses ambient workspace but controller only called `GetByIdAsync` — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantIntegrationsOperationsControllerTests.GetAsync_returns_not_found_when_workspace_missing`.
+- [x] (proven) `CorePilotTeamChecklistController` (`GetAsync`, `PutAsync`) — ghost workspace returned HTTP 200 empty checklist / 204 mutation instead of workspace 404; repository uses ambient workspace but controller only preflighted tenant row — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `CorePilotTeamChecklistControllerTests` workspace-missing tests.
+- [x] (proven) `TenantWorkspaceBaselineArtifactsController.GetAsync` — ghost workspace returned HTTP 200 `{ hasBaselineArtifacts: false }` instead of workspace 404; `GetWorkspaceBaselineArtifactsAsync` uses ambient workspace but controller only called `GetByIdAsync` — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantWorkspaceBaselineArtifactsControllerTests.GetAsync_returns_not_found_when_workspace_missing`.
+- [ ] (hunt-ready) `GovernanceStickinessController` register/disposition reads — ghost workspace returns HTTP 200 empty registers instead of workspace 404; `IGovernanceStickinessFacade` queries by ambient workspace but `RequireTenantOrNotFoundAsync` only calls `GetByIdAsync` (`GovernanceStickinessController.cs` L50–58).
+- [ ] (hunt-ready) `GovernancePreCommitSimulationController` (`GetChecklistAsync`, `SimulateAsync`) — ghost workspace returns HTTP 200 simulation/checklist instead of workspace 404; `_runRepository.GetByIdAsync(scope, …)` is workspace-scoped but `RequireTenantOrNotFoundAsync` only preflights tenant row (`GovernancePreCommitSimulationController.cs` L49–57).
+
+2026-08-28 seed hunt #152: proved five remaining tenancy workspace-preflight gaps; reseeded governance stickiness and pre-commit simulation workspace preflight candidates as hunt-ready.
 
 2026-08-28 thorough hunt #151: proved governance coverage, posture, and setup-guide ghost-workspace 404 parity; zone hunt-ready backlog cleared.
 
