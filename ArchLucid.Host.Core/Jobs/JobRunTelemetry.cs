@@ -1,15 +1,21 @@
 using System.Diagnostics;
 using System.Globalization;
 
+using ArchLucid.Application.OperationalErrors;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.OperationalErrors;
 
 namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>Structured start/end logging for one-shot jobs (Log Analytics / Application Insights queries).</summary>
-public sealed class JobRunTelemetry(ILogger<JobRunTelemetry> logger)
+public sealed class JobRunTelemetry(
+    ILogger<JobRunTelemetry> logger,
+    IOperationalErrorCaptureService? operationalErrorCapture = null)
 {
     private readonly ILogger<JobRunTelemetry> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IOperationalErrorCaptureService? _operationalErrorCapture = operationalErrorCapture;
 
     /// <summary>Runs <paramref name="execute"/> between <c>JobStarted</c> / <c>JobCompleted</c> log pairs.</summary>
     public async Task<int> RunWithTelemetryAsync(string jobName, Func<CancellationToken, Task<int>> execute, CancellationToken cancellationToken)
@@ -55,6 +61,18 @@ public sealed class JobRunTelemetry(ILogger<JobRunTelemetry> logger)
                 "JobFailed: JobName={JobName}, DurationMs={DurationMs}",
                 jobName,
                 sw.ElapsedMilliseconds);
+
+            _operationalErrorCapture?.TryCapture(new OperationalErrorCaptureRequest
+            {
+                Source = OperationalErrorSource.BackgroundJob,
+                Category = OperationalErrorCategory.UnhandledException,
+                Exception = ex,
+                DetailFields = new Dictionary<string, string>
+                {
+                    ["jobName"] = jobName,
+                    ["durationMs"] = sw.ElapsedMilliseconds.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                }
+            });
 
             return ArchLucidJobExitCodes.JobFailure;
         }
