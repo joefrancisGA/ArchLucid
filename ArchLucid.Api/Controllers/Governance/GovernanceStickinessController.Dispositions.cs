@@ -35,6 +35,9 @@ public sealed partial class GovernanceStickinessController
 
         findingId = NormalizeFindingId(findingId);
 
+        if (string.IsNullOrWhiteSpace(findingId))
+            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)

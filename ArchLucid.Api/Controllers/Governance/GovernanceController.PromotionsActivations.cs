@@ -257,9 +257,9 @@ public sealed partial class GovernanceController
 
         if (!Guid.TryParse(runId, out Guid runGuid))
         {
-            return (this.NotFoundProblem(
-                $"Run '{runId}' was not found.",
-                ProblemTypes.RunNotFound), null);
+            return (this.BadRequestProblem(
+                $"Run id '{runId}' is not valid.",
+                ProblemTypes.ValidationFailed), null);
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
