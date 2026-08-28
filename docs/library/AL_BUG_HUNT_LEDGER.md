@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 85
-- **bugs-found:** 235
+- **hunts:** 86
+- **bugs-found:** 236
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — approval-request audit manifestVersion trim parity
+- **last-bug:** 2026-08-28 — dry-run null proposedThresholds guard and workflow environment trim parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2482,6 +2482,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `PolicyPacksController.SimulateBulk` — more than 50 `runIds` where trailing entries are malformed may return HTTP 400 for count cap before per-id validation surfaces the malformed id — **cheap-disproof 2026-08-28:** intentional validation ordering (count cap before per-id GUID parse), aligned with `DryRunPolicyPack`; both return HTTP 400; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **hit 2026-08-28:** emit per-item `ValidationFailed` for duplicate ids while processing first occurrence (whitespace per-item parity); regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_validation_failed_per_item_when_approval_request_id_is_duplicated`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` query params may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-28:** `LoadAndCompareManifestPairAsync` delegates to `GetManifestInScopeAsync` which trims before lookup; added `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
+
+2026-08-28 seed hunt #199 (hit): proved dry-run null `proposedThresholds` guard and submit/promote padded environment trim parity; seeded activate environment trim and preview DTO normalization candidates.
+
+- [x] (proven) `GovernanceController.DryRunPolicyPack` — explicit JSON `null` `proposedThresholds` reached service `ArgumentNullException` → HTTP 500 — **hit 2026-08-28:** null guard before `EvaluateAsync` (evaluateAgainstRunIds null-list parity); regression in `GovernanceControllerSimulateTests`.
+- [x] (proven) `GovernanceController.SubmitApprovalRequest` / `GovernanceWorkflowSubmitStage` — padded `sourceEnvironment`/`targetEnvironment` failed `IsValidPromotion` despite manifest trim parity — **hit 2026-08-28:** trim environments in submit/promote workflow stages before validation; regression in `GovernanceWorkflowFacadeTests`.
+- [ ] (candidate) `GovernanceController.Activate` / `GovernanceWorkflowActivateStage` — padded `environment` may miss activation lookups and persist padded labels (`GetByEnvironmentAsync` exact match gap).
+- [ ] (candidate) `GovernancePreviewController.Preview` — forwards untrimmed `runId`/`manifestVersion`/`environment` into `GovernancePreviewRequest` while validation trims `runId` only (service trims; controller DTO normalization parity gap).
 
 2026-08-28 thorough hunt #198 (hit): proved approval-request audit manifestVersion trim parity; cheap-disproved dry-run pageSize clamp candidate (Q38 documented server-clamp); zone candidate backlog cleared.
 
