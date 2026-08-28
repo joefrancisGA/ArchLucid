@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 11
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` missed PascalCase `FaithfulnessSupportRatio`, letting low-ratio aggregates resolve as PASS
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1781,6 +1781,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
 - [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
+- [x] (proven) `FindingJsonConverter.EnumReaders` string paths for `severity`, `enforcementTier`, `humanReviewStatus`, `treatment`, and `classification` accept numeric-string `"99"` via bare `Enum.TryParse` while JSON number paths guard with `Enum.IsDefined` — **hit 2026-08-28 (#217):** top-level string tokens bypassed guards added only on properties/evaluationConfidenceLevel paths; fixed with `Enum.IsDefined` after `TryParse`; regressions in `Deserialize_severity_numeric_string_out_of_range_throws`, `Deserialize_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_humanReviewStatus_numeric_string_out_of_range_throws`.
+- [x] (proven) `FindingEnforcementTierClassifier.TryReadTierFromProperties` accepts undefined `properties.enforcementTier` via bare `Enum.TryParse` — **hit 2026-08-28 (#217):** numeric-string `"99"` short-circuited classification; fixed with `Enum.IsDefined` guard (`ClassifyFinding_ignores_undefined_enforcement_tier_property_value`).
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` accepts undefined severity strings via bare `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-28 (#217):** numeric-string `"99"` hydrated as cast ordinal; fixed with `Enum.IsDefined` guard (`Parse_breach_severity_valid_and_invalid`).
+- [x] (proven) `TenantItsmConnectorConnectionUpsertValidation.TryParseProvider` rejects `"Azure Boards"` display label while `ToProviderLabel` emits it — **hit 2026-08-28 (#217):** operator upsert with human-readable provider label failed validation; fixed with display-label alias (`TryParseProvider_accepts_jira_and_servicenow`).
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` uses case-sensitive `TryGetProperty` for faithfulness signals — PascalCase `"FaithfulnessSupportRatio"` / `"DeterministicFallbackUsed"` missed so low-ratio aggregates resolve as PASS — **hit 2026-08-28 (#217):** fixed with case-insensitive property lookup (`RunExplanationConfidenceCalloutBuilder_FromAggregateJson_and_limitations`).
+- [x] (valid-no-repro) `DecisionConfidenceSourceMapper.ToBuyerLabel` accepts undefined enum ordinals via bare `Enum.TryParse` — numeric-string `"99"` parses to cast ordinal but `ToBuyerLabel(parsed)` falls through to `Unknown`; buyer label stays safe.
+- [x] (invalid) `QualityGateWarnOnlyProductionLikeConfigurationLint` accepts undefined `AgentOutputQualityGateMode` ordinals — lint only flags `WarnOnly` mode in production-like config; undefined ordinal `99` does not match `WarnOnly` and does not suppress the lint.
 
 ---
 
