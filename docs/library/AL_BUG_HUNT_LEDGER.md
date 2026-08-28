@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 13
-- **bugs-found:** 21
+- **hunts:** 14
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` case-sensitive on faithfulness aggregate fields dropped PascalCase exporter labels and returned PASS instead of HOLD/WARN
+- **last-bug:** 2026-08-28 — `RealLlmOutputStructuralValidator` case-sensitive property lookup rejected PascalCase `AgentResult` envelopes at the golden-cohort structural gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1786,8 +1786,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadOptionalString` numeric coercion gap — numeric `agentExecutionTraceId` tokens failed `GetString()` instead of coercing — **hit 2026-08-28 (#255):** `TryGetInt64` coercion (`Deserialize_numeric_agentExecutionTraceId_coerces_to_string`).
 - [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` case-sensitive on `correlationId` — PascalCase `"CorrelationId"` omitted from Service Bus publish correlation when activity tag unset — **hit 2026-08-28 (#255):** `TryGetStringPropertyCaseInsensitive` (`TryResolveForPublish_reads_PascalCase_correlationId_from_payload_when_activity_unset`; sibling `IntegrationEventServiceBusApplicationProperties` severity parity).
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` case-sensitive on `faithfulnessSupportRatio`, fallback flags, `faithfulnessWarning`, and `citations` — PascalCase exporter labels silently default to PASS disposition on proof-packet reload — **hit 2026-08-28 (#257):** `TryGetPropertyCaseInsensitive` (`RunExplanationConfidenceCalloutBuilder_FromAggregateJson_reads_PascalCase_property_names`).
-- [ ] (candidate) `RealLlmOutputStructuralValidator` case-sensitive on `agentType`, `findings`, and nested `trace` fields — PascalCase LLM output envelopes may bypass structural validation gates.
-- [ ] (candidate) `GoldenCorpus` aggregate JSON readers outside `FindingJsonConverter` — additional case-sensitive property lookups may drop exporter PascalCase labels on reload paths not covered by finding serialization.
+- [x] (proven) `RealLlmOutputStructuralValidator` case-sensitive on `agentType`, `findings`, and nested `trace` fields — PascalCase LLM output envelopes failed structural validation despite valid shape — **hit 2026-08-28 (#259):** `TryGetPropertyCaseInsensitive` on top-level keys, findings, trace lists, severity, and content fields (`ValidateAgentResultStructure_accepts_PascalCase_property_names`).
+- [ ] (candidate) `GoldenCorpus` aggregate JSON readers outside `FindingJsonConverter` / `RealLlmOutputStructuralValidator` — additional case-sensitive property lookups may drop exporter PascalCase labels on reload paths.
+
+2026-08-28 seed hunt #259: re-shipped #255/#257 fixes on master; proved `RealLlmOutputStructuralValidator` PascalCase envelope parse; narrowed golden-corpus reader candidate backlog.
 
 2026-08-28 seed hunt #257: re-shipped #255 `FindingJsonConverter` / `IntegrationEventServiceBusCorrelationId` fixes on master; proved `RunExplanationConfidenceCalloutBuilder` PascalCase aggregate parse; seeded golden-corpus structural-validator candidates.
 
