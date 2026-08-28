@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 11
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — `FindingJsonConverter` top-level string enum paths accepted undefined numeric-string ordinals while properties-bag path already guarded
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1781,6 +1781,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
 - [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
+- [x] (proven) `FindingJsonConverter.EnumReaders` top-level string paths for `enforcementTier`, `humanReviewStatus`, `treatment`, `classification`, and `severity` accept numeric-string `"99"` via bare `Enum.TryParse` while properties-bag / numeric JSON paths guard with `Enum.IsDefined` — **hit 2026-08-28 (#223):** top-level string tokens bypassed guards added only on properties path; fixed with `ReadEnforcementTierFromString` reuse and numeric-string + `IsDefined` checks (`Deserialize_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_humanReviewStatus_numeric_string_out_of_range_throws`).
+- [x] (proven) `FindingEnforcementTierClassifier.TryReadTierFromProperties` accepts undefined `properties.enforcementTier` via bare `Enum.TryParse` — **hit 2026-08-28 (#223):** numeric-string `"99"` short-circuited classification; fixed with `Enum.IsDefined` guard (`ClassifyFinding_ignores_undefined_enforcement_tier_property_value`).
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` uses case-sensitive `TryGetProperty("correlationId")` — PascalCase `"CorrelationId"` omitted so Service Bus publish loses payload correlation fallback when activity tag unset — **hit 2026-08-28 (#223):** fixed with case-insensitive property lookup (`TryResolveForPublish_reads_PascalCase_CorrelationId_from_payload_when_activity_unset`).
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` reads `correlationId` only when the JSON token is a string — numeric correlation ids returned null and dropped Service Bus publish correlation fallback — **hit 2026-08-28 (#223):** accept string or number tokens (`TryResolveForPublish_reads_numeric_correlationId_from_payload_when_activity_unset`).
+- [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryGetStringPropertyCaseInsensitive` uses `GetString()` only — numeric JSON `deduplicationKey` threw and dropped Service Bus subscription filter properties — **hit 2026-08-28 (#223):** accept string or number tokens (`TryResolveForPublish_alert_resolved_maps_numeric_deduplication_key`).
+- [x] (proven) `AgentModelExecutionProfileParser.TryParse` rejects `"High Assurance"` display label while accepting `"high-assurance"` — **hit 2026-08-28 (#223):** operator tenant-setting labels failed profile parse; fixed with display-label alias (`TryParse_accepts_high_assurance_display_labels`).
+- [ ] (candidate) `PolicyPackExpectationFacetParser.ParseBreachSeverity` — undefined severity numeric-strings may still bypass `Enum.IsDefined` when input is not int-parseable but matches no named member (verify sibling parsers).
+- [ ] (candidate) `FindingJsonConverter.ReadStringDict` — numeric tokens inside `properties` bag call `GetString()` and abort full finding deserialize (align with `GraphJsonElementReaders` mixed-type handling).
+
+2026-08-28 seed hunt #223: proved top-level finding enum-string guards, classifier property-tier guard, Service Bus correlation casing/number, numeric dedupe key, and agent profile display label; seeded properties-bag numeric and policy-pack severity sibling candidates.
 
 ---
 
