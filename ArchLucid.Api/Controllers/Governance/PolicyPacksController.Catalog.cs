@@ -89,6 +89,7 @@ public sealed partial class PolicyPacksController
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [MutatingAuditExcluded("Audit: IPolicyPackWorkflowFacade.TryPromoteCatalogEntryAsync logs PolicyPackCatalogPromoted.")]
     [ProducesResponseType(typeof(PolicyPackCatalogEntryDetail), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PromoteCatalogEntry(
         [FromBody] PromotePolicyPackCatalogEntryRequest? request,
@@ -101,6 +102,13 @@ public sealed partial class PolicyPacksController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        if (request.SourcePolicyPackId == Guid.Empty)
+        {
+            return this.BadRequestProblem(
+                "sourcePolicyPackId is required.",
+                ProblemTypes.ValidationFailed);
+        }
 
         PolicyPackCatalogEntryDetail? row;
 

@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 69
-- **bugs-found:** 205
+- **hunts:** 70
+- **bugs-found:** 207
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — pre-finalize simulate syntheticCount upper bound enforced at controller
+- **last-bug:** 2026-08-28 — erasure legal-hold past untilUtc validation and catalog promote empty pack id guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2451,6 +2451,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `GovernanceController.DryRunPolicyPack` — `pageSize`/`page` silently clamped instead of HTTP 400 — **cheap-disproof 2026-08-28:** intentional owner Q38 server clamp in `IPolicyPackDryRunService` / `PolicyPackDryRunService` and UI tests.
 - [x] (invalid) `GovernancePreCommitSimulationController.GetChecklistAsync` / `SimulateAsync` — non-GUID `runId` returns HTTP 400 while governance run-history endpoints return 404 for parse failures — **cheap-disproof 2026-08-28:** pre-finalize endpoints intentionally return explicit `BadRequest` for malformed run ids (paired with `Simulate`); governance run-history uses `RequireScopedRunAsync` hide-not-found pattern; regression documents intentional 400 in `GovernancePreCommitSimulationControllerTests.GetChecklist_returns_bad_request_when_run_id_is_not_a_guid` and `Simulate_returns_bad_request_when_run_id_is_not_a_guid`.
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — `syntheticCount > 500` reached `PreCommitGovernanceGate` in-memory injection loop despite `[Range(0, 500)]` on request model — **hit 2026-08-28:** explicit controller upper-bound guard (batch-cap parity); regression in `GovernancePreCommitSimulationControllerTests.Simulate_returns_bad_request_when_synthetic_count_exceeds_five_hundred`.
+- [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — past `untilUtc` returned HTTP 409 conflict instead of HTTP 400 validation — **hit 2026-08-28:** controller rejects non-future `untilUtc` before command service (risk-exception expiry parity); regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past`.
+- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — `sourcePolicyPackId = Guid.Empty` returned HTTP 404 pack-not-found instead of HTTP 400 — **hit 2026-08-28:** reject empty guid before workflow lookup; regression in `PolicyPacksControllerListScopeTests.PromoteCatalogEntry_returns_bad_request_when_source_policy_pack_id_is_empty`.
+- [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` — out-of-scope `findingId` with in-scope `runId` returns HTTP 404 merge-conflict-not-found without finding scope gate (disposition parity gap).
+- [ ] (candidate) `GovernanceStickinessController.GetAssignedToMeFindingsCount` — foreign `projectId` returns HTTP 200 `{ count: 0 }` instead of register empty/404 parity — may be intentional hide pattern.
+
+2026-08-28 seed hunt #172: reseeded erasure/catalog/merge-conflict/assigned-count candidates; proved legal-hold date validation and catalog promote empty pack id guard.
 
 2026-08-28 thorough hunt #171: proved pre-finalize simulate syntheticCount upper bound; cheap-disproved checklist non-GUID 404 parity (intentional explicit validation).
 

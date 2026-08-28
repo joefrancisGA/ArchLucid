@@ -358,6 +358,25 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task PromoteCatalogEntry_returns_bad_request_when_source_policy_pack_id_is_empty()
+    {
+        PolicyPacksController sut = CreateSut(
+            workflow: new Mock<IPolicyPackWorkflowFacade>(MockBehavior.Strict),
+            tenantExists: true);
+
+        IActionResult result = await sut.PromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = Guid.Empty,
+                Version = "1.0.0",
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task PromoteCatalogEntry_returns_not_found_when_tenant_missing()
     {
         PolicyPacksController sut = CreateSut(
