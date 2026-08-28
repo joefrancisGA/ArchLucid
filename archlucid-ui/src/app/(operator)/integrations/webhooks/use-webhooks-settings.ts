@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
+import { useCallback, useMemo, useRef, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useForm,
@@ -8,48 +8,32 @@ import {
   type Control,
   type FieldErrors,
   type UseFormHandleSubmit,
-  type UseFormRegister,
   type UseFormReturn,
 } from "react-hook-form";
 
 import type { AlertRoutingSubscriptionDisableTarget } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
-import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
-import {
-  createAlertRoutingSubscription,
-  listAlertRoutingSubscriptions,
-  testWebhookSubscription,
-  toggleAlertRoutingSubscription,
-} from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { describeWebhooksSaveReadinessMessage } from "@/lib/webhooks-page-copy";
-import {
-  formatWebhooksCustomerError,
-  formatWebhooksSaveError,
-} from "@/lib/webhooks-page-error-present";
 import {
   webhookSettingsDefaultValues,
   webhookSettingsFormSchema,
   type WebhookSettingsFormValues,
 } from "@/lib/webhook-settings-form-schema";
-import { buildWebhookSubscriptionMetadata } from "@/lib/webhook-subscription-metadata";
-import {
-  presentWebhookConnectionTestRequestFailure,
-  presentWebhookConnectionTestToasts,
-} from "@/lib/webhook-subscription-connection-test";
-import { writeWebhookSubscriptionLastViewedId } from "@/lib/resolve-continue-last-webhook-subscription";
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
 
-type WebhookEnableTarget = {
-  readonly routingSubscriptionId: string;
-  readonly subscriptionName: string;
-};
+import {
+  formatCustomerApiFailure,
+  useWebhooksSettingsMutations,
+} from "./use-webhooks-settings-mutations";
+import { useWebhooksSettingsConnectionTest } from "./use-webhooks-settings-connection-test";
+import { useWebhooksSettingsLoad } from "./use-webhooks-settings-load";
+
+export { formatCustomerApiFailure };
 
 export type UseWebhooksSettingsResult = {
   readonly form: UseFormReturn<WebhookSettingsFormValues>;
-  readonly register: UseFormRegister<WebhookSettingsFormValues>;
+  readonly register: UseFormReturn<WebhookSettingsFormValues>["register"];
   readonly handleSubmit: UseFormHandleSubmit<WebhookSettingsFormValues>;
   readonly control: Control<WebhookSettingsFormValues>;
   readonly errors: FieldErrors<WebhookSettingsFormValues>;
@@ -66,7 +50,7 @@ export type UseWebhooksSettingsResult = {
   readonly pendingDisable: AlertRoutingSubscriptionDisableTarget | null;
   readonly disableBusy: boolean;
   readonly disableErrorMessage: string | null;
-  readonly pendingEnable: WebhookEnableTarget | null;
+  readonly pendingEnable: { readonly routingSubscriptionId: string; readonly subscriptionName: string } | null;
   readonly enableBusy: boolean;
   readonly enableErrorMessage: string | null;
   readonly secretVisible: boolean;
@@ -84,39 +68,17 @@ export type UseWebhooksSettingsResult = {
   readonly setSaveSuccessMessage: Dispatch<SetStateAction<string | null>>;
   readonly setPendingDisable: Dispatch<SetStateAction<AlertRoutingSubscriptionDisableTarget | null>>;
   readonly setDisableErrorMessage: Dispatch<SetStateAction<string | null>>;
-  readonly setPendingEnable: Dispatch<SetStateAction<WebhookEnableTarget | null>>;
+  readonly setPendingEnable: Dispatch<
+    SetStateAction<{ readonly routingSubscriptionId: string; readonly subscriptionName: string } | null>
+  >;
   readonly setEnableErrorMessage: Dispatch<SetStateAction<string | null>>;
 };
 
-function isGenericOutboundWebhookChannel(channelType: string): boolean {
-  return channelType === "OnCallWebhook";
-}
-
-export function formatCustomerApiFailure(failure: ApiLoadFailureState): string {
-  return formatWebhooksCustomerError(
-    "Something went wrong. Try again or contact your administrator.",
-    failure.message,
-  );
-}
-
 export function useWebhooksSettings(): UseWebhooksSettingsResult {
   const canMutate = useOperateCapability();
-  const scope = useOperatorScopeQueryKey();
-  const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const isSavingRef = useRef(false);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [testingId, setTestingId] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<Record<string, WebhookTestResponse>>({});
-  const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
-  const [pendingDisable, setPendingDisable] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
-  const [disableBusy, setDisableBusy] = useState(false);
-  const [disableErrorMessage, setDisableErrorMessage] = useState<string | null>(null);
-  const [pendingEnable, setPendingEnable] = useState<WebhookEnableTarget | null>(null);
-  const [enableBusy, setEnableBusy] = useState(false);
-  const [enableErrorMessage, setEnableErrorMessage] = useState<string | null>(null);
   const [secretVisible, setSecretVisible] = useState(false);
+  const mutationResetRef = useRef<() => void>(() => {});
+  const connectionTestResetRef = useRef<() => void>(() => {});
 
   const form = useForm<WebhookSettingsFormValues>({
     resolver: zodResolver(webhookSettingsFormSchema),
@@ -133,6 +95,32 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     setError,
   } = form;
 
+  const handleScopeChange = useCallback(() => {
+    reset({ ...webhookSettingsDefaultValues });
+    setSecretVisible(false);
+    mutationResetRef.current();
+    connectionTestResetRef.current();
+  }, [reset]);
+
+  const loadState = useWebhooksSettingsLoad({ onScopeChange: handleScopeChange });
+
+  const connectionTest = useWebhooksSettingsConnectionTest({
+    scopeGenerationRef: loadState.scopeGenerationRef,
+  });
+  connectionTestResetRef.current = connectionTest.resetConnectionTestState;
+
+  const mutations = useWebhooksSettingsMutations({
+    canMutate,
+    reset,
+    setError,
+    handleSubmit,
+    webhookRows: loadState.webhookRows,
+    scopeGenerationRef: loadState.scopeGenerationRef,
+    load: loadState.load,
+    setFailure: loadState.setFailure,
+  });
+  mutationResetRef.current = mutations.resetMutationState;
+
   const watchedEventTypes = useWatch({ control, name: "eventTypes" });
   const watchedFormValues = useWatch({ control }) as WebhookSettingsFormValues;
   const formReadinessMessage = useMemo(
@@ -148,317 +136,44 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     watchedEventTypes.length > 0 &&
     watchedEventTypes.every((eventId) => eventId.startsWith("archlucid.alert."));
 
-  const webhookRows = useMemo(
-    () => items.filter((subscription) => isGenericOutboundWebhookChannel(subscription.channelType)),
-    [items],
-  );
-
-  const activeSubscriptionCount = useMemo(
-    () => webhookRows.filter((subscription) => subscription.isEnabled === true).length,
-    [webhookRows],
-  );
-
-  const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
-  const previousScopeKeyRef = useRef(scopeKey);
-  const scopeGenerationRef = useRef(0);
-
-  const load = useCallback(async () => {
-    const generation = scopeGenerationRef.current;
-    setLoading(true);
-    setFailure(null);
-
-    try {
-      const data = await listAlertRoutingSubscriptions();
-
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      setItems(data);
-    } catch (error: unknown) {
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      setFailure(toApiLoadFailure(error));
-    } finally {
-      if (scopeGenerationRef.current === generation) {
-        setLoading(false);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  useEffect(() => {
-    if (previousScopeKeyRef.current === scopeKey) {
-      return;
-    }
-
-    previousScopeKeyRef.current = scopeKey;
-    scopeGenerationRef.current += 1;
-
-    // Clear typed secrets and stale rows when the operator switches workspace/tenant/project.
-    reset({ ...webhookSettingsDefaultValues });
-    setSecretVisible(false);
-    setSaveSuccessMessage(null);
-    setItems([]);
-    setTestResults({});
-    setTestingId(null);
-    setIsSaving(false);
-    isSavingRef.current = false;
-    setDisableBusy(false);
-    setEnableBusy(false);
-    setPendingDisable(null);
-    setPendingEnable(null);
-    setDisableErrorMessage(null);
-    setEnableErrorMessage(null);
-    setFailure(null);
-    void load();
-  }, [scopeKey, reset, load]);
-
-  async function onTestWebhook(routingSubscriptionId: string) {
-    if (testingId !== null) {
-      return;
-    }
-
-    writeWebhookSubscriptionLastViewedId(routingSubscriptionId);
-    const generation = scopeGenerationRef.current;
-    setTestingId(routingSubscriptionId);
-
-    try {
-      const result = await testWebhookSubscription(routingSubscriptionId);
-
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      setTestResults((prev) => ({ ...prev, [routingSubscriptionId]: result }));
-      presentWebhookConnectionTestToasts(result);
-    } catch (error: unknown) {
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      setTestResults((prev) => {
-        const next = { ...prev };
-
-        delete next[routingSubscriptionId];
-
-        return next;
-      });
-      presentWebhookConnectionTestRequestFailure(error);
-    } finally {
-      if (scopeGenerationRef.current === generation) {
-        setTestingId(null);
-      }
-    }
-  }
-
-  async function onToggle(routingSubscriptionId: string, subscriptionName: string, isEnabled: boolean) {
-    if (!canMutate) {
-      return;
-    }
-
-    if (isEnabled) {
-      setDisableErrorMessage(null);
-      setPendingDisable({
-        routingSubscriptionId,
-        subscriptionName,
-        channel: "webhook",
-      });
-
-      return;
-    }
-
-    setEnableErrorMessage(null);
-    setPendingEnable({ routingSubscriptionId, subscriptionName });
-  }
-
-  async function confirmEnableSubscription(): Promise<void> {
-    if (pendingEnable === null || enableBusy) {
-      return;
-    }
-
-    const generation = scopeGenerationRef.current;
-    setEnableBusy(true);
-    setEnableErrorMessage(null);
-    writeWebhookSubscriptionLastViewedId(pendingEnable.routingSubscriptionId);
-
-    try {
-      await executeToggle(pendingEnable.routingSubscriptionId, generation);
-
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      setPendingEnable(null);
-    } catch (error: unknown) {
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      setEnableErrorMessage(formatCustomerApiFailure(toApiLoadFailure(error)));
-    } finally {
-      if (scopeGenerationRef.current === generation) {
-        setEnableBusy(false);
-      }
-    }
-  }
-
-  async function executeToggle(routingSubscriptionId: string, generation: number): Promise<void> {
-    if (scopeGenerationRef.current !== generation) {
-      return;
-    }
-
-    setFailure(null);
-
-    try {
-      await toggleAlertRoutingSubscription(routingSubscriptionId);
-
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      await load();
-    } catch (error: unknown) {
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      setFailure(toApiLoadFailure(error));
-      throw error;
-    }
-  }
-
-  async function confirmDisableSubscription(): Promise<void> {
-    if (pendingDisable === null || disableBusy) {
-      return;
-    }
-
-    const generation = scopeGenerationRef.current;
-    setDisableBusy(true);
-    setDisableErrorMessage(null);
-
-    try {
-      await executeToggle(pendingDisable.routingSubscriptionId, generation);
-
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      setPendingDisable(null);
-    } catch (error: unknown) {
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      const apiFailure = toApiLoadFailure(error);
-      setDisableErrorMessage(formatCustomerApiFailure(apiFailure));
-    } finally {
-      if (scopeGenerationRef.current === generation) {
-        setDisableBusy(false);
-      }
-    }
-  }
-
-  const submit = handleSubmit(async (values) => {
-    if (!canMutate || isSavingRef.current) {
-      return;
-    }
-
-    const normalizedName = values.name.trim();
-    const duplicate = webhookRows.some(
-      (row) => row.name.trim().toLowerCase() === normalizedName.toLowerCase(),
-    );
-
-    if (duplicate) {
-      setError("name", { type: "manual", message: "A subscription with this name already exists." });
-
-      return;
-    }
-
-    setFailure(null);
-    setSaveSuccessMessage(null);
-    const generation = scopeGenerationRef.current;
-    isSavingRef.current = true;
-    setIsSaving(true);
-
-    try {
-      await createAlertRoutingSubscription({
-        name: normalizedName,
-        channelType: values.channelType,
-        destination: values.webhookUrl.trim(),
-        minimumSeverity: values.minimumSeverity,
-        isEnabled: true,
-        metadataJson: buildWebhookSubscriptionMetadata(values.secret, values.eventTypes),
-      });
-
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      reset({ ...webhookSettingsDefaultValues });
-      await load();
-      setSaveSuccessMessage(WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE);
-    } catch (error: unknown) {
-      if (scopeGenerationRef.current !== generation) {
-        return;
-      }
-
-      const apiFailure = toApiLoadFailure(error);
-      setFailure({
-        ...apiFailure,
-        message: formatWebhooksSaveError(apiFailure.message),
-      });
-    } finally {
-      if (scopeGenerationRef.current === generation) {
-        isSavingRef.current = false;
-        setIsSaving(false);
-      }
-    }
-  });
-
   return {
     form,
     register,
     handleSubmit,
     control,
     errors,
-    isSavingRef,
-    submit,
+    isSavingRef: mutations.isSavingRef,
+    submit: mutations.submit,
     canMutate,
-    items,
-    loading,
-    isSaving,
-    failure,
-    testingId,
-    testResults,
-    saveSuccessMessage,
-    pendingDisable,
-    disableBusy,
-    disableErrorMessage,
-    pendingEnable,
-    enableBusy,
-    enableErrorMessage,
+    items: loadState.items,
+    loading: loadState.loading,
+    isSaving: mutations.isSaving,
+    failure: loadState.failure,
+    testingId: connectionTest.testingId,
+    testResults: connectionTest.testResults,
+    saveSuccessMessage: mutations.saveSuccessMessage,
+    pendingDisable: mutations.pendingDisable,
+    disableBusy: mutations.disableBusy,
+    disableErrorMessage: mutations.disableErrorMessage,
+    pendingEnable: mutations.pendingEnable,
+    enableBusy: mutations.enableBusy,
+    enableErrorMessage: mutations.enableErrorMessage,
     secretVisible,
     formReadinessMessage,
     canSubmitForm,
     showAlertSeverityFilter,
-    webhookRows,
-    activeSubscriptionCount,
-    load,
-    onTestWebhook,
-    onToggle,
-    confirmEnableSubscription,
-    confirmDisableSubscription,
+    webhookRows: loadState.webhookRows,
+    activeSubscriptionCount: loadState.activeSubscriptionCount,
+    load: loadState.load,
+    onTestWebhook: connectionTest.onTestWebhook,
+    onToggle: mutations.onToggle,
+    confirmEnableSubscription: mutations.confirmEnableSubscription,
+    confirmDisableSubscription: mutations.confirmDisableSubscription,
     setSecretVisible,
-    setSaveSuccessMessage,
-    setPendingDisable,
-    setDisableErrorMessage,
-    setPendingEnable,
-    setEnableErrorMessage,
+    setSaveSuccessMessage: mutations.setSaveSuccessMessage,
+    setPendingDisable: mutations.setPendingDisable,
+    setDisableErrorMessage: mutations.setDisableErrorMessage,
+    setPendingEnable: mutations.setPendingEnable,
+    setEnableErrorMessage: mutations.setEnableErrorMessage,
   };
 }
