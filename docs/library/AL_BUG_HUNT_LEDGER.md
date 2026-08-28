@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 11
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — `FindingJsonConverter.ReadStringDictValue` coerced boolean `properties` tokens to empty strings, dropping flag values on snapshot reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1781,6 +1781,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
 - [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
+- [x] (proven) `FindingJsonConverter` top-level enum-string guards, classifier property-tier guard, Service Bus correlation casing/number, numeric dedupe key, and agent profile display label — **hit 2026-08-28 (#229 carry #223):** cherry-picked onto master branch (`FindingJsonConverterTests`, `IntegrationEventServiceBusCorrelationIdTests`, `AgentModelExecutionProfileParserTests`).
+- [x] (proven) `FindingJsonConverter.ReadStringDict` dropped numeric `properties` tokens and `PolicyPackExpectationFacetParser.ParseBreachSeverity` accepted undefined severity ordinals — **hit 2026-08-28 (#229 carry #225):** properties numeric coercion and breach-severity `Enum.IsDefined` guard (`Deserialize_properties_numeric_values_preserve_string_entries`).
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` accepted undefined `AgentOutputQualityGateMode` numeric-strings via bare `Enum.TryParse` — **hit 2026-08-28 (#229 carry #227):** undefined ordinal `"99"` suppressed production-like advisory (`TryDescribeAdvisoryFinding_production_real_undefined_quality_gate_mode_emits_rule`).
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` accepts undefined legacy status strings via bare `Enum.TryParse` without `Enum.IsDefined` — **2026-08-28 (#229):** `TryParseStatus` already guards with `Enum.IsDefined`; numeric-string `"99"` returns false (`TryParseStatus_rejects_undefined_numeric_string_ordinals`).
+- [x] (proven) `FindingJsonConverter.ReadStringDictValue` coerces boolean `properties` tokens to empty strings — **hit 2026-08-28 (#229):** `{"flag":true}` hydrated as `""`, losing downstream property lookups; fixed with invariant boolean string coercion (`Deserialize_properties_boolean_values_preserve_invariant_string`).
+- [ ] (candidate) `DecisionConfidenceSourceMapper.ToBuyerLabel(string?)` numeric-string ordinals — `TryParse` without `Enum.IsDefined`; cheap-disproof: undefined `"99"` maps to buyer `Unknown` via switch default, not a raw ordinal leak.
+
+2026-08-28 seed hunt #229: cherry-picked #223–#227 Core enum/Service Bus/quality-gate fixes; cheap-disproved legacy run-status candidate; proved boolean properties-bag coercion.
 
 ---
 
