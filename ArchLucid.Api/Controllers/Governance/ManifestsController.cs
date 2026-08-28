@@ -74,4 +74,16 @@ public sealed partial class ManifestsController(
 
         return null;
     }
+
+    private IActionResult? BadRequestWhenManifestVersionEmpty(string manifestVersion)
+    {
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+        {
+            return this.BadRequestProblem(
+                "manifestVersion is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
 }
