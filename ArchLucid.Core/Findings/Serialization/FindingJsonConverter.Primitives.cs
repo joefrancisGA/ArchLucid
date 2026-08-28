@@ -77,7 +77,7 @@ public sealed partial class FindingJsonConverter
 
     private static List<string> ReadStringList(JsonElement root, string name)
     {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Array)
+        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind != JsonValueKind.Array)
             return [];
 
         return el.EnumerateArray()
@@ -88,7 +88,7 @@ public sealed partial class FindingJsonConverter
 
     private static Dictionary<string, string> ReadStringDict(JsonElement root, string name)
     {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Object)
+        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind != JsonValueKind.Object)
             return new Dictionary<string, string>();
         Dictionary<string, string> d = new(StringComparer.OrdinalIgnoreCase);
 
