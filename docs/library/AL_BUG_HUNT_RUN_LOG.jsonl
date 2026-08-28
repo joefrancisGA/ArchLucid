@@ -467,5 +467,3 @@
 {"at":"2026-08-28T06:45:28.5145996Z","zoneId":"ui-operator-lib","outcome":"hit"}
 {"at":"2026-08-28T06:53:21.8001204Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-08-28T19:20:48.1364258Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-28T19:36:25.7472973Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
-{"at":"2026-08-28T19:50:43.7912370Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
