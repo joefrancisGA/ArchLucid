@@ -49,6 +49,32 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
     }
 
     [Fact]
+    public async Task SimulateBulk_returns_bad_request_when_mixed_run_ids_include_whitespace()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        PolicyPacksController sut = CreateController(workflow);
+
+        PolicyPackSimulateBulkRequest request = new()
+        {
+            RunIds =
+            [
+                Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa").ToString("D"),
+                "   ",
+            ],
+        };
+
+        IActionResult result = await sut.SimulateBulk(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task SimulateBulk_returns_bad_request_when_run_id_is_not_a_guid()
     {
         Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
