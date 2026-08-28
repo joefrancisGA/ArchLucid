@@ -34,6 +34,10 @@ public sealed class TenantItsmConnectorConnectionUpsertValidationTests
         TenantItsmConnectorConnectionUpsertValidation.TryParseProvider("AzureBoards", out TenantItsmConnectorProvider azureBoards, out _)
             .Should().BeTrue();
         azureBoards.Should().Be(TenantItsmConnectorProvider.AzureBoards);
+
+        TenantItsmConnectorConnectionUpsertValidation.TryParseProvider("Azure Boards", out TenantItsmConnectorProvider azureBoardsLabel, out _)
+            .Should().BeTrue();
+        azureBoardsLabel.Should().Be(TenantItsmConnectorProvider.AzureBoards);
     }
 
     [Fact]

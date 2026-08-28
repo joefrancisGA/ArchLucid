@@ -30,7 +30,8 @@ public static partial class TenantItsmConnectorConnectionUpsertValidation
             return true;
         }
 
-        if (raw.Trim().Equals("AzureBoards", StringComparison.OrdinalIgnoreCase))
+        if (raw.Trim().Equals("AzureBoards", StringComparison.OrdinalIgnoreCase) ||
+            raw.Trim().Equals("Azure Boards", StringComparison.OrdinalIgnoreCase))
         {
             provider = TenantItsmConnectorProvider.AzureBoards;
 

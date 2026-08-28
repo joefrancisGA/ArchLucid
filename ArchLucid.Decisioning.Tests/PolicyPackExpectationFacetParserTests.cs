@@ -71,6 +71,12 @@ public sealed class PolicyPackExpectationFacetParserTests
             AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostBreachSeverity] = "Urgent" },
         };
         PolicyPackExpectationFacetParser.Parse(invalid).BreachSeverity.Should().BeNull();
+
+        PolicyPackContentDocument numericOrdinal = new()
+        {
+            AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostBreachSeverity] = "99" },
+        };
+        PolicyPackExpectationFacetParser.Parse(numericOrdinal).BreachSeverity.Should().BeNull();
     }
 
     [Fact]
