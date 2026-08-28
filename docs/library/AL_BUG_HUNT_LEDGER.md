@@ -2126,10 +2126,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-28
 - **last-bug:** 2026-08-26 — Combined durable omitted BackgroundJobQueueProcessorHostedService
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2155,9 +2155,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `servicebus-integration-events` container offload drops `ServiceBusIntegrationEventsArchLucidJob` — `RegisterArchLucidJobRunners` always registers the job; only `AzureServiceBusIntegrationEventConsumer` is gated by offload (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Worker_offloads_servicebus_integration_events_registers_job_not_consumer`, 2026-08-26).
 - [x] (proven) Per-process `AddDistributedMemoryCache` broke async value report poll across Api replicas — **hit 2026-08-26:** `SponsorRoiCompositionRegistrar` registered per-process `IDistributedCache` when no shared Redis/hot-path cache was configured, so load-balanced replicas could not see enqueue state; fixed with `IValueReportJobPollStateCache` (registered `IDistributedCache` → dedicated Redis → process-shared fallback) and `ServiceCollectionExtensionsRegistrationTests.AddArchLucidApplicationServices_value_report_async_job_poll_works_across_separate_api_replica_roots`.
 - [x] (proven) Combined durable background jobs omit queue processor — **hit 2026-08-26:** `RegisterBackgroundJobs` registered `BackgroundJobQueueProcessorHostedService` only for `Worker` when `BackgroundJobs:Mode=Durable`; Combined hosts enqueued to SQL/queue but never drained; fixed with Combined branch + `BackgroundJobRepositoryCancellationWriter`; regression in `AddArchLucidApplicationServices_Combined_durable_registers_BackgroundJobQueueProcessorHostedService` and `AddArchLucidApplicationServices_Api_durable_does_not_register_BackgroundJobQueueProcessorHostedService`.
-- [ ] (candidate) `DraftIntakeCompositionRegistrar` registers `AdvisoryDraftOperationHostedService` without hosting-role gate — split Api/Worker deployments may both process advisory-draft async operations.
-- [ ] (candidate) `RunLifecycleOrchestrationCompositionRegistrar` registers `ArchitectureRunAsyncOperationHostedService` without hosting-role gate — Api-only host may compete with Worker for async run dequeue.
-- [ ] (candidate) `RegisterDurableBackgroundJobInfrastructure` registers `BackgroundJobStuckRunningWatchdogHostedService` for Api durable enqueue-only hosts — watchdog may alert without local processor to remediate.
+
+2026-08-28 thorough hunt #208 (dry): cheap-disproved three hosting-role gate candidates — in-memory async operation queues require co-located processors on Api; durable stuck-running watchdog on Api requeues via SQL + notify without local processor.
+
+- [x] (invalid) `DraftIntakeCompositionRegistrar` registers `AdvisoryDraftOperationHostedService` without hosting-role gate — split Api/Worker deployments may both process advisory-draft async operations — **cheap-disproof 2026-08-28:** `AdvisoryDraftOperationQueue` is a bounded in-process channel; only the host that enqueued can drain; Api must register the processor; Worker queue is process-local and does not compete for Api work; regression in `ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Api_role_registers_in_memory_async_operation_processors`.
+- [x] (invalid) `RunLifecycleOrchestrationCompositionRegistrar` registers `ArchitectureRunAsyncOperationHostedService` without hosting-role gate — Api-only host may compete with Worker for async run dequeue — **cheap-disproof 2026-08-28:** `ArchitectureRunAsyncOperationQueue` is in-process (TB-2075); async create/execute admits on Api are drained locally, not from a shared Worker dequeue; regression in `ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Api_role_registers_in_memory_async_operation_processors`.
+- [x] (invalid) `RegisterDurableBackgroundJobInfrastructure` registers `BackgroundJobStuckRunningWatchdogHostedService` for Api durable enqueue-only hosts — watchdog may alert without local processor to remediate — **cheap-disproof 2026-08-28:** watchdog reclaims stale `Running` rows in SQL and re-notifies the durable queue via `IBackgroundJobQueueNotifySender` for Worker/Combined drain; leader election limits replicas; regression in `ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Api_durable_registers_stuck_running_watchdog_without_queue_processor`.
+- [ ] (candidate) `PipelineCompositionModule` invokes `DraftIntakeCompositionRegistrar` and `RunLifecycleOrchestrationCompositionRegistrar` without `ArchLucidHostingRole` — future distributed async-operation backing would need role-aware registration at the pipeline module boundary.
+- [ ] (candidate) `InMemoryAdvisoryDraftOperationStore` is process-local — load-balanced Api replicas cannot poll async draft results enqueued on a sibling replica (sticky-session / shared-store gap).
+- [ ] (candidate) `ArchitectureRunAsyncOperationRegistrar` in-flight keys are process-local — duplicate async create admits across Api replicas are not deduplicated cluster-wide.
 
 ---
 
