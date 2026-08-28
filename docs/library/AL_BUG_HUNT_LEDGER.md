@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 11
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` case-sensitive on `correlationId` omitted PascalCase exporter label from Service Bus publish correlation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1781,6 +1781,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
 - [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
+- [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` case-sensitive on `correlationId` — PascalCase `"CorrelationId"` omitted from Service Bus publish correlation when activity tag unset — **hit 2026-08-28 (#253):** `TryGetStringPropertyCaseInsensitive` (`TryResolveForPublish_reads_PascalCase_correlationId_from_payload_when_activity_unset`; sibling `IntegrationEventServiceBusApplicationProperties` severity parity).
+- [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `findingSchemaVersion`, `relatedNodeIds`, `properties`, `treatment`, `payloadType`, `payload`, and `trace` — PascalCase exporter labels silently default or drop on snapshot reload.
+- [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `category`, `enforcementTier`, `humanReviewStatus`, and `evaluationConfidenceLevel` — PascalCase scalar labels may silently default on reload.
+- [ ] (candidate) `FindingJsonConverter.ReadOptionalString` numeric coercion gap — numeric `agentExecutionTraceId` / `runIdRef` tokens may not coerce to string.
+
+2026-08-28 seed hunt #253: proved PascalCase `CorrelationId` payload lookup promoted from integration-event parity gap; seeded remaining `FindingJsonConverter` PascalCase and numeric-coercion candidates.
 
 ---
 

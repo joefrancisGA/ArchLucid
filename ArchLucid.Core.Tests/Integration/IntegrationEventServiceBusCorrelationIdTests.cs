@@ -47,6 +47,14 @@ public sealed class IntegrationEventServiceBusCorrelationIdTests
     }
 
     [Fact]
+    public void TryResolveForPublish_reads_PascalCase_correlationId_from_payload_when_activity_unset()
+    {
+        byte[] utf8 = Encoding.UTF8.GetBytes("""{"CorrelationId":" payload-pascal-corr "}""");
+
+        IntegrationEventServiceBusCorrelationId.TryResolveForPublish(utf8).Should().Be("payload-pascal-corr");
+    }
+
+    [Fact]
     public void TryResolveForPublish_returns_null_when_no_activity_and_payload_missing_correlationId()
     {
         byte[] utf8 = "{\"schemaVersion\":1}"u8.ToArray();
