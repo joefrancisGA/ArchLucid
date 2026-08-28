@@ -94,11 +94,29 @@ public sealed partial class PolicyPacksController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.RunIds.Any(static id => string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "Each RunId must be a non-empty string.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        HashSet<string> seenRunIds = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (string runId in request.RunIds)
         {
-            if (string.IsNullOrWhiteSpace(runId))
-                continue;
+            string trimmedRunId = runId.Trim();
 
+            if (!seenRunIds.Add(trimmedRunId))
+            {
+                return this.BadRequestProblem(
+                    "RunIds contains a duplicate id.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        foreach (string runId in request.RunIds)
+        {
             if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
             {
                 return this.BadRequestProblem(
