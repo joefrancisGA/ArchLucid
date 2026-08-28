@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 76
-- **bugs-found:** 223
+- **hunts:** 77
+- **bugs-found:** 224
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — batch-review null body fields 400, scoped-run error code parity
+- **last-bug:** 2026-08-28 — batch-review mixed whitespace id per-item validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2470,8 +2470,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — stored approval with malformed `RunId` surfaced per-item `RunNotFound` instead of `ValidationFailed` from `RequireScopedRunAsync` — **hit 2026-08-28:** propagate scoped-run problem type/detail into batch item results (approve/reject parity); regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — JSON `decision: null` caused HTTP 500 on `Decision.Trim()` — **hit 2026-08-28:** null decision guard before trim; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — JSON `approvalRequestIds: null` caused HTTP 500 on `.Count` — **hit 2026-08-28:** null list guard before count check; regression in `GovernanceControllerRunHistoryScopeTests`.
-- [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` — mixed list with whitespace-only ids silently dropped instead of per-item validation failure.
-- [ ] (candidate) `GovernanceController.Activate` — missing `Idempotency-Key` returns HTTP 400 but lacks dedicated regression beside promote/submit siblings.
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — mixed list with whitespace-only ids silently dropped instead of per-item validation failure — **hit 2026-08-28:** emit per-item `ValidationFailed` for whitespace ids while processing valid ids (all-whitespace list still returns HTTP 400); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (invalid) `GovernanceController.Activate` — missing `Idempotency-Key` returns HTTP 400 but lacks dedicated regression beside promote/submit siblings — **cheap-disproof 2026-08-28:** `ReadGovernanceIdempotencyKey(true)` already rejects missing header before tenant/run preflight; test gap only, not wrong behavior.
+
+2026-08-28 thorough hunt #186: proved batch-review mixed whitespace per-item validation; cheap-disproved activate idempotency test-gap candidate; zone candidate backlog cleared.
 
 2026-08-28 seed hunt #185: proved batch-review scoped-run error parity and null decision/ids guards; seeded batch mixed-whitespace and activate idempotency candidates.
 

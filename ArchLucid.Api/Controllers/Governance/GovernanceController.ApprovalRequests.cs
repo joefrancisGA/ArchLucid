@@ -310,20 +310,36 @@ public sealed partial class GovernanceController
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
         List<GovernanceBatchReviewItemResult> results = [];
-        List<string> distinctIds = body.ApprovalRequestIds
-            .Where(static id => !string.IsNullOrWhiteSpace(id))
-            .Select(static id => id.Trim())
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
 
-        if (distinctIds.Count == 0)
+        if (!body.ApprovalRequestIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
         {
             return this.BadRequestProblem(
                 "ApprovalRequestIds must contain at least one non-empty id.",
                 ProblemTypes.ValidationFailed);
         }
 
-        foreach (string approvalRequestId in distinctIds)
+        HashSet<string> processedApprovalRequestIds = new(StringComparer.Ordinal);
+
+        foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
+        {
+            if (string.IsNullOrWhiteSpace(rawApprovalRequestId))
+            {
+                results.Add(
+                    new GovernanceBatchReviewItemResult
+                    {
+                        ApprovalRequestId = rawApprovalRequestId,
+                        Succeeded = false,
+                        ErrorCode = ProblemTypes.ValidationFailed,
+                        Message = "approvalRequestId is required.",
+                    });
+
+                continue;
+            }
+
+            string approvalRequestId = rawApprovalRequestId.Trim();
+
+            if (!processedApprovalRequestIds.Add(approvalRequestId))
+                continue;
 
             try
             {
@@ -442,6 +458,7 @@ public sealed partial class GovernanceController
                         Message = ex.Message
                     });
             }
+        }
 
         return Ok(new GovernanceBatchReviewResponse { Results = results });
     }
