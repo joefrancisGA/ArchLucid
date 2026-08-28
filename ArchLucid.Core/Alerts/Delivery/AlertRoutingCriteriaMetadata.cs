@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Alerts;
@@ -112,18 +113,29 @@ public static class AlertRoutingCriteriaMetadata
 
         foreach (JsonElement item in arrayElement.EnumerateArray())
         {
-            if (item.ValueKind == JsonValueKind.String)
-            {
-                string value = item.GetString()?.Trim() ?? string.Empty;
+            string value = ReadMetadataArrayItem(item);
 
-                if (value.Length > 0)
-                {
-                    values.Add(value);
-                }
+            if (value.Length > 0)
+            {
+                values.Add(value);
             }
         }
 
         return values;
+    }
+
+    private static string ReadMetadataArrayItem(JsonElement item)
+    {
+        if (item.ValueKind == JsonValueKind.String)
+            return item.GetString()?.Trim() ?? string.Empty;
+
+        if (item.ValueKind == JsonValueKind.Number && item.TryGetInt64(out long numeric))
+            return numeric.ToString(CultureInfo.InvariantCulture);
+
+        if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return item.GetBoolean().ToString(CultureInfo.InvariantCulture);
+
+        return string.Empty;
     }
 
     private static IReadOnlyList<string> NormalizeList(IReadOnlyList<string> values)
