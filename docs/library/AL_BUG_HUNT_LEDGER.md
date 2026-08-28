@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 84
-- **bugs-found:** 232
+- **hunts:** 85
+- **bugs-found:** 233
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `GovernanceController.BatchReviewApprovalRequests` accepted case-variant duplicate `approvalRequestIds`
+- **last-bug:** 2026-08-28 — `PolicyPacksController.SimulateBulk` regressed duplicate `runIds` validation after cherry-pick ordering
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2486,6 +2486,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — duplicate `evaluateAgainstRunIds` double-evaluated same run and inflated `totalRequestedRuns` — **hit 2026-08-28 (#240):** reject duplicate ids at controller with HTTP 400 (`SimulateBulk` parity); regression in `DryRunPolicyPack_returns_bad_request_when_evaluate_against_run_ids_contains_duplicate_id`.
 - [x] (invalid) `GovernanceController.DryRunProposedPolicyPack` — sibling dry-run endpoint may accept duplicate run/manifest id lists without controller dedup guard — **cheap-disproof 2026-08-28 (#246):** endpoint accepts single `targetRunId` / `targetManifestId`, not id lists; validator rejects both targets set.
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — case-variant duplicate `approvalRequestIds` (`apr-1` / `APR-1`) double-processed because dedupe `HashSet` used `Ordinal` comparer — **hit 2026-08-28 (#246):** `StringComparer.OrdinalIgnoreCase` dedupe (`RecordBulkDisposition` parity); regression in `BatchReviewApprovalRequests_returns_validation_failed_per_item_when_list_contains_case_variant_duplicate_id`.
+- [x] (proven) `PolicyPacksController.SimulateBulk` — duplicate `runIds` silently deduped while `RequestedRunCount` still counted duplicates — **hit 2026-08-28 (#248 re-ship):** duplicate guard regressed when #234 cherry-pick removed #238 `HashSet` block; restored `OrdinalIgnoreCase` dedupe (`SimulateBulk_returns_bad_request_when_run_ids_contain_duplicate`, `SimulateBulk_returns_bad_request_when_run_ids_differ_only_by_case`).
+
+2026-08-28 thorough hunt #248: re-shipped #222/#234/#236/#238/#240/#242/#244/#246; cheap-disproved picker `BatchReviewApprovalRequests` duplicate and `CompareManifests` padded-version candidates (already fixed/invalid); re-shipped `SimulateBulk` duplicate `runIds` guard lost to cherry-pick ordering.
 
 2026-08-28 thorough hunt #246: re-shipped #222/#232/#236/#238/#240/#242/#244; cheap-disproved manifest-compare padded-version and `DryRunProposedPolicyPack` duplicate-list candidates; proved batch-review case-variant duplicate-id per-item validation.
 

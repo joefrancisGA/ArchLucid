@@ -173,6 +173,50 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
     }
 
     [Fact]
+    public async Task SimulateBulk_returns_bad_request_when_run_ids_contain_duplicate()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        PolicyPacksController sut = CreateController(workflow);
+
+        string runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa").ToString("D");
+        PolicyPackSimulateBulkRequest request = new() { RunIds = [runId, runId] };
+
+        IActionResult result = await sut.SimulateBulk(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("duplicate");
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task SimulateBulk_returns_bad_request_when_run_ids_differ_only_by_case()
+    {
+        Mock<IPolicyPackWorkflowFacade> workflow = new(MockBehavior.Strict);
+
+        PolicyPacksController sut = CreateController(workflow);
+
+        string runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa").ToString("D");
+        PolicyPackSimulateBulkRequest request = new() { RunIds = [runId, runId.ToUpperInvariant()] };
+
+        IActionResult result = await sut.SimulateBulk(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            request,
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("duplicate");
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task SimulateBulk_returns_not_found_when_pack_belongs_to_another_tenant()
     {
         Guid foreignPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
