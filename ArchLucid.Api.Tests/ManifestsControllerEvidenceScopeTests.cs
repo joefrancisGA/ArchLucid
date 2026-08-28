@@ -37,6 +37,36 @@ public sealed class ManifestsControllerEvidenceScopeTests
     };
 
     [Fact]
+    public async Task GetManifest_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IUnifiedGoldenManifestReader> reader = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = CallerScope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = CallerScope.ProjectId,
+        });
+
+        ManifestsController controller = CreateController(
+            reader.Object,
+            scopeProvider.Object,
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IManifestSummaryGenerator>(),
+            TenantExistsRepository());
+
+        IActionResult action = await controller.GetManifest(ManifestVersion, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        reader.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetManifest_returns_not_found_when_tenant_missing()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -342,6 +372,30 @@ public sealed class ManifestsControllerEvidenceScopeTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    private static ITenantRepository TenantExistsRepository()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord
+            {
+                Id = CallerScope.TenantId,
+                Name = "contoso",
+            });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        return tenants.Object;
+    }
+
     private static ITenantRepository TenantMissingRepository() =>
         Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
             CallerScope.TenantId,
@@ -373,13 +427,7 @@ public sealed class ManifestsControllerEvidenceScopeTests
                 Mock.Of<IManifestDiagramService>(),
                 scopeProvider,
                 runRepository,
-                tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
-                    CallerScope.TenantId,
-                    It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord
-                    {
-                        Id = CallerScope.TenantId,
-                        Name = "contoso",
-                    })))
+                tenantRepository ?? TenantExistsRepository())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
             };

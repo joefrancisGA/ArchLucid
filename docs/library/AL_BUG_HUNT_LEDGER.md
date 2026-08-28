@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 71
-- **bugs-found:** 210
+- **hunts:** 72
+- **bugs-found:** 215
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — governance stickiness and pre-commit simulation ghost workspace 404 parity
+- **last-bug:** 2026-08-28 — core governance controllers ghost workspace 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2452,8 +2452,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantIntegrationsOperationsController.GetAsync` — ghost workspace returned HTTP 200 connector posture instead of workspace 404; `GetSummaryAsync(scope, …)` uses ambient workspace but controller only called `GetByIdAsync` — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantIntegrationsOperationsControllerTests.GetAsync_returns_not_found_when_workspace_missing`.
 - [x] (proven) `CorePilotTeamChecklistController` (`GetAsync`, `PutAsync`) — ghost workspace returned HTTP 200 empty checklist / 204 mutation instead of workspace 404; repository uses ambient workspace but controller only preflighted tenant row — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `CorePilotTeamChecklistControllerTests` workspace-missing tests.
 - [x] (proven) `TenantWorkspaceBaselineArtifactsController.GetAsync` — ghost workspace returned HTTP 200 `{ hasBaselineArtifacts: false }` instead of workspace 404; `GetWorkspaceBaselineArtifactsAsync` uses ambient workspace but controller only called `GetByIdAsync` — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantWorkspaceBaselineArtifactsControllerTests.GetAsync_returns_not_found_when_workspace_missing`.
-- [ ] (hunt-ready) `GovernanceStickinessController` register/disposition reads — ghost workspace returns HTTP 200 empty registers instead of workspace 404; `IGovernanceStickinessFacade` queries by ambient workspace but `RequireTenantOrNotFoundAsync` only calls `GetByIdAsync` (`GovernanceStickinessController.cs` L50–58).
-- [ ] (hunt-ready) `GovernancePreCommitSimulationController` (`GetChecklistAsync`, `SimulateAsync`) — ghost workspace returns HTTP 200 simulation/checklist instead of workspace 404; `_runRepository.GetByIdAsync(scope, …)` is workspace-scoped but `RequireTenantOrNotFoundAsync` only preflights tenant row (`GovernancePreCommitSimulationController.cs` L49–57).
+- [x] (proven) `GovernanceStickinessController` register/disposition reads — ghost workspace returned HTTP 200 empty registers instead of workspace 404; `IGovernanceStickinessFacade` queries by ambient workspace but `RequireTenantOrNotFoundAsync` only called `GetByIdAsync` — **hit 2026-08-28:** `RequireTenantOrNotFoundAsync` delegates to `TenantWorkspaceScopePreflight`; regression in `GovernanceStickinessControllerTests.GetRiskRegister_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernancePreCommitSimulationController` (`GetChecklistAsync`, `SimulateAsync`) — ghost workspace returned HTTP 200 simulation/checklist instead of workspace 404; `_runRepository.GetByIdAsync(scope, …)` is workspace-scoped but `RequireTenantOrNotFoundAsync` only preflighted tenant row — **hit 2026-08-28:** `RequireTenantOrNotFoundAsync` delegates to `TenantWorkspaceScopePreflight`; regression in `GovernancePreCommitSimulationControllerTests` workspace-missing tests.
+- [x] (proven) `GovernanceController` (`GetDashboard`, `GetComplianceDriftTrend`) — ghost workspace returned HTTP 200 dashboard/trend instead of workspace 404; services query by tenant id but `RequireTenantOrNotFoundAsync` only called `GetByIdAsync` — **hit 2026-08-28:** `RequireTenantOrNotFoundAsync` delegates to `TenantWorkspaceScopePreflight`; regression in `GovernanceControllerDashboardTests.GetDashboard_returns_not_found_when_workspace_missing`.
+- [x] (proven) `PolicyPacksController` catalog/read/mutation siblings — ghost workspace returned HTTP 200 empty catalog or pack payloads while tenant preflight passed — **hit 2026-08-28:** `RequireTenantOrNotFoundAsync` delegates to `TenantWorkspaceScopePreflight`; regression in `PolicyPacksControllerListScopeTests.List_returns_not_found_when_workspace_missing`.
+- [x] (proven) `ManifestsController` manifest read/export/compare paths — ghost workspace returned HTTP 200 manifest payloads — **hit 2026-08-28:** `RequireTenantOrNotFoundAsync` delegates to `TenantWorkspaceScopePreflight`; regression in `ManifestsControllerEvidenceScopeTests.GetManifest_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernancePreviewController.Preview` / `CompareEnvironments` — ghost workspace reached preview/compare services without workspace preflight — **hit 2026-08-28:** `RequireTenantOrNotFoundAsync` delegates to `TenantWorkspaceScopePreflight`; regression in `GovernancePreviewControllerUnitTests.Preview_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernanceResolutionController.Resolve` — ghost workspace returned HTTP 200 default resolution instead of workspace 404; resolver uses ambient workspace but controller only preflighted tenant row — **hit 2026-08-28:** `TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync` before resolve; regression in `GovernanceResolutionControllerTests.Resolve_returns_not_found_when_workspace_missing`.
+
+2026-08-28 seed hunt #154: proved five core governance controller ghost-workspace 404 parity (dashboard, policy packs, manifests, preview, resolution).
+
+2026-08-28 thorough hunt #153: proved governance stickiness and pre-commit simulation ghost-workspace 404 parity; zone hunt-ready backlog cleared.
 
 2026-08-28 seed hunt #152: proved five remaining tenancy workspace-preflight gaps; reseeded governance stickiness and pre-commit simulation workspace preflight candidates as hunt-ready.
 
