@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 71
-- **bugs-found:** 209
+- **hunts:** 72
+- **bugs-found:** 212
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — policy-pack route empty guid 400, product feedback empty runId 400
+- **last-bug:** 2026-08-28 — risk-exception empty route id 400, merge-conflict empty runId 400, disposition sibling whitespace findingId 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2454,6 +2454,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` — whitespace-only route `findingId` returned HTTP 404 after trim to empty — **hit 2026-08-28:** reject blank finding id after `NormalizeFindingId` (bulk-disposition whitespace parity); regression in `GovernanceStickinessControllerTests.RecordDisposition_returns_bad_request_when_finding_id_is_whitespace`.
 - [x] (proven) `PolicyPacksController` route `policyPackId` / `assignmentId` / `policyPackCatalogEntryId` = `Guid.Empty` — scoped repository lookup returned HTTP 404 instead of HTTP 400 validation — **hit 2026-08-28:** shared `BadRequestWhenRouteIdEmpty` on pack/assignment/catalog route reads and mutations plus promote/demote body guards (DryRunPolicyPack parity); regression in `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `runId = Guid.Empty` returned HTTP 404 `RunNotFound` because empty is treated as a provided id — **hit 2026-08-28:** reject empty guid before scoped run lookup (homepage/stickiness empty runId parity); regression in `TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_returns_bad_request_when_run_id_is_empty`.
+
+- [x] (proven) `GovernanceStickinessController.RevokeRiskException` / `RenewRiskException` — route `riskExceptionId = Guid.Empty` returned HTTP 404 or unhandled service error instead of HTTP 400 — **hit 2026-08-28:** controller rejects empty guid before facade lookup (update-recurrence scheduleId parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` — route `runId = Guid.Empty` returned HTTP 404 merge-conflict-not-found because `EnsureRunInScopeWhenProvidedAsync` treats empty as omitted — **hit 2026-08-28:** controller rejects empty `runId` before facade (record-disposition body runId parity); regression in `GovernanceStickinessControllerTests.ResolveFindingMergeConflict_returns_bad_request_when_run_id_empty`.
+- [x] (proven) `GovernanceStickinessController.ListDispositions` / `ResolveFindingMergeConflict` — whitespace-only route `findingId` returned HTTP 200 `[]` or HTTP 404 after trim to empty — **hit 2026-08-28:** reject blank finding id after `NormalizeFindingId` (record-disposition parity); regression in `GovernanceStickinessControllerTests`.
+- [ ] (candidate) `GovernanceController.Simulate` / `PolicyPacksController.Simulate` — body `runId = "00000000-0000-0000-0000-000000000000"` passes whitespace guard and scoped lookup returns HTTP 404 instead of HTTP 400.
+- [ ] (candidate) `ManifestsController` read/compare routes — whitespace-only `manifestVersion` returns HTTP 404 `ManifestNotFound` instead of HTTP 400 validation.
+
+2026-08-28 seed hunt #181: proved risk-exception empty route id, merge-conflict empty runId, and disposition-sibling whitespace findingId guards; seeded simulate empty runId string and manifest whitespace version candidates.
 
 2026-08-28 thorough hunt #180: proved policy-pack route empty-guid guards and product-feedback empty runId 400; zone candidate backlog cleared.
 

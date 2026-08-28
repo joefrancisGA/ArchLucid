@@ -80,6 +80,7 @@ public sealed partial class GovernanceStickinessController
     [HttpPost("risk-exceptions/{riskExceptionId:guid}/revoke")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [MutatingAuditExcluded("Audit: IRiskExceptionService logs RiskExceptionRevoked via IAuditService.")]
     public async Task<IActionResult> RevokeRiskException(Guid riskExceptionId, CancellationToken cancellationToken = default)
     {
@@ -87,6 +88,9 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        if (riskExceptionId == Guid.Empty)
+            return this.BadRequestProblem("riskExceptionId is required.", ProblemTypes.ValidationFailed);
 
         try
         {
@@ -118,6 +122,9 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        if (riskExceptionId == Guid.Empty)
+            return this.BadRequestProblem("riskExceptionId is required.", ProblemTypes.ValidationFailed);
 
         try
         {
