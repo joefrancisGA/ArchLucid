@@ -412,6 +412,16 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "private-beta access-path CI wiring",
+        ("python", "scripts/ci/check_live_api_private_beta_access_ci_wiring.py"),
+        None,
+    ),
+    GuardCommand(
+        "insight-density advisory surfaces",
+        ("python", "scripts/ci/check_insight_density_advisory_surfaces.py"),
+        None,
+    ),
+    GuardCommand(
         "proof-language superlatives",
         ("python", "scripts/ci/check_proof_language_superlatives.py"),
         "--advisory",
