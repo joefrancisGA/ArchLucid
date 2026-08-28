@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 namespace ArchLucid.Core.Persistence.Serialization;
@@ -46,9 +47,19 @@ internal static class GraphJsonElementReaders
     public static string? ReadFirstString(JsonElement root, params string[] names)
     {
         foreach (string name in names)
+        {
+            if (!TryGetIgnoreCase(root, name, out JsonElement el))
+                continue;
 
-            if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
+            if (el.ValueKind == JsonValueKind.String)
                 return el.GetString();
+
+            if (el.ValueKind == JsonValueKind.Number && el.TryGetInt64(out long numeric))
+                return numeric.ToString(CultureInfo.InvariantCulture);
+
+            if (el.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                return el.GetBoolean().ToString(CultureInfo.InvariantCulture);
+        }
 
         return null;
     }
