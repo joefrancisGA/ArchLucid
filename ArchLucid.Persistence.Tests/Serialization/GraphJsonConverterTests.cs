@@ -22,6 +22,27 @@ public sealed class GraphJsonConverterTests
     }
 
     [SkippableFact]
+    public void GraphNodeJsonConverter_Read_numeric_id_coerces_to_string()
+    {
+        const string json = """{"id":42,"type":"svc","name":"API","properties":{"resourceId":"/subscriptions/sub"}}""";
+
+        GraphNode node = JsonSerializer.Deserialize<GraphNode>(json, NodeOptions())!;
+
+        node.NodeId.Should().Be("42");
+        node.Properties.Should().ContainKey("resourceId").WhoseValue.Should().Be("/subscriptions/sub");
+    }
+
+    [SkippableFact]
+    public void GraphEdgeJsonConverter_Read_numeric_id_coerces_to_string()
+    {
+        const string json = """{"id":7,"from":"a","to":"b","type":"calls"}""";
+
+        GraphEdge edge = JsonSerializer.Deserialize<GraphEdge>(json, EdgeOptions())!;
+
+        edge.EdgeId.Should().Be("7");
+    }
+
+    [SkippableFact]
     public void GraphNodeJsonConverter_Read_uses_alternate_property_names()
     {
         const string json = """{"id":"n1","type":"svc","name":"API","category":"c","sourceType":"st","sourceId":"sid","properties":{"k":"v"}}""";
