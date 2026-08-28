@@ -158,4 +158,19 @@ public sealed partial class FindingJsonConverter
 
         return null;
     }
+
+    private static decimal? ReadOptionalDecimal(JsonElement root, string name)
+    {
+        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind == JsonValueKind.Null)
+            return null;
+
+        if (el.ValueKind == JsonValueKind.Number && el.TryGetDecimal(out decimal numeric))
+            return numeric;
+
+        if (el.ValueKind == JsonValueKind.String &&
+            decimal.TryParse(el.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out decimal fromString))
+            return fromString;
+
+        return null;
+    }
 }
