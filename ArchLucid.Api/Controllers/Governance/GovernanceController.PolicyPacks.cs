@@ -209,6 +209,19 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        foreach (string runId in request.EvaluateAgainstRunIds)
+        {
+            if (string.IsNullOrWhiteSpace(runId))
+                continue;
+
+            if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+            {
+                return this.BadRequestProblem(
+                    "evaluateAgainstRunIds contains an invalid run id.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
