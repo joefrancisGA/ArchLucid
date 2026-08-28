@@ -831,6 +831,64 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task BatchReviewApprovalRequests_returns_validation_failed_per_item_when_workflow_reports_invalid_operation()
+    {
+        const string approvalRequestId = "apr-batch-invalid-op";
+        Guid runId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = approvalRequestId,
+                RunId = runId.ToString("D"),
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowService> workflow = new();
+        workflow
+            .Setup(w => w.ApproveAsync(
+                approvalRequestId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException($"Approval request '{approvalRequestId}' was not found."));
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("reviewer");
+        actor.Setup(a => a.GetActorId()).Returns("reviewer-id");
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            approvalRepository: approvals.Object,
+            workflowService: workflow.Object,
+            actorContext: actor.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.BatchReviewApprovalRequests(
+            new GovernanceApprovalBatchReviewRequest
+            {
+                ApprovalRequestIds = [approvalRequestId],
+                Decision = "approve",
+            },
+            CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        GovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<GovernanceBatchReviewResponse>().Subject;
+        GovernanceBatchReviewItemResult item = body.Results.Should().ContainSingle().Subject;
+        item.Succeeded.Should().BeFalse();
+        item.ErrorCode.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
     public async Task BatchReviewApprovalRequests_returns_validation_failed_per_item_when_approval_run_id_is_malformed()
     {
         const string approvalRequestId = "apr-batch-malformed-run";
