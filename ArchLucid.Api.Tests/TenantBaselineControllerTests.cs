@@ -24,6 +24,50 @@ public sealed class TenantBaselineControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
 
+    private static readonly Guid ForeignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+    private static ScopeContext ScopeWithWorkspace(Guid workspaceId) =>
+        new()
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = Scope.ProjectId,
+        };
+
+    [Fact]
+    public async Task GetAsync_returns_tenant_baseline_when_workspace_not_in_tenant_list()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard,
+            BaselineManualPrepHoursPerReview = 6m,
+            BaselinePeoplePerReview = 4,
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(ScopeWithWorkspace(ForeignWorkspaceId));
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        TenantBaselineGetResponse body = ok.Value.Should().BeOfType<TenantBaselineGetResponse>().Subject;
+        body.ManualPrepHoursPerReview.Should().Be(6m);
+        body.PeoplePerReview.Should().Be(4);
+    }
+
     [Fact]
     public async Task GetAsync_returns_not_found_when_tenant_missing()
     {
