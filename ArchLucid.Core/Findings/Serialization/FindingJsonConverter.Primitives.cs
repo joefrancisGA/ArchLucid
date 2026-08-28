@@ -36,7 +36,12 @@ public sealed partial class FindingJsonConverter
         if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind is JsonValueKind.Null)
             return null;
 
-        return el.GetString();
+        if (el.ValueKind == JsonValueKind.String)
+            return el.GetString();
+
+        string coerced = ReadStringDictValue(el);
+
+        return coerced.Length == 0 ? null : coerced;
     }
 
     private static void WriteOptionalString(Utf8JsonWriter writer, string name, string? value)
@@ -56,7 +61,10 @@ public sealed partial class FindingJsonConverter
         if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Array)
             return [];
 
-        return el.EnumerateArray().Select(e => e.GetString() ?? "").Where(s => s.Length > 0).ToList();
+        return el.EnumerateArray()
+            .Select(ReadStringDictValue)
+            .Where(s => s.Length > 0)
+            .ToList();
     }
 
     private static Dictionary<string, string> ReadStringDict(JsonElement root, string name)
