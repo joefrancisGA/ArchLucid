@@ -36,6 +36,8 @@ const ADVISORY_SCHEDULE_GAP =
   "No enabled advisory scan schedule — weekly architecture digests will not be generated on a cadence.";
 const SUBSCRIPTION_GAP =
   "No digest subscriptions — generated digests have no outbound recipients in this scope.";
+const DISABLED_SUBSCRIPTION_GAP =
+  "No enabled digest subscriptions — all subscription rows in this scope are disabled.";
 const EXEC_EMAIL_GAP =
   "Sponsor email digest is not fully configured — sponsor emails will not receive the separate sponsor rollup.";
 
@@ -52,6 +54,15 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
       impact: "Weekly digests will not be generated automatically.",
       actionLabel: "Open schedules",
       href: ADVISORY_SCANS_SCHEDULES_HREF,
+    };
+  }
+
+  if (trimmed === DISABLED_SUBSCRIPTION_GAP) {
+    return {
+      title: "Subscriptions disabled",
+      impact: "Digest subscription rows exist in this scope but none are enabled for delivery.",
+      actionLabel: "Review subscriptions",
+      href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
     };
   }
 

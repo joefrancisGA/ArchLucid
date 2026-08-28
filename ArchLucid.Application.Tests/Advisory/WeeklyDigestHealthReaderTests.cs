@@ -84,9 +84,48 @@ public sealed class WeeklyDigestHealthReaderTests
         snapshot.SetupGaps.Should().Contain(g => g.Contains("Sponsor email digest", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task GetSnapshotAsync_reports_disabled_subscription_gap_when_rows_exist_but_none_enabled()
+    {
+        Mock<ITenantExecDigestPreferencesRepository> execPrefs = new();
+        execPrefs
+            .Setup(r => r.GetByTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ExecDigestPreferencesResponse.Unconfigured(TenantId));
+
+        Mock<ITenantSponsorDigestPreferencesRepository> sponsorPrefs = new();
+        sponsorPrefs
+            .Setup(r => r.GetByTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(SponsorDigestPreferencesResponse.Unconfigured(TenantId));
+
+        DigestSubscription disabledSubscription = new()
+        {
+            SubscriptionId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+            ChannelType = DigestDeliveryChannelType.Email,
+            IsEnabled = false,
+        };
+
+        WeeklyDigestHealthReader reader = CreateReader(
+            execPrefs.Object,
+            sponsorPrefs.Object,
+            [disabledSubscription]);
+
+        WeeklyDigestHealthSnapshot snapshot = await reader.GetSnapshotAsync(Scope, CancellationToken.None);
+
+        snapshot.DigestSubscriptionCount.Should().Be(1);
+        snapshot.EnabledDigestSubscriptionCount.Should().Be(0);
+        snapshot.SetupGaps.Should().Contain(
+            "No enabled digest subscriptions — all subscription rows in this scope are disabled.");
+        snapshot.SetupGaps.Should().NotContain(
+            "No digest subscriptions — generated digests have no outbound recipients in this scope.");
+    }
+
     private static WeeklyDigestHealthReader CreateReader(
         ITenantExecDigestPreferencesRepository execDigestPreferencesRepository,
-        ITenantSponsorDigestPreferencesRepository sponsorDigestPreferencesRepository)
+        ITenantSponsorDigestPreferencesRepository sponsorDigestPreferencesRepository,
+        IReadOnlyList<DigestSubscription>? digestSubscriptions = null)
     {
         Mock<IAdvisoryScanScheduleRepository> schedules = new();
         schedules
@@ -97,14 +136,14 @@ public sealed class WeeklyDigestHealthReaderTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<AdvisoryScanSchedule>());
 
-        Mock<IDigestSubscriptionRepository> subscriptions = new();
-        subscriptions
+        Mock<IDigestSubscriptionRepository> subscriptionRepo = new();
+        subscriptionRepo
             .Setup(r => r.ListByScopeAsync(
                 Scope.TenantId,
                 Scope.WorkspaceId,
                 Scope.ProjectId,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<DigestSubscription>());
+            .ReturnsAsync(digestSubscriptions ?? Array.Empty<DigestSubscription>());
 
         Mock<IArchitectureDigestRepository> digests = new();
         digests
@@ -118,7 +157,7 @@ public sealed class WeeklyDigestHealthReaderTests
 
         return new WeeklyDigestHealthReader(
             schedules.Object,
-            subscriptions.Object,
+            subscriptionRepo.Object,
             digests.Object,
             execDigestPreferencesRepository,
             sponsorDigestPreferencesRepository);

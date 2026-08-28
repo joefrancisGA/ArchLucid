@@ -49,6 +49,17 @@ describe("digest-setup-gap-actions", () => {
     expect(action.href).toBe("/governance/advisory-scans?tab=schedules");
   });
 
+  it("maps disabled-only subscription gap separately from missing subscriptions", () => {
+    const action = mapDigestSetupGap(
+      "No enabled digest subscriptions — all subscription rows in this scope are disabled.",
+    );
+
+    expect(action.title).toBe("Subscriptions disabled");
+    expect(action.impact).toContain("none are enabled");
+    expect(action.actionLabel).toBe("Review subscriptions");
+    expect(action.href).toBe("/architecture/digests?tab=subscriptions");
+  });
+
   it("maps subscription and sponsor gaps", () => {
     const mapped = mapDigestSetupGaps([
       "No digest subscriptions — generated digests have no outbound recipients in this scope.",

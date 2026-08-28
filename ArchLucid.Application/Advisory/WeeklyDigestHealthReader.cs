@@ -99,7 +99,12 @@ public sealed class WeeklyDigestHealthReader(
             gaps.Add("No enabled advisory scan schedule — weekly architecture digests will not be generated on a cadence.");
 
         if (enabledSubs == 0)
-            gaps.Add("No digest subscriptions — generated digests have no outbound recipients in this scope.");
+        {
+            if (subs.Count == 0)
+                gaps.Add("No digest subscriptions — generated digests have no outbound recipients in this scope.");
+            else
+                gaps.Add("No enabled digest subscriptions — all subscription rows in this scope are disabled.");
+        }
 
         if (!execPrefs.EmailEnabled || execPrefs.RecipientEmails.Count == 0)
             gaps.Add(
