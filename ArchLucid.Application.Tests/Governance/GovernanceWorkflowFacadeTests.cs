@@ -280,6 +280,49 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequestAsync_accepts_padded_environments_when_promotion_is_valid()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new(MockBehavior.Strict);
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        Mock<IUnifiedGoldenManifestReader> manifests = new(MockBehavior.Strict);
+        manifests
+            .Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GoldenManifest
+            {
+                RunId = "run-1",
+                SystemName = "Sys",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow }
+            });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            approvalRepo.Object,
+            runDetail: runDetail.Object,
+            unifiedManifestReader: manifests.Object);
+
+        GovernanceApprovalRequest result = await sut.SubmitApprovalRequestAsync(
+            "run-1",
+            "v1",
+            " dev ",
+            " test ",
+            "alice",
+            null,
+            null,
+            dryRun: true);
+
+        result.SourceEnvironment.Should().Be("dev");
+        result.TargetEnvironment.Should().Be("test");
+        approvalRepo.VerifyNoOtherCalls();
+        manifests.VerifyAll();
+    }
+
+    [Fact]
     public async Task ActivateAsync_throws_when_manifest_version_belongs_to_another_run()
     {
         Mock<IRunDetailQueryService> runDetail = new();
