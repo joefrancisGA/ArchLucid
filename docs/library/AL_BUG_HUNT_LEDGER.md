@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 68
-- **bugs-found:** 200
+- **hunts:** 69
+- **bugs-found:** 203
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — homepage settings and weekly digest health ghost workspace 404 parity
+- **last-bug:** 2026-08-28 — governance coverage, posture, and setup-guide ghost workspace 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2444,9 +2444,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `TenantHomepageSettingsController` (`GetAsync`, `ListEligibleSamplesAsync`, `PutAsync`) — ghost workspace returned HTTP 200 unconfigured/empty homepage settings instead of workspace 404; `FeaturedCompletedSampleService` keys settings by `scope.WorkspaceId` but controller only preflighted tenant row — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantHomepageSettingsControllerTests` workspace-missing tests.
 - [x] (proven) `TenantWeeklyDigestHealthController.GetAsync` — ghost workspace returned HTTP 200 zeroed digest health snapshot instead of workspace 404; `WeeklyDigestHealthReader.GetSnapshotAsync` queries schedules/subscriptions by `scope.WorkspaceId` but controller only preflighted tenant row — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantWeeklyDigestHealthControllerTests.GetAsync_returns_not_found_when_workspace_missing`.
-- [ ] (hunt-ready) `GovernanceCoverageController` (`GetScopeCoverage`, `PreviewCoverage`) — ghost workspace returns HTTP 200 empty coverage instead of workspace 404; `GetByScopeAsync` / `PreviewAsync` use ambient workspace but controller only calls `GetByIdAsync` (`GovernanceCoverageController.cs` L52–76).
-- [ ] (hunt-ready) `GovernancePostureController.GetPosture` — ghost workspace returns HTTP 200 empty posture summary instead of workspace 404; `GetSummaryAsync` passes `scope.WorkspaceId` but controller only preflights tenant row (`GovernancePostureController.cs` L43–56).
-- [ ] (hunt-ready) `GovernanceSetupController.GetSetupGuideBundle` — ghost workspace returns HTTP 200 setup bundle instead of workspace 404; resolver and alert routing list by workspace scope but controller only calls `GetByIdAsync` (`GovernanceSetupController.cs` L51–68).
+- [x] (proven) `GovernanceCoverageController` (`GetScopeCoverage`, `PreviewCoverage`) — ghost workspace returned HTTP 200 empty coverage instead of workspace 404; `GetByScopeAsync` / `PreviewAsync` use ambient workspace but controller only called `GetByIdAsync` — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `GovernanceCoverageControllerScopeTests` workspace-missing tests.
+- [x] (proven) `GovernancePostureController.GetPosture` — ghost workspace returned HTTP 200 empty posture summary instead of workspace 404; `GetSummaryAsync` passes `scope.WorkspaceId` but controller only preflighted tenant row — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `GovernancePostureControllerTests.GetPosture_returns_not_found_when_workspace_missing`.
+- [x] (proven) `GovernanceSetupController.GetSetupGuideBundle` — ghost workspace returned HTTP 200 setup bundle instead of workspace 404; resolver and alert routing list by workspace scope but controller only called `GetByIdAsync` — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `GovernanceSetupControllerTests.GetSetupGuideBundle_returns_not_found_when_workspace_missing`.
+
+2026-08-28 thorough hunt #151: proved governance coverage, posture, and setup-guide ghost-workspace 404 parity; zone hunt-ready backlog cleared.
 
 2026-08-28 seed hunt #150: proved homepage-settings and weekly-digest-health ghost-workspace 404 parity; reseeded governance coverage, posture, and setup-guide workspace preflight candidates as hunt-ready.
 
