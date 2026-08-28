@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 11
-- **bugs-found:** 18
+- **hunts:** 12
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `FindingJsonConverter.Read` ignored numeric `reviewedAtUtc` Unix epoch tokens
+- **last-bug:** 2026-08-28 — `MarketplaceWebhookPayloadParser.TryGetPlanId` threw on numeric tokens; `GraphJsonElementReaders.ReadFirstString` dropped numeric graph ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1785,6 +1785,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` undefined legacy status strings — **2026-08-28 (#235 carry #229):** already guarded with `Enum.IsDefined`.
 - [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` silently drops numeric/boolean `severities` / `findingTypes` / `tags` tokens — **hit 2026-08-28 (#235 carry #233):** coerce mixed-type metadata array entries to invariant strings (`AlertRoutingCriteriaMetadata_Parse_numeric_severity_tokens_coerce_to_strings`).
 - [x] (proven) `FindingJsonConverter.Read` ignores numeric `reviewedAtUtc` JSON tokens — only `JsonValueKind.String` parsed; numeric Unix epoch reload dropped review timestamp — **hit 2026-08-28 (#235):** fixed with `ReadOptionalDateTimeOffset` accepting millisecond/second epochs (`Deserialize_numeric_reviewedAtUtc_unix_milliseconds_maps_timestamp`).
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryGetPlanId` calls `GetString()` on numeric `planId` tokens — webhook parse throws instead of coercing plan id — **hit 2026-08-28 (#237):** `TryReadStringOrNumberToken` parity with `ReadQuantity`; regression in `TryGetPlanId_reads_numeric_planId_token`.
+- [x] (proven) `GraphJsonElementReaders.ReadFirstString` accepts only string node/edge ids — numeric `id` / `nodeId` / `edgeId` tokens deserialize as empty string and break graph identity — **hit 2026-08-28 (#237):** coerce number/boolean tokens to invariant strings; regression in `GraphNodeJsonConverter_Read_numeric_id_coerces_to_string` and `GraphEdgeJsonConverter_Read_numeric_id_coerces_to_string`.
+- [ ] (candidate) `FindingJsonConverter.Read` uses case-sensitive `TryGetProperty` for score fields — PascalCase `Severity` / quoted numeric `insightDensityScore` / `confidenceScore` silently default when `PropertyNameCaseInsensitive` is enabled on sibling serializers.
+- [ ] (candidate) `AlertRoutingCriteriaMetadata.ReadStringArray` treats scalar `severities` string as empty filter — `"severities":"Critical"` yields zero criteria instead of single-entry filter.
+
+2026-08-28 seed hunt #237: cherry-picked #223–#235 Core fixes; proved numeric marketplace planId and graph id coercion; seeded FindingJsonConverter case/score and alert-routing scalar candidates.
 
 2026-08-28 seed hunt #235: cherry-picked #223–#233 Core fixes; proved numeric `reviewedAtUtc` epoch coercion.
 
