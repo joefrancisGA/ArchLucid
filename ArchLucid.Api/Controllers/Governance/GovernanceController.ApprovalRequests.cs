@@ -339,7 +339,18 @@ public sealed partial class GovernanceController
             string approvalRequestId = rawApprovalRequestId.Trim();
 
             if (!processedApprovalRequestIds.Add(approvalRequestId))
+            {
+                results.Add(
+                    new GovernanceBatchReviewItemResult
+                    {
+                        ApprovalRequestId = approvalRequestId,
+                        Succeeded = false,
+                        ErrorCode = ProblemTypes.ValidationFailed,
+                        Message = "duplicate approvalRequestId in batch.",
+                    });
+
                 continue;
+            }
 
             try
             {
