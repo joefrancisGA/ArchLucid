@@ -1,4 +1,5 @@
 using ArchLucid.Api.Http;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -147,6 +148,31 @@ public sealed partial class GovernanceStickinessController
 
         if (maxRowsProblem is not null)
             return maxRowsProblem;
+
+        if (category is not null && string.IsNullOrWhiteSpace(category))
+        {
+            return this.BadRequestProblem(
+                "category must not be empty or whitespace.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (recordedAfterUtc is not null
+            && recordedBeforeUtc is not null
+            && recordedAfterUtc > recordedBeforeUtc)
+        {
+            return this.BadRequestProblem(
+                "recordedAfterUtc must be on or before recordedBeforeUtc.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (minConfidence is not null
+            && maxConfidence is not null
+            && minConfidence > maxConfidence)
+        {
+            return this.BadRequestProblem(
+                "minConfidence must be less than or equal to maxConfidence.",
+                ProblemTypes.ValidationFailed);
+        }
 
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 

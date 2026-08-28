@@ -234,6 +234,30 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task CountPendingApprovalsAsync_returns_uncapped_total()
+    {
+        SkipIfSqlServerUnavailable();
+        IGovernanceApprovalRequestRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        string idA = "apr-count-a-" + Guid.NewGuid().ToString("N");
+        string idB = "apr-count-b-" + Guid.NewGuid().ToString("N");
+        string idC = "apr-count-c-" + Guid.NewGuid().ToString("N");
+        DateTime t3 = DateTime.MaxValue.AddTicks(-2);
+        DateTime t2 = DateTime.MaxValue.AddTicks(-3);
+        DateTime t1 = DateTime.MaxValue.AddTicks(-4);
+
+        await repo.CreateAsync(NewApproval(idA, runId, t1), CancellationToken.None);
+        await repo.CreateAsync(NewApproval(idB, runId, t2), CancellationToken.None);
+        await repo.CreateAsync(NewApproval(idC, runId, t3), CancellationToken.None);
+
+        IReadOnlyList<GovernanceApprovalRequest> pending = await repo.GetPendingAsync(2, CancellationToken.None);
+        int totalPending = await repo.CountPendingApprovalsAsync(CancellationToken.None);
+
+        pending.Should().HaveCount(2);
+        totalPending.Should().BeGreaterThanOrEqualTo(3);
+    }
+
+    [SkippableFact]
     public async Task GetRecentDecisionsAsync_orders_by_ReviewedUtc_desc_and_excludes_pending()
     {
         SkipIfSqlServerUnavailable();

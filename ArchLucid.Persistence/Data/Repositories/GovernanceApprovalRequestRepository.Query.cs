@@ -160,6 +160,30 @@ public sealed partial class GovernanceApprovalRequestRepository
         return [.. rows];
     }
 
+    public async Task<int> CountPendingApprovalsAsync(CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = PersistenceTenantScope.AndTripleWhere(scope);
+
+        string sql = $"""
+                      SELECT COUNT(*)
+                      FROM GovernanceApprovalRequests
+                      WHERE Status IN (@Draft, @Submitted){scopeSql};
+                      """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        DynamicParameters p = new();
+        p.Add("Draft", GovernanceApprovalStatus.Draft);
+        p.Add("Submitted", GovernanceApprovalStatus.Submitted);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(p, scope);
+
+        return await connection.ExecuteScalarAsync<int>(new CommandDefinition(
+            sql,
+            p,
+            cancellationToken: cancellationToken));
+    }
+
     public async Task<IReadOnlyList<GovernanceApprovalRequest>> GetRecentDecisionsAsync(
         int maxRows = 50,
         CancellationToken cancellationToken = default)
