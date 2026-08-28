@@ -111,4 +111,51 @@ public sealed partial class FindingJsonConverter
 
         return "";
     }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+
+                return true;
+            }
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private static int? ReadOptionalInt32(JsonElement root, string name)
+    {
+        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind == JsonValueKind.Null)
+            return null;
+
+        if (el.ValueKind == JsonValueKind.Number && el.TryGetInt32(out int numeric))
+            return numeric;
+
+        if (el.ValueKind == JsonValueKind.String &&
+            int.TryParse(el.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int fromString))
+            return fromString;
+
+        return null;
+    }
+
+    private static double? ReadOptionalDouble(JsonElement root, string name)
+    {
+        if (!TryGetPropertyCaseInsensitive(root, name, out JsonElement el) || el.ValueKind == JsonValueKind.Null)
+            return null;
+
+        if (el.ValueKind == JsonValueKind.Number && el.TryGetDouble(out double numeric))
+            return numeric;
+
+        if (el.ValueKind == JsonValueKind.String &&
+            double.TryParse(el.GetString(), NumberStyles.Float, CultureInfo.InvariantCulture, out double fromString))
+            return fromString;
+
+        return null;
+    }
 }
