@@ -2241,7 +2241,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 82
+- **hunts:** 83
 - **bugs-found:** 230
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
@@ -2482,6 +2482,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `PolicyPacksController.SimulateBulk` — more than 50 `runIds` where trailing entries are malformed may return HTTP 400 for count cap before per-id validation surfaces the malformed id — **cheap-disproof 2026-08-28:** intentional validation ordering (count cap before per-id GUID parse), aligned with `DryRunPolicyPack`; both return HTTP 400; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **hit 2026-08-28 (#256):** emit per-item `ValidationFailed` for duplicates and use `OrdinalIgnoreCase` dedupe (`BatchReviewApprovalRequests_returns_validation_failed_per_item_when_approval_request_id_is_duplicated`, `..._when_case_variant_approval_request_id_is_duplicated`).
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity on single-manifest reads — **cheap-disproof 2026-08-28 (#256):** `LoadAndCompareManifestPairAsync` delegates to `GetManifestInScopeAsync`, which trims before lookup; regression in `CompareManifests_returns_ok_when_query_params_are_padded` (summary/export padded tests already existed).
+
+2026-08-28 thorough hunt #258: re-shipped #256 batch-review duplicate-id fix on master; cheap-disproved manifest-compare padded-version candidate (trim parity via `GetManifestInScopeAsync`).
 
 2026-08-28 thorough hunt #256: proved batch-review duplicate-id silence; cheap-disproved manifest-compare padded-version candidate.
 
