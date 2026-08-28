@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 67
-- **bugs-found:** 198
+- **hunts:** 68
+- **bugs-found:** 199
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — stickiness register maxRows bounds return 400 instead of silent clamp
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — workspace baseline artifacts ghost workspace 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2442,6 +2442,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — negative `syntheticCount` reached `PreCommitGovernanceGate` and surfaced HTTP 500 — **hit 2026-08-27:** controller rejects `syntheticCount < 0` before gate call; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard` — **hit 2026-08-27:** `ValidateRegisterMaxRows` on register GETs; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `TenantWorkspaceBaselineArtifactsController.GetAsync` — ghost workspace returned HTTP 200 `{ hasBaselineArtifacts: false }` instead of workspace 404; controller only called `GetByIdAsync` while `GetWorkspaceBaselineArtifactsAsync` uses ambient workspace — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight (`TenantWorkspaceBaselineArtifactsControllerTests.GetAsync_returns_not_found_when_workspace_missing`).
+- [ ] (hunt-ready) `TenantPilotValueReportController` (`GetPilotValueReport`, `GetRoiSummaryPageBundle`) — ghost workspace returns HTTP 200 pilot/ROI payload instead of workspace 404; service checks tenant row only (`TenantPilotValueReportController.cs` L69–76).
+- [ ] (hunt-ready) `TenantLlmCostReportingController.GetDashboard` — ghost workspace returns HTTP 200 empty LLM cost dashboard instead of workspace 404; `BuildDashboardAsync` is workspace-scoped but controller only preflights tenant row (`TenantLlmCostReportingController.cs` L51–58).
+- [ ] (hunt-ready) `TenantIntegrationsOperationsController.GetAsync` — ghost workspace returns HTTP 200 connector posture instead of workspace 404; `GetSummaryAsync(scope, …)` uses ambient workspace but controller only calls `GetByIdAsync` (`TenantIntegrationsOperationsController.cs` L46–52).
+- [ ] (hunt-ready) `CorePilotTeamChecklistController` (`GetAsync`, `PutAsync`) — ghost workspace returns HTTP 200 empty checklist / 204 mutation instead of workspace 404; repository uses ambient workspace but controller only preflights tenant row (`CorePilotTeamChecklistController.cs` L53–57, L91–95).
+
+2026-08-28 seed hunt #148: proved workspace-baseline-artifacts ghost-workspace 404 parity; reseeded pilot-value-report, LLM-cost, integrations-operations, and core-pilot-checklist workspace preflight candidates as hunt-ready.
 
 2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 
