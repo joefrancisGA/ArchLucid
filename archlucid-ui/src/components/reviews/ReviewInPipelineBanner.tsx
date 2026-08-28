@@ -51,8 +51,11 @@ export function ReviewInPipelineBanner(props: ReviewInPipelineBannerProps): Reac
       role="status"
     >
       <div className="space-y-1">
-        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          {buyerLabelsActive ? "Assessment in progress" : "Analysis in progress"}: {stageLabel}
+        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          <span className="font-semibold">
+            {buyerLabelsActive ? "Assessment in progress" : "Analysis in progress"}:
+          </span>{" "}
+          {stageLabel}
         </p>
         {safetyMessage !== null ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{safetyMessage}</p>
