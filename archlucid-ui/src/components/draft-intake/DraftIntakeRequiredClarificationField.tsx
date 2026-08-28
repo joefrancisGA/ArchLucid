@@ -25,7 +25,10 @@ import {
   resolveDraftIntakeSelectChange,
   resolveDraftIntakeSelectValue,
 } from "@/lib/draft-intake-select-unset-value";
-import { UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER } from "@/lib/universal-intake-answer-inference";
+import {
+  UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER,
+  UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER,
+} from "@/lib/universal-intake-answer-inference";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export { CLOUD_TARGET_QUESTION_KEY };
@@ -55,6 +58,7 @@ export type DraftIntakeRequiredClarificationFieldProps = {
   readonly canSaveAndContinue?: boolean;
   readonly clarificationStatus?: ClarificationCardStatus;
   readonly isSuggested?: boolean;
+  readonly suggestionWasRephrased?: boolean;
   readonly showRequirednessSuffix?: boolean;
   readonly onAnswerChange: (questionKey: string, value: string) => void;
   readonly onSaveAndContinue: (questionKey: string) => void;
@@ -121,7 +125,9 @@ export function DraftIntakeRequiredClarificationField(
           className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="socratic-question-suggested-hint"
         >
-          {UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER}
+          {props.suggestionWasRephrased === true
+            ? UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER
+            : UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER}
         </p>
       ) : null}
       {isCloudTargetQuestion ? (

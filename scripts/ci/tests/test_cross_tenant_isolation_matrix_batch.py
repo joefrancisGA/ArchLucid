@@ -5,8 +5,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-
-REPO_ROOT = Path(__file__).resolve().parents[3]
+from ci_test_helpers import REPO_ROOT, read_controller_union
 
 # V1 matrix — see docs/library/TECH_BACKLOG.md TB-078 and docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md
 PERSISTENCE_ISOLATION_TESTS = (
@@ -73,7 +72,7 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
         for name in controllers:
             root = advisory_dir if name == "DigestSubscriptionsController.cs" else alerts_dir
             path = root / name
-            text = path.read_text(encoding="utf-8")
+            text = read_controller_union(path)
             self.assertIn(
                 "idempotency-posture:",
                 text,
@@ -99,7 +98,7 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
         )
 
         for path in controller_paths:
-            text = path.read_text(encoding="utf-8")
+            text = read_controller_union(path)
             self.assertIn(
                 "idempotency-posture:",
                 text,
@@ -128,7 +127,7 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
         )
 
         for path in controller_paths:
-            text = path.read_text(encoding="utf-8")
+            text = read_controller_union(path)
             self.assertIn(
                 "idempotency-posture:",
                 text,
@@ -145,7 +144,7 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
         )
 
         for path in controller_paths:
-            text = path.read_text(encoding="utf-8")
+            text = read_controller_union(path)
             self.assertIn(
                 "idempotency-posture:",
                 text,

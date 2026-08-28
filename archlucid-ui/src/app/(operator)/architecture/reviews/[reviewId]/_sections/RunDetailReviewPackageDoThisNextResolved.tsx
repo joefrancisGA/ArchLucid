@@ -81,6 +81,8 @@ export function RunDetailReviewPackageDoThisNextResolved(
           evidenceCoverageTotalCount: props.evidenceCoverageTotalCount,
           governanceDecisionRecorded: props.governanceDecisionRecorded,
           compareWithPriorHref: priorCompare.compareWithPriorHref,
+          legacyRunStatus: props.legacyRunStatus,
+          isDeadLettered: props.isDeadLettered,
         }),
       );
     });
@@ -107,6 +109,8 @@ export function RunDetailReviewPackageDoThisNextResolved(
     props.evidenceCoverageLinkedCount,
     props.evidenceCoverageTotalCount,
     props.governanceDecisionRecorded,
+    props.legacyRunStatus,
+    props.isDeadLettered,
   ]);
 
   if (next === null) {

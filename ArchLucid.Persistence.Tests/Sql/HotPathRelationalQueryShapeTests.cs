@@ -282,4 +282,37 @@ public sealed class HotPathRelationalQueryShapeTests
         FindingsSnapshotWriteSql.InsertFindingRecord.Should().Contain("PayloadJson");
         FindingsSnapshotWriteSql.PriorityRankUpdateHeader.Should().Contain("INNER JOIN (VALUES");
     }
+
+    [SkippableFact]
+    public void Findings_snapshot_finding_insert_lists_matching_column_and_value_counts()
+    {
+        (int columnCount, int valueCount) = CountInsertColumnsAndValues(FindingsSnapshotWriteSql.InsertFindingRecord);
+
+        columnCount.Should().Be(valueCount);
+        FindingsSnapshotWriteSql.InsertFindingRecord.Should().Contain("QualityDimension");
+        FindingsSnapshotWriteSql.InsertFindingRecord.Should().Contain("@QualityDimension");
+    }
+
+    private static (int ColumnCount, int ValueCount) CountInsertColumnsAndValues(string sql)
+    {
+        int valuesIndex = sql.IndexOf("VALUES", StringComparison.OrdinalIgnoreCase);
+        valuesIndex.Should().BeGreaterThan(0);
+
+        string columnSection = sql[..valuesIndex];
+        string valueSection = sql[(valuesIndex + "VALUES".Length)..];
+
+        int openParen = columnSection.LastIndexOf('(');
+        int closeParen = columnSection.LastIndexOf(')');
+        openParen.Should().BeGreaterThan(0);
+        closeParen.Should().BeGreaterThan(openParen);
+
+        string columns = columnSection[(openParen + 1)..closeParen];
+        string values = valueSection.Trim();
+        values = values.TrimStart('(').TrimEnd(';').TrimEnd(')');
+
+        static int CountCommaSeparatedTokens(string section) =>
+            section.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Length;
+
+        return (CountCommaSeparatedTokens(columns), CountCommaSeparatedTokens(values));
+    }
 }

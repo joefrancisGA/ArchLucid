@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — `/al-bug` strategy execution summary. Not a buyer or operator document.
+
 # `/al-bug` strategy execution — 2026-08-24
 
 ## Outcome

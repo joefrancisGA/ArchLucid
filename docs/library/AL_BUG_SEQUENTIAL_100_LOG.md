@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — `/al-bug` sequential hunt run log. Not a buyer or operator document.
+
 # /al-bug sequential run log
 
 | Attempt | Zone | Outcome | Bugs found (24h) | Dry runs (24h) |

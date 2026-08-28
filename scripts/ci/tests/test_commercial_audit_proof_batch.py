@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import unittest
 from pathlib import Path
+from ci_test_helpers import PYTHON
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROOF_SCRIPT = REPO_ROOT / "scripts" / "collect-first-pilot-proof.ps1"
@@ -42,7 +43,7 @@ class CommercialAuditProofBatchTests(unittest.TestCase):
         assert spec and spec.loader
 
         completed = subprocess.run(
-            ["python", str(CATALOG_SCRIPT)],
+            [PYTHON, str(CATALOG_SCRIPT)],
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
@@ -58,7 +59,7 @@ class CommercialAuditProofBatchTests(unittest.TestCase):
             out = Path(tmp) / "freshness.json"
             completed = subprocess.run(
                 [
-                    "python",
+                    PYTHON,
                     str(REPO_ROOT / "scripts" / "ci" / "report_policy_pack_freshness.py"),
                     "--json-out",
                     str(out),

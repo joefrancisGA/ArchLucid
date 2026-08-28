@@ -27,7 +27,8 @@ class TestAiReadinessBatch5BU(unittest.TestCase):
             / "ArchLucid.Application"
             / "Runs"
             / "Orchestration"
-            / "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"
+            / "Commit"
+            / "AuthorityCommitPersistenceStage.cs"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("GenerateIacStubsOptions", text)

@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+from ci_test_helpers import REPO_ROOT, read_text_union
 
 
 class TestTraceabilityBatch5BZ(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestTraceabilityBatch5BZ(unittest.TestCase):
         self.assertIn("Decision explainability", text)
 
     def test_tb_054_run_detail_wiring(self) -> None:
-        page_view_path = (
+        wiring_paths = (
             REPO_ROOT
             / "archlucid-ui"
             / "src"
@@ -31,7 +31,17 @@ class TestTraceabilityBatch5BZ(unittest.TestCase):
             / "reviews"
             / "[reviewId]"
             / "_sections"
-            / "RunDetailPageView.tsx"
+            / "RunDetailTabbedWorkspace.tsx",
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "reviews"
+            / "[reviewId]"
+            / "_sections"
+            / "RunDetailPageViewCreateHome.tsx",
         )
         deferred_path = (
             REPO_ROOT
@@ -45,9 +55,9 @@ class TestTraceabilityBatch5BZ(unittest.TestCase):
             / "_sections"
             / "RunDetailExplanationDeferred.tsx"
         )
-        page_view_text = page_view_path.read_text(encoding="utf-8")
+        wiring_text = read_text_union(*wiring_paths)
         deferred_text = deferred_path.read_text(encoding="utf-8")
-        self.assertIn("RunDetailExplanationDeferred", page_view_text)
+        self.assertIn("RunDetailExplanationDeferred", wiring_text)
         self.assertIn("resolveRunDecisionExplainabilityFromDetail", deferred_text)
 
 

@@ -47,6 +47,7 @@ import {
 } from "@/lib/review-execution-background-safety-copy";
 import { isReviewPipelineDebugEnabled } from "@/lib/review-pipeline-debug-policy";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
+import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import { formatWorkspaceReviewDurationBand } from "@/lib/workspace-review-duration-estimate";
@@ -117,13 +118,16 @@ export function RunProgressTracker({
   const [preFinalizeTerminal, setPreFinalizeTerminal] = useState(() =>
     resolvePreFinalizeTerminal(initialSummary, preFinalizeReadyToFinalize),
   );
-  const pollEnabled = !allStagesReady(initialSummary) && !preFinalizeTerminal;
+  const pipelineTerminalFailure = isReviewPipelineTerminalFailure(diagnosticContext);
+  const pollEnabled =
+    !allStagesReady(initialSummary) && !preFinalizeTerminal && !pipelineTerminalFailure;
 
   const [pollSession, setPollSession] = useState(0);
   const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
     preFinalizeTerminal || allStagesReady(initialSummary) ? "complete" : "polling",
   );
-  const timelineEnabled = buyerAssessmentCopy || pollEnabled || preFinalizeTerminal;
+  const timelineEnabled =
+    buyerAssessmentCopy || pollEnabled || preFinalizeTerminal || pipelineTerminalFailure;
   const stageTimelineQuery = useRunStageTimelineQuery(runId, {
     enabled: timelineEnabled,
     pollSession,
@@ -239,14 +243,6 @@ export function RunProgressTracker({
     timelineEnabled,
   ]);
 
-  useEffect(() => {
-    if (!timelineEnabled || summary === null) {
-      return;
-    }
-
-    void stageTimelineQuery.refetch();
-  }, [summary, stageTimelineQuery, timelineEnabled]);
-
   const handleEnableNotifications = useCallback(async () => {
     const next = await requestDesktopNotificationPermission();
     setNotificationPermission(next);
@@ -292,6 +288,10 @@ export function RunProgressTracker({
       return `${completedAssessmentStages} of ${assessmentStageCount} assessment stages complete.`;
     }
 
+    if (pipelineTerminalFailure) {
+      return "Assessment failed — review the error details below and re-run the review when ready.";
+    }
+
     if (clientPhase === "complete") {
       return "Pipeline complete — refresh for full detail.";
     }
@@ -315,12 +315,13 @@ export function RunProgressTracker({
     completedPipelineStages,
     buyerPolished,
     durationEstimate?.p90Seconds,
+    pipelineTerminalFailure,
     preFinalizeTerminal,
     runId,
     sseConnected,
   ]);
 
-  if (!pollEnabled && !preFinalizeTerminal && !buyerAssessmentCopy) {
+  if (!pollEnabled && !preFinalizeTerminal && !buyerAssessmentCopy && !pipelineTerminalFailure) {
     return null;
   }
 

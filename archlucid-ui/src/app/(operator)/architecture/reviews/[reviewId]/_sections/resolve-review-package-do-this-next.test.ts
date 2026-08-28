@@ -51,6 +51,19 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.href).toContain("reviewTab=activity");
   });
 
+  it("surfaces assessment-failure guidance instead of in-progress copy", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      showProgressTracker: true,
+      legacyRunStatus: "Failed",
+    });
+
+    expect(next.kind).toBe("view-assessment-progress");
+    expect(next.sentence).toContain("Assessment failed");
+    expect(next.actionLabel).toBe("View assessment details");
+    expect(next.sentence).not.toContain("running");
+  });
+
   it("links assessment progress to reviewTab on committed review workspace", () => {
     const next = resolveReviewPackageDoThisNext({
       ...baseInput,

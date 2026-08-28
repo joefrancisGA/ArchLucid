@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — Records fast-core test slices outside the `master` push corset (Core + Decisioning only). Not a buyer or operator document.
+
 # Trunk CI matrix measurement (beyond push corset)
 
 **Scope:** Records fast-core test slices outside the `master` push corset (Core + Decisioning only). The corset proves compile + 1,137 fast-core tests on two assemblies; this document quantifies the rest.

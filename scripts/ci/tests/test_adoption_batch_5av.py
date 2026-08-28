@@ -15,7 +15,7 @@ class TestAdoptionBatch5AV(unittest.TestCase):
         self.assertIn("SponsorEvidencePackSent", text)
 
     def test_tb_243_api_endpoint(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Pilots" / "PilotsController.cs"
+        path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Pilots" / "PilotsController.Packs.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("sponsor-pack-sent", text)
         self.assertIn("SponsorEvidencePackSent", text)

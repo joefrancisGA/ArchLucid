@@ -85,6 +85,36 @@ public sealed class ClarificationAnswerRephraseServiceTests
     }
 
     [Fact]
+    public async Task RephraseAsync_omits_dump_like_fallback_when_llm_fails()
+    {
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), 900, 0.2f, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("simulated outage"));
+
+        ClarificationAnswerRephraseService sut = new(client.Object, NullLogger<ClarificationAnswerRephraseService>.Instance);
+
+        RephraseClarificationAnswersResponse response = await sut.RephraseAsync(
+            new RephraseClarificationAnswersInput
+            {
+                Items =
+                [
+                    new ClarificationAnswerRephraseItem
+                    {
+                        QuestionKey = "l0.actor.additional-kinds",
+                        QuestionPrompt =
+                            "Are there other kinds of users (human or machine) that interact with this system besides those already identified?",
+                        ExtractedAnswer =
+                            "Actors Actor How they touch the system Operators / architects Browser — workspace Diagram —",
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        response.RephrasedAnswers.Should().NotContainKey("l0.actor.additional-kinds");
+    }
+
+    [Fact]
     public void BuildUserPrompt_includes_question_key_prompt_and_extracted_answer()
     {
         string prompt = ClarificationAnswerRephraseService.BuildUserPrompt(

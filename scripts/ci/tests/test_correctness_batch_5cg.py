@@ -21,7 +21,10 @@ class TestCorrectnessBatch5CG(unittest.TestCase):
     def test_tb_256_has_checkable_content(self) -> None:
         report = REPO_ROOT / "ArchLucid.Contracts" / "Agents" / "AgentResultEvidenceFaithfulnessReport.cs"
         evaluator = (
-            REPO_ROOT / "ArchLucid.AgentRuntime" / "Evaluation" / "AgentOutputTraceQualityEvaluator.cs"
+            REPO_ROOT
+            / "ArchLucid.AgentRuntime"
+            / "Evaluation"
+            / "AgentOutputTraceFaithfulnessEvaluator.cs"
         )
         self.assertIn("HasCheckableContent", report.read_text(encoding="utf-8"))
         evaluator_text = evaluator.read_text(encoding="utf-8")

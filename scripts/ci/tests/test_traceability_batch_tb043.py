@@ -20,7 +20,9 @@ class TestTraceabilityBatchTb043(unittest.TestCase):
             REPO_ROOT
             / "ArchLucid.Host.Composition"
             / "Startup"
-            / "ServiceCollectionExtensions.Agents.AzureCompletion.cs"
+            / "Modules"
+            / "Agents"
+            / "SchemaRemediationCompletionRegistrar.cs"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("BuildAzureOpenAiScopedCompletionChainWithoutPollyRetry", text)

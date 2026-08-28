@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+from ci_test_helpers import REPO_ROOT
 
 
 class TestTraceabilityBatch5BX(unittest.TestCase):
@@ -26,7 +26,8 @@ class TestTraceabilityBatch5BX(unittest.TestCase):
             REPO_ROOT
             / "ArchLucid.Host.Composition"
             / "Startup"
-            / "ServiceCollectionExtensions.SchedulingAndAlerts.cs"
+            / "Modules"
+            / "OutboxProcessorsCompositionRegistrar.cs"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("IRetrievalIndexingOutboxProcessor", text)

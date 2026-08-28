@@ -20,7 +20,7 @@ class TestCorrectnessGuardrailsBatch328(unittest.TestCase):
         self.assertEqual(names, ["Info", "Warning", "Error", "Critical"])
 
     def test_tb_328_design_tokens_map_warning_and_error(self) -> None:
-        tokens = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "design-tokens.ts").read_text(
+        tokens = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "design-tokens-status.ts").read_text(
             encoding="utf-8"
         )
         self.assertIn('case "warning":', tokens)
