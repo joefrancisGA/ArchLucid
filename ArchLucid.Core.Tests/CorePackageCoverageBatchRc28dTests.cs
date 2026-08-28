@@ -165,6 +165,18 @@ public sealed class CorePackageCoverageBatchRc28dTests
         line.Should().Contain("HOLD");
         line.Should().Contain("weak citations");
 
+        RunExplanationConfidenceSignals? pascalCase = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "FaithfulnessSupportRatio": 0.3,
+              "DeterministicFallbackUsed": false
+            }
+            """);
+
+        pascalCase.Should().NotBeNull();
+        pascalCase!.FaithfulnessSupportRatio.Should().Be(0.3);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(pascalCase).Should().Be("HOLD");
+
         string? export = RunExplanationConfidenceCalloutBuilder.BuildExportCallout(parsed);
         export.Should().NotBeNull();
         export!.Should().NotContain("**");

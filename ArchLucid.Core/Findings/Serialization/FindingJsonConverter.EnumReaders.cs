@@ -28,7 +28,7 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             return FindingSeverity.Info;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed))
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         return raw.Trim().ToLowerInvariant() switch
@@ -53,7 +53,7 @@ public sealed partial class FindingJsonConverter
             return (FindingEnforcementTier)numeric;
         }
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed))
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
@@ -88,7 +88,7 @@ public sealed partial class FindingJsonConverter
             return (FindingConfidenceLevel)numericFromString;
         }
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingConfidenceLevel parsed))
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingConfidenceLevel parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding confidence level value '{raw}'.");
@@ -112,7 +112,7 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding enforcement tier value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed))
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
@@ -136,7 +136,7 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding treatment value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed))
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding treatment value '{raw}'.");
@@ -160,7 +160,7 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding classification value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingClassification parsed))
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingClassification parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding classification value '{raw}'.");
@@ -184,7 +184,7 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding human review status value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingHumanReviewStatus parsed))
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingHumanReviewStatus parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding human review status value '{raw}'.");
