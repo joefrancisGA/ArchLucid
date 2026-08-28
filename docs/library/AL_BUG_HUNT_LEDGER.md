@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 67
-- **bugs-found:** 198
+- **hunts:** 68
+- **bugs-found:** 200
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — stickiness register maxRows bounds return 400 instead of silent clamp
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — homepage settings and weekly digest health ghost workspace 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2442,6 +2442,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — negative `syntheticCount` reached `PreCommitGovernanceGate` and surfaced HTTP 500 — **hit 2026-08-27:** controller rejects `syntheticCount < 0` before gate call; regression in `GovernancePreCommitSimulationControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetFindingsRegistersBundle`, `GetDecisionRegister`) — `maxRows <= 0` silently clamped to 1 via facade `Math.Clamp` instead of HTTP 400 parity with `GovernanceController.GetDashboard` — **hit 2026-08-27:** `ValidateRegisterMaxRows` on register GETs; regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceStickinessController` register reads — `maxRows > 500` silently clamped without controller upper-bound 400 (dashboard rejects `maxPending > 50` explicitly) — **hit 2026-08-27:** same `ValidateRegisterMaxRows` guard (LLM cost `days` parity); regression in `GovernanceStickinessControllerTests`.
+- [x] (proven) `TenantHomepageSettingsController` (`GetAsync`, `ListEligibleSamplesAsync`, `PutAsync`) — ghost workspace returned HTTP 200 unconfigured/empty homepage settings instead of workspace 404; `FeaturedCompletedSampleService` keys settings by `scope.WorkspaceId` but controller only preflighted tenant row — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantHomepageSettingsControllerTests` workspace-missing tests.
+- [x] (proven) `TenantWeeklyDigestHealthController.GetAsync` — ghost workspace returned HTTP 200 zeroed digest health snapshot instead of workspace 404; `WeeklyDigestHealthReader.GetSnapshotAsync` queries schedules/subscriptions by `scope.WorkspaceId` but controller only preflighted tenant row — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantWeeklyDigestHealthControllerTests.GetAsync_returns_not_found_when_workspace_missing`.
+- [ ] (hunt-ready) `GovernanceCoverageController` (`GetScopeCoverage`, `PreviewCoverage`) — ghost workspace returns HTTP 200 empty coverage instead of workspace 404; `GetByScopeAsync` / `PreviewAsync` use ambient workspace but controller only calls `GetByIdAsync` (`GovernanceCoverageController.cs` L52–76).
+- [ ] (hunt-ready) `GovernancePostureController.GetPosture` — ghost workspace returns HTTP 200 empty posture summary instead of workspace 404; `GetSummaryAsync` passes `scope.WorkspaceId` but controller only preflights tenant row (`GovernancePostureController.cs` L43–56).
+- [ ] (hunt-ready) `GovernanceSetupController.GetSetupGuideBundle` — ghost workspace returns HTTP 200 setup bundle instead of workspace 404; resolver and alert routing list by workspace scope but controller only calls `GetByIdAsync` (`GovernanceSetupController.cs` L51–68).
+
+2026-08-28 seed hunt #150: proved homepage-settings and weekly-digest-health ghost-workspace 404 parity; reseeded governance coverage, posture, and setup-guide workspace preflight candidates as hunt-ready.
 
 2026-08-27 seed hunt #147: proved bulk-disposition and create-risk-exception findingId trim parity; seeded dashboard sibling-cap and manifest-compare metadata candidates.
 
