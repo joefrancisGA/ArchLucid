@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace ArchLucid.Core.Manifest;
 
 /// <summary>Maps internal <see cref="DecisionConfidenceSource" /> values to buyer-facing labels.</summary>
@@ -9,7 +11,13 @@ public static class DecisionConfidenceSourceMapper
         if (string.IsNullOrWhiteSpace(confidenceSource))
             return BuyerDecisionConfidenceSource.Unknown;
 
-        if (!Enum.TryParse(confidenceSource.Trim(), ignoreCase: true, out DecisionConfidenceSource parsed))
+        string trimmed = confidenceSource.Trim();
+
+        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+            return BuyerDecisionConfidenceSource.Unknown;
+
+        if (!Enum.TryParse(trimmed, ignoreCase: true, out DecisionConfidenceSource parsed)
+            || !Enum.IsDefined(parsed))
             return BuyerDecisionConfidenceSource.Unknown;
 
         return ToBuyerLabel(parsed);
