@@ -104,4 +104,18 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
         props.Should().NotBeNull();
         props[IntegrationEventServiceBusApplicationProperties.DeduplicationKeyPropertyName].Should().Be("k");
     }
+
+    [Fact]
+    public void TryResolveForPublish_alert_resolved_maps_numeric_deduplication_key()
+    {
+        byte[] utf8 = "{\"schemaVersion\":1,\"deduplicationKey\":42424242}"u8.ToArray();
+
+        IReadOnlyDictionary<string, object>? props =
+            IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
+                IntegrationEventTypes.AlertResolvedV1,
+                utf8);
+
+        props.Should().NotBeNull();
+        props[IntegrationEventServiceBusApplicationProperties.DeduplicationKeyPropertyName].Should().Be("42424242");
+    }
 }
