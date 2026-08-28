@@ -47,6 +47,22 @@ public sealed class IntegrationEventServiceBusCorrelationIdTests
     }
 
     [Fact]
+    public void TryResolveForPublish_reads_PascalCase_CorrelationId_from_payload_when_activity_unset()
+    {
+        byte[] utf8 = "{\"schemaVersion\":1,\"CorrelationId\":\"pascal-corr\"}"u8.ToArray();
+
+        IntegrationEventServiceBusCorrelationId.TryResolveForPublish(utf8).Should().Be("pascal-corr");
+    }
+
+    [Fact]
+    public void TryResolveForPublish_reads_numeric_correlationId_from_payload_when_activity_unset()
+    {
+        byte[] utf8 = "{\"schemaVersion\":1,\"correlationId\":42424242}"u8.ToArray();
+
+        IntegrationEventServiceBusCorrelationId.TryResolveForPublish(utf8).Should().Be("42424242");
+    }
+
+    [Fact]
     public void TryResolveForPublish_returns_null_when_no_activity_and_payload_missing_correlationId()
     {
         byte[] utf8 = "{\"schemaVersion\":1}"u8.ToArray();
