@@ -57,7 +57,7 @@ public sealed class CommitPathRedundantLoadContractTests
 
     private static string FindRepoRoot()
     {
-        for (DirectoryInfo? directory = new(AppContext.BaseDirectory); directory != null; directory = directory.Parent)
+        for (DirectoryInfo? directory = new(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
         {
             string sln = Path.Combine(directory.FullName, "ArchLucid.sln");
 
