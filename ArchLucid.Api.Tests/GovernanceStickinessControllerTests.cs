@@ -1,4 +1,6 @@
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
@@ -964,6 +966,9 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
     [Fact]
@@ -992,6 +997,9 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            notFound.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ResourceNotFound);
     }
 
     [Fact]
@@ -1028,6 +1036,44 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_finding_id_is_whitespace()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = "   ",
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "accepted risk",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_mixed_finding_ids_include_whitespace()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1", "   "],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
