@@ -8,11 +8,10 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { RunStatusBadge } from "@/components/runs/RunStatusBadge";
+import { RunInspectorSnapshotStatus } from "@/components/runs/RunInspectorSnapshotStatus";
+import { RunInspectorExploreActions } from "@/components/runs/RunInspectorExploreActions";
 import { Button } from "@/components/ui/button";
-import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL } from "@/lib/buyer/buyer-polish-copy";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
-import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   isBuyerPolishedOperatorShellEnv,
   isBuyerSafeDemoMarketingChromeEnv,
@@ -25,7 +24,6 @@ import {
   getBuyerSafeReviewsTableLinkForRun,
   getBuyerSafeSignedManifestTableLink,
   getCanonicalReviewWorkspaceHref,
-  getShowcaseSponsorHref,
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer/buyer-safe-review-navigation";
@@ -33,7 +31,6 @@ import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import {
   INLINE_METADATA_LABEL_CLASS,
-  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
@@ -47,14 +44,6 @@ import {
   SHOWCASE_STATIC_DEMO_SPINE_COUNTS,
 } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
-
-function snapshotLabel(ok: boolean | undefined): string {
-  if (ok === true) {
-    return "✓";
-  }
-
-  return " — ";
-}
 
 export type RunInspectorPreviewProps = {
   run: RunSummary;
@@ -237,229 +226,39 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         );
       })() : null}
 
-      <div>
-        <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>
-          {buyerPolished ? "Evidence status" : "Pipeline output"}
-        </p>
-        <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{artifactNote}</p>
-        <ul className={cn("m-0 mt-2 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-          <li className="flex justify-between gap-2">
-            <span>Source context captured</span>
-            <span aria-label={run.hasContextSnapshot ? "Context snapshot present" : "Context snapshot missing"}>
-              {snapshotLabel(run.hasContextSnapshot)}
-            </span>
-          </li>
-          <li className="flex justify-between gap-2">
-            <span>{buyerPolished ? BUYER_SURFACE_VOCABULARY.evidenceGraph : "Graph generated"}</span>
-            <span
-              aria-label={
-                graphTrailReady ? "Decision traceability graph ready for this review" : "Graph snapshot missing"
-              }
-            >
-              {snapshotLabel(graphTrailReady)}
-            </span>
-          </li>
-          <li className="flex justify-between gap-2">
-            <span>{buyerPolished ? "Risks reviewed" : "Findings reviewed"}</span>
-            <span aria-label={run.hasFindingsSnapshot ? "Findings snapshot present" : "Findings snapshot missing"}>
-              {snapshotLabel(run.hasFindingsSnapshot)}
-            </span>
-          </li>
-          <li className="flex justify-between gap-2">
-            <span>{buyerPolished ? "Package finalized" : "Review finalized"}</span>
-            <span aria-label={run.hasGoldenManifest ? `${SIGNED_MANIFEST_LABEL} present` : `${SIGNED_MANIFEST_LABEL} missing`}>
-              {snapshotLabel(run.hasGoldenManifest)}
-            </span>
-          </li>
-        </ul>
-      </div>
+      <RunInspectorSnapshotStatus
+        run={run}
+        buyerPolished={buyerPolished}
+        graphTrailReady={graphTrailReady}
+        artifactNote={artifactNote}
+      />
 
-      {/* Primary exploration — buyer shell leads with the full package; secondary links stay one click away under collapsible groups. */}
-      <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
-        {buyerPolished ? (
-          <>
-            {!showcaseStory ? (
-              <Button variant="primary" size="sm" className="w-full" asChild>
-                <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
-              </Button>
-            ) : null}
-            <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
-              <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-                Related actions
-              </summary>
-              <div className="flex flex-col gap-2 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
-                <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={signedManifestExplore.href}>{signedManifestExplore.label}</Link>
-                </Button>
-                {showEvidenceGraphCta ? (
-                  <Button variant="outline" size="sm" className="w-full" asChild>
-                    <Link href={graphEvidenceHref}>View evidence graph</Link>
-                  </Button>
-                ) : null}
-                <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={`/governance/approval-queue?runId=${encodeURIComponent(run.runId)}`}>View resolve outcomes</Link>
-                </Button>
-                <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={auditTrailNavHref(run.runId)}>View audit trail</Link>
-                </Button>
-                <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={`/insights/ask-review-questions?runId=${encodeURIComponent(run.runId)}`}>Ask about this review</Link>
-                </Button>
-              </div>
-            </details>
-            <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
-              <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-                Open specific artifact
-              </summary>
-              <div className="flex flex-col gap-2 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
-                {buyerSafePrimary ? (
-                  <>
-                    {showcaseStory ? (
-                      <Button variant="outline" size="sm" className="w-full" asChild>
-                        <Link href={getShowcaseSponsorHref()}>Sponsor report</Link>
-                      </Button>
-                    ) : null}
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={showcaseWalkthroughHref}>Read-only walkthrough</Link>
-                    </Button>
-                    {!(buyerPolished && showcaseStory) ? (
-                      <Button variant="outline" size="sm" className="w-full" asChild>
-                        <Link href={workspaceHref}>Full review detail</Link>
-                      </Button>
-                    ) : null}
-                  </>
-                ) : null}
-
-                {!(buyerSafePrimary && showcaseStory && !buyerPolished) ? (
-                  <>
-                    {!buyerSafePrimary ? (
-                      <Button variant="outline" size="sm" className="w-full" asChild>
-                        <Link href={manifestHref}>{signedManifestExplore.label}</Link>
-                      </Button>
-                    ) : null}
-                    {hasFindingsLink ? (
-                      <Button variant="outline" size="sm" className="w-full" asChild>
-                        <Link href={findingsQuickHref}>{findingsQuickLabel}</Link>
-                      </Button>
-                    ) : null}
-                    {hasArtifactsLink ? (
-                      <Button variant="outline" size="sm" className="w-full" asChild>
-                        <Link href={artifactsQuickHref}>Deliverables</Link>
-                      </Button>
-                    ) : null}
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={timelineQuickHref}>{timelineQuickLabel}</Link>
-                    </Button>
-                  </>
-                ) : null}
-              </div>
-            </details>
-          </>
-        ) : (
-          <div
-            className={cn(
-              "grid gap-2",
-              showEvidenceGraphCta ? "sm:grid-cols-3" : "sm:grid-cols-2",
-            )}
-          >
-            <Button variant="primary" size="sm" className="w-full" asChild>
-              <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
-            </Button>
-            <Button variant="outline" size="sm" className="w-full" asChild>
-              <Link href={signedManifestExplore.href}>{signedManifestExplore.label}</Link>
-            </Button>
-            {showEvidenceGraphCta ? (
-              <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link href={graphEvidenceHref}>View evidence graph</Link>
-              </Button>
-            ) : null}
-          </div>
-        )}
-        {!buyerPolished ? (
-          <>
-            {showcaseStory || run.hasGraphSnapshot === true ? (
-              <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link href={graphEvidenceHref}>View evidence graph</Link>
-              </Button>
-            ) : null}
-            {buyerSafePrimary ? (
-              <div className="flex flex-col gap-2">
-                <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={showcaseWalkthroughHref}>Public walkthrough</Link>
-                </Button>
-                <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={workspaceHref}>Technical workspace detail</Link>
-                </Button>
-              </div>
-            ) : null}
-            {!(buyerSafePrimary && showcaseStory && !buyerPolished) ? (
-              <div>
-                <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>
-                  Quick links
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {!buyerSafePrimary ? (
-                    <Button variant="outline" size="sm" className="h-8" asChild>
-                      <Link href={manifestHref}>{SIGNED_MANIFEST_LABEL}</Link>
-                    </Button>
-                  ) : null}
-                  {hasFindingsLink ? (
-                    <Button variant="outline" size="sm" className="h-8" asChild>
-                      <Link href={findingsQuickHref}>{findingsQuickLabel}</Link>
-                    </Button>
-                  ) : null}
-                  {hasArtifactsLink ? (
-                    <Button variant="outline" size="sm" className="h-8" asChild>
-                      <Link href={artifactsQuickHref}>Artifacts</Link>
-                    </Button>
-                  ) : null}
-                  <Button variant="outline" size="sm" className="h-8" asChild>
-                    <Link href={timelineQuickHref}>{timelineQuickLabel}</Link>
-                  </Button>
-                </div>
-              </div>
-            ) : null}
-          </>
-        ) : null}
-      </div>
-
-      {!buyerPolished ? (
-        <div>
-          <button
-            type="button"
-            className={cn(OPERATOR_LINK.optional, "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200")}
-            onClick={() => setMoreOpen((v) => !v)}
-            aria-expanded={moreOpen ? "true" : "false"}
-          >
-            {moreOpen ? "▾ Less" : "▸ More actions"}
-          </button>
-          {moreOpen ? (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {showcaseStory ? (
-                <>
-                  <Button variant="outline" size="sm" className="h-8" asChild>
-                    <Link href={findingHref}>Primary finding</Link>
-                  </Button>
-                  <Button variant="outline" size="sm" className="h-8" asChild>
-                    <Link href={timelineQuickHref}>{timelineQuickLabel}</Link>
-                  </Button>
-                </>
-              ) : null}
-              {run.hasGraphSnapshot === true || showcaseStory ? (
-                <Button variant="outline" size="sm" className="h-8" asChild>
-                  <Link href={graphEvidenceHref}>Trail graph</Link>
-                </Button>
-              ) : null}
-              <Button variant="outline" size="sm" className="h-8" asChild>
-                <Link href={compareHref}>Compare</Link>
-              </Button>
-              <Button variant="outline" size="sm" className="h-8" asChild>
-                <Link href={replayHref}>Replay</Link>
-              </Button>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
+      <RunInspectorExploreActions
+        run={run}
+        buyerPolished={buyerPolished}
+        buyerSafePrimary={buyerSafePrimary}
+        showcaseStory={showcaseStory}
+        showcaseUseWorkspaceQuickLinks={showcaseUseWorkspaceQuickLinks}
+        primaryExplore={primaryExplore}
+        signedManifestExplore={signedManifestExplore}
+        workspaceHref={workspaceHref}
+        showcaseWalkthroughHref={showcaseWalkthroughHref}
+        graphEvidenceHref={graphEvidenceHref}
+        compareHref={compareHref}
+        replayHref={replayHref}
+        manifestHref={manifestHref}
+        findingHref={findingHref}
+        hasFindingsLink={hasFindingsLink}
+        hasArtifactsLink={hasArtifactsLink}
+        showEvidenceGraphCta={showEvidenceGraphCta}
+        findingsQuickHref={findingsQuickHref}
+        artifactsQuickHref={artifactsQuickHref}
+        timelineQuickHref={timelineQuickHref}
+        findingsQuickLabel={findingsQuickLabel}
+        timelineQuickLabel={timelineQuickLabel}
+        moreOpen={moreOpen}
+        onToggleMoreOpen={() => setMoreOpen((v) => !v)}
+      />
     </div>
   );
 }
