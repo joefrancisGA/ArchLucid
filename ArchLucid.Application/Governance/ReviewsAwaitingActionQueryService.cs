@@ -79,6 +79,18 @@ public sealed class ReviewsAwaitingActionQueryService(
 
             if (sourceRunId.HasValue)
             {
+                var scopedSourceRun = await _runRepository
+                    .GetByIdAsync(scope, sourceRunId.Value, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (scopedSourceRun is null)
+                {
+                    sourceRunId = null;
+                }
+            }
+
+            if (sourceRunId.HasValue)
+            {
                 string leftRunId = sourceRunId.Value.ToString("N");
                 string rightRunId = run.RunId.ToString("N");
 
