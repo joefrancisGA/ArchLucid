@@ -29,18 +29,62 @@ public sealed class GovernancePreCommitSimulationControllerTests
     };
 
     [Fact]
-    public async Task GetChecklist_returns_bad_request_when_run_id_is_empty_guid()
+    public async Task GetChecklist_returns_bad_request_when_run_id_is_not_a_guid()
     {
         Mock<IPreFinalizeChecklistService> checklist = new(MockBehavior.Strict);
 
         GovernancePreCommitSimulationController sut = CreateController(checklistService: checklist.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
-        IActionResult result = await sut.GetChecklistAsync(Guid.Empty.ToString("D"), CancellationToken.None);
+        IActionResult result = await sut.GetChecklistAsync("not-a-guid", CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         checklist.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_run_id_is_not_a_guid()
+    {
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(gate: gate.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = "not-a-guid",
+                SyntheticSeverity = FindingSeverity.Critical,
+                SyntheticCount = 1,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        gate.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Simulate_returns_bad_request_when_synthetic_count_exceeds_five_hundred()
+    {
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(gate: gate.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
+                SyntheticSeverity = FindingSeverity.Critical,
+                SyntheticCount = 501,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        gate.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -108,28 +152,6 @@ public sealed class GovernancePreCommitSimulationControllerTests
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-    }
-
-    [Fact]
-    public async Task Simulate_returns_bad_request_when_run_id_is_empty_guid()
-    {
-        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
-
-        GovernancePreCommitSimulationController sut = CreateController(gate: gate.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
-
-        IActionResult result = await sut.SimulateAsync(
-            new PreCommitSyntheticSimulationRequest
-            {
-                RunId = Guid.Empty.ToString("D"),
-                SyntheticSeverity = FindingSeverity.Critical,
-                SyntheticCount = 1,
-            },
-            CancellationToken.None);
-
-        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        gate.VerifyNoOtherCalls();
     }
 
     [Fact]
