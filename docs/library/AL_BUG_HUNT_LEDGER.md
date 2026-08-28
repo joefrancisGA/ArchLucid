@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 15
-- **bugs-found:** 32
+- **hunts:** 16
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `FindingJsonConverter` ignored PascalCase `Severity` and string-form `confidenceScore` / `insightDensityScore`; `AlertRoutingCriteriaMetadata` dropped scalar `severities`
+- **last-bug:** 2026-08-28 — `FindingJsonConverter` ignored PascalCase `EnforcementTier`/`Category` and string-form `evaluationConfidenceScore`/`projectedImpactUsd`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1789,7 +1789,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentModelExecutionProfileParser.TryParse` rejects `"High Assurance"` display label while accepting `"high-assurance"` — **hit 2026-08-28 (#223):** operator tenant-setting labels failed profile parse; fixed with display-label alias (`TryParse_accepts_high_assurance_display_labels`).
 - [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` accepts undefined severity numeric-strings via bare `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-28 (#225):** numeric-string `"99"` hydrated as breach severity label; fixed with `Enum.IsDefined` guard (`Parse_breach_severity_numeric_string_out_of_range_returns_null`).
 - [x] (proven) `FindingJsonConverter.ReadStringDict` calls `GetString()` on numeric `properties` tokens and aborts full finding deserialize — **hit 2026-08-28 (#225):** coerce number tokens to invariant strings and preserve sibling string entries (`Deserialize_properties_numeric_values_preserve_string_entries`).
-- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` accepts undefined `AgentOutputQualityGateMode` numeric-strings via bare `Enum.TryParse` — **hit 2026-08-28 (#227):** fixed with `Enum.IsDefined` guard (`ShouldEmitFinding_ignores_undefined_quality_gate_mode_numeric_string`).
+- [x] (proven) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` accepts undefined `AgentOutputQualityGateMode` numeric-strings via bare `Enum.TryParse` — **hit 2026-08-28 (#227):** fixed with `Enum.IsDefined` guard (`TryDescribeAdvisoryFinding_production_real_undefined_quality_gate_mode_emits_rule`).
 - [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` undefined legacy status strings — **2026-08-28 (#229):** already guarded with `Enum.IsDefined`.
 - [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` silently drops numeric/boolean `severities` / `findingTypes` / `tags` tokens — **hit 2026-08-28 (#233):** coerce mixed-type metadata array entries to invariant strings (`AlertRoutingCriteriaMetadata_Parse_numeric_severity_tokens_coerce_to_strings`).
 - [x] (proven) `FindingJsonConverter.Read` ignores numeric `reviewedAtUtc` JSON tokens — only `JsonValueKind.String` parsed; numeric Unix epoch reload dropped review timestamp — **hit 2026-08-28 (#235):** fixed with `ReadOptionalDateTimeOffset` accepting millisecond/second epochs (`Deserialize_numeric_reviewedAtUtc_unix_milliseconds_maps_timestamp`).
@@ -1798,8 +1798,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter.ReadSeverity` uses case-sensitive `TryGetProperty` — PascalCase `"Severity":"Error"` silently defaults to `Info` — **hit 2026-08-28 (#239):** fixed with `TryGetPropertyCaseInsensitive` (`Deserialize_pascal_case_severity_maps_error`).
 - [x] (proven) `FindingJsonConverter.Read` ignores string-form `confidenceScore` and `insightDensityScore` — quoted numerics stay null on snapshot reload — **hit 2026-08-28 (#239):** fixed with `ReadOptionalDouble` / `ReadOptionalInt32` (`Deserialize_string_numeric_confidenceScore_coerces_to_double`, `Deserialize_string_numeric_insightDensityScore_coerces_to_int`).
 - [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` returns empty for scalar `severities` / `findingTypes` / `tags` — `"severities":"Critical"` disables routing filter — **hit 2026-08-28 (#239):** wrap scalar tokens as single-item lists (`AlertRoutingCriteriaMetadata_Parse_scalar_severity_coerces_to_single_item_list`).
-- [ ] (candidate) `FindingJsonConverter.Read` still case-sensitive on `enforcementTier`, `category`, `evaluationConfidenceScore`, and `projectedImpactUsd` — PascalCase exporter labels may silently skip or default (same class as fixed `severity`).
-- [ ] (candidate) `FindingJsonConverter.Read` ignores string-form `evaluationConfidenceScore` and `projectedImpactUsd` — quoted numerics stay null (same class as fixed `confidenceScore`).
+- [x] (invalid) `FindingJsonConverter.Read` still case-sensitive on `enforcementTier`, `category`, `evaluationConfidenceScore`, and `projectedImpactUsd` — **superseded #241:** proven in hunt #241.
+- [x] (invalid) `FindingJsonConverter.Read` ignores string-form `evaluationConfidenceScore` and `projectedImpactUsd` — **superseded #241:** proven in hunt #241.
+- [x] (proven) `FindingJsonConverter.Read` case-sensitive on `enforcementTier` and `category` — PascalCase `"EnforcementTier":"Advisory"` stayed `PolicyViolation` and `"Category":"Security"` stayed empty — **hit 2026-08-28 (#241):** `TryGetPropertyCaseInsensitive` for tier/category (`Deserialize_pascal_case_enforcement_tier_maps_advisory`, `Deserialize_pascal_case_category_maps_value`).
+- [x] (proven) `FindingJsonConverter.Read` ignores string-form `evaluationConfidenceScore` and `projectedImpactUsd` — quoted numerics stayed null on snapshot reload — **hit 2026-08-28 (#241):** `ReadOptionalInt32` / `ReadOptionalDecimal` (`Deserialize_string_numeric_evaluationConfidenceScore_coerces_to_int`, `Deserialize_string_numeric_projectedImpactUsd_coerces_to_decimal`).
+- [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `humanReviewStatus`, `evaluationConfidenceLevel`, and `reviewedAtUtc` property names — PascalCase exporter labels may silently skip review metadata (same class as fixed `severity`).
+
+2026-08-28 seed hunt #241: cherry-picked #223–#239 Core fixes onto #225 rebase; proved PascalCase `EnforcementTier`/`Category` and string-form `evaluationConfidenceScore`/`projectedImpactUsd` coercion.
 
 2026-08-28 seed hunt #235: cherry-picked #227–#233 Core fixes onto #225 rebase; proved numeric `reviewedAtUtc` epoch coercion.
 
