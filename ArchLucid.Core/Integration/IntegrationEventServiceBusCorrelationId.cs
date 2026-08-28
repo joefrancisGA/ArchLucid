@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
@@ -46,10 +47,8 @@ public static class IntegrationEventServiceBusCorrelationId
         {
             using JsonDocument doc = JsonDocument.Parse(payloadUtf8);
 
-            if (!doc.RootElement.TryGetProperty("correlationId", out JsonElement correlationEl))
+            if (!TryGetCorrelationIdPropertyCaseInsensitive(doc.RootElement, out string? correlationId))
                 return null;
-
-            string? correlationId = correlationEl.GetString();
 
             if (string.IsNullOrWhiteSpace(correlationId))
                 return null;
@@ -60,5 +59,41 @@ public static class IntegrationEventServiceBusCorrelationId
         {
             return null;
         }
+    }
+
+    private static bool TryGetCorrelationIdPropertyCaseInsensitive(JsonElement root, out string? value)
+    {
+        foreach (JsonProperty property in root.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, "correlationId", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            return TryReadCorrelationIdToken(property.Value, out value);
+        }
+
+        value = null;
+
+        return false;
+    }
+
+    private static bool TryReadCorrelationIdToken(JsonElement element, out string? value)
+    {
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            value = element.GetString();
+
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numeric))
+        {
+            value = numeric.ToString(CultureInfo.InvariantCulture);
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
     }
 }
