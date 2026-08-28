@@ -209,11 +209,15 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (request.EvaluateAgainstRunIds.Any(static id => string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "Each evaluateAgainstRunId must be a non-empty string.",
+                ProblemTypes.ValidationFailed);
+        }
+
         foreach (string runId in request.EvaluateAgainstRunIds)
         {
-            if (string.IsNullOrWhiteSpace(runId))
-                continue;
-
             if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
             {
                 return this.BadRequestProblem(
