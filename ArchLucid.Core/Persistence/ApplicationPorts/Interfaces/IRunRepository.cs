@@ -236,9 +236,12 @@ public interface IRunRepository
 
     /// <summary>
     ///     Returns <see langword="true" /> when the workspace has at least one non-archived run whose
-    ///     <see cref="RunRecord.ProjectId" /> matches <paramref name="systemName" /> case-insensitively.
+    ///     <see cref="RunRecord.ProjectId" /> matches <paramref name="systemName" /> case-insensitively and whose
+    ///     <see cref="RunRecord.LegacyRunStatus" /> occupies the name (excludes terminal
+    ///     <see cref="ArchLucid.Contracts.Common.ArchitectureRunStatus.Failed" /> and
+    ///     <see cref="ArchLucid.Contracts.Common.ArchitectureRunStatus.ExecutionCompletedQualityRejected" />).
     /// </summary>
-    /// <param name="excludeRunId">Optional run to ignore (async create completing its own admitted stub).</param>
+    /// <param name="excludeRunId">Optional run to ignore (async create stub or prior run on a replacement intake).</param>
     Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
         ScopeContext scope,
         string systemName,

@@ -100,7 +100,11 @@ public sealed class ArchitectureSynthesisKernel(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         await _workspaceSystemNameCollisionGuard
-            .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+            .EnsureAvailableAsync(
+                scope,
+                request.SystemName,
+                excludeRunId: ArchitectureReviewSourceRunResolver.TryResolveSourceRunId(request),
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         ArchitectureRequest? existing =

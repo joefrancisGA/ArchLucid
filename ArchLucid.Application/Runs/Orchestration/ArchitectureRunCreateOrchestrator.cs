@@ -156,7 +156,11 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
                 return replayUnderDistributed;
 
             await _workspaceSystemNameCollisionGuard
-                .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+                .EnsureAvailableAsync(
+                    scope,
+                    request.SystemName,
+                    excludeRunId: ArchitectureReviewSourceRunResolver.TryResolveSourceRunId(request),
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
@@ -170,7 +174,11 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
             return fingerprintReplay;
 
         await _workspaceSystemNameCollisionGuard
-            .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+            .EnsureAvailableAsync(
+                scope,
+                request.SystemName,
+                excludeRunId: ArchitectureReviewSourceRunResolver.TryResolveSourceRunId(request),
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
