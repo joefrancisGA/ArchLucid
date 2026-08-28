@@ -1091,6 +1091,31 @@ describe("SocraticIntakeWizard", () => {
     expect(patchDraftRequest).toHaveBeenCalledTimes(1);
   });
 
+  it("shows a failed admission inline above the CTA instead of a toast", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockRejectedValue(
+      new ApiRequestError("A review or architecture named 'ArchLucid' already exists in this workspace.", {
+        problem: null,
+        correlationId: "corr-1",
+        httpStatus: 409,
+      }),
+    );
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    const inlineError = await screen.findByTestId("guided-intake-request-error");
+
+    expect(inlineError).toHaveTextContent(/already exists/i);
+    expect(showError).not.toHaveBeenCalled();
+    expect(
+      inlineError.compareDocumentPosition(screen.getByTestId("socratic-admit"))
+        & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("shows a failed submit inline above the CTA instead of a toast", async () => {
     mockAdmittedDraftWithoutClarifications();
     submitDraftRequest.mockRejectedValue(
