@@ -33,6 +33,42 @@ public sealed class TenantCostSettingsControllerTests
         DefaultAverageIncidentCostUsd = 25_000m
     };
 
+    private static readonly Guid ForeignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+    private static ScopeContext ScopeWithWorkspace(Guid workspaceId) =>
+        new()
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = Scope.ProjectId,
+        };
+
+    [Fact]
+    public async Task GetAsync_returns_tenant_defaults_when_workspace_not_in_tenant_list()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .Setup(r => r.TryGetAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCostSettingsRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(ScopeWithWorkspace(ForeignWorkspaceId));
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        TenantCostSettingsGetResponse body = ok.Value.Should().BeOfType<TenantCostSettingsGetResponse>().Subject;
+        body.IsTenantConfigured.Should().BeFalse();
+        repository.Verify(
+            r => r.TryGetAsync(Scope.TenantId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     [Fact]
     public async Task GetAsync_returns_platform_defaults_when_no_row()
     {
