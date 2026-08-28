@@ -96,4 +96,24 @@ public sealed class FindingEnforcementTierClassifierTests
             .Should()
             .Be(FindingEnforcementTier.Advisory);
     }
+
+    [Fact]
+    public void ClassifyFinding_ignores_undefined_enforcement_tier_property_value()
+    {
+        Finding finding = new()
+        {
+            FindingId = "f-1",
+            FindingType = "ArchitectureFinding",
+            Category = "Reliability",
+            EngineType = "architecture",
+            Severity = FindingSeverity.Warning,
+            Title = "Specific architecture gap",
+            Rationale = "SecretManagementUnderSpecified in manifest services block.",
+            Properties = { [FindingPropertyKeys.EnforcementTier] = "99" },
+        };
+
+        FindingEnforcementTierClassifier.ClassifyFinding(finding)
+            .Should()
+            .Be(FindingEnforcementTier.PolicyViolation);
+    }
 }
