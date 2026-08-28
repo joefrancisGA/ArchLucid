@@ -14,10 +14,11 @@ namespace ArchLucid.Decisioning.Findings;
 ///         <see cref="InsightDensityEngineDistributionRow.WouldDemoteIfUnprotectedCount" /> as a
 ///         counterfactual, not production behavior.
 ///     </para>
-///     <para>
-///         The golden corpus harness exercises six engines; thirty-three built-in engines are absent
-///         from a corpus-derived distribution table.
-///     </para>
+    ///     <para>
+    ///         The golden corpus harness registers fourteen engines; the distribution table lists only
+    ///         engine types that produced findings on the corpus graphs. Built-in product engines absent
+    ///         from the table are documented in <see cref="InsightDensityEngineDistributionMarkdown" />.
+    ///     </para>
 /// </remarks>
 public static class InsightDensityEngineDistributionCalculator
 {
