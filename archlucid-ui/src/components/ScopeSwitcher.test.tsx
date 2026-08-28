@@ -293,7 +293,11 @@ describe("ScopeSwitcher — buyer-polished shell", () => {
     expect(trigger).not.toHaveTextContent("Sample workspace:");
     expect(trigger).toHaveAttribute("aria-label", sampleAccessibleLabel);
     expect(trigger).toHaveAttribute("title", sampleAccessibleLabel);
-    expect(trigger.className).toMatch(/overflow-hidden/);
+    expect(trigger.className).toMatch(/overflow-clip/);
+    const innerChrome = trigger.querySelector("span.rounded-md");
+
+    expect(innerChrome).not.toBeNull();
+    expect(innerChrome?.className).toMatch(/\bh-8\b/);
     expect(trigger.querySelector("svg")).not.toBeNull();
 
     fireEvent.click(trigger);
