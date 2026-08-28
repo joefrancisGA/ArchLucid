@@ -54,13 +54,17 @@ public sealed class GovernanceStickinessControllerTests
         Mock<IFindingInspectReadRepository>? findingInspect = null,
         Mock<IRunRepository>? runRepository = null,
         IRealizedValueAttestationService? attestationService = null,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        Mock<IActorContext>? actor = null,
+        Mock<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>? mergeConflictResolution = null)
     {
         Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        Mock<IActorContext> actor = new();
-        actor.Setup(a => a.GetActorId()).Returns("reviewer@test");
+        Mock<IActorContext> actorContext = actor ?? new Mock<IActorContext>();
+
+        if (actor is null)
+            actorContext.Setup(a => a.GetActorId()).Returns("reviewer@test");
 
         Mock<IFindingDispositionService> dispositions = dispositionService ?? new Mock<IFindingDispositionService>();
         dispositions
@@ -148,7 +152,7 @@ public sealed class GovernanceStickinessControllerTests
         return new GovernanceStickinessController(
                 new GovernanceStickinessFacade(
                     scope.Object,
-                    actor.Object,
+                    actorContext.Object,
                     dispositions.Object,
                     riskExceptionService.Object,
                     riskRegisterService.Object,
@@ -156,7 +160,8 @@ public sealed class GovernanceStickinessControllerTests
                     recurrenceRepository.Object,
                     nextRun.Object,
                     runRepository?.Object ?? Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-                    Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
+                    mergeConflictResolution?.Object
+                        ?? Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
                     digestComposer.Object,
                     reviewsAwaiting.Object,
                     attestationService ?? Mock.Of<IRealizedValueAttestationService>(),
@@ -1454,6 +1459,71 @@ public sealed class GovernanceStickinessControllerTests
         body.IsValid.Should().BeFalse();
         body.NextRunUtc.Should().BeEmpty();
         body.ValidationError.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task GetAssignedToMeFindingsCount_returns_zero_when_project_id_is_out_of_scope()
+    {
+        Guid foreignProjectId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IArchitectureRiskRegisterService> riskRegister = new(MockBehavior.Strict);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("reviewer@example.com");
+        actor.Setup(a => a.GetActorId()).Returns("actor-guid-123");
+
+        GovernanceStickinessController sut = BuildSut(
+            riskRegister: riskRegister,
+            actor: actor);
+
+        IActionResult action = await sut.GetAssignedToMeFindingsCount(
+            foreignProjectId,
+            CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        GovernanceAssignedToMeFindingsCountResponse body =
+            ok.Value.Should().BeOfType<GovernanceAssignedToMeFindingsCountResponse>().Subject;
+        body.Count.Should().Be(0);
+        riskRegister.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ResolveFindingMergeConflict_returns_not_found_when_conflict_not_on_run_snapshot()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService> merge = new();
+        merge
+            .Setup(s => s.TryResolveAsync(
+                Scope,
+                runId,
+                "foreign-finding",
+                FindingMergeConflictResolutionAction.AcceptPrimary,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        GovernanceStickinessController controller = BuildSut(
+            runRepository: runs,
+            mergeConflictResolution: merge);
+
+        ResolveFindingMergeConflictRequest request = new()
+        {
+            Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+        };
+
+        IActionResult action = await controller.ResolveFindingMergeConflict(
+            runId,
+            "foreign-finding",
+            request,
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     [Fact]
