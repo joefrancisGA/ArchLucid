@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 10
-- **bugs-found:** 17
+- **hunts:** 11
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `FindingJsonConverter` properties/evaluationConfidenceLevel accepted undefined enum ordinals; `GraphJsonElementReaders.ReadProperties` dropped all string entries on mixed-type bags; `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` cast numeric-string `99`
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — `FindingJsonConverter` case-sensitive on `findingSchemaVersion`, `relatedNodeIds`, `properties`, `treatment`, `payloadType`, `payload`, and `trace` PascalCase exporter labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1781,6 +1781,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingJsonConverter` `properties.enforcementTier` and `evaluationConfidenceLevel` accept undefined enum strings via `Enum.TryParse` without `Enum.IsDefined` — numeric-string `"99"` may hydrate cast ordinals — **hit 2026-08-27:** properties `enforcementTier` and top-level `evaluationConfidenceLevel` accepted `"99"`; fixed with `ReadEnforcementTierFromString` / `ReadConfidenceLevel` (`Deserialize_properties_enforcementTier_numeric_string_out_of_range_throws`, `Deserialize_evaluationConfidenceLevel_numeric_string_out_of_range_throws`).
 - [x] (proven) `GraphJsonElementReaders.ReadProperties` returns an empty dictionary when any property value is non-string — mixed-type graph node `properties` bags lose all entries on deserialize — **hit 2026-08-27:** fallback now preserves string entries when `Dictionary<string,string>` deserialize fails (`GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries`).
 - [x] (proven) `ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault` accepts undefined review-status strings via `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-27:** numeric-string `"99"` cast to `(FindingHumanReviewStatus)99`; fixed with `Enum.IsDefined` guard (`ParseOrDefault_returns_NotRequired_for_undefined_numeric_string`).
+- [x] (proven) `FindingJsonConverter.Read` case-sensitive on `findingSchemaVersion` — PascalCase `"FindingSchemaVersion": 2` defaulted schema version to `0` on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` (`Deserialize_pascal_case_findingSchemaVersion_maps_version`).
+- [x] (proven) `FindingJsonConverter.ReadStringList` case-sensitive on `relatedNodeIds` / `recommendedActions` — PascalCase `"RelatedNodeIds"` dropped graph linkage on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` in `ReadStringList` (`Deserialize_pascal_case_relatedNodeIds_maps_list`).
+- [x] (proven) `FindingJsonConverter.ReadStringDict` case-sensitive on `properties` — PascalCase `"Properties"` dropped properties bag on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` in `ReadStringDict` (`Deserialize_pascal_case_properties_bag_maps_entries`).
+- [x] (proven) `FindingJsonConverter.ReadInsightDensityFields` case-sensitive on `treatment` / `classification` — PascalCase `"Treatment"` left insight-density fields null on reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` (`Deserialize_pascal_case_treatment_maps_demote_to_checklist`).
+- [x] (proven) `FindingJsonConverter.Read` case-sensitive on `payloadType` and `payload` — PascalCase `"PayloadType"` / `"Payload"` skipped typed payload rehydration on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` for payload type and body (`Deserialize_pascal_case_payloadType_and_payload_map_typed_payload`).
+- [x] (proven) `FindingJsonConverter.ReadTrace` case-sensitive on `trace` — PascalCase `"Trace"` dropped explainability trace on snapshot reload — **hit 2026-08-28 (#251):** `TryGetPropertyCaseInsensitive` in `ReadTrace` (`Deserialize_pascal_case_trace_maps_source_agent_execution_trace_id`).
+- [ ] (candidate) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` case-sensitive on `correlationId` — PascalCase `"CorrelationId"` omitted from Service Bus publish correlation when activity tag unset.
+- [ ] (candidate) `FindingJsonConverter.Read` case-sensitive on `category`, `enforcementTier`, `humanReviewStatus`, and `evaluationConfidenceLevel` — PascalCase exporter labels may silently default on reload (sibling fields still use `TryGetProperty`).
+- [ ] (candidate) `FindingJsonConverter.ReadOptionalString` numeric coercion gap — numeric `agentExecutionTraceId` / `runIdRef` tokens may not coerce to string (prior #229 seed on unmerged branch).
+
+2026-08-28 seed hunt #251: proved PascalCase `findingSchemaVersion`, list/properties/treatment/payload/trace lookup gaps promoted from prior seed rows; seeded `correlationId`, remaining scalar PascalCase, and numeric optional-string coercion candidates.
 
 ---
 

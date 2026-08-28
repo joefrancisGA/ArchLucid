@@ -16,10 +16,10 @@ public sealed partial class FindingJsonConverter
             finding.InsightDensityScore = insightDensityScore;
         }
 
-        if (root.TryGetProperty("treatment", out JsonElement treatmentElement))
+        if (TryGetPropertyCaseInsensitive(root, "treatment", out JsonElement treatmentElement))
             finding.Treatment = ReadTreatment(treatmentElement);
 
-        if (root.TryGetProperty("classification", out JsonElement classificationElement))
+        if (TryGetPropertyCaseInsensitive(root, "classification", out JsonElement classificationElement))
             finding.Classification = ReadClassification(classificationElement);
 
         finding.WhyThisIsNotGeneric = ReadOptionalString(root, "whyThisIsNotGeneric");
