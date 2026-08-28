@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 38
-- **bugs-found:** 104
+- **hunts:** 39
+- **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — stickiness register reads ghost tenant 404 parity
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — pilot value report ghost workspace 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2376,6 +2376,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.List` — ghost tenant returned HTTP 200 empty catalog instead of 404 — **hit 2026-08-27:** tenant preflight via `ITenantRepository.GetByIdAsync` (posture/dashboard parity); regression in `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `GovernancePreviewController.CompareEnvironments` — ghost tenant returned HTTP 200 empty comparison instead of 404 while posture/resolution preflight tenant row — **hit 2026-08-27:** `ITenantRepository.GetByIdAsync` preflight before `CompareEnvironmentsAsync` (`GovernancePreviewControllerUnitTests.CompareEnvironments_returns_not_found_when_tenant_missing`).
 - [x] (proven) `GovernanceStickinessController` register reads (`GetRiskRegister`, `GetDecisionsNeededSummary`, `ListRiskExceptions`) — ghost tenant returned HTTP 200 empty registers instead of 404 — **hit 2026-08-27:** shared `RequireTenantOrNotFoundAsync` on read endpoints (`GovernanceStickinessControllerTests`).
+- [x] (proven) `TenantPilotValueReportController` (`GetPilotValueReport`, `GetRoiSummaryPageBundle`) — ghost workspace returned HTTP 200 pilot/ROI payload instead of workspace 404; `PilotValueReportService.BuildAsync` checks tenant row only while audit export uses ambient workspace — **hit 2026-08-28:** shared `TenantWorkspaceScopePreflight` preflight before service/audit calls; regression in `TenantPilotValueReportControllerTests.GetPilotValueReport_returns_not_found_when_workspace_missing` and `GetRoiSummaryPageBundle_returns_not_found_when_workspace_missing`.
+
+2026-08-28 thorough hunt #123: proved pilot-value-report ghost-workspace 404 parity; cheap-disproved stickiness register ghost-tenant re-hunt (already fixed hunt #122).
 
 2026-08-27 thorough hunt #122: proved preview compare-environments and stickiness register ghost-tenant 404 parity.
 
