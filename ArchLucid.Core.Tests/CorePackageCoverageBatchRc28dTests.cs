@@ -68,6 +68,25 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_scalar_severity_coerces_to_single_item_list()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "routingCriteria": {
+                "severities": "Critical",
+                "findingTypes": "Cost",
+                "tags": "ops"
+              }
+            }
+            """);
+
+        parsed.Severities.Should().ContainSingle("Critical");
+        parsed.FindingTypes.Should().ContainSingle("Cost");
+        parsed.Tags.Should().ContainSingle("ops");
+    }
+
+    [Fact]
     public void AlertRoutingCriteriaMetadata_Parse_PascalCase_property_names_preserves_severity_filter()
     {
         AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
