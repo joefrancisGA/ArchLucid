@@ -137,6 +137,69 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task GetAssignedToMeFindingsCountAsync_returns_zero_when_project_id_is_out_of_scope()
+    {
+        Guid foreignProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IArchitectureRiskRegisterService> riskRegister = new(MockBehavior.Strict);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("reviewer@example.com");
+        actor.Setup(a => a.GetActorId()).Returns("actor-guid-123");
+
+        GovernanceStickinessFacade sut = CreateSut(
+            riskRegister: riskRegister.Object,
+            actor: actor.Object);
+
+        int count = await sut.GetAssignedToMeFindingsCountAsync(foreignProjectId, CancellationToken.None);
+
+        count.Should().Be(0);
+        riskRegister.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TryResolveFindingMergeConflictAsync_returns_false_when_conflict_not_on_run_snapshot()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord { RunId = runId });
+
+        Mock<IFindingInspectReadRepository> findings = new(MockBehavior.Strict);
+
+        Mock<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService> merge = new();
+        merge
+            .Setup(s => s.TryResolveAsync(
+                CallerScope,
+                runId,
+                "foreign-finding",
+                FindingMergeConflictResolutionAction.AcceptPrimary,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            runRepository: runs.Object,
+            findingInspect: findings.Object,
+            mergeConflictResolution: merge.Object);
+
+        ResolveFindingMergeConflictRequest request = new()
+        {
+            Action = FindingMergeConflictResolutionAction.AcceptPrimary,
+        };
+
+        bool resolved = await sut.TryResolveFindingMergeConflictAsync(
+            runId,
+            "foreign-finding",
+            request,
+            CancellationToken.None);
+
+        resolved.Should().BeFalse();
+        findings.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task TryResolveFindingMergeConflictAsync_throws_when_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -590,14 +653,16 @@ public sealed class GovernanceStickinessFacadeScopeTests
         IFindingDispositionService? dispositionService = null,
         IArchitectureDecisionRegisterService? decisionRegister = null,
         IRiskExceptionService? riskExceptionService = null,
-        IRunRepository? runRepository = null)
+        IRunRepository? runRepository = null,
+        ArchLucid.Application.Findings.IFindingMergeConflictResolutionService? mergeConflictResolution = null,
+        IActorContext? actor = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
 
         return new GovernanceStickinessFacade(
             scope.Object,
-            Mock.Of<IActorContext>(),
+            actor ?? Mock.Of<IActorContext>(),
             dispositionService ?? new Mock<IFindingDispositionService>().Object,
             riskExceptionService ?? Mock.Of<IRiskExceptionService>(),
             riskRegister ?? new Mock<IArchitectureRiskRegisterService>().Object,
@@ -605,7 +670,7 @@ public sealed class GovernanceStickinessFacadeScopeTests
             Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
             Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
             runRepository ?? Mock.Of<IRunRepository>(),
-            Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
+            mergeConflictResolution ?? Mock.Of<ArchLucid.Application.Findings.IFindingMergeConflictResolutionService>(),
             Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
             Mock.Of<IReviewsAwaitingActionQueryService>(),
             Mock.Of<IRealizedValueAttestationService>(),

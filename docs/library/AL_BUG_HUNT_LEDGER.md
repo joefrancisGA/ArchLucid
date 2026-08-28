@@ -2241,9 +2241,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 70
+- **hunts:** 71
 - **bugs-found:** 207
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-28
 - **last-bug:** 2026-08-28 — erasure legal-hold past untilUtc validation and catalog promote empty pack id guard
 - **related-pd-tb:** none
@@ -2453,8 +2453,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernancePreCommitSimulationController.SimulateAsync` — `syntheticCount > 500` reached `PreCommitGovernanceGate` in-memory injection loop despite `[Range(0, 500)]` on request model — **hit 2026-08-28:** explicit controller upper-bound guard (batch-cap parity); regression in `GovernancePreCommitSimulationControllerTests.Simulate_returns_bad_request_when_synthetic_count_exceeds_five_hundred`.
 - [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — past `untilUtc` returned HTTP 409 conflict instead of HTTP 400 validation — **hit 2026-08-28:** controller rejects non-future `untilUtc` before command service (risk-exception expiry parity); regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past`.
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — `sourcePolicyPackId = Guid.Empty` returned HTTP 404 pack-not-found instead of HTTP 400 — **hit 2026-08-28:** reject empty guid before workflow lookup; regression in `PolicyPacksControllerListScopeTests.PromoteCatalogEntry_returns_bad_request_when_source_policy_pack_id_is_empty`.
-- [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` — out-of-scope `findingId` with in-scope `runId` returns HTTP 404 merge-conflict-not-found without finding scope gate (disposition parity gap).
-- [ ] (candidate) `GovernanceStickinessController.GetAssignedToMeFindingsCount` — foreign `projectId` returns HTTP 200 `{ count: 0 }` instead of register empty/404 parity — may be intentional hide pattern.
+- [x] (invalid) `GovernanceStickinessController.ResolveFindingMergeConflict` — out-of-scope `findingId` with in-scope `runId` returns HTTP 404 merge-conflict-not-found without finding scope gate — **cheap-disproof 2026-08-28:** intentional hide via run-snapshot conflict lookup (aligned with `ListDispositions` empty response for scope-filtered reads); regression in `GovernanceStickinessFacadeScopeTests.TryResolveFindingMergeConflictAsync_returns_false_when_conflict_not_on_run_snapshot` and `GovernanceStickinessControllerTests.ResolveFindingMergeConflict_returns_not_found_when_conflict_not_on_run_snapshot`.
+- [x] (invalid) `GovernanceStickinessController.GetAssignedToMeFindingsCount` — foreign `projectId` returns HTTP 200 `{ count: 0 }` instead of register empty/404 parity — **cheap-disproof 2026-08-28:** intentional hide pattern aligned with `GetRiskRegisterAsync` empty register for out-of-scope `projectId`; regression in `GovernanceStickinessFacadeScopeTests.GetAssignedToMeFindingsCountAsync_returns_zero_when_project_id_is_out_of_scope` and `GovernanceStickinessControllerTests.GetAssignedToMeFindingsCount_returns_zero_when_project_id_is_out_of_scope`.
+
+2026-08-28 thorough hunt #173: cheap-disproved merge-conflict finding scope and assigned-to-me foreign project hide patterns (register empty parity).
 
 2026-08-28 seed hunt #172: reseeded erasure/catalog/merge-conflict/assigned-count candidates; proved legal-hold date validation and catalog promote empty pack id guard.
 
