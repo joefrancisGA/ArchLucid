@@ -119,6 +119,20 @@ public sealed partial class GovernanceStickinessController
                 ProblemTypes.ValidationFailed);
         }
 
+        HashSet<string> seenFindingIds = new(StringComparer.Ordinal);
+
+        foreach (string findingId in request.FindingIds)
+        {
+            string trimmedFindingId = findingId.Trim();
+
+            if (!seenFindingIds.Add(trimmedFindingId))
+            {
+                return this.BadRequestProblem(
+                    "FindingIds contains a duplicate id.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
