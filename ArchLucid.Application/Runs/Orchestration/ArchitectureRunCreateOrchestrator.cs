@@ -138,6 +138,7 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid? excludeRunId = ArchitectureReviewSourceRunResolver.TryParseRunGuid(request.PriorRunId);
 
         // ReSharper disable once InvertIf
         if (idempotency is not null)
@@ -156,7 +157,11 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
                 return replayUnderDistributed;
 
             await _workspaceSystemNameCollisionGuard
-                .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+                .EnsureAvailableAsync(
+                    scope,
+                    request.SystemName,
+                    excludeRunId: excludeRunId,
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
@@ -170,7 +175,11 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
             return fingerprintReplay;
 
         await _workspaceSystemNameCollisionGuard
-            .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+            .EnsureAvailableAsync(
+                scope,
+                request.SystemName,
+                excludeRunId: excludeRunId,
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
