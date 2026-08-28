@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 68
-- **bugs-found:** 202
+- **hunts:** 69
+- **bugs-found:** 205
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — revoke risk-exception empty id validation, legal-hold past untilUtc 400, deferred revisit future guard, catalog promote empty pack id
+- **last-bug:** 2026-08-28 — policy-pack route empty guid 400, merge-conflict empty runId 400, demote catalog empty entry id 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2446,9 +2446,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantErasureLegalHoldController.SetLegalHoldAsync` — past `untilUtc` returned HTTP 409 conflict instead of HTTP 400 validation — **hit 2026-08-28:** controller rejects non-future `untilUtc` before command service (risk-exception expiry parity); regression in `TenantErasureLegalHoldControllerTests.SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past`.
 - [x] (proven) `GovernanceStickinessController.RecordDisposition` / `FindingDispositionValidation` — deferred disposition accepted past `revisitDueUtc` — **hit 2026-08-28:** require future revisit date when deferring; regression in `FindingDispositionValidationTests.Validate_deferred_rejects_past_revisit_due_utc`.
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — `sourcePolicyPackId = Guid.Empty` returned HTTP 404 pack-not-found instead of HTTP 400 — **hit 2026-08-28:** reject empty guid before workflow lookup; regression in `PolicyPacksControllerListScopeTests.PromoteCatalogEntry_returns_bad_request_when_source_policy_pack_id_is_empty`.
-- [ ] (candidate) `PolicyPacksController` route `policyPackId` / `assignmentId` / `policyPackCatalogEntryId` = `Guid.Empty` — scoped repository lookup returns HTTP 404 instead of HTTP 400 validation.
-- [ ] (candidate) `GovernanceStickinessController.ResolveFindingMergeConflict` — route `runId = Guid.Empty` returns HTTP 404 merge-conflict-not-found because `EnsureRunInScopeWhenProvidedAsync` treats empty as omitted (recurrence schedule rejects empty source run).
-- [ ] (candidate) `PolicyPacksController.DemoteCatalogEntry` — `policyPackCatalogEntryId = Guid.Empty` may return HTTP 404 when FluentValidation auto-validation is bypassed (body validator exists; controller lacks explicit guard like promote).
+- [x] (proven) `PolicyPacksController` route `policyPackId` / `assignmentId` / `policyPackCatalogEntryId` = `Guid.Empty` — scoped repository lookup returned HTTP 404 instead of HTTP 400 validation — **hit 2026-08-28:** shared `BadRequestWhenRouteIdEmpty` on pack/assignment/catalog route reads and mutations (promote parity); regression in `PolicyPacksControllerListScopeTests`.
+- [x] (proven) `GovernanceStickinessController.ResolveFindingMergeConflict` — route `runId = Guid.Empty` returned HTTP 404 merge-conflict-not-found because `EnsureRunInScopeWhenProvidedAsync` treats empty as omitted — **hit 2026-08-28:** controller rejects empty `runId` before facade (recurrence schedule empty source-run parity); regression in `GovernanceStickinessControllerTests.ResolveFindingMergeConflict_returns_bad_request_when_run_id_empty`.
+- [x] (proven) `PolicyPacksController.DemoteCatalogEntry` — `policyPackCatalogEntryId = Guid.Empty` returned HTTP 404 when FluentValidation auto-validation was bypassed — **hit 2026-08-28:** explicit empty-id guard like promote; regression in `PolicyPacksControllerListScopeTests.DemoteCatalogEntry_returns_bad_request_when_policy_pack_catalog_entry_id_is_empty`.
+
+2026-08-28 thorough hunt #176: proved policy-pack route empty-guid 400 guards, merge-conflict empty runId 400, and demote catalog empty entry id 400.
 
 2026-08-28 seed hunt #175: reseeded route-empty-guid, merge-conflict empty-run, and demote-empty-guid candidates; proved revoke empty risk-exception id, legal-hold date validation, deferred revisit future guard, and catalog promote empty pack id guard.
 

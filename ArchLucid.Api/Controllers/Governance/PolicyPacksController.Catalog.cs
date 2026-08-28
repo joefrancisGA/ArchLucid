@@ -74,6 +74,12 @@ public sealed partial class PolicyPacksController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? routeIdProblem =
+            BadRequestWhenRouteIdEmpty(policyPackCatalogEntryId, "policyPackCatalogEntryId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         PolicyPackCatalogEntryDetail? row = await _workflow.TryGetCatalogEntryAsync(policyPackCatalogEntryId, ct);
 
         if (row is null)
@@ -137,6 +143,7 @@ public sealed partial class PolicyPacksController
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [MutatingAuditExcluded("Audit: IPolicyPackWorkflowFacade.TryDemoteCatalogEntryAsync logs PolicyPackCatalogDemoted.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DemoteCatalogEntry(
         [FromBody] DemotePolicyPackCatalogEntryRequest? request,
@@ -149,6 +156,13 @@ public sealed partial class PolicyPacksController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        if (request.PolicyPackCatalogEntryId == Guid.Empty)
+        {
+            return this.BadRequestProblem(
+                "policyPackCatalogEntryId is required.",
+                ProblemTypes.ValidationFailed);
+        }
 
         bool ok = await _workflow.TryDemoteCatalogEntryAsync(request.PolicyPackCatalogEntryId, ct);
 
@@ -170,6 +184,11 @@ public sealed partial class PolicyPacksController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         IReadOnlyList<PolicyPackVersion>? versions = await _workflow.TryListVersionsAsync(policyPackId, ct);
 
@@ -198,6 +217,11 @@ public sealed partial class PolicyPacksController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         PolicyPackVersionLookupResult lookup = await _workflow.TryGetVersionAsync(policyPackId, packVersion, ct);
 
         return lookup.Outcome switch
@@ -225,6 +249,11 @@ public sealed partial class PolicyPacksController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         string? markdown = await _workflow.TryExplainPackMarkdownAsync(policyPackId, ct);
 

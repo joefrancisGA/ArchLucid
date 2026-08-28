@@ -146,6 +146,7 @@ public sealed partial class GovernanceStickinessController
     [HttpPost("runs/{runId:guid}/finding-merge-conflicts/{findingId}/resolve")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [MutatingAuditExcluded("Audit: IGovernanceStickinessFacade.TryResolveFindingMergeConflictAsync logs FindingMergeConflictResolved.")]
     public async Task<IActionResult> ResolveFindingMergeConflict(
@@ -163,6 +164,9 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        if (runId == Guid.Empty)
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
 
         try
         {
