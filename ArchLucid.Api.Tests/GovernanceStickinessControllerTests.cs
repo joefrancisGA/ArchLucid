@@ -1050,6 +1050,25 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_finding_ids_contain_duplicate()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1", "finding-1"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task RecordBulkDisposition_returns_bad_request_when_mixed_finding_ids_include_whitespace()
     {
         GovernanceStickinessController controller = BuildSut();
