@@ -10,7 +10,6 @@ import {
   patchDraftRequest,
   skipDraftQuestion,
 } from "@/lib/api/draft-intake-api";
-import { isApiRequestError } from "@/lib/api-request-error";
 import { structuredBriefToPatchPayload } from "@/lib/architecture/architecture-draft-structured-brief";
 import {
   buildArchitectureDraftRegistryEntry,
@@ -21,10 +20,6 @@ import {
   START_REVIEW_INTENT,
 } from "@/lib/architecture/architecture-workflow-intent";
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
-import { GUIDED_INTAKE_READINESS_SUCCESS_TOAST } from "@/lib/guided-intake-copy";
-import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
-import { showError, showSuccess } from "@/lib/toast";
-import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 import type { GuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
 import type { GuidedIntakeDraftCoreState } from "./use-guided-intake-draft-workflow";
@@ -96,10 +91,6 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
       if (!admission.admitted) {
         core.setRedirectReason(admission.redirectReason ?? admission.verdict.summary);
         core.setRedirectVerdict(admission.verdict);
-        showError(
-          REVIEWS_NEW_GUIDED_QUESTIONS_LABEL,
-          admission.redirectReason ?? "Readiness checks redirected this draft.",
-        );
 
         return;
       }
@@ -115,13 +106,8 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
       const admittedDraft = await getDraftRequest(id);
       applyAdmittedRequiredMustQuestionKeysFromDocument(admittedDraft.document);
       upsertArchitectureDraftRegistryEntry(buildArchitectureDraftRegistryEntry(admittedDraft));
-      showSuccess(GUIDED_INTAKE_READINESS_SUCCESS_TOAST);
     } catch (error) {
       core.setSubmitError(error);
-
-      if (isApiRequestError(error)) {
-        showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, error.message);
-      }
     } finally {
       core.setBusy(false);
     }
@@ -176,10 +162,6 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
       setStep(2);
     } catch (error) {
       core.setSubmitError(error);
-
-      if (isApiRequestError(error)) {
-        showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, error.message);
-      }
     } finally {
       core.setBusy(false);
     }
@@ -207,7 +189,6 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
     async (questionKey: string) => {
       if (core.draftId === null) {
         core.setSubmitError(new Error("Draft is not ready yet. Go back and continue from the brief step."));
-        showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, "Draft is not ready yet. Continue from the brief step first.");
 
         return;
       }
@@ -224,13 +205,8 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
           return next;
         });
         await refreshQuestions(core.draftId);
-        showSuccess("Question skipped — recorded on the transparency trail.");
       } catch (error) {
         core.setSubmitError(error);
-
-        if (isApiRequestError(error)) {
-          showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, error.message);
-        }
       } finally {
         core.setBusy(false);
       }
