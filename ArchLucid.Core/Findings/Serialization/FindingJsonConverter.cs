@@ -78,10 +78,7 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
             impactEl.TryGetDecimal(out decimal projectedImpactUsd))
             finding.ProjectedImpactUsd = projectedImpactUsd;
 
-        if (root.TryGetProperty("reviewedAtUtc", out JsonElement raEl) && raEl.ValueKind == JsonValueKind.String &&
-            DateTimeOffset.TryParse(raEl.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind,
-                out DateTimeOffset ra))
-            finding.ReviewedAtUtc = ra;
+        finding.ReviewedAtUtc = ReadOptionalDateTimeOffset(root, "reviewedAtUtc");
 
         ReadInsightDensityFields(root, finding);
 
