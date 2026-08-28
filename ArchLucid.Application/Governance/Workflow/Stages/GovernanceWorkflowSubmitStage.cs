@@ -78,6 +78,8 @@ public sealed class GovernanceWorkflowSubmitStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
 
         manifestVersion = manifestVersion.Trim();
+        sourceEnvironment = sourceEnvironment.Trim();
+        targetEnvironment = targetEnvironment.Trim();
 
         if (!GovernanceEnvironmentOrder.IsValidPromotion(sourceEnvironment, targetEnvironment))
         {
