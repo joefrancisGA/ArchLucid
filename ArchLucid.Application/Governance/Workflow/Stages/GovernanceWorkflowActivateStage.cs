@@ -74,6 +74,9 @@ public sealed class GovernanceWorkflowActivateStage(
         manifestVersion = manifestVersion.Trim();
         environment = environment.Trim();
 
+        if (!IsKnownEnvironment(environment))
+            throw new ArgumentException("Environment must be one of: dev, test, prod.", nameof(environment));
+
         ArchitectureRunDetail runDetail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
 
@@ -176,5 +179,12 @@ public sealed class GovernanceWorkflowActivateStage(
         }
 
         return activation;
+    }
+
+    private static bool IsKnownEnvironment(string environment)
+    {
+        return string.Equals(environment, GovernanceEnvironment.Dev, StringComparison.OrdinalIgnoreCase)
+               || string.Equals(environment, GovernanceEnvironment.Test, StringComparison.OrdinalIgnoreCase)
+               || string.Equals(environment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase);
     }
 }
