@@ -290,7 +290,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       </div>
 
       <ul
-        className={cn("m-0 list-none space-y-4 p-0", OPERATOR_TYPOGRAPHY.body)}
+        className={cn("m-0 list-none space-y-4 p-0 pb-4", OPERATOR_TYPOGRAPHY.body)}
         data-testid="architecture-scope-understanding-bullets"
       >
         {bullets.map((bullet) => (
