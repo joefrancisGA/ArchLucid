@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 11
-- **bugs-found:** 19
+- **hunts:** 12
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `FindingJsonConverter` string enum ordinals (`"99"`) bypassed `Enum.IsDefined` on severity/enforcementTier/humanReviewStatus after partial refactor split
+- **last-bug:** 2026-08-28 — `PolicyPackExpectationFacetParser.ParseBreachSeverity` accepted numeric-string `"99"` via bare `Enum.TryParse` without `Enum.IsDefined`
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1785,6 +1785,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingEnforcementTierClassifier.TryReadTierFromProperties` accepts undefined `properties.enforcementTier` via bare `Enum.TryParse` while `ReadEnforcementTierFromString` guards numeric strings — **hit 2026-08-28:** numeric-string `"99"` short-circuited classification; fixed with `Enum.IsDefined` guard (`ClassifyFinding_ignores_undefined_enforcement_tier_property_value`).
 - [x] (valid-no-repro) `InMemoryOperationalErrorCaptureQueue.TryReturnToQueueAfterFailedDrain` drops rows when channel is full — mirrors `InMemoryAuditRetryQueue` bounded-channel backpressure semantics.
 - [x] (invalid) `OperationalErrors:*` configuration keys missing from `ConfigurationKeyCatalog` — catalog documents operator-facing keys only; `OperationalErrorOptions` is platform-internal and not an operator config surface in Core.
+- [x] (proven) `TenantItsmConnectorConnectionUpsertValidation.TryParseProvider` rejects `"Azure Boards"` display label while `FindingEnforcementTierClassifier.TryParseProvider` accepts it — **hit 2026-08-28 (#216):** operator upsert with human-readable provider label failed validation; fixed with display-label alias (`TryParseProvider_accepts_Azure_Boards_display_label`).
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` accepts undefined severity strings via bare `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-28 (#216):** numeric-string `"99"` hydrated as cast ordinal; fixed with `Enum.IsDefined` guard (`Parse_breach_severity_numeric_string_out_of_range_returns_null`).
 
 ---
 
