@@ -11,8 +11,9 @@ const TB_2008_BAND_TEST_FILE =
 
 const TB_2011_WIZARD_SOURCE_ROOTS = [
   "src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-workflow.ts",
-  "src/app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx",
+  "src/app/(operator)/architecture/reviews/new/use-first-pilot-intake-submit.ts",
   "src/app/(operator)/architecture/reviews/new/QuickStartWizard.tsx",
+  "src/app/(operator)/architecture/reviews/new/use-new-run-wizard-submit.ts",
 ] as const;
 
 function readSrc(relativePath: string): string {
@@ -46,10 +47,13 @@ describe("form validation affordances regression band (TB-2011)", () => {
   it("keeps review-start wizards on inline validation instead of validation toasts", () => {
     const firstPilot = readSrc(TB_2011_WIZARD_SOURCE_ROOTS[1]);
     const quickStart = readSrc(TB_2011_WIZARD_SOURCE_ROOTS[2]);
+    const newRunSubmit = readSrc(TB_2011_WIZARD_SOURCE_ROOTS[3]);
 
     expect(firstPilot).not.toContain("showError");
     expect(firstPilot).toContain("setClientValidationMessage");
     expect(quickStart).not.toContain("showError");
     expect(quickStart).toContain("stepValidationMessage");
+    expect(newRunSubmit).not.toContain("showToast");
+    expect(newRunSubmit).toContain("setStepValidationMessage");
   });
 });
