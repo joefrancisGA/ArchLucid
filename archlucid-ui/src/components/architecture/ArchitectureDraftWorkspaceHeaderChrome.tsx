@@ -1,0 +1,110 @@
+"use client";
+
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+
+import { ArchitectureDraftDetailBreadcrumb } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBreadcrumb";
+import { ArchitectureDraftDeleteControl } from "@/components/architecture/ArchitectureDraftDeleteControl";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE,
+  ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
+  resolveArchitectureDraftRefineGuidanceSentence,
+} from "@/lib/architecture/architecture-draft-detail-page-copy";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE } from "@/lib/architectures-draft-evidence-copy";
+import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { ArchitectureDraftWorkspaceBodyProps } from "./ArchitectureDraftWorkspaceBody";
+
+type ArchitectureDraftWorkspaceHeaderChromeProps = Pick<
+  ArchitectureDraftWorkspaceBodyProps,
+  | "architectureId"
+  | "isDetailDraft"
+  | "buyerPolishedShell"
+  | "isNewDraft"
+  | "workspaceHeading"
+  | "workspaceLead"
+  | "reviewReadiness"
+  | "linkedReviewId"
+  | "draft"
+>;
+
+export function ArchitectureDraftWorkspaceHeaderChrome(
+  props: ArchitectureDraftWorkspaceHeaderChromeProps,
+): React.JSX.Element | null {
+  const {
+    architectureId,
+    isDetailDraft,
+    buyerPolishedShell,
+    isNewDraft,
+    workspaceHeading,
+    workspaceLead,
+    reviewReadiness,
+    linkedReviewId,
+    draft,
+  } = props;
+
+  return (
+    <>
+      {isDetailDraft && buyerPolishedShell ? (
+        <ArchitectureDraftDetailBreadcrumb draftLabel={workspaceHeading} />
+      ) : null}
+
+      {!isNewDraft ? (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 space-y-1">
+            <h1
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}
+              data-testid="architecture-draft-workspace-title"
+            >
+              {workspaceHeading}
+            </h1>
+            <p
+              className={cn("m-0", OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-draft-workspace-lead"
+            >
+              {buyerPolishedShell ? (
+                <>
+                  {ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE}{" "}
+                  <InlineGuidanceText
+                    text={resolveArchitectureDraftRefineGuidanceSentence(reviewReadiness.isValid)}
+                  />{" "}
+                  {ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE}
+                </>
+              ) : (
+                workspaceLead
+              )}
+            </p>
+            {isDetailDraft && buyerPolishedShell ? (
+              <PageHeaderClaimDiscipline
+                text={ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE}
+                testId="architecture-draft-detail-claim-discipline"
+                className="mt-2 text-left"
+              />
+            ) : null}
+            {linkedReviewId !== null ? (
+              <Link
+                href={reviewDetailPath(linkedReviewId)}
+                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+              >
+                Open linked review
+              </Link>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
+            <PageContextualHelpButton />
+            <ArchitectureDraftDeleteControl
+              architectureId={architectureId}
+              displayName={workspaceHeading}
+              linkedReviewId={linkedReviewId}
+              serverStatus={draft?.status ?? null}
+              testId="architecture-draft-delete-workspace"
+            />
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+}
