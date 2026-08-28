@@ -2241,9 +2241,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 93
+- **hunts:** 94
 - **bugs-found:** 246
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-28
 - **last-bug:** 2026-08-28 — batch-review ValidationFailed parity and activate environment validation
 - **related-pd-tb:** none
@@ -2483,12 +2483,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` silently deduped with no per-item result row — **hit 2026-08-28:** emit per-item `ValidationFailed` for duplicate ids while processing first occurrence (whitespace per-item parity); regression in `GovernanceControllerRunHistoryScopeTests.BatchReviewApprovalRequests_returns_validation_failed_per_item_when_approval_request_id_is_duplicated`.
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` query params may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-28:** `LoadAndCompareManifestPairAsync` delegates to `GetManifestInScopeAsync` which trims before lookup; added `ManifestsControllerTests.CompareManifests_returns_ok_with_diff_when_query_params_are_padded`.
 
+2026-08-28 thorough hunt #207 (dry): cheap-disproved promote prod-approval BadRequest candidate (already ValidationFailed) and activate padded-unknown-environment candidate (trim-then-validate rejects before repository); seeded preview InvalidOperationException BadRequest and stickiness disposition not-found mapping candidates.
+
+- [x] (invalid) `GovernanceController.Promote` — prod-approval linkage `InvalidOperationException` messages still returned `ProblemTypes.BadRequest` while environment-ordering failures use `ValidationFailed` — **cheap-disproof 2026-08-28:** promote catch already maps all workflow `InvalidOperationException` to `ValidationFailed` (hunt #204); regression in `GovernanceControllerRunHistoryScopeTests.Promote_returns_validation_failed_when_prod_promotion_requires_approval`.
+- [x] (invalid) `GovernanceWorkflowActivateStage` — padded unknown environment (e.g. `"  staging  "`) may pass trim and fail only at repository lookup instead of deterministic validation — **cheap-disproof 2026-08-28:** trim-then-`IsKnownEnvironment` guard throws `ArgumentException` before run/manifest/repository work (hunt #206); regression in `GovernanceWorkflowFacadeTests.ActivateAsync_throws_when_padded_environment_is_unknown_before_repository_lookup`.
+- [ ] (candidate) `GovernancePreviewController.Preview` — defensive `InvalidOperationException` catch still returns `ProblemTypes.BadRequest` while `ArgumentException` validation uses `ValidationFailed` (preview error-family parity gap; likely unreachable).
+- [ ] (candidate) `GovernanceStickinessController.RecordDisposition` — facade `InvalidOperationException` for missing finding maps to HTTP 404 `ResourceNotFound` while malformed inputs use `ValidationFailed` (disposition not-found vs validation problem-type parity gap).
+
 2026-08-28 thorough hunt #206 (hit): proved batch-review workflow `ValidationFailed` parity and activate-stage unknown environment validation; seeded promote prod-approval problem-type and activate padded-unknown-environment candidates.
 
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — per-item workflow `InvalidOperationException` returned `ProblemTypes.BadRequest` while approve/reject use `ValidationFailed` — **hit 2026-08-28:** align per-item batch-review workflow error code with single-review endpoints; regression in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (proven) `GovernanceController.Activate` / `GovernanceWorkflowActivateStage` — unknown environment strings could persist because activate stage trimmed but did not validate dev/test/prod (submit/promote environment validation parity gap) — **hit 2026-08-28:** reject unknown environments in activate workflow stage; regression in `GovernanceWorkflowFacadeTests`.
-- [ ] (candidate) `GovernanceController.Promote` — prod-approval linkage `InvalidOperationException` messages still return `ProblemTypes.BadRequest` for some workflow validation failures while environment-ordering failures now use `ValidationFailed` (promote workflow error-family parity gap).
-- [ ] (candidate) `GovernanceWorkflowActivateStage` — padded unknown environment (e.g. `"  staging  "`) may pass trim and fail only at repository lookup instead of deterministic validation (activate environment trim-validation ordering parity gap).
 
 2026-08-28 thorough hunt #205 (hit): proved approve/reject workflow `ValidationFailed` parity and activate `ArgumentException` mapping; cheap-disproved activate `InvalidOperationException` path; seeded batch-review workflow problem-type and activate unknown-environment validation candidates.
 

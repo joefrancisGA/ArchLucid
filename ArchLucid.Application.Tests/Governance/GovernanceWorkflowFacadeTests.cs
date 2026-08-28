@@ -428,6 +428,25 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task ActivateAsync_throws_when_padded_environment_is_unknown_before_repository_lookup()
+    {
+        Mock<IGovernanceEnvironmentActivationRepository> activationRepo = new(MockBehavior.Strict);
+
+        Mock<IRunDetailQueryService> runDetail = new(MockBehavior.Strict);
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            activationRepo: activationRepo.Object,
+            runDetail: runDetail.Object);
+
+        Func<Task> act = () => sut.ActivateAsync("run-1", "v1", "  staging  ", "operator");
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*dev, test, prod*");
+        activationRepo.VerifyNoOtherCalls();
+        runDetail.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task ActivateAsync_deactivates_existing_active_records_when_environment_is_padded()
     {
         GovernanceEnvironmentActivation existing = new()
