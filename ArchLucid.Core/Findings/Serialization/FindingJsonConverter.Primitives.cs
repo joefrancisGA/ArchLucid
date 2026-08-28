@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -65,7 +66,19 @@ public sealed partial class FindingJsonConverter
         Dictionary<string, string> d = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (JsonProperty p in el.EnumerateObject())
-            d[p.Name] = p.Value.GetString() ?? "";
+            d[p.Name] = ReadStringDictValue(p.Value);
+
         return d;
+    }
+
+    private static string ReadStringDictValue(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.String)
+            return element.GetString() ?? "";
+
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numeric))
+            return numeric.ToString(CultureInfo.InvariantCulture);
+
+        return "";
     }
 }
