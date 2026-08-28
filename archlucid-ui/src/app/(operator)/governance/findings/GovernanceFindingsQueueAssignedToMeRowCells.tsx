@@ -1,0 +1,86 @@
+import Link from "next/link";
+import type { ReactElement } from "react";
+
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
+import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
+import {
+  EnterpriseTableCell,
+} from "@/components/ui/enterprise-table";
+import { DESIGN_TOKENS, OPERATOR_LINK } from "@/lib/design-tokens";
+import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-derivation-sentence";
+import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
+import {
+  governanceFindingInspectHref,
+} from "@/components/governance/findings/governance-findings-navigation";
+import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
+
+import {
+  GovernanceFindingsQueueDueCell,
+  governanceQueueSeverityCell,
+} from "./GovernanceFindingsQueueOperationalRowCells";
+import type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
+
+export type GovernanceFindingsQueueAssignedToMeRowCellsProps = {
+  readonly row: GovernanceFindingQueueRow;
+  readonly showNewSinceLastVisit: boolean;
+  readonly onOpenRow?: () => void;
+};
+
+export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFindingsQueueAssignedToMeRowCellsProps): ReactElement {
+  const { row, showNewSinceLastVisit, onOpenRow } = props;
+  const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
+
+  return (
+    <>
+      <EnterpriseTableCell className="max-w-[18rem] font-medium text-al-text-primary">
+        {showNewSinceLastVisit ? (
+          <span className="mr-2 inline-flex align-middle">
+            <NewSinceLastVisitMarker testId={`governance-table-row-new-${row.findingId}`} />
+          </span>
+        ) : null}
+        <Link
+          className={OPERATOR_LINK.inline}
+          href={governanceFindingInspectHref(row.runId, row.findingId)}
+          prefetch={false}
+          onClick={() => {
+            onOpenRow?.();
+          }}
+        >
+          {row.title}
+        </Link>
+        {findingDerivation !== null ? (
+          <CollapsibleSection
+            title="Derivation"
+            defaultOpen={false}
+            sectionTestId={`governance-table-derivation-${row.findingId}`}
+          >
+            <FindingDerivationLine
+              derivation={findingDerivation}
+              evidenceHref={governanceFindingInspectHref(row.runId, row.findingId)}
+              testId={`governance-table-derivation-line-${row.findingId}`}
+              compact
+            />
+          </CollapsibleSection>
+        ) : null}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
+          {row.runLabel}
+        </Link>
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>{governanceQueueSeverityCell(row, false)}</EnterpriseTableCell>
+      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+        <GovernanceFindingsQueueDueCell row={row} />
+      </EnterpriseTableCell>
+      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+        {governanceQueueDispositionLabel(row)}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+      </EnterpriseTableCell>
+    </>
+  );
+}
