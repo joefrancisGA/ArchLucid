@@ -55,5 +55,11 @@ describe("form validation affordances regression band (TB-2011)", () => {
     expect(quickStart).toContain("stepValidationMessage");
     expect(newRunSubmit).not.toContain("showToast");
     expect(newRunSubmit).toContain("setStepValidationMessage");
+    expect(readSrc("src/app/(operator)/architecture/reviews/new/NewRunWizardTemplateRestore.ts")).not.toContain(
+      "showError",
+    );
+    expect(readSrc("src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-admit.ts")).not.toContain(
+      "showError",
+    );
   });
 });

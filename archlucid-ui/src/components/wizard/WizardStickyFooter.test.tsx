@@ -89,6 +89,23 @@ describe("WizardStickyFooter", () => {
     );
   });
 
+  it("shows a success notice near the action row", () => {
+    render(
+      <WizardStickyFooter
+        testIdPrefix="quick-start"
+        progress={idleProgress()}
+        onRecheck={vi.fn()}
+        successNotice="Draft saved in this browser."
+      >
+        <span />
+      </WizardStickyFooter>,
+    );
+
+    expect(screen.getByTestId("quick-start-success-notice")).toHaveTextContent(
+      "Draft saved in this browser.",
+    );
+  });
+
   it("shows Problem Details for a submit failure only on the review step", () => {
     const error = new ApiRequestError("Not permitted", {
       problem: { title: "Forbidden", detail: "Role cannot create runs", errorCode: "VALIDATION_FAILED" },
