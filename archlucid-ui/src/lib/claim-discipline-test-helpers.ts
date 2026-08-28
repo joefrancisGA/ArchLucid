@@ -2,6 +2,7 @@ import type { Screen } from "@testing-library/react";
 import { expect } from "vitest";
 
 import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import type { EvidenceOrientationLink, EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -67,4 +68,21 @@ export function expectFollowUpLink(
     options?.rawLabel === true ? link.label : followUpLinkAccessibleName(link.href, link.label);
 
   expect(region.getByRole("link", { name: accessibleName })).toHaveAttribute("href", link.href);
+}
+
+/** Links rendered under a Where to go next strip — mirrors production admin/internal filtering. */
+export function whereToGoNextFollowUpLinksForTests(
+  links: readonly FollowUpLinkLike[],
+): readonly FollowUpLinkLike[] {
+  return filterWhereToGoNextFollowUpLinks(links);
+}
+
+/** Assert every follow-up link that survives Where to go next filtering in a scoped region. */
+export function expectWhereToGoNextFollowUpLinks(
+  region: Pick<Screen, "getByRole">,
+  links: readonly FollowUpLinkLike[],
+): void {
+  for (const link of whereToGoNextFollowUpLinksForTests(links)) {
+    expectFollowUpLink(region, link);
+  }
 }
