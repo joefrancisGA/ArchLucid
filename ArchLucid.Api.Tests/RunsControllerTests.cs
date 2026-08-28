@@ -9,10 +9,10 @@ using ArchLucid.Application.Planning;
 using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Query;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Operations;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
@@ -41,6 +41,9 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class RunsControllerTests
 {
+    private static readonly Lazy<string> OverLimitIntakeText = new(
+        () => new string('x', DraftIntakeValidation.MaximumFreeTextIntentLength + 1));
+
     private static readonly ScopeContext Scope = new()
     {
         TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -120,6 +123,49 @@ public sealed class RunsControllerTests
         RunsController controller = CreateController();
 
         IActionResult action = await controller.ExplainStructuredBriefSuggestion(null, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task ExplainStructuredBriefSuggestion_returns_bad_request_when_source_text_exceeds_chat_intake_max_length()
+    {
+        RunsController controller = CreateController();
+
+        ExplainStructuredBriefSuggestionInput input = new()
+        {
+            SourceText = OverLimitIntakeText.Value,
+            SuggestionKind = StructuredBriefSuggestionKind.Constraint,
+            SuggestionText = "EU data residency",
+        };
+
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_exceeds_chat_intake_max_length()
+    {
+        RunsController controller = CreateController();
+
+        RephraseClarificationAnswersInput input = new()
+        {
+            Items =
+            [
+                new ClarificationAnswerRephraseItem
+                {
+                    QuestionKey = "l0.actor.additional-kinds",
+                    QuestionPrompt =
+                        "Are there other kinds of users (human or machine) that interact with this system besides those already identified?",
+                    ExtractedAnswer = OverLimitIntakeText.Value,
+                },
+            ],
+        };
+
+        IActionResult action = await controller.RephraseClarificationAnswers(input, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);

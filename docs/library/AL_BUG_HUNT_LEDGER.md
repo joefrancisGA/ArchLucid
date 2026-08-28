@@ -2209,11 +2209,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 8
-- **bugs-found:** 11
+- **hunts:** 9
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — RewriteArchitectureOverview omitted chat-intake max text length guard
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — `GetRunRoiEstimate` whitespace runId threw before 404 parity; `RephraseClarificationAnswers` omitted per-item `ExtractedAnswer` max length
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
