@@ -128,7 +128,8 @@ public static class PolicyPackExpectationFacetParser
       return null;
     }
 
-    return Enum.TryParse<FindingSeverity>(raw.Trim(), ignoreCase: true, out FindingSeverity _)
+    return Enum.TryParse<FindingSeverity>(raw.Trim(), ignoreCase: true, out FindingSeverity parsed)
+        && Enum.IsDefined(parsed)
         ? raw.Trim()
         : null;
   }
