@@ -57,10 +57,8 @@ public sealed partial class FindingJsonConverter : JsonConverter<Finding>
             finding.EnforcementTier = ReadEnforcementTierFromString(tierFromProps);
         }
 
-        if (root.TryGetProperty("confidenceScore", out JsonElement confEl) &&
-            confEl.ValueKind == JsonValueKind.Number &&
-            confEl.TryGetDouble(out double conf))
-            finding.ConfidenceScore = conf;
+        if (ReadOptionalDouble(root, "confidenceScore") is { } confidenceScore)
+            finding.ConfidenceScore = confidenceScore;
 
         if (root.TryGetProperty("evaluationConfidenceScore", out JsonElement ecsEl) &&
             ecsEl.ValueKind == JsonValueKind.Number &&

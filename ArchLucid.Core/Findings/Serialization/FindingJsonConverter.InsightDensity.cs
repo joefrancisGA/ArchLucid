@@ -9,12 +9,8 @@ public sealed partial class FindingJsonConverter
 {
     private static void ReadInsightDensityFields(JsonElement root, Finding finding)
     {
-        if (root.TryGetProperty("insightDensityScore", out JsonElement scoreElement) &&
-            scoreElement.ValueKind == JsonValueKind.Number &&
-            scoreElement.TryGetInt32(out int insightDensityScore))
-        {
+        if (ReadOptionalInt32(root, "insightDensityScore") is { } insightDensityScore)
             finding.InsightDensityScore = insightDensityScore;
-        }
 
         if (root.TryGetProperty("treatment", out JsonElement treatmentElement))
             finding.Treatment = ReadTreatment(treatmentElement);

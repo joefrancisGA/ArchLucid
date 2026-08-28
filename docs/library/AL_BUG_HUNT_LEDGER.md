@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 13
-- **bugs-found:** 26
+- **hunts:** 15
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `FindingJsonConverter.Read` ignored numeric `reviewedAtUtc` Unix epoch tokens
+- **last-bug:** 2026-08-28 — `FindingJsonConverter` ignored PascalCase `Severity` and string-form `confidenceScore` / `insightDensityScore`; `AlertRoutingCriteriaMetadata` dropped scalar `severities`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1793,12 +1793,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` undefined legacy status strings — **2026-08-28 (#229):** already guarded with `Enum.IsDefined`.
 - [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` silently drops numeric/boolean `severities` / `findingTypes` / `tags` tokens — **hit 2026-08-28 (#233):** coerce mixed-type metadata array entries to invariant strings (`AlertRoutingCriteriaMetadata_Parse_numeric_severity_tokens_coerce_to_strings`).
 - [x] (proven) `FindingJsonConverter.Read` ignores numeric `reviewedAtUtc` JSON tokens — only `JsonValueKind.String` parsed; numeric Unix epoch reload dropped review timestamp — **hit 2026-08-28 (#235):** fixed with `ReadOptionalDateTimeOffset` accepting millisecond/second epochs (`Deserialize_numeric_reviewedAtUtc_unix_milliseconds_maps_timestamp`).
+- [x] (proven) `MarketplaceWebhookPayloadParser.TryGetPlanId` throws on numeric `planId` token — **hit 2026-08-28 (#237):** `GetString()` on `JsonValueKind.Number` failed; fixed with `TryReadStringOrNumberToken` (`TryGetPlanId_reads_numeric_planId_token`).
+- [x] (proven) `GraphJsonElementReaders.ReadFirstString` returns empty for numeric `id` / `nodeId` / `edgeId` — **hit 2026-08-28 (#237):** graph node/edge reload from numeric exporter ids lost identity; fixed with numeric coercion (`GraphNodeJsonConverter_Read_numeric_id_coerces_to_string`).
+- [x] (proven) `FindingJsonConverter.ReadSeverity` uses case-sensitive `TryGetProperty` — PascalCase `"Severity":"Error"` silently defaults to `Info` — **hit 2026-08-28 (#239):** fixed with `TryGetPropertyCaseInsensitive` (`Deserialize_pascal_case_severity_maps_error`).
+- [x] (proven) `FindingJsonConverter.Read` ignores string-form `confidenceScore` and `insightDensityScore` — quoted numerics stay null on snapshot reload — **hit 2026-08-28 (#239):** fixed with `ReadOptionalDouble` / `ReadOptionalInt32` (`Deserialize_string_numeric_confidenceScore_coerces_to_double`, `Deserialize_string_numeric_insightDensityScore_coerces_to_int`).
+- [x] (proven) `AlertRoutingCriteriaMetadata.ReadStringArray` returns empty for scalar `severities` / `findingTypes` / `tags` — `"severities":"Critical"` disables routing filter — **hit 2026-08-28 (#239):** wrap scalar tokens as single-item lists (`AlertRoutingCriteriaMetadata_Parse_scalar_severity_coerces_to_single_item_list`).
+- [ ] (candidate) `FindingJsonConverter.Read` still case-sensitive on `enforcementTier`, `category`, `evaluationConfidenceScore`, and `projectedImpactUsd` — PascalCase exporter labels may silently skip or default (same class as fixed `severity`).
+- [ ] (candidate) `FindingJsonConverter.Read` ignores string-form `evaluationConfidenceScore` and `projectedImpactUsd` — quoted numerics stay null (same class as fixed `confidenceScore`).
 
 2026-08-28 seed hunt #235: cherry-picked #227–#233 Core fixes onto #225 rebase; proved numeric `reviewedAtUtc` epoch coercion.
 
 2026-08-28 seed hunt #225: proved policy-pack breach-severity undefined ordinal and finding properties-bag numeric token handling; includes hunt #223 enum-guard and Service Bus fixes; seeded quality-gate undefined-mode sibling candidate.
 
 2026-08-28 seed hunt #223: proved top-level finding enum-string guards, classifier property-tier guard, Service Bus correlation casing/number, numeric dedupe key, and agent profile display label; seeded properties-bag numeric and policy-pack severity sibling candidates.
+
+2026-08-28 seed hunt #237: cherry-picked #223–#235 Core fixes; proved numeric `planId` and graph `id` coercion.
+
+2026-08-28 seed hunt #239: cherry-picked #223–#237 Core fixes; proved PascalCase `Severity`, string-form density/confidence scores, and scalar alert-routing criteria.
 
 ---
 
