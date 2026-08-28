@@ -31,6 +31,25 @@ public sealed partial class FindingJsonConverter
         }
     }
 
+    private static DateTimeOffset? ReadOptionalDateTimeOffset(JsonElement root, string name)
+    {
+        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind == JsonValueKind.Null)
+            return null;
+
+        if (el.ValueKind == JsonValueKind.String &&
+            DateTimeOffset.TryParse(el.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind,
+                out DateTimeOffset parsed))
+            return parsed;
+
+        if (el.ValueKind != JsonValueKind.Number || !el.TryGetInt64(out long unix))
+            return null;
+
+        // Exporters often emit Unix epoch milliseconds; second-precision values stay 10 digits through year 2286.
+        return Math.Abs(unix) > 9_999_999_999
+            ? DateTimeOffset.FromUnixTimeMilliseconds(unix)
+            : DateTimeOffset.FromUnixTimeSeconds(unix);
+    }
+
     private static string? ReadOptionalString(JsonElement root, string name)
     {
         if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind is JsonValueKind.Null)
