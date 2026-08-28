@@ -2772,11 +2772,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 8
-- **bugs-found:** 12
+- **hunts:** 9
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — archived runs in workspace metrics
+- **last-hunt:** 2026-08-28
+- **last-bug:** 2026-08-28 — frictionless trial hid paid plan; scope prefs leaked on switch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2795,10 +2795,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `recentViewLabelFromPathname` mapped canonical `/governance/audit` to generic `"governance · audit"` instead of `"Audit trail"` — only legacy `/audit` was handled; Home recent-views chip showed wrong label after governance route migration (`operator-recent-views.test.ts`).
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` treated a paginated runs dashboard slice as workspace-wide aggregates — **hit 2026-08-26:** partial page now returns zeroed KPI aggregates while preserving workspace `totalCount` (`operator-home-workspace-metrics.test.ts`).
 - [x] (proven) `deriveOperatorHomeWorkspaceMetrics` included archived runs in committed/active/findings totals — **hit 2026-08-27:** skip `isArchived` rows in aggregate loop (`operator-home-workspace-metrics.test.ts`).
-- [ ] (candidate) `resolveOperatorBillingCurrentPlan` — stale frictionless-trial session flag may hide paid tier after checkout.
-- [ ] (candidate) `readHasSeenWelcomeOnboarding` — welcome dismissal may survive tenant switch (`hasSeenOnboarding` key not cleared in `notifyOperatorScopeChanged`).
-- [ ] (candidate) `readOperatorHomeDisclosureExpanded` — home disclosure prefs may survive tenant switch (global keys not cleared on scope change).
-- [ ] (candidate) `fetchOperatorAiQualitySnapshot` — unvalidated disposition string may crash badge helpers.
+- [x] (proven) `resolveOperatorBillingCurrentPlan` — stale frictionless-trial session flag hid paid tier after checkout — **hit 2026-08-28:** paid plan resolution now precedes frictionless-trial branch (`operator-billing-current-plan.test.ts`).
+- [x] (proven) `readHasSeenWelcomeOnboarding` — welcome dismissal survived tenant switch — **hit 2026-08-28:** `clearHasSeenWelcomeOnboarding` on `notifyOperatorScopeChanged` (`operator-scope-storage.test.ts`).
+- [x] (proven) `readOperatorHomeDisclosureExpanded` — home disclosure prefs survived tenant switch — **hit 2026-08-28:** `clearOperatorHomeDisclosureStorage` on scope change (`operator-scope-storage.test.ts`).
+- [x] (proven) `fetchOperatorAiQualitySnapshot` — unvalidated disposition leaked unknown strings into badge helpers — **hit 2026-08-28:** parse/normalize disposition to `NOT_GENERATED` when invalid (`operator-ai-quality-snapshot.test.ts`).
 
 ---
 

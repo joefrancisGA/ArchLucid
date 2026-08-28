@@ -4,6 +4,8 @@ import { getEffectiveBrowserProxyScopeHeaders, writeOperatorScopeToStorage, ARCH
 import { OPERATOR_SCOPE_COOKIE_NAME } from "@/lib/operator/operator-scope-cookie";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
 import { HAS_EXISTING_RUNS_CACHE_KEY } from "@/lib/operator/operator-run-presence";
+import { OPERATOR_HOME_DISCLOSURE_COLLAPSED_VALUE, OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
+import { HAS_SEEN_ONBOARDING_STORAGE_KEY } from "@/lib/operator/operator-welcome-onboarding-storage";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { getOperatorQueryClient, resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -96,5 +98,36 @@ describe("operator-scope-storage", () => {
     });
 
     expect(queryClient.getQueryData(operatorQueryKeys.billingSubscriptionStatus)).toBeUndefined();
+  });
+
+  it("writeOperatorScopeToStorage_clears_welcome_onboarding_dismissal", () => {
+    localStorage.setItem(HAS_SEEN_ONBOARDING_STORAGE_KEY, "true");
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(localStorage.getItem(HAS_SEEN_ONBOARDING_STORAGE_KEY)).toBeNull();
+  });
+
+  it("writeOperatorScopeToStorage_clears_home_disclosure_prefs", () => {
+    localStorage.setItem(
+      OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.pilotStartHere,
+      OPERATOR_HOME_DISCLOSURE_COLLAPSED_VALUE,
+    );
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(localStorage.getItem(OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.pilotStartHere)).toBeNull();
   });
 });
