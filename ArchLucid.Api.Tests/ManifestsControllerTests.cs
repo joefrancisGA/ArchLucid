@@ -208,6 +208,8 @@ public sealed class ManifestsControllerTests
         ArchLucid.Api.Models.ManifestCompareResponse body =
             ok.Value.Should().BeOfType<ArchLucid.Api.Models.ManifestCompareResponse>().Subject;
         body.Diff.AddedServices.Should().Contain("svc-b");
+        body.Diff.LeftManifestVersion.Should().Be(LeftVersion);
+        body.Diff.RightManifestVersion.Should().Be(RightVersion);
     }
 
     [Fact]
