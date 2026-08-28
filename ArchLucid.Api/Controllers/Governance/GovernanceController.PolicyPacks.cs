@@ -230,6 +230,13 @@ public sealed partial class GovernanceController
         if (id == Guid.Empty)
             return this.BadRequestProblem("id is required.", ProblemTypes.ValidationFailed);
 
+        if (request.ProposedThresholds is null)
+        {
+            return this.BadRequestProblem(
+                "proposedThresholds is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
         IReadOnlyDictionary<string, string> proposedThresholds =
             request.ProposedThresholds;
 
