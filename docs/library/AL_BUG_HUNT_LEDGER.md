@@ -1752,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 11
-- **bugs-found:** 23
+- **hunts:** 12
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — `FindingJsonConverter` top-level string enum paths accepted undefined numeric-string ordinals while properties-bag path already guarded
+- **last-bug:** 2026-08-28 — `FindingJsonConverter.ReadStringDict` threw on numeric `properties` tokens via `GetString()` on number elements
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1787,8 +1787,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IntegrationEventServiceBusCorrelationId.TryResolveFromPayload` reads `correlationId` only when the JSON token is a string — numeric correlation ids returned null and dropped Service Bus publish correlation fallback — **hit 2026-08-28 (#223):** accept string or number tokens (`TryResolveForPublish_reads_numeric_correlationId_from_payload_when_activity_unset`).
 - [x] (proven) `IntegrationEventServiceBusApplicationProperties.TryGetStringPropertyCaseInsensitive` uses `GetString()` only — numeric JSON `deduplicationKey` threw and dropped Service Bus subscription filter properties — **hit 2026-08-28 (#223):** accept string or number tokens (`TryResolveForPublish_alert_resolved_maps_numeric_deduplication_key`).
 - [x] (proven) `AgentModelExecutionProfileParser.TryParse` rejects `"High Assurance"` display label while accepting `"high-assurance"` — **hit 2026-08-28 (#223):** operator tenant-setting labels failed profile parse; fixed with display-label alias (`TryParse_accepts_high_assurance_display_labels`).
-- [ ] (candidate) `PolicyPackExpectationFacetParser.ParseBreachSeverity` — undefined severity numeric-strings may still bypass `Enum.IsDefined` when input is not int-parseable but matches no named member (verify sibling parsers).
-- [ ] (candidate) `FindingJsonConverter.ReadStringDict` — numeric tokens inside `properties` bag call `GetString()` and abort full finding deserialize (align with `GraphJsonElementReaders` mixed-type handling).
+- [x] (proven) `PolicyPackExpectationFacetParser.ParseBreachSeverity` accepts undefined severity numeric-strings via bare `Enum.TryParse` without `Enum.IsDefined` — **hit 2026-08-28 (#225):** numeric-string `"99"` hydrated as breach severity label; fixed with `Enum.IsDefined` guard (`Parse_breach_severity_numeric_string_out_of_range_returns_null`).
+- [x] (proven) `FindingJsonConverter.ReadStringDict` calls `GetString()` on numeric `properties` tokens and aborts full finding deserialize — **hit 2026-08-28 (#225):** coerce number tokens to invariant strings and preserve sibling string entries (`Deserialize_properties_numeric_values_preserve_string_entries`).
+- [ ] (candidate) `QualityGateWarnOnlyProductionLikeConfigurationLint.ShouldEmitFinding` — undefined `AgentOutputQualityGateMode` numeric-strings may parse via bare `Enum.TryParse` (verify after hunt #223 quality-gate lint fix scope).
+
+2026-08-28 seed hunt #225: proved policy-pack breach-severity undefined ordinal and finding properties-bag numeric token handling; includes hunt #223 enum-guard and Service Bus fixes; seeded quality-gate undefined-mode sibling candidate.
 
 2026-08-28 seed hunt #223: proved top-level finding enum-string guards, classifier property-tier guard, Service Bus correlation casing/number, numeric dedupe key, and agent profile display label; seeded properties-bag numeric and policy-pack severity sibling candidates.
 
