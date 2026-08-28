@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
@@ -46,7 +47,7 @@ public static class IntegrationEventServiceBusCorrelationId
         {
             using JsonDocument doc = JsonDocument.Parse(payloadUtf8);
 
-            if (!TryGetStringPropertyCaseInsensitive(doc.RootElement, "correlationId", out string? correlationId))
+            if (!TryGetCorrelationIdPropertyCaseInsensitive(doc.RootElement, out string? correlationId))
                 return null;
 
             if (string.IsNullOrWhiteSpace(correlationId))
@@ -60,14 +61,33 @@ public static class IntegrationEventServiceBusCorrelationId
         }
     }
 
-    private static bool TryGetStringPropertyCaseInsensitive(JsonElement root, string propertyName, out string? value)
+    private static bool TryGetCorrelationIdPropertyCaseInsensitive(JsonElement root, out string? value)
     {
         foreach (JsonProperty property in root.EnumerateObject())
         {
-            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(property.Name, "correlationId", StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            value = property.Value.GetString();
+            return TryReadCorrelationIdToken(property.Value, out value);
+        }
+
+        value = null;
+
+        return false;
+    }
+
+    private static bool TryReadCorrelationIdToken(JsonElement element, out string? value)
+    {
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            value = element.GetString();
+
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out long numeric))
+        {
+            value = numeric.ToString(CultureInfo.InvariantCulture);
 
             return true;
         }
