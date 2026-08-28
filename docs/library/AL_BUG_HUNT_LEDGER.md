@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 73
-- **bugs-found:** 215
+- **hunts:** 74
+- **bugs-found:** 218
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — simulate empty runId string 400, manifest whitespace version 400
+- **last-bug:** 2026-08-28 — RequireScopedRunAsync empty runId 400, approval whitespace route id 400, pre-commit empty runId 400
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2460,6 +2460,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceStickinessController.ListDispositions` / `ResolveFindingMergeConflict` — whitespace-only route `findingId` returned HTTP 200 `[]` or HTTP 404 after trim to empty — **hit 2026-08-28:** reject blank finding id after `NormalizeFindingId` (record-disposition parity); regression in `GovernanceStickinessControllerTests`.
 - [x] (proven) `GovernanceController.Simulate` / `PolicyPacksController.Simulate` — body `runId = "00000000-0000-0000-0000-000000000000"` passed whitespace guard and scoped lookup returned HTTP 404 instead of HTTP 400 — **hit 2026-08-28:** reject empty guid after trim/parse before dry-run service lookup (RequireScopedRunAsync malformed-run parity); regression in `GovernanceControllerSimulateTests` and `PolicyPacksControllerListScopeTests`.
 - [x] (proven) `ManifestsController` read/export routes — whitespace-only `manifestVersion` returned HTTP 404 `ManifestNotFound` instead of HTTP 400 validation — **hit 2026-08-28:** `BadRequestWhenManifestVersionEmpty` on manifest read/export routes (compare leftVersion/rightVersion parity); regression in `ManifestsControllerTests`.
+
+- [x] (proven) `GovernanceController.RequireScopedRunAsync` — body/route `runId = "00000000-0000-0000-0000-000000000000"` passed whitespace/malformed guards and scoped lookup returned HTTP 404 instead of HTTP 400 — **hit 2026-08-28:** reject `Guid.Empty` after parse before repository lookup (Simulate empty runId parity); regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_bad_request_when_run_id_is_empty_guid`.
+- [x] (proven) `GovernanceController` approval singleton routes (`GetApprovalRequestLineage`, `GetApprovalRequestRationale`, `Approve`, `Reject`) — whitespace-only route `approvalRequestId` returned HTTP 404 after trim to empty — **hit 2026-08-28:** `BadRequestWhenApprovalRequestIdEmpty` after `NormalizeApprovalRequestId` (stickiness findingId whitespace parity); regression in `GovernanceControllerRunHistoryScopeTests`.
+- [x] (proven) `GovernancePreCommitSimulationController` checklist/simulate — route/body `runId = "00000000-0000-0000-0000-000000000000"` returned HTTP 404 `RunNotFound` instead of HTTP 400 — **hit 2026-08-28:** reject empty guid after parse before scoped run preflight (Simulate parity); regression in `GovernancePreCommitSimulationControllerTests`.
+- [ ] (candidate) `GovernancePreviewController.Preview` — body `runId = "00000000-0000-0000-0000-000000000000"` passes validator `NotEmpty` and service lookup returns HTTP 404 instead of HTTP 400.
+- [ ] (candidate) `GovernanceController.Promote` — body whitespace-only `approvalRequestId` bypasses optional approval preflight because `IsNullOrWhiteSpace` skips the block but trimmed id may still reach `PromoteAsync`.
+
+2026-08-28 seed hunt #183: proved RequireScopedRunAsync empty runId 400, approval whitespace route id 400, and pre-commit empty runId 400; seeded preview empty runId and promote whitespace approvalRequestId candidates.
 
 2026-08-28 thorough hunt #182: proved simulate empty runId string 400 and manifest whitespace version 400; zone candidate backlog cleared.
 

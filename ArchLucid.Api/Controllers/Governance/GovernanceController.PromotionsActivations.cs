@@ -262,6 +262,13 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed), null);
         }
 
+        if (runGuid == Guid.Empty)
+        {
+            return (this.BadRequestProblem(
+                "Run id is not valid.",
+                ProblemTypes.ValidationFailed), null);
+        }
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? run = await _runRepository
             .GetByIdAsync(scope, runGuid, cancellationToken)
