@@ -216,6 +216,20 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        HashSet<string> seenRunIds = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string runId in request.EvaluateAgainstRunIds)
+        {
+            string trimmedRunId = runId.Trim();
+
+            if (!seenRunIds.Add(trimmedRunId))
+            {
+                return this.BadRequestProblem(
+                    "evaluateAgainstRunIds contains a duplicate run id.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         foreach (string runId in request.EvaluateAgainstRunIds)
         {
             if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
