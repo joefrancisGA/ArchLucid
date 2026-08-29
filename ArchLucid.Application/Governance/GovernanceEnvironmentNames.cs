@@ -7,22 +7,22 @@ namespace ArchLucid.Application.Governance;
 /// </summary>
 internal static class GovernanceEnvironmentNames
 {
-public static string NormalizeOrThrow(string environment, string paramName)
-{
-    if (string.IsNullOrWhiteSpace(environment))
-        throw new ArgumentException("Environment is required.", paramName);
-
-    string trimmed = environment.Trim();
-
-    if (!IsKnown(trimmed))
+    public static string NormalizeOrThrow(string environment, string paramName)
     {
-        throw new ArgumentException(
-            "Environment must be one of: dev, test, prod.",
-            paramName);
-    }
+        if (string.IsNullOrWhiteSpace(environment))
+            throw new ArgumentException("Environment is required.", paramName);
 
-    return trimmed.ToLowerInvariant();
-}
+        string trimmed = environment.Trim();
+
+        if (!IsKnown(trimmed))
+        {
+            throw new ArgumentException(
+                "Environment must be one of: dev, test, prod.",
+                paramName);
+        }
+
+        return trimmed.ToLowerInvariant();
+    }
 
     private static bool IsKnown(string value)
     {
