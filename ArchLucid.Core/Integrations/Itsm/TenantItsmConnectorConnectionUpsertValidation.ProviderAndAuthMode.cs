@@ -16,22 +16,24 @@ public static partial class TenantItsmConnectorConnectionUpsertValidation
             return false;
         }
 
-        if (raw.Trim().Equals("Jira", StringComparison.OrdinalIgnoreCase))
+        string trimmed = raw.Trim();
+
+        if (trimmed.Equals("Jira", StringComparison.OrdinalIgnoreCase))
         {
             provider = TenantItsmConnectorProvider.Jira;
 
             return true;
         }
 
-        if (raw.Trim().Equals("ServiceNow", StringComparison.OrdinalIgnoreCase))
+        if (trimmed.Equals("ServiceNow", StringComparison.OrdinalIgnoreCase))
         {
             provider = TenantItsmConnectorProvider.ServiceNow;
 
             return true;
         }
 
-        if (raw.Trim().Equals("AzureBoards", StringComparison.OrdinalIgnoreCase) ||
-            raw.Trim().Equals("Azure Boards", StringComparison.OrdinalIgnoreCase))
+        if (trimmed.Equals("AzureBoards", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.Equals("Azure Boards", StringComparison.OrdinalIgnoreCase))
         {
             provider = TenantItsmConnectorProvider.AzureBoards;
 
