@@ -55,6 +55,7 @@
     "Alerts/AlertTuningController.cs": "/governance/alerts",
     "Alerts/AlertsController.cs": "/governance/alerts",
     "Alerts/CompositeAlertRulesController.cs": "/governance/alerts",
+    "Admin/OperationalErrorsAdminController.cs": "/internal/operational-errors",
     "Diagnostics/ConfigurationHealthController.cs": "/internal/health",
     "Evolution/EvolutionController.cs": "/insights/impact-preview",
     "Findings/FindingInspectController.cs": "/governance/findings",
