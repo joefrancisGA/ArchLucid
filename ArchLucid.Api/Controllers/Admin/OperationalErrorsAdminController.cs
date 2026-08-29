@@ -1,6 +1,8 @@
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.OperationalErrors;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.OperationalErrors;
+using ArchLucid.Host.Core.ProblemDetails;
 
 using Asp.Versioning;
 
@@ -59,7 +61,7 @@ public sealed class OperationalErrorsAdminController(OperationalErrorSearchServi
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(new { title = ex.Message });
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
     }
 
@@ -72,7 +74,7 @@ public sealed class OperationalErrorsAdminController(OperationalErrorSearchServi
         OperationalErrorRecord? row = await _searchService.GetByIdAsync(id, cancellationToken);
 
         if (row is null)
-            return NotFound();
+            return this.NotFoundProblem("Operational error was not found.", ProblemTypes.ResourceNotFound);
 
         return Ok(row);
     }
