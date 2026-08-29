@@ -10,7 +10,7 @@ export const ARCHITECTURE_INTELLIGENCE_REFINE_OPEN_LINKED_REVIEW_LABEL = "Open l
 export const ARCHITECTURE_INTELLIGENCE_REFINE_OPEN_FULL_LAB_LABEL = "Open full architecture intelligence";
 
 export const ARCHITECTURE_INTELLIGENCE_REFINE_ZERO_FINDINGS_HINT =
-  "No evidence-backed findings were returned. Add constraints or refine the overview, then run analysis again.";
+  "No evidence-backed findings were returned. Add constraints or refine the overview, then start analysis again.";
 
 export const ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_HEADING = "Evidence-backed findings";
 

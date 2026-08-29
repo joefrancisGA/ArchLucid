@@ -22,7 +22,7 @@ export function buildInviteReviewerHref(reviewId?: string | null): string {
 export function buildInviteReviewerPrefillMessage(reviewId: string): string {
   const trimmed = reviewId.trim();
 
-  return `Please review the finalized architecture review package for review ${trimmed}.`;
+  return `Please review the finalized architecture package for review ${trimmed}.`;
 }
 
 /** Users tab on the combined users-and-roles admin page. */
