@@ -22,7 +22,7 @@ class TestDemoBatch5Dt(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
         text = path.read_text(encoding="utf-8")
 
-        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", text)
+        self.assertIn("href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", text)
         self.assertIn("Finalize lives in ReviewPackageDoThisNextStrip and the page header", text)
         self.assertNotIn('href: "#run-actions"', text)
 
