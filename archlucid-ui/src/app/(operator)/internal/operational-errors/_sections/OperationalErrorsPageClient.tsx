@@ -83,11 +83,11 @@ export function OperationalErrorsPageClient() {
       <OperatorPageHeader
         title="Operational errors"
         subtitle="Review captured HTTP errors, database failures, and unhandled exceptions across the platform."
-        path={INTERNAL_OPERATIONAL_ERRORS_PATH}
+        navHref={INTERNAL_OPERATIONAL_ERRORS_PATH}
         actions={<RefreshButton onClick={() => void load()} />}
       />
 
-      <Card className={DESIGN_TOKENS.card.neutral}>
+      <Card className={DESIGN_TOKENS.surface.card}>
         <CardHeader className="space-y-1 pb-3">
           <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>Filters</CardTitle>
           <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
@@ -142,12 +142,12 @@ export function OperationalErrorsPageClient() {
       </Card>
 
       {state.status === "idle" ? (
-        <OperatorLoadingNotice message="Load operational errors to begin review." />
+        <OperatorLoadingNotice>Load operational errors to begin review.</OperatorLoadingNotice>
       ) : null}
 
-      {state.status === "loading" ? <OperatorLoadingNotice message="Loading operational errors…" /> : null}
+      {state.status === "loading" ? <OperatorLoadingNotice>Loading operational errors…</OperatorLoadingNotice> : null}
 
-      {state.status === "blocked" ? <OperatorApiProblem title="Operational errors unavailable" message={state.message} /> : null}
+      {state.status === "blocked" ? <OperatorApiProblem problem={null} fallbackMessage={state.message} /> : null}
 
       {state.status === "ready" && filteredRows.length === 0 ? (
         <EnterpriseCompactEmptyState
