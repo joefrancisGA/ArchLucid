@@ -34,7 +34,6 @@ public sealed partial class SqlTenantSqlCatalogProvisioner
             await _bindingRepository.UpsertPendingAsync(tenantId, effectiveLogicalName, cancellationToken);
 
             if (string.IsNullOrWhiteSpace(snapshot.TenantCatalogConnectionStringTemplate))
-
                 throw new InvalidOperationException(
                     "ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate is required when provisioning tenant catalogs.");
 
