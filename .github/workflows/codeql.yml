@@ -19,6 +19,8 @@ concurrency:
   # (`codeql-${{ github.sha }}`, cancel-in-progress: false) that analyzed every
   # commit but filled the Actions queue. Trade-off: latest trunk/manual ref wins;
   # intermediate SHAs may never finish. See CODEQL_TRIAGE.md.
+  # schedule and push share github.ref on master/main so they do not run two
+  # CodeQL analyses of the same branch at once; the newest run wins.
   group: codeql-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
