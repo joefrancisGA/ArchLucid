@@ -2247,13 +2247,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-28
 - **last-bug:** 2026-08-28 — simulate-bulk invalid runIds 400
-=======
-- **hunts:** 70
-- **bugs-found:** 201
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-27
-- **last-bug:** 2026-08-27 — `TenantTrialController.LinkEntraAsync` cross-tenant local identity link via email-only lookup
->>>>>>> 2df34999da (Fix link-entra cross-tenant local identity binding.)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
