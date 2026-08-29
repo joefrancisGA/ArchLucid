@@ -1,3 +1,4 @@
+import type { components } from "@/lib/api-types/schemas.generated";
 import {
   deriveScopeUnderstandingBullets,
   extractScopeUnderstandingLinesFromBrief,
@@ -30,18 +31,29 @@ export type PriorPackageGuidedIntakePrefill = {
 export type PriorPackageArchitectureRequestLike = {
   readonly systemName?: string | null;
   readonly description?: string | null;
-  readonly draftActors?: readonly PriorPackageDraftActorLike[] | null;
+  readonly draftActors?: readonly components["schemas"]["ActorDescriptor"][] | null;
   readonly inlineRequirements?: readonly string[] | null;
 };
 
-type PriorPackageDraftActorLike = {
-  readonly label?: string | null;
-  readonly kind?: ActorKind;
-  readonly trustOrigin?: TrustOrigin;
-  readonly contract?: InteractionContract;
-  readonly origin?: ActorOrigin;
-  readonly confidence?: number;
-};
+type ApiActorDescriptor = components["schemas"]["ActorDescriptor"];
+
+function toActorDescriptor(actor: ApiActorDescriptor): ActorDescriptor | null {
+  const kind = actor.kind ?? "Human";
+  const label = actor.label?.trim();
+
+  if ((label ?? kind).length === 0) {
+    return null;
+  }
+
+  return {
+    label: label || undefined,
+    kind,
+    trustOrigin: actor.trustOrigin ?? "Internal",
+    contract: actor.contract ?? "Sync",
+    origin: actor.origin ?? "Asserted",
+    confidence: actor.confidence ?? 100,
+  };
+}
 
 function stripAttachedFilesSection(text: string): string {
   let result = text;
@@ -102,19 +114,10 @@ function resolveBusinessOutcome(
   return "";
 }
 
-function actorSetFromDraftActors(
-  draftActors: readonly PriorPackageDraftActorLike[] | null | undefined,
-): ActorSet {
+function actorSetFromDraftActors(draftActors: readonly ApiActorDescriptor[] | null | undefined): ActorSet {
   const actors = (draftActors ?? [])
-    .map((actor) => ({
-      label: actor.label ?? undefined,
-      kind: actor.kind ?? "Human",
-      trustOrigin: actor.trustOrigin ?? "Internal",
-      contract: actor.contract ?? "Sync",
-      origin: actor.origin ?? "Asserted",
-      confidence: actor.confidence ?? 100,
-    }))
-    .filter((actor) => (actor.label?.trim() ?? actor.kind).length > 0);
+    .map(toActorDescriptor)
+    .filter((actor): actor is ActorDescriptor => actor !== null);
 
   if (actors.length === 0) {
     return buildDefaultActorSet();

@@ -145,13 +145,9 @@ export function OperationalErrorsPageClient() {
         <OperatorLoadingNotice>Load operational errors to begin review.</OperatorLoadingNotice>
       ) : null}
 
-      {state.status === "loading" ? (
-        <OperatorLoadingNotice>Loading operational errors…</OperatorLoadingNotice>
-      ) : null}
+      {state.status === "loading" ? <OperatorLoadingNotice>Loading operational errors…</OperatorLoadingNotice> : null}
 
-      {state.status === "blocked" ? (
-        <OperatorApiProblem fallbackMessage={state.message} problem={null} />
-      ) : null}
+      {state.status === "blocked" ? <OperatorApiProblem problem={null} fallbackMessage={state.message} /> : null}
 
       {state.status === "ready" && filteredRows.length === 0 ? (
         <EnterpriseCompactEmptyState
