@@ -2484,7 +2484,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity — **cheap-disproof 2026-08-29:** `LoadAndCompareManifestPairAsync` delegates to `GetManifestInScopeAsync` which trims; regression in `ManifestsControllerTests.CompareManifests_returns_ok_when_query_params_are_padded`.
 - [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` / `GovernanceStickinessFacade.RecordBulkDispositionAsync` — duplicate non-whitespace `findingIds` may double-record disposition (no per-item duplicate guard; `ProcessedCount` can exceed distinct ids).
 
-2026-08-29 thorough hunt #264: proved batch-review duplicate-id per-item validation; cheap-disproved manifest-compare padded-version 404 candidate; seeded bulk-disposition duplicate findingId candidate.
+2026-08-29 thorough hunt #266: proved batch-review duplicate-id per-item validation; cheap-disproved manifest-compare padded-version 404 candidate; seeded bulk-disposition duplicate findingId candidate.
 
 2026-08-28 thorough hunt #190 (dry): cheap-disproved promotions/activations padded-route test gap and simulate-bulk validation-order candidates; seeded batch-review duplicate-id silence and manifest-compare padded-version candidates.
 
