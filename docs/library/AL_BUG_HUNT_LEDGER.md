@@ -2497,8 +2497,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-08-28 thorough hunt #195 (hit): proved batch-review duplicate-id per-item validation; cheap-disproved compare-manifest padded-query candidate; seeded bulk-disposition duplicate findingIds and dry-run duplicate evaluateAgainstRunIds candidates.
 
-2026-08-28 thorough hunt #194 (hit): proved batch-review duplicate-id per-item validation; cheap-disproved compare-manifest padded-query candidate; zone candidate backlog cleared.
-
 2026-08-28 thorough hunt #186: proved batch-review mixed whitespace per-item validation; cheap-disproved activate idempotency test-gap candidate; zone candidate backlog cleared.
 
 2026-08-28 seed hunt #185: proved batch-review scoped-run error parity and null decision/ids guards; seeded batch mixed-whitespace and activate idempotency candidates.
