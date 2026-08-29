@@ -3327,7 +3327,7 @@ export interface components {
             weekLabel?: string;
         };
         ExecuteRunResponse: {
-            results?: unknown[];
+            results?: components["schemas"]["AgentResult"][];
             runId?: string;
         };
         ExplainStructuredBriefSuggestionInput: {
