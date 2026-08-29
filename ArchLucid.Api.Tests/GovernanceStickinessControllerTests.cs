@@ -319,6 +319,36 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetDecisionRegister_returns_bad_request_when_recorded_after_is_after_recorded_before()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetDecisionRegister(
+            projectId: null,
+            recordedAfterUtc: DateTimeOffset.Parse("2026-05-01T00:00:00Z"),
+            recordedBeforeUtc: DateTimeOffset.Parse("2026-04-01T00:00:00Z"),
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task GetDecisionRegister_returns_bad_request_when_min_confidence_exceeds_max_confidence()
+    {
+        GovernanceStickinessController sut = BuildSut();
+
+        IActionResult action = await sut.GetDecisionRegister(
+            projectId: null,
+            minConfidence: 0.9,
+            maxConfidence: 0.1,
+            cancellationToken: CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task GetFindingsRegistersBundle_returns_bad_request_when_max_rows_exceeds_five_hundred()
     {
         GovernanceStickinessController sut = BuildSut();
