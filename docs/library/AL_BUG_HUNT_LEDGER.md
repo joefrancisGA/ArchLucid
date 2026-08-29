@@ -2241,9 +2241,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 87
+- **hunts:** 88
 - **bugs-found:** 247
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-29
 - **last-bug:** 2026-08-29 — customer-success ghost workspace 404 parity
 - **related-pd-tb:** none
@@ -2502,6 +2502,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantCustomerSuccessController` reads and `PostProductFeedbackAsync` — ghost workspace returned HTTP 200 empty/`isCalculated: false` funnel/stickiness payloads instead of workspace 404; repository and stickiness readers query by ambient workspace but controller only called `GetByIdAsync` — **hit 2026-08-29:** shared `TenantWorkspaceScopePreflight` preflight; regression in `TenantCustomerSuccessControllerTests` workspace-missing tests.
 - [ ] (hunt-ready) `TenantCostSettingsController` (`GetAsync`, `PutAsync`) — ghost workspace returns HTTP 200 tenant cost defaults while sibling workspace-scoped controllers 404 — **cheap-disproof pending:** `ITenantCostSettingsRepository.TryGetAsync` is tenant-scoped (no workspace key); verify intentional tenant-wide ROI assumptions before promoting to invalid.
 - [ ] (hunt-ready) `TenantBaselineController` (`GetAsync`, `PutAsync`) — ghost workspace returns HTTP 200 baseline fields from `dbo.Tenants` — **cheap-disproof pending:** baseline columns are tenant-scoped on `TenantRecord`; confirm audit-only workspace id usage before invalid.
+- [x] (invalid) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `findingRef` for a foreign-workspace finding may persist without inspect-scope gate — **cheap-disproof 2026-08-29:** `FindingRef` is an optional opaque fingerprint/graph-node label; submissions are stamped with caller scope and the shipped UI does not send governance finding ids (`TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_accepts_opaque_finding_ref_without_inspect_scope_gate`).
+- [x] (invalid) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `projectId` for a sibling project in the same workspace may mutate without `scope.ProjectId` guard — **cheap-disproof 2026-08-29:** workspace-level recycle-bin API intentionally lists and mutates all projects in `scope.WorkspaceId` under `ExecuteAuthority` (foreign-workspace guard already proven); regression in `TenantWorkspacesControllerTests.DeleteProjectAsync_soft_deletes_sibling_project_in_same_workspace`.
+- [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` / `UsabilityFeedbackWidget` — operator feedback UI sends score 1–5 while API model and `dbo.ProductFeedback` accept only -1..1.
+
+2026-08-29 thorough hunt #160 (dry): cheap-disproved product-feedback `findingRef` inspect gate and workspace sibling-project delete guards; seeded usability score scale mismatch candidate.
 
 2026-08-29 seed hunt #155: proved customer-success ghost-workspace 404 parity; reseeded tenant-wide cost-settings and baseline workspace-preflight candidates for cheap-disproof.
 
