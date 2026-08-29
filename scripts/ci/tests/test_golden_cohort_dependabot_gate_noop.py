@@ -17,8 +17,12 @@ WORKFLOW = REPO_ROOT / ".github" / "workflows" / "golden-cohort-nightly.yml"
 class TestGoldenCohortDependabotGateNoop(unittest.TestCase):
     def test_workflow_noops_dependabot_and_empty_azure_oidc(self) -> None:
         text = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn('github.actor }}" = "dependabot[bot]"', text)
-        self.assertIn("secrets.AZURE_CLIENT_ID", text)
+        self.assertIn(
+            'if [ "${{ github.actor }}" = "dependabot[bot]" ]; then',
+            text,
+        )
+        self.assertIn('if [ -z "${{ secrets.AZURE_CLIENT_ID }}"', text)
+        self.assertIn("Azure OIDC secrets are empty", text)
         self.assertIn("Azure credentials unavailable", text)
         self.assertIn("azure/login@v3", text)
         self.assertIn("scripts/ci/run_golden_cohort_budget_probe_ci.sh", text)
