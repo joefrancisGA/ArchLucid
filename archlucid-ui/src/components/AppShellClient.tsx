@@ -365,7 +365,15 @@ function AppShellInner({ children }: AppShellClientProps) {
         <a href="#main-content" className="skip-to-main">
           Skip to main content
         </a>
-        <div ref={shellRootRef} key={chromeMode} className="flex min-h-dvh flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
+        {/*
+          Clip horizontal bleed without promoting overflow-y to auto (unlike overflow-x-hidden),
+          which otherwise surfaces stray scrollbars in compact top-bar controls.
+        */}
+        <div
+          ref={shellRootRef}
+          key={chromeMode}
+          className="flex min-h-dvh flex-col overflow-x-clip bg-neutral-50 dark:bg-neutral-950"
+        >
           {/* Sticky budget: optional trial strip + one-row top bar only. Journey caption scrolls with the page. */}
           <div
             ref={stickyHeaderRef}

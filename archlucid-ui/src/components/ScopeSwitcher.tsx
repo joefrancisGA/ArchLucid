@@ -335,13 +335,14 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   if (polishedShell) {
     return (
       <>
-        <span className={cn("inline-flex shrink items-center", polishedMaxWidthClass)}>
+        <span className={cn("inline-flex shrink items-center overflow-hidden", polishedMaxWidthClass)}>
           <Button
             ref={triggerRef}
             type="button"
             variant="outline"
+            size="sm"
             className={cn(
-              "inline-flex min-w-0 shrink cursor-pointer items-center gap-2 overflow-hidden border-0 p-0 shadow-none hover:bg-transparent",
+              "inline-flex min-h-8 max-h-8 min-w-0 shrink cursor-pointer items-center gap-2 overflow-clip border-0 p-0 shadow-none hover:bg-transparent",
               OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS,
               polishedMaxWidthClass,
             )}
@@ -357,7 +358,8 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
           >
             <span
               className={cn(
-                "inline-flex min-w-0 max-w-full items-center gap-1 overflow-hidden rounded-md border border-neutral-200 bg-white px-2.5 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+                "inline-flex min-h-8 max-h-8 min-w-0 max-w-full items-center gap-1 overflow-clip rounded-md border border-neutral-200 bg-white px-2.5 leading-none text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+                OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS,
                 polishedTriggerMaxWidthClass,
               )}
             >
