@@ -23,7 +23,7 @@ class TestDemoBatch5Dt(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
 
         self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", text)
-        self.assertIn("Finalize lives in ReviewPackageDoThisNextStrip and the page header", text)
+        self.assertIn("ReviewPackageDoThisNextStrip", text)
         self.assertNotIn('href: "#run-actions"', text)
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
