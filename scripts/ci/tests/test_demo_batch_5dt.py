@@ -22,8 +22,11 @@ class TestDemoBatch5Dt(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
         text = path.read_text(encoding="utf-8")
 
-        self.assertIn("BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", text)
-        self.assertIn('"#finalize-review"', text)
+        self.assertIn(
+            'const BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR = "#finalize-review"',
+            text,
+        )
+        self.assertIn("href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR", text)
         self.assertNotIn('href: "#run-actions"', text)
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
