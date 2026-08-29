@@ -22,4 +22,19 @@ public static class ArchLucidUnitOfWorkTestDoubles
 
         return factory.Object;
     }
+
+    public static IArchLucidUnitOfWorkFactory ExternalTransactionFactory()
+    {
+        Mock<IArchLucidUnitOfWork> uow = new();
+        uow.SetupGet(x => x.SupportsExternalTransaction).Returns(true);
+        uow.SetupGet(x => x.Connection).Returns(Mock.Of<System.Data.IDbConnection>());
+        uow.SetupGet(x => x.Transaction).Returns(Mock.Of<System.Data.IDbTransaction>());
+        uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
+        Mock<IArchLucidUnitOfWorkFactory> factory = new();
+        factory.Setup(x => x.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
+
+        return factory.Object;
+    }
 }
