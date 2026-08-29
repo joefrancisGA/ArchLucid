@@ -202,11 +202,9 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
         variant="destructive"
         busy={busyAction === "revoke-waiver"}
         onConfirm={() => {
-          void Promise.resolve()
-            .then(() => revokeWaiver())
-            .finally(() => {
-              setPendingRevokeWaiverConfirm(false);
-            });
+          void Promise.resolve(revokeWaiver()).finally(() => {
+            setPendingRevokeWaiverConfirm(false);
+          });
         }}
       />
     </>

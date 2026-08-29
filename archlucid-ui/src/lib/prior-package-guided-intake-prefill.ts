@@ -1,3 +1,4 @@
+import type { components } from "@/lib/api-types/schemas.generated";
 import {
   deriveScopeUnderstandingBullets,
   extractScopeUnderstandingLinesFromBrief,
@@ -30,9 +31,29 @@ export type PriorPackageGuidedIntakePrefill = {
 export type PriorPackageArchitectureRequestLike = {
   readonly systemName?: string | null;
   readonly description?: string | null;
-  readonly draftActors?: readonly ActorDescriptor[] | null;
+  readonly draftActors?: readonly components["schemas"]["ActorDescriptor"][] | null;
   readonly inlineRequirements?: readonly string[] | null;
 };
+
+type ApiActorDescriptor = components["schemas"]["ActorDescriptor"];
+
+function toActorDescriptor(actor: ApiActorDescriptor): ActorDescriptor | null {
+  const kind = actor.kind ?? "Human";
+  const label = actor.label?.trim();
+
+  if ((label ?? kind).length === 0) {
+    return null;
+  }
+
+  return {
+    label: label || undefined,
+    kind,
+    trustOrigin: actor.trustOrigin ?? "Internal",
+    contract: actor.contract ?? "Sync",
+    origin: actor.origin ?? "Asserted",
+    confidence: actor.confidence ?? 100,
+  };
+}
 
 function stripAttachedFilesSection(text: string): string {
   let result = text;
@@ -71,7 +92,7 @@ function splitDraftIntakeDescription(description: string): {
 
 function resolveBusinessOutcome(
   parsedOutcome: string,
-  inlineRequirements: readonly string[] | undefined,
+  inlineRequirements: readonly string[] | null | undefined,
   generatedBrief: boolean,
 ): string {
   const trimmedOutcome = parsedOutcome.trim();
@@ -93,8 +114,10 @@ function resolveBusinessOutcome(
   return "";
 }
 
-function actorSetFromDraftActors(draftActors: readonly ActorDescriptor[] | null | undefined): ActorSet {
-  const actors = (draftActors ?? []).filter((actor) => (actor.label?.trim() ?? actor.kind).length > 0);
+function actorSetFromDraftActors(draftActors: readonly ApiActorDescriptor[] | null | undefined): ActorSet {
+  const actors = (draftActors ?? [])
+    .map(toActorDescriptor)
+    .filter((actor): actor is ActorDescriptor => actor !== null);
 
   if (actors.length === 0) {
     return buildDefaultActorSet();

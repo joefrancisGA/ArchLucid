@@ -13,6 +13,10 @@ vi.mock("@/app/(operator)/help/_sections/HelpSponsorDashboardWorkspaceReadinessS
   HelpSponsorDashboardWorkspaceReadinessStrip: () => null,
 }));
 
+vi.mock("@/app/(operator)/help/_sections/HelpSlackIntegrationWorkspaceReadinessStrip", () => ({
+  HelpSlackIntegrationWorkspaceReadinessStrip: () => null,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
