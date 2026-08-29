@@ -162,7 +162,7 @@ export function derivePriorPackageGuidedIntakePrefill(
     : parsed.freeTextIntent.trim();
   const businessOutcome = resolveBusinessOutcome(
     parsed.businessOutcome,
-    request.inlineRequirements,
+    request.inlineRequirements ?? undefined,
     generatedBrief,
   );
   const actorSet = actorSetFromDraftActors(request.draftActors);
