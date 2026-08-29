@@ -13,7 +13,7 @@ export type GraphViewerEdgeOrTrailDetailProps = {
 export function GraphViewerEdgeOrTrailDetail({
   selectedEdge,
   buyerTrailPanel,
-}: GraphViewerEdgeOrTrailDetailProps): React.ReactElement {
+}: GraphViewerEdgeOrTrailDetailProps): JSX.Element {
   return (
     <div className="space-y-3">
       <h3 className="mt-0">Edge detail</h3>
