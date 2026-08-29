@@ -34,13 +34,12 @@ describe("buttonVariants", () => {
     expect(buttonVariants({ variant: "destructive" })).toContain("bg-");
   });
 
-  it("uses uniform 13px semibold caption typography across all variants (TB-2290)", () => {
-    expect(buttonVariants({ variant: "primary", size: "default" })).toContain("text-[13px]");
-    expect(buttonVariants({ variant: "primary", size: "default" })).toContain("font-semibold");
-    expect(buttonVariants({ variant: "outline", size: "sm" })).toContain("text-[13px]");
+  it("uses uniform 11px bold caption typography aligned with execution-mode chip (REAL)", () => {
+    expect(buttonVariants({ variant: "primary", size: "default" })).toContain("text-[11px]");
+    expect(buttonVariants({ variant: "primary", size: "default" })).toContain("font-bold");
+    expect(buttonVariants({ variant: "outline", size: "sm" })).toContain("text-[11px]");
     expect(buttonVariants({ variant: "outline", size: "sm" })).not.toContain("text-xs");
     expect(buttonVariants({ variant: "primary", size: "lg" })).not.toContain("text-[15px]");
-    expect(buttonVariants({ variant: "primary", size: "lg" })).not.toContain("text-[11px]");
   });
 
   it("uses accent focus ring on shared button chrome", () => {
@@ -51,8 +50,8 @@ describe("buttonVariants", () => {
     for (const size of ["default", "sm", "lg"] as const) {
       const classes = buttonVariants({ size });
 
-      expect(classes).toContain("text-[13px]");
-      expect(classes).toContain("font-semibold");
+      expect(classes).toContain("text-[11px]");
+      expect(classes).toContain("font-bold");
       expect(classes).not.toContain("text-xs");
       expect(classes).not.toContain("text-[15px]");
     }
