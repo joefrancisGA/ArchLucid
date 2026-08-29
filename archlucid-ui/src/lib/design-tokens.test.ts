@@ -79,8 +79,8 @@ describe("design-tokens TB-119 typography", () => {
   it("nav and button roles have dedicated tokens", () => {
     expect(OPERATOR_TYPOGRAPHY.navLabel).toContain("font-medium");
     expect(OPERATOR_TYPOGRAPHY.navHelper).toContain("leading-[15px]");
-    expect(OPERATOR_TYPOGRAPHY.button).toContain("text-[13px]");
-    expect(OPERATOR_TYPOGRAPHY.button).toContain("font-semibold");
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("text-[11px]");
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("font-bold");
     expect(OPERATOR_TYPOGRAPHY.tab).toContain("leading-4");
   });
 
@@ -108,18 +108,18 @@ describe("design-tokens TB-119 typography", () => {
     expect(OPERATOR_TYPOGRAPHY.badge).toContain("font-medium");
   });
 
-  it("interactive filter chips use compact native control label scale (TB-2290)", () => {
+  it("interactive filter chips use button label scale (TB-2290)", () => {
     expect(DESIGN_TOKENS.interactive.chip).toContain("text-[11px]");
     expect(DESIGN_TOKENS.interactive.chip).toContain("font-bold");
     expect(DESIGN_TOKENS.interactive.chip).not.toContain("text-[13px]");
   });
 
-  it("native control label stays compact while Button label stays 13px semibold", () => {
+  it("Button and native control labels share compact 11px bold scale", () => {
     expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toContain("text-[11px]");
     expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toContain("font-bold");
-    expect(OPERATOR_TYPOGRAPHY.button).toContain("text-[13px]");
-    expect(OPERATOR_TYPOGRAPHY.button).toContain("font-semibold");
-    expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).not.toBe(OPERATOR_TYPOGRAPHY.button);
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("text-[11px]");
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("font-bold");
+    expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toBe(OPERATOR_TYPOGRAPHY.button);
   });
 });
 
