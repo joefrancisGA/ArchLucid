@@ -666,17 +666,10 @@
       "nav_href": "/internal/operational-errors",
       "nav_required_authority": "AdminAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
-      "controller_primary_get_policy_strictest": "AdminAuthority",
-      "controller_primary_get_policy_loosest": "AdminAuthority",
-      "controller_files": [
-        {
-          "controller_file": "OperationalErrors/OperationalErrorsAdminController.cs",
-          "primary_get_policy": "AdminAuthority",
-          "method": "GetAsync",
-          "http_get_route": "operational-errors"
-        }
-      ],
-      "parity": "match"
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
     },
     {
       "nav_href": "/internal/platform-bundled-policy-packs",
