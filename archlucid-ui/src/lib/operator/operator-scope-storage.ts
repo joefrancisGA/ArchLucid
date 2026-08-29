@@ -13,6 +13,10 @@ import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID, getS
 
 const STORAGE_KEY = "archlucid_operator_scope_v1";
 
+let cachedOperatorScopeStorageRaw: string | null | undefined;
+let cachedOperatorScopeRecord: OperatorScopeRecord | null | undefined;
+let cachedOperatorScopeRecordSignature: string | undefined;
+
 /** Fired when {@link writeOperatorScopeToStorage} or {@link clearOperatorScopeStorage} mutates scope. */
 export const ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT = "archlucid:operator-scope-changed";
 
@@ -34,27 +38,35 @@ function isNonEmptyId(value: string | undefined | null): boolean {
   return value !== null && value !== undefined && value.trim().length > 0;
 }
 
-export function readOperatorScopeFromStorage(): OperatorScopeRecord | null {
-  if (typeof window === "undefined") {
+function operatorScopeRecordSignature(record: OperatorScopeRecord | null): string {
+  if (record === null) {
+    return "";
+  }
+
+  return `${record.tenantId}:${record.workspaceId}:${record.projectId}:${record.workspaceLabel}:${record.projectLabel}`;
+}
+
+function parseOperatorScopeRecordFromStorageRaw(raw: string | null): OperatorScopeRecord | null {
+  if (raw === null || raw.length === 0) {
     return null;
   }
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw === null || raw.length === 0) {
-      return null;
-    }
     const parsed = JSON.parse(raw) as unknown;
+
     if (parsed === null || typeof parsed !== "object" || !("tenantId" in parsed)) {
       return null;
     }
+
     const row = parsed as Record<string, unknown>;
     const tenantId = String(row.tenantId ?? "");
     const workspaceId = String(row.workspaceId ?? "");
     const projectId = String(row.projectId ?? "");
+
     if (!isNonEmptyId(tenantId) || !isNonEmptyId(workspaceId) || !isNonEmptyId(projectId)) {
       return null;
     }
+
     return {
       tenantId: tenantId.trim(),
       workspaceId: workspaceId.trim(),
@@ -67,11 +79,72 @@ export function readOperatorScopeFromStorage(): OperatorScopeRecord | null {
   }
 }
 
+function invalidateOperatorScopeRecordSnapshotCache(): void {
+  cachedOperatorScopeStorageRaw = undefined;
+  cachedOperatorScopeRecord = undefined;
+  cachedOperatorScopeRecordSignature = undefined;
+}
+
+export function readOperatorScopeFromStorage(): OperatorScopeRecord | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+
+    if (raw === cachedOperatorScopeStorageRaw) {
+      return cachedOperatorScopeRecord ?? null;
+    }
+
+    const next = parseOperatorScopeRecordFromStorageRaw(raw);
+    cachedOperatorScopeStorageRaw = raw;
+    cachedOperatorScopeRecord = next;
+    cachedOperatorScopeRecordSignature = operatorScopeRecordSignature(next);
+
+    return next;
+  } catch {
+    return null;
+  }
+}
+
+/** Stable snapshot for `useSyncExternalStore` — avoids rerender loops when scope is unchanged. */
+export function getOperatorScopeRecordSnapshot(): OperatorScopeRecord | null {
+  const next = readOperatorScopeFromStorage();
+  const signature = operatorScopeRecordSignature(next);
+
+  if (signature === cachedOperatorScopeRecordSignature) {
+    return cachedOperatorScopeRecord ?? null;
+  }
+
+  cachedOperatorScopeRecordSignature = signature;
+  cachedOperatorScopeRecord = next;
+
+  return next;
+}
+
+export function getOperatorScopeRecordServerSnapshot(): OperatorScopeRecord | null {
+  return null;
+}
+
+export function subscribeOperatorScopeRecord(onStoreChange: () => void): () => void {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onStoreChange);
+  };
+}
+
 function notifyOperatorScopeChanged(): void {
   if (typeof window === "undefined") {
     return;
   }
 
+  invalidateOperatorScopeRecordSnapshotCache();
   window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
   clearOperatorShellStableCache();
   clearOperatorShellStatusScopeAgnosticCaches(getOperatorQueryClient());

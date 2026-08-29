@@ -32,8 +32,9 @@ import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
-  ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
-  readOperatorScopeFromStorage,
+  getOperatorScopeRecordServerSnapshot,
+  getOperatorScopeRecordSnapshot,
+  subscribeOperatorScopeRecord,
   type OperatorScopeRecord,
 } from "@/lib/operator/operator-scope-storage";
 import { resolveOperatorPrincipalOwnerLabel } from "@/lib/action-actor-display";
@@ -76,22 +77,6 @@ type ReviewsHubReviewInventoryProps = {
 };
 
 const PINNED_COLUMN_CLASS = "w-10 px-2";
-
-function subscribeOperatorScopeRecord(onStoreChange: () => void): () => void {
-  if (typeof window === "undefined") {
-    return () => undefined;
-  }
-
-  window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onStoreChange);
-
-  return () => {
-    window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, onStoreChange);
-  };
-}
-
-function getServerOperatorScopeRecordSnapshot(): OperatorScopeRecord | null {
-  return null;
-}
 
 type ReviewFilterId =
   | "all"
@@ -482,8 +467,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const sampleHref = showcaseSampleReviewPackageHref();
   const scopeRecord = useSyncExternalStore(
     subscribeOperatorScopeRecord,
-    readOperatorScopeFromStorage,
-    getServerOperatorScopeRecordSnapshot,
+    getOperatorScopeRecordSnapshot,
+    getOperatorScopeRecordServerSnapshot,
   );
   const showWorkspaceScopeTeaching = shouldShowWorkspaceScopeEmptyTeaching({
     listEmpty: rows.length === 0,

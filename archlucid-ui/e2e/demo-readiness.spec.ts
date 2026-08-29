@@ -144,8 +144,9 @@ test.describe("demo-readiness — mock proof chain @demo-readiness", () => {
     page,
   }) => {
     await page.goto("/");
+    await waitForAppReady(page);
     /** Mock E2E uses buyer-polished demo: home surfaces the featured package proof summary, not a review-title heading. */
-    await expect(runsDashboardBuyerProofSummary(page)).toBeVisible();
+    await expect(runsDashboardBuyerProofSummary(page)).toBeVisible({ timeout: 60_000 });
 
     await page.goto("/architecture/reviews/new");
     await expect(page).toHaveURL(/\/architecture\/reviews\/new/);

@@ -3,7 +3,6 @@ import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
-import * as demoUiEnv from "@/lib/demo-ui-env";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import * as facetsStorage from "@/lib/governance/governance-findings-queue-facets-storage";
 import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
@@ -78,13 +77,18 @@ vi.mock("@/lib/buyer/buyer-demo-content-gating", () => ({
   shouldUseGovernanceCuratedDemoSpine: () => false,
 }));
 
+const demoUiEnvMocks = vi.hoisted(() => ({
+  isBuyerPolishedOperatorShellEnv: vi.fn(() => false),
+  isNextPublicDemoMode: vi.fn(() => false),
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
   return {
     ...actual,
-  isBuyerPolishedOperatorShellEnv: () => false,
-  isNextPublicDemoMode: () => false,
-};
+    isBuyerPolishedOperatorShellEnv: demoUiEnvMocks.isBuyerPolishedOperatorShellEnv,
+    isNextPublicDemoMode: demoUiEnvMocks.isNextPublicDemoMode,
+  };
 });
 
 vi.mock("@/lib/use-nav-surface", () => ({
@@ -140,18 +144,21 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOrigi
   };
 });
 
+const mockOperatorScopeRecord = vi.hoisted(() => ({
+  tenantId: "tenant-1",
+  workspaceId: "ws-1",
+  projectId: "proj-1",
+  workspaceLabel: "Customer Intake Demo",
+  projectLabel: "Default",
+}));
+
 vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/operator/operator-scope-storage")>();
 
   return {
     ...actual,
-    readOperatorScopeFromStorage: vi.fn(() => ({
-      tenantId: "tenant-1",
-      workspaceId: "ws-1",
-      projectId: "proj-1",
-      workspaceLabel: BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
-      projectLabel: "Default",
-    })),
+    readOperatorScopeFromStorage: vi.fn(() => mockOperatorScopeRecord),
+    getOperatorScopeRecordSnapshot: vi.fn(() => mockOperatorScopeRecord),
   };
 });
 
@@ -196,6 +203,8 @@ describe("GovernanceFindingsQueueClient", () => {
   beforeEach(() => {
     resetOperatorQueryClientForTests();
     searchParamsState.current = new URLSearchParams();
+    demoUiEnvMocks.isBuyerPolishedOperatorShellEnv.mockReturnValue(false);
+    vi.mocked(operatorScopeStorage.getOperatorScopeRecordSnapshot).mockReturnValue(null);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
   });
@@ -221,6 +230,8 @@ describe("GovernanceFindingsQueueClient", () => {
   });
 
   it("renders architecture posture overview above the findings filter bar (TB-2378)", async () => {
+    vi.mocked(operatorScopeStorage.getOperatorScopeRecordSnapshot).mockReturnValue(mockOperatorScopeRecord);
+
     renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("architecture-posture-pillar-overview")).toBeInTheDocument();
@@ -394,16 +405,10 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     // so a rejecting mock never reaches the component.
     resetOperatorQueryClientForTests();
     searchParamsState.current = new URLSearchParams();
-    vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue({
-      tenantId: "tenant-1",
-      workspaceId: "ws-1",
-      projectId: "proj-1",
-      workspaceLabel: BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
-      projectLabel: "Default",
-    });
+    demoUiEnvMocks.isBuyerPolishedOperatorShellEnv.mockReturnValue(false);
+    vi.mocked(operatorScopeStorage.getOperatorScopeRecordSnapshot).mockReturnValue(mockOperatorScopeRecord);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
-    vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(false);
     vi.spyOn(facetsStorage, "readGovernanceFindingsQueueFacets").mockReturnValue({
       registerFilter: "all",
       jobView: "needs-my-decision",
@@ -442,7 +447,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
   });
 
   it("does not render raw workspace ids when operator scope storage is empty", async () => {
-    vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue(null);
+    vi.mocked(operatorScopeStorage.getOperatorScopeRecordSnapshot).mockReturnValue(null);
 
     renderGovernanceFindingsQueue("assigned-to-me");
 
@@ -455,12 +460,9 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(workspace).toHaveTextContent(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
   });
 
-  it("renders related queues disclosure, breadcrumb, and queue status after the work object", async () => {
+  it("renders related queues disclosure and queue status after the work object", async () => {
     renderGovernanceFindingsQueue("assigned-to-me");
 
-    expect(await screen.findByTestId("governance-assigned-to-me-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Approval" })).toHaveAttribute("href", "/governance/approval-queue");
-    expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
     expect(screen.getByTestId("governance-assigned-to-me-workspace")).toHaveTextContent(
       BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
     );
@@ -468,6 +470,14 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
       "0 open findings assigned",
     );
     expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-job-router-option-approve-governance")).toHaveAttribute(
+      "href",
+      "/governance/approval-queue",
+    );
+    expect(screen.getByTestId("governance-job-router-option-triage-findings")).toHaveAttribute(
+      "href",
+      "/governance/findings",
+    );
 
     const body = screen.getByTestId("governance-findings-queue-body");
     const empty = within(body).getByTestId("governance-findings-empty-state");
@@ -536,7 +546,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
   });
 
   it("suppresses the governance approval banner when the assigned-to-me load fails in buyer shell", async () => {
-    vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
+    demoUiEnvMocks.isBuyerPolishedOperatorShellEnv.mockReturnValue(true);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(new Error("network"));
 
     renderGovernanceFindingsQueue("assigned-to-me");
@@ -546,8 +556,8 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(screen.queryByRole("link", { name: "View approval record" })).not.toBeInTheDocument();
   });
 
-  it("renders skip link, breadcrumb, and orientation after queue body in buyer shell", async () => {
-    vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
+  it("renders skip link and buyer orientation after queue body in buyer shell", async () => {
+    demoUiEnvMocks.isBuyerPolishedOperatorShellEnv.mockReturnValue(true);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 
     renderGovernanceFindingsQueue();
@@ -556,7 +566,6 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
       "href",
       `#${GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("governance-findings-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-risk-register-page-title")).toHaveTextContent(
       BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
     );

@@ -10422,7 +10422,7 @@ BEGIN
 END;
 GO
 
--- TB-2374: backfill FindingRecords.QualityDimension from category map and specialist property bag.
+-- TB-2374 / 331_ArchitecturePostureQualityDimensionBackfill.sql: backfill FindingRecords.QualityDimension from category map and specialist property bag.
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
    AND OBJECT_ID(N'dbo.PillarCategoryMap', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.FindingRecords', N'QualityDimension') IS NOT NULL
