@@ -37,7 +37,7 @@ public sealed class GovernanceControllerDashboardTests
             [
                 new TenantWorkspaceListItem
                 {
-                    WorkspaceId = WorkspaceId,
+                    WorkspaceId = effectiveWorkspaceId,
                     Name = "primary",
                 },
             ]);
