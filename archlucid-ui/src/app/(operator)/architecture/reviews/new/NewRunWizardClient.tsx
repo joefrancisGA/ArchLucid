@@ -154,6 +154,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
   const showWizardNotice = useCallback(
     (kind: "ok" | "err", message: string) => {
       if (kind === "ok") {
+        setStepValidationMessage(null);
         showSuccess(message);
       } else {
         setStepValidationMessage(message);
