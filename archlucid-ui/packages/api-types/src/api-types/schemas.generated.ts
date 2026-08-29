@@ -719,33 +719,7 @@ export interface components {
             overallSemanticScore?: number | string;
             traceId?: string;
         };
-        AgentResult: {
-            agentType: components["schemas"]["AgentType"];
-            cacheServed?: boolean;
-            /** Format: double */
-            calibratedConfidence?: null | number | string;
-            checklistCoverage?: components["schemas"]["ArchitectureFinding"][];
-            citations?: null | components["schemas"]["Citation"][];
-            claims: string[];
-            /** Format: double */
-            confidence?: number | string;
-            /** Format: date-time */
-            createdUtc?: string;
-            degradationReasonCode?: null | string;
-            evidenceRefs: string[];
-            findings?: components["schemas"]["ArchitectureFinding"][];
-            insightDensityCuration?: null | components["schemas"]["InsightDensityCurationSummary"];
-            proposedChanges?: null | components["schemas"]["AgentTopologyProposal"];
-            reasoningTrace?: null | string;
-            resultId: string;
-            retrievalGroundingTrace?: null | components["schemas"]["AgentResultRetrievalGroundingTrace"];
-            runId: string;
-            taskId: string;
-            taskStructuralExecutionMode?: null | components["schemas"]["StructuralExecutionMode"];
-            upstreamResultFingerprints?: null | {
-                [key: string]: string;
-            };
-        };
+        AgentResult: unknown;
         AgentResultCompareResponse: {
             diff?: components["schemas"]["AgentResultDiffResult"];
         };
@@ -779,10 +753,6 @@ export interface components {
             rightRunId?: string;
             warnings?: string[];
         };
-        AgentResultRetrievalGroundingTrace: {
-            /** Format: double */
-            citationCoverage?: number | string;
-        };
         AgentTask: {
             agentType: components["schemas"]["AgentType"];
             agentTypeKey?: null | string;
@@ -802,15 +772,6 @@ export interface components {
         /** @enum {string} */
         AgentTaskStatus: "Created" | "InProgress" | "Completed" | "Rejected" | "Failed";
         /** @enum {string} */
-        AgentTopologyProposal: {
-            addedDatastores?: components["schemas"]["ManifestDatastore"][];
-            addedRelationships?: components["schemas"]["ManifestRelationship"][];
-            addedServices?: components["schemas"]["ManifestService"][];
-            proposalId?: string;
-            requiredControls?: string[];
-            sourceAgent?: components["schemas"]["AgentType"];
-            warnings?: string[];
-        };
         AgentType: "Topology" | "Cost" | "Compliance" | "Critic";
         AlertActionLoopResponse: {
             /** Format: uuid */
@@ -1111,36 +1072,6 @@ export interface components {
         };
         /** @enum {string} */
         ArchitectureElementKind: "BusinessObjective" | "Stakeholder" | "FunctionalRequirement" | "QualityAttribute" | "Constraint" | "Assumption" | "Decision" | "Alternative" | "Component" | "Interface" | "DataFlow" | "TrustBoundary" | "DeploymentTopology" | "FailureMode" | "RecoveryObjective" | "CapacityExpectation" | "CostDriver" | "OperationalOwnership" | "ComplianceObligation" | "Evidence" | "Risk" | "Recommendation" | "UnresolvedQuestion" | "TradeOff" | "Contradiction";
-        ArchitectureFinding: {
-            category?: string;
-            classification?: null | components["schemas"]["FindingClassification"];
-            confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
-            /** Format: double */
-            confidenceScore?: null | number | string;
-            decisionConsequence?: null | string;
-            enforcementTier?: components["schemas"]["FindingEnforcementTier"];
-            /** Format: double */
-            estimatedUsdSavings?: null | number | string;
-            /** Format: int32 */
-            evaluationConfidenceScore?: null | number;
-            evidenceRefs?: string[];
-            findingId?: string;
-            iacStub?: null | string;
-            /** Format: int32 */
-            insightDensityScore?: null | number;
-            isMuted?: boolean;
-            message?: string;
-            muteReason?: null | string;
-            policyRuleId?: null | string;
-            principalArchitectValue?: null | string;
-            reasoningTrace?: null | string;
-            severity?: components["schemas"]["FindingSeverity"];
-            sourceAgent?: components["schemas"]["AgentType"];
-            treatment?: null | components["schemas"]["FindingTreatment"];
-            trustLabel?: null | string;
-            trustLabelReason?: null | string;
-            whyThisIsNotGeneric?: null | string;
-        };
         ArchitectureFindingFeedbackPostRequest: {
             comment?: null | string;
             isHelpful?: boolean;
@@ -3838,7 +3769,7 @@ export interface components {
             traceCompletenessRatio?: number | string;
             traceConfidenceLabel: string;
         };
-        FindingTreatment: number;
+        FindingTreatment: unknown;
         FindingsSnapshot: {
             checklistCoverage?: components["schemas"]["Finding"][];
             /** Format: uuid */

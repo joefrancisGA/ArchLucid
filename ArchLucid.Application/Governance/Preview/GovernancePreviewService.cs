@@ -30,8 +30,10 @@ public sealed class GovernancePreviewService(
     public async Task<GovernancePreviewResult> PreviewActivationAsync(GovernancePreviewRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+
         if (string.IsNullOrWhiteSpace(request.RunId))
             throw new ArgumentException("RunId is required.", nameof(request));
+
         if (string.IsNullOrWhiteSpace(request.ManifestVersion))
             throw new ArgumentException("ManifestVersion is required.", nameof(request));
         string runId = request.RunId.Trim();
@@ -46,8 +48,10 @@ public sealed class GovernancePreviewService(
             runDetail.Manifest is not null && string.Equals(runDetail.Run.CurrentManifestVersion, manifestVersion, StringComparison.Ordinal)
                 ? runDetail.Manifest
                 : await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
+
         if (candidateManifest is null)
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
+
         if (!string.Equals(candidateManifest.RunId, runId, StringComparison.Ordinal))
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
         IReadOnlyList<GovernanceEnvironmentActivation> activationRows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
@@ -86,6 +90,7 @@ public sealed class GovernancePreviewService(
         ArgumentNullException.ThrowIfNull(request);
         string source = NormalizeAndValidateEnvironment(request.SourceEnvironment, nameof(request.SourceEnvironment));
         string target = NormalizeAndValidateEnvironment(request.TargetEnvironment, nameof(request.TargetEnvironment));
+
         if (string.Equals(source, target, StringComparison.Ordinal))
             throw new ArgumentException("SourceEnvironment and TargetEnvironment must be different.", nameof(request));
         List<string> notes = [DiffOnlyNote];
@@ -93,8 +98,10 @@ public sealed class GovernancePreviewService(
         IReadOnlyList<GovernanceEnvironmentActivation> targetRows = await activationRepository.GetByEnvironmentAsync(target, cancellationToken);
         GovernanceEnvironmentActivation? sourceActive = sourceRows.FirstOrDefault(a => a.IsActive);
         GovernanceEnvironmentActivation? targetActive = targetRows.FirstOrDefault(a => a.IsActive);
+
         if (sourceActive is null)
             notes.Add($"No active governance activation exists for source environment '{source}'.");
+
         if (targetActive is null)
             notes.Add($"No active governance activation exists for target environment '{target}'.");
         GoldenManifest? sourceManifest = sourceActive is not null
@@ -103,6 +110,7 @@ public sealed class GovernancePreviewService(
         GoldenManifest? targetManifest = targetActive is not null
             ? await LoadManifestForActivationAsync(targetActive, notes, cancellationToken)
             : null;
+
         if (sourceActive is not null && targetActive is not null && sourceManifest is not null && targetManifest is not null)
             notes.Add($"Compared active governance states for environments '{source}' and '{target}'.");
 
