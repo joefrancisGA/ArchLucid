@@ -22,7 +22,10 @@ class TestDemoBatch5Dt(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "first-week-route-guidance.ts"
         text = path.read_text(encoding="utf-8")
 
-        self.assertIn('href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR', text)
+        self.assertIn('BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR = "#finalize-review"', text)
+        self.assertIn("review-detail-in-progress", text)
+        # Finalize CTA lives in RunDetailPageHeader — guidance omits primaryAction to avoid duplicates.
+        self.assertNotIn('href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR', text)
         self.assertNotIn('href: "#run-actions"', text)
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
