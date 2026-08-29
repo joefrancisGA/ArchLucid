@@ -68,6 +68,18 @@ public sealed partial class PolicyPacksController(
             _tenantRepository,
             cancellationToken);
 
+    private IActionResult? BadRequestWhenRouteIdEmpty(Guid id, string parameterName)
+    {
+        if (id == Guid.Empty)
+        {
+            return this.BadRequestProblem(
+                $"{parameterName} is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
@@ -127,6 +139,11 @@ public sealed partial class PolicyPacksController(
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         PolicyPackVersion? version = await _workflow.TryPublishVersionAsync(
             policyPackId,
             request.Version.Trim(),
@@ -167,6 +184,11 @@ public sealed partial class PolicyPacksController(
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         string versionKey = request.Version.Trim();
         string scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
 
@@ -203,6 +225,11 @@ public sealed partial class PolicyPacksController(
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(assignmentId, "assignmentId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         bool ok = await _workflow.TryArchiveAssignmentAsync(assignmentId, ct);
 
         if (!ok)
@@ -224,6 +251,11 @@ public sealed partial class PolicyPacksController(
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         bool ok = await _workflow.TrySoftDeletePackAsync(policyPackId, ct);
 
@@ -247,6 +279,11 @@ public sealed partial class PolicyPacksController(
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         PolicyPack? duplicate = await _workflow.TryDuplicatePackAsync(policyPackId, ct);
 
@@ -291,6 +328,11 @@ public sealed partial class PolicyPacksController(
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(assignmentId, "assignmentId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         bool ok = await _workflow.TrySetAssignmentEnabledAsync(assignmentId, request.IsEnabled, ct);
 

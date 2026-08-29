@@ -1,4 +1,7 @@
+using ArchLucid.Application.OperationalErrors;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.OperationalErrors;
+using ArchLucid.Host.Core.OperationalErrors;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Middleware;
@@ -41,6 +44,21 @@ public static class WorkerHostPipelineExtensions
                             context.Request.Method,
                             context.Request.Path
                                 .Value); // codeql[cs/log-forging]: user-derived method/path are normalized in LogErrorUnhandledWorkerHttpRequest (CWE-117, LogSanitizer; see SanitizedLoggerErrorExtensions and docs/library/CODEQL_TRIAGE.md).
+                    }
+
+                    IOperationalErrorCaptureService? captureService =
+                        context.RequestServices.GetService<IOperationalErrorCaptureService>();
+
+                    if (captureService is not null)
+                    {
+                        OperationalErrorHttpCapture.TryCaptureFromException(
+                            captureService,
+                            context,
+                            ex,
+                            StatusCodes.Status500InternalServerError,
+                            ProblemTypes.InternalError,
+                            OperationalErrorSource.Worker,
+                            OperationalErrorCategory.UnhandledException);
                     }
                 }
 

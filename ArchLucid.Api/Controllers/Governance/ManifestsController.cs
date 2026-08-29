@@ -71,4 +71,16 @@ public sealed partial class ManifestsController(
             _scopeContextProvider,
             _tenantRepository,
             cancellationToken);
+
+    private IActionResult? BadRequestWhenManifestVersionEmpty(string manifestVersion)
+    {
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+        {
+            return this.BadRequestProblem(
+                "manifestVersion is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
 }

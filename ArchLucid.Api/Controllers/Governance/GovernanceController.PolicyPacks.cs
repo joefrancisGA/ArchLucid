@@ -73,6 +73,11 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
         }
 
+        if (!Guid.TryParse(request.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+        {
+            return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
+        }
+
         if (request.Content is null)
         {
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
@@ -129,6 +134,19 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        if (!string.IsNullOrWhiteSpace(request.TargetRunId))
+        {
+            if (!Guid.TryParse(request.TargetRunId.Trim(), out Guid targetRunGuid) || targetRunGuid == Guid.Empty)
+            {
+                return this.BadRequestProblem("targetRunId is not valid.", ProblemTypes.ValidationFailed);
+            }
+        }
+
+        if (request.TargetManifestId == Guid.Empty)
+        {
+            return this.BadRequestProblem("targetManifestId is not valid.", ProblemTypes.ValidationFailed);
+        }
 
         PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
             request.PolicyPackContentJson,
@@ -191,10 +209,26 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        foreach (string runId in request.EvaluateAgainstRunIds)
+        {
+            if (string.IsNullOrWhiteSpace(runId))
+                continue;
+
+            if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+            {
+                return this.BadRequestProblem(
+                    "evaluateAgainstRunIds contains an invalid run id.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        if (id == Guid.Empty)
+            return this.BadRequestProblem("id is required.", ProblemTypes.ValidationFailed);
 
         IReadOnlyDictionary<string, string> proposedThresholds =
             request.ProposedThresholds;

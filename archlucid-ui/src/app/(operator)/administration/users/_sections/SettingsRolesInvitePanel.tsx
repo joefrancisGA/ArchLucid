@@ -34,6 +34,7 @@ import {
 import { resolveAdminUserInvitationAcceptLink } from "./settings-roles-pending-invitations";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { REVIEW_PACKAGE_LABEL } from "@/lib/usability/canonical-product-terms";
 
 type InviteFormState = {
   email: string;
@@ -121,11 +122,11 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialM
           role="status"
         >
           <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            Invitation sent. Return to the review package when you are ready to share context with the reviewer.
+            Invitation sent. Return to the architecture package when you are ready to share context with the reviewer.
           </p>
           <Button type="button" variant="outline" size="sm" className="mt-3" asChild>
             <Link href={reviewDetailPath(inviteSentForReviewId)} data-testid="settings-roles-invite-back-to-review-package">
-              Back to review package
+              Back to {REVIEW_PACKAGE_LABEL.toLowerCase()}
             </Link>
           </Button>
         </div>
