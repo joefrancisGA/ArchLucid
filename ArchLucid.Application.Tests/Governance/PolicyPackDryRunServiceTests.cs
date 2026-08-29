@@ -177,6 +177,34 @@ public sealed class PolicyPackDryRunServiceTests
     }
 
     [SkippableFact]
+    public async Task EvaluateAsync_deduplicates_case_insensitive_evaluate_against_run_ids()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);
+
+        FakeDeltaComputer computer = new();
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            computer,
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["RUN-CLEAN", "run-clean"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.TotalRequestedRuns.Should().Be(1);
+        response.DeltaCounts.Evaluated.Should().Be(1);
+        response.Items.Should().HaveCount(1);
+        response.Items.Single().RunId.Should().Be("RUN-CLEAN");
+    }
+
+    [SkippableFact]
     public async Task EvaluateAsync_MarksUnknownRunIdsAsMissingAndExcludesFromTallies()
     {
         FakeRunDetailQueryService runs = new();
