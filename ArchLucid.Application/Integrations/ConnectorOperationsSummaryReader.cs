@@ -206,7 +206,7 @@ public sealed class ConnectorOperationsSummaryReader(
         string smoke = configured ? "LocallyValid" : "ConfigurationIncomplete";
 
         string summary =
-            $"{enabledSchedules} enabled advisory schedule(s); {enabledSubs} digest subscription row(s) in scope.";
+            $"{enabledSchedules} enabled advisory schedule(s); {enabledSubs} enabled digest subscription(s) of {digests.Count} row(s) in scope.";
 
         return new ConnectorSurfaceSummary
         {

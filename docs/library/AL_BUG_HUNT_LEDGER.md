@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 88
-- **bugs-found:** 247
-- **consecutive-dry-hunts:** 1
+- **hunts:** 89
+- **bugs-found:** 249
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — customer-success ghost workspace 404 parity
+- **last-bug:** 2026-08-29 — reviews-awaiting-action sourceRunId scope + connector digest summary wording
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2505,6 +2505,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantCustomerSuccessController.PostProductFeedbackAsync` — body `findingRef` for a foreign-workspace finding may persist without inspect-scope gate — **cheap-disproof 2026-08-29:** `FindingRef` is an optional opaque fingerprint/graph-node label; submissions are stamped with caller scope and the shipped UI does not send governance finding ids (`TenantCustomerSuccessControllerTests.PostProductFeedbackAsync_accepts_opaque_finding_ref_without_inspect_scope_gate`).
 - [x] (invalid) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — route `projectId` for a sibling project in the same workspace may mutate without `scope.ProjectId` guard — **cheap-disproof 2026-08-29:** workspace-level recycle-bin API intentionally lists and mutates all projects in `scope.WorkspaceId` under `ExecuteAuthority` (foreign-workspace guard already proven); regression in `TenantWorkspacesControllerTests.DeleteProjectAsync_soft_deletes_sibling_project_in_same_workspace`.
 - [ ] (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` / `UsabilityFeedbackWidget` — operator feedback UI sends score 1–5 while API model and `dbo.ProductFeedback` accept only -1..1.
+- [x] (proven) `GovernanceStickinessController.GetReviewsAwaitingAction` / `ReviewsAwaitingActionQueryService.ListAsync` — parsed recurrence `sourceRunId` echoed without scoped `IRunRepository.GetByIdAsync` preflight — **hit 2026-08-29:** clear `SourceRunId` and skip diff when scoped lookup fails (create-recurrence parity); regression in `ReviewsAwaitingActionQueryServiceTests.ListAsync_clears_source_run_id_when_parsed_source_run_is_out_of_scope`.
+- [x] (proven) `TenantIntegrationsOperationsController.GetAsync` / `ConnectorOperationsSummaryReader.BuildDigestAdvisorySurface` — summary labeled `enabledSubs` as "digest subscription row(s)" hiding disabled rows — **hit 2026-08-29:** report enabled count against total rows (`of {digests.Count} row(s)`); regression in `ConnectorOperationsSummaryReaderTests.GetSummaryAsync_digest_advisory_surface_reports_total_rows_when_disabled_subscriptions_exist`.
+
+2026-08-29 thorough hunt #165: proved reviews-awaiting-action sourceRunId scope gate and connector digest-advisory summary wording; zone candidate backlog cleared.
 
 2026-08-29 thorough hunt #160 (dry): cheap-disproved product-feedback `findingRef` inspect gate and workspace sibling-project delete guards; seeded usability score scale mismatch candidate.
 
