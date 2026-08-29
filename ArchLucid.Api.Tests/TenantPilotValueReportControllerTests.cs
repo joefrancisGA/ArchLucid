@@ -276,7 +276,27 @@ public sealed class TenantPilotValueReportControllerTests
         svc.VerifyNoOtherCalls();
     }
 
-    [SkippableFact]
+    [Fact]
+    public async Task GetPilotValueReport_returns_bad_request_when_from_utc_before_1970()
+    {
+        Mock<IPilotValueReportService> svc = new(MockBehavior.Strict);
+
+        TenantPilotValueReportController sut = CreateController(svc.Object);
+
+        DateTime fromUtc = new(1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        IActionResult result = await sut.GetPilotValueReport(fromUtc, toUtc, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails? problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Detail.Should().Be("fromUtc and toUtc must be on or after 1970-01-01 when specified.");
+        svc.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetPilotValueReport_returns_bad_request_when_to_utc_before_1970()
     {
         Mock<IPilotValueReportService> svc = new(MockBehavior.Strict);
@@ -284,7 +304,7 @@ public sealed class TenantPilotValueReportControllerTests
         TenantPilotValueReportController sut = CreateController(svc.Object);
 
         DateTime fromUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        DateTime toUtc = new(1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = new(1969, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
         IActionResult result = await sut.GetPilotValueReport(fromUtc, toUtc, CancellationToken.None);
 
@@ -293,7 +313,7 @@ public sealed class TenantPilotValueReportControllerTests
         svc.VerifyNoOtherCalls();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetPilotValueReport_returns_not_found_when_report_build_returns_null()
     {
         Mock<IPilotValueReportService> svc = new();
@@ -310,23 +330,6 @@ public sealed class TenantPilotValueReportControllerTests
         Microsoft.AspNetCore.Mvc.ProblemDetails? pd = problem.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
         pd.Should().NotBeNull();
         pd.Detail.Should().Be("Tenant was not found for the current scope.");
-    }
-
-    [SkippableFact]
-    public async Task GetPilotValueReport_returns_bad_request_when_from_utc_before_1970()
-    {
-        Mock<IPilotValueReportService> svc = new(MockBehavior.Strict);
-
-        TenantPilotValueReportController sut = CreateController(svc.Object);
-
-        DateTime fromUtc = new(1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        DateTime toUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
-        IActionResult result = await sut.GetPilotValueReport(fromUtc, toUtc, CancellationToken.None);
-
-        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        svc.VerifyNoOtherCalls();
     }
 
     [SkippableFact]
