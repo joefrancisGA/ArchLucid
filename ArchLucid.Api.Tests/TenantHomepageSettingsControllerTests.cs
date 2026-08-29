@@ -224,20 +224,24 @@ public sealed class TenantHomepageSettingsControllerTests
             ProjectId = Scope.ProjectId,
         });
 
-        Mock<ITenantRepository> tenants = new();
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
         tenants
             .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(tenantExists ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" } : null);
-        tenants
-            .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
+
+        if (tenantExists)
+        {
+            tenants
+                .Setup(r => r.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                [
+                    new TenantWorkspaceListItem
+                    {
+                        WorkspaceId = Scope.WorkspaceId,
+                        Name = "primary",
+                    },
+                ]);
+        }
 
         TenantHomepageSettingsController controller = new(
             service,
