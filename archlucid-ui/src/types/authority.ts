@@ -135,54 +135,41 @@ export type ReplayResponse = ReplayResponseSchema &
 /** LLM usage rollup — **OpenAPI** `RunAgentLlmCostEstimateResponse`. */
 export type RunAgentExecutionLlmCostEstimate = components["schemas"]["RunAgentLlmCostEstimateResponse"];
 
-/** Architecture finding row embedded in agent pipeline results (wire JSON; not in OpenAPI snapshot). */
-export type RunDetailAgentFindingWire = {
+/** Agent pipeline result row on authority run detail (`RunDetailDto.results`). */
+export type RunDetailAgentFinding = {
   category?: string;
   findingId?: string;
   message?: string;
-  reasoningTrace?: string | null;
+  reasoningTrace?: string;
   severity?: string;
-  evidenceRefs?: string[];
 };
 
-/** Topology proposal payload on agent results when the agent proposes manifest changes. */
-export type RunDetailAgentTopologyProposalWire = {
-  proposalId?: string;
-  requiredControls?: string[];
-  warnings?: string[];
-};
-
-/** Retrieval grounding metrics attached to an agent result for offline evaluation. */
-export type RunDetailAgentRetrievalGroundingTraceWire = {
-  citationCoverage?: number | string;
-};
-
-/**
- * Agent pipeline result row on authority run detail (`RunDetailDto.results`).
- * OpenAPI emits `AgentResult` as `{}` because of `AgentResultJsonConverter`; keep the
- * wire shape explicit so UI code does not collapse to `unknown` after api-types regen.
- */
+/** Explicit shape — OpenAPI snapshot emits `AgentResult` as `{}` so generated type is `unknown`. */
 export type RunDetailAgentResult = {
   agentType: components["schemas"]["AgentType"];
   cacheServed?: boolean;
+  /** Format: double */
   calibratedConfidence?: null | number | string;
-  checklistCoverage?: RunDetailAgentFindingWire[];
   citations?: null | components["schemas"]["Citation"][];
   claims: string[];
+  /** Format: double */
   confidence?: number | string;
+  /** Format: date-time */
   createdUtc?: string;
   degradationReasonCode?: null | string;
   evidenceRefs: string[];
-  findings?: RunDetailAgentFindingWire[];
+  findings?: RunDetailAgentFinding[] | null;
   insightDensityCuration?: null | components["schemas"]["InsightDensityCurationSummary"];
-  proposedChanges?: null | RunDetailAgentTopologyProposalWire;
+  proposedChanges?: unknown;
   reasoningTrace?: null | string;
   resultId: string;
-  retrievalGroundingTrace?: null | RunDetailAgentRetrievalGroundingTraceWire;
+  retrievalGroundingTrace?: unknown;
   runId: string;
   taskId: string;
   taskStructuralExecutionMode?: null | components["schemas"]["StructuralExecutionMode"];
-  upstreamResultFingerprints?: null | Record<string, string>;
+  upstreamResultFingerprints?: null | {
+    [key: string]: string;
+  };
 };
 
 export type TrustEvidenceFieldSnapshot = {
