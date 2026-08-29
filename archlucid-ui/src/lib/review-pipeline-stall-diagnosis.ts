@@ -108,7 +108,7 @@ export function deriveReviewPipelineTerminalFailureDiagnosis(input: {
       detail:
         lastFailureReason.length > 0
           ? lastFailureReason
-          : "Execution failed with no stage snapshots. Re-execute or inspect API logs for this review id.",
+          : "Execution failed with no stage snapshots. Re-execute or inspect API logs for this review (run) id.",
     };
   }
 
