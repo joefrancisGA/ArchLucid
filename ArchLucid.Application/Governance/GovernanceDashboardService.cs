@@ -37,10 +37,13 @@ public sealed class GovernanceDashboardService(
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
         if (maxPending <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxPending));
+
         if (maxDecisions <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxDecisions));
+
         if (maxChanges <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxChanges));
 
