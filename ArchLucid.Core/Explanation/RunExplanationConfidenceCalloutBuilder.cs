@@ -114,4 +114,21 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         return line.Replace("**", string.Empty, StringComparison.Ordinal).Trim();
     }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
 }
