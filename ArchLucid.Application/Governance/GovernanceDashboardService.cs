@@ -50,7 +50,7 @@ public sealed class GovernanceDashboardService(
         Task<IReadOnlyList<GovernanceApprovalRequest>> decisionsTask = _approvalRequestRepository.GetRecentDecisionsAsync(maxDecisions, cancellationToken);
         Task<IReadOnlyList<PolicyPackChangeLogEntry>> changesTask =
             _policyPackChangeLogRepository.GetByScopeAsync(
-                tenantId,
+                scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
                 maxChanges,

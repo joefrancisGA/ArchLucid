@@ -47,7 +47,7 @@ public sealed class GovernanceDashboardServiceTests
 
         Mock<IPolicyPackChangeLogRepository> changes = new();
         changes
-            .Setup(c => c.GetByScopeAsync(tenantId, It.IsAny<Guid>(), It.IsAny<Guid>(), 20, It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetByScopeAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), 20, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<PolicyPackChangeLogEntry> { change });
 
         (Mock<IRunDetailQueryService> runQuery, Mock<IAgentExecutionTraceRepository> traces) = CreateEmptyTokenMocks();
@@ -79,7 +79,7 @@ public sealed class GovernanceDashboardServiceTests
         approvals.Setup(a => a.GetRecentDecisionsAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IPolicyPackChangeLogRepository> changes = new();
-        changes.Setup(c => c.GetByScopeAsync(tenantId, It.IsAny<Guid>(), It.IsAny<Guid>(), 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        changes.Setup(c => c.GetByScopeAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         (Mock<IRunDetailQueryService> runQuery, Mock<IAgentExecutionTraceRepository> traces) = CreateEmptyTokenMocks();
 
@@ -110,7 +110,7 @@ public sealed class GovernanceDashboardServiceTests
         approvals.Setup(a => a.GetRecentDecisionsAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IPolicyPackChangeLogRepository> changes = new();
-        changes.Setup(c => c.GetByScopeAsync(tenantId, It.IsAny<Guid>(), It.IsAny<Guid>(), 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        changes.Setup(c => c.GetByScopeAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IRunDetailQueryService> runQuery = new();
         runQuery
@@ -169,7 +169,7 @@ public sealed class GovernanceDashboardServiceTests
         approvals.Setup(a => a.GetRecentDecisionsAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IPolicyPackChangeLogRepository> changes = new();
-        changes.Setup(c => c.GetByScopeAsync(tenantId, It.IsAny<Guid>(), It.IsAny<Guid>(), 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        changes.Setup(c => c.GetByScopeAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), 20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IRunDetailQueryService> runQuery = new();
         runQuery
@@ -271,7 +271,7 @@ public sealed class GovernanceDashboardServiceTests
         summary.RecentChanges.Should().ContainSingle().Which.ChangeLogId.Should().Be(inScope.ChangeLogId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetDashboard_UsesScopedChangeLogQuery_WhenTenantWideTopWouldStarveInScopeRows()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
