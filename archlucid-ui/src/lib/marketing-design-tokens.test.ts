@@ -38,6 +38,8 @@ describe("marketing design tokens", () => {
     expect(MARKETING_PRIMARY_CTA_CLASS).toContain("--al-primary-action-fg");
     expect(MARKETING_PRIMARY_CTA_CLASS).toContain("--al-primary-action-bg-hover");
     expect(MARKETING_PRIMARY_CTA_CLASS).not.toMatch(/\bbg-teal-/);
+    expect(MARKETING_PRIMARY_CTA_CLASS).toContain("font-semibold");
+    expect(MARKETING_PRIMARY_CTA_CLASS).toContain("text-[13px]");
   });
 
   it("exposes motion utility class names for marketing surfaces", () => {

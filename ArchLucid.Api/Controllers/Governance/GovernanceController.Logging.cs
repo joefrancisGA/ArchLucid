@@ -69,6 +69,11 @@ public sealed partial class GovernanceController
 
     private static Guid? TryParseArchitectureRunIdForAudit(string runId)
     {
+        if (string.IsNullOrWhiteSpace(runId))
+            return null;
+
+        runId = runId.Trim();
+
         if (Guid.TryParseExact(runId, "N", out Guid g))
             return g;
 

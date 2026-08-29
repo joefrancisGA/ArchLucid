@@ -7,6 +7,12 @@
       "rationale": "Authenticate users"
     },
     {
+      "category": "Requirement",
+      "selectedOption": "AddMissingThemes",
+      "title": "Workload-conditioned requirement themes are incomplete",
+      "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph."
+    },
+    {
       "category": "Security",
       "selectedOption": "RequiredRemediation",
       "title": "Enforce control: MFA",

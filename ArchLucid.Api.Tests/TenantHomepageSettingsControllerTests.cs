@@ -94,6 +94,25 @@ public sealed class TenantHomepageSettingsControllerTests
     }
 
     [Fact]
+    public async Task PutAsync_returns_bad_request_when_selected_run_id_is_empty()
+    {
+        Mock<IFeaturedCompletedSampleService> service = new(MockBehavior.Strict);
+
+        TenantHomepageSettingsController controller = CreateController(service.Object);
+
+        IActionResult action = await controller.PutAsync(
+            new TenantHomepageSettingsPutRequest
+            {
+                SelectedRunId = Guid.Empty,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        service.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task PutAsync_returns_not_found_when_selected_run_is_out_of_scope()
     {
         Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

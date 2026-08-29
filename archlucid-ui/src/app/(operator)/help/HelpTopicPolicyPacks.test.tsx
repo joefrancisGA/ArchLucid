@@ -19,6 +19,7 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => null,
 }));
 
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { HelpPolicyPacksGuideView } from "@/app/(operator)/help/_sections/HelpPolicyPacksGuideView";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import {
@@ -103,9 +104,7 @@ describe("HelpPolicyPacksGuideView (HEO)", () => {
     const sources = screen.getByTestId("policy-packs-help-sources");
     expect(within(sources).getByRole("heading", { name: HELP_DILIGENCE_ARTIFACT_INDEX_TITLE })).toBeInTheDocument();
 
-    for (const source of POLICY_PACKS_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), POLICY_PACKS_HELP_SOURCES);
   });
 
   it("shows hierarchical merge diagram in the default viewport without disclosures", () => {

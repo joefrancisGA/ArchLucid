@@ -26,6 +26,14 @@ public sealed partial class GovernanceStickinessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        if (request.RunId == Guid.Empty)
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+
         try
         {
             RiskExceptionRecord record = await _facade.CreateRiskExceptionAsync(request, cancellationToken);
@@ -35,6 +43,14 @@ public sealed partial class GovernanceStickinessController
         catch (InvalidOperationException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (GoldenManifestVersionNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ManifestNotFound);
         }
         catch (ArgumentException ex)
         {
@@ -64,9 +80,18 @@ public sealed partial class GovernanceStickinessController
     [HttpPost("risk-exceptions/{riskExceptionId:guid}/revoke")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [MutatingAuditExcluded("Audit: IRiskExceptionService logs RiskExceptionRevoked via IAuditService.")]
     public async Task<IActionResult> RevokeRiskException(Guid riskExceptionId, CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        if (riskExceptionId == Guid.Empty)
+            return this.BadRequestProblem("riskExceptionId is required.", ProblemTypes.ValidationFailed);
+
         try
         {
             await _facade.RevokeRiskExceptionAsync(riskExceptionId, cancellationToken);
@@ -92,6 +117,14 @@ public sealed partial class GovernanceStickinessController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        if (riskExceptionId == Guid.Empty)
+            return this.BadRequestProblem("riskExceptionId is required.", ProblemTypes.ValidationFailed);
 
         try
         {
@@ -123,6 +156,11 @@ public sealed partial class GovernanceStickinessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         try
         {
             ArchitectureReviewRecurrenceSchedule schedule =
@@ -142,8 +180,14 @@ public sealed partial class GovernanceStickinessController
 
     [HttpGet("recurrence-schedules")]
     [ProducesResponseType(typeof(IReadOnlyList<ArchitectureReviewRecurrenceSchedule>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListRecurrenceSchedules(CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         IReadOnlyList<ArchitectureReviewRecurrenceSchedule> schedules =
             await _facade.ListRecurrenceSchedulesAsync(cancellationToken);
 
@@ -185,6 +229,14 @@ public sealed partial class GovernanceStickinessController
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        if (scheduleId == Guid.Empty)
+            return this.BadRequestProblem("scheduleId is required.", ProblemTypes.ValidationFailed);
+
         RecurrenceScheduleUpdateResult result =
             await _facade.UpdateRecurrenceScheduleAsync(scheduleId, request, cancellationToken);
 
@@ -205,6 +257,11 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(RealizedValueAttestationResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRealizedValueAttestation(CancellationToken cancellationToken = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         RealizedValueAttestationResponse response =
             await _facade.GetRealizedValueAttestationAsync(cancellationToken);
 
@@ -222,6 +279,11 @@ public sealed partial class GovernanceStickinessController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         try
         {

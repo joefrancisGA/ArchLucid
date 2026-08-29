@@ -40,9 +40,14 @@ public sealed partial class GovernanceStickinessFacade
 
         foreach (string findingId in request.FindingIds)
         {
+            if (string.IsNullOrWhiteSpace(findingId))
+                continue;
+
+            string normalizedFindingId = findingId.Trim();
+
             RecordFindingDispositionRequest normalized = new()
             {
-                FindingId = findingId,
+                FindingId = normalizedFindingId,
                 RunId = Guid.Empty,
                 Disposition = request.Disposition,
                 Rationale = request.Rationale,
@@ -53,9 +58,9 @@ public sealed partial class GovernanceStickinessFacade
 
             try
             {
-                await EnsureFindingInScopeAsync(scope, findingId, ct);
+                await EnsureFindingInScopeAsync(scope, normalizedFindingId, ct);
                 await _findingDispositionService.RecordAsync(normalized, scope, actorId, ct);
-                updated.Add(findingId);
+                updated.Add(normalizedFindingId);
             }
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
             {
@@ -102,6 +107,42 @@ public sealed partial class GovernanceStickinessFacade
             throw new RunNotFoundException(resolvedRunId.ToString("D"));
     }
 
+    private async Task EnsureManifestMatchesRunWhenProvidedAsync(
+        ScopeContext scope,
+        Guid? runId,
+        Guid? manifestId,
+        CancellationToken ct)
+    {
+        if (manifestId is Guid resolvedManifestId && resolvedManifestId != Guid.Empty)
+        {
+            if (runId is not Guid resolvedRunId || resolvedRunId == Guid.Empty)
+            {
+                throw new ArgumentException(
+                    "Run id is required when manifest id is specified.",
+                    nameof(runId));
+            }
+
+            Persistence.Models.RunRecord? run = await _runRepository
+                .GetByIdAsync(scope, resolvedRunId, ct)
+                .ConfigureAwait(false);
+
+            if (run is null)
+                throw new RunNotFoundException(resolvedRunId.ToString("D"));
+
+            if (run.GoldenManifestId is not Guid boundManifest || boundManifest != resolvedManifestId)
+            {
+                throw new GoldenManifestVersionNotFoundException(
+                    resolvedManifestId.ToString("D"),
+                    resolvedRunId.ToString("D"));
+            }
+
+            return;
+        }
+
+        if (runId is not Guid _ || runId == Guid.Empty)
+            return;
+    }
+
     private async Task EnsureFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)
     {
         if (!await IsFindingInScopeAsync(scope, findingId, ct))
@@ -110,6 +151,8 @@ public sealed partial class GovernanceStickinessFacade
 
     private async Task<bool> IsFindingInScopeAsync(ScopeContext scope, string findingId, CancellationToken ct)
     {
+        findingId = findingId.Trim();
+
         FindingInspectResponse? finding = await _findingInspectReadRepository.GetInspectAsync(
             scope,
             findingId,
@@ -126,10 +169,23 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        await EnsureFindingInScopeAsync(scope, request.FindingId, ct);
+        CreateRiskExceptionRequest normalized = new()
+        {
+            FindingId = request.FindingId.Trim(),
+            RunId = request.RunId,
+            ManifestId = request.ManifestId,
+            OwnerUserId = request.OwnerUserId,
+            Rationale = request.Rationale,
+            EvidenceRef = request.EvidenceRef,
+            ExpiresAtUtc = request.ExpiresAtUtc,
+        };
+
+        await EnsureFindingInScopeAsync(scope, normalized.FindingId, ct);
+        await EnsureRunInScopeWhenProvidedAsync(scope, normalized.RunId, ct);
+        await EnsureManifestMatchesRunWhenProvidedAsync(scope, normalized.RunId, normalized.ManifestId, ct);
 
         return await _riskExceptionService.CreateAsync(
-            request,
+            normalized,
             scope,
             _actorContext.GetActorId(),
             ct);

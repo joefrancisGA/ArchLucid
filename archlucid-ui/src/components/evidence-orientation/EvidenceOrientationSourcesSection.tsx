@@ -27,8 +27,15 @@ const SOURCES_LIST_CLASS: Record<Exclude<EvidenceOrientationSourcesLayout, "colu
   stacked: "m-0 mt-2 list-none space-y-2 p-0",
 };
 
-const SOURCES_COLUMNS_PANEL_CLASS =
-  "md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] md:items-start md:gap-x-6 md:gap-y-2";
+const SOURCES_COLUMNS_PANEL_CLASS = "space-y-2";
+
+const SOURCES_COLUMNS_BODY_CLASS =
+  "md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] md:gap-x-6 md:gap-y-2";
+
+/** One link row beside the intro should read as a single band — not pinned to the heading. */
+function resolveSourcesColumnsBodyAlignmentClass(linkCount: number): string {
+  return linkCount <= 2 ? "md:items-center" : "md:items-start";
+}
 
 const SOURCES_COLUMNS_LIST_CLASS =
   "m-0 mt-2 grid min-w-0 list-none grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-3 gap-y-1 p-0";
@@ -137,11 +144,16 @@ export function EvidenceOrientationSourcesSection({
     >
       {layout === "columns" ? (
         <>
-          <div>
-            {heading}
+          {heading}
+          <div
+            className={cn(
+              SOURCES_COLUMNS_BODY_CLASS,
+              resolveSourcesColumnsBodyAlignmentClass(resolvedLinks.length),
+            )}
+          >
             {introParagraph}
+            <ul className={cn(columnsLinkListClass, listClassNameResolved)}>{linkItems}</ul>
           </div>
-          <ul className={cn(columnsLinkListClass, listClassNameResolved)}>{linkItems}</ul>
         </>
       ) : (
         <>

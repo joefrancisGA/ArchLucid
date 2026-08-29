@@ -3,6 +3,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from ci_test_helpers import PYTHON
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -13,7 +14,7 @@ ALLOWLIST = ROOT / "tests" / "performance" / "query-allowlist.json"
 class AssertQueryPerformanceTests(unittest.TestCase):
     def test_dry_run_exits_zero(self):
         proc = subprocess.run(
-            ["python", str(SCRIPT), "--dry-run"],
+            [PYTHON, str(SCRIPT), "--dry-run"],
             cwd=str(ROOT),
             capture_output=True,
             text=True,
@@ -32,7 +33,7 @@ class AssertQueryPerformanceTests(unittest.TestCase):
 
         try:
             proc = subprocess.run(
-                ["python", str(SCRIPT), "--measurements-json", str(tmp_path)],
+                [PYTHON, str(SCRIPT), "--measurements-json", str(tmp_path)],
                 cwd=str(ROOT),
                 capture_output=True,
                 text=True,
@@ -55,7 +56,7 @@ class AssertQueryPerformanceTests(unittest.TestCase):
 
         try:
             proc = subprocess.run(
-                ["python", str(SCRIPT), "--measurements-json", str(tmp_path)],
+                [PYTHON, str(SCRIPT), "--measurements-json", str(tmp_path)],
                 cwd=str(ROOT),
                 capture_output=True,
                 text=True,

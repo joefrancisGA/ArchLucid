@@ -5,7 +5,17 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 import { HelpRecurrenceSchedulesGuideView } from "@/app/(operator)/help/_sections/HelpRecurrenceSchedulesGuideView";
+import { expectWhereToGoNextFollowUpLinks, whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
@@ -20,7 +30,7 @@ import {
   RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING,
   RECURRENCE_SCHEDULES_HELP_SOURCES,
 } from "@/lib/recurrence-schedules-help-evidence-copy";
-import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
+import { resolveGuideHeadingsForStrip, shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 import { RECURRENCE_SCHEDULES_PAGE_SUBTITLE } from "@/lib/recurrence-schedules-copy";
 
 describe("HelpRecurrenceSchedulesGuideView", () => {
@@ -34,7 +44,7 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
     render(<HelpRecurrenceSchedulesGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-recurrence-schedules-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-recurrence-schedules-page-title")).toHaveTextContent("Recurrence schedules");
     expect(RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE).not.toBe(RECURRENCE_SCHEDULES_PAGE_SUBTITLE);
     expect(screen.getByTestId("help-recurrence-schedules-finalized-review-precondition-tag")).toHaveTextContent(
@@ -54,11 +64,13 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
       expect(screen.getByTestId("help-recurrence-schedules-claim-discipline")).toHaveTextContent(
         RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE.slice(0, 40),
       );
+      expect(screen.getByRole("heading", { name: RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+        "id",
+        RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
+      );
+    } else {
+      expect(screen.queryByRole("heading", { name: RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING })).not.toBeInTheDocument();
     }
-    expect(screen.getByRole("heading", { name: RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
-      RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
-    );
 
     const cronNodes = screen.getAllByTestId("recurrence-schedule-example-cron");
 
@@ -67,12 +79,19 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
 
     const sourcesStrip = screen.getByTestId("help-recurrence-schedules-sources");
 
-    for (const source of RECURRENCE_SCHEDULES_HELP_SOURCES) {
-      expect(within(sourcesStrip).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
-      expect(within(sourcesStrip).getByText(source.when)).toBeInTheDocument();
+    expectWhereToGoNextFollowUpLinks(within(sourcesStrip), RECURRENCE_SCHEDULES_HELP_SOURCES);
+
+    for (const source of whereToGoNextFollowUpLinksForTests(RECURRENCE_SCHEDULES_HELP_SOURCES)) {
+      if (source.when !== undefined) {
+        expect(within(sourcesStrip).getByText(source.when)).toBeInTheDocument();
+      }
     }
 
-    for (const heading of RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-recurrence-schedules",
+      RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS,
+      RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
+    )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
   });

@@ -324,6 +324,28 @@ public sealed class GovernancePreviewServiceTests
     }
 
     [SkippableFact]
+    public async Task PreviewActivationAsync_accepts_padded_run_id_and_manifest_version_when_in_scope()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-a", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail("run-a"));
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("run-a", "v1", g => g.RequiredControls.Add("PEP")));
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GovernanceEnvironmentActivation>());
+
+        GovernancePreviewResult result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = "  run-a  ",
+            ManifestVersion = "  v1  ",
+            Environment = "dev",
+        });
+
+        result.PreviewRunId.Should().Be("run-a");
+        result.PreviewManifestVersion.Should().Be("v1");
+        _unifiedManifestReader.VerifyAll();
+    }
+
+    [SkippableFact]
     public async Task PreviewActivationAsync_WhenManifestVersionMissing_ThrowsGoldenManifestVersionNotFoundException()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))

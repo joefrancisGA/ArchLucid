@@ -62,6 +62,28 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     expect(sections.some((section) => section.id === "buyer-chrome")).toBe(true);
   });
 
+  it("uses hero spine for operator shell eval-empty and eval-with-drafts (first-viewport budget)", () => {
+    const evalWithDrafts = composeOperatorHomeSections({
+      phaseSignals: {
+        hasWorkspaceReviews: false,
+        hasOverviewReviewRows: false,
+        draftCount: 1,
+        hasCommittedManifest: false,
+        openFindingsCount: 0,
+        governanceWarningsCount: 0,
+      },
+      buyerPolishedShell: false,
+      metrics: emptyMetrics,
+    });
+
+    expect(evalWithDrafts.map((section) => section.id)).toEqual([
+      "hero",
+      "recent-reviews",
+      "below-fold",
+      "sponsor-roi",
+    ]);
+  });
+
   it("orders operator shell sections with recommended next before recent reviews when workspace has activity", () => {
     const sections = composeOperatorHomeSections({
       phaseSignals: {

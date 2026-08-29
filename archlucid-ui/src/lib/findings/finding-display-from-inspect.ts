@@ -66,7 +66,7 @@ export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
     recommendedAction:
       // Prefer structured actions from dbo.FindingRecommendedActions (populated by the finding engine).
       // Fall back to typed-payload JSON fields for legacy findings that pre-date the relational table.
-      (payload.recommendedActions?.filter((a) => a.trim().length > 0)[0] ?? null) ??
+      payload.recommendedActions.find((action) => action.trim().length > 0) ??
       typedPayloadLookupString(payload, "recommendedAction") ??
       typedPayloadLookupString(payload, "RecommendedAction") ??
       typedPayloadLookupString(payload, "remediationSuggestion"),

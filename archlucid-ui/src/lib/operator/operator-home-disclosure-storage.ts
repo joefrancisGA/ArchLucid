@@ -14,6 +14,7 @@ export const OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS = {
   assistantDiagnostics: "archlucid_operator_home_disclosure_assistant_diagnostics_v1",
   readinessDetails: "archlucid_operator_home_disclosure_readiness_details_v1",
   firstWeekGuidance: "archlucid_operator_home_disclosure_first_week_guidance_v1",
+  lifecycleAlternatives: "archlucid_operator_home_disclosure_lifecycle_alternatives_v1",
 } as const;
 
 export function readOperatorHomeDisclosureExpanded(

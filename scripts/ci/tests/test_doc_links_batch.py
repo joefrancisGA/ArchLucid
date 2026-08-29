@@ -5,6 +5,7 @@ from __future__ import annotations
 import subprocess
 import unittest
 from pathlib import Path
+from ci_test_helpers import PYTHON
 
 
 def repo_root() -> Path:
@@ -19,7 +20,7 @@ class DocLinksBatchTests(unittest.TestCase):
     def test_check_doc_links_exits_zero(self) -> None:
         root = repo_root()
         result = subprocess.run(
-            ["python", "scripts/ci/check_doc_links.py"],
+            [PYTHON, "scripts/ci/check_doc_links.py"],
             cwd=root,
             capture_output=True,
             text=True,

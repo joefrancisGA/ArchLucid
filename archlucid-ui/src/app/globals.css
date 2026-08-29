@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
 
 html,
 body {
@@ -56,6 +55,25 @@ body {
   --al-tooltip-divider: #404040;
   --al-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
   --app-shell-sticky: 6rem;
+  /* Evidence graph node kinds — categorical (not status); legend + canvas share one ramp */
+  --al-graph-kind-decision-bg: #e8edf2;
+  --al-graph-kind-decision-border: #5b6b7c;
+  --al-graph-kind-decision-swatch: #5b6b7c;
+  --al-graph-kind-finding-bg: #ebe9f0;
+  --al-graph-kind-finding-border: #57534e;
+  --al-graph-kind-finding-swatch: #57534e;
+  --al-graph-kind-artifact-bg: #e5e7eb;
+  --al-graph-kind-artifact-border: #6b7280;
+  --al-graph-kind-artifact-swatch: #6b7280;
+  --al-graph-kind-review-bg: #dfe8ef;
+  --al-graph-kind-review-border: #4f6b84;
+  --al-graph-kind-review-swatch: #4f6b84;
+  --al-graph-kind-component-bg: #f3f4f6;
+  --al-graph-kind-component-border: #737373;
+  --al-graph-kind-component-swatch: #737373;
+  --al-graph-kind-default-bg: #f3f4f6;
+  --al-graph-kind-default-border: #a3a3a3;
+  --al-graph-kind-default-swatch: #a3a3a3;
 }
 
 html {
@@ -113,6 +131,24 @@ html {
   --al-tooltip-border: rgba(0, 0, 0, 0.08);
   --al-tooltip-divider: #d4d4d4;
   --al-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  --al-graph-kind-decision-bg: #1e293b;
+  --al-graph-kind-decision-border: #94a3b8;
+  --al-graph-kind-decision-swatch: #94a3b8;
+  --al-graph-kind-finding-bg: #292524;
+  --al-graph-kind-finding-border: #a8a29e;
+  --al-graph-kind-finding-swatch: #a8a29e;
+  --al-graph-kind-artifact-bg: #262626;
+  --al-graph-kind-artifact-border: #9ca3af;
+  --al-graph-kind-artifact-swatch: #9ca3af;
+  --al-graph-kind-review-bg: #1e3a4a;
+  --al-graph-kind-review-border: #7dd3fc;
+  --al-graph-kind-review-swatch: #7dd3fc;
+  --al-graph-kind-component-bg: #262626;
+  --al-graph-kind-component-border: #a3a3a3;
+  --al-graph-kind-component-swatch: #a3a3a3;
+  --al-graph-kind-default-bg: #262626;
+  --al-graph-kind-default-border: #737373;
+  --al-graph-kind-default-swatch: #737373;
 }
 
 /* A/B evaluation — charcoal authority hierarchy (see ui-authority-theme.ts). Default teal tokens remain in :root. */
@@ -127,6 +163,24 @@ html {
   --al-accent-link-hover: #111827;
   --al-status-approved-monitoring-bg: #e8eef0;
   --al-status-approved-monitoring-fg: #334155;
+  --al-graph-kind-decision-bg: #e8edf2;
+  --al-graph-kind-decision-border: #5b6b7c;
+  --al-graph-kind-decision-swatch: #5b6b7c;
+  --al-graph-kind-finding-bg: #ebe9f0;
+  --al-graph-kind-finding-border: #57534e;
+  --al-graph-kind-finding-swatch: #57534e;
+  --al-graph-kind-artifact-bg: #e5e7eb;
+  --al-graph-kind-artifact-border: #6b7280;
+  --al-graph-kind-artifact-swatch: #6b7280;
+  --al-graph-kind-review-bg: #dfe8ef;
+  --al-graph-kind-review-border: #4f6b84;
+  --al-graph-kind-review-swatch: #4f6b84;
+  --al-graph-kind-component-bg: #f3f4f6;
+  --al-graph-kind-component-border: #737373;
+  --al-graph-kind-component-swatch: #737373;
+  --al-graph-kind-default-bg: #f3f4f6;
+  --al-graph-kind-default-border: #a3a3a3;
+  --al-graph-kind-default-swatch: #a3a3a3;
 }
 
 [data-al-authority-theme="charcoal"].dark {
@@ -140,10 +194,35 @@ html {
   --al-accent-link-hover: #f3f4f6;
   --al-status-approved-monitoring-bg: #1f2937;
   --al-status-approved-monitoring-fg: #d1d5db;
+  --al-graph-kind-decision-bg: #1e293b;
+  --al-graph-kind-decision-border: #94a3b8;
+  --al-graph-kind-decision-swatch: #94a3b8;
+  --al-graph-kind-finding-bg: #292524;
+  --al-graph-kind-finding-border: #a8a29e;
+  --al-graph-kind-finding-swatch: #a8a29e;
+  --al-graph-kind-artifact-bg: #262626;
+  --al-graph-kind-artifact-border: #9ca3af;
+  --al-graph-kind-artifact-swatch: #9ca3af;
+  --al-graph-kind-review-bg: #1e3a4a;
+  --al-graph-kind-review-border: #7dd3fc;
+  --al-graph-kind-review-swatch: #7dd3fc;
+  --al-graph-kind-component-bg: #262626;
+  --al-graph-kind-component-border: #a3a3a3;
+  --al-graph-kind-component-swatch: #a3a3a3;
+  --al-graph-kind-default-bg: #262626;
+  --al-graph-kind-default-border: #737373;
+  --al-graph-kind-default-swatch: #737373;
 }
 
 body {
   @apply bg-al-surface-base text-al-text-primary antialiased;
+}
+
+@layer base {
+  /* Keep link color inside @layer base so Tailwind v4 utilities (e.g. primary Button asChild) win. */
+  a {
+    color: inherit;
+  }
 }
 
 /* Operator type scale — keep in sync with OPERATOR_TYPE_SCALE in design-tokens.ts */
@@ -192,15 +271,15 @@ body {
 
   /* Legacy aliases — prefer named roles above */
   .text-title {
-    @apply text-page-title;
+    @apply text-xl font-semibold leading-7 tracking-tight text-al-text-primary;
   }
 
   .text-section {
-    @apply text-section-title;
+    @apply text-lg font-semibold leading-[26px] text-al-text-primary;
   }
 
   .text-meta {
-    @apply text-helper;
+    @apply text-xs font-normal leading-[18px] text-al-text-secondary;
   }
 }
 
@@ -268,10 +347,6 @@ body {
   outline-offset: 2px;
 }
 
-a {
-  color: inherit;
-}
-
 /*
  * Marketing header product links — hex colors (not CSS variables / Tailwind dark: merge).
  * Prevents axe color-contrast false/true fails of #171717 on #0a0a0a in dark CI.
@@ -291,10 +366,19 @@ html.dark a.marketing-public-nav-link {
 }
 
 input,
-select,
-button {
+select {
   padding: 8px;
   font: inherit;
+}
+
+/*
+ * Preserve Button typography utilities (`font-semibold`, `text-[13px]`, …).
+ * Do not use `font: inherit` on `<button>` — unlayered CSS wins over `@layer utilities` and
+ * stripped semibold weight from Refresh, Help, and page-header triggers.
+ */
+button {
+  padding: 8px;
+  font-family: inherit;
 }
 
 /* Keyboard shortcut hints in the help dialog — neutral for light UI; dark-friendly when `prefers-color-scheme: dark` or `.dark`. */
@@ -353,6 +437,20 @@ kbd {
   }
 }
 
+@keyframes al-indeterminate-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(300%);
+  }
+}
+
+.al-indeterminate-sweep {
+  animation: al-indeterminate-sweep 1600ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
 /* forwards (not both): avoid pre-animation opacity:0 so early axe/LCP reads stay AA-safe */
 .marketing-reveal-in {
   animation: marketing-fade-up 520ms ease-out forwards;
@@ -375,6 +473,14 @@ kbd {
   .marketing-hero-visual:hover {
     transform: none;
     transition: none;
+  }
+
+  /* Global * { animation-duration: 0.01ms } parks the sweep off-screen at its end frame. */
+  .al-indeterminate-sweep {
+    animation: none;
+    width: 100%;
+    transform: none;
+    opacity: 0.85;
   }
 }
 

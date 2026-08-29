@@ -16,6 +16,17 @@ public static class GovernanceWaiverExpiryWindow
     /// </summary>
     public static readonly IReadOnlyList<int> AlertDayBoundaries = [30, 14, 7, 0];
 
+  public static IReadOnlyList<RiskExceptionRecord> FilterToScope(
+        IReadOnlyList<RiskExceptionRecord> waivers,
+        Guid workspaceId,
+        Guid? projectId)
+    {
+        return waivers
+            .Where(waiver => waiver.WorkspaceId == workspaceId)
+            .Where(waiver => projectId is null || projectId == Guid.Empty || waiver.ProjectId == projectId)
+            .ToList();
+    }
+
     public static int CountExpiringWithinDays(
         IReadOnlyList<RiskExceptionRecord> activeWaivers,
         DateTimeOffset nowUtc,

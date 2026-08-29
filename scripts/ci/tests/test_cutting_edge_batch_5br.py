@@ -24,7 +24,7 @@ class TestCuttingEdgeBatch5BR(unittest.TestCase):
         self.assertIn("LogWarning", text)
 
     def test_tb_195_ask_service_wires_compressor(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Host.Core" / "Services" / "Ask" / "AskService.cs"
+        path = REPO_ROOT / "ArchLucid.Host.Core" / "Services" / "Ask" / "AskConversationHistoryBuilder.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("IConversationContextCompressor", text)
         self.assertIn("BuildHistoryTextAsync", text)

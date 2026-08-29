@@ -120,7 +120,7 @@ export function ProductLearningFeedbackControls({
             type="button"
             size="sm"
             variant={option.value === "Trusted" ? "outline" : "outline"}
-            className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.helper)}
+            className="h-7 px-2"
             disabled={busyDisposition !== null}
             onClick={() => void submit(option.value)}
           >

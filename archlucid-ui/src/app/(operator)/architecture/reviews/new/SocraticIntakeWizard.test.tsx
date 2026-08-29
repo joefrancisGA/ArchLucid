@@ -11,6 +11,7 @@ const patchDraftRequest = vi.fn();
 const skipDraftQuestion = vi.fn();
 const submitDraftRequest = vi.fn();
 const routerPush = vi.fn();
+const tryLoadPriorPackageGuidedIntakePrefill = vi.fn();
 const searchParamsGet = vi.hoisted(() => vi.fn(() => null as string | null));
 
 vi.mock("next/navigation", async (importOriginal) => {
@@ -52,6 +53,11 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
   answerDraftQuestion: (...args: unknown[]) => answerDraftQuestion(...args),
   skipDraftQuestion: (...args: unknown[]) => skipDraftQuestion(...args),
   submitDraftRequest: (...args: unknown[]) => submitDraftRequest(...args),
+}));
+
+vi.mock("@/lib/try-load-prior-package-guided-intake-prefill", () => ({
+  tryLoadPriorPackageGuidedIntakePrefill: (...args: unknown[]) =>
+    tryLoadPriorPackageGuidedIntakePrefill(...args),
 }));
 
 vi.mock("@/components/draft-intake/DraftIntakeActorEditor", () => ({
@@ -135,6 +141,7 @@ import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
+  GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
 } from "@/lib/guided-intake-copy";
 import { showError } from "@/lib/toast";
@@ -225,6 +232,8 @@ describe("SocraticIntakeWizard", () => {
     searchParamsGet.mockImplementation(() => null);
     getDraftRequest.mockReset();
     routerPush.mockReset();
+    tryLoadPriorPackageGuidedIntakePrefill.mockReset();
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValue(null);
     window.sessionStorage.clear();
   });
 
@@ -280,7 +289,11 @@ describe("SocraticIntakeWizard", () => {
       "href",
       `/architecture/architectures/${sourceArchitectureId}`,
     );
-    expect(screen.getByTestId("guided-intake-primary-panel")).toBeInTheDocument();
+    const primaryPanel = screen.getByTestId("guided-intake-primary-panel");
+
+    expect(primaryPanel).toBeInTheDocument();
+    expect(banner.parentElement).toHaveClass("flex", "flex-col", "gap-4");
+    expect(banner.parentElement).toContainElement(primaryPanel);
     expect(document.querySelector(".border-teal-200")).toBeNull();
     expect(document.querySelector(".border-sky-300")).toBeNull();
   });
@@ -445,6 +458,55 @@ describe("SocraticIntakeWizard", () => {
     expect(createDraftRequest).not.toHaveBeenCalled();
   });
 
+  it("prefills guided intake from rerun= when the prior package intake is available", async () => {
+    searchParamsGet.mockImplementation((key: string) => (key === "rerun" ? "run-failed-1" : null));
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValue({
+      systemName: "ArchLucid",
+      freeTextIntent:
+        'Architecture review intake for "ArchLucid". Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.',
+      businessOutcome:
+        "Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.",
+      actorSet: {
+        actors: [
+          {
+            label: "Primary operator",
+            kind: "Human",
+            trustOrigin: "Internal",
+            contract: "Sync",
+            origin: "Asserted",
+            confidence: 100,
+          },
+        ],
+      },
+      scopeBullets: [
+        {
+          id: "prior-scope-0",
+          kind: "custom",
+          label: "Primary System or Architecture",
+          value: "ArchLucid",
+          source: "inferred",
+        },
+      ],
+      scopeGateOpen: true,
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    await waitFor(() => {
+      expect(tryLoadPriorPackageGuidedIntakePrefill).toHaveBeenCalledWith("run-failed-1");
+    });
+
+    await waitFor(() => {
+      expect((screen.getByTestId("socratic-system-name") as HTMLInputElement).value).toBe("ArchLucid");
+    });
+
+    expect((screen.getByTestId("socratic-intent") as HTMLTextAreaElement).value).toContain("ArchLucid");
+    expect((screen.getByTestId("socratic-outcome") as HTMLTextAreaElement).value).toContain(
+      "Evaluate the attached materials",
+    );
+    expect(createDraftRequest).not.toHaveBeenCalled();
+  });
+
   it("shows guided placeholders and Continue to clarifications on step 1", () => {
     render(<SocraticIntakeWizard />);
 
@@ -534,6 +596,18 @@ describe("SocraticIntakeWizard", () => {
     expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-advanced-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-what-if-stub")).toBeInTheDocument();
+
+    const wizardColumn = screen.getByTestId("socratic-intake-wizard").firstElementChild;
+    const stepperIndex = Array.from(wizardColumn?.children ?? []).findIndex(
+      (child) => child.getAttribute("data-testid") === WIZARD_STICKY_PROGRESS_TEST_ID,
+    );
+    const advancedOptionsIndex = Array.from(wizardColumn?.children ?? []).findIndex(
+      (child) => child.getAttribute("data-testid") === "socratic-intake-advanced-options",
+    );
+
+    expect(stepperIndex).toBeGreaterThanOrEqual(0);
+    expect(advancedOptionsIndex).toBeGreaterThan(stepperIndex);
+    expect(screen.queryByTestId("socratic-intake-context-rail")).toBeNull();
   });
 
   it("shows one required clarification at a time with progress copy", async () => {
@@ -574,7 +648,10 @@ describe("SocraticIntakeWizard", () => {
     expect(screen.getByTestId("socratic-review-answers-hint")).toHaveTextContent(
       /handle all required clarifications before reviewing answers/i,
     );
-    expect(screen.getByText(/your answers will be included when you review and submit/i)).toBeInTheDocument();
+    expect(
+      screen.queryByText(/your answers will be included when you review and submit/i),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/1 required clarification remaining before review/i)).toBeInTheDocument();
     expect(screen.getByTestId("socratic-questions-done")).toHaveTextContent(/review answers/i);
     expect(screen.getByTestId("socratic-questions-done")).toBeDisabled();
 
@@ -619,7 +696,7 @@ describe("SocraticIntakeWizard", () => {
     const primaryPanel = screen.getByTestId("guided-intake-primary-panel");
 
     expect(clarificationsStep.className).not.toContain("pb-24");
-    expect(primaryPanel.className).toContain("pb-24");
+    expect(primaryPanel.className).not.toContain("pb-24");
 
     const wizard = screen.getByTestId("socratic-intake-wizard");
     const mainColumn = wizard.firstElementChild as HTMLElement;
@@ -876,7 +953,7 @@ describe("SocraticIntakeWizard", () => {
     });
   });
 
-  it("shows handled clarification count when every required clarification is already answered", async () => {
+  it("shows Start review on the clarifications footer when every required clarification is already answered", async () => {
     mockAdmittedDraftWithoutClarifications();
 
     render(<SocraticIntakeWizard />);
@@ -888,7 +965,89 @@ describe("SocraticIntakeWizard", () => {
       expect(screen.getByTestId("socratic-clarifications-answered-counter")).toHaveTextContent(
         "2 of 2 answered",
       );
+      expect(screen.getByTestId("socratic-questions-done")).toHaveTextContent(
+        GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
+      );
+      expect(screen.getByTestId("socratic-questions-done")).toBeEnabled();
     });
+
+    expect(
+      screen.getByText(/all required clarifications are answered or skipped\. you can continue/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/your answers will be included when you review and submit/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("opens the create-review step when a saved admitted architecture has no pending clarifications", async () => {
+    const sourceArchitectureId = "ef3f1b90-69e3-42be-bc2b-0533f5a6d84a";
+    const admittedMustKeys = [
+      "l0.pillar.security",
+      "l0.pillar.reliability",
+      "l0.pillar.cost",
+      "l0.pillar.operations",
+      "l0.pillar.performance",
+      "l0.pillar.deployment",
+      "l0.pillar.compliance",
+      "l0.pillar.observability",
+    ];
+
+    searchParamsGet.mockImplementation((key: string) =>
+      key === "sourceArchitectureId" ? sourceArchitectureId : null,
+    );
+
+    getDraftRequest.mockResolvedValue({
+      draftId: sourceArchitectureId,
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      status: "Admitted",
+      document: {
+        freeTextIntent: VALID_GUIDED_INTENT,
+        systemName: "Vertex",
+        businessOutcome: "Reduce manual triage time by thirty percent.",
+        actorSet: {
+          actors: [
+            {
+              label: "Claims analyst",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
+        requiredMustQuestionKeys: admittedMustKeys,
+      },
+      createdUtc: "2026-08-05T12:00:00Z",
+      updatedUtc: "2026-08-05T12:00:00Z",
+    });
+    getDraftQuestions.mockResolvedValue({
+      draftId: sourceArchitectureId,
+      status: "Admitted",
+      selection: {
+        allQuestions: admittedMustKeys.map((questionKey) => ({
+          questionKey,
+          prompt: questionKey,
+          tier: "Must" as const,
+          answerKind: "FreeText" as const,
+          source: "L0Universal" as const,
+          ruleKeys: [],
+        })),
+        requiredMustQuestionKeys: [],
+        pendingMustQuestions: [],
+      },
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    await waitFor(() => {
+      expect(getDraftQuestions).toHaveBeenCalledWith(sourceArchitectureId);
+      expect(screen.getByTestId("socratic-submit")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("socratic-questions-done")).not.toBeInTheDocument();
   });
 
   it("routes branch submit to run detail with parentRunId when parent already spawned", async () => {

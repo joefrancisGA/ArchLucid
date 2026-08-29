@@ -73,10 +73,20 @@ public sealed partial class GovernanceController
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
         }
 
+        if (!Guid.TryParse(request.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+        {
+            return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
+        }
+
         if (request.Content is null)
         {
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         string policyPackContentJson =
             JsonSerializer.Serialize(request.Content, ContractJson.CamelCaseIgnoreNullCompact);
@@ -119,6 +129,24 @@ public sealed partial class GovernanceController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        if (!string.IsNullOrWhiteSpace(request.TargetRunId))
+        {
+            if (!Guid.TryParse(request.TargetRunId.Trim(), out Guid targetRunGuid) || targetRunGuid == Guid.Empty)
+            {
+                return this.BadRequestProblem("targetRunId is not valid.", ProblemTypes.ValidationFailed);
+            }
+        }
+
+        if (request.TargetManifestId == Guid.Empty)
+        {
+            return this.BadRequestProblem("targetManifestId is not valid.", ProblemTypes.ValidationFailed);
+        }
 
         PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
             request.PolicyPackContentJson,
@@ -167,6 +195,41 @@ public sealed partial class GovernanceController
                 "evaluateAgainstRunIds must contain at least one run id.",
                 ProblemTypes.ValidationFailed);
 
+        if (!request.EvaluateAgainstRunIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "evaluateAgainstRunIds must contain at least one non-empty run id.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.EvaluateAgainstRunIds.Count > 50)
+        {
+            return this.BadRequestProblem(
+                "At most 50 run ids are allowed per request.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        foreach (string runId in request.EvaluateAgainstRunIds)
+        {
+            if (string.IsNullOrWhiteSpace(runId))
+                continue;
+
+            if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+            {
+                return this.BadRequestProblem(
+                    "evaluateAgainstRunIds contains an invalid run id.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        if (id == Guid.Empty)
+            return this.BadRequestProblem("id is required.", ProblemTypes.ValidationFailed);
+
         IReadOnlyDictionary<string, string> proposedThresholds =
             request.ProposedThresholds;
 
@@ -198,6 +261,11 @@ public sealed partial class GovernanceController
         if (input.FreeTextIntent.Trim().Length < 20)
             return this.BadRequestProblem("FreeTextIntent must be at least 20 characters.", ProblemTypes.ValidationFailed);
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
         DraftPolicyPackRuleResponse response = await policyPackDraftService.DraftRuleAsync(input, cancellationToken);
         return Ok(response);
     }
@@ -222,6 +290,11 @@ public sealed partial class GovernanceController
 
         if (input.Prompt.Trim().Length < 20)
             return this.BadRequestProblem("Prompt must be at least 20 characters.", ProblemTypes.ValidationFailed);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         try
         {

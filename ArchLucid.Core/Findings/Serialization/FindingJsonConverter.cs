@@ -11,7 +11,7 @@ namespace ArchLucid.Core.Findings.Serialization;
 ///     Serializes <see cref="Finding.Payload" /> as a typed JSON object; on read, rehydrates using
 ///     <see cref="FindingPayloadRegistry" />.
 /// </summary>
-public sealed class FindingJsonConverter : JsonConverter<Finding>
+public sealed partial class FindingJsonConverter : JsonConverter<Finding>
 {
     public override Finding Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -52,10 +52,9 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         {
             finding.EnforcementTier = ReadEnforcementTier(tierEl);
         }
-        else if (finding.Properties.TryGetValue(FindingPropertyKeys.EnforcementTier, out string? tierFromProps) &&
-                 Enum.TryParse(tierFromProps, ignoreCase: true, out FindingEnforcementTier tierFromProperties))
+        else if (finding.Properties.TryGetValue(FindingPropertyKeys.EnforcementTier, out string? tierFromProps))
         {
-            finding.EnforcementTier = tierFromProperties;
+            finding.EnforcementTier = ReadEnforcementTierFromString(tierFromProps);
         }
 
         if (root.TryGetProperty("confidenceScore", out JsonElement confEl) &&
@@ -68,10 +67,8 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             ecsEl.TryGetInt32(out int ecs))
             finding.EvaluationConfidenceScore = ecs;
 
-        if (root.TryGetProperty("evaluationConfidenceLevel", out JsonElement eclEl) &&
-            eclEl.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(eclEl.GetString(), ignoreCase: true, out FindingConfidenceLevel ecl))
-            finding.ConfidenceLevel = ecl;
+        if (root.TryGetProperty("evaluationConfidenceLevel", out JsonElement eclEl))
+            finding.ConfidenceLevel = ReadConfidenceLevel(eclEl);
 
         if (root.TryGetProperty("humanReviewStatus", out JsonElement hrsEl))
             finding.HumanReviewStatus = ReadHumanReviewStatus(hrsEl);
@@ -179,232 +176,4 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         WriteInsightDensityFields(writer, value);
         writer.WriteEndObject();
     }
-
-    private static void ReadInsightDensityFields(JsonElement root, Finding finding)
-    {
-        if (root.TryGetProperty("insightDensityScore", out JsonElement scoreElement) &&
-            scoreElement.ValueKind == JsonValueKind.Number &&
-            scoreElement.TryGetInt32(out int insightDensityScore))
-        {
-            finding.InsightDensityScore = insightDensityScore;
-        }
-
-        if (root.TryGetProperty("treatment", out JsonElement treatmentElement))
-            finding.Treatment = ReadTreatment(treatmentElement);
-
-        if (root.TryGetProperty("classification", out JsonElement classificationElement))
-            finding.Classification = ReadClassification(classificationElement);
-
-        finding.WhyThisIsNotGeneric = ReadOptionalString(root, "whyThisIsNotGeneric");
-        finding.PrincipalArchitectValue = ReadOptionalString(root, "principalArchitectValue");
-        finding.DecisionConsequence = ReadOptionalString(root, "decisionConsequence");
-    }
-
-    private static void WriteInsightDensityFields(Utf8JsonWriter writer, Finding value)
-    {
-        if (value.InsightDensityScore is { } insightDensityScore)
-            writer.WriteNumber("insightDensityScore", insightDensityScore);
-
-        if (value.Treatment is { } treatment)
-            writer.WriteString("treatment", treatment.ToString());
-
-        if (value.Classification is { } classification)
-            writer.WriteString("classification", classification.ToString());
-
-        WriteOptionalString(writer, "whyThisIsNotGeneric", value.WhyThisIsNotGeneric);
-        WriteOptionalString(writer, "principalArchitectValue", value.PrincipalArchitectValue);
-        WriteOptionalString(writer, "decisionConsequence", value.DecisionConsequence);
-    }
-
-    /// <summary>
-    ///     Deserializes the <c>trace</c> property from <paramref name="root" />.
-    ///     When deserialization fails the corrupt JSON is noted in <paramref name="finding" />
-    ///     <c>Properties["_traceDeserializationWarning"]</c> so downstream consumers
-    ///     can detect data loss without silently discarding the error.
-    /// </summary>
-    private static ExplainabilityTrace ReadTrace(JsonElement root, JsonSerializerOptions options, Finding finding)
-    {
-        if (!root.TryGetProperty("trace", out JsonElement tr))
-            return new ExplainabilityTrace();
-        try
-        {
-            return JsonSerializer.Deserialize<ExplainabilityTrace>(tr.GetRawText(), options) ??
-                   new ExplainabilityTrace();
-        }
-        catch (JsonException ex)
-        {
-            finding.Properties["_traceDeserializationWarning"] =
-                $"Trace JSON could not be deserialized and was replaced with an empty trace. Error: {ex.Message}";
-            return new ExplainabilityTrace();
-        }
-    }
-
-    private static string? ReadOptionalString(JsonElement root, string name)
-    {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind is JsonValueKind.Null)
-            return null;
-
-        return el.GetString();
-    }
-
-    private static void WriteOptionalString(Utf8JsonWriter writer, string name, string? value)
-    {
-        if (value is null)
-        {
-            writer.WriteNull(name);
-
-            return;
-        }
-
-        writer.WriteString(name, value);
-    }
-
-    private static List<string> ReadStringList(JsonElement root, string name)
-    {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Array)
-            return [];
-
-        return el.EnumerateArray().Select(e => e.GetString() ?? "").Where(s => s.Length > 0).ToList();
-    }
-
-    private static Dictionary<string, string> ReadStringDict(JsonElement root, string name)
-    {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Object)
-            return new Dictionary<string, string>();
-        Dictionary<string, string> d = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (JsonProperty p in el.EnumerateObject())
-            d[p.Name] = p.Value.GetString() ?? "";
-        return d;
-    }
-
-    private static FindingSeverity ReadSeverity(JsonElement root, string propertyName)
-    {
-        if (!root.TryGetProperty(propertyName, out JsonElement severityElement))
-            return FindingSeverity.Info;
-
-        if (severityElement.ValueKind == JsonValueKind.Number && severityElement.TryGetInt32(out int numeric))
-        {
-            if (!Enum.IsDefined(typeof(FindingSeverity), numeric))
-                throw new JsonException($"Unknown finding severity value '{numeric}'.");
-
-            return (FindingSeverity)numeric;
-        }
-
-        if (severityElement.ValueKind != JsonValueKind.String)
-            throw new JsonException("Expected string or number for finding severity.");
-
-        string? raw = severityElement.GetString();
-
-        if (string.IsNullOrWhiteSpace(raw))
-            return FindingSeverity.Info;
-
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed))
-            return parsed;
-
-        return raw.Trim().ToLowerInvariant() switch
-        {
-            "low" => FindingSeverity.Info,
-            "medium" => FindingSeverity.Warning,
-            "high" => FindingSeverity.Error,
-            _ => throw new JsonException($"Unknown finding severity value '{raw}'."),
-        };
-    }
-
-    private static FindingEnforcementTier ReadEnforcementTier(JsonElement element)
-    {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
-        {
-            if (!Enum.IsDefined(typeof(FindingEnforcementTier), numeric))
-                throw new JsonException($"Unknown finding enforcement tier value '{numeric}'.");
-
-            return (FindingEnforcementTier)numeric;
-        }
-
-        if (element.ValueKind != JsonValueKind.String)
-            throw new JsonException("Expected string or number for finding enforcement tier.");
-
-        string? raw = element.GetString();
-
-        if (string.IsNullOrWhiteSpace(raw))
-            throw new JsonException("Finding enforcement tier value is required.");
-
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed))
-            return parsed;
-
-        throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
-    }
-
-    private static FindingTreatment? ReadTreatment(JsonElement element)
-    {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
-        {
-            if (!Enum.IsDefined(typeof(FindingTreatment), numeric))
-                throw new JsonException($"Unknown finding treatment value '{numeric}'.");
-
-            return (FindingTreatment)numeric;
-        }
-
-        if (element.ValueKind != JsonValueKind.String)
-            throw new JsonException("Expected string or number for finding treatment.");
-
-        string? raw = element.GetString();
-
-        if (string.IsNullOrWhiteSpace(raw))
-            throw new JsonException("Finding treatment value is required.");
-
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed))
-            return parsed;
-
-        throw new JsonException($"Unknown finding treatment value '{raw}'.");
-    }
-
-    private static FindingClassification? ReadClassification(JsonElement element)
-    {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
-        {
-            if (!Enum.IsDefined(typeof(FindingClassification), numeric))
-                throw new JsonException($"Unknown finding classification value '{numeric}'.");
-
-            return (FindingClassification)numeric;
-        }
-
-        if (element.ValueKind != JsonValueKind.String)
-            throw new JsonException("Expected string or number for finding classification.");
-
-        string? raw = element.GetString();
-
-        if (string.IsNullOrWhiteSpace(raw))
-            throw new JsonException("Finding classification value is required.");
-
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingClassification parsed))
-            return parsed;
-
-        throw new JsonException($"Unknown finding classification value '{raw}'.");
-    }
-
-    private static FindingHumanReviewStatus ReadHumanReviewStatus(JsonElement element)
-    {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
-        {
-            if (!Enum.IsDefined(typeof(FindingHumanReviewStatus), numeric))
-                throw new JsonException($"Unknown finding human review status value '{numeric}'.");
-
-            return (FindingHumanReviewStatus)numeric;
-        }
-
-        if (element.ValueKind != JsonValueKind.String)
-            throw new JsonException("Expected string or number for finding human review status.");
-
-        string? raw = element.GetString();
-
-        if (string.IsNullOrWhiteSpace(raw))
-            throw new JsonException("Finding human review status value is required.");
-
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingHumanReviewStatus parsed))
-            return parsed;
-
-        throw new JsonException($"Unknown finding human review status value '{raw}'.");
-    }
 }
-

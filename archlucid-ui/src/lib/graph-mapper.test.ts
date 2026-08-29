@@ -42,6 +42,19 @@ describe("mapGraphToReactFlow", () => {
     expect(nodes[1].data.raw).toEqual(graph.nodes[1]);
   });
 
+  it("tags buyerTrail finding nodes with a non-color-only type caption", () => {
+    const graph: GraphViewModel = {
+      nodes: [{ id: "f", label: "PHI minimization risk", type: "Finding" }],
+      edges: [],
+    };
+
+    const { nodes } = mapGraphToReactFlow(graph, "buyerTrail");
+
+    expect(nodes[0]?.data).toMatchObject({
+      label: "PHI minimization risk\n· Finding",
+    });
+  });
+
   it("maps edges with deterministic ids and smoothstep type", () => {
     const graph: GraphViewModel = {
       nodes: [
@@ -165,6 +178,6 @@ describe("mapGraphToReactFlow", () => {
     });
 
     const phiNode = nodes.find((n) => n.id === "n-phi");
-    expect(phiNode?.style?.border).toContain("4px");
+    expect(phiNode?.style?.border).toContain("var(--al-status-warn-fg)");
   });
 });

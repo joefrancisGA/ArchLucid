@@ -42,7 +42,7 @@ describe("sidebar-nav-group-expansion-storage", () => {
     localStorage.setItem("archlucid_nav_show_administration", "1");
 
     expect(readSidebarNavGroupExpansionState()["operator-admin"]).toBe(true);
-    expect(readSidebarNavGroupExpansionState()["operate-analysis"]).toBe(false);
+    expect(readSidebarNavGroupExpansionState()["operate-analysis"]).toBe(true);
   });
 
   it("migrates legacy extended/advanced preferences to expanded analysis and governance", () => {

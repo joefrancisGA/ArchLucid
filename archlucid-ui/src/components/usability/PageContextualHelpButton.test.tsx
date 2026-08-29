@@ -108,7 +108,6 @@ describe("PageContextualHelpButton", () => {
     fireEvent.click(trigger);
 
     expect(await screen.findByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
-    expect(screen.getByText("Open the full help page for guidance on this screen.")).toBeInTheDocument();
     expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
       "href",
       "/help/review-packages",

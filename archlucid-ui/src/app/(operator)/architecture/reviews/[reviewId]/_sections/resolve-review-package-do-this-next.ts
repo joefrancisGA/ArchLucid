@@ -1,5 +1,6 @@
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import { resolveClarificationsFindingsLoopNext } from "@/lib/review-clarifications-findings-loop";
+import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import {
   reviewLifecycleNextActionInstance,
   reviewLifecycleNextActionLabel,
@@ -12,11 +13,13 @@ import {
   type ReviewPackagePrimaryAction,
   type ReviewPackagePrimaryActionKind,
 } from "./resolve-review-package-primary-action";
+import { buildReviewPackageRerunHref } from "./resolve-review-package-approval-blocker";
 
 export type ReviewPackageDoThisNextKind =
   | ReviewPackagePrimaryActionKind
   | "answer-clarifications"
   | "view-assessment-progress"
+  | "rerun-review"
   | "compare-to-prior";
 
 export type ReviewPackageDoThisNext = {
@@ -44,6 +47,8 @@ export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryAct
   readonly useCreateHomeWorkspaceTabs: boolean;
   /** Compare href when a prior package on the same request is already comparable. */
   readonly compareWithPriorHref?: string | null;
+  readonly legacyRunStatus?: string | null;
+  readonly isDeadLettered?: boolean | null;
 };
 
 function clarificationsHref(input: ResolveReviewPackageDoThisNextInput): string {
@@ -56,6 +61,16 @@ function clarificationsHref(input: ResolveReviewPackageDoThisNextInput): string 
 
 function viewAssessmentHref(runId: string): string {
   return buildReviewWorkspaceTabHref(runId, "activity");
+}
+
+function resolveRerunHref(input: ResolveReviewPackageDoThisNextInput): string {
+  const correctionHref = input.correctionHref?.trim() ?? "";
+
+  if (correctionHref.length > 0) {
+    return correctionHref;
+  }
+
+  return buildReviewPackageRerunHref(input.runId);
 }
 
 function sentenceForPrimaryAction(
@@ -146,6 +161,25 @@ export function resolveReviewPackageDoThisNextFromRegistry(
 export function resolveReviewPackageDoThisNext(
   input: ResolveReviewPackageDoThisNextInput,
 ): ReviewPackageDoThisNext {
+  const pipelineTerminalFailure = isReviewPipelineTerminalFailure({
+    legacyRunStatus: input.legacyRunStatus,
+    isDeadLettered: input.isDeadLettered,
+  });
+
+  if (input.showProgressTracker && input.manifestId === null && pipelineTerminalFailure) {
+    return {
+      kind: "rerun-review",
+      sentence:
+        "Assessment failed — review the error details below, then start a new review with the same intake.",
+      actionLabel: "Re-run review",
+      href: resolveRerunHref(input),
+      secondaryAction: {
+        label: "View assessment details",
+        href: viewAssessmentHref(input.runId),
+      },
+    };
+  }
+
   if (input.showProgressTracker && input.manifestId === null) {
     return {
       kind: "view-assessment-progress",

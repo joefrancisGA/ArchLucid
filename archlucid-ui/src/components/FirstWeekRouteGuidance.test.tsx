@@ -39,6 +39,7 @@ describe("FirstWeekRouteGuidance", () => {
   it("renders in-progress review detail guidance without a competing finalize CTA", () => {
     render(<FirstWeekRouteGuidance variant="review-detail-in-progress" />);
 
+    expect(screen.queryByRole("link", { name: "Finalize review" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Finalize this review" })).not.toBeInTheDocument();
     expect(screen.getByText(/Skip graph and approval dashboards/i)).toBeInTheDocument();
   });
@@ -47,6 +48,7 @@ describe("FirstWeekRouteGuidance", () => {
     buyerPolishedMock.on = true;
     render(<FirstWeekRouteGuidance variant="review-detail-in-progress" />);
 
+    expect(screen.queryByRole("link", { name: "Finalize review" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Finalize this review" })).not.toBeInTheDocument();
   });
 

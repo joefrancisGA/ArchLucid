@@ -134,10 +134,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className={cn(
-                        "h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left font-normal dark:border-neutral-700",
-                        OPERATOR_TYPOGRAPHY.helper,
-                      )}
+                        className="h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left dark:border-neutral-700"
                       onClick={() => {
                         if (onStarterPromptClick !== undefined) {
                           onStarterPromptClick(line);
@@ -241,10 +238,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className={cn(
-                    "h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left font-normal dark:border-neutral-700",
-                    OPERATOR_TYPOGRAPHY.helper,
-                  )}
+                        className="h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left dark:border-neutral-700"
                   onClick={() => {
                     if (onStarterPromptClick !== undefined) {
                       onStarterPromptClick(line);
@@ -281,10 +275,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className={cn(
-                        "h-auto max-w-full whitespace-normal py-1.5 text-left font-normal text-al-text-secondary",
-                        OPERATOR_TYPOGRAPHY.helper,
-                      )}
+                    className="h-auto max-w-full whitespace-normal py-1.5 text-left text-al-text-secondary"
                       disabled={false}
                       onClick={() => onMergePromptLine(line)}
                     >

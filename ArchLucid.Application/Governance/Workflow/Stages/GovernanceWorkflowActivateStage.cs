@@ -71,6 +71,8 @@ public sealed class GovernanceWorkflowActivateStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(environment);
         ArgumentException.ThrowIfNullOrWhiteSpace(activatedBy);
 
+        manifestVersion = manifestVersion.Trim();
+
         ArchitectureRunDetail runDetail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
 

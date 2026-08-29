@@ -15,7 +15,7 @@ export const ARCHITECTURE_OBJECT_MAP_SEALED_LABEL = OPERATOR_NAV_LINK_LABELS.sea
  * description, imported documents, or an optional saved draft.
  */
 const OBJECT_MAP_SENTENCES: Record<ArchitectureObjectMapFocus, string> = {
-  draft: `You are viewing ${ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase()}. Start a review to assess one; finalized reviews become ${ARCHITECTURE_OBJECT_MAP_SEALED_LABEL.toLowerCase()}.`,
+  draft: `You are viewing ${ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase()}. Start a review to assess one.`,
   review: `${ARCHITECTURE_OBJECT_MAP_REVIEW_LABEL} start from architecture you already have — a description, imported documents, or optional ${ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase()}. Finalize to generate ${ARCHITECTURE_OBJECT_MAP_SEALED_LABEL.toLowerCase()}.`,
   sealed: `You are viewing ${ARCHITECTURE_OBJECT_MAP_SEALED_LABEL.toLowerCase()}. They come from finalized ${ARCHITECTURE_OBJECT_MAP_REVIEW_LABEL.toLowerCase()}; new work can start as a review or as ${ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase()}.`,
 };

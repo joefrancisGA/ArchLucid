@@ -35,7 +35,8 @@ class TestAdoptionBatch5AH(unittest.TestCase):
             / "ArchLucid.Application"
             / "Runs"
             / "Orchestration"
-            / "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"
+            / "Commit"
+            / "AuthorityCommitPersistenceStage.cs"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("WizardPilotCommitTelemetry.RecordIfWizardSourced", text)

@@ -18,7 +18,7 @@ import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-w
  * TB-2232 — recommended next steps moved to `OperatorHomeCanonicalNextActionSlot` in the
  * command center hero so home shows one guidance widget.
  *
- * TB-2331 — hide on first-session eval-empty so stickiness does not compete with the hero onboarding spine.
+ * TB-2331 — hide on first-session eval-empty/eval-with-drafts so stickiness does not compete with the hero onboarding spine.
  */
 export function OperatorHomeStickinessCockpit(): ReactElement | null {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
@@ -35,7 +35,7 @@ export function OperatorHomeStickinessCockpit(): ReactElement | null {
     governanceWarningsCount: 0,
   });
 
-  if (workspacePhase === "eval-empty") {
+  if (workspacePhase === "eval-empty" || workspacePhase === "eval-with-drafts") {
     return null;
   }
 

@@ -5,12 +5,13 @@ import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorSto
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import type { CollabRecentActor } from "@/lib/collab-recent-actor-presence";
 import type { SponsorStoryDispositionCounts } from "@/lib/sponsor-story-synopsis";
+import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 type FindingInspectStickinessSummaryProps = {
   readonly recentDispositionActors: readonly CollabRecentActor[];
   readonly mutationDisabledHintId: string;
-  readonly mutationDisabledReason: string | null;
-  readonly sponsorSynopsisPackageTitle: string | null;
+  readonly mutationDisabledReason: WhyDisabledCtaReason | null;
+  readonly sponsorSynopsisPackageTitle: string;
   readonly sponsorSynopsisCounts: SponsorStoryDispositionCounts;
   readonly runId: string;
   readonly statusMessage: string | null;

@@ -11,7 +11,6 @@ import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBan
 import { FirstVisitHelpAutoOpen } from "@/components/usability/FirstVisitHelpAutoOpen";
 import { PersistentWorkspaceNextActionStrip } from "@/components/usability/PersistentWorkspaceNextActionStrip";
 import { PageContextualHelpFab } from "@/components/usability/PageContextualHelpFab";
-import { RecentReviewsResumeStrip } from "@/components/usability/RecentReviewsResumeStrip";
 import { CorePilotCompleteCelebrateStrip } from "@/components/usability/CorePilotCompleteCelebrateStrip";
 import { GlobalSearchShortcutCoach } from "@/components/usability/GlobalSearchShortcutCoach";
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
@@ -29,7 +28,6 @@ export function AppShellMainAffordances() {
     <>
       <BuyerGoldenJourneyLayerContextStrip />
       {showPersistentWorkspaceNextActionStrip ? <PersistentWorkspaceNextActionStrip /> : null}
-      {isOperatorHome ? <RecentReviewsResumeStrip /> : null}
       {isOperatorHome ? <CorePilotCompleteCelebrateStrip /> : null}
       <GlobalSearchShortcutCoach />
       <OperatorRecentViewsTracker />

@@ -1,33 +1,9 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
-
-const KINDS: ReadonlyArray<{ k: string; swatch: string; c: string }> = [
-  {
-    k: "Decision",
-    swatch: "bg-blue-500",
-    c: "bg-blue-100 text-blue-900 dark:bg-blue-950/50 dark:text-blue-200",
-  },
-  {
-    k: "Finding",
-    swatch: "bg-amber-500",
-    c: "bg-amber-100 text-amber-950 dark:bg-amber-950/40 dark:text-amber-100",
-  },
-  {
-    k: "Artifact",
-    swatch: "bg-violet-500",
-    c: "bg-violet-100 text-violet-950 dark:bg-violet-950/40 dark:text-violet-100",
-  },
-  {
-    k: "Review",
-    swatch: "bg-neutral-600",
-    c: "bg-neutral-100 text-al-text-primary dark:bg-neutral-900/40 dark:text-neutral-100",
-  },
-  {
-    k: "Component",
-    swatch: "bg-neutral-500",
-    c: "bg-neutral-200 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100",
-  },
-];
+import {
+  GRAPH_NODE_KIND_LEGEND_ENTRIES,
+  graphNodeKindCssVar,
+} from "@/lib/graph-node-kind-presentation";
 
 /**
  * Compact legend chips for graph node categories — shown in idle state and when the interactive graph is visible.
@@ -44,20 +20,25 @@ export function GraphNodeKindLegendChips(props: {
       data-testid="graph-node-kind-legend"
       aria-label={props["aria-label"] ?? "Legend"}
     >
-      {KINDS.map((x) => (
+      {GRAPH_NODE_KIND_LEGEND_ENTRIES.map((entry) => (
         <li
-          key={x.k}
+          key={entry.key}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-semibold uppercase tracking-wide",
-            x.c,
+            "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-semibold uppercase tracking-wide",
             OPERATOR_NAV_GROUP_LABEL,
           )}
+          style={{
+            backgroundColor: graphNodeKindCssVar(entry.key, "bg"),
+            borderColor: graphNodeKindCssVar(entry.key, "border"),
+            color: "var(--al-text-primary)",
+          }}
         >
           <span
-            className={cn("inline-block h-2.5 w-2.5 shrink-0 rounded-sm border border-black/10", x.swatch)}
+            className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm border border-black/10"
+            style={{ backgroundColor: graphNodeKindCssVar(entry.key, "swatch") }}
             aria-hidden
           />
-          {x.k}
+          {entry.label}
         </li>
       ))}
     </ul>

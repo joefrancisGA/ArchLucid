@@ -18,6 +18,42 @@
     ]
   },
   {
+    "findingId": "756cf43e-9fb3-69c4-f86b-1b317484bc89",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "t1"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "6fa0355d-6fdd-f9cd-d6ab-8713078a3ffe",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "t1"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
     "findingId": "0c14c6b4-b251-18ab-fe66-0dd032f78f25",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",

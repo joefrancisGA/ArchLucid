@@ -97,6 +97,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\ArchLucid.TestSupport\FsCheckV3GlobalUsings.cs" Link="FsCheckV3GlobalUsings.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="ArchLucid.Core" />
     <Using Include="ArchLucid.Core.Manifest" />
   </ItemGroup>

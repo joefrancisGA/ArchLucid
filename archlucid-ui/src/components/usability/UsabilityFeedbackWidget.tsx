@@ -75,7 +75,7 @@ export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
             type="button"
             variant="outline"
             size="sm"
-            className={cn("h-8 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            className="h-8 text-neutral-600 dark:text-neutral-400"
             data-testid="usability-feedback-trigger"
           >
             Feedback

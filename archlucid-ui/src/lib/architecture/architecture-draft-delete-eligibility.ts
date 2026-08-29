@@ -1,6 +1,6 @@
 export function canDeleteArchitectureDraft(input: {
   readonly linkedReviewId: string | null;
-  readonly customerStatus?: "draft" | "ready-for-review" | "archived";
+  readonly customerStatus?: "draft" | "ready-for-review" | "review-linked" | "archived";
   readonly serverStatus?: string | null;
 }): boolean {
   if (input.linkedReviewId !== null) {

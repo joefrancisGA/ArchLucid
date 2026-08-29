@@ -31,6 +31,7 @@ public sealed partial class GovernanceController
     [HttpGet("dashboard")]
     [ProducesResponseType(typeof(GovernanceDashboardSummary), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetDashboard(
         [FromQuery] int maxPending = 20,
@@ -38,6 +39,24 @@ public sealed partial class GovernanceController
         [FromQuery] int maxChanges = 20,
         CancellationToken cancellationToken = default)
     {
+        if (maxPending <= 0)
+            return this.BadRequestProblem("maxPending must be greater than 0.", ProblemTypes.ValidationFailed);
+
+        if (maxDecisions <= 0)
+            return this.BadRequestProblem("maxDecisions must be greater than 0.", ProblemTypes.ValidationFailed);
+
+        if (maxChanges <= 0)
+            return this.BadRequestProblem("maxChanges must be greater than 0.", ProblemTypes.ValidationFailed);
+
+        if (maxPending > 50)
+            return this.BadRequestProblem("maxPending must be at most 50.", ProblemTypes.ValidationFailed);
+
+        if (maxDecisions > 50)
+            return this.BadRequestProblem("maxDecisions must be at most 50.", ProblemTypes.ValidationFailed);
+
+        if (maxChanges > 50)
+            return this.BadRequestProblem("maxChanges must be at most 50.", ProblemTypes.ValidationFailed);
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
@@ -110,6 +129,18 @@ public sealed partial class GovernanceController
         [FromRoute] string approvalRequestId,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
+
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
             .ConfigureAwait(false);
@@ -121,7 +152,8 @@ public sealed partial class GovernanceController
                 ProblemTypes.ResourceNotFound);
         }
 
-        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeError, _) =
+            await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
             return scopeError;
@@ -147,6 +179,18 @@ public sealed partial class GovernanceController
         [FromRoute] string approvalRequestId,
         CancellationToken cancellationToken)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        approvalRequestId = NormalizeApprovalRequestId(approvalRequestId);
+
+        IActionResult? approvalRequestIdProblem = BadRequestWhenApprovalRequestIdEmpty(approvalRequestId);
+
+        if (approvalRequestIdProblem is not null)
+            return approvalRequestIdProblem;
+
         GovernanceApprovalRequest? approval = await approvalRepo
             .GetByIdAsync(approvalRequestId, cancellationToken)
             .ConfigureAwait(false);
@@ -158,7 +202,8 @@ public sealed partial class GovernanceController
                 ProblemTypes.ResourceNotFound);
         }
 
-        IActionResult? scopeError = await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
+        (IActionResult? scopeError, _) =
+            await RequireScopedRunAsync(approval.RunId, cancellationToken).ConfigureAwait(false);
 
         if (scopeError is not null)
             return scopeError;

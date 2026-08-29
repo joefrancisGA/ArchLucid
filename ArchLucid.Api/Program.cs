@@ -23,6 +23,8 @@ using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Startup.Diagnostics;
 using ArchLucid.Host.Core.Startup.Validation;
 
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Options;
 
 using Serilog;
@@ -222,6 +224,24 @@ public partial class Program
         app.UseArchLucidPipelineBeforeSerilogRequestLogging();
         app.UseSerilogRequestLogging(ArchLucidSerilogRequestLogging.ConfigureRequestLogging);
         app.UseArchLucidPipelineAfterSerilogRequestLogging();
+
+        app.Lifetime.ApplicationStarted.Register(() =>
+        {
+            IServer server = app.Services.GetRequiredService<IServer>();
+            IServerAddressesFeature? addressesFeature = server.Features.Get<IServerAddressesFeature>();
+            ICollection<string> addresses = addressesFeature?.Addresses ?? Array.Empty<string>();
+
+            if (addresses.Count == 0)
+            {
+                app.Logger.LogInformation("ArchLucid API started.");
+
+                return;
+            }
+
+            foreach (string address in addresses)
+                app.Logger.LogInformation("ArchLucid API listening on {Address}", address);
+        });
+
         await app.RunAsync();
     }
 }

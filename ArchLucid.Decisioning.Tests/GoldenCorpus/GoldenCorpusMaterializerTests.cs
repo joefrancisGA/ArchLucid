@@ -128,6 +128,59 @@ public sealed class GoldenCorpusMaterializerTests
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-audit-types.json"), artifacts.AuditTypesJson);
     }
 
+    [Fact]
+    public async Task Record_all_existing_cases_from_input_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        string compliance = Path.Combine(
+            AppContext.BaseDirectory,
+            "Compliance",
+            "RulePacks",
+            "default-compliance.rules.json");
+
+        File.Exists(compliance).Should().BeTrue("compliance rule pack must be copied to test output.");
+
+        FakeTimeProvider clock = new();
+        clock.SetUtcNow(new DateTimeOffset(2026, 2, 1, 0, 0, 0, TimeSpan.Zero));
+        GoldenCorpusHarness harness = new(compliance, clock);
+        string root = GoldenCorpusRepoPaths.CorpusSourceDirectory;
+
+        List<string> dirs = Directory.GetDirectories(root)
+            .OrderBy(static d => d, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        dirs.Should().NotBeEmpty();
+
+        foreach (string dir in dirs)
+        {
+            string inputPath = Path.Combine(dir, "input.json");
+            File.Exists(inputPath).Should().BeTrue($"missing input.json in {dir}");
+
+            string inputJson = await File.ReadAllTextAsync(inputPath);
+            GoldenCorpusInputDocument? input =
+                JsonSerializer.Deserialize<GoldenCorpusInputDocument>(inputJson, GoldenCorpusJson.SerializerOptions);
+
+            input.Should().NotBeNull();
+
+            CollectingAuditService audit = new();
+            GoldenCorpusMergeInput? merge = input!.Merge?.ToModel();
+
+            GoldenCorpusRunArtifacts artifacts = await harness.RunAsync(
+                input.RunId,
+                input.ContextSnapshotId,
+                input.GraphSnapshot,
+                audit,
+                merge,
+                CancellationToken.None);
+
+            await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
+            await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);
+            await File.WriteAllTextAsync(Path.Combine(dir, "expected-audit-types.json"), artifacts.AuditTypesJson);
+        }
+    }
+
     private static GoldenCorpusMergeDocument ToMergeDocument(GoldenCorpusMergeInput merge) => new()
     {
         MergeRunId = merge.MergeRunId,

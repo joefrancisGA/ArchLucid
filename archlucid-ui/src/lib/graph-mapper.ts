@@ -1,50 +1,16 @@
 import type { Edge, Node } from "reactflow";
 import type { GraphNodeVm, GraphViewModel } from "@/types/graph";
+import {
+  graphNodeKindPresentation,
+  resolveGraphNodeKindBuyerLabel,
+  resolveGraphNodeKindKey,
+} from "@/lib/graph-node-kind-presentation";
 import { isProvenanceTrailCoordinatorType } from "@/lib/provenance-graph-presentation";
 import {
   isActiveSampleHeroFindingId,
   isSampleHeroFindingReferenceId,
   listRegisteredSampleScenarios,
 } from "@/lib/samples/registry";
-
-/** Maps a graph node type to a background color for visual differentiation in React Flow. */
-function pickColor(type: string): string {
-  switch (type) {
-    case "Decision":
-      return "#dbeafe";
-    case "Finding":
-      return "#fef3c7";
-    case "Rule":
-      return "#ede9fe";
-    case "Artifact":
-      return "#dcfce7";
-    case "Manifest":
-      return "#f3f4f6";
-    case "GraphNode":
-    case "TopologyResource":
-      return "#e0f2fe";
-    case "SecurityBaseline":
-      return "#fee2e2";
-    case "PolicyControl":
-      return "#ecfccb";
-    case "Requirement":
-      return "#fae8ff";
-    case "ArchitectureRun":
-      return "#ccfbf1";
-    case "ContextSnapshot":
-    case "GraphSnapshot":
-    case "FindingsSnapshot":
-      return "#e0f2fe";
-    case "GoldenManifest":
-      return "#d1fae5";
-    case "ArtifactBundle":
-      return "#ede9fe";
-    case "PolicyPack":
-      return "#ecfccb";
-    default:
-      return "#f5f5f5";
-  }
-}
 
 export type MapGraphPresentation = "operator" | "buyerTrail";
 
@@ -64,10 +30,16 @@ function buyerTrailEvidenceSourceSubtitle(nodeType: string): string | null {
 
 function nodeLabelForPresentation(node: GraphViewModel["nodes"][number], presentation: MapGraphPresentation): string {
   if (presentation === "buyerTrail") {
-    const subtitle = buyerTrailEvidenceSourceSubtitle(node.type);
+    const evidenceSubtitle = buyerTrailEvidenceSourceSubtitle(node.type);
 
-    if (subtitle !== null) {
-      return `${node.label}\n${subtitle}`;
+    if (evidenceSubtitle !== null) {
+      return `${node.label}\n${evidenceSubtitle}`;
+    }
+
+    const kindLabel = resolveGraphNodeKindBuyerLabel(node.type);
+
+    if (kindLabel !== null) {
+      return `${node.label}\n· ${kindLabel}`;
     }
 
     return node.label;
@@ -206,6 +178,8 @@ export function mapGraphToReactFlow(
     const hero = isBuyerTrail && isBuyerTrailPhiHeroNode(node);
     const width = hero ? heroNodeWidth : nodeWidth;
     const fs = hero ? heroFontSize : fontSize;
+    const kindKey = resolveGraphNodeKindKey(node.type);
+    const kindPresentation = graphNodeKindPresentation(kindKey);
 
     return {
       id: node.id,
@@ -219,19 +193,19 @@ export function mapGraphToReactFlow(
       },
       style: {
         border: hero
-          ? "4px solid #b45309"
+          ? "4px solid var(--al-status-warn-fg)"
           : isBuyerTrail
-            ? "2px solid #64748b"
-            : "1px solid #999",
+            ? `2px solid ${kindPresentation.border}`
+            : `1px solid ${kindPresentation.border}`,
         borderRadius: 10,
         padding: isBuyerTrail ? (hero ? 16 : 12) : 8,
-        background: hero ? "#fde68a" : pickColor(node.type),
+        background: hero ? "var(--al-status-warn-bg)" : kindPresentation.background,
         width,
         whiteSpace: "pre-wrap",
         fontSize: fs,
         fontWeight: isBuyerTrail ? (hero ? 700 : 500) : 400,
-        color: "#0f172a",
-        boxShadow: hero ? "0 10px 28px rgba(180, 83, 9, 0.22)" : undefined,
+        color: "var(--al-text-primary)",
+        boxShadow: hero ? "0 10px 28px color-mix(in srgb, var(--al-status-warn-fg) 22%, transparent)" : undefined,
       },
       type: "default",
     };
@@ -254,12 +228,16 @@ export function mapGraphToReactFlow(
       animated: isBuyerTrail && (edge.type === "raised" || touchesHero),
       style: isBuyerTrail
         ? {
-            stroke: touchesHero ? "#b45309" : "#475569",
+            stroke: touchesHero ? "var(--al-status-warn-fg)" : "var(--al-text-secondary)",
             strokeWidth: touchesHero ? 3 : 2.25,
           }
         : { stroke: "#94a3b8", strokeWidth: 1.25 },
       labelStyle: isBuyerTrail
-        ? { fill: touchesHero ? "#7c2d12" : "#1e293b", fontWeight: 700, fontSize: touchesHero ? 16 : 14 }
+        ? {
+            fill: touchesHero ? "var(--al-status-warn-fg)" : "var(--al-text-primary)",
+            fontWeight: 700,
+            fontSize: touchesHero ? 16 : 14,
+          }
         : { fill: "#475569", fontSize: 12 },
       labelBgStyle:
         isBuyerTrail

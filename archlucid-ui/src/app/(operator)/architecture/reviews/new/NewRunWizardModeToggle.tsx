@@ -21,8 +21,8 @@ const UNSELECTED_CLASS =
 
 function modeButtonClass(selected: boolean): string {
   return selected
-    ? cn(SELECTED_CLASS, OPERATOR_TYPOGRAPHY.button)
-    : cn(UNSELECTED_CLASS, OPERATOR_TYPOGRAPHY.body);
+    ? cn(SELECTED_CLASS, OPERATOR_TYPOGRAPHY.nativeControlLabel)
+    : cn(UNSELECTED_CLASS, OPERATOR_TYPOGRAPHY.nativeControlLabel);
 }
 
 /** Quick start vs. all steps — or, before the first committed review, an opt-in to all steps. */
@@ -41,7 +41,7 @@ export function NewRunWizardModeToggle(props: NewRunWizardModeToggleProps): Reac
           type="button"
           className={cn(
             "mt-2 rounded-md px-3 py-1.5 text-al-text-primary underline decoration-neutral-400 underline-offset-2 hover:bg-neutral-50 dark:text-neutral-100 dark:hover:bg-neutral-900/60",
-            OPERATOR_TYPOGRAPHY.button,
+            OPERATOR_TYPOGRAPHY.nativeControlLabel,
           )}
           onClick={props.onAdvancedOptIn}
         >

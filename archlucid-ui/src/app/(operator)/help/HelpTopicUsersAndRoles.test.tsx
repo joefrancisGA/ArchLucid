@@ -42,6 +42,8 @@ import {
   USERS_AND_ROLES_CONTRACT_VERSION,
   USERS_AND_ROLES_GUIDE_HEADINGS,
 } from "@/lib/users-and-roles-help-manifest";
+import { expectWhereToGoNextFollowUpLinks, followUpLinkAccessibleName } from "@/lib/claim-discipline-test-helpers";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import {
@@ -152,11 +154,13 @@ describe("HelpUsersAndRolesGuideView", () => {
 
     const sources = screen.getByTestId("users-and-roles-help-sources");
 
-    for (const link of USERS_AND_ROLES_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), USERS_AND_ROLES_HELP_SOURCES);
 
-    expect(screen.getAllByRole("link", { name: USERS_AND_ROLES_SECURITY_TRUST_LINK_LABEL })).toHaveLength(2);
+    expect(
+      screen.getByRole("link", {
+        name: followUpLinkAccessibleName(inAppHelpHref("security-trust"), USERS_AND_ROLES_SECURITY_TRUST_LINK_LABEL),
+      }),
+    ).toHaveAttribute("href", inAppHelpHref("security-trust"));
   });
 
   it("uses accessible table headers for the capability matrix and aligns TOC with section ids", () => {

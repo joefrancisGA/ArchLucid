@@ -66,6 +66,19 @@ public sealed class GraphJsonConverterTests
     }
 
     [SkippableFact]
+    public void GraphNodeJsonConverter_Read_mixed_type_properties_preserves_string_entries()
+    {
+        const string json =
+            """{"nodeId":"n1","nodeType":"t","label":"l","properties":{"resourceId":"/subscriptions/sub","bad":123,"region":"eastus"}}""";
+
+        GraphNode node = JsonSerializer.Deserialize<GraphNode>(json, NodeOptions())!;
+
+        node.Properties.Should().HaveCount(2);
+        node.Properties.Should().ContainKey("resourceId").WhoseValue.Should().Be("/subscriptions/sub");
+        node.Properties.Should().ContainKey("region").WhoseValue.Should().Be("eastus");
+    }
+
+    [SkippableFact]
     public void GraphNodeJsonConverter_Read_properties_dictionary_is_case_insensitive()
     {
         // System.Text.Json Deserialize<Dictionary<string,string>> defaults to ordinal comparer; ARM lookup keys

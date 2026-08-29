@@ -34,20 +34,22 @@ public sealed class GovernancePreviewService(
             throw new ArgumentException("RunId is required.", nameof(request));
         if (string.IsNullOrWhiteSpace(request.ManifestVersion))
             throw new ArgumentException("ManifestVersion is required.", nameof(request));
+        string runId = request.RunId.Trim();
+        string manifestVersion = request.ManifestVersion.Trim();
         string environment = NormalizeAndValidateEnvironment(request.Environment, nameof(request.Environment));
         // Use the canonical run detail path to validate run existence and load its manifest.
-        ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken) ??
-                                          throw new RunNotFoundException(request.RunId);
+        ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) ??
+                                          throw new RunNotFoundException(runId);
         // The candidate manifest is the specific version being previewed — it may differ from
         // the run's current committed manifest (e.g. an older committed version is being evaluated).
         GoldenManifest? candidateManifest =
-            runDetail.Manifest is not null && string.Equals(runDetail.Run.CurrentManifestVersion, request.ManifestVersion, StringComparison.Ordinal)
+            runDetail.Manifest is not null && string.Equals(runDetail.Run.CurrentManifestVersion, manifestVersion, StringComparison.Ordinal)
                 ? runDetail.Manifest
-                : await unifiedGoldenManifestReader.GetByVersionAsync(request.ManifestVersion, cancellationToken);
+                : await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
         if (candidateManifest is null)
-            throw new GoldenManifestVersionNotFoundException(request.ManifestVersion, request.RunId);
-        if (!string.Equals(candidateManifest.RunId, request.RunId, StringComparison.Ordinal))
-            throw new GoldenManifestVersionNotFoundException(request.ManifestVersion, request.RunId);
+            throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
+        if (!string.Equals(candidateManifest.RunId, runId, StringComparison.Ordinal))
+            throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
         IReadOnlyList<GovernanceEnvironmentActivation> activationRows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
         GovernanceEnvironmentActivation? active = activationRows.FirstOrDefault(a => a.IsActive);
         List<string> notes = [DiffOnlyNote];
@@ -62,7 +64,7 @@ public sealed class GovernancePreviewService(
         {
             currentManifest = await LoadManifestForActivationAsync(active, notes, cancellationToken);
             notes.Add(
-                $"Compared current run '{active.RunId}' (manifest '{active.ManifestVersion}') to preview run '{request.RunId}' (manifest '{request.ManifestVersion}').");
+                $"Compared current run '{active.RunId}' (manifest '{active.ManifestVersion}') to preview run '{runId}' (manifest '{manifestVersion}').");
         }
 
         List<GovernanceDiffItem> differences = GovernanceManifestComparer.Compare(currentManifest?.Governance, candidateManifest.Governance);
@@ -71,8 +73,8 @@ public sealed class GovernancePreviewService(
             Environment = environment,
             CurrentRunId = active?.RunId,
             CurrentManifestVersion = active?.ManifestVersion,
-            PreviewRunId = request.RunId,
-            PreviewManifestVersion = request.ManifestVersion,
+            PreviewRunId = runId,
+            PreviewManifestVersion = manifestVersion,
             Differences = differences,
             Notes = notes
         };

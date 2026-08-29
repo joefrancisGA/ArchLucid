@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -13,7 +14,7 @@ import {
   OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE,
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-settings-client";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resolveOperatorHomeCompletedSampleFallback } from "@/lib/resolve-operator-home-completed-sample-fallback";
@@ -40,6 +41,34 @@ export function OperatorHomeCompletedSampleAction(
   const showcaseFallback = resolveOperatorHomeCompletedSampleFallback();
   const sampleVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
+  function renderSampleOpenLink(href: string, testId: string): React.JSX.Element {
+    if (props.pagePrimaryOwnedElsewhere === true) {
+      return (
+        <Link
+          href={href}
+          className={cn("font-medium", OPERATOR_LINK.nav)}
+          data-testid={testId}
+          onClick={props.onOpenSample}
+        >
+          {OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}
+        </Link>
+      );
+    }
+
+    return (
+      <OperatorHomeNavigateLoadingButton
+        variant={sampleVariant}
+        size="sm"
+        className={cn("h-8 w-fit", props.compact === true && "h-7")}
+        href={href}
+        idleLabel={OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}
+        loadingLabel={OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL}
+        onNavigate={props.onOpenSample}
+        data-testid={testId}
+      />
+    );
+  }
+
   if (sampleQuery.isPending) {
     return (
       <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")} aria-live="polite">
@@ -50,18 +79,7 @@ export function OperatorHomeCompletedSampleAction(
 
   if (sampleQuery.isError) {
     if (showcaseFallback !== null) {
-      return (
-        <OperatorHomeNavigateLoadingButton
-          variant={sampleVariant}
-          size="sm"
-          className={cn("h-8 w-fit", props.compact === true && "h-7")}
-          href={showcaseFallback.href}
-          idleLabel={OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}
-          loadingLabel={OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL}
-          onNavigate={props.onOpenSample}
-          data-testid="operator-home-explore-completed-review-cta"
-        />
-      );
+      return renderSampleOpenLink(showcaseFallback.href, "operator-home-explore-completed-review-cta");
     }
 
     return (
@@ -76,18 +94,7 @@ export function OperatorHomeCompletedSampleAction(
 
   if (sample === undefined) {
     if (showcaseFallback !== null) {
-      return (
-        <OperatorHomeNavigateLoadingButton
-          variant={sampleVariant}
-          size="sm"
-          className={cn("h-8 w-fit", props.compact === true && "h-7")}
-          href={showcaseFallback.href}
-          idleLabel={OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}
-          loadingLabel={OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL}
-          onNavigate={props.onOpenSample}
-          data-testid="operator-home-explore-completed-review-cta"
-        />
-      );
+      return renderSampleOpenLink(showcaseFallback.href, "operator-home-explore-completed-review-cta");
     }
 
     return (
@@ -98,33 +105,14 @@ export function OperatorHomeCompletedSampleAction(
   }
 
   if (sample.isAvailable && sample.selectedRunId !== null) {
-    return (
-      <OperatorHomeNavigateLoadingButton
-        variant={sampleVariant}
-        size="sm"
-        className={cn("h-8 w-fit", props.compact === true && "h-7")}
-        href={featuredCompletedSampleReviewHref(sample.selectedRunId)}
-        idleLabel={OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}
-        loadingLabel={OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL}
-        onNavigate={props.onOpenSample}
-        data-testid="operator-home-explore-completed-review-cta"
-      />
+    return renderSampleOpenLink(
+      featuredCompletedSampleReviewHref(sample.selectedRunId),
+      "operator-home-explore-completed-review-cta",
     );
   }
 
   if (showcaseFallback !== null) {
-    return (
-      <OperatorHomeNavigateLoadingButton
-        variant={sampleVariant}
-        size="sm"
-        className={cn("h-8 w-fit", props.compact === true && "h-7")}
-        href={showcaseFallback.href}
-        idleLabel={OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}
-        loadingLabel={OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL}
-        onNavigate={props.onOpenSample}
-        data-testid="operator-home-explore-completed-review-cta"
-      />
-    );
+    return renderSampleOpenLink(showcaseFallback.href, "operator-home-explore-completed-review-cta");
   }
 
   return (

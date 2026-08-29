@@ -23,7 +23,7 @@ class TestAdoptionBatch5AI(unittest.TestCase):
         self.assertIn("runId", text)
 
     def test_tb_215_new_run_wizard_wires_evidence_step(self) -> None:
-        path = (
+        wizard_paths = (
             REPO_ROOT
             / "archlucid-ui"
             / "src"
@@ -32,9 +32,18 @@ class TestAdoptionBatch5AI(unittest.TestCase):
             / "architecture"
             / "reviews"
             / "new"
-            / "NewRunWizardClient.tsx"
+            / "NewRunWizardStepBody.tsx",
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "reviews"
+            / "new"
+            / "NewRunWizardClient.tsx",
         )
-        text = path.read_text(encoding="utf-8")
+        text = "".join(path.read_text(encoding="utf-8") for path in wizard_paths)
         self.assertIn("WizardStepEvidenceUpload", text)
         self.assertIn("uploadPendingEvidence", text)
         self.assertIn("WizardPostCreateEvidenceUploadPanel", text)

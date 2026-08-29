@@ -10,6 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 UI_APP_DIR = REPO_ROOT / "archlucid-ui" / "src" / "app"
 UI_LIB_DIR = REPO_ROOT / "archlucid-ui" / "src" / "lib"
 HELP_REGISTRY = UI_LIB_DIR / "product-documentation-registry.ts"
+HELP_REGISTRY_ENTRY_GLOB = "product-documentation-registry-entries*.ts"
 CLOUD_CONNECTIONS_HELP_ROUTES = UI_LIB_DIR / "cloud-connections-help-routes.ts"
 
 # Default Hit% for catalog paths newly inserted by sync-archlucid-ui-route-traffic-workbook.py.
@@ -315,11 +316,21 @@ def _parse_ts_string_array(file_path: Path, const_name: str) -> list[str]:
     return re.findall(r'"([^"]+)"', match.group(1))
 
 
+_SLUG_PATTERN = re.compile(r'["\']?slug["\']?\s*:\s*"([^"]+)"', flags=re.MULTILINE)
+
+
 def _parse_help_slugs(registry_path: Path = HELP_REGISTRY) -> list[str]:
-    if not registry_path.is_file():
-        return []
-    text = registry_path.read_text(encoding="utf-8")
-    return sorted(set(re.findall(r'^\s+slug:\s*"([^"]+)"', text, flags=re.MULTILINE)))
+    slugs: set[str] = set()
+    entry_files = sorted(UI_LIB_DIR.glob(HELP_REGISTRY_ENTRY_GLOB))
+    if entry_files:
+        for entry_path in entry_files:
+            text = entry_path.read_text(encoding="utf-8")
+            slugs.update(_SLUG_PATTERN.findall(text))
+    elif registry_path.is_file():
+        text = registry_path.read_text(encoding="utf-8")
+        slugs.update(_SLUG_PATTERN.findall(text))
+
+    return sorted(slugs)
 
 
 def _parse_cloud_connections_help_providers(

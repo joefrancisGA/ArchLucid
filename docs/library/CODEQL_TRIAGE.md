@@ -120,6 +120,21 @@ SqlConnectionStringBuilder builder = new(connectionString);
 
 ---
 
+## Before triaging alerts: check whether the `javascript` job actually ran
+
+A CodeQL run can report `failure` **without producing a single alert**, and the alert list will look deceptively clean. Check the job breakdown first:
+
+```bash
+gh run view <run-id> --json jobs \
+  | python3 -c "import json,sys; [print(j['name'],'->',j['conclusion']) for j in json.load(sys.stdin)['jobs']]"
+```
+
+**Fix (2026-08-27):** set `group: codeql-${{ github.sha }}` (and the same pattern on `ui-typecheck-on-push.yml`) so each commit gets its own concurrency group and every push can complete. Trade-off: more Actions minutes on a busy trunk, in exchange for every commit actually being analyzed.
+
+**Prior misconfiguration:** `cancel-in-progress: false` on `group: codeql-${{ github.ref }}` was insufficient — GitHub allows **one running + one pending** job per group (`queue: single` default), and `cancel-in-progress` protects only the running job. A newly queued run **always evicts** the pending one. On a trunk at 70–106 pushes/hour, nearly every run was evicted from the pending slot before starting, which is why cancelled runs had **zero jobs**. Alternative fix: `queue: max` (up to 100 pending; cannot combine with `cancel-in-progress: true`).
+
+---
+
 ## Related documents
 
 - [`SECURITY.md`](contributor-reference/SECURITY.md) — CWE-117 policy and **`LogSanitizer`** usage  

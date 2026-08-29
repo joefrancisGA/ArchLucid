@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   AL_CSS_VAR_NAMES,
+  DESIGN_TOKENS,
   enterpriseStatusTagClass,
   FINDINGS_ROW_METADATA_TAG_SIZE,
   METADATA_STATUS_TAG_SHELL,
@@ -78,6 +79,7 @@ describe("design-tokens TB-119 typography", () => {
   it("nav and button roles have dedicated tokens", () => {
     expect(OPERATOR_TYPOGRAPHY.navLabel).toContain("font-medium");
     expect(OPERATOR_TYPOGRAPHY.navHelper).toContain("leading-[15px]");
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("text-[13px]");
     expect(OPERATOR_TYPOGRAPHY.button).toContain("font-semibold");
     expect(OPERATOR_TYPOGRAPHY.tab).toContain("leading-4");
   });
@@ -105,6 +107,20 @@ describe("design-tokens TB-119 typography", () => {
     expect(OPERATOR_TYPOGRAPHY.badge).toContain("text-[11px]");
     expect(OPERATOR_TYPOGRAPHY.badge).toContain("font-medium");
   });
+
+  it("interactive filter chips use compact native control label scale (TB-2290)", () => {
+    expect(DESIGN_TOKENS.interactive.chip).toContain("text-[11px]");
+    expect(DESIGN_TOKENS.interactive.chip).toContain("font-bold");
+    expect(DESIGN_TOKENS.interactive.chip).not.toContain("text-[13px]");
+  });
+
+  it("native control label stays compact while Button label stays 13px semibold", () => {
+    expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toContain("text-[11px]");
+    expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toContain("font-bold");
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("text-[13px]");
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("font-semibold");
+    expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).not.toBe(OPERATOR_TYPOGRAPHY.button);
+  });
 });
 
 describe("design-tokens spacing rhythm", () => {
@@ -127,6 +143,11 @@ describe("design-tokens TB-2276–TB-2280 color hierarchy", () => {
     expect(globalsCss).toMatch(/--al-accent-link-hover:\s*#134e4a;/);
     expect(globalsCss).toMatch(/\.dark\s*\{[\s\S]*--al-accent-link:\s*#14b8a6;/);
     expect(globalsCss).toMatch(/\.dark\s*\{[\s\S]*--al-primary-action-bg:\s*#115e59;/);
+  });
+
+  it("keeps anchor inherit color in @layer base so primary Button asChild links stay white on teal", () => {
+    expect(globalsCss).toMatch(/@layer base\s*\{[\s\S]*a\s*\{[\s\S]*color:\s*inherit;/);
+    expect(globalsCss).not.toMatch(/\n\s*a\s*\{\s*\n\s*color:\s*inherit;\s*\n\s*\}\s*\n\s*\/\*/);
   });
 
   it("TB-2277 registers dedicated neutral status CSS variables", () => {

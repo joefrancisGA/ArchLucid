@@ -219,6 +219,12 @@ export const OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT = "Contact the workspace
 
 export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start something";
 
+/** Collapsed lifecycle entry when a draft/resume primary already owns the first viewport. */
+export const OPERATOR_HOME_LIFECYCLE_ALTERNATIVES_DISCLOSURE_TITLE = "Start something else";
+
+export const OPERATOR_HOME_LIFECYCLE_ALTERNATIVES_COLLAPSED_SUMMARY =
+  "Create architecture, start a review, or explore a completed sample.";
+
 /** Buyer-polished Home subtitle — action-oriented, not lifecycle documentation. */
 export const BUYER_OPERATOR_HOME_PAGE_SUBTITLE = "Your architecture workspace";
 

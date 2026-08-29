@@ -12,31 +12,31 @@ import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-
 import { type LayerId } from "@/lib/getLayerForRoute";
 
 const layerStripBase =
-  "border-b border-neutral-200 bg-al-surface-raised border-l-4 dark:border-neutral-800";
+  "border-b border-neutral-200 bg-al-surface-raised border-l-4 border-l-[var(--al-status-neutral-border)] dark:border-neutral-800 dark:border-l-[var(--al-status-neutral-border)]";
 
 const LAYER_COPY: Record<LayerId, { label: string; question: string; strip: string; labelClass: string }> = {
   pilot: {
     label: "Reviews",
     question: "Finalized packages with findings, evidence, decisions, and audit trail.",
-    strip: `${layerStripBase} border-l-blue-600`,
+    strip: layerStripBase,
     labelClass: "text-al-text-primary",
   },
   "operate-analysis": {
     label: "Advanced operations",
     question: "What changed, why, and what does the architecture look like?",
-    strip: `${layerStripBase} border-l-[var(--al-accent-interactive)]`,
+    strip: layerStripBase,
     labelClass: "text-al-text-primary",
   },
   "operate-governance": {
     label: "Approval",
     question: "How do we track approvals, audit evidence, and operationalize architecture decisions?",
-    strip: `${layerStripBase} border-l-amber-600`,
+    strip: layerStripBase,
     labelClass: "text-al-text-primary",
   },
   "operator-admin": {
     label: "Admin",
     question: "How do we configure the tenant, cost visibility, and access for this workspace?",
-    strip: `${layerStripBase} border-l-violet-600`,
+    strip: layerStripBase,
     labelClass: "text-al-text-primary",
   },
 };

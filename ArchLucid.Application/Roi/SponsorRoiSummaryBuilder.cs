@@ -130,8 +130,10 @@ public sealed class SponsorRoiSummaryBuilder(
         SponsorRoiPricingLabels pricingLabels =
             await _sponsorRoiPricingLabelResolver.ResolveAsync(latestDetails, cancellationToken).ConfigureAwait(false);
 
-        IReadOnlyList<RiskExceptionRecord> activeWaiversForExpiry =
-            await _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<RiskExceptionRecord> activeWaiversForExpiry = GovernanceWaiverExpiryWindow.FilterToScope(
+            await _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken).ConfigureAwait(false),
+            workspaceId,
+            projectId);
 
         int expiringWaivers14Days = GovernanceWaiverExpiryWindow.CountExpiringWithinDays(
             activeWaiversForExpiry,

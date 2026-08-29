@@ -1,5 +1,23 @@
 [
   {
+    "findingId": "027481c1-6bcc-3157-a32e-7ecf2566907f",
+    "findingType": "RequirementCoverageFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Some requirements are not related to any topology resources",
+    "rationale": "Requirement coverage is incomplete because some requirements do not relate to architecture resources in the graph.",
+    "relatedNodeIds": [
+      "Auth-3"
+    ],
+    "payloadType": "RequirementCoverageFindingPayload",
+    "rulesApplied": [
+      "requirement-coverage-relation"
+    ],
+    "decisionsTaken": [
+      "Detected requirement nodes without RELATES_TO edges to topology resources."
+    ]
+  },
+  {
     "findingId": "4799bc87-91c7-204e-cfff-11e3971c799d",
     "findingType": "RequirementFinding",
     "category": "Requirement",

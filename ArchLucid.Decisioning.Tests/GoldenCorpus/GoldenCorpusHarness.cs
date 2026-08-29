@@ -136,9 +136,15 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         return
         [
             new RequirementFindingEngine(),
+            new RequirementExpectationFindingEngine(analyzer),
+            new RequirementCoverageFindingEngine(analyzer),
             new TopologyCoverageFindingEngine(analyzer),
+            new TopologyStructureFindingEngine(),
             new SecurityBaselineFindingEngine(),
+            new SecurityBaselineCompletenessFindingEngine(analyzer),
+            new SecurityGapFindingEngine(),
             new SecurityCoverageFindingEngine(analyzer),
+            new ExternalExposureFindingEngine(),
             new ComplianceFindingEngine(complianceProvider, complianceValidator, complianceEvaluator),
             new CostConstraintFindingEngine(),
             new DeclarationSecurityBaselineFindingEngine(complianceProvider),

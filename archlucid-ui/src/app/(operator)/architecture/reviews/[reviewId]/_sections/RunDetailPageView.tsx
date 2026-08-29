@@ -290,6 +290,8 @@ export async function RunDetailPageView(props: {
                     runCompleted={m.resolvedDetail.run.completedUtc != null}
                     nextAction={reviewStatusSummary.nextAction}
                     showProgressTracker={m.showProgressTracker}
+                    legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
+                    isDeadLettered={m.resolvedDetail.run.isDeadLettered === true}
                     openClarificationGapCount={0}
                     correctionHref={architectureEditHref}
                     useCreateHomeWorkspaceTabs={false}

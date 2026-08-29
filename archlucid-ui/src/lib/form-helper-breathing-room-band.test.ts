@@ -73,4 +73,16 @@ describe("form helper breathing room band regression (TB-2003)", () => {
     expect(step0Block).not.toContain("space-y-1");
     expect(step0Block).not.toMatch(/\bmt-1\b/);
   });
+
+  it("keeps guided intake create-review confirm card on layout tokens (step 3 hero)", () => {
+    const confirmStep = readUiUtf8(
+      "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizardStepConfirm.tsx",
+    );
+
+    expect(confirmStep).toContain("OPERATOR_LAYOUT.sectionHeadingStack");
+    expect(confirmStep).toContain("OPERATOR_LAYOUT.sectionStack");
+    expect(confirmStep).toContain("CardFooter");
+    expect(confirmStep).toContain("border-t border-neutral-200");
+    expect(confirmStep).not.toContain("space-y-1");
+  });
 });

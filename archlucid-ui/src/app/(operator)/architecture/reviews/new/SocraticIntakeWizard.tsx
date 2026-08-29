@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { DraftIntakeRequiredClarificationField, REQUIRED_CLARIFICATION_BASELINE_LABEL } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ import {
   GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD,
   guidedIntakeClarificationsAnsweredCounter,
   GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
+  resolveGuidedIntakeClarificationsDoneLabel,
 } from "@/lib/guided-intake-copy";
 import {
   DraftIntakeDecisionReceiptCard,
@@ -150,7 +151,6 @@ export function SocraticIntakeWizard() {
         isFocused={options.isFocused}
         compactActions={viewAllClarifications}
         showAllMode={viewAllClarifications}
-        showBaselineLabel={false}
         showRequirednessSuffix={false}
         clarificationStatus={getClarificationStatus(questionKey)}
         canSaveAndContinue={(answers[questionKey]?.trim() ?? "").length > 0}
@@ -172,10 +172,7 @@ export function SocraticIntakeWizard() {
 
   if (sourceArchitectureAccessBlocked) {
     return (
-      <div
-        className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
-        data-testid="socratic-intake-wizard"
-      >
+      <div className="w-full" data-testid="socratic-intake-wizard">
         <div
           className={cn(
             "flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-3 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-300",
@@ -192,11 +189,9 @@ export function SocraticIntakeWizard() {
   }
 
   return (
-    <div
-      className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
-      data-testid="socratic-intake-wizard"
-    >
-      <div className="min-w-0 space-y-4">
+    <div className="w-full" data-testid="socratic-intake-wizard">
+      {/* Flex gap, not space-y: child `m-0` beats Tailwind v4 space-y (`:where()`, 0 specificity). */}
+      <div className="flex min-w-0 flex-col gap-4">
       {wizardSession.pendingRestore !== null && !suppressWizardResumePrompt ? (
         <WizardSessionResumePrompt
           onResume={wizardSession.acceptRestore}
@@ -211,6 +206,24 @@ export function SocraticIntakeWizard() {
         currentStep={step}
         completedSteps={completedWizardSteps}
       />
+      {draftId !== null && step >= 1 ? (
+        <div data-testid="socratic-intake-advanced-options">
+          <SocraticIntakeWizardAdvancedRail
+            draftId={draftId}
+            draftStatus={draftStatus}
+            busy={busy}
+            blocksLlmExecution={blocksLlmExecution}
+            freeTextIntent={freeTextIntent}
+            businessOutcome={businessOutcome}
+            systemName={systemName}
+            allQuestions={allQuestions}
+            pendingQuestions={pendingQuestions}
+            onBranched={(response) => {
+              void applyBranchDraft(response);
+            }}
+          />
+        </div>
+      ) : null}
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
       {sourceArchitectureId.length > 0 ? (
@@ -224,7 +237,7 @@ export function SocraticIntakeWizard() {
           <span className="font-medium text-neutral-900 dark:text-neutral-100">
             {GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD}
           </span>{" "}
-          This review evaluates a snapshot of{" "}
+          This review evaluates{" "}
           <Link
             href={architectureDraftPath(sourceArchitectureId)}
             className="font-medium underline"
@@ -313,30 +326,28 @@ export function SocraticIntakeWizard() {
 
       {step === 1 ? (
         <div data-testid="socratic-clarifications-step">
-          <Card
-            className={WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS}
-            data-testid="guided-intake-primary-panel"
-          >
+          <Card data-testid="guided-intake-primary-panel">
             <CardHeader>
             <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
             <CardDescription>
-              {isCreateArchitectureFlow
-                ? GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION
-                : activePendingQuestions.length === 0
-                  ? "All required clarifications are answered or skipped. You can continue."
-                  : `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
-              {isCreateArchitectureFlow
-                ? "Your answers stay with the architecture draft until you choose to start a review."
-                : "Your answers will be included when you review and submit."}
+              {isCreateArchitectureFlow ? (
+                <>
+                  {GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION}{" "}
+                  Your answers stay with the architecture draft until you choose to start a review.
+                </>
+              ) : activePendingQuestions.length === 0 ? (
+                "All required clarifications are answered or skipped. You can continue."
+              ) : (
+                `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`
+              )}
             </CardDescription>
-            <p
-              className={cn("m-0 pt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="socratic-clarifications-baseline-label"
-            >
-              {REQUIRED_CLARIFICATION_BASELINE_LABEL}
-            </p>
           </CardHeader>
-          <CardContent className={OPERATOR_LAYOUT.sectionStack}>
+          <CardContent
+            className={cn(
+              OPERATOR_LAYOUT.sectionStack,
+              viewAllClarifications ? WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS : undefined,
+            )}
+          >
             {primaryPendingQuestion !== null
               ? renderClarificationField(primaryPendingQuestion, {
                   isPrimary: true,
@@ -425,7 +436,7 @@ export function SocraticIntakeWizard() {
               }}
               data-testid="socratic-questions-done"
             >
-              {busy ? "Saving answers…" : "Review answers"}
+              {resolveGuidedIntakeClarificationsDoneLabel(allClarificationsHandled, busy)}
             </Button>
           </div>
         </div>
@@ -450,29 +461,6 @@ export function SocraticIntakeWizard() {
 
       {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}
       </div>
-
-      <aside
-        className={cn(OPERATOR_LAYOUT.stickyAsideTop, "hidden min-w-0 lg:block")}
-        data-testid="socratic-intake-context-rail"
-        data-operator-side-rail-kind="working-object"
-      >
-        {draftId !== null && step >= 1 ? (
-          <SocraticIntakeWizardAdvancedRail
-            draftId={draftId}
-            draftStatus={draftStatus}
-            busy={busy}
-            blocksLlmExecution={blocksLlmExecution}
-            freeTextIntent={freeTextIntent}
-            businessOutcome={businessOutcome}
-            systemName={systemName}
-            allQuestions={allQuestions}
-            pendingQuestions={pendingQuestions}
-            onBranched={(response) => {
-              void applyBranchDraft(response);
-            }}
-          />
-        ) : null}
-      </aside>
     </div>
   );
 }

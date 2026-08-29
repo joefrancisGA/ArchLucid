@@ -203,7 +203,7 @@ export function PageScopedContextualHelpPanel({
           aria-label={dialogLabel}
         >
           <CircleHelp className="h-4 w-4" aria-hidden />
-          <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{visibleTriggerText}</span>
+          <span>{visibleTriggerText}</span>
         </button>
       </DialogTrigger>
 

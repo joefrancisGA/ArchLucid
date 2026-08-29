@@ -18,6 +18,24 @@
     ]
   },
   {
+    "findingId": "a88ba29c-319b-9724-1dd7-e0aeb73ec7f9",
+    "findingType": "SecurityGap",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Security baseline \u0027TLS-4\u0027 protects no topology resources",
+    "rationale": "No PROTECTS edge links this security baseline to any graph node.",
+    "relatedNodeIds": [
+      "s1"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "security-gap-security-baseline-without-protects"
+    ],
+    "decisionsTaken": [
+      "Detected security traceability gap: Security baseline \u0027TLS-4\u0027 is isolated from topology resources."
+    ]
+  },
+  {
     "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",

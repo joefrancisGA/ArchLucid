@@ -235,6 +235,14 @@ PRs must pass the **blocking** merge gates (Tier **0–3b**, **2b**, **3c**, **3
 
 **Tradeoff:** Direct pushes to the default branch get a **thin** corset (gitleaks + Active-solution build + Core/Decisioning fast-core tests + UI typecheck) so compile, declaration-gating regressions, and truncated Operate help JSX cannot land silently. The full **`ci.yml`** matrix (all fast-core shards, SQL regression, Playwright, k6) still runs on **`pull_request`** and **`workflow_dispatch`** — not on every default-branch push. **`codeql.yml`** already runs on push separately. Add the new job names under branch protection **required status checks** if pushes should be blocked when they fail.
 
+**Concurrency (2026-08-27):** `ui-typecheck-on-push.yml` and `codeql.yml` use `group: …-${{ github.sha }}` with `cancel-in-progress: false` so each commit gets its own concurrency group. A single `group: …-${{ github.ref }}` with `cancel-in-progress: false` still evicts **pending** runs when trunk churn is high (GitHub allows one running + one pending per group). See [`CODEQL_TRIAGE.md`](CODEQL_TRIAGE.md).
+
+### Trunk matrix measurement (beyond corset)
+
+**Workflow:** `.github/workflows/trunk-matrix-measurement.yml` — **`workflow_dispatch`** + weekly schedule.
+
+Runs `scripts/ci/run_trunk_matrix_measurement.sh` (fast-core filter on Api, Application, AgentRuntime, Host.Composition — assemblies **outside** the push corset slice). Results are recorded in [`TRUNK_CI_MEASUREMENT.md`](TRUNK_CI_MEASUREMENT.md). This does **not** replace full `ci.yml` `workflow_dispatch`; it quantifies the gap between corset-green and full-matrix health.
+
 ### Tier 4 — scheduled security testing (not per-PR)
 
 These workflows run on a **weekly** cron (**Monday 06:00 UTC**) and **`workflow_dispatch`**. They are **not** merge gates for every pull request; runtime is typically **tens of minutes** (image build + scans).

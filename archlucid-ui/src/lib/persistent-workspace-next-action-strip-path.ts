@@ -20,7 +20,7 @@ function isReviewsSurfacePath(pathname: string): boolean {
 /** Surfaces where the cross-page first-review progress strip may render. */
 export function isPersistentWorkspaceNextActionStripPath(pathname: string): boolean {
   if (pathname === "/") {
-    return true;
+    return false;
   }
 
   if (isReviewsSurfacePath(pathname)) {

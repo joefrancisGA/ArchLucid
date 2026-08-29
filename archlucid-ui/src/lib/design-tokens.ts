@@ -6,3 +6,4 @@
 export * from "./design-tokens-shell";
 export * from "./design-tokens-marketing";
 export * from "./design-tokens-status";
+export * from "./graph-node-kind-presentation";

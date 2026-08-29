@@ -25,7 +25,7 @@ const commandCenterSource = readFileSync(
 describe("operator home primary guidance inventory (TB-2232 / TB-2331)", () => {
   it("routes operational home next-action through the canonical slot in the command center", () => {
     expect(commandCenterSource).toContain("OperatorHomeCanonicalNextActionSlot");
-    expect(commandCenterSource).toContain("OperatorHomeDualPathCards");
+    expect(commandCenterSource).toContain("OperatorHomeLifecycleAlternativesDisclosure");
     expect(commandCenterSource).not.toContain("OperatorHomeDoThisNextCard");
   });
 
@@ -45,8 +45,9 @@ describe("operator home primary guidance inventory (TB-2232 / TB-2331)", () => {
     expect(stickinessSource).not.toContain("OperatorNextActionsCard");
   });
 
-  it("hides stickiness cockpit on first-session eval-empty home (TB-2331)", () => {
+  it("hides stickiness cockpit on first-session eval-empty and eval-with-drafts home (TB-2331)", () => {
     expect(stickinessSource).toContain('workspacePhase === "eval-empty"');
+    expect(stickinessSource).toContain('workspacePhase === "eval-with-drafts"');
     expect(stickinessSource).toContain("return null");
   });
 });

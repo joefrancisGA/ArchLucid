@@ -15,6 +15,7 @@ import { OperatorHomeCardSectionTitle } from "@/components/operator-home/Operato
 import { OperatorHomeCanonicalNextActionSlot } from "@/components/operator-home/OperatorHomeCanonicalNextActionSlot";
 import { InviteeFirstOrientationPanel } from "@/components/operator/InviteeFirstOrientationPanel";
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
+import { OperatorHomeLifecycleAlternativesDisclosure } from "@/components/operator-home/OperatorHomeLifecycleAlternativesDisclosure";
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
@@ -350,19 +351,19 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
           {isInviteeReviewer ? (
             <InviteeFirstOrientationPanel copy={resolveInviteeHomeOrientationCopy()} />
           ) : null}
-          <OperatorHomeDualPathCards emphasizedPath={emphasizedPath} />
+          <OperatorHomeLifecycleAlternativesDisclosure emphasizedPath={emphasizedPath} />
         </div>
       ) : null}
 
       {workspacePhase === "eval-with-drafts" ? (
-        <OperatorHomeDualPathCards
+        <OperatorHomeLifecycleAlternativesDisclosure
           emphasizedPath={emphasizedPath}
           pagePrimaryOwnedElsewhere={resumeHref !== null}
         />
       ) : null}
 
       {workspacePhase === "active-reviews" ? (
-        <OperatorHomeDualPathCards emphasizedPath={emphasizedPath} />
+        <OperatorHomeLifecycleAlternativesDisclosure emphasizedPath={emphasizedPath} />
       ) : null}
 
       {workspacePhase === "operational" ? (

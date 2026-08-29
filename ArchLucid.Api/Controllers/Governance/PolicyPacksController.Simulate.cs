@@ -35,10 +35,20 @@ public sealed partial class PolicyPacksController
             return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
         }
 
+        if (!Guid.TryParse(request.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+        {
+            return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
+        }
+
         if (request.Content is null)
         {
             return this.BadRequestProblem("content is required.", ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PolicyPackGovernanceDryRunResult? result = await _workflow.SimulateAsync(
             request.Content,
@@ -76,6 +86,36 @@ public sealed partial class PolicyPacksController
 
         if (request.RunIds.Count > 50)
             return this.BadRequestProblem("At most 50 run ids are allowed per request.", ProblemTypes.ValidationFailed);
+
+        if (!request.RunIds.Any(static id => !string.IsNullOrWhiteSpace(id)))
+        {
+            return this.BadRequestProblem(
+                "RunIds must contain at least one non-empty id.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        foreach (string runId in request.RunIds)
+        {
+            if (string.IsNullOrWhiteSpace(runId))
+                continue;
+
+            if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+            {
+                return this.BadRequestProblem(
+                    "RunIds contains an invalid id.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         PolicyPackSimulateBulkSummary? summary = await _workflow.TrySimulateBulkAsync(
             policyPackId,
@@ -123,6 +163,11 @@ public sealed partial class PolicyPacksController
 
         if (document is null)
             return this.BadRequestProblem("Deserialized document is null.", ProblemTypes.ValidationFailed);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PolicyPackContentValidationResponse response =
             await _workflow.ValidateContentAsync(document, cancellationToken);

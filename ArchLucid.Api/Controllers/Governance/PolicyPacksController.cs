@@ -60,6 +60,29 @@ public sealed partial class PolicyPacksController(
     private readonly IValidator<AssignPolicyPackRequest> _assignPolicyPackRequestValidator =
         assignPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(assignPolicyPackRequestValidator));
 
+    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        return null;
+    }
+
+    private IActionResult? BadRequestWhenRouteIdEmpty(Guid id, string parameterName)
+    {
+        if (id == Guid.Empty)
+        {
+            return this.BadRequestProblem(
+                $"{parameterName} is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
@@ -78,6 +101,11 @@ public sealed partial class PolicyPacksController(
 
         if (validationProblem is not null)
             return validationProblem;
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         PolicyPack pack = await _workflow.CreatePackAsync(
             request.Name,
@@ -108,6 +136,16 @@ public sealed partial class PolicyPacksController(
 
         if (validationProblem is not null)
             return validationProblem;
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         PolicyPackVersion? version = await _workflow.TryPublishVersionAsync(
             policyPackId,
@@ -144,6 +182,16 @@ public sealed partial class PolicyPacksController(
         if (validationProblem is not null)
             return validationProblem;
 
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         string versionKey = request.Version.Trim();
         string scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
 
@@ -175,6 +223,16 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ArchiveAssignment(Guid assignmentId, CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(assignmentId, "assignmentId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         bool ok = await _workflow.TryArchiveAssignmentAsync(assignmentId, ct);
 
         if (!ok)
@@ -192,6 +250,16 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeletePack(Guid policyPackId, CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         bool ok = await _workflow.TrySoftDeletePackAsync(policyPackId, ct);
 
         if (!ok)
@@ -210,6 +278,16 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DuplicatePack(Guid policyPackId, CancellationToken ct = default)
     {
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
+
         PolicyPack? duplicate = await _workflow.TryDuplicatePackAsync(policyPackId, ct);
 
         if (duplicate is null)
@@ -226,11 +304,10 @@ public sealed partial class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> List(CancellationToken ct = default)
     {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, ct).ConfigureAwait(false);
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (tenantProblem is not null)
+            return tenantProblem;
 
         IReadOnlyList<PolicyPack> visiblePacks = await _workflow.ListVisiblePacksAsync(ct);
         return Ok(visiblePacks);
@@ -249,6 +326,16 @@ public sealed partial class PolicyPacksController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? tenantProblem = await RequireTenantOrNotFoundAsync(ct).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(assignmentId, "assignmentId");
+
+        if (routeIdProblem is not null)
+            return routeIdProblem;
 
         bool ok = await _workflow.TrySetAssignmentEnabledAsync(assignmentId, request.IsEnabled, ct);
 
