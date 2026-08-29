@@ -13,7 +13,6 @@ import { ArchitectureDraftWorkspaceStartReviewFooter } from "@/components/archit
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
-import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
