@@ -21,10 +21,7 @@ import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 
 import { filterSignedRecordsListRows } from "./signed-records-list-client-filter";
 import { enrichSignedRecordsListRows } from "./enrich-signed-records-list-rows";
-import {
-  formatSignedRecordsListRecordCount,
-  SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX,
-} from "./signed-records-list-copy";
+import { SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX } from "./signed-records-list-copy";
 import { buildSignedRecordsListRowsFromRuns, type SignedRecordsListRow } from "./signed-records-list-row";
 import type { SignedRecordsListIntegrityFilter } from "./SignedRecordsListToolbar";
 
