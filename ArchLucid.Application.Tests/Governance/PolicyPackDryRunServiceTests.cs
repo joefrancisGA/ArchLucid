@@ -36,6 +36,32 @@ public sealed class PolicyPackDryRunServiceTests
     };
 
     [SkippableFact]
+    public async Task EvaluateAsync_projects_findings_by_severity_for_each_run()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-mixed", critical: 1, high: 2, medium: 3);
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["run-mixed"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        IReadOnlyList<PolicyPackDryRunSeverityCount> counts = response.Items.Should().ContainSingle().Subject.FindingsBySeverity;
+        counts.Should().Contain(c => c.Severity == "Critical" && c.Count == 1);
+        counts.Should().Contain(c => c.Severity == "Error" && c.Count == 2);
+        counts.Should().Contain(c => c.Severity == "Warning" && c.Count == 3);
+    }
+
+    [SkippableFact]
     public async Task EvaluateAsync_would_block_when_any_threshold_outcome_breaches()
     {
         FakeRunDetailQueryService runs = new();
