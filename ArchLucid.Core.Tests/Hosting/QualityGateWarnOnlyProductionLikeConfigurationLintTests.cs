@@ -67,11 +67,14 @@ public sealed class QualityGateWarnOnlyProductionLikeConfigurationLintTests
     {
         IConfiguration configuration = BuildConfig("Real", "99");
 
-        QualityGateWarnOnlyProductionLikeConfigurationLint.TryDescribeAdvisoryFinding(
+        HostingMisconfigurationWarning? finding =
+            QualityGateWarnOnlyProductionLikeConfigurationLint.TryDescribeAdvisoryFinding(
                 configuration,
-                Environments.Production)
-            .Should()
-            .NotBeNull();
+                Environments.Production);
+
+        finding.Should().NotBeNull();
+        finding!.Value.RuleName.Should()
+            .Be(ProductionLikeHostingMisconfigurationAdvisorRuleNames.QualityGateWarnOnlyInRealProductionLike);
     }
 
     private static IConfiguration BuildConfig(string agentExecutionMode, string? qualityGateMode)
