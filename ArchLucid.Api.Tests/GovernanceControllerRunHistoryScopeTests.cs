@@ -651,12 +651,17 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         GovernanceBatchReviewResponse body =
             ok.Value.Should().BeOfType<GovernanceBatchReviewResponse>().Subject;
         body.Results.Should().HaveCount(2);
-        body.Results[0].ApprovalRequestId.Should().Be(approvalRequestId);
-        body.Results[0].Succeeded.Should().BeTrue();
-        body.Results[1].ApprovalRequestId.Should().Be(approvalRequestId);
-        body.Results[1].Succeeded.Should().BeFalse();
-        body.Results[1].ErrorCode.Should().Be(ProblemTypes.ValidationFailed);
-        body.Results[1].Message.Should().Contain("Duplicate");
+        body.Results.Should().OnlyContain(r => r.ApprovalRequestId == approvalRequestId);
+
+        GovernanceBatchReviewResult succeededResult =
+            body.Results.Should().ContainSingle(r => r.Succeeded).Subject;
+        succeededResult.ApprovalRequestId.Should().Be(approvalRequestId);
+
+        GovernanceBatchReviewResult failedResult =
+            body.Results.Should().ContainSingle(r => !r.Succeeded).Subject;
+        failedResult.ApprovalRequestId.Should().Be(approvalRequestId);
+        failedResult.ErrorCode.Should().Be(ProblemTypes.ValidationFailed);
+        failedResult.Message.Should().Contain("Duplicate");
         workflow.Verify(
             w => w.ApproveAsync(
                 approvalRequestId,
