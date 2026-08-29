@@ -48,7 +48,7 @@ export function ArchitectureIntelligencePickReviewBeforeAnalysisStrip(
         Pick a review before running analysis
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Architecture intelligence is scoped to a review package. Choose one to analyze indexed evidence.
+        Architecture intelligence is scoped to an architecture package. Choose one to analyze indexed evidence.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
