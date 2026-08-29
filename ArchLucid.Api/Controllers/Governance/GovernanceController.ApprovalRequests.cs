@@ -318,7 +318,7 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
-        HashSet<string> processedApprovalRequestIds = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> processedApprovalRequestIds = new(StringComparer.Ordinal);
 
         foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
         {
