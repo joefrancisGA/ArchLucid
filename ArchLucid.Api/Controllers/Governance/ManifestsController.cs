@@ -8,6 +8,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
