@@ -14,6 +14,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Tenancy;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class TenantFindingEngineControlsServiceTests
 {
   [Fact]

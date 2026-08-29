@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Bootstrap;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class DemoSeedScenarioRegistryTests
 {
     [Fact]
