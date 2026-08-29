@@ -54,13 +54,20 @@ public static class PilotValueReportAcceptFormat
 
     private static double GetMediaTypeQuality(IList<MediaTypeHeaderValue> mediaTypes, string mediaType)
     {
+        double bestQuality = 0.0;
+
         foreach (MediaTypeHeaderValue candidate in mediaTypes)
         {
-            if (candidate.MatchesMediaType(mediaType))
-                return candidate.Quality ?? 1.0;
+            if (!candidate.MatchesMediaType(mediaType))
+                continue;
+
+            double quality = candidate.Quality ?? 1.0;
+
+            if (quality > bestQuality)
+                bestQuality = quality;
         }
 
-        return 0.0;
+        return bestQuality;
     }
 
     private static int IndexOfFirstMatch(IList<MediaTypeHeaderValue> mediaTypes, string mediaType)
