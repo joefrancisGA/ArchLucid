@@ -120,6 +120,8 @@ public sealed class WeeklyDigestHealthReaderTests
             "No enabled digest subscriptions — all subscription rows in this scope are disabled.");
         snapshot.SetupGaps.Should().NotContain(
             "No digest subscriptions — generated digests have no outbound recipients in this scope.");
+        snapshot.SetupGapCodes.Should().Contain("no_enabled_digest_subscriptions");
+        snapshot.SetupGapCodes.Should().NotContain("no_digest_subscriptions");
     }
 
     private static WeeklyDigestHealthReader CreateReader(

@@ -40,15 +40,24 @@ const DISABLED_SUBSCRIPTION_GAP =
   "No enabled digest subscriptions — all subscription rows in this scope are disabled.";
 const EXEC_EMAIL_GAP =
   "Sponsor email digest is not fully configured — sponsor emails will not receive the separate sponsor rollup.";
+const ADVISORY_SCHEDULE_GAP_CODE = "no_enabled_advisory_schedule";
+const SUBSCRIPTION_GAP_CODE = "no_digest_subscriptions";
+const DISABLED_SUBSCRIPTION_GAP_CODE = "no_enabled_digest_subscriptions";
+const EXEC_EMAIL_GAP_CODE = "sponsor_email_digest_not_configured";
 
 /**
  * Maps a backend setup-gap string to title, impact, and a next-action link.
  * Unknown gaps fall back to a generic configure action on the Schedule tab.
  */
-export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
+export function mapDigestSetupGap(gap: string, gapCode?: string | null): DigestSetupGapAction {
   const trimmed: string = gap.trim();
+  const normalizedCode: string = gapCode?.trim().toLowerCase() ?? "";
 
-  if (trimmed === ADVISORY_SCHEDULE_GAP || /advisory scan schedule/i.test(trimmed)) {
+  if (
+    normalizedCode === ADVISORY_SCHEDULE_GAP_CODE ||
+    trimmed === ADVISORY_SCHEDULE_GAP ||
+    /advisory scan schedule/i.test(trimmed)
+  ) {
     return {
       title: "No advisory scan schedule",
       impact: "Weekly digests will not be generated automatically.",
@@ -57,7 +66,11 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
     };
   }
 
-  if (trimmed === DISABLED_SUBSCRIPTION_GAP || /no enabled digest subscriptions/i.test(trimmed)) {
+  if (
+    normalizedCode === DISABLED_SUBSCRIPTION_GAP_CODE ||
+    trimmed === DISABLED_SUBSCRIPTION_GAP ||
+    /no enabled digest subscriptions/i.test(trimmed)
+  ) {
     return {
       title: "Subscriptions disabled",
       impact: "Digest subscription rows exist in this scope but none are enabled for delivery.",
@@ -66,7 +79,11 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
     };
   }
 
-  if (trimmed === SUBSCRIPTION_GAP || /digest subscriptions/i.test(trimmed)) {
+  if (
+    normalizedCode === SUBSCRIPTION_GAP_CODE ||
+    trimmed === SUBSCRIPTION_GAP ||
+    /digest subscriptions/i.test(trimmed)
+  ) {
     return {
       title: "No active subscriptions",
       impact: "Generated digests have no outbound recipients in this scope.",
@@ -75,7 +92,11 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
     };
   }
 
-  if (trimmed === EXEC_EMAIL_GAP || /sponsor email digest/i.test(trimmed)) {
+  if (
+    normalizedCode === EXEC_EMAIL_GAP_CODE ||
+    trimmed === EXEC_EMAIL_GAP ||
+    /sponsor email digest/i.test(trimmed)
+  ) {
     return {
       title: "Sponsor recipients not configured",
       impact: "Sponsor emails will not receive the sponsor rollup.",
@@ -92,8 +113,11 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
   };
 }
 
-export function mapDigestSetupGaps(gaps: readonly string[]): DigestSetupGapAction[] {
-  return gaps.map(mapDigestSetupGap);
+export function mapDigestSetupGaps(
+  gaps: readonly string[],
+  gapCodes?: readonly (string | null | undefined)[],
+): DigestSetupGapAction[] {
+  return gaps.map((gap, index) => mapDigestSetupGap(gap, gapCodes?.[index]));
 }
 
 export type DigestOverallStatus = {
