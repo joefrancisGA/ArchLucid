@@ -428,6 +428,25 @@ public sealed class GovernanceWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task ActivateAsync_throws_when_padded_environment_is_unknown_before_repository_lookup()
+    {
+        Mock<IGovernanceEnvironmentActivationRepository> activationRepo = new(MockBehavior.Strict);
+
+        Mock<IRunDetailQueryService> runDetail = new(MockBehavior.Strict);
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            activationRepo: activationRepo.Object,
+            runDetail: runDetail.Object);
+
+        Func<Task> act = () => sut.ActivateAsync("run-1", "v1", "  staging  ", "operator");
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*dev, test, prod*");
+        activationRepo.VerifyNoOtherCalls();
+        runDetail.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task ActivateAsync_deactivates_existing_active_records_when_environment_is_padded()
     {
         GovernanceEnvironmentActivation existing = new()
@@ -480,6 +499,74 @@ public sealed class GovernanceWorkflowFacadeTests
         activationRepo.Verify(
             r => r.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task ActivateAsync_trims_padded_manifest_version_when_manifest_is_in_scope()
+    {
+        Mock<IGovernanceEnvironmentActivationRepository> activationRepo = new();
+        activationRepo
+            .Setup(r => r.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        activationRepo
+            .Setup(r => r.CreateAsync(
+                It.Is<GovernanceEnvironmentActivation>(activation => activation.ManifestVersion == "v1"),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        Mock<IUnifiedGoldenManifestReader> manifests = new(MockBehavior.Strict);
+        manifests
+            .Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GoldenManifest
+            {
+                RunId = "run-1",
+                SystemName = "Sys",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow }
+            });
+
+        GovernanceWorkflowFacade sut = CreateFacade(
+            activationRepo: activationRepo.Object,
+            runDetail: runDetail.Object,
+            unifiedManifestReader: manifests.Object);
+
+        GovernanceEnvironmentActivation activation = await sut.ActivateAsync("run-1", "  v1  ", "test", "operator");
+
+        activation.ManifestVersion.Should().Be("v1");
+        manifests.VerifyAll();
+    }
+
+    [Fact]
+    public async Task PromoteAsync_dry_run_accepts_padded_environments_when_promotion_is_valid()
+    {
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = "run-1", RequestId = "req-1" } });
+
+        GovernanceWorkflowFacade sut = CreateFacade(runDetail: runDetail.Object);
+
+        GovernancePromotionRecord record = await sut.PromoteAsync(
+            "run-1",
+            "v1",
+            " dev ",
+            " test ",
+            "operator",
+            approvalRequestId: null,
+            notes: null,
+            dryRun: true);
+
+        record.SourceEnvironment.Should().Be("dev");
+        record.TargetEnvironment.Should().Be("test");
     }
 
     private static GovernanceWorkflowFacade CreateFacade(
