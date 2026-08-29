@@ -49,14 +49,6 @@ internal static class TenantWorkspaceScopePreflight
         ArgumentNullException.ThrowIfNull(tenantRepository);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        TenantRecord? tenant = await tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        if (tenant is null)
-        {
-            return TenantWorkspaceScopePreflightResult.Failure(
-                controller.NotFoundProblem(ResourceNotFoundMessage, ProblemTypes.ResourceNotFound),
-                scope);
-        }
 
         bool workspaceExists = await tenantRepository
             .WorkspaceExistsAsync(scope.TenantId, scope.WorkspaceId, cancellationToken)

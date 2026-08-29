@@ -226,15 +226,9 @@ public sealed class TenantHomepageSettingsControllerTests
 
         Mock<ITenantRepository> tenants = new();
         tenants
-            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(tenantExists ? new TenantRecord { Id = Scope.TenantId, Name = "contoso" } : null);
-
-        if (tenantExists)
-        {
-            tenants
-                .Setup(r => r.WorkspaceExistsAsync(Scope.TenantId, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Guid _, Guid workspaceId, CancellationToken __) => workspaceId == effectiveWorkspaceId);
-        }
+            .Setup(r => r.WorkspaceExistsAsync(Scope.TenantId, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid _, Guid workspaceId, CancellationToken __) =>
+                tenantExists && workspaceId == Scope.WorkspaceId);
 
         TenantHomepageSettingsController controller = new(
             service,

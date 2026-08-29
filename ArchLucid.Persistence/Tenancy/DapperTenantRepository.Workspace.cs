@@ -101,12 +101,12 @@ public sealed partial class DapperTenantRepository
         await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
         const string sql = """
-                           SELECT CASE WHEN EXISTS (
+                           SELECT CAST(CASE WHEN EXISTS (
                                SELECT 1
                                FROM dbo.TenantWorkspaces
                                WHERE TenantId = @TenantId
                                  AND Id = @WorkspaceId
-                           ) THEN 1 ELSE 0 END;
+                           ) THEN 1 ELSE 0 END AS bit);
                            """;
 
         return await connection.ExecuteScalarAsync<bool>(

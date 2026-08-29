@@ -108,8 +108,6 @@ public sealed class TenantHomepageSettingsController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         }
 
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-
         TenantWorkspaceScopePreflightResult scopePreflight = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             _scopeProvider,
@@ -118,6 +116,8 @@ public sealed class TenantHomepageSettingsController(
 
         if (!scopePreflight.Succeeded)
             return scopePreflight.Problem!;
+
+        ScopeContext scope = scopePreflight.Scope;
 
         if (body.SelectedRunId == Guid.Empty)
             return this.BadRequestProblem("selectedRunId is required.", ProblemTypes.ValidationFailed);
