@@ -57,7 +57,7 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
     };
   }
 
-  if (trimmed === DISABLED_SUBSCRIPTION_GAP) {
+  if (trimmed === DISABLED_SUBSCRIPTION_GAP || /no enabled digest subscriptions/i.test(trimmed)) {
     return {
       title: "Subscriptions disabled",
       impact: "Digest subscription rows exist in this scope but none are enabled for delivery.",
