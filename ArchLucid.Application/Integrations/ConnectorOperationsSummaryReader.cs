@@ -228,6 +228,7 @@ public sealed class ConnectorOperationsSummaryReader(
         bool consumer = _bus.ConsumerEnabled && hasQueue && !string.IsNullOrWhiteSpace(_bus.SubscriptionName);
 
         string smoke = publisher ? "LocallyValid" : "NotConfigured";
+
         if (publisher && _bus.ConsumerEnabled && !consumer)
             smoke = "ConfigurationIncomplete";
 

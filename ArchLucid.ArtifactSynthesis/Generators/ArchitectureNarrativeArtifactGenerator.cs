@@ -27,6 +27,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Requirements Coverage");
+
         if (manifest.Requirements.Covered.Count == 0 && manifest.Requirements.Uncovered.Count == 0)
 
             sb.AppendLine("No requirements were identified.");
@@ -45,6 +46,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Topology Posture");
+
         foreach (string pattern in manifest.Topology.SelectedPatterns)
 
             sb.AppendLine($"- Pattern: {pattern}");
@@ -66,6 +68,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Security Posture");
+
         if (manifest.Security.Controls.Count == 0)
 
             sb.AppendLine("No security controls were recorded.");
@@ -83,6 +86,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Compliance Posture");
+
         if (manifest.Compliance.Controls.Count == 0)
 
             sb.AppendLine("No compliance posture items were recorded.");
@@ -102,6 +106,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine("## Cost Posture");
         sb.AppendLine(
             $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
+
         foreach (string risk in manifest.Cost.CostRisks)
 
             sb.AppendLine($"- Cost Risk: {risk}");
@@ -113,6 +118,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Assumptions");
+
         foreach (string assumption in manifest.Assumptions)
 
             sb.AppendLine($"- {assumption}");
@@ -124,6 +130,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Constraints");
+
         foreach (string item in manifest.Constraints.MandatoryConstraints)
 
             sb.AppendLine($"- Mandatory: {item}");
@@ -159,6 +166,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Decisions");
+
         foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
 
             sb.AppendLine($"- {decision.Category}: {decision.Title} -> {decision.SelectedOption}");
@@ -170,6 +178,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Unresolved Issues");
+
         if (manifest.UnresolvedIssues.Items.Count == 0)
 
             sb.AppendLine("No unresolved issues.");

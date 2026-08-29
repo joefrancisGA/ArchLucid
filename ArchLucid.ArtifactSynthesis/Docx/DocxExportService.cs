@@ -123,6 +123,7 @@ public sealed partial class DocxExportService(
         WordDocumentBuilder.AddSpacer(body, 2);
 
         WordDocumentBuilder.AddHeading(body, "Sponsor Summary");
+
         if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
             WordDocumentBuilder.AddBodyText(body, "No summary was recorded for this manifest.");
         else
@@ -141,8 +142,10 @@ public sealed partial class DocxExportService(
         {
             WordDocumentBuilder.AddHeading(body, "Requirements Coverage");
             List<(string Name, string Status, string Mandatory)> reqRows = [];
+
             foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
                 reqRows.Add((item.RequirementName, item.CoverageStatus, item.IsMandatory ? "Yes" : "No"));
+
             foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
                 reqRows.Add((item.RequirementName, item.CoverageStatus, item.IsMandatory ? "Yes" : "No"));
 
@@ -157,6 +160,7 @@ public sealed partial class DocxExportService(
         }
 
         WordDocumentBuilder.AddHeading(body, "Topology Posture");
+
         if (manifest.Topology.Resources.Count > 0)
 
             foreach (string resource in manifest.Topology.Resources)
@@ -178,6 +182,7 @@ public sealed partial class DocxExportService(
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Security Posture");
+
         if (manifest.Security.Controls.Count == 0)
 
             WordDocumentBuilder.AddBodyText(body, "No security controls were recorded.");
@@ -201,6 +206,7 @@ public sealed partial class DocxExportService(
         if (request.IncludeComplianceSection)
         {
             WordDocumentBuilder.AddHeading(body, "Compliance Posture");
+
             if (manifest.Compliance.Controls.Count == 0)
 
                 WordDocumentBuilder.AddBodyText(body, "No compliance posture items were recorded.");
@@ -223,6 +229,7 @@ public sealed partial class DocxExportService(
         }
 
         WordDocumentBuilder.AddHeading(body, "Assumptions");
+
         if (manifest.Assumptions.Count == 0)
             WordDocumentBuilder.AddBodyText(body, "No assumptions were recorded.");
         else
@@ -232,6 +239,7 @@ public sealed partial class DocxExportService(
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Constraints");
+
         if (manifest.Constraints.MandatoryConstraints.Count == 0 && manifest.Constraints.Preferences.Count == 0)
             WordDocumentBuilder.AddBodyText(body, "No constraints were recorded.");
         else
@@ -260,6 +268,7 @@ public sealed partial class DocxExportService(
         if (request.IncludeIssuesSection)
         {
             WordDocumentBuilder.AddHeading(body, "Unresolved Issues");
+
             if (manifest.UnresolvedIssues.Items.Count == 0)
                 WordDocumentBuilder.AddBodyText(body, "No unresolved issues.");
             else
@@ -268,6 +277,7 @@ public sealed partial class DocxExportService(
         }
 
         WordDocumentBuilder.AddHeading(body, "Recommended Improvements");
+
         if (improvementPlan.Recommendations.Count == 0)
 
             WordDocumentBuilder.AddBodyText(body, "No significant improvements were identified.");
@@ -289,6 +299,7 @@ public sealed partial class DocxExportService(
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Decisions");
+
         if (manifest.Decisions.Count == 0)
 
             WordDocumentBuilder.AddBodyText(body, "No decisions recorded.");
@@ -315,6 +326,7 @@ public sealed partial class DocxExportService(
         if (request.IncludeArtifactsAppendix)
         {
             WordDocumentBuilder.AddHeading(body, "Appendix A — Artifacts");
+
             if (artifacts.Count == 0)
 
                 WordDocumentBuilder.AddBodyText(body, "No synthesized artifacts were available.");
