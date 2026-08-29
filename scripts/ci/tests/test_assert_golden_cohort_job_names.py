@@ -116,6 +116,10 @@ class GoldenCohortJobNamesTests(unittest.TestCase):
         errors = check_workflow_text(text)
         self.assertEqual(errors, [])
 
+    def test_crlf_workflow_is_parsed(self) -> None:
+        errors = check_workflow_text(VALID_WORKFLOW.replace("\n", "\r\n"))
+        self.assertEqual(errors, [])
+
 
 if __name__ == "__main__":
     unittest.main()

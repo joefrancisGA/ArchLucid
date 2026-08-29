@@ -35,6 +35,11 @@ EXPECTED_CONCURRENCY_GROUP = (
 )
 
 
+def _normalize_newlines(text: str) -> str:
+    """Treat CRLF and lone CR as LF so Windows checkouts parse the same as LF."""
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
 def _job_blocks(text: str) -> dict[str, str]:
     """Split the ``jobs:`` section into job-id -> job body (through the next job)."""
     blocks: dict[str, str] = {}
@@ -95,7 +100,7 @@ def _workflow_level_concurrency_block(text: str) -> str:
     collected: list[str] = []
     capturing = False
 
-    for line in text.replace("\r\n", "\n").splitlines():
+    for line in text.splitlines():
         if not capturing:
             if line == "concurrency:":
                 capturing = True
@@ -151,6 +156,7 @@ def _concurrency_errors(text: str) -> list[str]:
 
 
 def check_workflow_text(text: str) -> list[str]:
+    text = _normalize_newlines(text)
     errors: list[str] = []
 
     if "cohort-real-llm-preflight:" in text:
