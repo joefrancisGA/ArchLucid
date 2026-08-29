@@ -44,7 +44,7 @@ def _job_blocks(text: str) -> dict[str, str]:
 
     for line in text.splitlines(keepends=True):
         if not in_jobs:
-            if line.rstrip("\n") == "jobs:":
+            if line.rstrip("\r\n") == "jobs:":
                 in_jobs = True
 
             continue
