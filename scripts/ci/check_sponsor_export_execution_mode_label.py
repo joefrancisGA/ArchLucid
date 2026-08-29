@@ -80,8 +80,9 @@ def main(argv: list[str] | None = None) -> int:
                 continue
 
             text = path.read_text(encoding="utf-8", errors="replace")
+            lowered = text.lower()
 
-            if "## Execution mode" in text and _FORMATTER not in text:
+            if "## execution mode" in lowered and _FORMATTER not in text:
                 errors.append(
                     f"{path.relative_to(root)}: contains '## Execution mode' without {_FORMATTER}"
                 )
