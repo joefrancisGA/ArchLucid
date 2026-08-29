@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 95
-- **bugs-found:** 262
+- **hunts:** 96
+- **bugs-found:** 264
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-29
-- **last-bug:** 2026-08-29 — approval-request audit manifestVersion trim parity
+- **last-bug:** 2026-08-29 — preview/compare padded environment trim parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2520,7 +2520,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — explicit JSON `null` `evaluateAgainstRunIds` caused NRE on `.Count` → HTTP 500 — **hit 2026-08-29:** null-or-empty guard before validation loop (batch-review parity); regression in `GovernanceControllerSimulateTests.DryRunPolicyPack_returns_bad_request_when_evaluate_against_run_ids_is_null`.
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — duplicate non-whitespace `findingIds` processed twice with inflated `processedCount` — **hit 2026-08-29:** reject duplicate trimmed finding ids with HTTP 400 before facade; regression in `GovernanceStickinessControllerTests.RecordBulkDisposition_returns_bad_request_when_finding_ids_are_duplicated`.
 - [x] (proven) `GovernanceController.DryRunPolicyPack` / `PolicyPackDryRunService` — duplicate non-whitespace `evaluateAgainstRunIds` inflated `deltaCounts.evaluated` — **hit 2026-08-29:** dedupe trimmed run ids in `PolicyPackDryRunService` (SimulateBulk parity); regression in `PolicyPackDryRunServiceTests`.
-- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — non-GUID `runId` returns HTTP 400 while governance run-history endpoints return 404 for parse failures — may be intentional API-shape difference; needs product confirmation before promotion.
+- [x] (proven) `GovernancePreCommitSimulationController` (`GetChecklistAsync`, `SimulateAsync`) — malformed `runId` returned `ProblemTypes.BadRequest` instead of `ValidationFailed` (governance run-history parity) — **hit 2026-08-29:** align invalid run id problem type with sibling routes; regression in `GovernancePreCommitSimulationControllerTests`.
+- [x] (proven) `GovernancePreviewController` / `GovernancePreviewService.NormalizeAndValidateEnvironment` — padded `sourceEnvironment`/`targetEnvironment`/`environment` failed known-environment validation before trim — **hit 2026-08-29:** trim environment before `IsKnownEnvironment`; workflow submit/promote/activate trim parity; regression in `GovernancePreviewServiceTests` and `GovernanceWorkflowFacadeTests`.
+- [ ] (candidate) `GovernancePreviewController.CompareEnvironments` — `ArgumentException` for identical source/target after normalization surfaces `ProblemTypes.BadRequest` while sibling validation inputs use `ValidationFailed` (governance client-input problem-type parity gap).
+
+2026-08-29 thorough hunt #201 (hit): proved pre-commit malformed run id `ValidationFailed` parity and preview/compare padded environment trim; seeded compare-same-env problem-type candidate.
 
 2026-08-29 thorough hunt #198 (hit): proved approval-request audit manifestVersion trim parity; cheap-disproved dry-run pageSize clamp candidate (Q38 documented server-clamp); zone candidate backlog cleared.
 

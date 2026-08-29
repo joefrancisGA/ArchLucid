@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -27,6 +28,24 @@ public sealed class GovernancePreCommitSimulationControllerTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
+
+    [Fact]
+    public async Task GetChecklist_returns_validation_failed_when_run_id_is_not_valid()
+    {
+        Mock<IPreFinalizeChecklistService> checklist = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(checklistService: checklist.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetChecklistAsync("not-a-guid", CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        checklist.VerifyNoOtherCalls();
+    }
 
     [Fact]
     public async Task GetChecklist_returns_bad_request_when_run_id_is_empty_guid()
@@ -178,6 +197,31 @@ public sealed class GovernancePreCommitSimulationControllerTests
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task Simulate_returns_validation_failed_when_run_id_is_not_valid()
+    {
+        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(gate: gate.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.SimulateAsync(
+            new PreCommitSyntheticSimulationRequest
+            {
+                RunId = "not-a-guid",
+                SyntheticSeverity = FindingSeverity.Critical,
+                SyntheticCount = 1,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        gate.VerifyNoOtherCalls();
     }
 
     [Fact]
