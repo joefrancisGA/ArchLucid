@@ -48,7 +48,7 @@ export function PatternLibraryPickReviewBeforeBrowsingStrip(
         Pick a review before browsing
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Anchor pattern browsing to one review package so adoption signals stay tied to governance context.
+        Anchor pattern browsing to one architecture package so adoption signals stay tied to governance context.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +62,7 @@ export function PatternLibraryPickReviewBeforeBrowsingStrip(
           committedOnly
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="pattern-library-pick-review-before-browsing"
           hideFieldHelper
         />

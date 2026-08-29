@@ -64,7 +64,7 @@ export function deriveReviewPipelineTerminalFailureDiagnosis(input: {
       detail:
         lastFailureReason.length > 0
           ? `Last failure: ${lastFailureReason}`
-          : "Server marked this review as dead-lettered. Check API logs and AuthorityPipelineWork outbox for this run.",
+          : "Server marked this review as dead-lettered. Check API logs and AuthorityPipelineWork outbox for this review.",
     };
   }
 
@@ -108,7 +108,7 @@ export function deriveReviewPipelineTerminalFailureDiagnosis(input: {
       detail:
         lastFailureReason.length > 0
           ? lastFailureReason
-          : "Run status is Failed with no stage snapshots. Re-execute or inspect API logs for this run id.",
+          : "Run status is Failed with no stage snapshots. Re-execute or inspect API logs for this review id.",
     };
   }
 

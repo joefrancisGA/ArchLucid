@@ -48,7 +48,7 @@ export function GraphPickReviewBeforeCanvasStrip(
         Pick a review before opening the graph
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Evidence trails are scoped to a review package. Choose one to load the interactive canvas.
+        Evidence trails are scoped to a architecture package. Choose one to load the interactive canvas.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
@@ -62,7 +62,7 @@ export function GraphPickReviewBeforeCanvasStrip(
           committedOnly={false}
           preferAutoPick={false}
           autoSelectSyntheticSample={false}
-          label="Review package"
+          label="architecture package"
           fieldId="graph-pick-review-before-canvas"
           hideFieldHelper
         />
