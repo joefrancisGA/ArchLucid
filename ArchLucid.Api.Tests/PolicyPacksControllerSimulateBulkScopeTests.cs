@@ -45,6 +45,8 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("at least one non-empty id");
         workflow.VerifyNoOtherCalls();
     }
 
@@ -71,6 +73,8 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("Each RunId must be a non-empty string");
         workflow.VerifyNoOtherCalls();
     }
 

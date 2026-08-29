@@ -206,6 +206,8 @@ public sealed class GovernanceControllerSimulateTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("at least one non-empty run id");
         dryRun.VerifyNoOtherCalls();
     }
 
@@ -232,6 +234,8 @@ public sealed class GovernanceControllerSimulateTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("non-empty string after trimming");
         dryRun.VerifyNoOtherCalls();
     }
 
@@ -295,6 +299,31 @@ public sealed class GovernanceControllerSimulateTests
             new PolicyPackDryRunRequest
             {
                 EvaluateAgainstRunIds = [runId, upperRunId],
+            },
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("duplicate run id");
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DryRunPolicyPack_returns_bad_request_when_padded_duplicate_run_ids_normalize_to_case_variant()
+    {
+        Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+        string runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D");
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            new PolicyPackDryRunRequest
+            {
+                EvaluateAgainstRunIds = [$"  {runId}  ", runId.ToUpperInvariant()],
             },
             pageSize: null,
             page: null,
