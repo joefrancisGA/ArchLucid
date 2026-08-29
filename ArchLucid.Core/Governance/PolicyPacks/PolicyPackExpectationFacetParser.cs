@@ -128,13 +128,15 @@ public static class PolicyPackExpectationFacetParser
       return null;
     }
 
-    if (!Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingSeverity parsed)
+    string trimmed = raw.Trim();
+
+    if (!Enum.TryParse(trimmed, ignoreCase: true, out FindingSeverity parsed)
         || !Enum.IsDefined(parsed))
     {
       return null;
     }
 
-    return parsed.ToString();
+    return trimmed;
   }
 
   private static IEnumerable<string> SplitDistinct(string raw) =>
