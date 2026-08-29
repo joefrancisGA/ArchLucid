@@ -62,18 +62,41 @@ public static class IntegrationEventServiceBusCorrelationId
 
     private static bool TryGetStringPropertyCaseInsensitive(JsonElement root, string propertyName, out string? value)
     {
+        if (root.TryGetProperty(propertyName, out JsonElement exactMatch))
+        {
+            value = exactMatch.GetString();
+
+            return true;
+        }
+
+        JsonElement matchedValue = default;
+        bool foundCaseInsensitiveMatch = false;
+
         foreach (JsonProperty property in root.EnumerateObject())
         {
             if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            value = property.Value.GetString();
+            if (foundCaseInsensitiveMatch)
+            {
+                value = null;
 
-            return true;
+                return false;
+            }
+
+            matchedValue = property.Value;
+            foundCaseInsensitiveMatch = true;
         }
 
-        value = null;
+        if (!foundCaseInsensitiveMatch)
+        {
+            value = null;
 
-        return false;
+            return false;
+        }
+
+        value = matchedValue.GetString();
+
+        return true;
     }
 }
