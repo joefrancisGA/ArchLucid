@@ -8886,3 +8886,59 @@ BEGIN
 
     EXEC sp_executesql @knowledgeModelRunSql;
 END
+
+GO
+
+/* 334: Platform operational error inbox. */
+IF OBJECT_ID(N'dbo.PlatformOperationalErrors', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PlatformOperationalErrors
+    (
+        PlatformOperationalErrorId BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        ErrorId                     NVARCHAR(64)         NOT NULL,
+        ErrorSource                 NVARCHAR(128)        NOT NULL,
+        ErrorCategory               NVARCHAR(128)        NOT NULL,
+        ErrorMessage                NVARCHAR(MAX)        NOT NULL,
+        ErrorDetailJson             NVARCHAR(MAX)        NULL,
+        OccurredUtc                 DATETIME2            NOT NULL,
+        RecordedUtc                 DATETIME2            NOT NULL,
+        AcknowledgedUtc             DATETIME2            NULL,
+        ResolvedUtc                 DATETIME2            NULL
+    );
+END
+
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = N'IX_PlatformOperationalErrors_OccurredUtc'
+      AND object_id = OBJECT_ID(N'dbo.PlatformOperationalErrors')
+)
+BEGIN
+    CREATE INDEX IX_PlatformOperationalErrors_OccurredUtc
+        ON dbo.PlatformOperationalErrors (OccurredUtc);
+END
+
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = N'IX_PlatformOperationalErrors_AcknowledgedUtc'
+      AND object_id = OBJECT_ID(N'dbo.PlatformOperationalErrors')
+)
+BEGIN
+    CREATE INDEX IX_PlatformOperationalErrors_AcknowledgedUtc
+        ON dbo.PlatformOperationalErrors (AcknowledgedUtc);
+END
+
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = N'IX_PlatformOperationalErrors_ResolvedUtc'
+      AND object_id = OBJECT_ID(N'dbo.PlatformOperationalErrors')
+)
+BEGIN
+    CREATE INDEX IX_PlatformOperationalErrors_ResolvedUtc
+        ON dbo.PlatformOperationalErrors (ResolvedUtc);
+END
