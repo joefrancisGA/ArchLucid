@@ -37,13 +37,10 @@ public sealed class GovernanceDashboardService(
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
-
         if (maxPending <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxPending));
-
         if (maxDecisions <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxDecisions));
-
         if (maxChanges <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxChanges));
 
@@ -51,19 +48,17 @@ public sealed class GovernanceDashboardService(
 
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask = _approvalRequestRepository.GetPendingAsync(maxPending, cancellationToken);
         Task<IReadOnlyList<GovernanceApprovalRequest>> decisionsTask = _approvalRequestRepository.GetRecentDecisionsAsync(maxDecisions, cancellationToken);
-        Task<IReadOnlyList<PolicyPackChangeLogEntry>> changesTask =
-            _policyPackChangeLogRepository.GetByScopeAsync(
-                tenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                maxChanges,
-                cancellationToken);
+        Task<IReadOnlyList<PolicyPackChangeLogEntry>> changesTask = _policyPackChangeLogRepository.GetByTenantAsync(tenantId, maxChanges, cancellationToken);
         Task<(long PromptTokens, long CompletionTokens)> tokenTask =
             GovernanceDashboardRecentRunTokenAggregator.AggregateAsync(_runDetailQueryService, _traceRepository, _scopeContextProvider, cancellationToken);
         await Task.WhenAll(pendingTask, decisionsTask, changesTask, tokenTask);
         IReadOnlyList<GovernanceApprovalRequest> pending = await pendingTask;
         IReadOnlyList<GovernanceApprovalRequest> decisions = await decisionsTask;
-        IReadOnlyList<PolicyPackChangeLogEntry> scopedChanges = await changesTask;
+        IReadOnlyList<PolicyPackChangeLogEntry> changes = await changesTask;
+        IReadOnlyList<PolicyPackChangeLogEntry> scopedChanges = changes
+            .Where(change => change.WorkspaceId == scope.WorkspaceId && change.ProjectId == scope.ProjectId)
+            .Take(maxChanges)
+            .ToList();
         (long promptTokens, long completionTokens) = await tokenTask;
         return new GovernanceDashboardSummary
         {

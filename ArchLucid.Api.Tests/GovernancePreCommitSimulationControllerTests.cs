@@ -69,51 +69,6 @@ public sealed class GovernancePreCommitSimulationControllerTests
     }
 
     [Fact]
-    public async Task GetChecklist_returns_not_found_when_workspace_missing()
-    {
-        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
-
-        Mock<IPreFinalizeChecklistService> checklist = new(MockBehavior.Strict);
-
-        GovernancePreCommitSimulationController sut = CreateController(
-            scope: ForeignWorkspaceScope(foreignWorkspaceId),
-            checklistService: checklist.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
-
-        IActionResult result = await sut.GetChecklistAsync(runId.ToString("D"), CancellationToken.None);
-
-        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        checklist.VerifyNoOtherCalls();
-    }
-
-    [Fact]
-    public async Task Simulate_returns_not_found_when_workspace_missing()
-    {
-        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-        Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
-
-        GovernancePreCommitSimulationController sut = CreateController(
-            gate: gate.Object,
-            scope: ForeignWorkspaceScope(foreignWorkspaceId));
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
-
-        IActionResult result = await sut.SimulateAsync(
-            new PreCommitSyntheticSimulationRequest
-            {
-                RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D"),
-                SyntheticSeverity = FindingSeverity.Critical,
-                SyntheticCount = 1,
-            },
-            CancellationToken.None);
-
-        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        gate.VerifyNoOtherCalls();
-    }
-
-    [Fact]
     public async Task GetChecklist_returns_not_found_when_tenant_missing()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -258,52 +213,23 @@ public sealed class GovernancePreCommitSimulationControllerTests
             Scope.TenantId,
             It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(null));
 
-    private static ScopeContext ForeignWorkspaceScope(Guid foreignWorkspaceId) =>
-        new()
-        {
-            TenantId = Scope.TenantId,
-            WorkspaceId = foreignWorkspaceId,
-            ProjectId = Scope.ProjectId,
-        };
-
-    private static ITenantRepository TenantWithPrimaryWorkspaceRepository()
-    {
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
-        tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
-
-        return tenants.Object;
-    }
-
     private static GovernancePreCommitSimulationController CreateController(
         IPreCommitGovernanceGate? gate = null,
         IRunRepository? runRepository = null,
         IPreFinalizeChecklistService? checklistService = null,
-        ITenantRepository? tenantRepository = null,
-        ScopeContext? scope = null)
+        ITenantRepository? tenantRepository = null)
     {
-        ScopeContext effectiveScope = scope ?? Scope;
-
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(effectiveScope);
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
         return new GovernancePreCommitSimulationController(
             gate ?? Mock.Of<IPreCommitGovernanceGate>(),
             checklistService ?? Mock.Of<IPreFinalizeChecklistService>(),
             Mock.Of<IAuditService>(),
             runRepository ?? Mock.Of<IRunRepository>(),
-            scopeProvider.Object,
-            tenantRepository ?? TenantWithPrimaryWorkspaceRepository());
+            scope.Object,
+            tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+                Scope.TenantId,
+                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })));
     }
 }

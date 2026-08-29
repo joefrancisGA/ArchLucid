@@ -1,5 +1,4 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.ProblemDetails;
@@ -50,17 +49,12 @@ public sealed class GovernanceCoverageController(
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            scopeContextProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
-
-        if (scopeProblem is not null)
-            return scopeProblem;
-
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
         CoveragePreviewInput input = CoveragePreviewMapper.ToInput(request);
         CoveragePreviewResult preview = await coveragePreviewService.PreviewAsync(scope, input, cancellationToken);
         CoveragePreviewResponse response = CoveragePreviewMapper.ToResponse(preview);
@@ -73,16 +67,11 @@ public sealed class GovernanceCoverageController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetScopeCoverage(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            scopeContextProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
-
-        if (scopeProblem is not null)
-            return scopeProblem;
-
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         CoverageSummary summary = await coverageQueryService.GetByScopeAsync(scope, cancellationToken);
 

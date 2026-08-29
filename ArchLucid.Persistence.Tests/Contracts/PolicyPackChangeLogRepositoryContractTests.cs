@@ -137,51 +137,6 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
     }
 
     [SkippableFact]
-    public async Task GetByScopeAsync_FiltersWorkspaceProjectBeforeTopLimit()
-    {
-        SkipIfSqlServerUnavailable();
-        IPolicyPackChangeLogRepository repo = CreateRepository();
-        Guid packId = Guid.Parse("55555555-5555-5555-5555-555555555555");
-        Guid foreignWorkspaceId = Guid.Parse("e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2");
-        DateTime t0 = new(2026, 7, 1, 12, 0, 0, DateTimeKind.Utc);
-
-        await AppendEntryAsync(
-            repo,
-            new PolicyPackChangeLogEntry
-            {
-                PolicyPackId = packId,
-                TenantId = TenantA,
-                WorkspaceId = foreignWorkspaceId,
-                ProjectId = ProjectP,
-                ChangeType = PolicyPackChangeTypes.Created,
-                ChangedBy = "tester",
-                ChangedUtc = t0.AddHours(2),
-                SummaryText = "foreign",
-            },
-            CancellationToken.None);
-
-        await AppendEntryAsync(
-            repo,
-            new PolicyPackChangeLogEntry
-            {
-                PolicyPackId = packId,
-                TenantId = TenantA,
-                WorkspaceId = WorkspaceW,
-                ProjectId = ProjectP,
-                ChangeType = PolicyPackChangeTypes.Created,
-                ChangedBy = "tester",
-                ChangedUtc = t0,
-                SummaryText = "in-scope",
-            },
-            CancellationToken.None);
-
-        IReadOnlyList<PolicyPackChangeLogEntry> scoped =
-            await repo.GetByScopeAsync(TenantA, WorkspaceW, ProjectP, 1, CancellationToken.None);
-
-        scoped.Should().ContainSingle(e => e.SummaryText == "in-scope");
-    }
-
-    [SkippableFact]
     public async Task GetByTenantInRangeAsync_ReturnsAscending_ExcludesEnds()
     {
         SkipIfSqlServerUnavailable();

@@ -1,4 +1,3 @@
-using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Billing;
 using ArchLucid.Contracts.Billing;
@@ -49,14 +48,11 @@ public sealed class TenantLlmCostReportingController(
                 ProblemTypes.ValidationFailed);
         }
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            _scopeProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         LlmCostReportingDashboardResponse dashboard =
             await _reportingService.BuildDashboardAsync(days, cancellationToken).ConfigureAwait(false);

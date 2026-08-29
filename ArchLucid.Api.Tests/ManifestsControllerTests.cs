@@ -143,34 +143,16 @@ public sealed class ManifestsControllerTests
                 diagramService.Object,
                 scopeProvider.Object,
                 runs.Object,
-                CreateTenantExistsRepository())
+                Mock.Of<ArchLucid.Core.Tenancy.ITenantRepository>(repository => repository.GetByIdAsync(
+                    CallerScope.TenantId,
+                    It.IsAny<CancellationToken>()) == Task.FromResult<ArchLucid.Core.Tenancy.TenantRecord?>(new ArchLucid.Core.Tenancy.TenantRecord
+                    {
+                        Id = CallerScope.TenantId,
+                        Name = "contoso",
+                    })))
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
-    }
-
-    private static ArchLucid.Core.Tenancy.ITenantRepository CreateTenantExistsRepository()
-    {
-        Mock<ArchLucid.Core.Tenancy.ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ArchLucid.Core.Tenancy.TenantRecord
-            {
-                Id = CallerScope.TenantId,
-                Name = "contoso",
-            });
-        tenants
-            .Setup(repository => repository.ListWorkspacesAsync(CallerScope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new ArchLucid.Core.Tenancy.TenantWorkspaceListItem
-                {
-                    WorkspaceId = CallerScope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
-
-        return tenants.Object;
     }
 
     [Fact]

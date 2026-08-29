@@ -1,5 +1,4 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Api.Http;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Integrations;
@@ -43,16 +42,11 @@ public sealed class TenantIntegrationsOperationsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            _scopeProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
-
-        if (scopeProblem is not null)
-            return scopeProblem;
-
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         ConnectorOperationsSummary summary =
             await _summaryReader.GetSummaryAsync(scope, cancellationToken).ConfigureAwait(false);

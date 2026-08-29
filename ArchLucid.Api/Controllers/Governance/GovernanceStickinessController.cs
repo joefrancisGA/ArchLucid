@@ -1,5 +1,4 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Core.Authorization;
@@ -48,37 +47,14 @@ public sealed partial class GovernanceStickinessController(
         return null;
     }
 
-    private IActionResult? ValidateDecisionRegisterFilters(
-        DateTimeOffset? recordedAfterUtc,
-        DateTimeOffset? recordedBeforeUtc,
-        double? minConfidence,
-        double? maxConfidence)
+    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
     {
-        if (recordedAfterUtc is not null
-            && recordedBeforeUtc is not null
-            && recordedAfterUtc.Value > recordedBeforeUtc.Value)
-        {
-            return this.BadRequestProblem(
-                "recordedAfterUtc must be on or before recordedBeforeUtc.",
-                ProblemTypes.ValidationFailed);
-        }
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
-        if (minConfidence is not null
-            && maxConfidence is not null
-            && minConfidence.Value > maxConfidence.Value)
-        {
-            return this.BadRequestProblem(
-                "minConfidence must be less than or equal to maxConfidence.",
-                ProblemTypes.ValidationFailed);
-        }
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         return null;
     }
-
-    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken) =>
-        await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            _scopeContextProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
 }

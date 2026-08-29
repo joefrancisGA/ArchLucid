@@ -1,5 +1,4 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
@@ -61,12 +60,16 @@ public sealed partial class PolicyPacksController(
     private readonly IValidator<AssignPolicyPackRequest> _assignPolicyPackRequestValidator =
         assignPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(assignPolicyPackRequestValidator));
 
-    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken) =>
-        await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            _scopeContextProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
+    private async Task<IActionResult?> RequireTenantOrNotFoundAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        return null;
+    }
 
     private IActionResult? BadRequestWhenRouteIdEmpty(Guid id, string parameterName)
     {

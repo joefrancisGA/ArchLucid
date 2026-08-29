@@ -101,33 +101,6 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByScopeAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        int maxRows = 100,
-        CancellationToken cancellationToken = default)
-    {
-        if (maxRows <= 0)
-            throw new ArgumentOutOfRangeException(nameof(maxRows));
-
-        cancellationToken.ThrowIfCancellationRequested();
-        lock (_gate)
-        {
-            List<PolicyPackChangeLogEntry> result = _items
-                .Where(e =>
-                    e.TenantId == tenantId
-                    && e.WorkspaceId == workspaceId
-                    && e.ProjectId == projectId)
-                .OrderByDescending(e => e.ChangedUtc)
-                .Take(maxRows)
-                .ToList();
-
-            return Task.FromResult<IReadOnlyList<PolicyPackChangeLogEntry>>(result);
-        }
-    }
-
-    /// <inheritdoc />
     public Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByTenantInRangeAsync(
         Guid tenantId,
         DateTime fromUtc,

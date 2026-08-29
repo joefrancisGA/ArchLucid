@@ -31,52 +31,6 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     };
 
     [Fact]
-    public async Task GetApprovalRequests_returns_not_found_when_workspace_missing()
-    {
-        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
-
-        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
-
-        GovernanceController sut = CreateController(
-            scope: ForeignWorkspaceScope(foreignWorkspaceId),
-            approvalRepository: approvals.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
-
-        IActionResult result = await sut.GetApprovalRequests(runId.ToString("D"), CancellationToken.None);
-
-        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        approvals.VerifyNoOtherCalls();
-    }
-
-    [Fact]
-    public async Task Approve_returns_not_found_when_workspace_missing()
-    {
-        const string approvalRequestId = "apr-approve-workspace-missing";
-        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-
-        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
-        Mock<IGovernanceWorkflowService> workflow = new(MockBehavior.Strict);
-
-        GovernanceController sut = CreateController(
-            scope: ForeignWorkspaceScope(foreignWorkspaceId),
-            approvalRepository: approvals.Object,
-            workflowService: workflow.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
-
-        IActionResult result = await sut.Approve(
-            approvalRequestId,
-            new ApproveGovernanceRequest { ReviewComment = "ok" },
-            CancellationToken.None);
-
-        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        approvals.VerifyNoOtherCalls();
-        workflow.VerifyNoOtherCalls();
-    }
-
-    [Fact]
     public async Task GetApprovalRequests_returns_not_found_when_tenant_missing()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -1298,36 +1252,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             Scope.TenantId,
             It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(null));
 
-    private static ScopeContext ForeignWorkspaceScope(Guid foreignWorkspaceId) =>
-        new()
-        {
-            TenantId = Scope.TenantId,
-            WorkspaceId = foreignWorkspaceId,
-            ProjectId = Scope.ProjectId,
-        };
-
-    private static ITenantRepository TenantWithPrimaryWorkspaceRepository()
-    {
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
-        tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
-
-        return tenants.Object;
-    }
-
     private static GovernanceController CreateController(
-        ScopeContext? scope = null,
         IRunRepository? runRepository = null,
         IGovernanceApprovalRequestRepository? approvalRepository = null,
         IGovernancePromotionRecordRepository? promotionRepository = null,
@@ -1339,14 +1264,12 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IActorContext? actorContext = null,
         IAuditService? auditService = null)
     {
-        ScopeContext effectiveScope = scope ?? Scope;
-
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(effectiveScope);
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
         Mock<IRunRepository> runs = new();
         runs
-            .Setup(r => r.GetByIdAsync(effectiveScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(Scope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = Guid.NewGuid() });
 
         return new GovernanceController(
@@ -1355,7 +1278,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             promotionRepository ?? Mock.Of<IGovernancePromotionRecordRepository>(),
             activationRepository ?? Mock.Of<IGovernanceEnvironmentActivationRepository>(),
             actorContext ?? Mock.Of<IActorContext>(),
-            scopeProvider.Object,
+            scope.Object,
             runRepository ?? runs.Object,
             Mock.Of<IGovernanceDashboardService>(),
             lineageService ?? Mock.Of<IGovernanceLineageService>(),
@@ -1367,7 +1290,9 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             auditService ?? Mock.Of<IAuditService>(),
             Mock.Of<IPolicyPackDraftService>(),
             Mock.Of<IPolicyPackGeneratorService>(),
-            tenantRepository ?? TenantWithPrimaryWorkspaceRepository(),
+            tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+                Scope.TenantId,
+                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })),
             NullLogger<GovernanceController>.Instance);
     }
 }

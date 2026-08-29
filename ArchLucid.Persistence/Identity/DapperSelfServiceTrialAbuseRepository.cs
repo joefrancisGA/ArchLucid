@@ -32,27 +32,6 @@ public sealed class DapperSelfServiceTrialAbuseRepository(ISqlConnectionFactory 
         return count > 0;
     }
 
-    public async Task<bool> HasEmailClaimForTenantAsync(
-        string normalizedEmail,
-        Guid tenantId,
-        CancellationToken cancellationToken)
-    {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        int count = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(
-                """
-                SELECT COUNT(1)
-                FROM dbo.PlatformSelfServiceTrialEmailClaims
-                WHERE NormalizedEmail = @NormalizedEmail
-                  AND TenantId = @TenantId;
-                """,
-                new { NormalizedEmail = normalizedEmail, TenantId = tenantId },
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-        return count > 0;
-    }
-
     public async Task TryInsertEmailClaimAsync(SelfServiceTrialEmailClaimInsert claim, CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

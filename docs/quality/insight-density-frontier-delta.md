@@ -1,8 +1,6 @@
-> **Scope:** Auto-generated offline insight-density frontier-delta report from eval-corpus fixtures; does not claim live-model validation.
-
 # Insight-density frontier-delta summary
 
-Generated UTC: **2026-08-29T03:32:38.126417+00:00**
+Generated UTC: **2026-08-26T05:17:16.095740+00:00**
 Rollup: **PASS**
 Match threshold: **0.6**
 

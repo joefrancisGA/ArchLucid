@@ -26,22 +26,9 @@ public sealed class GovernancePostureControllerTests
 
     private static ITenantRepository TenantExistsRepository()
     {
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
-        tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
-
-        return tenants.Object;
+        return Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+            Scope.TenantId,
+            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" }));
     }
 
     [Fact]
@@ -112,51 +99,6 @@ public sealed class GovernancePostureControllerTests
             .ReturnsAsync((TenantRecord?)null);
 
         GovernancePostureController controller = new(postureService.Object, scopeProvider.Object, tenants.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
-
-        IActionResult result = await controller.GetPosture(projectId: null, CancellationToken.None);
-
-        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        postureService.VerifyNoOtherCalls();
-    }
-
-    [Fact]
-    public async Task GetPosture_returns_not_found_when_workspace_missing()
-    {
-        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
-
-        Mock<IArchitecturePostureService> postureService = new(MockBehavior.Strict);
-
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
-        {
-            TenantId = Scope.TenantId,
-            WorkspaceId = foreignWorkspaceId,
-            ProjectId = Scope.ProjectId,
-        });
-
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
-        tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
-
-        GovernancePostureController controller = new(
-            postureService.Object,
-            scopeProvider.Object,
-            tenants.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

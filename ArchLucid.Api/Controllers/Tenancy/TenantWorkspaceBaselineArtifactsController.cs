@@ -1,4 +1,3 @@
-using ArchLucid.Api.Http;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
@@ -40,16 +39,11 @@ public sealed class TenantWorkspaceBaselineArtifactsController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            _scopeProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
-
-        if (scopeProblem is not null)
-            return scopeProblem;
-
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         WorkspaceBaselineExtractorArtifacts baselineArtifacts =
             await _azureExtractorPackageRepository.GetWorkspaceBaselineArtifactsAsync(scope, cancellationToken);

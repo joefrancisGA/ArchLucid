@@ -7,7 +7,7 @@
 
 ## Key metrics
 
-- Positive readiness support ratio: 0.9791666666666666
+- Positive readiness support ratio: 0.9782608695652174
 - PolicyPack mean MRR: 0.8
 - Mean recall@5: 0.9811320754716981
 

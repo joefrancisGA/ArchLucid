@@ -1,6 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Api.Http;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -47,14 +46,11 @@ public sealed class TenantHomepageSettingsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            _scopeProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         FeaturedCompletedSampleSnapshot snapshot =
             await _featuredCompletedSampleService.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
@@ -68,14 +64,11 @@ public sealed class TenantHomepageSettingsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListEligibleSamplesAsync(CancellationToken cancellationToken)
     {
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            _scopeProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<FeaturedCompletedSampleCandidate> candidates =
             await _featuredCompletedSampleService.ListEligibleCandidatesAsync(cancellationToken).ConfigureAwait(false);
@@ -109,15 +102,10 @@ public sealed class TenantHomepageSettingsController(
         }
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            _scopeProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
-
-        if (scopeProblem is not null)
-            return scopeProblem;
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         if (body.SelectedRunId == Guid.Empty)
             return this.BadRequestProblem("selectedRunId is required.", ProblemTypes.ValidationFailed);

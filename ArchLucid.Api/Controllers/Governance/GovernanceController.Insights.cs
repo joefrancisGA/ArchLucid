@@ -57,16 +57,11 @@ public sealed partial class GovernanceController
         if (maxChanges > 50)
             return this.BadRequestProblem("maxChanges must be at most 50.", ProblemTypes.ValidationFailed);
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            _scopeContextProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
-
-        if (scopeProblem is not null)
-            return scopeProblem;
-
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         GovernanceDashboardSummary summary = await _governanceDashboardService.GetDashboardAsync(
             scope.TenantId,
@@ -103,20 +98,14 @@ public sealed partial class GovernanceController
                 "fromUtc and toUtc must be on or after 1970-01-01.",
                 ProblemTypes.BadRequest);
 
-
         if (bucketMinutes is < 60 or > 43_200)
             return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
 
-        IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
-            this,
-            _scopeContextProvider,
-            _tenantRepository,
-            cancellationToken).ConfigureAwait(false);
-
-        if (scopeProblem is not null)
-            return scopeProblem;
-
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
 

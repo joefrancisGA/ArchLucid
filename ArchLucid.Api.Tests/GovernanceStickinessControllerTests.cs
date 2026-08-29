@@ -34,47 +34,10 @@ public sealed class GovernanceStickinessControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
 
-    private static ITenantRepository TenantExistsRepository()
-    {
-        Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
-        tenants
-            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new TenantWorkspaceListItem
-                {
-                    WorkspaceId = Scope.WorkspaceId,
-                    Name = "primary",
-                },
-            ]);
-
-        return tenants.Object;
-    }
-
-    private static (GovernanceStickinessController Controller, Mock<IArchitectureRiskRegisterService> RiskRegister) BuildSutWithForeignWorkspace()
-    {
-        Guid foreignWorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
-
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
-        {
-            TenantId = Scope.TenantId,
-            WorkspaceId = foreignWorkspaceId,
-            ProjectId = Scope.ProjectId,
-        });
-
-        Mock<IArchitectureRiskRegisterService> riskRegister = new(MockBehavior.Strict);
-
-        GovernanceStickinessController controller = BuildSut(
-            scopeProvider: scopeProvider,
-            riskRegister: riskRegister,
-            tenantRepository: TenantExistsRepository());
-
-        return (controller, riskRegister);
-    }
+    private static ITenantRepository TenantExistsRepository() =>
+        Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
+            Scope.TenantId,
+            It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" }));
 
     private static ITenantRepository TenantMissingRepository() =>
         Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
@@ -94,9 +57,7 @@ public sealed class GovernanceStickinessControllerTests
         ITenantRepository? tenantRepository = null)
     {
         Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
-
-        if (scopeProvider is null)
-            scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActorId()).Returns("reviewer@test");
@@ -241,42 +202,6 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
-    public async Task GetRiskRegister_returns_not_found_when_workspace_missing()
-    {
-        (GovernanceStickinessController sut, Mock<IArchitectureRiskRegisterService> riskRegister) = BuildSutWithForeignWorkspace();
-
-        IActionResult action = await sut.GetRiskRegister(projectId: null, cancellationToken: CancellationToken.None);
-
-        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        riskRegister.VerifyNoOtherCalls();
-    }
-
-    [Fact]
-    public async Task GetDecisionRegister_returns_not_found_when_workspace_missing()
-    {
-        (GovernanceStickinessController sut, _) = BuildSutWithForeignWorkspace();
-
-        IActionResult action = await sut.GetDecisionRegister(
-            projectId: null,
-            cancellationToken: CancellationToken.None);
-
-        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-    }
-
-    [Fact]
-    public async Task ListRecurrenceSchedules_returns_not_found_when_workspace_missing()
-    {
-        (GovernanceStickinessController sut, _) = BuildSutWithForeignWorkspace();
-
-        IActionResult action = await sut.ListRecurrenceSchedules(CancellationToken.None);
-
-        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-    }
-
-    [Fact]
     public async Task GetRiskRegister_returns_not_found_when_tenant_missing()
     {
         GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
@@ -327,39 +252,6 @@ public sealed class GovernanceStickinessControllerTests
         IActionResult action = await sut.GetDecisionRegister(
             projectId: null,
             maxRows: 0,
-            cancellationToken: CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
-    public async Task GetDecisionRegister_returns_bad_request_when_recorded_after_is_after_recorded_before()
-    {
-        GovernanceStickinessController sut = BuildSut();
-
-        DateTimeOffset after = DateTimeOffset.Parse("2026-06-01T00:00:00Z");
-        DateTimeOffset before = DateTimeOffset.Parse("2026-05-01T00:00:00Z");
-
-        IActionResult action = await sut.GetDecisionRegister(
-            projectId: null,
-            recordedAfterUtc: after,
-            recordedBeforeUtc: before,
-            cancellationToken: CancellationToken.None);
-
-        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
-    public async Task GetDecisionRegister_returns_bad_request_when_min_confidence_exceeds_max_confidence()
-    {
-        GovernanceStickinessController sut = BuildSut();
-
-        IActionResult action = await sut.GetDecisionRegister(
-            projectId: null,
-            minConfidence: 0.9,
-            maxConfidence: 0.2,
             cancellationToken: CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
