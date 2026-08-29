@@ -1,6 +1,6 @@
 # Insight-density frontier-delta summary
 
-Generated UTC: **2026-08-26T05:17:16.095740+00:00**
+Generated UTC: **2026-08-29T04:51:17.838601+00:00**
 Rollup: **PASS**
 Match threshold: **0.6**
 
