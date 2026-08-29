@@ -73,6 +73,8 @@ public sealed class GovernancePreCommitSimulationController(
         }
 
         return null;
+    }
+
     // idempotency-posture: dry-run-no-persist
     [HttpGet("checklist/{runId}")]
     [ProducesResponseType(typeof(PreFinalizeChecklistResult), StatusCodes.Status200OK)]
