@@ -107,7 +107,7 @@ public sealed class GovernancePreviewControllerUnitTests
         IActionResult action = await controller.Preview(
             new CreateGovernancePreviewRequest
             {
-                RunId = "run-1",
+                RunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee").ToString("D"),
                 ManifestVersion = "v1",
                 Environment = "dev",
             },

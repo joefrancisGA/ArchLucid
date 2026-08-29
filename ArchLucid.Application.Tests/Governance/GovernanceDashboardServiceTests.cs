@@ -222,6 +222,72 @@ public sealed class GovernanceDashboardServiceTests
     }
 
     [SkippableFact]
+    public async Task GetDashboard_throws_when_tenant_id_empty()
+    {
+        IGovernanceDashboardService sut = new GovernanceDashboardService(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            new Mock<IPolicyPackChangeLogRepository>().Object,
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IAgentExecutionTraceRepository>().Object,
+            CreateScopeProvider());
+
+        Func<Task> act = () => sut.GetDashboardAsync(Guid.Empty);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [SkippableFact]
+    public async Task GetDashboard_throws_when_max_pending_non_positive()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        IGovernanceDashboardService sut = new GovernanceDashboardService(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            new Mock<IPolicyPackChangeLogRepository>().Object,
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IAgentExecutionTraceRepository>().Object,
+            CreateScopeProvider());
+
+        Func<Task> act = () => sut.GetDashboardAsync(tenantId, maxPending: 0);
+
+        await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
+    }
+
+    [SkippableFact]
+    public async Task GetDashboard_throws_when_max_decisions_non_positive()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        IGovernanceDashboardService sut = new GovernanceDashboardService(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            new Mock<IPolicyPackChangeLogRepository>().Object,
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IAgentExecutionTraceRepository>().Object,
+            CreateScopeProvider());
+
+        Func<Task> act = () => sut.GetDashboardAsync(tenantId, maxDecisions: 0);
+
+        await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
+    }
+
+    [SkippableFact]
+    public async Task GetDashboard_throws_when_max_changes_non_positive()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        IGovernanceDashboardService sut = new GovernanceDashboardService(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            new Mock<IPolicyPackChangeLogRepository>().Object,
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IAgentExecutionTraceRepository>().Object,
+            CreateScopeProvider());
+
+        Func<Task> act = () => sut.GetDashboardAsync(tenantId, maxChanges: 0);
+
+        await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
+    }
+
+    [SkippableFact]
     public async Task GetDashboard_FiltersRecentChangesToCurrentWorkspaceProject()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
