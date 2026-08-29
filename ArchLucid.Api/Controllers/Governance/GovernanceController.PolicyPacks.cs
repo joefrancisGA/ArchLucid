@@ -228,11 +228,8 @@ public sealed partial class GovernanceController
                     "evaluateAgainstRunIds contains a duplicate run id.",
                     ProblemTypes.ValidationFailed);
             }
-        }
 
-        foreach (string runId in request.EvaluateAgainstRunIds)
-        {
-            if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+            if (!Guid.TryParse(trimmedRunId, out Guid runGuid) || runGuid == Guid.Empty)
             {
                 return this.BadRequestProblem(
                     "evaluateAgainstRunIds contains an invalid run id.",
