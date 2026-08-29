@@ -669,7 +669,9 @@
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
       "controller_files": [],
-      "parity": "unmapped"
+      "parity": "unmapped",
+      "allowlisted": true,
+      "allowlist_reason": "Intentionally unmapped nav route; no controller file is associated with /internal/operational-errors in the parity manifest."
     },
     {
       "nav_href": "/internal/platform-bundled-policy-packs",
