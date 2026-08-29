@@ -193,7 +193,7 @@ public sealed class ManifestsControllerTests
     }
 
     [Fact]
-    public async Task CompareManifests_returns_ok_when_query_params_are_padded()
+    public async Task CompareManifests_returns_ok_when_route_params_are_padded()
     {
         string paddedLeftVersion = $"  {LeftVersion}  ";
         string paddedRightVersion = $"  {RightVersion}  ";
