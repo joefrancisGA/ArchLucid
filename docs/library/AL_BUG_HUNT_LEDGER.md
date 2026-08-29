@@ -2241,11 +2241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 81
-- **bugs-found:** 229
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-28
-- **last-bug:** 2026-08-28 — simulate-bulk invalid runIds 400
+- **hunts:** 82
+- **bugs-found:** 230
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-29
+- **last-bug:** 2026-08-29 — workspace baseline artifacts ghost workspace 404 parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2477,11 +2477,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GovernanceController.DryRunPolicyPack` — `evaluateAgainstRunIds` containing malformed or empty-GUID strings returned HTTP 200 with `runMissing` deltas instead of HTTP 400 — **hit 2026-08-28:** validate each non-whitespace run id before `EvaluateAsync` (Simulate/DryRunProposedPolicyPack parity); regression in `GovernanceControllerSimulateTests`.
 - [x] (invalid) `GovernanceController.Approve` / `Reject` — whitespace-only route `approvalRequestId` returns HTTP 400 via shared guard but lacks dedicated approve/reject regression tests — **cheap-disproof 2026-08-28:** `BadRequestWhenApprovalRequestIdEmpty` already guards both routes; added dedicated regression tests in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (proven) `PolicyPacksController.SimulateBulk` — `runIds` containing malformed or empty-GUID strings returned HTTP 200 with `notFoundRunCount` instead of HTTP 400 — **hit 2026-08-28:** validate each non-whitespace run id before `TrySimulateBulkAsync` (DryRunPolicyPack parity); regression in `PolicyPacksControllerSimulateBulkScopeTests`.
+- [x] (proven) `TenantWorkspaceBaselineArtifactsController.GetAsync` — ghost workspace returned HTTP 200 `{ hasBaselineArtifacts: false }` instead of workspace 404; controller only called `GetByIdAsync` while `GetWorkspaceBaselineArtifactsAsync` uses ambient workspace — **hit 2026-08-29:** shared `TenantWorkspaceScopePreflight` preflight (`TenantWorkspaceBaselineArtifactsControllerTests.GetAsync_returns_not_found_when_workspace_missing`).
+- [ ] (hunt-ready) `TenantPilotValueReportController` (`GetPilotValueReport`, `GetRoiSummaryPageBundle`) — ghost workspace returns HTTP 200 pilot/ROI payload instead of workspace 404; service checks tenant row only (`TenantPilotValueReportController.cs` L69–76).
+- [ ] (hunt-ready) `TenantLlmCostReportingController.GetDashboard` — ghost workspace returns HTTP 200 empty LLM cost dashboard instead of workspace 404; `BuildDashboardAsync` is workspace-scoped but controller only preflights tenant row (`TenantLlmCostReportingController.cs` L51–58).
+- [ ] (hunt-ready) `TenantIntegrationsOperationsController.GetAsync` — ghost workspace returns HTTP 200 connector posture instead of workspace 404; `GetSummaryAsync(scope, …)` uses ambient workspace but controller only calls `GetByIdAsync` (`TenantIntegrationsOperationsController.cs` L46–52).
+- [ ] (hunt-ready) `CorePilotTeamChecklistController` (`GetAsync`, `PutAsync`) — ghost workspace returns HTTP 200 empty checklist / 204 mutation instead of workspace 404; repository uses ambient workspace but controller only preflights tenant row (`CorePilotTeamChecklistController.cs` L53–57, L91–95).
 - [x] (invalid) `GovernanceController.GetApprovalRequests` / `GetPromotions` / `GetActivations` — padded `runId` accepted by `RequireScopedRunAsync` but repository query may not match when padding differs from stored normalization — **cheap-disproof 2026-08-28:** `RequireScopedRunAsync` trims and returns normalized id for downstream queries; regression in `GovernanceControllerRunHistoryScopeTests.GetApprovalRequests_returns_items_when_route_run_id_is_padded` (hunt #142).
 - [x] (invalid) `GovernanceController.GetPromotions` / `GetActivations` — padded `runId` handled by shared `RequireScopedRunAsync` but lack dedicated padded-route regression tests — **cheap-disproof 2026-08-28:** shared `RequireScopedRunAsync` normalized id path already proven on `GetApprovalRequests`; added sibling regression tests in `GovernanceControllerRunHistoryScopeTests`.
 - [x] (invalid) `PolicyPacksController.SimulateBulk` — more than 50 `runIds` where trailing entries are malformed may return HTTP 400 for count cap before per-id validation surfaces the malformed id — **cheap-disproof 2026-08-28:** intentional validation ordering (count cap before per-id GUID parse), aligned with `DryRunPolicyPack`; both return HTTP 400; regression in `PolicyPacksControllerSimulateBulkScopeTests`.
 - [ ] (candidate) `GovernanceController.BatchReviewApprovalRequests` — duplicate non-whitespace `approvalRequestIds` are silently deduped with no per-item result row (batch client cannot distinguish omitted duplicate from never-sent id).
 - [ ] (candidate) `ManifestsController.CompareManifests` — padded `leftVersion` / `rightVersion` route segments may 404 despite `GetManifestInScopeAsync` trim parity on single-manifest reads.
+
+2026-08-29 seed hunt #148: proved workspace-baseline-artifacts ghost-workspace 404 parity; reseeded pilot-value-report, LLM-cost, integrations-operations, and core-pilot-checklist workspace preflight candidates as hunt-ready.
 
 2026-08-28 thorough hunt #190 (dry): cheap-disproved promotions/activations padded-route test gap and simulate-bulk validation-order candidates; seeded batch-review duplicate-id silence and manifest-compare padded-version candidates.
 
