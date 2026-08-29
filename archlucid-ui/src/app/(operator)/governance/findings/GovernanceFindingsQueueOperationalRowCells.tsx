@@ -27,7 +27,6 @@ import {
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
 
 import {
-  formatGovernanceQueueRecordKind,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 
