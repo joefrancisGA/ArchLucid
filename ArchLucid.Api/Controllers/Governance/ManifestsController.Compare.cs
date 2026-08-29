@@ -20,6 +20,7 @@ public sealed partial class ManifestsController
         CancellationToken cancellationToken)
     {
         LoadedManifestPair loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
+
         if (loaded.Error is not null)
             return loaded.Error;
 
@@ -38,6 +39,7 @@ public sealed partial class ManifestsController
         CancellationToken cancellationToken)
     {
         LoadedManifestPair loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
+
         if (loaded.Error is not null)
             return loaded.Error;
 
@@ -62,6 +64,7 @@ public sealed partial class ManifestsController
         CancellationToken cancellationToken)
     {
         LoadedManifestPair loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
+
         if (loaded.Error is not null)
             return loaded.Error;
 
@@ -91,6 +94,7 @@ public sealed partial class ManifestsController
         CancellationToken cancellationToken)
     {
         LoadedManifestPair loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
+
         if (loaded.Error is not null)
             return loaded.Error;
 

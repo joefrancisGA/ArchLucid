@@ -29,6 +29,7 @@ public sealed partial class ManifestsController
 
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+
         if (manifest is null)
             return this.NotFoundProblem(
                 $"Manifest '{FormatManifestVersionForNotFoundMessage(manifestVersion)}' was not found.",
@@ -65,6 +66,7 @@ public sealed partial class ManifestsController
 
         (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
             await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+
         if (manifest is null)
             return this.NotFoundProblem(
                 $"Manifest '{FormatManifestVersionForNotFoundMessage(manifestVersion)}' was not found.",
