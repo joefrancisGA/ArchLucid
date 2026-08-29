@@ -35,7 +35,7 @@ Regression instrument for `ComplianceRulePackGovernanceFilter` — not evidence 
 
 ## Bundled-pack declaration coverage (PP-01, measured 2026-08-28)
 
-Guard: `BundledPolicyPackDeclarationThemeTests` (`ArchLucid.Decisioning.Tests`, `Suite=Core`, so the `master` push corset runs it). It resolves each bundled pack through the same path as `PolicyFilteredComplianceRulePackProvider`: the merged file catalog (`default-compliance.rules.json` **+** `ga-starter-compliance.rules.json`, **795** rules) narrowed by `complianceRuleKeys` and then by `priorityFloor`.
+Guard: `BundledPolicyPackDeclarationThemeTests` (`ArchLucid.Decisioning.Tests`, `Suite=Core`, so the `master` push pipeline runs it). It resolves each bundled pack through the same path as `PolicyFilteredComplianceRulePackProvider`: the merged file catalog (`default-compliance.rules.json` **+** `ga-starter-compliance.rules.json`, **795** rules) narrowed by `complianceRuleKeys` and then by `priorityFloor`.
 
 **Two mechanisms decide whether a pack moves declaration rows** — both must hold:
 
