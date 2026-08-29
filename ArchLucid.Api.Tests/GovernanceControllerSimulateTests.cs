@@ -276,6 +276,34 @@ public sealed class GovernanceControllerSimulateTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("duplicate run id");
+        dryRun.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DryRunPolicyPack_returns_bad_request_when_evaluate_against_run_ids_contains_case_variant_duplicate_guid()
+    {
+        Mock<IPolicyPackDryRunService> dryRun = new(MockBehavior.Strict);
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+        string runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("D");
+        string upperRunId = runId.ToUpperInvariant();
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            new PolicyPackDryRunRequest
+            {
+                EvaluateAgainstRunIds = [runId, upperRunId],
+            },
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("duplicate run id");
         dryRun.VerifyNoOtherCalls();
     }
 

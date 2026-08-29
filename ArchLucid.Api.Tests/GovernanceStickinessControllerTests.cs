@@ -1085,6 +1085,50 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("duplicate");
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_padded_finding_ids_normalize_to_case_variant_duplicates()
+    {
+        GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1", "  FINDING-1  "],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("duplicate");
+    }
+
+    [Fact]
+    public async Task CreateRiskException_returns_bad_request_when_finding_id_is_empty()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        CreateRiskExceptionRequest request = new()
+        {
+            FindingId = string.Empty,
+            OwnerUserId = "owner@contoso.com",
+            Rationale = "accepted risk",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        IActionResult action = await controller.CreateRiskException(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Detail.Should().Contain("findingId is required");
     }
 
     [Fact]

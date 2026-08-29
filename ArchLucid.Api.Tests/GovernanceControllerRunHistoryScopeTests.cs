@@ -730,6 +730,74 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             item.ApprovalRequestId == "APR-BATCH-CASE-DUP"
             && !item.Succeeded
             && item.ErrorCode == ProblemTypes.ValidationFailed);
+        body.Results.Single(item => item.ApprovalRequestId == "APR-BATCH-CASE-DUP")
+            .Message.Should().Contain("case-insensitively");
+        workflow.Verify(
+            w => w.ApproveAsync(
+                approvalRequestId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task BatchReviewApprovalRequests_returns_validation_failed_per_item_when_padded_case_variant_is_duplicate()
+    {
+        const string approvalRequestId = "apr-batch-padded-case-dup";
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = approvalRequestId,
+                RunId = runId.ToString("D"),
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowService> workflow = new();
+        workflow
+            .Setup(w => w.ApproveAsync(
+                approvalRequestId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest { ApprovalRequestId = approvalRequestId });
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            approvalRepository: approvals.Object,
+            workflowService: workflow.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.BatchReviewApprovalRequests(
+            new GovernanceApprovalBatchReviewRequest
+            {
+                ApprovalRequestIds = [approvalRequestId, "  APR-BATCH-PADDED-CASE-DUP  "],
+                Decision = "approve",
+            },
+            CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        GovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<GovernanceBatchReviewResponse>().Subject;
+        body.Results.Should().HaveCount(2);
+        body.Results.Should().Contain(item => item.ApprovalRequestId == approvalRequestId && item.Succeeded);
+        GovernanceBatchReviewItemResult duplicate = body.Results
+            .Single(item => item.ApprovalRequestId == "APR-BATCH-PADDED-CASE-DUP");
+        duplicate.Succeeded.Should().BeFalse();
+        duplicate.ErrorCode.Should().Be(ProblemTypes.ValidationFailed);
+        duplicate.Message.Should().Contain("case-insensitively");
         workflow.Verify(
             w => w.ApproveAsync(
                 approvalRequestId,
